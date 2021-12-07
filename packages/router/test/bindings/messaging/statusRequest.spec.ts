@@ -1,44 +1,57 @@
-import { createLoggingContext, expect, jsonifyError, mkAddress, mkBytes32, StatusResponse } from "@connext/nxtp-utils";
-import { SinonStub, stub } from "sinon";
+import {
+  createLoggingContext,
+  expect,
+  jsonifyError,
+  mkAddress,
+  mkBytes32,
+  StatusResponse,
+  txDataMock,
+} from "@connext/nxtp-utils";
+import { reset, restore, SinonStub, stub } from "sinon";
+import { statusRequestBinding } from "../../../src/bindings/messaging/statusRequest";
 import { messagingMock } from "../../globalTestHook";
 import * as operations from "../../../src/lib/operations";
-import { statusRequestBinding } from "../../../src/bindings/messaging/statusRequest";
-import { configMock } from "../../utils";
+
+let getStatusStub: SinonStub;
 
 const inbox = "inbox";
 const from = mkAddress("0xfff");
-const data = "data";
-const err = jsonifyError(new Error("fail"));
-
-const statusResponse: StatusResponse = {
-  routerAddress: mkAddress("0xa"),
-  routerVersion: "1.0.0",
-  signerAddress: mkAddress("0xb"),
-  trackerLength: 123,
-  swapPools: configMock.swapPools as any,
-  supportedChains: Object.keys(configMock.chainConfig).map((c) => +c),
+const mockSwapPools: Map<number, string[]> = new Map();
+mockSwapPools.set(txDataMock.sendingChainId, [txDataMock.sendingAssetId]);
+mockSwapPools.set(txDataMock.receivingChainId, [txDataMock.receivingAssetId]);
+const mockStatusResponse: StatusResponse = {
+  routerVersion: "v69.420",
+  routerAddress: mkAddress("0xabc123"),
+  signerAddress: mkAddress("0xdef456"),
+  trackerLength: 12,
+  swapPools: mockSwapPools,
+  supportedChains: [txDataMock.sendingChainId, txDataMock.receivingChainId],
 };
-
-let getStatusStub: SinonStub;
 
 const { requestContext } = createLoggingContext("statusRequestBinding", undefined, mkBytes32());
 
 describe("#statusRequestBinding", () => {
   beforeEach(async () => {
-    getStatusStub = stub().resolves(statusResponse);
+    getStatusStub = stub().resolves(mockStatusResponse);
     stub(operations, "getOperations").returns({
       getStatus: getStatusStub,
     } as any);
   });
 
-  it("should work", async () => {
-    await statusRequestBinding(from, inbox, data, undefined, requestContext);
-    expect(messagingMock.publishStatusResponse.callCount).to.be.eq(1);
-    expect(messagingMock.publishStatusResponse.calledOnceWithExactly(from, inbox, statusResponse)).to.be.true;
+  afterEach(() => {
+    restore();
+    reset();
   });
 
-  it("should do nothing if there is an error", async () => {
-    await statusRequestBinding(from, inbox, data, err, requestContext);
-    expect(messagingMock.publishStatusResponse.callCount).to.be.eq(0);
+  it("should work", async () => {
+    await statusRequestBinding(from, inbox, undefined, undefined, requestContext);
+    expect(getStatusStub.callCount).to.eq(1);
+    expect(messagingMock.publishStatusResponse).to.be.calledOnceWith(from, inbox, mockStatusResponse);
+  });
+
+  it("should return without publishing if error in status response", async () => {
+    await statusRequestBinding(from, inbox, undefined, jsonifyError(new Error("fail")), requestContext);
+    expect(getStatusStub.callCount).to.eq(0);
+    expect(messagingMock.publishStatusResponse.callCount).to.eq(0);
   });
 });

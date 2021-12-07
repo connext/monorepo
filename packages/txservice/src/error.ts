@@ -340,7 +340,7 @@ export const parseError = (error: any): NxtpError => {
   }
 
   let message = error.message;
-  if (error.code === Logger.errors.SERVER_ERROR && error.error && typeof error.error.message === "string") {
+  if (error.error && typeof error.error.message === "string") {
     message = error.error.message;
   } else if (typeof error.body === "string") {
     message = error.body;
