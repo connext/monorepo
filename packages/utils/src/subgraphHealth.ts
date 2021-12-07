@@ -2,13 +2,33 @@ import axios from "axios";
 
 const SUBGRAPH_HEALTH_URL = "https://api.thegraph.com/index-node/graphql";
 
+// TODO: Make an actual error type for this?
+type SubgraphHealthError = {
+  message: string;
+  block: number;
+  handler: any;
+};
+
+type SubgraphHealth = {
+  chainHeadBlock: number;
+  latestBlock: number;
+  lastHealthyBlock: number | undefined;
+  network: string;
+  fatalError: SubgraphHealthError | undefined;
+  health:
+    | "healthy" // Subgraph syncing normally
+    | "unhealthy" // Subgraph syncing but with errors
+    | "failed"; // Subgraph halted due to errors
+  synced: boolean;
+};
+
 /**
  *
  * @param subgraphName - name of the subgraph, e.g. "nxtp-bsc-v1-runtime"
  *
  * @returns
  */
-export const getSubgraphHealth = async (subgraphName: string): Promise<string> => {
+export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphHealth | undefined> => {
   const query = `{
     indexingStatusForCurrentVersion(subgraphName: "connext/${subgraphName}") {
       health
@@ -16,7 +36,6 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<string> =
       fatalError {
         message
         block {
-          hash
           number
         }
         handler
@@ -24,19 +43,12 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<string> =
       chains {
         network
         chainHeadBlock {
-          hash
-          number
-        }
-        earliestBlock {
-          hash
           number
         }
         latestBlock {
-          hash
           number
         }
         lastHealthyBlock {
-          hash
           number
         }
       }
@@ -49,11 +61,38 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<string> =
   });
   /**
    * Example res:
-   * {'data': {'indexingStatusForCurrentVersion': {'chains': [{'chainHeadBlock': {'hash':
-   * '4c25ac086cda2d1b42085d6155c401ea3ad10ee8529012cd7023804cd405f3d4', 'number': '12956365'}, 'earliestBlock': {'hash':
-   * '2c6f7087b90916a10b6791fd7c177150eeb8089f8b00cf952d5ba376c70e88d9', 'number': '11481190'}, 'lastHealthyBlock': None,
-   * 'latestBlock': {'hash': '55ef6848b4dd98c6323f2bb1707ed56458c50ed07dab83a836d956425e3776d0', 'number': '12956202'},
-   * 'network': 'bsc'}], 'fatalError': None, 'health': 'healthy', 'synced': True}}}
+   * {
+   *   data: {
+   *     indexingStatusForCurrentVersion: {
+   *       chains: [
+   *         {
+   *           chainHeadBlock: {
+   *             number: "12956365",
+   *           },
+   *           lastHealthyBlock: undefined,
+   *           latestBlock: { hash: "55ef6848b4dd98c6323f2bb1707ed56458c50ed07dab83a836d956425e3776d0", number: "12956202" },
+   *           network: "bsc",
+   *         },
+   *       ],
+   *       fatalError: None,
+   *       health: "healthy",
+   *       synced: true,
+   *     },
+   *   },
+   * }
    */
-  return res.data;
+  if (res && res.data && res.data.indexingStatusForCurrentVersion && res.data.indexingStatusForCurrentVersion) {
+    const status = res.data.indexingStatusForCurrentVersion;
+    const networkInfo = status.chains[0];
+    return {
+      chainHeadBlock: networkInfo.chainHeadBlock,
+      latestBlock: networkInfo.latestBlock,
+      lastHealthyBlock: networkInfo.lastHealthyBlock,
+      network: networkInfo.network,
+      fatalError: status.fatalError,
+      health: status.health,
+      synced: status.synced,
+    };
+  }
+  return undefined;
 };

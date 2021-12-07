@@ -1,7 +1,7 @@
 import { NxtpError } from "./error";
+import { getSubgraphHealth } from "./subgraphHealth";
 
 export type SubgraphSyncRecord = {
-  uri: string;
   synced: boolean;
   latestBlock: number;
   syncedBlock: number;
@@ -17,6 +17,8 @@ type CallMetric = {
 };
 
 type Sdk<T extends SdkLike> = {
+  uri: string;
+  name: string;
   client: T;
   record: SubgraphSyncRecord;
   priority: number;
@@ -73,7 +75,15 @@ export class FallbackSubgraph<T extends SdkLike> {
     private readonly maxLag: number,
     private readonly stallTimeout = 10_000,
   ) {
+    const getSubgraphName = (uri: string) => {
+      const split = uri.split("/");
+      return split[split.length - 1];
+    };
     this.sdks = sdks.map(({ client, uri }) => ({
+      // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
+      // which ones are most in sync.
+      uri: uri.replace("https://", "").split(".com")[0],
+      name: getSubgraphName(uri),
       client,
       record: {
         synced: true,
@@ -82,9 +92,6 @@ export class FallbackSubgraph<T extends SdkLike> {
         // Setting maxLag + 1 as default to ensure we don't use the subgraph in this current state
         // by virtue of this metric (sync() must be called first).
         lag: this.maxLag + 1,
-        // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
-        // which ones are most in sync.
-        uri: uri.replace("https://", "").split(".com")[0],
       },
       priority: 0,
       metrics: {
@@ -135,9 +142,7 @@ export class FallbackSubgraph<T extends SdkLike> {
               });
             }
           }),
-          new Promise<Q>((_, reject) =>
-            setTimeout(() => reject(new NxtpError("Timeout")), this.stallTimeout),
-          ),
+          new Promise<Q>((_, reject) => setTimeout(() => reject(new NxtpError("Timeout")), this.stallTimeout)),
         ]);
       } catch (e) {
         errors.push(e);
@@ -149,20 +154,37 @@ export class FallbackSubgraph<T extends SdkLike> {
   /**
    * Check synchronized status of all subgraphs, and update metrics.
    *
-   * @param latestBlock - current latest block number according to RPC providers.
+   * @param latestBlock (optional) - current latest block number according to RPC providers. If
+   * undefined, this method will rely entirely on the subgraph health query alone. Otherwise, this
+   * latestBlock is functionally a fallback value.
+   *
    * @returns Subgraph sync records for each subgraph.
    */
-  public async sync(latestBlock: number): Promise<SubgraphSyncRecord[]> {
+  public async sync(_latestBlock?: number): Promise<SubgraphSyncRecord[]> {
     // Using a Promise.all here to ensure we do our GetBlockNumber queries in parallel.
     await Promise.all(
       this.sdks.map(async (sdk, index) => {
-        const record = this.sdks[index].record;
+        let latestBlock = _latestBlock;
+        let syncedBlock;
+        const record = sdk.record;
         // We'll retry after an ENOTFOUND error up to 5 times.
         const errors: Error[] = [];
         for (let i = 0; i < 5; i++) {
           try {
-            const { _meta } = await sdk.client.GetBlockNumber();
-            const syncedBlock = _meta.block.number ?? 0;
+            const health = await getSubgraphHealth(sdk.name);
+            if (health) {
+              latestBlock = health.latestBlock;
+              syncedBlock = health.chainHeadBlock;
+            } else {
+              const { _meta } = await sdk.client.GetBlockNumber();
+              syncedBlock = _meta.block.number ?? 0;
+            }
+            if (!latestBlock || !syncedBlock) {
+              if (health && health.fatalError) {
+                throw health.fatalError;
+              }
+              break;
+            }
             const synced = latestBlock - syncedBlock <= this.maxLag;
             this.sdks[index].record = {
               ...record,
@@ -182,8 +204,8 @@ export class FallbackSubgraph<T extends SdkLike> {
         this.sdks[index].record = {
           ...record,
           synced: false,
-          latestBlock,
-          lag: record.syncedBlock > 0 ? latestBlock - record.syncedBlock : record.lag,
+          latestBlock: latestBlock ?? record.latestBlock,
+          lag: record.syncedBlock > 0 ? (latestBlock ?? record.latestBlock) - record.syncedBlock : record.lag,
         };
       }),
     );
