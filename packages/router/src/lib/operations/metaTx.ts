@@ -1,8 +1,6 @@
 import {
   ajv,
   createLoggingContext,
-  InvariantTransactionData,
-  InvariantTransactionDataSchema,
   MetaTxFulfillPayload,
   MetaTxPayload,
   MetaTxRouterContractCancelPayload,
@@ -10,20 +8,14 @@ import {
   MetaTxRouterContractPreparePayload,
   MetaTxType,
   MetaTxTypes,
-  recoverFulfilledTransactionPayload,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { providers, BigNumber, utils, constants } from "ethers";
+import { BigNumber, constants, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { FulfillInput, FulfillInputSchema, MetaTxInput, MetaTxInputSchema } from "../entities";
-import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
+import { NoChainConfig, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
-import {
-  calculateGasFee,
-  calculateGasFeeInReceivingToken,
-  calculateGasFeeInReceivingTokenForFulfill,
-} from "../helpers/shared";
+import { calculateGasFee, calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
 export const metaTx = async <T extends MetaTxType>(
   input: MetaTxPayload<T>,
@@ -35,16 +27,16 @@ export const metaTx = async <T extends MetaTxType>(
   logger.debug("Method start", requestContext, methodContext, { input });
 
   // Validate Input schema
-  const validateInput = ajv.compile(MetaTxInputSchema);
-  const validInput = validateInput(input);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      methodContext,
-      requestContext,
-      paramsError: msg,
-    });
-  }
+  // const validateInput = ajv.compile(MetaTxInputSchema);
+  // const validInput = validateInput(input);
+  // if (!validInput) {
+  //   const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+  //   throw new ParamsInvalid({
+  //     methodContext,
+  //     requestContext,
+  //     paramsError: msg,
+  //   });
+  // }
 
   const { chainId, data, type } = input;
 
