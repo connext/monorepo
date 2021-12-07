@@ -219,7 +219,6 @@ export const calculateGasFee = async (
   method: "prepare" | "fulfill" | "cancel",
   requestContext: RequestContext,
   methodContext: MethodContext,
-  whichChain: "sending" | "receiving" | "" = "",
 ): Promise<BigNumber> => {
   const { txService } = getContext();
 
@@ -241,7 +240,6 @@ export const calculateGasFee = async (
     method,
     requestContext,
     methodContext,
-    whichChain,
   );
 
   return gasFeeRes;

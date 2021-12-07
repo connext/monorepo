@@ -6,10 +6,7 @@ import {
   RequestContext,
   isChainSupportedByGelato,
   gelatoSend,
-  signRouterPrepareTransactionPayload,
-  signRouterCancelTransactionPayload,
-  signRouterFulfillTransactionPayload,
-  NxtpError,
+  MetaTxTypes,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, providers } from "ethers/lib/ethers";
 
@@ -88,10 +85,11 @@ export const prepareRouterContract = async (
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
   requestContext: RequestContext,
+  useRelayer = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepareRouterContract.name);
 
-  const { logger, txService, wallet } = getContext();
+  const { logger, txService, wallet, messaging } = getContext();
   logger.info("Method start", requestContext, methodContext, {
     prepareParams,
     routerRelayerFeeAsset,
@@ -117,29 +115,44 @@ export const prepareRouterContract = async (
     signature,
   ]);
 
-  if (isChainSupportedByGelato(chainId) && chainId === txData.receivingChainId) {
-    logger.info("gelato prepare", requestContext, methodContext, {
-      prepareParams,
-      routerRelayerFeeAsset,
-      routerRelayerFee,
-    });
-
-    try {
-      const data = await gelatoSend(
-        chainId,
-        routerContractAddress,
-        encodedData,
+  if (useRelayer) {
+    if (isChainSupportedByGelato(chainId)) {
+      logger.info("gelato prepare", requestContext, methodContext, {
+        prepareParams,
         routerRelayerFeeAsset,
         routerRelayerFee,
-      );
-      if (!data.taskId) {
-        throw new Error("No taskId returned");
+      });
+
+      try {
+        const data = await gelatoSend(
+          chainId,
+          routerContractAddress,
+          encodedData,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
+        );
+        if (!data.taskId) {
+          throw new Error("No taskId returned");
+        }
+        logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
+
+        // listen for event on contract
+        const { event } = await prepareEvt
+          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+          .waitFor(300_000);
+        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+        return receipt;
+      } catch (err) {
+        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext);
       }
-      logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
-    } catch (err) {
-      logger.error("gelato send failed", requestContext, methodContext, err as NxtpError, { prepareParams });
-      /// TODO fallback to metaTx
     }
+
+    await messaging.publishMetaTxRequest({
+      chainId,
+      to: routerContractAddress,
+      type: MetaTxTypes.RouterContractPrepare,
+      data: { params: prepareParams, signature, relayerFee: routerRelayerFee, relayerFeeAsset: routerRelayerFeeAsset },
+    });
 
     // listen for event on contract
     const { event } = await prepareEvt
@@ -203,80 +216,87 @@ export const fulfillRouterContract = async (
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
   requestContext: RequestContext,
+  useRelayer = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(fulfillRouterContract.name);
 
-  const { logger, txService } = getContext();
-  logger.info("Method start", requestContext, methodContext);
+  const { logger, txService, wallet, messaging } = getContext();
+  logger.info("Method start", requestContext, methodContext, {
+    fulfillParams,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+  });
 
   const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
 
-  await sanitationCheck(chainId, txData, "fulfill");
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
 
-  // if (routerRelayerFeeAsset && routerRelayerFee) {
-  // for router contract
-  const signature = await signRouterFulfillTransactionPayload(
-    txData,
-    fulfillSignature,
-    callData,
-    "0x",
-    routerRelayerFeeAsset,
-    routerRelayerFee,
-    wallet,
-  );
   const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
-    {
-      txData,
-      relayerFee,
-      signature: fulfillSignature,
-      callData,
-      encodedMeta: "0x",
-    },
+    { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },
     routerRelayerFeeAsset,
     routerRelayerFee,
     signature,
   ]);
 
-  if (isChainSupportedByGelato(chainId)) {
-    logger.info("submit router contract fulfill using Gelato Relayer", requestContext, methodContext, {
-      fulfillParams,
-    });
-    try {
-      const data = await gelatoSend(chainId, routerAddress, encodedData, txData.receivingAssetId, "0");
-      if (!data.taskId) {
-        throw new Error("No taskId returned");
-      }
-      logger.info("Submitted router contract fulfill using Gelato Relayer", requestContext, methodContext, {
-        data,
+  if (useRelayer) {
+    if (isChainSupportedByGelato(chainId)) {
+      logger.info("gelato fulfill", requestContext, methodContext, {
+        fulfillParams,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
       });
 
-      // listen for event on contract
-      const { event } = await fulfillEvt
-        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-        .waitFor(300_000);
-      const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-      return receipt;
-    } catch (err) {
-      logger.error(
-        "failed router contract fulfill using Gelato Relayer",
-        requestContext,
-        methodContext,
-        err as NxtpError,
-        {
-          fulfillParams,
-        },
-      );
-    }
-  }
+      try {
+        const data = await gelatoSend(
+          chainId,
+          routerContractAddress,
+          encodedData,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
+        );
+        if (!data.taskId) {
+          throw new Error("No taskId returned");
+        }
+        logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
 
-  /// TODO fallback to metaTx
-  // listen for event on contract
-  const { event } = await fulfillEvt
-    .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-    .waitFor(300_000);
-  const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-  return receipt;
-  // }
+        // listen for event on contract
+        const { event } = await fulfillEvt
+          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+          .waitFor(300_000);
+        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+        return receipt;
+      } catch (err) {
+        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext);
+      }
+    }
+
+    await messaging.publishMetaTxRequest({
+      chainId,
+      to: routerContractAddress,
+      type: MetaTxTypes.RouterContractFulfill,
+      data: { params: fulfillParams, signature, relayerFee: routerRelayerFee, relayerFeeAsset: routerRelayerFeeAsset },
+    });
+
+    // listen for event on contract
+    const { event } = await fulfillEvt
+      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+      .waitFor(300_000);
+    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+    return receipt;
+  } else {
+    logger.info("router contract fulfill", requestContext, methodContext, { fulfillParams });
+
+    return await txService.sendTx(
+      {
+        to: routerContractAddress,
+        data: encodedData,
+        value: constants.Zero,
+        chainId,
+        from: wallet.address,
+      },
+      requestContext,
+    );
+  }
 };
 
 export const cancelTransactionManager = async (
@@ -313,60 +333,76 @@ export const cancelTransactionManager = async (
 export const cancelRouterContract = async (
   chainId: number,
   cancelParams: CancelParams,
+  routerContractAddress: string,
+  signature: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
   requestContext: RequestContext,
+  useRelayer = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(cancelRouterContract.name);
 
-  const { logger, txService, wallet, routerAddress } = getContext();
-  logger.info("Method start", requestContext, methodContext, { cancelParams });
-
-  const { txData, signature: cancelSignature } = cancelParams;
-  await sanitationCheck(chainId, txData, "cancel");
-
-  // if (isRouterContract && chainId === txData.receivingChainId) {
-  const signature = await signRouterCancelTransactionPayload(
-    txData,
-    cancelSignature,
-    "0x",
+  const { logger, txService, wallet, messaging } = getContext();
+  logger.info("Method start", requestContext, methodContext, {
+    cancelParams,
     routerRelayerFeeAsset,
     routerRelayerFee,
-    wallet,
-  );
+  });
+
+  const { txData, signature: cancelSignature } = cancelParams;
+
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
+
   const encodedData = getRouterContractInterface().encodeFunctionData("cancel", [
-    {
-      txData,
-      signature: cancelSignature,
-      encodedMeta: "0x",
-    },
+    { txData, signature: cancelSignature, encodedMeta: "0x" },
     routerRelayerFeeAsset,
     routerRelayerFee,
     signature,
   ]);
 
-  if (isChainSupportedByGelato(chainId)) {
-    logger.info("submit router contract cancel using Gelato Relayer", requestContext, methodContext, {
-      cancelParams,
-    });
-    try {
-      const data = await gelatoSend(chainId, routerAddress, encodedData, routerRelayerFeeAsset, routerRelayerFee);
-      if (!data.taskId) {
-        throw new Error("No taskId returned");
+  if (useRelayer) {
+    if (isChainSupportedByGelato(chainId)) {
+      logger.info("gelato cancel", requestContext, methodContext, {
+        cancelParams,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      });
+
+      try {
+        const data = await gelatoSend(
+          chainId,
+          routerContractAddress,
+          encodedData,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
+        );
+        if (!data.taskId) {
+          throw new Error("No taskId returned");
+        }
+        logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
+
+        // listen for event on contract
+        const { event } = await cancelEvt
+          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+          .waitFor(300_000);
+        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+        return receipt;
+      } catch (err) {
+        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext);
       }
-      logger.info("Submitted router contract cancel using Gelato Relayer", requestContext, methodContext, { data });
-    } catch (err) {
-      logger.error(
-        "failed router contract cancel using Gelato Relayer",
-        requestContext,
-        methodContext,
-        err as NxtpError,
-        {
-          cancelParams,
-        },
-      );
-      /// TODO fallback to metaTx
     }
+
+    await messaging.publishMetaTxRequest({
+      chainId,
+      to: routerContractAddress,
+      type: MetaTxTypes.RouterContractCancel,
+      data: {
+        params: cancelParams,
+        signature,
+        relayerFee: routerRelayerFee,
+        relayerFeeAsset: routerRelayerFeeAsset,
+      },
+    });
 
     // listen for event on contract
     const { event } = await cancelEvt
@@ -379,7 +415,7 @@ export const cancelRouterContract = async (
 
     return await txService.sendTx(
       {
-        to: routerAddress,
+        to: routerContractAddress,
         data: encodedData,
         value: constants.Zero,
         chainId,
@@ -406,7 +442,7 @@ export const removeLiquidityTransactionManager = async (
   recipientAddress: string | undefined,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(removeLiquidity.name, requestContext);
+  const { methodContext } = createLoggingContext(removeLiquidityTransactionManager.name, requestContext);
 
   const { logger, txService, wallet } = getContext();
 

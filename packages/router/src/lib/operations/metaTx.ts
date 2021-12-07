@@ -125,7 +125,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
         "prepare",
         requestContext,
         methodContext,
-        "receiving",
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
@@ -168,7 +167,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
         "fulfill",
         requestContext,
         methodContext,
-        "sending",
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
@@ -201,7 +199,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
       const {
         params: { txData },
         signature,
-        side,
       } = data as MetaTxRouterContractCancelPayload;
 
       const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
@@ -214,7 +211,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
         "cancel",
         requestContext,
         methodContext,
-        "sending",
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);

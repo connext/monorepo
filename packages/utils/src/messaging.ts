@@ -403,8 +403,8 @@ export type MetaTxType = typeof MetaTxTypes[keyof typeof MetaTxTypes];
 export type MetaTxPayloads = {
   [MetaTxTypes.Fulfill]: MetaTxFulfillPayload;
   [MetaTxTypes.RouterContractPrepare]: MetaTxRouterContractPreparePayload;
-  [MetaTxTypes.RouterContractFulfill]: MetaTxRouterContractCancelPayload;
-  [MetaTxTypes.RouterContractCancel]: MetaTxRouterContractFulfillPayload;
+  [MetaTxTypes.RouterContractFulfill]: MetaTxRouterContractFulfillPayload;
+  [MetaTxTypes.RouterContractCancel]: MetaTxRouterContractCancelPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
@@ -420,7 +420,6 @@ export type MetaTxRouterContractCancelPayload = {
   relayerFee: string;
   relayerFeeAsset: string;
   signature: string;
-  side: "sending" | "receiving";
 };
 
 export type MetaTxRouterContractFulfillPayload = {

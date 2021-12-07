@@ -271,7 +271,6 @@ export class ChainReader {
         "fulfill",
         requestContext,
         methodContext,
-        "sending",
       ),
       // Calculate gas fees for receiver prepare.
       this.calculateGasFee(
@@ -284,7 +283,6 @@ export class ChainReader {
         "prepare",
         requestContext,
         methodContext,
-        "receiving",
       ),
     ]);
 
@@ -333,7 +331,6 @@ export class ChainReader {
       "fulfill",
       requestContext,
       methodContext,
-      "receiving",
     );
   }
 
@@ -362,7 +359,6 @@ export class ChainReader {
     method: "prepare" | "fulfill" | "cancel",
     requestContext: RequestContext,
     methodContext?: MethodContext,
-    whichChain: "sending" | "receiving" | "" = "",
   ): Promise<BigNumber> {
     // If the list of chains with deployed Price Oracle Contracts does not include
     // this chain ID, return 0.
@@ -405,18 +401,13 @@ export class ChainReader {
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
 
-    this.logger.info(
-      `Calculated gas fee on ${whichChain} chain ${chainId} for ${method}`,
-      requestContext,
-      methodContext,
-      {
-        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPrice: ethPrice.toString(),
-        tokenPrice: tokenPrice.toString(),
-        gasPrice: gasPrice.toString(),
-      },
-    );
+    this.logger.info(`Calculated gas fee on chain ${chainId} for ${method}`, requestContext, methodContext, {
+      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+      l1GasInUsd: l1GasInUsd.toString(),
+      ethPrice: ethPrice.toString(),
+      tokenPrice: tokenPrice.toString(),
+      gasPrice: gasPrice.toString(),
+    });
 
     return tokenAmountForGasFee;
   }
