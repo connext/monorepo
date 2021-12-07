@@ -104,7 +104,6 @@ export const metaTxRequestBinding = async (
           signature,
           relayerFee,
           callData,
-          side: "receiver",
         },
         { ...requestContext, transactionId: txData.transactionId },
       );

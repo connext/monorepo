@@ -326,7 +326,6 @@ export const handleSingle = async (
           signature: fulfillPayload.signature,
           callData: fulfillPayload.callData,
           relayerFee: fulfillPayload.relayerFee,
-          side: "sender",
         },
         requestContext,
       );
