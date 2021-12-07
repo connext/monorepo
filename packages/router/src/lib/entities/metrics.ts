@@ -236,9 +236,41 @@ export const volume = new Gauge({
 //////////////////////////
 ///// Low Level
 
-// TODO: more expressive
+export const senderPrepared = new Counter({
+  name: "sender_prepared",
+  help: "sender_prepared_help",
+  labelNames: ["assetId", "chainId", "assetName"] as const,
+});
 
-// TODO: graph of active transactions
+export const receiverPrepared = new Counter({
+  name: "receiver_prepared",
+  help: "receiver_prepared_help",
+  labelNames: ["assetId", "chainId", "assetName"] as const,
+});
+
+export const senderCancelled = new Counter({
+  name: "sender_cancel",
+  help: "sender_cancel_help",
+  labelNames: ["assetId", "chainId", "assetName"] as const,
+});
+
+export const receiverCancelled = new Counter({
+  name: "receiver_cancel",
+  help: "receiver_cancel_help",
+  labelNames: ["assetId", "chainId", "assetName"] as const,
+});
+
+export const senderFulfilled = new Counter({
+  name: "sender_fulfilled",
+  help: "sender_fulfilled_help",
+  labelNames: ["assetId", "chainId", "assetName"] as const,
+});
+
+export const receiverFulfilled = new Counter({
+  name: "receiver_fulfilled",
+  help: "receiver_fulfilled_help",
+  labelNames: ["assetId", "chainId", "assetName"] as const,
+});
 
 export const senderExpired = new Counter({
   name: "sender_expired",

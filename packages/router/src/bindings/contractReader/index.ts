@@ -27,6 +27,12 @@ import {
   receiverExpired,
   senderExpired,
   receiverFailedCancel,
+  senderPrepared,
+  receiverPrepared,
+  receiverFulfilled,
+  senderFulfilled,
+  senderCancelled,
+  receiverCancelled,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
@@ -210,38 +216,44 @@ export const handleSingle = async (
         },
         requestContext,
       );
-      // if successfully prepared, was successful auction
+      // if successfully prepared, was successful auction, sender/receiver prepare
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
       successfulAuction.inc(
         {
           sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
           receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-          sendingAssetName: getAssetName(
-            _transaction.crosschainTx.invariant.sendingAssetId,
-            _transaction.crosschainTx.invariant.sendingChainId,
-          ),
-          receivingAssetName: getAssetName(
-            _transaction.crosschainTx.invariant.receivingAssetId,
-            _transaction.crosschainTx.invariant.receivingChainId,
-          ),
+          sendingAssetName,
+          receivingAssetName,
         },
         1,
       );
+      senderPrepared.inc({
+        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
+      receiverPrepared.inc({
+        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: receivingAssetName,
+      });
       logger.info("Prepared receiver", requestContext, methodContext, { txHash: receipt?.transactionHash });
       attemptedTransfer.inc({
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-        sendingAssetName: getAssetName(
-          _transaction.crosschainTx.invariant.sendingAssetId,
-          _transaction.crosschainTx.invariant.sendingChainId,
-        ),
-        receivingAssetName: getAssetName(
-          _transaction.crosschainTx.invariant.receivingAssetId,
-          _transaction.crosschainTx.invariant.receivingChainId,
-        ),
+        sendingAssetName,
+        receivingAssetName,
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.receivingChainId,
@@ -250,13 +262,18 @@ export const handleSingle = async (
         requestContext,
       );
     } catch (err: any) {
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
       receiverFailedPrepare.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        assetName: getAssetName(
-          _transaction.crosschainTx.invariant.receivingAssetId,
-          _transaction.crosschainTx.invariant.receivingChainId,
-        ),
+        assetName: receivingAssetName,
       });
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
@@ -281,6 +298,11 @@ export const handleSingle = async (
             },
             requestContext,
           );
+          senderCancelled.inc({
+            assetId: transaction.crosschainTx.invariant.sendingAssetId,
+            chainId: transaction.crosschainTx.invariant.sendingChainId,
+            assetName: sendingAssetName,
+          });
           logger.info("Cancelled transaction", requestContext, methodContext, { txHash: cancelRes?.transactionHash });
           // if successfully cancelled, was successful auction
           successfulAuction.inc(
@@ -289,14 +311,8 @@ export const handleSingle = async (
               receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
               sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
               receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-              sendingAssetName: getAssetName(
-                _transaction.crosschainTx.invariant.sendingAssetId,
-                _transaction.crosschainTx.invariant.sendingChainId,
-              ),
-              receivingAssetName: getAssetName(
-                _transaction.crosschainTx.invariant.receivingAssetId,
-                _transaction.crosschainTx.invariant.receivingChainId,
-              ),
+              sendingAssetName,
+              receivingAssetName: receivingAssetName,
             },
             1,
           );
@@ -373,20 +389,38 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Fulfilled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
       completedTransfer.inc({
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-        sendingAssetName: getAssetName(
-          _transaction.crosschainTx.invariant.sendingAssetId,
-          _transaction.crosschainTx.invariant.sendingChainId,
-        ),
-        receivingAssetName: getAssetName(
-          _transaction.crosschainTx.invariant.receivingAssetId,
-          _transaction.crosschainTx.invariant.receivingChainId,
-        ),
+        sendingAssetName,
+        receivingAssetName,
       });
+      receiverFulfilled.inc(
+        {
+          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          chainId: _transaction.crosschainTx.invariant.receivingChainId,
+          assetName: receivingAssetName,
+        },
+        1,
+      );
+      senderFulfilled.inc(
+        {
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+          assetName: sendingAssetName,
+        },
+        1,
+      );
       // Update total transferred volume (denominated in receiving asset)
       incrementTotalTransferredVolume(
         _transaction.crosschainTx.invariant.receivingAssetId,
@@ -472,13 +506,19 @@ export const handleSingle = async (
       logger.info("Cancelled receiver", requestContext, methodContext, {
         txHash: receipt?.transactionHash,
       });
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
+      receiverCancelled.inc({
+        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: receivingAssetName,
+      });
       receiverExpired.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        assetName: getAssetName(
-          _transaction.crosschainTx.invariant.receivingAssetId,
-          _transaction.crosschainTx.invariant.receivingChainId,
-        ),
+        assetName: receivingAssetName,
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.receivingChainId,
@@ -530,13 +570,19 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      senderCancelled.inc({
+        assetId: transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
       senderExpired.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
-        assetName: getAssetName(
-          _transaction.crosschainTx.invariant.sendingAssetId,
-          _transaction.crosschainTx.invariant.sendingChainId,
-        ),
+        assetName: sendingAssetName,
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
@@ -584,6 +630,15 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      senderCancelled.inc({
+        assetId: transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
         receipt!.gasUsed,
@@ -635,6 +690,15 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      senderCancelled.inc({
+        assetId: transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
         receipt!.gasUsed,
