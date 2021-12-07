@@ -33,8 +33,14 @@ export const bindFastify = () =>
     });
 
     server.get("/metrics", async (request, response) => {
-      const res = await register.metrics();
-      return response.status(200).send(res);
+      try {
+        const res = await register.metrics();
+        return response.status(200).send(res);
+      } catch (e: any) {
+        const json = jsonifyError(e);
+        logger.error("Failed to collect metrics", undefined, undefined, json);
+        return response.status(500).send(json);
+      }
     });
 
     server.post<{ Body: RemoveLiquidityRequest }>(
