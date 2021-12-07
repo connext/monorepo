@@ -28,7 +28,7 @@ import {
   validExpiryBuffer,
   sanitationCheck,
 } from "../helpers";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFee, calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 const { AddressZero } = constants;
 export const prepare = async (
@@ -139,8 +139,7 @@ export const prepare = async (
       invariantData.receivingChainId,
       invariantData.receivingAssetId,
     );
-    routerRelayerFee = await txService.calculateGasFee(
-      invariantData.receivingChainId,
+    routerRelayerFee = await calculateGasFee(
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,

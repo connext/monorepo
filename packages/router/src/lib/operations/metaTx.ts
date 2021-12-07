@@ -19,7 +19,11 @@ import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema, MetaTxInput, MetaTxInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
 import { NotAllowedFulfillRelay } from "../errors/fulfill";
-import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
+import {
+  calculateGasFee,
+  calculateGasFeeInReceivingToken,
+  calculateGasFeeInReceivingTokenForFulfill,
+} from "../helpers/shared";
 
 export const metaTx = async <T extends MetaTxType>(
   input: MetaTxPayload<T>,
@@ -110,15 +114,20 @@ export const metaTx = async <T extends MetaTxType>(
   } else {
     // router contract methods
     const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
-    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
+    let relayerFeeAssetDecimal =
+      relayerFeeAsset === constants.AddressZero
+        ? 18
+        : chainData.get(chainId.toString())?.assetId[relayerFeeAsset]?.decimals;
+    if (!relayerFeeAssetDecimal) {
+      relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
+    }
 
     if (type === MetaTxTypes.RouterContractPrepare) {
       const {
         params: { txData, amount, bidSignature, encodedBid, encryptedCallData, expiry },
       } = data as MetaTxRouterContractPreparePayload;
 
-      const routerRelayerFee = await txService.calculateGasFee(
-        chainId,
+      const routerRelayerFee = await calculateGasFee(
         chainId,
         relayerFeeAsset,
         relayerFeeAssetDecimal,
@@ -162,11 +171,7 @@ export const metaTx = async <T extends MetaTxType>(
         params: { txData, callData, signature, relayerFee },
       } = data as MetaTxRouterContractFulfillPayload;
 
-      const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
-      const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
-
-      const routerRelayerFee = await txService.calculateGasFee(
-        chainId,
+      const routerRelayerFee = await calculateGasFee(
         chainId,
         relayerFeeAsset,
         relayerFeeAssetDecimal,
@@ -213,15 +218,14 @@ export const metaTx = async <T extends MetaTxType>(
       const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
       const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
 
-      const routerRelayerFee = await txService.calculateGasFee(
-        chainId,
+      const routerRelayerFee = await calculateGasFee(
         chainId,
         relayerFeeAsset,
         relayerFeeAssetDecimal,
-        "fulfill",
+        "cancel",
         requestContext,
         methodContext,
-        side,
+        "sending",
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
@@ -237,17 +241,15 @@ export const metaTx = async <T extends MetaTxType>(
         });
       }
 
-      const receipt = await contractWriter.fulfill(
+      const receipt = await contractWriter.cancel(
         chainId,
         {
           txData,
           signature,
-          relayerFee,
-          callData,
         },
-        requestContext,
         relayerFeeAsset,
         routerRelayerFee.toString(),
+        requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
       return receipt;

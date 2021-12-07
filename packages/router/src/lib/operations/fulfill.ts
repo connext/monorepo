@@ -10,6 +10,7 @@ import { providers, constants, utils } from "ethers";
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid } from "../errors";
+import { calculateGasFee } from "../helpers";
 
 const { AddressZero, Zero } = constants;
 
@@ -67,7 +68,7 @@ export const fulfill = async (
       invariantData.receivingChainId,
       invariantData.receivingAssetId,
     );
-    routerRelayerFee = await txService.calculateGasFee(
+    routerRelayerFee = await calculateGasFee(
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
