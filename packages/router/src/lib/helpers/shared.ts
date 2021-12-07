@@ -10,6 +10,7 @@ import {
   CancelParams,
   multicall as _multicall,
   Call,
+  MethodContext,
 } from "@connext/nxtp-utils";
 import { getAddress, Interface } from "ethers/lib/utils";
 import { BigNumber, constants, utils } from "ethers/lib/ethers";
@@ -198,6 +199,52 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
     outputDecimals,
     requestContext,
   );
+};
+
+/**
+ * Helper to calculate gas fee for specific transactions
+ *
+ * @param chainId The network id that we're going to get gas fee on
+ * @param assetId The asset address that we're going to get gas fee in
+ * @param decimals Decimal number of assets
+ * @param method "prepare" | "fulfill" | "cancel"
+ * @param requestContext Request context instance.
+ * @param methodContext Method context instance.
+ * @param whichChain "sending" | "receiving"
+ */
+export const calculateGasFee = async (
+  chainId: number,
+  assetId: string,
+  decimals: number,
+  method: "prepare" | "fulfill" | "cancel",
+  requestContext: RequestContext,
+  methodContext: MethodContext,
+  whichChain: "sending" | "receiving" | "" = "",
+): Promise<BigNumber> => {
+  const { txService } = getContext();
+
+  const assetIdOnMainnet = await getMainnetEquivalent(assetId, chainId);
+  const tokenPricingChain = assetIdOnMainnet ? 1 : chainId;
+  const tokenPricingAssetId = assetIdOnMainnet ? assetIdOnMainnet : assetId;
+
+  const nativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, chainId);
+  const nativeTokenPricingChain = nativeAssetIdOnMainnet ? 1 : chainId;
+  const nativeTokenPricingAssetId = nativeAssetIdOnMainnet ? nativeAssetIdOnMainnet : constants.AddressZero;
+
+  const gasFeeRes = await txService.calculateGasFee(
+    tokenPricingChain,
+    chainId,
+    tokenPricingAssetId,
+    nativeTokenPricingChain,
+    nativeTokenPricingAssetId,
+    decimals,
+    method,
+    requestContext,
+    methodContext,
+    whichChain,
+  );
+
+  return gasFeeRes;
 };
 
 export const getTokenPriceFromOnChain = async (
