@@ -29,7 +29,7 @@ export const convertToUsd = async (
   amount: string,
   requestContext: RequestContext,
 ): Promise<number> => {
-  const { chainData, txService } = getContext();
+  const { txService } = getContext();
 
   // Get token price
   const price = await txService.getTokenPrice(chainId, assetId, requestContext);
