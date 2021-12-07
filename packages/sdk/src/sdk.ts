@@ -1,4 +1,4 @@
-import { BigNumber, providers, Signer, utils } from "ethers";
+import { BigNumber, providers, Signer, utils, constants } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -215,17 +215,26 @@ export class NxtpSdk {
 
     this.sdkBase.assertChainIsConfigured(sendingChainId);
     this.sdkBase.assertChainIsConfigured(receivingChainId);
+    this.sdkBase.assertChainIsConfigured(1);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
     const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
-    if (sendingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
     const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
     const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+    const sendingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, constants.AddressZero);
+    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+      ? sendingNativeAssetIdOnMainnet
+      : constants.AddressZero;
+
     this.logger.debug("Estimate meta transaction fee in sending token", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
       tokenPricingSendingChain,
       tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       receivingChainId,
       receivingAssetId,
     });
@@ -233,6 +242,8 @@ export class NxtpSdk {
       tokenPricingSendingChain,
       sendingChainId,
       tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       decimals,
       requestContext,
       methodContext,
@@ -259,12 +270,18 @@ export class NxtpSdk {
 
     this.sdkBase.assertChainIsConfigured(sendingChainId);
     this.sdkBase.assertChainIsConfigured(receivingChainId);
+    this.sdkBase.assertChainIsConfigured(1);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
     const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
-    if (receivingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
     const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
     const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+    const receivingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, constants.AddressZero);
+    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
+      ? receivingNativeAssetIdOnMainnet
+      : constants.AddressZero;
 
     this.logger.debug("Estimate meta transaction fee in sending token", requestContext, methodContext, {
       sendingChainId,
@@ -279,6 +296,8 @@ export class NxtpSdk {
       tokenPricingReceivingChain,
       receivingChainId,
       tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       decimals,
       requestContext,
       methodContext,
@@ -305,24 +324,40 @@ export class NxtpSdk {
 
     this.sdkBase.assertChainIsConfigured(sendingChainId);
     this.sdkBase.assertChainIsConfigured(receivingChainId);
+    this.sdkBase.assertChainIsConfigured(1);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
     const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
-    if (sendingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
     const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
     const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+    const sendingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, constants.AddressZero);
+    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+      ? sendingNativeAssetIdOnMainnet
+      : constants.AddressZero;
 
     const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
     const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
     const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
 
+    const receivingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, constants.AddressZero);
+    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
+      ? receivingNativeAssetIdOnMainnet
+      : constants.AddressZero;
+
     const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
       tokenPricingSendingChain,
       sendingChainId,
       tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       tokenPricingReceivingChain,
       receivingChainId,
       tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       decimals,
       requestContext,
       methodContext,
@@ -350,25 +385,40 @@ export class NxtpSdk {
 
     this.sdkBase.assertChainIsConfigured(sendingChainId);
     this.sdkBase.assertChainIsConfigured(receivingChainId);
+    this.sdkBase.assertChainIsConfigured(1);
     const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
 
     const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
-    if (sendingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
     const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
     const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
 
+    const sendingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, constants.AddressZero);
+    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+      ? sendingNativeAssetIdOnMainnet
+      : constants.AddressZero;
+
     const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
-    if (receivingAssetIdOnMainnet) this.sdkBase.assertChainIsConfigured(1);
     const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
     const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+    const receivingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, constants.AddressZero);
+    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
+      ? receivingNativeAssetIdOnMainnet
+      : constants.AddressZero;
 
     const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
       tokenPricingSendingChain,
       sendingChainId,
       tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       tokenPricingReceivingChain,
       receivingChainId,
       tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       decimals,
       requestContext,
       methodContext,

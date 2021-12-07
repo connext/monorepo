@@ -5,7 +5,7 @@ import {
   Call,
 } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
-import { BigNumber, utils } from "ethers";
+import { BigNumber, utils, constants } from "ethers";
 
 import { getContext } from "../../router";
 
@@ -83,17 +83,33 @@ export const calculateGasFeeInReceivingToken = async (
   const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
   const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
 
+  const sendingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, sendingChainId);
+  const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+  const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+    ? sendingNativeAssetIdOnMainnet
+    : constants.AddressZero;
+
   const receivingAssetIdOnMainnet = await getMainnetEquivalent(receivingAssetId, receivingChainId);
   const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
   const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+  const receicingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, receivingChainId);
+  const nativeTokenPricingReceivingChain = receicingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+  const nativeTokenPricingAssetIdReceivingChain = receicingNativeAssetIdOnMainnet
+    ? receicingNativeAssetIdOnMainnet
+    : receivingAssetId;
 
   return txService.calculateGasFeeInReceivingToken(
     tokenPricingSendingChain,
     sendingChainId,
     tokenPricingAssetIdSendingChain,
+    nativeTokenPricingSendingChain,
+    nativeTokenPricingAssetIdSendingChain,
     tokenPricingReceivingChain,
     receivingChainId,
     tokenPricingAssetIdReceivingChain,
+    nativeTokenPricingReceivingChain,
+    nativeTokenPricingAssetIdReceivingChain,
     outputDecimals,
     requestContext,
   );
@@ -119,10 +135,18 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
   const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
 
+  const receicingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, receivingChainId);
+  const nativeTokenPricingReceivingChain = receicingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+  const nativeTokenPricingAssetIdReceivingChain = receicingNativeAssetIdOnMainnet
+    ? receicingNativeAssetIdOnMainnet
+    : constants.AddressZero;
+
   return txService.calculateGasFeeInReceivingTokenForFulfill(
     tokenPricingReceivingChain,
     receivingChainId,
     tokenPricingAssetIdReceivingChain,
+    nativeTokenPricingReceivingChain,
+    nativeTokenPricingAssetIdReceivingChain,
     outputDecimals,
     requestContext,
   );
