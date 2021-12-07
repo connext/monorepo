@@ -5,6 +5,7 @@ import {
   InvariantTransactionDataSchema,
   MetaTxFulfillPayload,
   MetaTxPayload,
+  MetaTxRouterContractCancelPayload,
   MetaTxRouterContractFulfillPayload,
   MetaTxRouterContractPreparePayload,
   MetaTxType,
@@ -107,7 +108,7 @@ export const metaTx = async <T extends MetaTxType>(
     logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
     return receipt;
   } else {
-    // router contract method
+    // router contract methods
     const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
 
@@ -192,9 +193,57 @@ export const metaTx = async <T extends MetaTxType>(
         chainId,
         {
           txData,
-          signature: signature,
-          relayerFee: relayerFee,
-          callData: callData,
+          signature,
+          relayerFee,
+          callData,
+        },
+        requestContext,
+        relayerFeeAsset,
+        routerRelayerFee.toString(),
+      );
+      logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
+      return receipt;
+    } else if (type === MetaTxTypes.RouterContractCancel) {
+      const {
+        params: { txData },
+        signature,
+        side,
+      } = data as MetaTxRouterContractCancelPayload;
+
+      const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
+      const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
+
+      const routerRelayerFee = await txService.calculateGasFee(
+        chainId,
+        chainId,
+        relayerFeeAsset,
+        relayerFeeAssetDecimal,
+        "fulfill",
+        requestContext,
+        methodContext,
+        side,
+      );
+
+      const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
+
+      if (BigNumber.from(relayerFee).lt(recvAmountLowerBound)) {
+        throw new NotEnoughRelayerFee(chainId, {
+          methodContext,
+          requestContext,
+          relayerFee: input.relayerFee,
+          recvAmountLowerBound: recvAmountLowerBound.toString(),
+          type,
+          input,
+        });
+      }
+
+      const receipt = await contractWriter.fulfill(
+        chainId,
+        {
+          txData,
+          signature,
+          relayerFee,
+          callData,
         },
         requestContext,
         relayerFeeAsset,
