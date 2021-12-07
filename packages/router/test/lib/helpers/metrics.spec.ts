@@ -83,6 +83,9 @@ describe("collectExpressiveLiquidity", () => {
           amount: utils.parseUnits(amt, 18),
           locked: BigNumber.from(0),
           supplied: utils.parseUnits(amt, 18),
+          removed: BigNumber.from(0),
+          volume: utils.parseUnits(amt, 18),
+          volumeIn: utils.parseUnits(amt, 18),
         },
       ]);
     });
@@ -103,6 +106,9 @@ describe("collectExpressiveLiquidity", () => {
           amount: +amt * +price,
           supplied: +amt * +price,
           locked: 0,
+          removed: 0,
+          volume: +amt * +price,
+          volumeIn: +amt * +price,
         },
       ],
       1338: [
@@ -111,6 +117,9 @@ describe("collectExpressiveLiquidity", () => {
           amount: +amt * +price,
           supplied: +amt * +price,
           locked: 0,
+          removed: 0,
+          volume: +amt * +price,
+          volumeIn: +amt * +price,
         },
       ],
     });
