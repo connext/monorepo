@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   createRequestContext,
   delay,
+  getSenderAmount,
   jsonifyError,
   RequestContext,
   RequestContextWithTransactionId,
@@ -393,16 +394,32 @@ export const handleSingle = async (
         _transaction.crosschainTx.receiving!.amount,
         requestContext,
       );
-      // Add difference between sending and receiving amount
-      incrementFees(
-        _transaction.crosschainTx.invariant.sendingAssetId,
-        _transaction.crosschainTx.invariant.sendingChainId,
-        _transaction.crosschainTx.sending.amount,
-        _transaction.crosschainTx.invariant.receivingAssetId,
-        _transaction.crosschainTx.invariant.receivingChainId,
-        _transaction.crosschainTx.receiving!.amount,
-        requestContext,
-      );
+      // wrap in promise so it isnt awaited
+      const incrementFeesPromise = async () => {
+        // Get the fees in sending asset
+        const receivedInSendingAsset = await getSenderAmount(
+          _transaction.crosschainTx.receiving!.amount,
+          await txService.getDecimalsForAsset(
+            _transaction.crosschainTx.invariant.receivingChainId,
+            _transaction.crosschainTx.invariant.receivingAssetId,
+          ),
+          await txService.getDecimalsForAsset(
+            _transaction.crosschainTx.invariant.sendingChainId,
+            _transaction.crosschainTx.invariant.sendingAssetId,
+          ),
+        );
+        const feeInSending = BigNumber.from(_transaction.crosschainTx.sending.amount).sub(receivedInSendingAsset);
+
+        // Add difference between sending and receiving amount
+        await incrementFees(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+          feeInSending.toString(),
+          requestContext,
+        );
+      };
+      incrementFeesPromise();
+
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
         receipt!.gasUsed,
