@@ -376,7 +376,7 @@ export const parseError = (error: any): NxtpError => {
     // TODO: Should also take in certain HTTP Status Codes: 429, 500, 502, 503, 504, 521, 522, 524; but need to be sure they
     // are status codes and not just part of a hash string, id number, etc.
     return new RpcError(RpcError.reasons.ConnectionReset, context);
-  } else if (message.match(/already known/)) {
+  } else if (message.match(/already known|alreadyknown/)) {
     return new ServerError(ServerError.reasons.TransactionAlreadyKnown, context);
   } else if (message.match(/insufficient funds/)) {
     return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
