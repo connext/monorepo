@@ -2,6 +2,10 @@
 
 ## Next Release
 
+# 0.0.99
+
+- [txservice] Fix error parsing
+
 ## 0.0.98
 
 - [contracts] Set up Moonriver price oracle
