@@ -61,13 +61,47 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
 };
 
 /**
+ *
+ * Converts the received amount into the sending asset
+ *
+ * @param sendingAssetId The asset address on source chain
+ * @param sendingChainId The source chain Id
+ * @param receivingAssetId The asset address on destination chain
+ * @param receivingChainId The destination chain Id
+ * @returns
+ */
+export const getSenderAmount = async (
+  receivedAmount: BigNumber, // receiving asset
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
+): Promise<string> => {
+  const { txService } = getContext();
+  const [sendingTokenPrice, receivingTokenPrice, sendingDecimals, receivingDecimals] = await Promise.all([
+    txService.getTokenPrice(sendingChainId, sendingAssetId),
+    txService.getTokenPrice(receivingChainId, receivingAssetId),
+    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
+    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
+  ]);
+
+  const amountInSending = receivedAmount
+    .mul(BigNumber.from(10).pow(18 - receivingDecimals)) // normalize
+    .mul(receivingTokenPrice) // usd receiving
+    .div(sendingTokenPrice) // usd sending
+    .div(BigNumber.from(10).pow(18 - sendingDecimals));
+
+  return amountInSending.toString();
+};
+
+/**
  * Helper to calculate router gas fee in token
  *
  * @param sendingAssetId The asset address on source chain
  * @param sendingChainId The source chain Id
  * @param receivingAssetId The asset address on destination chain
  * @param receivingChainId The destination chain Id
- * @param _outputDecimals Decimal number of receiving asset
+ * @param outputDecimals Decimal number of receiving asset
  * @param requestContext Request context instance
  */
 export const calculateGasFeeInReceivingToken = async (

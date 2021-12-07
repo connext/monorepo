@@ -2,7 +2,6 @@ import {
   createLoggingContext,
   createRequestContext,
   delay,
-  getSenderAmount,
   jsonifyError,
   RequestContext,
   RequestContextWithTransactionId,
@@ -38,6 +37,7 @@ import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
 import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
+import { getSenderAmount } from "../../lib/helpers/shared";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -432,16 +432,17 @@ export const handleSingle = async (
       const incrementFeesPromise = async () => {
         // Get the fees in sending asset
         const receivedInSendingAsset = await getSenderAmount(
-          _transaction.crosschainTx.receiving!.amount,
-          await txService.getDecimalsForAsset(
-            _transaction.crosschainTx.invariant.receivingChainId,
-            _transaction.crosschainTx.invariant.receivingAssetId,
-          ),
-          await txService.getDecimalsForAsset(
-            _transaction.crosschainTx.invariant.sendingChainId,
-            _transaction.crosschainTx.invariant.sendingAssetId,
-          ),
+          BigNumber.from(_transaction.crosschainTx.receiving!.amount),
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
         );
+        logger.info("Got receiver amount in sending asset", requestContext, methodContext, {
+          receivedAmount: _transaction.crosschainTx.receiving!.amount,
+          sentAmount: _transaction.crosschainTx.sending.amount,
+          receivedInSendingAsset,
+        });
         const feeInSending = BigNumber.from(_transaction.crosschainTx.sending.amount).sub(receivedInSendingAsset);
 
         // Add difference between sending and receiving amount

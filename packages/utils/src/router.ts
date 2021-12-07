@@ -46,12 +46,3 @@ export const getReceiverAmount = async (
 
   return { receivingAmount, routerFee: routerFee.toString(), amountAfterSwapRate: amountAfterSwapRate.toString() };
 };
-
-export const getSenderAmount = async (
-  amount: string, // in receiving asset
-  receivingDecimals: number,
-  sendingDecimals: number,
-): Promise<string> => {
-  const { amountAfterSwapRate } = await getReceiverAmount(amount, receivingDecimals, sendingDecimals);
-  return amountAfterSwapRate;
-};
