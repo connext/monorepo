@@ -7,7 +7,6 @@ const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32("0x
 describe("Status Operation", () => {
   it("should work", async () => {
     const res = await getStatus(requestContext);
-    console.log("res", res);
     expect(res).to.be.ok;
   });
 });
