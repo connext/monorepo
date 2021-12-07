@@ -58,13 +58,22 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
   return match?.name;
 };
 
-// TODO: cache response
+const collectExpressiveLiquidityCache: { retrieved: number; value?: Record<number, ExpressiveAssetBalance<number>[]> } =
+  {
+    retrieved: 0,
+    value: undefined,
+  };
 export const collectExpressiveLiquidity = async (): Promise<Record<number, ExpressiveAssetBalance<number>[]>> => {
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(collectOnchainLiquidity.name);
   logger.debug("Method start", requestContext, methodContext);
+
+  const elapsed = Date.now() - collectExpressiveLiquidityCache.retrieved;
+  if (elapsed < 5_000 && collectExpressiveLiquidityCache.value) {
+    return collectExpressiveLiquidityCache.value;
+  }
 
   // Get all the supported chains
   const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
@@ -96,6 +105,8 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
     }),
   );
 
+  collectExpressiveLiquidityCache.retrieved = Date.now();
+  collectExpressiveLiquidityCache.value = converted;
   return converted;
 };
 
