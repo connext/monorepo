@@ -77,6 +77,11 @@ describe("NxtpSdkBase", () => {
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
 
+  const sendingAssetId1 = mkAddress("0x111");
+  const sendingAssetId1MainnetEquivalent = mkAddress("0x1111");
+  const receivingAssetId1 = mkAddress("0x222");
+  const receivingAssetId1MainnetEquivalent = mkAddress("0x2222");
+
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
   const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
@@ -108,7 +113,7 @@ describe("NxtpSdkBase", () => {
     subgraph.getSyncStatus.returns({ latestBlock: 0, synced: true, syncedBlock: 0 });
     transactionManager = createStubInstance(TransactionManager);
 
-    stub(utils, "getChainData").resolves(chainDataMock);
+    // stub(utils, "getChainData").resolves(chainDataMock);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
 
     balanceStub = stub(utils, "getOnchainBalance");
@@ -1156,9 +1161,42 @@ describe("NxtpSdkBase", () => {
   });
 
   describe("#getMainnetEquivalent", () => {
-    it("happy: return null if chainData not configured", () => {});
-    it("happy: return null if equiv doesn't exist", () => {});
-    it("happy: return mainnet equivalent if chainData configured correctly", () => {});
+    beforeEach(async () => {
+      const chainData = await utils.getChainData();
+      const chainConfig = {
+        [sendingChainId]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+          transactionManagerAddress: sendingChainTxManagerAddress,
+        },
+        [receivingChainId]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+          transactionManagerAddress: receivingChainTxManagerAddress,
+        },
+      };
+      sdk = new NxtpSdkBase({
+        chainConfig,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: undefined,
+        logger,
+        signerAddress: Promise.resolve(user),
+        chainData: chainData,
+      });
+    });
+    it("happy: return null if chainData not configured", () => {
+      const result = sdk.getMainnetEquivalent(11111, mkAddress("0xa"));
+      expect(result).to.be.null;
+    });
+    it("happy: return null if equiv doesn't exist", () => {
+      const result = sdk.getMainnetEquivalent(1, mkAddress("0xa"));
+      expect(result).to.be.null;
+    });
+    it("happy: return mainnet equivalent if chainData configured correctly", () => {
+      const result = sdk.getMainnetEquivalent(56, mkAddress("0x0"));
+      expect(result).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52"); // BNB address on mainnet
+    });
   });
 
   it("happy changeInjectedSigner", () => {
