@@ -39,6 +39,7 @@ describe("Prepare Receiver Operation", () => {
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
       validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
+      stub(SharedHelperFns, "sanitationCheck").resolves();
     });
 
     it("should error if invariant data validation fails", async () => {
