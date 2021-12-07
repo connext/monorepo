@@ -68,8 +68,6 @@ export const mochaHooks = {
       getRouterBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
     };
 
-    isRouterContractMock = stub().returns(false);
-
     ctxMock = {
       config: configMock,
       contractReader: contractReaderMock,
@@ -79,10 +77,12 @@ export const mochaHooks = {
       messaging: messagingMock as unknown as RouterNxtpNatsMessagingService,
       txService: txServiceMock as unknown as TransactionService,
       wallet: walletMock,
-      isRouterContract: isRouterContractMock as unknown as boolean,
+      isRouterContract: undefined,
       routerAddress,
       signerAddress,
     };
+
+    isRouterContractMock = stub(ctxMock, "isRouterContract").value(false);
 
     stub(RouterFns, "getContext").returns(ctxMock);
   },
