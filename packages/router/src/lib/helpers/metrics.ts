@@ -1,7 +1,13 @@
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
-import { feesCollected, gasConsumed, totalTransferredVolume, TransactionReason } from "../entities";
+import {
+  ExpressiveAssetBalance,
+  feesCollected,
+  gasConsumed,
+  totalTransferredVolume,
+  TransactionReason,
+} from "../entities";
 
 export const convertToUsd = async (
   assetId: string,
@@ -45,9 +51,8 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
   return match?.name;
 };
 
-export const collectExpressiveLiquidity = async (): Promise<
-  Record<number, { assetId: string; amount: number; supplied: number; locked: number }[]>
-> => {
+// TODO: cache response
+export const collectExpressiveLiquidity = async (): Promise<Record<number, ExpressiveAssetBalance<number>[]>> => {
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
@@ -58,10 +63,7 @@ export const collectExpressiveLiquidity = async (): Promise<
   const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
 
   // Get all the asset balances for that chain
-  const assetBalances: Record<
-    number,
-    { assetId: string; amount: BigNumber; supplied: BigNumber; locked: BigNumber }[]
-  > = {};
+  const assetBalances: Record<number, ExpressiveAssetBalance[]> = {};
   await Promise.all(
     chainIds.map(async (chainId) => {
       assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
@@ -69,7 +71,7 @@ export const collectExpressiveLiquidity = async (): Promise<
   );
 
   // Convert all balances to USD
-  const converted: Record<string, { assetId: string; amount: number; supplied: number; locked: number }[]> = {};
+  const converted: Record<string, ExpressiveAssetBalance<number>[]> = {};
   await Promise.all(
     Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
       converted[chainId] = [];
@@ -78,7 +80,10 @@ export const collectExpressiveLiquidity = async (): Promise<
           const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
           const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
           const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
-          converted[chainId].push({ assetId: value.assetId, amount, supplied, locked });
+          const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
+          const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
+          const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
+          converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
         }),
       );
     }),

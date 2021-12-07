@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import { Counter, Gauge } from "prom-client";
 import { collectOnchainLiquidity, collectExpressiveLiquidity, getAssetName } from "../helpers/metrics";
 
@@ -12,6 +13,16 @@ export const TransactionReasons = {
 } as const;
 
 export type TransactionReason = typeof TransactionReasons[keyof typeof TransactionReasons];
+
+export type ExpressiveAssetBalance<T = BigNumber> = {
+  assetId: string;
+  amount: T;
+  supplied: T;
+  locked: T;
+  removed: T;
+  volumeIn: T;
+  volume: T;
+};
 
 //////////////////////////
 ///// High Level Metrics
@@ -122,7 +133,7 @@ export const liquiditySupplied = new Gauge({
   },
 });
 
-// Track liquidity supplied (i.e. investment) in USD
+// Track liquidity locked (i.e. in transfers) in USD
 // Collected via analytics subgraph
 export const liquidityLocked = new Gauge({
   name: "liquidity_locked_usd",
@@ -133,6 +144,54 @@ export const liquidityLocked = new Gauge({
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, locked }) => {
         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, locked);
+      });
+    });
+  },
+});
+
+// Track liquidity removed (i.e. in removeLiquidity) in USD
+// Collected via analytics subgraph
+export const liquidityRemoved = new Gauge({
+  name: "liquidity_removed_usd",
+  help: "liquidity_removed_usd_help",
+  labelNames: ["assetId", "chainId", "assetName"],
+  async collect() {
+    const liquidity = await collectExpressiveLiquidity();
+    Object.entries(liquidity).map(([chainId, values]) => {
+      values.map(({ assetId, removed }) => {
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, removed);
+      });
+    });
+  },
+});
+
+// Track volume in (i.e. amounts in sender "prepare") in USD
+// Collected via analytics subgraph
+export const volumeIn = new Gauge({
+  name: "volume_in_usd",
+  help: "volume_in_usd_help",
+  labelNames: ["assetId", "chainId", "assetName"],
+  async collect() {
+    const liquidity = await collectExpressiveLiquidity();
+    Object.entries(liquidity).map(([chainId, values]) => {
+      values.map(({ assetId, volumeIn }) => {
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, volumeIn);
+      });
+    });
+  },
+});
+
+// Track volume (i.e. amounts in receiver "prepare") in USD
+// Collected via analytics subgraph
+export const volume = new Gauge({
+  name: "volume_usd",
+  help: "volume_usd_help",
+  labelNames: ["assetId", "chainId", "assetName"],
+  async collect() {
+    const liquidity = await collectExpressiveLiquidity();
+    Object.entries(liquidity).map(([chainId, values]) => {
+      values.map(({ assetId, volume }) => {
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, volume);
       });
     });
   },
