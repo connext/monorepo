@@ -44,7 +44,6 @@ describe("Fetching Price Binding", () => {
 
     it("should fetch prices using multicall if multicall is configured", async () => {
       multicallStub.resolves([parseEther(MOCK_TOKEN_PRICE1), parseEther(MOCK_ETHER_PRICE)]);
-      binding.cachedPriceMap.clear();
       await binding.bindPrices();
       await delay(interval + 10);
       expect(multicallStub.callCount).to.be.gt(0);
@@ -55,7 +54,6 @@ describe("Fetching Price Binding", () => {
       configMock.chainConfig["1337"].multicallAddress = null;
       configMock.chainConfig["1338"].multicallAddress = null;
       getTokenPriceFromOnChainStub.resolves(parseEther(MOCK_TOKEN_PRICE2));
-      binding.cachedPriceMap.clear();
       await binding.bindPrices();
       await delay(interval + 10);
       expect(multicallStub).callCount(0);

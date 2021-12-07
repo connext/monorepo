@@ -5,7 +5,6 @@ import * as metrics from "../../../src/lib/helpers/metrics";
 import * as entities from "../../../src/lib/entities/metrics";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 import { configMock } from "../../utils";
-import * as shared from "../../../src/lib/helpers/shared";
 import { parseEther } from "@ethersproject/units";
 
 describe("getAssetName", () => {
@@ -40,7 +39,7 @@ describe("collectOnchainLiquidity", () => {
 
     // create stub for token price
     // console.log("prices", tokenPrices);
-    stub(shared, "getTokenPrice").resolves(parseEther(price));
+    txServiceMock.getTokenPrice.resolves(parseEther(price));
 
     // create stub for decimals
     decimals.map((dec, idx) => txServiceMock.getDecimalsForAsset.onCall(idx).resolves(dec));
@@ -90,7 +89,7 @@ describe("collectExpressiveLiquidity", () => {
 
     // create stub for token price
     // console.log("prices", tokenPrices);
-    stub(shared, "getTokenPrice").resolves(parseEther(price));
+    txServiceMock.getTokenPrice.resolves(parseEther(price));
 
     // create stub for decimals
     txServiceMock.getDecimalsForAsset.resolves(18);
