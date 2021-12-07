@@ -12,6 +12,7 @@ import {
 } from "../src/lib/entities";
 
 export const routerAddrMock = mkAddress("0xb");
+export const routerContractAddressMock = mkAddress("0xccc");
 
 export const MUTATED_AMOUNT = "100000000000000000000";
 export const MUTATED_BUFFER = 123400;
@@ -32,6 +33,7 @@ export const configMock: NxtpRouterConfig = {
       relayerFeeThreshold: 100,
       subgraphSyncBuffer: 10,
       gasStations: [],
+      allowRelay: true,
     },
     1338: {
       confirmations: 1,
@@ -44,8 +46,11 @@ export const configMock: NxtpRouterConfig = {
       relayerFeeThreshold: 100,
       subgraphSyncBuffer: 10,
       gasStations: [],
+      allowRelay: true,
     },
   },
+  priceCacheMode: true,
+  routerContractAddress: routerContractAddressMock,
   mnemonic: "hello world",
   natsUrl: "http://example.com",
   logLevel: "info",
@@ -83,7 +88,6 @@ export const fulfillInputMock: FulfillInput = {
   signature: "0xabcd",
   relayerFee: "10",
   callData: "0xbaa",
-  side: "receiver",
 };
 
 export const mockHashes = {

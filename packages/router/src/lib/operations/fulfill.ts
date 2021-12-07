@@ -4,14 +4,13 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
-  signRouterFulfillTransactionPayload,
 } from "@connext/nxtp-utils";
-import { providers, constants, utils, Wallet } from "ethers";
+import { providers, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid } from "../errors";
-import { calculateGasFee } from "../helpers";
+import { calculateGasFee, signRouterFulfillTransactionPayload } from "../helpers";
 
 const { AddressZero, Zero } = constants;
 
@@ -23,7 +22,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config, txService, isRouterContract, wallet } = getContext();
+  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress } = getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -88,6 +87,7 @@ export const fulfill = async (
       routerRelayerFee.toString(),
       wallet,
     );
+
     receipt = await contractWriter.fulfillRouterContract(
       invariantData.sendingChainId,
       {
@@ -96,7 +96,7 @@ export const fulfill = async (
         relayerFee: relayerFee,
         callData: callData,
       },
-      config.routerContractAddress!,
+      routerAddress,
       signature,
       routerRelayerFeeAsset,
       routerRelayerFee.toString(),

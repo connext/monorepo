@@ -4,7 +4,6 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
-  signRouterPrepareTransactionPayload,
 } from "@connext/nxtp-utils";
 import { BigNumber, providers, constants, utils } from "ethers";
 
@@ -28,6 +27,7 @@ import {
   validBidExpiry,
   validExpiryBuffer,
   sanitationCheck,
+  signRouterPrepareTransactionPayload,
 } from "../helpers";
 import { calculateGasFee, calculateGasFeeInReceivingToken } from "../helpers/shared";
 
@@ -208,16 +208,14 @@ export const prepare = async (
   logger.info("Validated input", requestContext, methodContext);
 
   if (isRouterContract) {
-    let routerRelayerFeeAsset = AddressZero;
-    let routerRelayerFee = BigNumber.from("0");
-    routerRelayerFeeAsset = utils.getAddress(
-      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+    const routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset ?? AddressZero,
     );
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
       invariantData.receivingChainId,
       invariantData.receivingAssetId,
     );
-    routerRelayerFee = await calculateGasFee(
+    const routerRelayerFee = await calculateGasFee(
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
@@ -225,6 +223,7 @@ export const prepare = async (
       requestContext,
       methodContext,
     );
+    console.log("routerRelayerFee: ", routerRelayerFee);
 
     const signature = await signRouterPrepareTransactionPayload(
       invariantData,
@@ -238,6 +237,7 @@ export const prepare = async (
       routerRelayerFee.toString(),
       wallet,
     );
+    console.log("signature: ", signature);
 
     logger.info("Sending receiver prepare router contract tx", requestContext, methodContext);
 

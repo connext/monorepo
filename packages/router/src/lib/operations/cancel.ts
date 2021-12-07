@@ -5,7 +5,6 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
-  signRouterCancelTransactionPayload,
 } from "@connext/nxtp-utils";
 import { providers, constants, BigNumber, utils } from "ethers";
 
@@ -14,7 +13,7 @@ import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
 import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 import { SenderTxTooNew } from "../errors/cancel";
-import { calculateGasFee } from "../helpers";
+import { calculateGasFee, signRouterCancelTransactionPayload } from "../helpers";
 
 export const SENDER_PREPARE_BUFFER_TIME = 60 * 13; // 13 mins (780s)
 // bsc has 3s block time, is often given 250 lag blocks
@@ -27,7 +26,8 @@ export const cancel = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter, contractReader, txService, isRouterContract, config, wallet } = getContext();
+  const { logger, contractWriter, contractReader, txService, isRouterContract, config, wallet, routerAddress } =
+    getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -133,10 +133,15 @@ export const cancel = async (
     receipt = await contractWriter.cancelRouterContract(
       cancelChain,
       {
-        txData: { ...invariantData, ...variant },
+        txData: {
+          ...invariantData,
+          preparedBlockNumber: variant.preparedBlockNumber,
+          amount: variant.amount,
+          expiry: variant.expiry,
+        },
         signature: "0x",
       },
-      config.routerContractAddress!,
+      routerAddress,
       signature,
       routerRelayerFeeAsset,
       routerRelayerFee.toString(),

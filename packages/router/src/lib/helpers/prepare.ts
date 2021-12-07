@@ -3,6 +3,7 @@ import {
   recoverAuctionBid as _recoverAuctionBid,
   decodeAuctionBid as _decodeAuctionBid,
   getReceiverAmount as _getReceiverAmount,
+  signRouterPrepareTransactionPayload as _signRouterPrepareTransactionPayload,
 } from "@connext/nxtp-utils";
 
 import { AmountInvalid } from "../errors/prepare";
@@ -71,3 +72,5 @@ export const recoverAuctionBid = (bid: AuctionBid, signature: string): string =>
 };
 
 export const decodeAuctionBid = _decodeAuctionBid;
+
+export const signRouterPrepareTransactionPayload = _signRouterPrepareTransactionPayload;
