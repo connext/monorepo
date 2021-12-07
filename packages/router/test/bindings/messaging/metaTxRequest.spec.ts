@@ -27,7 +27,6 @@ let fulfillStub: SinonStub;
 
 const data: MetaTxPayload<typeof MetaTxTypes.Fulfill> = {
   type: MetaTxTypes.Fulfill,
-  relayerFee: "1",
   to: configMock.chainConfig[txDataMock.receivingChainId].transactionManagerAddress,
   chainId: txDataMock.receivingChainId,
   data: {

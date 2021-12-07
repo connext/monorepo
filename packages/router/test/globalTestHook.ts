@@ -1,8 +1,15 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock, getChainData, Logger } from "@connext/nxtp-utils";
+import {
+  RouterNxtpNatsMessagingService,
+  txReceiptMock,
+  sigMock,
+  getChainData,
+  Logger,
+  mkAddress,
+} from "@connext/nxtp-utils";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import {
   routerAddrMock,
   activeTransactionPrepareMock,
@@ -20,6 +27,9 @@ export let messagingMock: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
 export let contractReaderMock: ContractReader;
 export let contractWriterMock: ContractWriter;
 export let ctxMock: Context;
+export let isRouterContractMock: SinonStub<any, boolean>;
+export const routerAddress = routerAddrMock;
+export const signerAddress = mkAddress("0x123");
 
 export const mochaHooks = {
   async beforeEach() {
@@ -48,13 +58,17 @@ export const mochaHooks = {
     };
 
     contractWriterMock = {
-      cancel: stub().resolves(txReceiptMock),
-      fulfill: stub().resolves(txReceiptMock),
-      prepare: stub().resolves(txReceiptMock),
-      removeLiquidity: stub().resolves(txReceiptMock),
+      prepareRouterContract: stub().resolves(txReceiptMock),
+      prepareTransactionManager: stub().resolves(txReceiptMock),
+      fulfillRouterContract: stub().resolves(txReceiptMock),
+      fulfillTransactionManager: stub().resolves(txReceiptMock),
+      cancelRouterContract: stub().resolves(txReceiptMock),
+      cancelTransactionManager: stub().resolves(txReceiptMock),
+      removeLiquidityTransactionManager: stub().resolves(txReceiptMock),
       getRouterBalance: stub().resolves(BigNumber.from("10001000000000000000000")),
-      sanitationCheck: stub().resolves(),
     };
+
+    isRouterContractMock = stub().returns(false);
 
     ctxMock = {
       config: configMock,
@@ -65,6 +79,9 @@ export const mochaHooks = {
       messaging: messagingMock as unknown as RouterNxtpNatsMessagingService,
       txService: txServiceMock as unknown as TransactionService,
       wallet: walletMock,
+      isRouterContract: isRouterContractMock as unknown as boolean,
+      routerAddress,
+      signerAddress,
     };
 
     stub(RouterFns, "getContext").returns(ctxMock);

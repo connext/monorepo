@@ -53,7 +53,7 @@ describe("Cancel Sender Operation", () => {
 
       expect(receipt).to.deep.eq(txReceiptMock);
 
-      expect(contractWriterMock.cancel).to.be.calledOnceWithExactly(
+      expect(contractWriterMock.cancelTransactionManager).to.be.calledOnceWithExactly(
         invariantDataMock.receivingChainId,
         {
           txData: {
@@ -78,7 +78,7 @@ describe("Cancel Sender Operation", () => {
 
       expect(receipt).to.deep.eq(txReceiptMock);
 
-      expect(contractWriterMock.cancel).to.be.calledOnceWithExactly(
+      expect(contractWriterMock.cancelTransactionManager).to.be.calledOnceWithExactly(
         invariantDataMock.sendingChainId,
         {
           txData: {
@@ -105,7 +105,7 @@ describe("Cancel Sender Operation", () => {
 
       expect(receipt).to.deep.eq(txReceiptMock);
 
-      expect(contractWriterMock.cancel).to.be.calledOnceWithExactly(
+      expect(contractWriterMock.cancelTransactionManager).to.be.calledOnceWithExactly(
         invariantDataMock.receivingChainId,
         {
           txData: {

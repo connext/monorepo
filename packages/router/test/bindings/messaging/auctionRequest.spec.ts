@@ -17,6 +17,7 @@ let newAuctionStub: SinonStub;
 
 const auctionPayload: AuctionPayload = {
   user: mkAddress("0xa"),
+  initiator: mkAddress("0xa"),
   sendingChainId: 1337,
   sendingAssetId: mkAddress("0xc"),
   amount: "10000",
@@ -33,6 +34,7 @@ const auctionPayload: AuctionPayload = {
 
 const bid: AuctionBid = {
   user: auctionPayload.user,
+  initiator: auctionPayload.user,
   router: mkAddress("0xccc"),
   sendingChainId: auctionPayload.sendingChainId,
   sendingAssetId: auctionPayload.sendingAssetId,

@@ -9,12 +9,18 @@ import {
   expect,
 } from "@connext/nxtp-utils";
 
-import { fulfill, getContractAddress, prepare, cancel, removeLiquidity } from "../../../src/adapters/contract/contract";
-import * as ContractFns from "../../../src/adapters/contract/contract";
+import * as SharedFns from "../../../src/lib/helpers/shared";
+import {
+  prepareTransactionManager,
+  fulfillTransactionManager,
+  cancelTransactionManager,
+  removeLiquidityTransactionManager,
+} from "../../../src/adapters/contract/contract";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { Interface } from "ethers/lib/utils";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 import { routerAddrMock } from "../../utils";
+import { getContractAddress } from "../../../src/lib/helpers";
 
 const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
@@ -25,8 +31,8 @@ describe("Contract Adapter", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
-    stub(ContractFns, "sanitationCheck").resolves();
-    stub(ContractFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+    stub(SharedFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+    stub(SharedFns, "sanitationCheck").resolves();
   });
 
   describe("#getContractAddress", () => {
@@ -40,7 +46,7 @@ describe("Contract Adapter", () => {
     it("happy case: prepare", async () => {
       const chainId = txDataMock.sendingChainId;
 
-      const res = await prepare(chainId, prepareParamsMock, requestContext);
+      const res = await prepareTransactionManager(chainId, prepareParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("prepare", [
         {
           invariantData: prepareParamsMock.txData,
@@ -60,7 +66,7 @@ describe("Contract Adapter", () => {
     it("happy case: fulfill", async () => {
       const chainId = txDataMock.sendingChainId;
 
-      const res = await fulfill(chainId, fulfillParamsMock, requestContext);
+      const res = await fulfillTransactionManager(chainId, fulfillParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
         {
           txData: fulfillParamsMock.txData,
@@ -78,7 +84,7 @@ describe("Contract Adapter", () => {
     it("happy case: cancel", async () => {
       const chainId = txDataMock.sendingChainId;
 
-      const res = await cancel(chainId, cancelParamsMock, requestContext);
+      const res = await cancelTransactionManager(chainId, cancelParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("cancel", [
         {
           txData: cancelParamsMock.txData,
@@ -97,7 +103,7 @@ describe("Contract Adapter", () => {
       const amount = "1000";
       const assetId = mkAddress("0x6");
 
-      const res = await removeLiquidity(chainId, amount, assetId, undefined, requestContext);
+      const res = await removeLiquidityTransactionManager(chainId, amount, assetId, undefined, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("removeLiquidity", [
         amount,
         assetId,
@@ -113,7 +119,7 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const recipientAddress = mkAddress("0x2");
 
-      const res = await removeLiquidity(chainId, amount, assetId, recipientAddress, requestContext);
+      const res = await removeLiquidityTransactionManager(chainId, amount, assetId, recipientAddress, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("removeLiquidity", [
         amount,
         assetId,

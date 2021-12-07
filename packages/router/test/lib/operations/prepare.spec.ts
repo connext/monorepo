@@ -116,7 +116,7 @@ describe("Prepare Receiver Operation", () => {
       const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.prepare).to.be.calledOnceWithExactly(
+      expect(contractWriterMock.prepareTransactionManager).to.be.calledOnceWithExactly(
         invariantDataMock.receivingChainId,
         {
           txData: invariantDataMock,

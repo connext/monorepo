@@ -44,10 +44,10 @@ describe("Fulfill Receiver Operation", () => {
     });
 
     it("happy: should fulfill on sender chain", async () => {
-      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock, side: "sender" }, requestContext);
+      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfill).to.be.calledOnceWith(
+      expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWith(
         invariantDataMock.sendingChainId,
         {
           relayerFee: fulfillInputMock.relayerFee,
@@ -68,7 +68,7 @@ describe("Fulfill Receiver Operation", () => {
       const receipt = await fulfill(invariantDataMock, fulfillInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfill).to.be.calledOnceWith(
+      expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWith(
         invariantDataMock.receivingChainId,
         {
           relayerFee: fulfillInputMock.relayerFee,
