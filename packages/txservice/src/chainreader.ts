@@ -215,9 +215,13 @@ export class ChainReader {
    * @param sendingChainId The source chain ID
    * @param sendingChainIdForGasPrice The source chain ID where we're going to gas price on
    * @param sendingAssetId The asset address on source chain
+   * @param sendingNativeChainId The network that we're going to get the native token price of sending chain on
+   * @param sendingNativeAssetId The native asset id on source chain
    * @param receivingChainId The destination chain ID
    * @param receivingChainIdForGasPrice The destination chain ID where we're going to gas price on
    * @param receivingAssetId The asset address on destination chain
+   * @param receivingNativeChainId The network that we're going to get the native token price of receiving chain on
+   * @param receivingNativeAssetId The native asset id on destination chain
    * @param outputDecimals Decimal number of receiving asset
    * @param _requestContext Request context instance
    */
@@ -225,9 +229,13 @@ export class ChainReader {
     sendingChainId: number,
     sendingChainIdForGasPrice: number,
     sendingAssetId: string,
+    sendingNativeChainId: number,
+    sendingNativeAssetId: string,
     receivingChainId: number,
     receivingChainIdForGasPrice: number,
     receivingAssetId: string,
+    receivingNativeChainId: number,
+    receivingNativeAssetId: string,
     outputDecimals: number,
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
@@ -239,9 +247,13 @@ export class ChainReader {
       sendingChainId,
       sendingAssetId,
       sendingChainIdForGasPrice,
+      sendingNativeChainId,
+      sendingNativeAssetId,
       receivingAssetId,
       receivingChainId,
       receivingChainIdForGasPrice,
+      receivingNativeChainId,
+      receivingNativeAssetId,
       outputDecimals,
     });
 
@@ -253,6 +265,8 @@ export class ChainReader {
         sendingChainId,
         sendingChainIdForGasPrice,
         sendingAssetId,
+        sendingNativeChainId,
+        sendingNativeAssetId,
         outputDecimals,
         "fulfill",
         requestContext,
@@ -264,6 +278,8 @@ export class ChainReader {
         receivingChainId,
         receivingChainIdForGasPrice,
         receivingAssetId,
+        receivingNativeChainId,
+        receivingNativeAssetId,
         outputDecimals,
         "prepare",
         requestContext,
@@ -279,8 +295,10 @@ export class ChainReader {
    * Calculates relayer fee in receiving token.
    *
    * @param receivingChainId - The destination chain ID.
-   * @param receivingChainIdForGasPrice - The destination chain ID where we're going to gas price on.
+   * @param receivingChainIdForGasPrice - The destination chain ID that we're going to get gas price on.
    * @param receivingAssetId - The asset address on destination chain.
+   * @param receivingNativeChainId - The network Id that we're going to get native asset price on.
+   * @param receivingNativeAssetId - The native asset address on {receivingNativeChainId}.
    * @param outputDecimals - Decimal number of receiving asset.
    * @param requestContext - Request context instance.
    */
@@ -288,6 +306,8 @@ export class ChainReader {
     receivingChainId: number,
     receivingChainIdForGasPrice: number,
     receivingAssetId: string,
+    receivingNativeChainId: number,
+    receivingNativeAssetId: string,
     outputDecimals: number,
     _requestContext: RequestContext,
   ): Promise<BigNumber> {
@@ -298,12 +318,17 @@ export class ChainReader {
     this.logger.info("Method start", requestContext, methodContext, {
       receivingChainId,
       receivingAssetId,
+      receivingChainIdForGasPrice,
+      receivingNativeChainId,
+      receivingNativeAssetId,
       outputDecimals,
     });
     return await this.calculateGasFee(
       receivingChainId,
       receivingChainIdForGasPrice,
       receivingAssetId,
+      receivingNativeChainId,
+      receivingNativeAssetId,
       outputDecimals,
       "fulfill",
       requestContext,
@@ -316,8 +341,10 @@ export class ChainReader {
    * Calculates gas fee for specified chain and asset.
    *
    * @param chainId - The destination chain ID.
-   * @param gasPriceChainId - The destination chain ID where we're going to gas price on.
+   * @param gasPriceChainId - The destination chain ID that we're going to get gas price on.
    * @param assetId - The asset address on destination chain.
+   * @param nativeTokenChainId - The chain Id that we're going to get native asset price on.
+   * @param nativeTokenAssetId - The native asset address on {nativeTokenChainId}.
    * @param decimals - Decimal number of asset.
    * @param method - Which contract method to calculate gas fees for.
    * @param requestContext - Request context instance.
@@ -329,6 +356,8 @@ export class ChainReader {
     chainId: number,
     gasPriceChainId: number,
     assetId: string,
+    nativeTokenChainId: number,
+    nativeTokenAssetId: string,
     decimals: number,
     method: "prepare" | "fulfill" | "cancel",
     requestContext: RequestContext,
@@ -337,14 +366,14 @@ export class ChainReader {
   ): Promise<BigNumber> {
     // If the list of chains with deployed Price Oracle Contracts does not include
     // this chain ID, return 0.
-    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId)) return constants.Zero;
+    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId) || !CHAINS_WITH_PRICE_ORACLES.includes(nativeTokenChainId))
+      return constants.Zero;
 
     // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
     // on the specified chain.
-    const tokenPricingChainId = chainId;
     const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
-      this.getTokenPrice(gasPriceChainId, constants.AddressZero),
-      this.getTokenPrice(tokenPricingChainId, assetId),
+      this.getTokenPrice(nativeTokenChainId, nativeTokenAssetId),
+      this.getTokenPrice(chainId, assetId),
       this.getGasPrice(gasPriceChainId, requestContext),
     ]);
 

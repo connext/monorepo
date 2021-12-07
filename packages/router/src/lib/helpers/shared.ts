@@ -1,7 +1,6 @@
 import {
   getNtpTimeSeconds as _getNtpTimeSeconds,
   RequestContext,
-  getChainData,
   createLoggingContext,
   getInvariantTransactionDigest,
   getVariantTransactionDigest,
@@ -12,30 +11,30 @@ import {
   multicall as _multicall,
   Call,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, utils, Contract } from "ethers";
-import { Evt } from "evt";
-
 import { getAddress, Interface } from "ethers/lib/utils";
+import { BigNumber, constants, utils } from "ethers/lib/ethers";
 import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
 } from "@connext/nxtp-contracts/typechain";
 import { Router as TRouter } from "@connext/nxtp-contracts/typechain";
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 
+import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
 import { NotExistPriceOracle } from "../../lib/errors/contracts";
 import { getContext } from "../../router";
 
 import { SanitationCheckFailed } from "../errors";
+import { Evt } from "evt";
+
+const { HashZero } = constants;
 /**
  * Helper to allow easy mocking
  */
 
-const { HashZero } = constants;
 export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };
@@ -132,17 +131,33 @@ export const calculateGasFeeInReceivingToken = async (
   const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
   const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
 
+  const sendingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, sendingChainId);
+  const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+  const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+    ? sendingNativeAssetIdOnMainnet
+    : constants.AddressZero;
+
   const receivingAssetIdOnMainnet = await getMainnetEquivalent(receivingAssetId, receivingChainId);
   const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
   const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+  const receicingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, receivingChainId);
+  const nativeTokenPricingReceivingChain = receicingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+  const nativeTokenPricingAssetIdReceivingChain = receicingNativeAssetIdOnMainnet
+    ? receicingNativeAssetIdOnMainnet
+    : receivingAssetId;
 
   return txService.calculateGasFeeInReceivingToken(
     tokenPricingSendingChain,
     sendingChainId,
     tokenPricingAssetIdSendingChain,
+    nativeTokenPricingSendingChain,
+    nativeTokenPricingAssetIdSendingChain,
     tokenPricingReceivingChain,
     receivingChainId,
     tokenPricingAssetIdReceivingChain,
+    nativeTokenPricingReceivingChain,
+    nativeTokenPricingAssetIdReceivingChain,
     outputDecimals,
     requestContext,
   );
@@ -168,10 +183,18 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
   const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
 
+  const receicingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, receivingChainId);
+  const nativeTokenPricingReceivingChain = receicingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+  const nativeTokenPricingAssetIdReceivingChain = receicingNativeAssetIdOnMainnet
+    ? receicingNativeAssetIdOnMainnet
+    : constants.AddressZero;
+
   return txService.calculateGasFeeInReceivingTokenForFulfill(
     tokenPricingReceivingChain,
     receivingChainId,
     tokenPricingAssetIdReceivingChain,
+    nativeTokenPricingReceivingChain,
+    nativeTokenPricingAssetIdReceivingChain,
     outputDecimals,
     requestContext,
   );

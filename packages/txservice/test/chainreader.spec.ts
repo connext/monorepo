@@ -312,24 +312,32 @@ describe("ChainReader", () => {
         TEST_SENDER_CHAIN_ID,
         TEST_SENDER_CHAIN_ID,
         sendingAssetId,
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
         TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x0"),
         18,
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(expectedTotal.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 7)).to.deep.eq([
         TEST_SENDER_CHAIN_ID,
         TEST_SENDER_CHAIN_ID,
         sendingAssetId,
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
         18,
         "fulfill",
       ]);
-      expect(calculateGasFeeStub.getCall(1).args.slice(0, 5)).to.deep.eq([
+      expect(calculateGasFeeStub.getCall(1).args.slice(0, 7)).to.deep.eq([
         TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x0"),
         18,
         "prepare",
       ]);
@@ -350,14 +358,18 @@ describe("ChainReader", () => {
         TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         assetId,
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x0"),
         18,
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(gasFee.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 7)).to.deep.eq([
         TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         assetId,
+        TEST_RECEIVER_CHAIN_ID,
+        mkAddress("0x0"),
         18,
         "fulfill",
       ]);
@@ -384,6 +396,8 @@ describe("ChainReader", () => {
         1,
         1,
         mkAddress("0x0"),
+        1,
+        mkAddress("0x0"),
         18,
         "prepare",
         requestContextMock,
@@ -398,6 +412,8 @@ describe("ChainReader", () => {
         1,
         1,
         mkAddress("0x0"),
+        1,
+        mkAddress("0x0"),
         18,
         "fulfill",
         requestContextMock,
@@ -409,6 +425,9 @@ describe("ChainReader", () => {
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
       const result = await (chainReader as any).calculateGasFee(
+        TEST_SENDER_CHAIN_ID,
+        TEST_SENDER_CHAIN_ID,
+        mkAddress("0x0"),
         TEST_SENDER_CHAIN_ID,
         mkAddress("0x0"),
         18,
