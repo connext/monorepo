@@ -3,31 +3,61 @@ import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { startContractListeners } from "../../lib/helpers";
 
-import { prepare, fulfill, cancel, removeLiquidity, getRouterBalance } from "./contract";
+import {
+  prepareTransactionManager,
+  prepareRouterContract,
+  fulfillTransactionManager,
+  fulfillRouterContract,
+  cancelRouterContract,
+  cancelTransactionManager,
+  removeLiquidityTransactionManager,
+  getRouterBalance,
+} from "./contract";
 
 export type ContractWriter = {
-  prepare: (
+  prepareTransactionManager: (
     chainId: number,
     prepareParams: PrepareParams,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  prepareRouterContract: (
+    chainId: number,
+    prepareParams: PrepareParams,
+    routerContractAddress: string,
+    signature: string,
     routerRelayerFeeAsset: string,
     routerRelayerFee: string,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
-  fulfill: (
+  fulfillTransactionManager: (
     chainId: number,
     fulfillParams: FulfillParams,
     requestContext: RequestContext,
-    routerRelayerFeeAsset?: string,
-    routerRelayerFee?: string,
   ) => Promise<providers.TransactionReceipt>;
-  cancel: (
+  fulfillRouterContract: (
     chainId: number,
-    cancelParams: CancelParams,
+    fulfillParams: FulfillParams,
+    routerContractAddress: string,
+    signature: string,
     routerRelayerFeeAsset: string,
     routerRelayerFee: string,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
-  removeLiquidity: (
+  cancelTransactionManager: (
+    chainId: number,
+    cancelParams: CancelParams,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  cancelRouterContract: (
+    chainId: number,
+    cancelParams: CancelParams,
+    routerContractAddress: string,
+    signature: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  removeLiquidityTransactionManager: (
     chainId: number,
     amount: string,
     assetId: string,
@@ -40,10 +70,13 @@ export type ContractWriter = {
 export const contractWriter = (): ContractWriter => {
   startContractListeners();
   return {
-    prepare,
-    fulfill,
-    cancel,
-    removeLiquidity,
+    prepareTransactionManager,
+    prepareRouterContract,
+    fulfillTransactionManager,
+    fulfillRouterContract,
+    cancelRouterContract,
+    cancelTransactionManager,
+    removeLiquidityTransactionManager,
     getRouterBalance,
   };
 };
