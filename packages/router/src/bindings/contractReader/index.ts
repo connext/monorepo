@@ -352,7 +352,7 @@ export const handleSingle = async (
       // this should not happen, this should get checked before this point
       throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
     }
-    if (!_transaction.payload.hashes.receiving) {
+    if (!_transaction.payload.hashes?.receiving) {
       logger.warn("No receiving hashes with ReceiverFulfilled status", requestContext, methodContext, {
         hashes: _transaction.payload.hashes,
       });
@@ -484,7 +484,7 @@ export const handleSingle = async (
       transaction.crosschainTx.invariant.transactionId,
     );
     const _transaction = transaction as ActiveTransaction<"ReceiverExpired">;
-    if (!_transaction.payload.hashes.receiving) {
+    if (!_transaction.payload.hashes?.receiving) {
       logger.warn("No receiving hashes with ReceiverExpired status", requestContext, methodContext, {
         hashes: _transaction.payload.hashes,
       });

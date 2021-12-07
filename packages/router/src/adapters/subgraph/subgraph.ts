@@ -323,7 +323,20 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   sending,
                   receiving,
                 },
-                payload: {},
+                payload: {
+                  hashes: {
+                    sending: {
+                      prepareHash: senderTx.prepareTransactionHash,
+                      cancelHash: senderTx.cancelTransactionHash,
+                      fulfillHash: senderTx.fulfillTransactionHash,
+                    },
+                    receiving: {
+                      prepareHash: correspondingReceiverTx?.prepareTransactionHash,
+                      cancelHash: correspondingReceiverTx?.cancelTransactionHash,
+                      fulfillHash: correspondingReceiverTx?.fulfillTransactionHash,
+                    },
+                  },
+                },
                 status: CrosschainTransactionStatus.ReceiverExpired,
               } as ActiveTransaction<"ReceiverExpired">;
             }
