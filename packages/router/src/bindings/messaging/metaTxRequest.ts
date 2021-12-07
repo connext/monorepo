@@ -70,7 +70,7 @@ export const metaTxRequestBinding = async (
   }
   handlingTracker.set(transactionId, data.type);
   try {
-    const tx = await sendMetaTx(data.data, requestContext as any);
+    const tx = await sendMetaTx(data, requestContext as any);
     if (tx) {
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
     }

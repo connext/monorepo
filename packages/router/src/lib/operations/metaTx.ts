@@ -21,7 +21,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(sendMetaTx.name, _requestContext);
 
-  const { logger, contractWriter, config, chainData, txService, wallet } = getContext();
+  const { logger, contractWriter, config, chainData, txService } = getContext();
   logger.debug("Method start", requestContext, methodContext, { input });
 
   // Validate Input schema
