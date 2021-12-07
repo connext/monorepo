@@ -223,7 +223,6 @@ export const prepare = async (
       requestContext,
       methodContext,
     );
-    console.log("routerRelayerFee: ", routerRelayerFee);
 
     const signature = await signRouterPrepareTransactionPayload(
       invariantData,
@@ -237,7 +236,6 @@ export const prepare = async (
       routerRelayerFee.toString(),
       wallet,
     );
-    console.log("signature: ", signature);
 
     logger.info("Sending receiver prepare router contract tx", requestContext, methodContext);
 
