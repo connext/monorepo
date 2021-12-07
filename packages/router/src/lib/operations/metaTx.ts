@@ -46,7 +46,9 @@ export const metaTx = async <T extends MetaTxType>(
     });
   }
 
-  const { chainId, to, data, relayerFee, type, relayerFeeAsset } = input;
+  const { chainId, data, type } = input;
+
+  let receipt;
 
   if (!config.chainConfig[chainId]) {
     throw new NoChainConfig(chainId, { methodContext, requestContext, input });
@@ -54,11 +56,11 @@ export const metaTx = async <T extends MetaTxType>(
 
   const relayerFeeLowerBound = config.chainConfig[chainId].relayerFeeThreshold;
   if (!config.allowRelay) {
+    // TODO: should we throwing error if relayer is not allowed?
+    // router shouldn't listen to metaTx request in first place if it's not allowed to relay
     throw new NotAllowedFulfillRelay(chainId, {
       methodContext,
       requestContext,
-      relayerFee: input.relayerFee,
-      relayerFeeLowerBound: relayerFeeLowerBound,
       data,
       input,
     });
@@ -87,18 +89,18 @@ export const metaTx = async <T extends MetaTxType>(
 
     const recvAmountLowerBound = expectedFulfillFee.mul(100 - relayerFeeLowerBound).div(100);
 
-    if (BigNumber.from(input.relayerFee).lt(recvAmountLowerBound)) {
+    if (BigNumber.from(data.relayerFee).lt(recvAmountLowerBound)) {
       throw new NotEnoughRelayerFee(chainId, {
         methodContext,
         requestContext,
-        relayerFee: input.relayerFee,
+        relayerFee: data.relayerFee,
         recvAmountLowerBound: recvAmountLowerBound.toString(),
         input,
         type,
       });
     }
 
-    const receipt = await contractWriter.fulfill(
+    receipt = await contractWriter.fulfill(
       txData.sendingChainId,
       {
         txData,
@@ -110,7 +112,6 @@ export const metaTx = async <T extends MetaTxType>(
     );
 
     logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
-    return receipt;
   } else {
     // router contract methods
     const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
@@ -139,18 +140,18 @@ export const metaTx = async <T extends MetaTxType>(
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
 
-      if (BigNumber.from(relayerFee).lt(recvAmountLowerBound)) {
+      if (BigNumber.from(data.relayerFee).lt(recvAmountLowerBound)) {
         throw new NotEnoughRelayerFee(chainId, {
           methodContext,
           requestContext,
-          relayerFee: input.relayerFee,
+          relayerFee: data.relayerFee,
           recvAmountLowerBound: recvAmountLowerBound.toString(),
           type,
           input,
         });
       }
 
-      const receipt = await contractWriter.prepare(
+      receipt = await contractWriter.prepare(
         chainId,
         {
           txData,
@@ -165,7 +166,6 @@ export const metaTx = async <T extends MetaTxType>(
         requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
-      return receipt;
     } else if (type === MetaTxTypes.RouterContractFulfill) {
       const {
         params: { txData, callData, signature, relayerFee },
@@ -187,14 +187,14 @@ export const metaTx = async <T extends MetaTxType>(
         throw new NotEnoughRelayerFee(chainId, {
           methodContext,
           requestContext,
-          relayerFee: input.relayerFee,
+          relayerFee: data.relayerFee,
           recvAmountLowerBound: recvAmountLowerBound.toString(),
           type,
           input,
         });
       }
 
-      const receipt = await contractWriter.fulfill(
+      receipt = await contractWriter.fulfill(
         chainId,
         {
           txData,
@@ -207,7 +207,6 @@ export const metaTx = async <T extends MetaTxType>(
         routerRelayerFee.toString(),
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
-      return receipt;
     } else if (type === MetaTxTypes.RouterContractCancel) {
       const {
         params: { txData },
@@ -230,18 +229,18 @@ export const metaTx = async <T extends MetaTxType>(
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
 
-      if (BigNumber.from(relayerFee).lt(recvAmountLowerBound)) {
+      if (BigNumber.from(data.relayerFee).lt(recvAmountLowerBound)) {
         throw new NotEnoughRelayerFee(chainId, {
           methodContext,
           requestContext,
-          relayerFee: input.relayerFee,
+          relayerFee: data.relayerFee,
           recvAmountLowerBound: recvAmountLowerBound.toString(),
           type,
           input,
         });
       }
 
-      const receipt = await contractWriter.cancel(
+      receipt = await contractWriter.cancel(
         chainId,
         {
           txData,
@@ -252,7 +251,8 @@ export const metaTx = async <T extends MetaTxType>(
         requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
-      return receipt;
     }
   }
+
+  return receipt;
 };
