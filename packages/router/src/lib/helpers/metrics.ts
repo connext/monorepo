@@ -158,6 +158,9 @@ export const incrementFees = async (
   amount: string,
   _requestContext: RequestContext,
 ) => {
+  if (amount === "0") {
+    return;
+  }
   const { logger } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(incrementFees.name, _requestContext);

@@ -431,6 +431,7 @@ export const handleSingle = async (
       // wrap in promise so it isnt awaited
       const incrementFeesPromise = async () => {
         // Get the fees in sending asset
+        // NOTE: may not be exact same rate depending on oracle returns
         const receivedInSendingAsset = await getSenderAmount(
           BigNumber.from(_transaction.crosschainTx.receiving!.amount),
           _transaction.crosschainTx.invariant.sendingAssetId,
@@ -449,7 +450,7 @@ export const handleSingle = async (
         await incrementFees(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
-          feeInSending.toString(),
+          feeInSending.gt(0) ? feeInSending.toString() : "0",
           requestContext,
         );
       };
