@@ -231,7 +231,6 @@ export const fulfill = async (
       .waitFor(300_000);
     const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
     return receipt;
-  } else {
   }
 
   const nxtpContractAddress = getContractAddress(chainId);
