@@ -45,7 +45,6 @@ export const onchainLiquidity = new Gauge({
   },
 });
 
-// TODO: sender or receiver volume?
 // Track volume from receiver side (before fees). Incremented by the
 // exit liquidity provided by router on transfer completion via the
 // `incrementTotalTransferredVolume` function
@@ -62,32 +61,62 @@ export const totalTransferredVolume = new Counter({
 export const receivedAuction = new Counter({
   name: "router_auction_received",
   help: "router_auction_received_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
+  labelNames: [
+    "sendingAssetId",
+    "receivingAssetId",
+    "sendingChainId",
+    "receivingChainId",
+    "sendingAssetName",
+    "receivingAssetName",
+  ] as const,
 });
 
 // Incremented when an auction response is sent
 export const attemptedAuction = new Counter({
   name: "router_auction_attempt",
   help: "router_auction_attempt_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
+  labelNames: [
+    "sendingAssetId",
+    "receivingAssetId",
+    "sendingChainId",
+    "receivingChainId",
+    "sendingAssetName",
+    "receivingAssetName",
+  ] as const,
 });
 
 // Incremented when receiver transaction first handled (either prepared or cancelled)
 export const successfulAuction = new Counter({
   name: "router_auction_successful",
   help: "router_auction_successful_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
+  labelNames: [
+    "sendingAssetId",
+    "receivingAssetId",
+    "sendingChainId",
+    "receivingChainId",
+    "sendingAssetName",
+    "receivingAssetName",
+  ] as const,
 });
 
 //////////////////////////
 ///// Transfers
+
+// TODO: active transactions
 
 // Incremented when a transaction is successfully prepared
 // and router funds are locked
 export const attemptedTransfer = new Counter({
   name: "router_transfer_attempt",
   help: "router_transfer_attempt_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
+  labelNames: [
+    "sendingAssetId",
+    "receivingAssetId",
+    "sendingChainId",
+    "receivingChainId",
+    "sendingAssetName",
+    "receivingAssetName",
+  ] as const,
 });
 
 // Track completed transfers. Incremented when a router unlocks
@@ -95,7 +124,14 @@ export const attemptedTransfer = new Counter({
 export const completedTransfer = new Counter({
   name: "router_transfer_successful",
   help: "router_transfer_successful_help",
-  labelNames: ["sendingAssetId", "receivingAssetId", "sendingChainId", "receivingChainId", "assetName"] as const,
+  labelNames: [
+    "sendingAssetId",
+    "receivingAssetId",
+    "sendingChainId",
+    "receivingChainId",
+    "sendingAssetName",
+    "receivingAssetName",
+  ] as const,
 });
 
 //////////////////////////
@@ -122,7 +158,7 @@ export const gasConsumed = new Counter({
 export const liquiditySupplied = new Gauge({
   name: "liquidity_supplied_usd",
   help: "liquidity_supplied_usd_help",
-  labelNames: ["assetId", "chainId", "assetName", "assetName"],
+  labelNames: ["assetId", "chainId", "assetName"],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
     Object.entries(liquidity).map(([chainId, values]) => {
@@ -199,6 +235,10 @@ export const volume = new Gauge({
 
 //////////////////////////
 ///// Low Level
+
+// TODO: more expressive
+
+// TODO: graph of active transactions
 
 export const senderExpired = new Counter({
   name: "sender_expired",

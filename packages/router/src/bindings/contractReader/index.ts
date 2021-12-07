@@ -216,9 +216,13 @@ export const handleSingle = async (
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
           receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-          assetName: getAssetName(
+          sendingAssetName: getAssetName(
             _transaction.crosschainTx.invariant.sendingAssetId,
             _transaction.crosschainTx.invariant.sendingChainId,
+          ),
+          receivingAssetName: getAssetName(
+            _transaction.crosschainTx.invariant.receivingAssetId,
+            _transaction.crosschainTx.invariant.receivingChainId,
           ),
         },
         1,
@@ -229,9 +233,13 @@ export const handleSingle = async (
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-        assetName: getAssetName(
+        sendingAssetName: getAssetName(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
+        ),
+        receivingAssetName: getAssetName(
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
         ),
       });
       incrementGasConsumed(
@@ -280,9 +288,13 @@ export const handleSingle = async (
               receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
               sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
               receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-              assetName: getAssetName(
+              sendingAssetName: getAssetName(
                 _transaction.crosschainTx.invariant.sendingAssetId,
                 _transaction.crosschainTx.invariant.sendingChainId,
+              ),
+              receivingAssetName: getAssetName(
+                _transaction.crosschainTx.invariant.receivingAssetId,
+                _transaction.crosschainTx.invariant.receivingChainId,
               ),
             },
             1,
@@ -365,9 +377,13 @@ export const handleSingle = async (
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
-        assetName: getAssetName(
+        sendingAssetName: getAssetName(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
+        ),
+        receivingAssetName: getAssetName(
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
         ),
       });
       // Update total transferred volume (denominated in receiving asset)

@@ -40,7 +40,8 @@ export const auctionRequestBinding = async (
     receivingAssetId: bid.receivingAssetId,
     sendingChainId: bid.sendingChainId,
     receivingChainId: bid.receivingChainId,
-    assetName: getAssetName(bid.sendingAssetId, bid.sendingChainId),
+    sendingAssetName: getAssetName(bid.sendingAssetId, bid.sendingChainId),
+    receivingAssetName: getAssetName(bid.receivingAssetId, bid.receivingChainId),
   });
   logger.debug("Handled auction request", requestContext, methodContext, { bid, gasFeeInReceivingToken });
 };

@@ -39,7 +39,8 @@ export const newAuction = async (
     receivingAssetId: data.receivingAssetId,
     sendingChainId: data.receivingChainId,
     receivingChainId: data.receivingChainId,
-    assetName: getAssetName(data.sendingAssetId, data.sendingChainId),
+    sendingAssetName: getAssetName(data.sendingAssetId, data.sendingChainId),
+    receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
   const { logger, config, contractReader, txService, wallet, chainData } = getContext();
