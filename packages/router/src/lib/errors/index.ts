@@ -20,6 +20,8 @@ export {
 
 export { SanitationCheckFailed, NotExistPriceOracle } from "./contracts";
 
-export { NoChainConfig, NotEnoughRelayerFee } from "./fulfill";
+export { NoChainConfig, NotEnoughRelayerFee, NotAllowedFulfillRelay } from "./fulfill";
 
 export { ReceiverTxExists } from "./cancel";
+
+export { NoTransactionId, InvalidMetaTxType } from "./metaTx";

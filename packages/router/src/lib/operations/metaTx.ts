@@ -1,5 +1,4 @@
 import {
-  ajv,
   createLoggingContext,
   MetaTxFulfillPayload,
   MetaTxPayload,
@@ -13,15 +12,14 @@ import {
 import { BigNumber, constants, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { NoChainConfig, NotEnoughRelayerFee } from "../errors";
-import { NotAllowedFulfillRelay } from "../errors/fulfill";
+import { InvalidMetaTxType, NoChainConfig, NotAllowedFulfillRelay, NotEnoughRelayerFee } from "../errors";
 import { calculateGasFee, calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
-export const metaTx = async <T extends MetaTxType>(
+export const sendMetaTx = async <T extends MetaTxType>(
   input: MetaTxPayload<T>,
   _requestContext: RequestContext<string>,
 ): Promise<providers.TransactionReceipt | undefined> => {
-  const { requestContext, methodContext } = createLoggingContext(metaTx.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(sendMetaTx.name, _requestContext);
 
   const { logger, contractWriter, config, chainData, txService, wallet } = getContext();
   logger.debug("Method start", requestContext, methodContext, { input });
@@ -243,6 +241,8 @@ export const metaTx = async <T extends MetaTxType>(
         requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
+    } else {
+      throw new InvalidMetaTxType(type, { requestContext, methodContext });
     }
   }
 
