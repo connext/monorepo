@@ -47,7 +47,7 @@ export const bindFastify = () =>
           return res.code(401).send("Unauthorized to perform this operation");
         }
         try {
-          const result = await contractWriter.removeLiquidity(
+          const result = await contractWriter.removeLiquidityTransactionManager(
             chainId,
             amount,
             assetId,
@@ -72,13 +72,9 @@ export const bindFastify = () =>
         }
         try {
           const senderTx = await prepareCancel({ senderChainId, user, transactionId });
-          const routerRelayerFeeAsset = "0x";
-          const routerRelayerFee = "0";
-          const result = await contractWriter.cancel(
+          const result = await contractWriter.cancelTransactionManager(
             senderTx.txData.sendingChainId,
             { signature: senderTx.signature ?? "0x", txData: senderTx.txData },
-            routerRelayerFeeAsset,
-            routerRelayerFee,
             requestContext,
           );
           return { transactionHash: result.transactionHash };

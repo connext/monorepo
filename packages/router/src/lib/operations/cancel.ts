@@ -5,6 +5,7 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
+  signRouterCancelTransactionPayload,
 } from "@connext/nxtp-utils";
 import { providers, constants, BigNumber, utils } from "ethers";
 
@@ -26,7 +27,7 @@ export const cancel = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter, contractReader, txService, isRouterContract, config } = getContext();
+  const { logger, contractWriter, contractReader, txService, isRouterContract, config, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -99,40 +100,62 @@ export const cancel = async (
     }
   } else {
     cancelChain = invariantData.receivingChainId;
-
-    if (isRouterContract) {
-      routerRelayerFeeAsset = utils.getAddress(
-        config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
-      );
-      const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
-        invariantData.receivingChainId,
-        invariantData.receivingAssetId,
-      );
-      routerRelayerFee = await calculateGasFee(
-        invariantData.receivingChainId,
-        routerRelayerFeeAsset,
-        relayerFeeAssetDecimal,
-        "cancel",
-        requestContext,
-        methodContext,
-        "receiving",
-      );
-    }
   }
 
-  // Send to tx service
-  logger.info("Sending cancel tx", requestContext, methodContext, { side });
+  let receipt: providers.TransactionReceipt;
 
-  const receipt = await contractWriter.cancel(
-    cancelChain,
-    {
-      txData: { ...invariantData, ...variant },
-      signature: "0x",
-    },
-    routerRelayerFeeAsset,
-    routerRelayerFee.toString(),
-    requestContext,
-  );
+  if (isRouterContract) {
+    routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+    );
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+      invariantData.receivingChainId,
+      invariantData.receivingAssetId,
+    );
+    routerRelayerFee = await calculateGasFee(
+      invariantData.receivingChainId,
+      routerRelayerFeeAsset,
+      relayerFeeAssetDecimal,
+      "cancel",
+      requestContext,
+      methodContext,
+    );
+
+    const signature = await signRouterCancelTransactionPayload(
+      { ...invariantData, ...variant },
+      "0x",
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      wallet,
+    );
+
+    receipt = await contractWriter.cancelRouterContract(
+      cancelChain,
+      {
+        txData: { ...invariantData, ...variant },
+        signature: "0x",
+      },
+      config.routerContractAddress!,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      true,
+      requestContext,
+    );
+  } else {
+    // Send to tx service
+    logger.info("Sending cancel tx", requestContext, methodContext, { side });
+
+    receipt = await contractWriter.cancelTransactionManager(
+      cancelChain,
+      {
+        txData: { ...invariantData, ...variant },
+        signature: "0x",
+      },
+      requestContext,
+    );
+  }
   logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };

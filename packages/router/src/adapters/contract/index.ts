@@ -27,6 +27,7 @@ export type ContractWriter = {
     signature: string,
     routerRelayerFeeAsset: string,
     routerRelayerFee: string,
+    useRelayer: boolean,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   fulfillTransactionManager: (
@@ -41,6 +42,7 @@ export type ContractWriter = {
     signature: string,
     routerRelayerFeeAsset: string,
     routerRelayerFee: string,
+    useRelayer: boolean,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   cancelTransactionManager: (
@@ -55,6 +57,7 @@ export type ContractWriter = {
     signature: string,
     routerRelayerFeeAsset: string,
     routerRelayerFee: string,
+    useRelayer: boolean,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
   removeLiquidityTransactionManager: (

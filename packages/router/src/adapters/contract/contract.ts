@@ -84,8 +84,8 @@ export const prepareRouterContract = async (
   signature: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
+  useRelayer: boolean,
   requestContext: RequestContext,
-  useRelayer = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(prepareRouterContract.name);
 
@@ -215,8 +215,8 @@ export const fulfillRouterContract = async (
   signature: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
+  useRelayer: boolean,
   requestContext: RequestContext,
-  useRelayer = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(fulfillRouterContract.name);
 
@@ -337,8 +337,8 @@ export const cancelRouterContract = async (
   signature: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
+  useRelayer: boolean,
   requestContext: RequestContext,
-  useRelayer = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(cancelRouterContract.name);
 

@@ -36,7 +36,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
   //   });
   // }
 
-  const { chainId, data, type } = input;
+  const { chainId, data, type, to } = input;
 
   let receipt;
 
@@ -90,7 +90,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
       });
     }
 
-    receipt = await contractWriter.fulfill(
+    receipt = await contractWriter.fulfillTransactionManager(
       txData.sendingChainId,
       {
         txData,
@@ -116,6 +116,9 @@ export const sendMetaTx = async <T extends MetaTxType>(
     if (type === MetaTxTypes.RouterContractPrepare) {
       const {
         params: { txData, amount, bidSignature, encodedBid, encryptedCallData, expiry },
+        signature,
+        relayerFee,
+        relayerFeeAsset,
       } = data as MetaTxRouterContractPreparePayload;
 
       const routerRelayerFee = await calculateGasFee(
@@ -129,18 +132,18 @@ export const sendMetaTx = async <T extends MetaTxType>(
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
 
-      if (BigNumber.from(data.relayerFee).lt(recvAmountLowerBound)) {
+      if (BigNumber.from(relayerFee).lt(recvAmountLowerBound)) {
         throw new NotEnoughRelayerFee(chainId, {
           methodContext,
           requestContext,
-          relayerFee: data.relayerFee,
+          relayerFee,
           recvAmountLowerBound: recvAmountLowerBound.toString(),
           type,
           input,
         });
       }
 
-      receipt = await contractWriter.prepare(
+      receipt = await contractWriter.prepareRouterContract(
         chainId,
         {
           txData,
@@ -150,8 +153,11 @@ export const sendMetaTx = async <T extends MetaTxType>(
           encodedBid,
           encryptedCallData,
         },
+        to,
+        signature,
         relayerFeeAsset,
         routerRelayerFee.toString(),
+        false,
         requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
@@ -182,7 +188,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
         });
       }
 
-      receipt = await contractWriter.fulfill(
+      receipt = await contractWriter.fulfillRouterContract(
         chainId,
         {
           txData,
@@ -190,9 +196,12 @@ export const sendMetaTx = async <T extends MetaTxType>(
           relayerFee,
           callData,
         },
-        requestContext,
+        to,
+        signature,
         relayerFeeAsset,
         routerRelayerFee.toString(),
+        false,
+        requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
     } else if (type === MetaTxTypes.RouterContractCancel) {
@@ -226,14 +235,17 @@ export const sendMetaTx = async <T extends MetaTxType>(
         });
       }
 
-      receipt = await contractWriter.cancel(
+      receipt = await contractWriter.cancelRouterContract(
         chainId,
         {
           txData,
           signature,
         },
+        to,
+        signature,
         relayerFeeAsset,
         routerRelayerFee.toString(),
+        false,
         requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });

@@ -4,8 +4,9 @@ import {
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
+  signRouterFulfillTransactionPayload,
 } from "@connext/nxtp-utils";
-import { providers, constants, utils } from "ethers";
+import { providers, constants, utils, Wallet } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
@@ -22,7 +23,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config, chainData, txService, isRouterContract } = getContext();
+  const { logger, contractWriter, config, txService, isRouterContract, wallet } = getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -50,7 +51,7 @@ export const fulfill = async (
     });
   }
 
-  const { signature, callData, relayerFee, amount, expiry, preparedBlockNumber } = input;
+  const { signature: fulfillSignature, callData, relayerFee, amount, expiry, preparedBlockNumber } = input;
 
   let routerRelayerFeeAsset = AddressZero;
   let routerRelayerFee = Zero;
@@ -59,6 +60,7 @@ export const fulfill = async (
     throw new NoChainConfig(invariantData.sendingChainId, { methodContext, requestContext, invariantData, input });
   }
 
+  let receipt: providers.TransactionReceipt;
   // router contract needs to have fee added
   if (isRouterContract) {
     routerRelayerFeeAsset = utils.getAddress(
@@ -75,22 +77,44 @@ export const fulfill = async (
       "fulfill",
       requestContext,
       methodContext,
-      "sending",
+    );
+
+    const signature = await signRouterFulfillTransactionPayload(
+      { ...invariantData, amount, expiry, preparedBlockNumber },
+      fulfillSignature,
+      callData,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      wallet,
+    );
+    receipt = await contractWriter.fulfillRouterContract(
+      invariantData.sendingChainId,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: fulfillSignature,
+        relayerFee: relayerFee,
+        callData: callData,
+      },
+      config.routerContractAddress!,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      true,
+      requestContext,
+    );
+  } else {
+    receipt = await contractWriter.fulfillTransactionManager(
+      invariantData.sendingChainId,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: fulfillSignature,
+        relayerFee: relayerFee,
+        callData: callData,
+      },
+      requestContext,
     );
   }
-
-  const receipt = await contractWriter.fulfill(
-    invariantData.sendingChainId,
-    {
-      txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-      signature: signature,
-      relayerFee: relayerFee,
-      callData: callData,
-    },
-    requestContext,
-    routerRelayerFeeAsset,
-    routerRelayerFee.toString(),
-  );
   logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };
