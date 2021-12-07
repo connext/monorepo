@@ -2,7 +2,7 @@ import { FallbackSubgraph, RequestContext, SubgraphSyncRecord } from "@connext/n
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
-import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
+import { ActiveTransaction, ExpressiveAssetBalance, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
 import { getContext } from "../../router";
 
@@ -49,9 +49,7 @@ export type ContractReader = {
    * @param chainId - The chain you want to determine liquidity on
    * @returns An array of asset ids and amounts of liquidity
    */
-  getExpressiveAssetBalances: (
-    chainId: number,
-  ) => Promise<{ assetId: string; amount: BigNumber; supplied: BigNumber; locked: BigNumber }[]>;
+  getExpressiveAssetBalances: (chainId: number) => Promise<ExpressiveAssetBalance[]>;
 
   getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };

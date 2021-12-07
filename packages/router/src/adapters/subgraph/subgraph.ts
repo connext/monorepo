@@ -13,7 +13,12 @@ import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
-import { ActiveTransaction, SingleChainTransaction, CrosschainTransactionStatus } from "../../lib/entities";
+import {
+  ActiveTransaction,
+  SingleChainTransaction,
+  CrosschainTransactionStatus,
+  ExpressiveAssetBalance,
+} from "../../lib/entities";
 import { handlingTracker } from "../../bindings/contractReader";
 
 import {
@@ -540,9 +545,7 @@ export const getAssetBalances = async (chainId: number): Promise<{ assetId: stri
   });
 };
 
-export const getExpressiveAssetBalances = async (
-  chainId: number,
-): Promise<{ assetId: string; amount: BigNumber; supplied: BigNumber; locked: BigNumber }[]> => {
+export const getExpressiveAssetBalances = async (chainId: number): Promise<ExpressiveAssetBalance[]> => {
   const { wallet } = getContext();
 
   const sdks = getAnalyticsSdks();
@@ -562,6 +565,9 @@ export const getExpressiveAssetBalances = async (
       amount: BigNumber.from(a.amount),
       supplied: BigNumber.from(a.supplied),
       locked: BigNumber.from(a.locked),
+      removed: BigNumber.from(a.removed),
+      volumeIn: BigNumber.from(a.volumeIn),
+      volume: BigNumber.from(a.volume),
     };
   });
 };

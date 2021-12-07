@@ -29,6 +29,8 @@ export type AssetBalance = {
   supplied: Scalars['BigInt'];
   locked: Scalars['BigInt'];
   removed: Scalars['BigInt'];
+  volume: Scalars['BigInt'];
+  volumeIn: Scalars['BigInt'];
 };
 
 export type AssetBalance_Filter = {
@@ -92,6 +94,22 @@ export type AssetBalance_Filter = {
   removed_lte?: Maybe<Scalars['BigInt']>;
   removed_in?: Maybe<Array<Scalars['BigInt']>>;
   removed_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  volume?: Maybe<Scalars['BigInt']>;
+  volume_not?: Maybe<Scalars['BigInt']>;
+  volume_gt?: Maybe<Scalars['BigInt']>;
+  volume_lt?: Maybe<Scalars['BigInt']>;
+  volume_gte?: Maybe<Scalars['BigInt']>;
+  volume_lte?: Maybe<Scalars['BigInt']>;
+  volume_in?: Maybe<Array<Scalars['BigInt']>>;
+  volume_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  volumeIn?: Maybe<Scalars['BigInt']>;
+  volumeIn_not?: Maybe<Scalars['BigInt']>;
+  volumeIn_gt?: Maybe<Scalars['BigInt']>;
+  volumeIn_lt?: Maybe<Scalars['BigInt']>;
+  volumeIn_gte?: Maybe<Scalars['BigInt']>;
+  volumeIn_lte?: Maybe<Scalars['BigInt']>;
+  volumeIn_in?: Maybe<Array<Scalars['BigInt']>>;
+  volumeIn_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum AssetBalance_OrderBy {
@@ -101,7 +119,9 @@ export enum AssetBalance_OrderBy {
   AssetId = 'assetId',
   Supplied = 'supplied',
   Locked = 'locked',
-  Removed = 'removed'
+  Removed = 'removed',
+  Volume = 'volume',
+  VolumeIn = 'volumeIn'
 }
 
 
@@ -123,6 +143,7 @@ export type DayMetric = {
   sendingTxCount: Scalars['BigInt'];
   receivingTxCount: Scalars['BigInt'];
   cancelTxCount: Scalars['BigInt'];
+  volumeIn: Scalars['BigInt'];
 };
 
 export type DayMetric_Filter = {
@@ -196,6 +217,14 @@ export type DayMetric_Filter = {
   cancelTxCount_lte?: Maybe<Scalars['BigInt']>;
   cancelTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
   cancelTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  volumeIn?: Maybe<Scalars['BigInt']>;
+  volumeIn_not?: Maybe<Scalars['BigInt']>;
+  volumeIn_gt?: Maybe<Scalars['BigInt']>;
+  volumeIn_lt?: Maybe<Scalars['BigInt']>;
+  volumeIn_gte?: Maybe<Scalars['BigInt']>;
+  volumeIn_lte?: Maybe<Scalars['BigInt']>;
+  volumeIn_in?: Maybe<Array<Scalars['BigInt']>>;
+  volumeIn_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum DayMetric_OrderBy {
@@ -206,7 +235,8 @@ export enum DayMetric_OrderBy {
   TxCount = 'txCount',
   SendingTxCount = 'sendingTxCount',
   ReceivingTxCount = 'receivingTxCount',
-  CancelTxCount = 'cancelTxCount'
+  CancelTxCount = 'cancelTxCount',
+  VolumeIn = 'volumeIn'
 }
 
 export type HourlyMetric = {
@@ -220,6 +250,7 @@ export type HourlyMetric = {
   sendingTxCount: Scalars['BigInt'];
   receivingTxCount: Scalars['BigInt'];
   cancelTxCount: Scalars['BigInt'];
+  volumeIn: Scalars['BigInt'];
 };
 
 export type HourlyMetric_Filter = {
@@ -301,6 +332,14 @@ export type HourlyMetric_Filter = {
   cancelTxCount_lte?: Maybe<Scalars['BigInt']>;
   cancelTxCount_in?: Maybe<Array<Scalars['BigInt']>>;
   cancelTxCount_not_in?: Maybe<Array<Scalars['BigInt']>>;
+  volumeIn?: Maybe<Scalars['BigInt']>;
+  volumeIn_not?: Maybe<Scalars['BigInt']>;
+  volumeIn_gt?: Maybe<Scalars['BigInt']>;
+  volumeIn_lt?: Maybe<Scalars['BigInt']>;
+  volumeIn_gte?: Maybe<Scalars['BigInt']>;
+  volumeIn_lte?: Maybe<Scalars['BigInt']>;
+  volumeIn_in?: Maybe<Array<Scalars['BigInt']>>;
+  volumeIn_not_in?: Maybe<Array<Scalars['BigInt']>>;
 };
 
 export enum HourlyMetric_OrderBy {
@@ -312,7 +351,8 @@ export enum HourlyMetric_OrderBy {
   TxCount = 'txCount',
   SendingTxCount = 'sendingTxCount',
   ReceivingTxCount = 'receivingTxCount',
-  CancelTxCount = 'cancelTxCount'
+  CancelTxCount = 'cancelTxCount',
+  VolumeIn = 'volumeIn'
 }
 
 export enum OrderDirection {
@@ -1084,7 +1124,7 @@ export type GetExpressiveAssetBalancesQueryVariables = Exact<{
 }>;
 
 
-export type GetExpressiveAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any, locked: any, supplied: any, removed: any }> };
+export type GetExpressiveAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any, locked: any, supplied: any, removed: any, volume: any, volumeIn: any }> };
 
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1100,6 +1140,8 @@ export const GetExpressiveAssetBalancesDocument = gql`
     locked
     supplied
     removed
+    volume
+    volumeIn
   }
 }
     `;

@@ -8,6 +8,8 @@ export const getExpressiveAssetBalancesQuery = gql`
       locked
       supplied
       removed
+      volume
+      volumeIn
     }
   }
 `;
