@@ -407,20 +407,26 @@ export type MetaTxPayloads = {
   [MetaTxTypes.RouterContractCancel]: MetaTxRouterContractFulfillPayload;
 };
 
-export type MetaTxFulfillPayload = FulfillParams & { isRouterContract: boolean };
+export type MetaTxFulfillPayload = FulfillParams;
 export type MetaTxRouterContractPreparePayload = {
   params: PrepareParams;
+  relayerFee: string;
+  relayerFeeAsset: string;
   signature: string;
 };
 
 export type MetaTxRouterContractCancelPayload = {
   params: CancelParams;
+  relayerFee: string;
+  relayerFeeAsset: string;
   signature: string;
   side: "sending" | "receiving";
 };
 
 export type MetaTxRouterContractFulfillPayload = {
   params: FulfillParams;
+  relayerFee: string;
+  relayerFeeAsset: string;
   signature: string;
 };
 
@@ -428,8 +434,6 @@ export type MetaTxRouterContractFulfillPayload = {
 
 export type MetaTxPayload<T extends MetaTxType> = {
   type: T; // can expand to more types
-  relayerFee: string;
-  relayerFeeAsset: string;
   to: string;
   data: MetaTxPayloads[T];
   chainId: number;
