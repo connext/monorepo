@@ -600,7 +600,6 @@ export class SyncProvider extends StaticJsonRpcProvider {
                 })
                 .catch((e) => {
                   const error = parseError(e);
-
                   reject(error);
                 });
             }),

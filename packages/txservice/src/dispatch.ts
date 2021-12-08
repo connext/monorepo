@@ -405,7 +405,8 @@ export class TransactionDispatch extends ChainRpcProvider {
                 ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
                 continue;
               } else if (error.type === TransactionAlreadyKnown.type) {
-                //
+                // Ignore, indicates provider already has this tx indexed, meaning it was sent properly.
+                break;
               }
               // This could be a reverted error, etc.
               throw error;
