@@ -1,6 +1,13 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { Counter, Gauge } from "prom-client";
-import { collectOnchainLiquidity, collectExpressiveLiquidity, getAssetName } from "../helpers/metrics";
+import {
+  collectOnchainLiquidity,
+  collectExpressiveLiquidity,
+  getAssetName,
+  collectGasBalance,
+  collectRpcHeads,
+  collectSubgraphHeads,
+} from "../helpers/metrics";
 
 //////////////////////////
 ///// Types
@@ -54,6 +61,49 @@ export const totalTransferredVolume = new Counter({
   labelNames: ["assetId", "chainId", "amount", "assetName"] as const,
 });
 
+// Tracks balance for gas on native chains. This is given in the
+// *native asset* amount rather than USD
+export const gasBalance = new Gauge({
+  name: "router_gas_balance",
+  help: "router_onchain_liquidity_help",
+  labelNames: ["chainId", "assetName"] as const,
+  async collect() {
+    const balances = await collectGasBalance();
+    Object.entries(balances).map(([chainId, balance]) => {
+      this.set({ chainId, assetName: getAssetName(constants.AddressZero, parseInt(chainId)) }, balance);
+    });
+  },
+});
+
+//////////////////////////
+///// Infra
+
+// Tracks the latest synced block on all rpcs
+export const rpcHead = new Gauge({
+  name: "rpc_head",
+  help: "rpc_head_help",
+  labelNames: ["chainId"],
+  async collect() {
+    const blocks = await collectRpcHeads();
+    Object.entries(blocks).map(([chainId, blockNumber]) => {
+      this.set({ chainId }, blockNumber);
+    });
+  },
+});
+
+// Tracks the latest synced block on all subgraphs
+export const subgraphHead = new Gauge({
+  name: "subgraph_head",
+  help: "subgraph_head_help",
+  labelNames: ["chainId"],
+  async collect() {
+    const blocks = await collectSubgraphHeads();
+    Object.entries(blocks).map(([chainId, blockNumber]) => {
+      this.set({ chainId }, blockNumber);
+    });
+  },
+});
+
 //////////////////////////
 ///// Auctions
 
@@ -101,8 +151,6 @@ export const successfulAuction = new Counter({
 
 //////////////////////////
 ///// Transfers
-
-// TODO: active transactions
 
 // Incremented when a transaction is successfully prepared
 // and router funds are locked

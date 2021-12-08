@@ -10,7 +10,7 @@ import {
   TransactionReason,
 } from "../entities";
 
-const getDecimals = async (assetId: string, chainId: number): Promise<number> => {
+export const getDecimals = async (assetId: string, chainId: number): Promise<number> => {
   const { chainData, txService } = getContext();
 
   const entry =
@@ -176,6 +176,68 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
   );
 
   return converted;
+};
+
+export const collectGasBalance = async (): Promise<Record<number, number>> => {
+  const { config, txService, wallet, logger } = getContext();
+
+  const balances: Record<number, number> = {};
+  await Promise.all(
+    Object.keys(config.chainConfig)
+      .map((c) => +c)
+      .map(async (chainId) => {
+        try {
+          const balance = await txService.getBalance(chainId, await wallet.getAddress(), constants.AddressZero);
+          balances[chainId] = +utils.formatEther(balance.toString());
+        } catch (e: any) {
+          logger.warn("Failed to get gas balance", undefined, undefined, {
+            error: e.message,
+          });
+        }
+      }),
+  );
+  return balances;
+};
+
+export const collectRpcHeads = async (): Promise<Record<number, number>> => {
+  const { config, txService, logger } = getContext();
+
+  const blocks: Record<number, number> = {};
+  await Promise.all(
+    Object.keys(config.chainConfig)
+      .map((c) => +c)
+      .map(async (chainId) => {
+        try {
+          blocks[chainId] = await txService.getBlockNumber(chainId);
+        } catch (e: any) {
+          logger.warn("Failed to get rpc head", undefined, undefined, {
+            error: e.message,
+          });
+        }
+      }),
+  );
+  return blocks;
+};
+
+export const collectSubgraphHeads = async (): Promise<Record<number, number>> => {
+  const { config, contractReader, logger } = getContext();
+
+  const blocks: Record<number, number> = {};
+  await Promise.all(
+    Object.keys(config.chainConfig)
+      .map((c) => +c)
+      .map(async (chainId) => {
+        try {
+          const records = await contractReader.getSyncRecords(chainId);
+          blocks[chainId] = Math.max(...records.map((r) => r.syncedBlock));
+        } catch (e: any) {
+          logger.warn("Failed to get subgraph head", undefined, undefined, {
+            error: e.message,
+          });
+        }
+      }),
+  );
+  return blocks;
 };
 
 export const incrementFees = async (
