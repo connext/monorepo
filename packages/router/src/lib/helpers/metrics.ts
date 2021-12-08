@@ -1,4 +1,4 @@
-import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
 import {
@@ -89,7 +89,14 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
   const assetBalances: Record<number, ExpressiveAssetBalance[]> = {};
   await Promise.all(
     chainIds.map(async (chainId) => {
-      assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
+      try {
+        assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
+      } catch (e: any) {
+        logger.warn("Failed to get expressive liquidity", requestContext, methodContext, {
+          chainId,
+          error: jsonifyError(e),
+        });
+      }
     }),
   );
 
@@ -104,9 +111,10 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
           const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
           const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
           const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
-          const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
-          const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
-          converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
+          // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
+          // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
+          // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
+          converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
         }),
       );
     }),

@@ -87,6 +87,7 @@ export const getFeesInSendingAsset = async (
   const normalizedReceived = receivedAmount.mul(BigNumber.from(10).pow(18 - receivingDecimals));
   const normalizedSending = sentAmount.mul(BigNumber.from(10).pow(18 - sendingDecimals));
 
+  // Assume 1:1 once normalized
   const fees = normalizedReceived.sub(normalizedSending).div(BigNumber.from(10).pow(18 - sendingDecimals));
 
   return fees.toString();

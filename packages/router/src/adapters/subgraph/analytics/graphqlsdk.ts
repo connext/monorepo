@@ -1124,7 +1124,7 @@ export type GetExpressiveAssetBalancesQueryVariables = Exact<{
 }>;
 
 
-export type GetExpressiveAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any, locked: any, supplied: any, removed: any, volume: any, volumeIn: any }> };
+export type GetExpressiveAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any, locked: any, supplied: any, removed: any }> };
 
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1140,8 +1140,6 @@ export const GetExpressiveAssetBalancesDocument = gql`
     locked
     supplied
     removed
-    volume
-    volumeIn
   }
 }
     `;

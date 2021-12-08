@@ -8,11 +8,23 @@ export const getExpressiveAssetBalancesQuery = gql`
       locked
       supplied
       removed
-      volume
-      volumeIn
     }
   }
 `;
+
+// export const getExpressiveAssetBalancesQuery = gql`
+//   query GetExpressiveAssetBalances($routerId: String!) {
+//     assetBalances(where: { router: $routerId }) {
+//       amount
+//       assetId
+//       locked
+//       supplied
+//       removed
+//       volume
+//       volumeIn
+//     }
+//   }
+// `;
 
 export const getBlockNumber = gql`
   query GetBlockNumber {

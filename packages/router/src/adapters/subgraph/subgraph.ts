@@ -579,8 +579,8 @@ export const getExpressiveAssetBalances = async (chainId: number): Promise<Expre
       supplied: BigNumber.from(a.supplied),
       locked: BigNumber.from(a.locked),
       removed: BigNumber.from(a.removed),
-      volumeIn: BigNumber.from(a.volumeIn),
-      volume: BigNumber.from(a.volume),
+      // volumeIn: BigNumber.from(a.volumeIn),
+      // volume: BigNumber.from(a.volume),
     };
   });
 };

@@ -20,8 +20,8 @@ export type ExpressiveAssetBalance<T = BigNumber> = {
   supplied: T;
   locked: T;
   removed: T;
-  volumeIn: T;
-  volume: T;
+  // volumeIn: T;
+  // volume: T;
 };
 
 //////////////////////////
@@ -201,37 +201,37 @@ export const liquidityRemoved = new Gauge({
   },
 });
 
-// Track volume in (i.e. amounts in sender "prepare") in USD
-// Collected via analytics subgraph
-export const volumeIn = new Gauge({
-  name: "volume_in_usd",
-  help: "volume_in_usd_help",
-  labelNames: ["assetId", "chainId", "assetName"],
-  async collect() {
-    const liquidity = await collectExpressiveLiquidity();
-    Object.entries(liquidity).map(([chainId, values]) => {
-      values.map(({ assetId, volumeIn }) => {
-        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, volumeIn);
-      });
-    });
-  },
-});
+// // Track volume in (i.e. amounts in sender "prepare") in USD
+// // Collected via analytics subgraph
+// export const volumeIn = new Gauge({
+//   name: "volume_in_usd",
+//   help: "volume_in_usd_help",
+//   labelNames: ["assetId", "chainId", "assetName"],
+//   async collect() {
+//     const liquidity = await collectExpressiveLiquidity();
+//     Object.entries(liquidity).map(([chainId, values]) => {
+//       values.map(({ assetId, volumeIn }) => {
+//         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, volumeIn);
+//       });
+//     });
+//   },
+// });
 
-// Track volume (i.e. amounts in receiver "prepare") in USD
-// Collected via analytics subgraph
-export const volume = new Gauge({
-  name: "volume_usd",
-  help: "volume_usd_help",
-  labelNames: ["assetId", "chainId", "assetName"],
-  async collect() {
-    const liquidity = await collectExpressiveLiquidity();
-    Object.entries(liquidity).map(([chainId, values]) => {
-      values.map(({ assetId, volume }) => {
-        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, volume);
-      });
-    });
-  },
-});
+// // Track volume (i.e. amounts in receiver "prepare") in USD
+// // Collected via analytics subgraph
+// export const volume = new Gauge({
+//   name: "volume_usd",
+//   help: "volume_usd_help",
+//   labelNames: ["assetId", "chainId", "assetName"],
+//   async collect() {
+//     const liquidity = await collectExpressiveLiquidity();
+//     Object.entries(liquidity).map(([chainId, values]) => {
+//       values.map(({ assetId, volume }) => {
+//         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, volume);
+//       });
+//     });
+//   },
+// });
 
 //////////////////////////
 ///// Low Level
