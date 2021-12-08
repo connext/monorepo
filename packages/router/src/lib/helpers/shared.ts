@@ -62,7 +62,7 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
 
 /**
  *
- * Converts the received amount into the sending asset
+ * Converts the received amount into the sending asset, assuming 1:1 price
  *
  * @param sendingAssetId The asset address on source chain
  * @param sendingChainId The source chain Id
@@ -70,28 +70,26 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
  * @param receivingChainId The destination chain Id
  * @returns
  */
-export const getSenderAmount = async (
+export const getFeesInSendingAsset = async (
   receivedAmount: BigNumber, // receiving asset
+  sentAmount: BigNumber,
   sendingAssetId: string,
   sendingChainId: number,
   receivingAssetId: string,
   receivingChainId: number,
 ): Promise<string> => {
   const { txService } = getContext();
-  const [sendingTokenPrice, receivingTokenPrice, sendingDecimals, receivingDecimals] = await Promise.all([
-    txService.getTokenPrice(sendingChainId, sendingAssetId),
-    txService.getTokenPrice(receivingChainId, receivingAssetId),
+  const [sendingDecimals, receivingDecimals] = await Promise.all([
     txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
     txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
   ]);
 
-  const amountInSending = receivedAmount
-    .mul(BigNumber.from(10).pow(18 - receivingDecimals)) // normalize
-    .mul(receivingTokenPrice) // usd receiving
-    .div(sendingTokenPrice) // usd sending
-    .div(BigNumber.from(10).pow(18 - sendingDecimals));
+  const normalizedReceived = receivedAmount.mul(BigNumber.from(10).pow(18 - receivingDecimals));
+  const normalizedSending = sentAmount.mul(BigNumber.from(10).pow(18 - sendingDecimals));
 
-  return amountInSending.toString();
+  const fees = normalizedReceived.sub(normalizedSending).div(BigNumber.from(10).pow(18 - sendingDecimals));
+
+  return fees.toString();
 };
 
 /**

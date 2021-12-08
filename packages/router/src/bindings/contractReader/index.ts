@@ -37,7 +37,7 @@ import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
 import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
-import { getSenderAmount } from "../../lib/helpers/shared";
+import { getFeesInSendingAsset } from "../../lib/helpers/shared";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -432,25 +432,25 @@ export const handleSingle = async (
       const incrementFeesPromise = async () => {
         // Get the fees in sending asset
         // NOTE: may not be exact same rate depending on oracle returns
-        const receivedInSendingAsset = await getSenderAmount(
+        const fees = await getFeesInSendingAsset(
           BigNumber.from(_transaction.crosschainTx.receiving!.amount),
+          BigNumber.from(_transaction.crosschainTx.sending.amount),
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
           _transaction.crosschainTx.invariant.receivingAssetId,
           _transaction.crosschainTx.invariant.receivingChainId,
         );
-        logger.info("Got receiver amount in sending asset", requestContext, methodContext, {
+        logger.info("Got fees in sending asset", requestContext, methodContext, {
           receivedAmount: _transaction.crosschainTx.receiving!.amount,
           sentAmount: _transaction.crosschainTx.sending.amount,
-          receivedInSendingAsset,
+          fees,
         });
-        const feeInSending = BigNumber.from(_transaction.crosschainTx.sending.amount).sub(receivedInSendingAsset);
 
         // Add difference between sending and receiving amount
         await incrementFees(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
-          feeInSending.gt(0) ? feeInSending.toString() : "0",
+          BigNumber.from(fees).gt(0) ? fees : "0",
           requestContext,
         );
       };
