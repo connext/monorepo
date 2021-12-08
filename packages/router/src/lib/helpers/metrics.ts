@@ -1,4 +1,5 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
+import { getAddress } from "@ethersproject/address";
 import { constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
 import {
@@ -54,7 +55,7 @@ export const convertToUsd = async (
 };
 
 export const getAssetName = (assetId: string, chainId: number): string | undefined => {
-  const { config } = getContext();
+  const { config, chainData } = getContext();
 
   // Find matching swap pool
   const match = config.swapPools.find((pool) => {
@@ -62,7 +63,24 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
     return idx !== -1;
   });
 
-  return match?.name;
+  if (match?.name) {
+    return match.name;
+  }
+
+  const entry =
+    chainData.get(chainId.toString())?.assetId[getAddress(assetId)] ??
+    chainData.get(chainId.toString())?.assetId[assetId.toUpperCase()] ??
+    chainData.get(chainId.toString())?.assetId[assetId.toLowerCase()];
+
+  if (entry?.mainnetEquivalent) {
+    const mainnetEntry =
+      chainData.get("1")?.assetId[getAddress(entry.mainnetEquivalent)] ??
+      chainData.get("1")?.assetId[entry.mainnetEquivalent.toUpperCase()] ??
+      chainData.get("1")?.assetId[entry.mainnetEquivalent.toLowerCase()];
+    return mainnetEntry?.symbol;
+  }
+
+  return entry?.symbol;
 };
 
 const collectExpressiveLiquidityCache: { retrieved: number; value?: Record<number, ExpressiveAssetBalance<number>[]> } =

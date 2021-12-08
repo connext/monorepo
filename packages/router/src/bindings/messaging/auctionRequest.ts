@@ -35,13 +35,23 @@ export const auctionRequestBinding = async (
   const { bid, bidSignature, gasFeeInReceivingToken } = await newAuction(data, requestContext);
 
   await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature, gasFeeInReceivingToken });
+  const sendingAssetName = getAssetName(bid.sendingAssetId, bid.sendingChainId);
+  const receivingAssetName = getAssetName(bid.receivingAssetId, bid.receivingChainId);
+  logger.debug("Got asset names", requestContext, methodContext, {
+    sendingAssetName,
+    receivingAssetName,
+    sendingChainId: bid.sendingChainId,
+    sendingAssetId: bid.sendingAssetId,
+    receivingChainId: bid.receivingChainId,
+    receivingAssetId: bid.receivingAssetId,
+  });
   attemptedAuction.inc({
     sendingAssetId: bid.sendingAssetId,
     receivingAssetId: bid.receivingAssetId,
     sendingChainId: bid.sendingChainId,
     receivingChainId: bid.receivingChainId,
-    sendingAssetName: getAssetName(bid.sendingAssetId, bid.sendingChainId),
-    receivingAssetName: getAssetName(bid.receivingAssetId, bid.receivingChainId),
+    sendingAssetName,
+    receivingAssetName,
   });
   logger.debug("Handled auction request", requestContext, methodContext, { bid, gasFeeInReceivingToken });
 };
