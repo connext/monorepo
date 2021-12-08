@@ -6,6 +6,7 @@ import { FulfillParams } from "./transactionManager";
 const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
 
 const CHAIN_ID = {
+  MAINNET: 1,
   RINKEBY: 4,
   GOERLI: 5,
   BSC: 56,
@@ -16,6 +17,7 @@ const CHAIN_ID = {
 };
 
 const endpoints = {
+  [CHAIN_ID.MAINNET]: "https://relay.mainnet.fra.gelato.digital/relay",
   [CHAIN_ID.RINKEBY]: "https://relay.rinkeby.fra.gelato.digital/relay",
   [CHAIN_ID.GOERLI]: "https://relay.goerli.fra.gelato.digital/relay",
   [CHAIN_ID.BSC]: "https://relay.bsc.fra.gelato.digital/relay",
