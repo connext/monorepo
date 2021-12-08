@@ -69,6 +69,7 @@ export const configMock: NxtpRouterConfig = {
   requestLimit: 2000,
   cleanUpMode: false,
   diagnosticMode: false,
+  allowedUsers: [],
 };
 
 export const prepareInputMock: PrepareInput = {

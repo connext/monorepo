@@ -22,7 +22,7 @@ import {
   NotEnoughAmount,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, SubgraphNotSynced, UserNotAllowed } from "../errors/auction";
 import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import {
@@ -78,6 +78,15 @@ export const newAuction = async (
     initiator,
   } = data;
 
+  if (
+    config.allowedUsers.length > 0 &&
+    config.allowedUsers.findIndex((u) => u.toLowerCase() === user.toLowerCase()) === -1
+  ) {
+    throw new UserNotAllowed(user, config.allowedUsers, {
+      requestContext,
+      methodContext,
+    });
+  }
   // TODO: Implement rate limit per user (approximately 1/5s ?).
 
   try {

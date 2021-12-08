@@ -158,6 +158,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   cleanUpMode: Type.Boolean(),
   priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
+  allowedUsers: Type.Array(Type.String()),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -251,6 +252,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       configJson.allowedTolerance ||
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
+    allowedUsers: process.env.NXTP_ALLOWED_USERS || configJson.allowedUsers || configFile.allowedUsers || [],
   };
 
   const overridechainRecommendedConfirmations =

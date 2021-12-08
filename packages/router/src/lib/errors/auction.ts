@@ -1,6 +1,17 @@
 import { NxtpError, SubgraphSyncRecord } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
+export class UserNotAllowed extends NxtpError {
+  cancellable = false;
+
+  static getMessage(user: string, allowed: string[]): string {
+    return `User ${user} not allowed. Allowed: ${allowed.join()}`;
+  }
+  constructor(user: string, allowed: string[], context: any = {}) {
+    super(UserNotAllowed.getMessage(user, allowed), context, UserNotAllowed.name);
+  }
+}
+
 export class NotEnoughAmount extends NxtpError {
   cancellable = true;
   constructor(context: any = {}) {
