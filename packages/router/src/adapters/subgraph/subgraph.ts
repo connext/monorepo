@@ -122,6 +122,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             routerId: routerAddress.toLowerCase(),
             receivingChainId: chainId,
             status: SdkTransactionStatus.Prepared,
+            expiry_lt: Math.floor(Date.now() / 1000),
           }),
         );
         if ((allReceiverPrepared.router?.transactions.length ?? 0) > 0) {
