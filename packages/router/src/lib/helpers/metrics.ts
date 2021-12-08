@@ -143,7 +143,7 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
   return converted;
 };
 
-export const collectOnchainLiquidity = async (): Promise<Record<number, { assetId: string; balance: number }[]>> => {
+export const collectOnchainLiquidity = async (): Promise<Record<number, { assetId: string; amount: number }[]>> => {
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
@@ -162,14 +162,14 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
   );
 
   // Convert all balances to USD
-  const converted: Record<string, { assetId: string; balance: number }[]> = {};
+  const converted: Record<string, { assetId: string; amount: number }[]> = {};
   await Promise.all(
     Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
       converted[chainId] = [];
       await Promise.all(
         assetValues.map(async (value) => {
           const usd = await convertToUsd(value.assetId, parseInt(chainId), value.amount.toString(), requestContext);
-          converted[chainId].push({ assetId: value.assetId, balance: usd });
+          converted[chainId].push({ assetId: value.assetId, amount: usd });
         }),
       );
     }),

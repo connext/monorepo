@@ -50,13 +50,13 @@ describe("collectOnchainLiquidity", () => {
       1337: [
         {
           assetId: configMock.swapPools[0].assets.find((a) => a.chainId === 1337).assetId,
-          balance: +amt * +price,
+          amount: +amt * +price,
         },
       ],
       1338: [
         {
           assetId: configMock.swapPools[0].assets.find((a) => a.chainId === 1338).assetId,
-          balance: +amt * +price,
+          amount: +amt * +price,
         },
       ],
     });
@@ -84,8 +84,8 @@ describe("collectExpressiveLiquidity", () => {
           locked: BigNumber.from(0),
           supplied: utils.parseUnits(amt, 18),
           removed: BigNumber.from(0),
-          volume: utils.parseUnits(amt, 18),
-          volumeIn: utils.parseUnits(amt, 18),
+          // volume: utils.parseUnits(amt, 18),
+          // volumeIn: utils.parseUnits(amt, 18),
         },
       ]);
     });
@@ -107,8 +107,8 @@ describe("collectExpressiveLiquidity", () => {
           supplied: +amt * +price,
           locked: 0,
           removed: 0,
-          volume: +amt * +price,
-          volumeIn: +amt * +price,
+          // volume: +amt * +price,
+          // volumeIn: +amt * +price,
         },
       ],
       1338: [
@@ -118,8 +118,8 @@ describe("collectExpressiveLiquidity", () => {
           supplied: +amt * +price,
           locked: 0,
           removed: 0,
-          volume: +amt * +price,
-          volumeIn: +amt * +price,
+          // volume: +amt * +price,
+          // volumeIn: +amt * +price,
         },
       ],
     });

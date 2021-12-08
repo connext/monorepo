@@ -38,8 +38,8 @@ export const onchainLiquidity = new Gauge({
   async collect() {
     const liquidity = await collectOnchainLiquidity();
     Object.entries(liquidity).map(([chainId, values]) => {
-      values.map(({ assetId, balance }) => {
-        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, balance);
+      values.map(({ assetId, amount }) => {
+        this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, amount);
       });
     });
   },
