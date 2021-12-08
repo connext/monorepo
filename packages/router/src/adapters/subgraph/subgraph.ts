@@ -127,7 +127,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
         if ((allReceiverPrepared.router?.transactions.length ?? 0) > 0) {
           logger.debug("Got receiver prepared", requestContext, methodContext, {
             chainId,
-            allReceiverPrepared: allReceiverPrepared.router?.transactions,
           });
         }
 
@@ -172,7 +171,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   cancelHash: senderTx.cancelTransactionHash,
                   fulfillHash: senderTx.fulfillTransactionHash,
                 },
-                receiving: {},
+                receiving: undefined,
               },
             },
             status: CrosschainTransactionStatus.ReceiverNotConfigured,
@@ -278,6 +277,13 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                         cancelHash: senderTx.cancelTransactionHash,
                         fulfillHash: senderTx.fulfillTransactionHash,
                       },
+                      receiving: correspondingReceiverTx
+                        ? {
+                            prepareHash: correspondingReceiverTx.prepareTransactionHash,
+                            cancelHash: correspondingReceiverTx.cancelTransactionHash,
+                            fulfillHash: correspondingReceiverTx.fulfillTransactionHash,
+                          }
+                        : undefined,
                     },
                   },
                   status: CrosschainTransactionStatus.ReceiverNotConfigured,
@@ -315,7 +321,22 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                     sending,
                     receiving,
                   },
-                  payload: {},
+                  payload: {
+                    hashes: {
+                      sending: {
+                        prepareHash: senderTx.prepareTransactionHash,
+                        cancelHash: senderTx.cancelTransactionHash,
+                        fulfillHash: senderTx.fulfillTransactionHash,
+                      },
+                      receiving: correspondingReceiverTx
+                        ? {
+                            prepareHash: correspondingReceiverTx.prepareTransactionHash,
+                            cancelHash: correspondingReceiverTx.cancelTransactionHash,
+                            fulfillHash: correspondingReceiverTx.fulfillTransactionHash,
+                          }
+                        : undefined,
+                    },
+                  },
                   status: CrosschainTransactionStatus.ReceiverExpired,
                 } as ActiveTransaction<"ReceiverExpired">;
               } else {
@@ -325,7 +346,22 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                     sending,
                     receiving,
                   },
-                  payload: {},
+                  payload: {
+                    hashes: {
+                      sending: {
+                        prepareHash: senderTx.prepareTransactionHash,
+                        cancelHash: senderTx.cancelTransactionHash,
+                        fulfillHash: senderTx.fulfillTransactionHash,
+                      },
+                      receiving: correspondingReceiverTx
+                        ? {
+                            prepareHash: correspondingReceiverTx.prepareTransactionHash,
+                            cancelHash: correspondingReceiverTx.cancelTransactionHash,
+                            fulfillHash: correspondingReceiverTx.fulfillTransactionHash,
+                          }
+                        : undefined,
+                    },
+                  },
                   status: CrosschainTransactionStatus.ReceiverPrepared,
                 } as ActiveTransaction<"ReceiverPrepared">;
               }
@@ -343,20 +379,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   signature: correspondingReceiverTx?.signature,
                   relayerFee: correspondingReceiverTx?.relayerFee,
                   callData: correspondingReceiverTx?.callData,
-                  hashes: {
-                    sending: {
-                      prepareHash: senderTx.prepareTransactionHash,
-                      cancelHash: senderTx.cancelTransactionHash,
-                      fulfillHash: senderTx.fulfillTransactionHash,
-                    },
-                    receiving: correspondingReceiverTx
-                      ? {
-                          prepareHash: correspondingReceiverTx.prepareTransactionHash,
-                          cancelHash: correspondingReceiverTx.cancelTransactionHash,
-                          fulfillHash: correspondingReceiverTx.fulfillTransactionHash,
-                        }
-                      : undefined,
-                  },
+                  receiverFulfilledHash: correspondingReceiverTx?.fulfillTransactionHash,
                 },
                 status: CrosschainTransactionStatus.ReceiverFulfilled,
               } as ActiveTransaction<"ReceiverFulfilled">;
@@ -397,31 +420,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             return undefined;
           }) ?? [];
         const filterUndefined = txs.filter((x) => !!x) as ActiveTransaction<any>[];
-        const remainingReceiverExpired = (allReceiverExpired.router?.transactions ?? [])
-          .filter(
-            (expTx) =>
-              !filterUndefined.map((tx) => tx.crosschainTx.invariant.transactionId).includes(expTx.transactionId),
-          )
-          .map((expTx) => {
-            const { sending: receiving, invariant } = sdkSenderTransactionToCrosschainTransaction(expTx);
-            return {
-              crosschainTx: {
-                invariant,
-                receiving,
-              },
-              payload: {
-                hashes: {
-                  receiving: {
-                    prepareHash: expTx.prepareTransactionHash,
-                    cancelHash: expTx.cancelTransactionHash,
-                    fulfillHash: expTx.fulfillTransactionHash,
-                  },
-                },
-              },
-              status: CrosschainTransactionStatus.ReceiverExpired,
-            } as ActiveTransaction<"ReceiverExpired">;
-          });
-        return filterUndefined.concat(receiverNotConfigured).concat(remainingReceiverExpired);
+        return filterUndefined.concat(receiverNotConfigured);
       } catch (e: any) {
         // Set this chain's error.
         errors.set(cId, e);
