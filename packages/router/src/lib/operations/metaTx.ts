@@ -53,7 +53,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
   }
 
   const relayerFeeLowerBound = config.chainConfig[chainId].relayerFeeThreshold;
-  if (!config.allowRelay || !config.chainConfig[chainId].allowRelay) {
+  if (!config.allowRelay && !config.chainConfig[chainId].allowRelay) {
     // TODO: should we throwing error if relayer is not allowed?
     // router shouldn't listen to metaTx request in first place if it's not allowed to relay
     throw new NotAllowedFulfillRelay(chainId, {
@@ -98,7 +98,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
     }
 
     receipt = await contractWriter.fulfillTransactionManager(
-      txData.sendingChainId,
+      chainId,
       {
         txData,
         signature: signature,
