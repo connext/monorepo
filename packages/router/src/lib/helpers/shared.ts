@@ -49,15 +49,6 @@ export const getContractAddress = (chainId: number): string => {
   return nxtpContractAddress;
 };
 
-export const getOracleContractAddress = (chainId: number, requestContext: RequestContext): string => {
-  const { config } = getContext();
-  const oracleContractAddress = config.chainConfig[chainId]?.priceOracleAddress;
-  if (!oracleContractAddress) {
-    throw new NotExistPriceOracle(chainId, requestContext);
-  }
-  return oracleContractAddress;
-};
-
 export const getRouterContractInterface = () => new Interface(RouterArtifact.abi) as TRouter["interface"];
 
 export const getTxManagerInterface = () =>
