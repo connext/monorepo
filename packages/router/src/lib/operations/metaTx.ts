@@ -1,4 +1,5 @@
 import {
+  ajv,
   createLoggingContext,
   MetaTxFulfillPayload,
   MetaTxPayload,
@@ -12,7 +13,14 @@ import {
 import { BigNumber, constants, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
-import { InvalidMetaTxType, NoChainConfig, NotAllowedFulfillRelay, NotEnoughRelayerFee } from "../errors";
+import { MetaTxInputSchema } from "../entities";
+import {
+  InvalidMetaTxType,
+  NoChainConfig,
+  NotAllowedFulfillRelay,
+  NotEnoughRelayerFee,
+  ParamsInvalid,
+} from "../errors";
 import { calculateGasFee, calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
 export const sendMetaTx = async <T extends MetaTxType>(
@@ -25,16 +33,16 @@ export const sendMetaTx = async <T extends MetaTxType>(
   logger.debug("Method start", requestContext, methodContext, { input });
 
   // Validate Input schema
-  // const validateInput = ajv.compile(MetaTxInputSchema);
-  // const validInput = validateInput(input);
-  // if (!validInput) {
-  //   const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-  //   throw new ParamsInvalid({
-  //     methodContext,
-  //     requestContext,
-  //     paramsError: msg,
-  //   });
-  // }
+  const validateInput = ajv.compile(MetaTxInputSchema);
+  const validInput = validateInput(input);
+  if (!validInput) {
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    throw new ParamsInvalid({
+      methodContext,
+      requestContext,
+      paramsError: msg,
+    });
+  }
 
   const { chainId, data, type, to } = input;
 
@@ -45,7 +53,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
   }
 
   const relayerFeeLowerBound = config.chainConfig[chainId].relayerFeeThreshold;
-  if (!config.allowRelay) {
+  if (!config.allowRelay || !config.chainConfig[chainId].allowRelay) {
     // TODO: should we throwing error if relayer is not allowed?
     // router shouldn't listen to metaTx request in first place if it's not allowed to relay
     throw new NotAllowedFulfillRelay(chainId, {
@@ -78,7 +86,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
     });
 
     const recvAmountLowerBound = expectedFulfillFee.mul(100 - relayerFeeLowerBound).div(100);
-
     if (BigNumber.from(data.relayerFee).lt(recvAmountLowerBound)) {
       throw new NotEnoughRelayerFee(chainId, {
         methodContext,
@@ -156,7 +163,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
         to,
         signature,
         relayerFeeAsset,
-        routerRelayerFee.toString(),
+        relayerFee,
         false,
         requestContext,
       );

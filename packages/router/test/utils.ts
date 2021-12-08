@@ -30,7 +30,7 @@ export const configMock: NxtpRouterConfig = {
       priceOracleAddress: mkAddress("0x0"),
       multicallAddress: mkAddress("0x1"),
       minGas: "100",
-      relayerFeeThreshold: 100,
+      relayerFeeThreshold: 10,
       subgraphSyncBuffer: 10,
       gasStations: [],
       allowRelay: true,
@@ -43,7 +43,7 @@ export const configMock: NxtpRouterConfig = {
       priceOracleAddress: mkAddress("0x0"),
       multicallAddress: mkAddress("0x1"),
       minGas: "100",
-      relayerFeeThreshold: 100,
+      relayerFeeThreshold: 10,
       subgraphSyncBuffer: 10,
       gasStations: [],
       allowRelay: true,
@@ -148,3 +148,7 @@ export const chainDataMock = chainDataToMap([
     confirmations: 1,
   },
 ]);
+
+export const relayerFeeMock = "1234";
+
+export const callDataMock = "0xabc";
