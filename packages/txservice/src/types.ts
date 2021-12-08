@@ -1,7 +1,7 @@
 import { delay, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, providers, utils } from "ethers";
 
-import { MaxBufferLengthError, parseError, RpcError, TransactionAlreadyKnown, TransactionBackfilled } from "./error";
+import { MaxBufferLengthError, parseError, RpcError, TransactionBackfilled } from "./error";
 
 export const { StaticJsonRpcProvider } = providers;
 
@@ -615,18 +615,15 @@ export class SyncProvider extends StaticJsonRpcProvider {
           ),
         );
       } catch (error) {
-        // If the error thrown is a timeout or non-RPC error, we want to go ahead and throw it.
-        if (
-          error.type === TransactionAlreadyKnown.type ||
-          (error.type === RpcError.type && (error as RpcError).reason === RpcError.reasons.Timeout)
-        ) {
-          throw error;
-        } else {
+        // If the error is an RPC Error (that's not a Timeout) we want to throw it.
+        if (error.type === RpcError.type && error.reason !== RpcError.reasons.Timeout) {
           this.updateMetrics(false, sendTimestamp, i, method, params, {
             type: error.type.toString(),
             context: error.context,
           });
           errors.push(error);
+        } else {
+          throw error;
         }
       }
     }
