@@ -203,49 +203,44 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   if (transaction!.chainId == transaction!.receivingChainId) {
     // Get asset balance
     const receivingAssetBalance = getOrCreateAssetBalance(transaction!.receivingAssetId, event.params.router);
-
-    // router releases locked liquidity on receiver fulfill
-    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(transaction!.amount);
-    receivingAssetBalance.save();
-
-    // Update metrics
+    // load metrics
     const dayMetricReceiving = getOrCreateDayMetric(event.block.timestamp, transaction!.receivingAssetId);
     const hourlyMetricReceiving = getOrCreateHourlyMetric(event.block.timestamp, transaction!.receivingAssetId);
 
+    // router releases locked liquidity on receiver fulfill
+    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(transaction!.amount);
+    receivingAssetBalance.volume = receivingAssetBalance.volume.plus(transaction!.amount);
+
+    // Update metrics
     hourlyMetricReceiving.volume = hourlyMetricReceiving.volume.plus(transaction!.amount);
-    hourlyMetricReceiving.txCount = hourlyMetricReceiving.txCount.plus(BigInt.fromI32(1));
     hourlyMetricReceiving.receivingTxCount = hourlyMetricReceiving.receivingTxCount.plus(BigInt.fromI32(1));
 
     dayMetricReceiving.volume = dayMetricReceiving.volume.plus(transaction!.amount);
-    dayMetricReceiving.txCount = dayMetricReceiving.txCount.plus(BigInt.fromI32(1));
     dayMetricReceiving.receivingTxCount = dayMetricReceiving.receivingTxCount.plus(BigInt.fromI32(1));
 
     // Save
+    receivingAssetBalance.save();
     hourlyMetricReceiving.save();
     dayMetricReceiving.save();
   } else if (transaction!.chainId == transaction!.sendingChainId) {
     // Get asset balance
     const sendingAssetBalance = getOrCreateAssetBalance(transaction!.sendingAssetId, event.params.router);
-
-    // router receives liquidity back on sender fulfill
-    sendingAssetBalance.amount = sendingAssetBalance.amount.plus(transaction!.amount);
-    sendingAssetBalance.save();
-
     // load metrics
     const dayMetricsSending = getOrCreateDayMetric(event.block.timestamp, transaction!.sendingAssetId);
     const hourlyMetricsSending = getOrCreateHourlyMetric(event.block.timestamp, transaction!.sendingAssetId);
 
-    // update
-    if (hourlyMetricsSending.liquidity < sendingAssetBalance.amount) {
-      hourlyMetricsSending.liquidity = sendingAssetBalance.amount;
-    }
+    // router receives liquidity back on sender fulfill
+    sendingAssetBalance.amount = sendingAssetBalance.amount.plus(transaction!.amount);
+    sendingAssetBalance.volumeIn = sendingAssetBalance.volumeIn.plus(transaction!.amount);
+
     hourlyMetricsSending.volumeIn = hourlyMetricsSending.volumeIn.plus(transaction!.amount);
     hourlyMetricsSending.sendingTxCount = hourlyMetricsSending.sendingTxCount.plus(BigInt.fromI32(1));
 
-    dayMetricsSending.sendingTxCount = dayMetricsSending.sendingTxCount.plus(BigInt.fromI32(1));
     dayMetricsSending.volumeIn = dayMetricsSending.volumeIn.plus(transaction!.amount);
+    dayMetricsSending.sendingTxCount = dayMetricsSending.sendingTxCount.plus(BigInt.fromI32(1));
 
     // Save
+    sendingAssetBalance.save();
     hourlyMetricsSending.save();
     dayMetricsSending.save();
   }
@@ -271,24 +266,23 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
 
   // router receives liquidity back on receiver cancel
   if (transaction!.chainId == transaction!.receivingChainId) {
-    const assetBalance = getOrCreateAssetBalance(transaction!.receivingAssetId, event.params.router);
-    // Should always be defined because will always be created on
+    const receivingAssetBalance = getOrCreateAssetBalance(transaction!.receivingAssetId, event.params.router);
+    const dayMetricReceiving = getOrCreateDayMetric(event.block.timestamp, transaction!.receivingAssetId);
+    const hourlyMetricReceiving = getOrCreateHourlyMetric(event.block.timestamp, transaction!.receivingAssetId);
+
     // preparation for the receiving chain
-    assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
-    assetBalance.locked = assetBalance.locked.minus(transaction!.amount);
-    assetBalance.save();
+    receivingAssetBalance.amount = receivingAssetBalance.amount.plus(transaction!.amount);
+    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(transaction!.amount);
+
+    // update metrics
+    hourlyMetricReceiving.cancelTxCount = hourlyMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
+    dayMetricReceiving.cancelTxCount = dayMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
+
+    // save
+    receivingAssetBalance.save();
+    hourlyMetricReceiving.save();
+    dayMetricReceiving.save();
   }
-
-  // update metrics
-  const dayMetricReceiving = getOrCreateDayMetric(event.block.timestamp, transaction!.receivingAssetId);
-  const hourlyMetricReceiving = getOrCreateHourlyMetric(event.block.timestamp, transaction!.receivingAssetId);
-
-  hourlyMetricReceiving.cancelTxCount = hourlyMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
-  dayMetricReceiving.cancelTxCount = dayMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
-
-  // save
-  hourlyMetricReceiving.save();
-  dayMetricReceiving.save();
 }
 
 function getOrCreateAssetBalance(assetId: Bytes, router: Address): AssetBalance {
@@ -319,8 +313,6 @@ function getOrCreateHourlyMetric(timestamp: BigInt, assetId: Bytes): HourlyMetri
     hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
     hourlyMetric.assetId = assetId.toHex();
     hourlyMetric.volume = BigInt.fromI32(0);
-    hourlyMetric.liquidity = BigInt.fromI32(0);
-    hourlyMetric.txCount = BigInt.fromI32(0);
     hourlyMetric.sendingTxCount = BigInt.fromI32(0);
     hourlyMetric.receivingTxCount = BigInt.fromI32(0);
     hourlyMetric.cancelTxCount = BigInt.fromI32(0);
@@ -341,7 +333,6 @@ function getOrCreateDayMetric(timestamp: BigInt, assetId: Bytes): DayMetric {
     dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
     dayMetric.assetId = assetId.toHex();
     dayMetric.volume = BigInt.fromI32(0);
-    dayMetric.txCount = BigInt.fromI32(0);
     dayMetric.sendingTxCount = BigInt.fromI32(0);
     dayMetric.receivingTxCount = BigInt.fromI32(0);
     dayMetric.cancelTxCount = BigInt.fromI32(0);
