@@ -125,7 +125,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
         params: { txData, amount, bidSignature, encodedBid, encryptedCallData, expiry },
         signature,
         relayerFee,
-        relayerFeeAsset,
       } = data as MetaTxRouterContractPreparePayload;
 
       const routerRelayerFee = await calculateGasFee(
@@ -170,7 +169,9 @@ export const sendMetaTx = async <T extends MetaTxType>(
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
     } else if (type === MetaTxTypes.RouterContractFulfill) {
       const {
-        params: { txData, callData, signature, relayerFee },
+        params: { txData, callData, signature: fulfillSignature, relayerFee: fulfillRelayerFee },
+        signature,
+        relayerFee,
       } = data as MetaTxRouterContractFulfillPayload;
 
       const routerRelayerFee = await calculateGasFee(
@@ -199,22 +200,23 @@ export const sendMetaTx = async <T extends MetaTxType>(
         chainId,
         {
           txData,
-          signature,
-          relayerFee,
+          signature: fulfillSignature,
+          relayerFee: fulfillRelayerFee,
           callData,
         },
         to,
         signature,
         relayerFeeAsset,
-        routerRelayerFee.toString(),
+        relayerFee,
         false,
         requestContext,
       );
       logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
     } else if (type === MetaTxTypes.RouterContractCancel) {
       const {
-        params: { txData },
+        params: { txData, signature: cancelSignature },
         signature,
+        relayerFee,
       } = data as MetaTxRouterContractCancelPayload;
 
       const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
@@ -246,12 +248,12 @@ export const sendMetaTx = async <T extends MetaTxType>(
         chainId,
         {
           txData,
-          signature,
+          signature: cancelSignature,
         },
         to,
         signature,
         relayerFeeAsset,
-        routerRelayerFee.toString(),
+        relayerFee,
         false,
         requestContext,
       );

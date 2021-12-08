@@ -174,19 +174,42 @@ describe("Meta Tx Operation", () => {
     await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotEnoughRelayerFee);
   });
 
-  it.skip("happy: should work with metatx router contract fulfill type", async () => {
+  it("happy: should work with metatx router contract fulfill type", async () => {
     const metaTxMock = metaTxInputMock("RouterContractFulfill");
     const receipt = await sendMetaTx(metaTxMock as any, requestContext);
     expect(receipt).to.deep.eq(txReceiptMock);
-    expect(contractWriterMock.prepareRouterContract).to.be.calledOnceWithExactly(
+    expect(contractWriterMock.fulfillRouterContract).to.be.calledOnceWithExactly(
       metaTxMock.chainId,
       {
         txData: metaTxMock.data.params.txData,
-        amount: metaTxMock.data.params.amount,
-        expiry: metaTxMock.data.params.expiry,
-        bidSignature: metaTxMock.data.params.bidSignature,
-        encodedBid: metaTxMock.data.params.encodedBid,
-        encryptedCallData: metaTxMock.data.params.encryptedCallData,
+        signature: metaTxMock.data.params.signature,
+        relayerFee: metaTxMock.data.params.relayerFee,
+        callData: metaTxMock.data.params.callData,
+      },
+      metaTxMock.to,
+      metaTxMock.data.signature,
+      metaTxMock.data.relayerFeeAsset,
+      metaTxMock.data.relayerFee,
+      false,
+      requestContext,
+    );
+  });
+
+  it("should error on metatx router contract fulfill type if fee is < expected", async () => {
+    const metaTxMock = metaTxInputMock("RouterContractCancel");
+    calculateGasFeeStub.resolves(BigNumber.from(12345)); // expected 1234
+    await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotEnoughRelayerFee);
+  });
+
+  it("happy: should work with metatx router contract fulfill type", async () => {
+    const metaTxMock = metaTxInputMock("RouterContractCancel");
+    const receipt = await sendMetaTx(metaTxMock as any, requestContext);
+    expect(receipt).to.deep.eq(txReceiptMock);
+    expect(contractWriterMock.cancelRouterContract).to.be.calledOnceWithExactly(
+      metaTxMock.chainId,
+      {
+        txData: metaTxMock.data.params.txData,
+        signature: metaTxMock.data.params.signature,
       },
       metaTxMock.to,
       metaTxMock.data.signature,
