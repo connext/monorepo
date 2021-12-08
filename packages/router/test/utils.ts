@@ -27,6 +27,7 @@ export const configMock: NxtpRouterConfig = {
       subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xaaa"),
       priceOracleAddress: mkAddress("0x0"),
+      multicallAddress: mkAddress("0x1"),
       minGas: "100",
       relayerFeeThreshold: 100,
       allowFulfillRelay: true,
@@ -40,6 +41,7 @@ export const configMock: NxtpRouterConfig = {
       subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xbbb"),
       priceOracleAddress: mkAddress("0x0"),
+      multicallAddress: mkAddress("0x1"),
       minGas: "100",
       relayerFeeThreshold: 100,
       allowFulfillRelay: true,
@@ -58,11 +60,15 @@ export const configMock: NxtpRouterConfig = {
         { assetId: mkAddress("0xc"), chainId: 1337 },
         { assetId: mkAddress("0xd"), chainId: 1338 },
       ],
+      mainnetEquivalent: mkAddress("0xd"),
     },
   ],
+  allowedTolerance: 10,
   host: "0.0.0.0",
   port: 8080,
   requestLimit: 2000,
+  cleanUpMode: false,
+  diagnosticMode: false,
 };
 
 export const prepareInputMock: PrepareInput = {
@@ -83,10 +89,15 @@ export const fulfillInputMock: FulfillInput = {
   side: "receiver",
 };
 
+export const mockHashes = {
+  prepareHash: mkBytes32("0xa"),
+};
+
 export const cancelInputMock: CancelInput = {
   amount: variantDataMock.amount,
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
+  preparedTransactionHash: mockHashes.prepareHash,
   side: "sender",
 };
 
@@ -103,7 +114,7 @@ export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> =
     bidSignature: "0xdbc",
     encodedBid: "0xdef",
     encryptedCallData: "0xabc",
-    senderPreparedHash: mkBytes32("0xa"),
+    hashes: { sending: mockHashes },
   },
   status: CrosschainTransactionStatus.SenderPrepared,
 };
@@ -114,7 +125,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
     callData: "0x",
     relayerFee: "100000",
     signature: "0xabc",
-    receiverFulfilledHash: mkBytes32("0xa"),
+    hashes: { sending: mockHashes, receiving: { ...mockHashes, fulfillHash: mkBytes32("0xb") } },
   },
   status: CrosschainTransactionStatus.ReceiverFulfilled,
 };

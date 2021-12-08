@@ -24,3 +24,6 @@ export * from "./fallbackSubgraph";
 export * from "./gelato";
 export * from "./router";
 export * from "./stableMath";
+export * from "./multicall";
+export * from "./abis";
+export * from "./providers";

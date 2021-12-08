@@ -1,4 +1,4 @@
-import { createRequestContext, invariantDataMock, txReceiptMock, expect } from "@connext/nxtp-utils";
+import { invariantDataMock, txReceiptMock, expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
 
 import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";
@@ -6,7 +6,7 @@ import { fulfillInputMock } from "../../utils";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { stub } from "sinon";
 
-const requestContext = createRequestContext("TEST");
+const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 
 const { fulfill } = getOperations();
 

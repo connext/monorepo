@@ -25,6 +25,8 @@ import {
 } from "../../src/transactionManager/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
 import { deployContract } from "../../../contracts/test/utils";
+import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { ChainReader } from "../../../txservice/dist";
 
 const { AddressZero } = constants;
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
@@ -46,6 +48,7 @@ describe("Transaction Manager", function () {
 
   const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
 
+  let chainReader: SinonStubbedInstance<ChainReader>;
   let userTransactionManager: TransactionManager;
   let routerTransactionManager: TransactionManager;
   let transactionManager: TransactionManagerTypechain;
@@ -107,6 +110,9 @@ describe("Transaction Manager", function () {
   });
 
   beforeEach(async () => {
+    chainReader = createStubInstance(ChainReader);
+    chainReader.isSupportedChain.returns(true);
+
     ({ transactionManager, transactionManagerReceiverSide, tokenA, tokenB } = await loadFixture(fixture));
 
     await addPrivileges(transactionManager, [router.address], [AddressZero, tokenA.address, tokenB.address]);
@@ -130,16 +136,15 @@ describe("Transaction Manager", function () {
     userTransactionManager = new TransactionManager(
       {
         [sendingChainId]: {
-          provider: user.provider,
           transactionManagerAddress: transactionManager.address,
           priceOracleAddress: undefined,
         },
         [receivingChainId]: {
-          provider: user.provider,
           transactionManagerAddress: transactionManagerReceiverSide.address,
           priceOracleAddress: undefined,
         },
       },
+      chainReader as any,
       user.getAddress(),
       logger,
     );
@@ -147,16 +152,15 @@ describe("Transaction Manager", function () {
     routerTransactionManager = new TransactionManager(
       {
         [sendingChainId]: {
-          provider: router.provider,
           transactionManagerAddress: transactionManager.address,
           priceOracleAddress: undefined,
         },
         [receivingChainId]: {
-          provider: router.provider,
           transactionManagerAddress: transactionManagerReceiverSide.address,
           priceOracleAddress: undefined,
         },
       },
+      chainReader as any,
       router.getAddress(),
       logger,
     );
@@ -381,6 +385,12 @@ describe("Transaction Manager", function () {
     });
 
     describe("#approveTokensIfNeeded", () => {
+      beforeEach(() => {
+        chainReader.readTx.callsFake(async (tx: any): Promise<string> => {
+          return await user.provider.call(tx);
+        });
+      });
+
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
         await expect(
@@ -412,6 +422,12 @@ describe("Transaction Manager", function () {
     });
 
     describe("#getRouterLiquidity", () => {
+      beforeEach(() => {
+        chainReader.readTx.callsFake(async (tx: any): Promise<string> => {
+          return await router.provider.call(tx);
+        });
+      });
+
       it("should error if unfamiliar chainId", async () => {
         const InvalidChainId = 123;
         await expect(

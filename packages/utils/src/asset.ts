@@ -26,6 +26,9 @@ export const getDecimalsForAsset = async (
       return decimals;
     }
   }
+  if (assetId === constants.AddressZero) {
+    return 18;
+  }
   const contract = new Contract(assetId, ERC20Abi, provider);
   return await contract.decimals();
 };

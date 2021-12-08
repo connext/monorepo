@@ -10,8 +10,8 @@ import * as graphqlsdk from "../../src/subgraph/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
-import { InvalidTxStatus } from "../../src/error";
 import { convertTransactionToTxData, createSubgraphEvts, Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
+import { ChainReader } from "../../../txservice/dist";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -120,6 +120,7 @@ const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
 describe("Subgraph", () => {
   let subgraph: Subgraph;
   let signer: SinonStubbedInstance<Wallet>;
+  let chainReader: SinonStubbedInstance<ChainReader>;
   let sendingChainId: number = 1337;
   let receivingChainId: number = 1338;
   let user: string = mkAddress("0xa");
@@ -187,6 +188,9 @@ describe("Subgraph", () => {
     signer = createStubInstance(Wallet);
     signer.getAddress.resolves(user);
 
+    chainReader = createStubInstance(ChainReader);
+    chainReader.isSupportedChain.resolves(true);
+
     sdkStub = {
       GetSenderTransactions: stub().resolves({ transactions: [] }),
       GetReceiverTransactions: stub().resolves({ transactions: [] }),
@@ -198,7 +202,7 @@ describe("Subgraph", () => {
     getSdkStub = stub(graphqlsdk, "getSdk");
     getSdkStub.returns(sdkStub);
 
-    subgraph = new Subgraph(signer.getAddress(), chainConfig as any, logger);
+    subgraph = new Subgraph(signer.getAddress(), chainConfig as any, chainReader as any, logger);
   });
 
   afterEach(() => {

@@ -7,21 +7,6 @@ import { ReactElement, useEffect, useState } from "react";
 import "./App.css";
 import { Router } from "./components/Router";
 import { Swap } from "./components/Swap";
-import { chainConfig } from "./constants";
-
-export const chainProviders: Record<
-  number,
-  { provider: providers.FallbackProvider; subgraph?: string; transactionManagerAddress?: string }
-> = {};
-Object.entries(chainConfig).forEach(([chainId, { provider, subgraph, transactionManagerAddress }]) => {
-  chainProviders[parseInt(chainId)] = {
-    provider: new providers.FallbackProvider(
-      provider.map((p) => new providers.StaticJsonRpcProvider(p, parseInt(chainId))),
-    ),
-    subgraph,
-    transactionManagerAddress,
-  };
-});
 
 function App(): ReactElement | null {
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();

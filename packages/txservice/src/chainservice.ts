@@ -5,7 +5,7 @@ import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connex
 import { TransactionServiceConfig, ChainConfig } from "./config";
 import {
   WriteTransaction,
-  Transaction,
+  OnchainTransaction,
   NxtpTxServiceEventPayloads,
   NxtpTxServiceEvent,
   NxtpTxServiceEvents,
@@ -14,10 +14,11 @@ import {
   TxServiceMinedEvent,
   TxServiceSubmittedEvent,
 } from "./types";
-import { TransactionServiceFailure } from "./error";
+import { ConfigurationError, ProviderNotConfigured } from "./error";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
 
+// TODO: Should take on the logic of Dispatch (rename to TransactionDispatch) and consume ChainReader instead of extending it.
 /**
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
@@ -90,8 +91,7 @@ export class ChainService extends ChainReader {
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
-    const chainId = tx.chainId;
-    return await this.getProvider(chainId).send(tx, context);
+    return await this.getProvider(tx.chainId).send(tx, context);
   }
 
   /// LISTENER METHODS
@@ -174,9 +174,7 @@ export class ChainService extends ChainReader {
   protected getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
-      throw new TransactionServiceFailure(
-        `No provider was found for chain ${chainId}! Make sure this chain's providers are configured.`,
-      );
+      throw new ProviderNotConfigured(chainId.toString());
     }
     return this.providers.get(chainId)! as TransactionDispatch;
   }
@@ -196,7 +194,9 @@ export class ChainService extends ChainReader {
       const chain: ChainConfig = chains[chainId];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
-        const error = new TransactionServiceFailure(`Provider configurations not found for chainID: ${chainId}`);
+        const error = new ConfigurationError({
+          providers,
+        });
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
           chainId,
           providers,
@@ -205,13 +205,13 @@ export class ChainService extends ChainReader {
       }
       const chainIdNumber = parseInt(chainId);
       const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, this.config, signer, {
-        onSubmit: (transaction: Transaction) =>
+        onSubmit: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
-        onMined: (transaction: Transaction) =>
+        onMined: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionMined].post({ receipt: transaction.receipt! }),
-        onConfirm: (transaction: Transaction) =>
+        onConfirm: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionConfirmed].post({ receipt: transaction.receipt! }),
-        onFail: (transaction: Transaction) =>
+        onFail: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionFailed].post({
             error: transaction.error!,
             receipt: transaction.receipt,

@@ -21,21 +21,6 @@ export class MaxBufferLengthError extends TransactionError {
   }
 }
 
-export class DispatchAborted extends TransactionError {
-  /**
-   * Thrown if a backfill transaction fails and other txs are attempted
-   */
-  static readonly type = DispatchAborted.name;
-
-  constructor(public readonly context: any = {}) {
-    super(
-      "Failed to send backfill transaction, refusing to send any additional transactions",
-      context,
-      DispatchAborted.type,
-    );
-  }
-}
-
 export class RpcError extends TransactionError {
   static readonly type = RpcError.name;
 
@@ -200,8 +185,17 @@ export class ServerError extends TransactionError {
    */
   static readonly type = ServerError.name;
 
-  constructor(public readonly context: any = {}) {
-    super("Server error occurred", context, ServerError.type);
+  static readonly reasons = {
+    BadResponse: "Received bad response from provider.",
+    /**
+     * This one occurs (usually) when we try to send a transaction to multiple providers
+     * and one or more of them already has the transaction in their mempool.
+     */
+    TransactionAlreadyKnown: "Transaction is already indexed by provider.",
+  };
+
+  constructor(public readonly reason?: Values<typeof ServerError.reasons>, public readonly context: any = {}) {
+    super(reason ?? "Server error occurred.", context, ServerError.type);
   }
 }
 
@@ -220,35 +214,117 @@ export class TransactionKilled extends TransactionError {
   }
 }
 
-export class TransactionServiceFailure extends NxtpError {
-  /**
-   * An error that indicates that transaction service infrastructure had a critical
-   * and unexpected failure.
-   */
-  static readonly type = TransactionServiceFailure.name;
+export class MaxAttemptsReached extends NxtpError {
+  static readonly type = MaxAttemptsReached.name;
+
+  static getMessage(attempts: number): string {
+    return `Reached maximum attempts ${attempts}.`;
+  }
+
+  constructor(attempts: number, public readonly context: any = {}) {
+    super(MaxAttemptsReached.getMessage(attempts), context, MaxAttemptsReached.type);
+  }
+}
+
+export class NotEnoughConfirmations extends NxtpError {
+  static readonly type = NotEnoughConfirmations.name;
+
+  static getMessage(required: number, hash: string, confs: number): string {
+    return `Never reached the required amount of confirmations (${required}) on ${hash} (got: ${confs}). Did a reorg occur?`;
+  }
+
+  constructor(required: number, hash: string, confs: number, public readonly context: any = {}) {
+    super(NotEnoughConfirmations.getMessage(required, hash, confs), context, NotEnoughConfirmations.type);
+  }
+}
+
+export class GasEstimateInvalid extends NxtpError {
+  static readonly type = GasEstimateInvalid.name;
+
+  static getMessage(returned: string): string {
+    return `The gas estimate returned was an invalid value. Got: ${returned}`;
+  }
+
+  constructor(returned: string, public readonly context: any = {}) {
+    super(GasEstimateInvalid.getMessage(returned), context, GasEstimateInvalid.type);
+  }
+}
+
+export class ChainNotSupported extends NxtpError {
+  static readonly type = ChainNotSupported.name;
+
+  static getMessage(chainId: string): string {
+    return `Request for chain ${chainId} cannot be handled: resources not configured.`;
+  }
+
+  constructor(public readonly chainId: string, public readonly context: any = {}) {
+    super(ChainNotSupported.getMessage(chainId), context, ChainNotSupported.type);
+  }
+}
+
+// TODO: ProviderNotConfigured is essentially a more specific ChainNotSupported error. Should they be combined?
+export class ProviderNotConfigured extends NxtpError {
+  static readonly type = ProviderNotConfigured.name;
+
+  static getMessage(chainId: string): string {
+    return `No provider(s) configured for chain ${chainId}. Make sure this chain's providers are configured.`;
+  }
+
+  constructor(public readonly chainId: string, public readonly context: any = {}) {
+    super(ProviderNotConfigured.getMessage(chainId), context, ProviderNotConfigured.type);
+  }
+}
+
+export class ConfigurationError extends NxtpError {
+  static readonly type = ConfigurationError.name;
+
+  constructor(public readonly invalidParamaters: any, public readonly context: any = {}) {
+    super("Configuration paramater(s) were invalid.", { ...context, invalidParamaters }, ConfigurationError.type);
+  }
+}
+
+export class InitialSubmitFailure extends NxtpError {
+  static readonly type = InitialSubmitFailure.name;
+
+  constructor(public readonly context: any = {}) {
+    super(
+      "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
+      context,
+      InitialSubmitFailure.type,
+    );
+  }
+}
+
+// These errors should essentially never happen; they are only used within the block of sanity checks.
+export class TransactionProcessingError extends NxtpError {
+  static readonly type = TransactionProcessingError.name;
 
   static readonly reasons = {
-    /**
-     * NotEnoughConfirmations: At some point, we stopped receiving additional confirmations, and
-     * never reached the required amount. This error should ultimately never occur - but if it does,
-     * it indicates that a chain reorg may have happened, stranding the transaction on an orphan/stale
-     * chain.
-     */
-    NotEnoughConfirmations: "Never reached the required amount of confirmations. Did a reorg occur?",
-    /**
-     * MaxAttemptsReached: Indicates that the transaction bumped gas endlessly, and was never
-     * accepted by the chain (0 confirmations, and chain did not revert). Typically indicates on RPC
-     * failure but could imply a failure in TransactionService to submit correctly to chain.
-     */
-    MaxAttemptsReached: "Reached maximum attempts.",
-    GasEstimateInvalid: "The gas estimate returned was an invalid value.",
+    SubmitOutOfOrder: "Submit was called but transaction is already completed.",
+    MineOutOfOrder: "Transaction mine or confirm was called, but no transaction has been sent.",
+    ConfirmOutOfOrder: "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
+    DidNotBump: "Gas price was not incremented from last transaction.",
+    DuplicateHash: "Received a transaction response with a duplicate hash!",
+    NoReceipt: "No receipt was returned from the transaction.",
+    NullReceipt: "Unable to obtain receipt: ethers responded with null.",
+    ReplacedButNoReplacement: "Transaction was replaced, but no replacement transaction and/or receipt was returned.",
+    DidNotThrowRevert: "Transaction was reverted but TransactionReverted error was not thrown.",
+    InsufficientConfirmations: "Receipt did not have enough confirmations, should have timed out!",
   };
 
   constructor(
-    public readonly reason: Values<typeof TransactionServiceFailure.reasons>,
+    public readonly reason: Values<typeof TransactionProcessingError.reasons>,
+    public readonly method: string,
     public readonly context: any = {},
   ) {
-    super(reason, context, TransactionServiceFailure.type);
+    super(
+      reason,
+      {
+        ...context,
+        method,
+      },
+      TransactionProcessingError.type,
+    );
   }
 }
 
@@ -264,7 +340,7 @@ export const parseError = (error: any): NxtpError => {
   }
 
   let message = error.message;
-  if (error.code === Logger.errors.SERVER_ERROR && error.error && typeof error.error.message === "string") {
+  if (error.error && typeof error.error.message === "string") {
     message = error.error.message;
   } else if (typeof error.body === "string") {
     message = error.body;
@@ -287,14 +363,23 @@ export const parseError = (error: any): NxtpError => {
     return new TransactionReverted(TransactionReverted.reasons.GasExceedsAllowance, undefined, context);
   } else if (
     message.match(
-      /another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|already known/,
+      /another transaction with same nonce|same hash was already imported|transaction nonce is too low|nonce too low|oldnonce/,
     )
   ) {
     return new BadNonce(BadNonce.reasons.NonceExpired, context);
+  } else if (message.match(/replacement transaction underpriced/)) {
+    return new BadNonce(BadNonce.reasons.ReplacementUnderpriced, context);
   } else if (message.match(/tx doesn't have the correct nonce|invalid transaction nonce/)) {
     return new BadNonce(BadNonce.reasons.NonceIncorrect, context);
-  } else if (message.match(/ECONNRESET|ECONNREFUSED|failed to meet quorum/)) {
+  } else if (message.match(/econnreset|eaddrinuse|econnrefused|epipe|enotfound|enetunreach|eai_again/)) {
+    // Common connection errors: ECONNRESET, EADDRINUSE, ECONNREFUSED, EPIPE, ENOTFOUND, ENETUNREACH, EAI_AGAIN
+    // TODO: Should also take in certain HTTP Status Codes: 429, 500, 502, 503, 504, 521, 522, 524; but need to be sure they
+    // are status codes and not just part of a hash string, id number, etc.
     return new RpcError(RpcError.reasons.ConnectionReset, context);
+  } else if (message.match(/already known|alreadyknown/)) {
+    return new ServerError(ServerError.reasons.TransactionAlreadyKnown, context);
+  } else if (message.match(/insufficient funds/)) {
+    return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
   }
 
   switch (error.code) {
@@ -320,8 +405,7 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:
-      // TODO: #144 Should this be a TransactionReverted error?
-      return new ServerError(context);
+      return new ServerError(ServerError.reasons.BadResponse, context);
     default:
       return error;
   }

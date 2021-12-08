@@ -13,6 +13,7 @@ export type { IFulfillInterpreter } from "./IFulfillInterpreter";
 export type { IPriceOracle } from "./IPriceOracle";
 export type { ITransactionManager } from "./ITransactionManager";
 export type { FulfillInterpreter } from "./FulfillInterpreter";
+export type { Multicall } from "./Multicall";
 export type { PriceOracle } from "./PriceOracle";
 export type { ProposedOwnable } from "./ProposedOwnable";
 export type { Counter } from "./Counter";
@@ -34,6 +35,7 @@ export { IFulfillInterpreter__factory } from "./factories/IFulfillInterpreter__f
 export { IPriceOracle__factory } from "./factories/IPriceOracle__factory";
 export { ITransactionManager__factory } from "./factories/ITransactionManager__factory";
 export { FulfillInterpreter__factory } from "./factories/FulfillInterpreter__factory";
+export { Multicall__factory } from "./factories/Multicall__factory";
 export { PriceOracle__factory } from "./factories/PriceOracle__factory";
 export { ProposedOwnable__factory } from "./factories/ProposedOwnable__factory";
 export { Counter__factory } from "./factories/Counter__factory";

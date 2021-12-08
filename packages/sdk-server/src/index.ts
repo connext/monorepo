@@ -2,7 +2,15 @@ import fastify from "fastify";
 import { providers } from "ethers";
 import pino from "pino";
 import { Type } from "@sinclair/typebox";
-import { NxtpSdkBase, CrossChainParams, CrossChainParamsSchema, CancelParams, CancelSchema } from "@connext/nxtp-sdk";
+import {
+  NxtpSdkBase,
+  CrossChainParams,
+  CrossChainParamsSchema,
+  CancelParams,
+  CancelSchema,
+  ApproveParams,
+  ApproveSchema,
+} from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
   AuctionResponseSchema,
@@ -80,18 +88,18 @@ server.post<{ Body: CrossChainParams; Reply: AuctionResponse }>(
 );
 
 server.post<{
-  Body: { transferParams: AuctionResponse; infiniteApprove?: boolean };
+  Body: { approveParams: ApproveParams; infiniteApprove?: boolean };
   Reply: providers.TransactionRequest | undefined;
 }>(
   approveForPrepare,
   {
     schema: {
-      body: { transferParams: AuctionResponseSchema, infiniteApprove: Type.Boolean() },
+      body: { approveParams: ApproveSchema, infiniteApprove: Type.Boolean() },
     },
   },
   async (request, response) => {
     const { body: req } = request;
-    const res = await sdkBaseInstance.approveForPrepare(req.transferParams, req.infiniteApprove);
+    const res = await sdkBaseInstance.approveForPrepare(req.approveParams, req.infiniteApprove);
     return response.status(200).send(res);
   },
 );

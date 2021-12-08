@@ -31,9 +31,11 @@ import {
   GAS_ESTIMATES,
   getReceiverAmount,
   ChainData,
+  StatusResponse,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
   NoTransactionManager,
@@ -59,6 +61,7 @@ import {
   getDeployedTransactionManagerContract,
   getDeployedPriceOracleContract,
   getDeployedChainIdsForGasFee,
+  TransactionManagerChainConfig,
 } from "./transactionManager/transactionManager";
 import {
   SdkBaseConfigParams,
@@ -72,6 +75,8 @@ import {
   ActiveTransaction,
   CancelParams,
   GetTransferQuote,
+  SdkBaseChainConfigParams,
+  ApproveParams,
 } from "./types";
 import {
   getTimestampInSeconds,
@@ -82,10 +87,8 @@ import {
   generateMessagingInbox,
   recoverAuctionBid,
   encodeAuctionBid,
-  getTokenPrice,
   gelatoFulfill,
   isChainSupportedByGelato,
-  getDecimalsForAsset,
 } from "./utils";
 import { Subgraph, SubgraphChainConfig, SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 
@@ -104,12 +107,34 @@ export const createMessagingEvt = <T>() => {
   return Evt.create<{ inbox: string; data?: T; err?: any }>();
 };
 
+export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfigParams): ChainReader => {
+  const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
+  Object.keys(chainConfig).forEach((_chainId) => {
+    const chainId = parseInt(_chainId);
+    // Backwards compatibility with specifying only a single provider under the key "provider".
+    const _providers = chainConfig[chainId].providers ?? (chainConfig as any)[chainId].provider;
+    const providers = typeof _providers === "string" ? [_providers] : _providers;
+    chains[chainId] = {
+      providers: providers.map((provider) =>
+        typeof provider === "string"
+          ? {
+              url: provider,
+            }
+          : provider,
+      ),
+    };
+  });
+  return new ChainReader(logger, { chains });
+};
+
 /**
  * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
  *
  */
 export class NxtpSdkBase {
   private readonly transactionManager: TransactionManager;
+  // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
+  public readonly chainReader: ChainReader;
   private readonly messaging: UserNxtpNatsMessagingService;
   private readonly subgraph: Subgraph;
   private readonly logger: Logger;
@@ -118,6 +143,7 @@ export class NxtpSdkBase {
   // Keep messaging evts separate from the evt container that has things
   // attached to it
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
+  private readonly statusResponseEvt = createMessagingEvt<StatusResponse>();
 
   constructor(private readonly config: SdkBaseConfigParams) {
     const {
@@ -168,14 +194,9 @@ export class NxtpSdkBase {
       });
     }
 
-    const txManagerConfig: Record<
-      number,
-      {
-        provider: providers.FallbackProvider;
-        transactionManagerAddress: string;
-        priceOracleAddress: string;
-      }
-    > = {};
+    this.chainReader = setupChainReader(this.logger, chainConfig);
+
+    const txManagerConfig: Record<number, TransactionManagerChainConfig> = {};
 
     const subgraphConfig: Record<
       number,
@@ -187,7 +208,6 @@ export class NxtpSdkBase {
       ([
         _chainId,
         {
-          provider,
           transactionManagerAddress: _transactionManagerAddress,
           priceOracleAddress: _priceOracleAddress,
           subgraph: _subgraph,
@@ -217,7 +237,6 @@ export class NxtpSdkBase {
         }
 
         txManagerConfig[chainId] = {
-          provider,
           transactionManagerAddress,
           priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
@@ -233,17 +252,23 @@ export class NxtpSdkBase {
         subgraph = typeof subgraph === "string" ? subgraph.replace("]", "").replace("[", "").split(",") : subgraph;
         subgraphConfig[chainId] = {
           subgraph,
-          provider,
           subgraphSyncBuffer,
         };
       },
     );
     this.transactionManager = new TransactionManager(
       txManagerConfig,
+      this.chainReader,
       signerAddress,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(signerAddress, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(
+      signerAddress,
+      subgraphConfig,
+      this.chainReader,
+      this.logger.child({ module: "Subgraph" }),
+      skipPolling,
+    );
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -254,6 +279,10 @@ export class NxtpSdkBase {
         this.auctionResponseEvt.post({ inbox, data, err });
       },
     );
+
+    await this.messaging.subscribeToStatusResponse((_from: string, inbox: string, data?: any, err?: any) => {
+      this.statusResponseEvt.post({ inbox, data, err });
+    });
 
     await delay(1000);
     return token;
@@ -293,6 +322,24 @@ export class NxtpSdkBase {
     return this.subgraph.getHistoricalTransactions();
   }
 
+  public getMainnetEquivalent(chainId: number, assetId: string): string | null {
+    if (!this.chainData || !this.chainData.has(chainId.toString())) {
+      return null;
+    }
+
+    const chain = this.chainData.get(chainId.toString())!;
+    const equiv =
+      chain.assetId[utils.getAddress(assetId)] ??
+      chain.assetId[assetId.toLowerCase()] ??
+      chain.assetId[assetId.toUpperCase()] ??
+      chain.assetId[assetId];
+
+    if (!equiv || !equiv.mainnetEquivalent) {
+      return null;
+    }
+    return utils.getAddress(equiv.mainnetEquivalent);
+  }
+
   public async getEstimateReceiverAmount(params: {
     amount: string;
     sendingChainId: number;
@@ -304,8 +351,8 @@ export class NxtpSdkBase {
 
     const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
 
-    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.provider;
-    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.provider;
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.providers;
     if (!sendingChainProvider) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
@@ -314,22 +361,59 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    // validate that assets/chains are supported and there is enough liquidity
-    const inputDecimals = await getDecimalsForAsset(
-      sendingAssetId,
+    const sendingAssetIdOnMainnet = this.getMainnetEquivalent(sendingChainId, sendingAssetId);
+    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
+    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
+
+    const sendingNativeAssetIdOnMainnet = this.getMainnetEquivalent(sendingChainId, constants.AddressZero);
+    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
+    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
+      ? sendingNativeAssetIdOnMainnet
+      : constants.AddressZero;
+
+    const receivingAssetIdOnMainnet = this.getMainnetEquivalent(receivingChainId, receivingAssetId);
+    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
+    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
+
+    const receivingNativeAssetIdOnMainnet = this.getMainnetEquivalent(receivingChainId, constants.AddressZero);
+    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
+    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
+      ? receivingNativeAssetIdOnMainnet
+      : constants.AddressZero;
+
+    this.logger.debug("Estimating receiver amount in receiving token", requestContext, methodContext, {
+      amount,
       sendingChainId,
-      sendingChainProvider,
-      this.chainData,
-    );
-
-    const outputDecimals = await getDecimalsForAsset(
-      receivingAssetId,
+      sendingAssetId,
+      tokenPricingSendingChain,
+      tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
       receivingChainId,
-      receivingChainProvider,
-      this.chainData,
-    );
+      receivingAssetId,
+      tokenPricingReceivingChain,
+      tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
+    });
 
-    this.logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
+    // validate that assets/chains are supported and there is enough liquidity
+    const inputDecimals = await this.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
+
+    const outputDecimals = await this.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
+    this.logger.debug("Estimating receiver amount in receiving token", requestContext, methodContext, {
+      amount,
+      sendingChainId,
+      sendingAssetId,
+      tokenPricingSendingChain,
+      tokenPricingAssetIdSendingChain,
+      inputDecimals,
+      receivingChainId,
+      receivingAssetId,
+      tokenPricingReceivingChain,
+      tokenPricingAssetIdReceivingChain,
+      outputDecimals,
+    });
 
     // calculate router fee
     const { receivingAmount: receiverAmount, routerFee } = await getReceiverAmount(
@@ -340,20 +424,27 @@ export class NxtpSdkBase {
 
     // calculate gas fee
     const gasFee = await this.estimateFeeForRouterTransfer(
+      tokenPricingSendingChain,
       sendingChainId,
-      sendingAssetId,
+      tokenPricingAssetIdSendingChain,
+      nativeTokenPricingSendingChain,
+      nativeTokenPricingAssetIdSendingChain,
+      tokenPricingReceivingChain,
       receivingChainId,
-      receivingAssetId,
+      tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       outputDecimals,
       requestContext,
       methodContext,
     );
 
     const relayerFee = await this.estimateFeeForMetaTx(
-      sendingChainId,
-      sendingAssetId,
+      tokenPricingReceivingChain,
       receivingChainId,
-      receivingAssetId,
+      tokenPricingAssetIdReceivingChain,
+      nativeTokenPricingReceivingChain,
+      nativeTokenPricingAssetIdReceivingChain,
       outputDecimals,
       requestContext,
       methodContext,
@@ -368,6 +459,47 @@ export class NxtpSdkBase {
       gasFee: gasFee.toString(),
       relayerFee: relayerFee.toString(),
     };
+  }
+
+  public async getRouterStatus(requestee: string): Promise<StatusResponse[]> {
+    const { requestContext, methodContext } = createLoggingContext(this.getRouterStatus.name, undefined, "");
+
+    this.logger.info("Method started", requestContext, methodContext);
+
+    if (!this.messaging.isConnected()) {
+      await this.connectMessaging();
+    }
+
+    const inbox = generateMessagingInbox();
+    const statusWaitTimeMs = 2_000;
+
+    const statusCtx = Evt.newCtx();
+
+    const statusPromise = new Promise<StatusResponse[]>(async (resolve) => {
+      const statusResponses: StatusResponse[] = [];
+      this.statusResponseEvt
+        .pipe(statusCtx)
+        .pipe((data) => data.inbox === inbox)
+        .pipe((data) => !!data.data)
+        .attach((data) => {
+          statusResponses.push(data.data as StatusResponse);
+        });
+
+      setTimeout(async () => {
+        this.statusResponseEvt.detach(statusCtx);
+        return resolve(statusResponses);
+      }, statusWaitTimeMs);
+    });
+
+    await this.messaging.publishStatusRequest({ requestee }, inbox);
+
+    this.logger.debug(`Waiting up to ${statusWaitTimeMs} ms for responses`, requestContext, methodContext, {
+      inbox,
+    });
+
+    const receviedStatusResponses = await statusPromise;
+
+    return receviedStatusResponses;
   }
 
   /**
@@ -681,20 +813,18 @@ export class NxtpSdkBase {
   }
 
   public async approveForPrepare(
-    transferParams: AuctionResponse,
+    approveParams: ApproveParams,
     infiniteApprove = false,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(
       this.approveForPrepare.name,
       undefined,
-      transferParams.bid.transactionId,
+      approveParams.transactionId,
     );
 
-    this.logger.info("Method started", requestContext, methodContext, { transferParams });
+    this.logger.info("Method started", requestContext, methodContext, { approveParams });
 
-    const {
-      bid: { sendingAssetId, sendingChainId, amount },
-    } = transferParams;
+    const { sendingAssetId, sendingChainId, amount } = approveParams;
 
     if (sendingAssetId !== constants.AddressZero) {
       const approveTx = await this.transactionManager.approveTokensIfNeeded(
@@ -718,19 +848,22 @@ export class NxtpSdkBase {
    * @param infiniteApprove - (optional) If true, will approve the TransactionManager on `transferParams.sendingChainId` for the max value. If false, will approve for only transferParams.amount. Defaults to false
    * @returns A promise with the transactionId and the `TransactionResponse` returned when the prepare transaction was submitted, not mined.
    */
-  public async prepareTransfer(transferParams: AuctionResponse): Promise<providers.TransactionRequest> {
+  public async prepareTransfer(
+    transferParams: AuctionResponse,
+    actualAmount?: string,
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(
       this.prepareTransfer.name,
       undefined,
       transferParams.bid.transactionId,
     );
 
-    this.logger.info("Method started", requestContext, methodContext, { transferParams });
+    this.logger.info("Method started", requestContext, methodContext, { transferParams, actualAmount });
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
     if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams });
+      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, actualAmount });
     }
 
     const { bid, bidSignature } = transferParams;
@@ -758,7 +891,7 @@ export class NxtpSdkBase {
       sendingAssetId,
       receivingAssetId,
       receivingAddress,
-      amount,
+      amount: _amount,
       expiry,
       callDataHash,
       encryptedCallData,
@@ -768,6 +901,7 @@ export class NxtpSdkBase {
       transactionId,
     } = bid;
     const encodedBid = encodeAuctionBid(bid);
+    const amount = actualAmount || _amount;
 
     if (!this.config.chainConfig[sendingChainId]) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
@@ -782,7 +916,7 @@ export class NxtpSdkBase {
     }
 
     if (callTo !== constants.AddressZero) {
-      const callToContractCode = await this.config.chainConfig[receivingChainId].provider.getCode(callTo);
+      const callToContractCode = await this.chainReader.getCode(receivingChainId, callTo);
       if (!callToContractCode || callToContractCode === "0x") {
         throw new InvalidCallTo(transactionId, callTo);
       }
@@ -1019,71 +1153,36 @@ export class NxtpSdkBase {
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas in token for prepare", requestContext, methodContext, {
+    this.logger.info("Calculating gas fee in token for prepare", requestContext, methodContext, {
       chainId,
       assetId,
       decimals,
     });
 
-    const { provider } = this.config.chainConfig[chainId] ?? {};
-
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
     const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
     let totalCost = constants.Zero;
-    if (priceOracleContract && priceOracleContract.address && provider) {
-      const priceOracleAddress = priceOracleContract.address;
-      const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
-      const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
-      const gasPrice = await this.getGasPrice(chainId);
+    try {
+      const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);
+      const tokenPriceInUsd = await this.chainReader.getTokenPrice(chainId, assetId);
+      const gasPrice = await this.getGasPrice(chainId, requestContext);
       const gasAmountInUsd = gasPrice.mul(gasLimitForPrepare).mul(ethPriceInUsd);
       const tokenAmountForGasFee = tokenPriceInUsd.isZero()
         ? constants.Zero
         : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
       totalCost = totalCost.add(tokenAmountForGasFee);
+    } catch (e) {
+      this.logger.error(
+        "Error estimating gas fee in token for prepare",
+        requestContext,
+        methodContext,
+        jsonifyError(e),
+        {
+          chainId,
+          assetId,
+          decimals,
+        },
+      );
     }
-
-    return totalCost;
-  }
-
-  /**
-   * Estimates hardcoded fee for fulfill transactions
-   *
-   * @param chainId - The network indentifier
-   * @param assetId - The asset address
-   * @param decimals - The asset decimals
-   * @returns Gas fee for fulfill in token
-   */
-  async estimateHardcodedFeeForFulfill(
-    chainId: number,
-    assetId: string,
-    decimals: number,
-    requestContext: RequestContext,
-    methodContext: MethodContext,
-  ): Promise<BigNumber> {
-    this.logger.info("Calculate gas in token for fulfill", requestContext, methodContext, {
-      chainId,
-      assetId,
-      decimals,
-    });
-    const { provider } = this.config.chainConfig[chainId] ?? {};
-    const priceOracleContract = getDeployedPriceOracleContract(chainId);
-    const gasLimitForFulfill = BigNumber.from(GAS_ESTIMATES.fulfill);
-    let totalCost = constants.Zero;
-    if (priceOracleContract && priceOracleContract.address && provider) {
-      const priceOracleAddress = priceOracleContract.address;
-      const ethPriceInUsd = await getTokenPrice(priceOracleAddress, constants.AddressZero, provider);
-      const tokenPriceInUsd = await getTokenPrice(priceOracleAddress, assetId, provider);
-      const gasPrice = await this.getGasPrice(chainId);
-      const gasAmountInUsd = gasPrice.mul(gasLimitForFulfill).mul(ethPriceInUsd);
-      const tokenAmountForGasFee = tokenPriceInUsd.isZero()
-        ? constants.Zero
-        : gasAmountInUsd.div(tokenPriceInUsd).div(BigNumber.from(10).pow(18 - decimals));
-      totalCost = totalCost.add(tokenAmountForGasFee);
-    }
-
-    this.logger.info("Calculated gas in token for fulfill", requestContext, methodContext, {
-      calculatedGas: totalCost,
-    });
 
     return totalCost;
   }
@@ -1091,99 +1190,100 @@ export class NxtpSdkBase {
   /**
    * Estimates hardcoded fee for router transfer
    *
-   * @param sendingChainId - The network id of sending chain
-   * @param sendingAssetId  - The sending asset address
-   * @param receivingChainId  - The network id of receiving chain
-   * @param receivingAssetId - The receiving asset address
-   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @param sendingChainId - The network id of sending chain for sending token price
+   * @param sendingChainIdForGasPrice - The network id of sending chain
+   * @param sendingAssetId  - The sending asset address for sending token price
+   * @param sendingNativeChainId - The network that we're going to get the native token price of sending chain on
+   * @param sendingNativeAssetId - The native asset id on source chain
+   * @param receivingChainId  - The network id of receiving chain for receiving token price
+   * @param receivingChainIdForGasPrice  - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address for receiving token price
+   * @param receivingNativeChainId The network that we're going to get the native token price of receiving chain on
+   * @param receivingNativeAssetId The native asset id on destination chain
+   * @param outputDecimals - Decimal number of asset
    * @returns Gas fee for transfer in token
    */
   public async estimateFeeForRouterTransfer(
     sendingChainId: number,
+    sendingChainIdForGasPrice: number,
     sendingAssetId: string,
+    sendingNativeChainId: number,
+    sendingNativeAssetId: string,
     receivingChainId: number,
+    receivingChainIdForGasPrice: number,
     receivingAssetId: string,
+    receivingNativeChainId: number,
+    receivingNativeAssetId: string,
     outputDecimals: number,
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas fee in token for router transfer", requestContext, methodContext, {
+    this.logger.info("Calculating gas fee in token for router transfer", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
+      sendingChainIdForGasPrice,
+      sendingNativeChainId,
+      sendingNativeAssetId,
       receivingChainId,
       receivingAssetId,
+      receivingChainIdForGasPrice,
+      receivingNativeChainId,
+      receivingNativeAssetId,
     });
 
-    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
-    // TODO: We calculate gas fee for router transfer in sending token
-    // if chainIdsForGasFee includes sending chain, calculate gas fee for fulfill transactions
-    // if chainIdsForGasFee includes receiving chain, calculate gas fee for prepare transactions
-    let totalCost = constants.Zero;
-    if (chainIdsForGasFee.includes(sendingChainId)) {
-      const fulfillFee = await this.estimateHardcodedFeeForFulfill(
-        sendingChainId,
-        sendingAssetId,
-        outputDecimals,
-        requestContext,
-        methodContext,
-      );
-
-      totalCost = totalCost.add(fulfillFee);
-    }
-
-    if (chainIdsForGasFee.includes(receivingChainId)) {
-      const prepareFee = await this.estimateHardcodedFeeForPrepare(
-        receivingChainId,
-        receivingAssetId,
-        outputDecimals,
-        requestContext,
-        methodContext,
-      );
-
-      totalCost = totalCost.add(prepareFee);
-    }
-    return totalCost;
+    return await this.chainReader.calculateGasFeeInReceivingToken(
+      sendingChainId,
+      sendingChainIdForGasPrice,
+      sendingAssetId,
+      sendingNativeChainId,
+      sendingNativeAssetId,
+      receivingChainId,
+      receivingChainIdForGasPrice,
+      receivingAssetId,
+      receivingNativeChainId,
+      receivingNativeAssetId,
+      outputDecimals,
+      requestContext,
+    );
   }
 
   /**
    * Estimates fee for meta transactions in token
    *
-   * @param sendingChainId - The network id of sending chain
-   * @param sendingAssetId  - The sending asset address
-   * @param receivingChainId  - The network id of receiving chain
-   * @param receivingAssetId - The receiving asset address
-   * @param inSendingToken - If true, returns gas fee in sending token, else returns gas fee in receiving token
+   * @param receivingChainId  - The network id of receiving chain for getting token price
+   * @param receivingChainIdForGasPrice  - The network id of receiving chain
+   * @param receivingAssetId - The receiving asset address for getting token price
+   * @param receivingNativeChainId The network that we're going to get the native token price of receiving chain on
+   * @param receivingNativeAssetId The native asset id on destination chain
+   * @param outputDecimals - Decimal number of asset
    * @returns Gas fee for meta transactions in token
    */
   public async estimateFeeForMetaTx(
-    sendingChainId: number,
-    sendingAssetId: string,
     receivingChainId: number,
+    receivingChainIdForGasPrice: number,
     receivingAssetId: string,
+    receivingNativeChainId: number,
+    receivingNativeAssetId: string,
     outputDecimals: number,
     requestContext: RequestContext,
     methodContext: MethodContext,
   ): Promise<BigNumber> {
-    this.logger.info("Calculate gas fee in token for meta tranaction", requestContext, methodContext, {
-      sendingChainId,
-      sendingAssetId,
+    this.logger.info("Calculating relayer fee in token for meta transaction", requestContext, methodContext, {
       receivingChainId,
       receivingAssetId,
+      receivingChainIdForGasPrice,
+      receivingNativeChainId,
+      receivingNativeAssetId,
     });
-
-    const chainIdsForGasFee = getDeployedChainIdsForGasFee();
-
-    let totalCost = constants.Zero;
-    if (chainIdsForGasFee.includes(receivingChainId)) {
-      const fulfillFee = await this.estimateHardcodedFeeForFulfill(
-        receivingChainId,
-        receivingAssetId,
-        outputDecimals,
-        requestContext,
-        methodContext,
-      );
-      totalCost = totalCost.add(fulfillFee);
-    }
+    const totalCost = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
+      receivingChainId,
+      receivingChainIdForGasPrice,
+      receivingAssetId,
+      receivingNativeChainId,
+      receivingNativeAssetId,
+      outputDecimals,
+      requestContext,
+    );
     return totalCost.add(totalCost.mul(getMetaTxBuffer()).div(100));
   }
 
@@ -1194,16 +1294,13 @@ export class NxtpSdkBase {
    *
    * @returns Gas price in BigNumber
    */
-  async getGasPrice(chainId: number): Promise<BigNumber> {
-    const { provider } = this.config.chainConfig[chainId] ?? {};
-    if (!provider) {
-      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
-    }
+  async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
+    this.assertChainIsConfigured(chainId);
 
     // get gas price
     let gasPrice = BigNumber.from(0);
     try {
-      gasPrice = await provider.getGasPrice();
+      gasPrice = await this.chainReader.getGasPrice(chainId, requestContext);
     } catch (e) {}
 
     return gasPrice;
@@ -1287,5 +1384,11 @@ export class NxtpSdkBase {
     filter: (data: NxtpSdkEventPayloads[T]) => boolean = (_data: NxtpSdkEventPayloads[T]) => true,
   ): Promise<NxtpSdkEventPayloads[T]> {
     return this.subgraph.waitFor(event, timeout, filter as any) as Promise<NxtpSdkEventPayloads[T]>;
+  }
+
+  public assertChainIsConfigured(chainId: number) {
+    if (!this.config.chainConfig[chainId] || !this.chainReader.isSupportedChain(chainId)) {
+      throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
+    }
   }
 }

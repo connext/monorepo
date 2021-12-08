@@ -2,6 +2,42 @@
 
 ## Next Release
 
+# 0.0.99
+
+- [txservice] Fix error parsing
+
+## 0.0.98
+
+- [contracts] Set up Moonriver price oracle
+
+## 0.0.97
+
+- [contracts] Deploy gas price oracle on xdai
+
+## 0.0.96
+
+- [router/sdk] Fix gas price estimation
+
+## 0.0.94
+
+- [router] Delegate fee calc to chainreader
+- [sdk] Integrate chainreader
+- [txservice] Introduced provider syncing
+- [router] Arbitrum `block.number` handling on cancel
+
+## 0.0.93
+
+- [router] Improved caching and auction response time
+- [sdk, router] Add method to allow slippage in prepared amount
+- [txservice] removed TransactionServiceFailure error, replaced with specific error types
+- [subgraph] Add convenience fields for analytics subgraph
+- [subgraph] Redeploy analytics subgraphs
+
+## 0.0.92
+
+- [utils] Add native asset decimals handling
+- [utils] Fallback subgraph should order synced subgraphs first
+
 ## 0.0.91
 
 - [sdk] Allow chainData to be passed in

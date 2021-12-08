@@ -22,6 +22,7 @@ export type AssetBalance = {
   id: Scalars["ID"];
   amount: Scalars["BigInt"];
   router: Router;
+  assetId: Scalars["Bytes"];
 };
 
 export type AssetBalance_Filter = {
@@ -55,12 +56,19 @@ export type AssetBalance_Filter = {
   router_not_starts_with?: Maybe<Scalars["String"]>;
   router_ends_with?: Maybe<Scalars["String"]>;
   router_not_ends_with?: Maybe<Scalars["String"]>;
+  assetId?: Maybe<Scalars["Bytes"]>;
+  assetId_not?: Maybe<Scalars["Bytes"]>;
+  assetId_in?: Maybe<Array<Scalars["Bytes"]>>;
+  assetId_not_in?: Maybe<Array<Scalars["Bytes"]>>;
+  assetId_contains?: Maybe<Scalars["Bytes"]>;
+  assetId_not_contains?: Maybe<Scalars["Bytes"]>;
 };
 
 export enum AssetBalance_OrderBy {
   Id = "id",
   Amount = "amount",
   Router = "router",
+  AssetId = "assetId",
 }
 
 export type Block_Height = {
@@ -286,7 +294,7 @@ export type Transaction = {
   encryptedCallData: Scalars["String"];
   prepareCaller?: Maybe<Scalars["Bytes"]>;
   bidSignature: Scalars["Bytes"];
-  encodedBid: Scalars["Bytes"];
+  encodedBid: Scalars["String"];
   prepareTransactionHash: Scalars["Bytes"];
   prepareMeta?: Maybe<Scalars["Bytes"]>;
   relayerFee?: Maybe<Scalars["BigInt"]>;
@@ -298,9 +306,11 @@ export type Transaction = {
   fulfillCaller?: Maybe<Scalars["Bytes"]>;
   fulfillTransactionHash?: Maybe<Scalars["Bytes"]>;
   fulfillMeta?: Maybe<Scalars["Bytes"]>;
+  fulfillTimestamp?: Maybe<Scalars["BigInt"]>;
   cancelCaller?: Maybe<Scalars["Bytes"]>;
   cancelTransactionHash?: Maybe<Scalars["Bytes"]>;
   cancelMeta?: Maybe<Scalars["Bytes"]>;
+  cancelTimestamp?: Maybe<Scalars["BigInt"]>;
 };
 
 export enum TransactionStatus {
@@ -484,12 +494,20 @@ export type Transaction_Filter = {
   bidSignature_not_in?: Maybe<Array<Scalars["Bytes"]>>;
   bidSignature_contains?: Maybe<Scalars["Bytes"]>;
   bidSignature_not_contains?: Maybe<Scalars["Bytes"]>;
-  encodedBid?: Maybe<Scalars["Bytes"]>;
-  encodedBid_not?: Maybe<Scalars["Bytes"]>;
-  encodedBid_in?: Maybe<Array<Scalars["Bytes"]>>;
-  encodedBid_not_in?: Maybe<Array<Scalars["Bytes"]>>;
-  encodedBid_contains?: Maybe<Scalars["Bytes"]>;
-  encodedBid_not_contains?: Maybe<Scalars["Bytes"]>;
+  encodedBid?: Maybe<Scalars["String"]>;
+  encodedBid_not?: Maybe<Scalars["String"]>;
+  encodedBid_gt?: Maybe<Scalars["String"]>;
+  encodedBid_lt?: Maybe<Scalars["String"]>;
+  encodedBid_gte?: Maybe<Scalars["String"]>;
+  encodedBid_lte?: Maybe<Scalars["String"]>;
+  encodedBid_in?: Maybe<Array<Scalars["String"]>>;
+  encodedBid_not_in?: Maybe<Array<Scalars["String"]>>;
+  encodedBid_contains?: Maybe<Scalars["String"]>;
+  encodedBid_not_contains?: Maybe<Scalars["String"]>;
+  encodedBid_starts_with?: Maybe<Scalars["String"]>;
+  encodedBid_not_starts_with?: Maybe<Scalars["String"]>;
+  encodedBid_ends_with?: Maybe<Scalars["String"]>;
+  encodedBid_not_ends_with?: Maybe<Scalars["String"]>;
   prepareTransactionHash?: Maybe<Scalars["Bytes"]>;
   prepareTransactionHash_not?: Maybe<Scalars["Bytes"]>;
   prepareTransactionHash_in?: Maybe<Array<Scalars["Bytes"]>>;
@@ -562,6 +580,14 @@ export type Transaction_Filter = {
   fulfillMeta_not_in?: Maybe<Array<Scalars["Bytes"]>>;
   fulfillMeta_contains?: Maybe<Scalars["Bytes"]>;
   fulfillMeta_not_contains?: Maybe<Scalars["Bytes"]>;
+  fulfillTimestamp?: Maybe<Scalars["BigInt"]>;
+  fulfillTimestamp_not?: Maybe<Scalars["BigInt"]>;
+  fulfillTimestamp_gt?: Maybe<Scalars["BigInt"]>;
+  fulfillTimestamp_lt?: Maybe<Scalars["BigInt"]>;
+  fulfillTimestamp_gte?: Maybe<Scalars["BigInt"]>;
+  fulfillTimestamp_lte?: Maybe<Scalars["BigInt"]>;
+  fulfillTimestamp_in?: Maybe<Array<Scalars["BigInt"]>>;
+  fulfillTimestamp_not_in?: Maybe<Array<Scalars["BigInt"]>>;
   cancelCaller?: Maybe<Scalars["Bytes"]>;
   cancelCaller_not?: Maybe<Scalars["Bytes"]>;
   cancelCaller_in?: Maybe<Array<Scalars["Bytes"]>>;
@@ -580,6 +606,14 @@ export type Transaction_Filter = {
   cancelMeta_not_in?: Maybe<Array<Scalars["Bytes"]>>;
   cancelMeta_contains?: Maybe<Scalars["Bytes"]>;
   cancelMeta_not_contains?: Maybe<Scalars["Bytes"]>;
+  cancelTimestamp?: Maybe<Scalars["BigInt"]>;
+  cancelTimestamp_not?: Maybe<Scalars["BigInt"]>;
+  cancelTimestamp_gt?: Maybe<Scalars["BigInt"]>;
+  cancelTimestamp_lt?: Maybe<Scalars["BigInt"]>;
+  cancelTimestamp_gte?: Maybe<Scalars["BigInt"]>;
+  cancelTimestamp_lte?: Maybe<Scalars["BigInt"]>;
+  cancelTimestamp_in?: Maybe<Array<Scalars["BigInt"]>>;
+  cancelTimestamp_not_in?: Maybe<Array<Scalars["BigInt"]>>;
 };
 
 export enum Transaction_OrderBy {
@@ -618,9 +652,11 @@ export enum Transaction_OrderBy {
   FulfillCaller = "fulfillCaller",
   FulfillTransactionHash = "fulfillTransactionHash",
   FulfillMeta = "fulfillMeta",
+  FulfillTimestamp = "fulfillTimestamp",
   CancelCaller = "cancelCaller",
   CancelTransactionHash = "cancelTransactionHash",
   CancelMeta = "cancelMeta",
+  CancelTimestamp = "cancelTimestamp",
 }
 
 export type User = {
@@ -715,7 +751,7 @@ export type GetSenderTransactionsQuery = {
       expiry: any;
       preparedBlockNumber: any;
       encryptedCallData: string;
-      encodedBid: any;
+      encodedBid: string;
       bidSignature: any;
       prepareCaller?: Maybe<any>;
       fulfillCaller?: Maybe<any>;
@@ -760,7 +796,7 @@ export type GetReceiverTransactionsQuery = {
       expiry: any;
       preparedBlockNumber: any;
       encryptedCallData: string;
-      encodedBid: any;
+      encodedBid: string;
       bidSignature: any;
       prepareCaller?: Maybe<any>;
       fulfillCaller?: Maybe<any>;
@@ -800,7 +836,7 @@ export type GetTransactionQuery = {
     expiry: any;
     preparedBlockNumber: any;
     encryptedCallData: string;
-    encodedBid: any;
+    encodedBid: string;
     bidSignature: any;
     relayerFee?: Maybe<any>;
     signature?: Maybe<any>;
@@ -1002,10 +1038,16 @@ export const GetTransactionDocument = gql`
       cancelTransactionHash
     }
   }
-`;
-export const GetTransactionsDocument = gql`
-  query GetTransactions($transactionIds: [Bytes!]) {
-    transactions(where: { transactionId_in: $transactionIds }) {
+}
+    `;
+export const GetReceiverTransactionsDocument = gql`
+    query GetReceiverTransactions($routerId: ID!, $receivingChainId: BigInt!, $status: TransactionStatus, $expiry_lt: BigInt) {
+  router(id: $routerId) {
+    transactions(
+      where: {status: $status, receivingChainId: $receivingChainId, expiry_lt: $expiry_lt}
+      orderBy: preparedBlockNumber
+      orderDirection: desc
+    ) {
       id
       status
       chainId

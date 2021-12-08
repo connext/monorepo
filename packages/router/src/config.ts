@@ -31,6 +31,7 @@ const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_MAX_PRICE_IMPACT = 10; // max price impact in percentage
 const DEFAULT_AMPLIFICATION = 85; // default amplification for stable math
 const DEFAULT_WEIGHT = 1; // default weight for vAMM
+const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 dotenvConfig();
 
@@ -85,13 +86,30 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   return chainIdsForGasFee;
 };
 
+/**
+ * Returns the address of the `Multicall` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.Multicall;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  defaultInitialGas: Type.Optional(TIntegerString),
+  defaultInitialGasPrice: Type.Optional(TIntegerString),
   subgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
+  multicallAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   weight: Type.Number({ minimum: 1 }),
   gasStations: Type.Array(Type.String()),
@@ -108,6 +126,7 @@ export const TSwapPool = Type.Object({
       assetId: TAddress,
     }),
   ),
+  mainnetEquivalent: Type.Optional(TAddress),
 });
 
 export type NxtpRouterSwapPool = Static<typeof TSwapPool>;
@@ -135,7 +154,9 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxPriceImpact: Type.Number({ minimum: 1, maximum: 100 }),
   amplification: Type.Number({ minimum: 1 }),
   allowedVAMM: Type.Boolean(),
+  allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
   cleanUpMode: Type.Boolean(),
+  priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
 });
 
@@ -223,7 +244,13 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       process.env.AMPLIFICATION || configJson.amplification || configFile.amplification || DEFAULT_AMPLIFICATION,
     allowedVAMM: process.env.ALLOWED_VAMM || configJson.allowedVAMM || configFile.allowedVAMM || false,
     cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
+    priceCacheMode: process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCacheMode || configFile.priceCacheMode || true,
     diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
+    allowedTolerance:
+      process.env.NXTP_ALLOWED_TOLERANCE ||
+      configJson.allowedTolerance ||
+      configFile.allowedTolerance ||
+      DEFAULT_ALLOWED_TOLERANCE,
   };
 
   const overridechainRecommendedConfirmations =
@@ -267,6 +294,11 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     if (!chainConfig.priceOracleAddress) {
       const res = getDeployedPriceOracleContract(parseInt(chainId));
       nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
+    }
+
+    if (!chainConfig.multicallAddress) {
+      const res = getDeployedMulticallContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].multicallAddress = res?.address;
     }
 
     if (!chainConfig.minGas) {

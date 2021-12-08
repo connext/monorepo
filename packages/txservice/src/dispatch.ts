@@ -11,23 +11,25 @@ import {
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { Gas, WriteTransaction, Transaction, TransactionBuffer } from "./types";
+import { Gas, WriteTransaction, OnchainTransaction, TransactionBuffer } from "./types";
 import {
   BadNonce,
   TransactionReplaced,
   TransactionReverted,
   TimeoutError,
-  TransactionServiceFailure,
   TransactionBackfilled,
+  InitialSubmitFailure,
+  TransactionProcessingError,
+  NotEnoughConfirmations,
 } from "./error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
 export type DispatchCallbacks = {
-  onSubmit: (transaction: Transaction) => void;
-  onMined: (transaction: Transaction) => void;
-  onConfirm: (transaction: Transaction) => void;
-  onFail: (transaction: Transaction) => void;
+  onSubmit: (transaction: OnchainTransaction) => void;
+  onMined: (transaction: OnchainTransaction) => void;
+  onConfirm: (transaction: OnchainTransaction) => void;
+  onFail: (transaction: OnchainTransaction) => void;
 };
 
 /**
@@ -101,6 +103,9 @@ export class TransactionDispatch extends ChainRpcProvider {
       // Use interval promise to make sure loop iterations don't overlap.
       interval(async () => await this.mineLoop(), 2_000);
       interval(async () => await this.confirmLoop(), 2_000);
+
+      // Starts an interval loop that synchronizes the provider every configured interval.
+      interval(async () => await this.syncProviders(), this.config.syncProvidersInterval);
     }
   }
 
@@ -110,12 +115,11 @@ export class TransactionDispatch extends ChainRpcProvider {
    */
   private async mineLoop() {
     const { requestContext, methodContext } = createLoggingContext(this.mineLoop.name);
-    let transaction: Transaction | undefined = undefined;
+    let transaction: OnchainTransaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
-        // Shift the first transaction from the buffer and get it mined.
-        // NOTE: By shifting from the buffer, we effectively increase the ACTUAL inflight buffer cap by 1, which ought to be negligible.
         transaction = this.inflightBuffer.shift()!;
+        // Shift the first transaction from the buffer and get it mined.
         let receivedBadNonce = false;
         let shouldResubmit = false;
         while (!transaction.didMine && !transaction.error) {
@@ -138,11 +142,7 @@ export class TransactionDispatch extends ChainRpcProvider {
             if (error.type === TimeoutError.type && !receivedBadNonce) {
               // Check to see if this nonce has already been mined; this would imply this transaction got replaced, or
               // failed to reach chain.
-              const result = await this.getTransactionCount("latest");
-              if (result.isErr()) {
-                throw result.error;
-              }
-              const transactionCount = result.value;
+              const transactionCount = await this.getTransactionCount("latest");
               if (transactionCount > transaction.nonce) {
                 transaction.error = new TransactionBackfilled({
                   latestTransactionCount: transactionCount,
@@ -235,12 +235,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     attemptedNonces: number[],
     error?: BadNonce,
   ): Promise<{ nonce: number; backfill: boolean; transactionCount: number }> {
-    // Retrieve the latest mined transaction count.
-    const result = await this.getTransactionCount("latest");
-    if (result.isErr()) {
-      throw result.error;
-    }
-    const transactionCount = result.value;
+    const transactionCount = await this.getTransactionCount("latest");
 
     // Set the nonce initially to the last used nonce. If no nonce has been used yet (i.e. this is the first initial send attempt),
     // set to whichever value is higher: local nonce or txcount. This should almost always be our local nonce, but often both will be the same.
@@ -267,17 +262,26 @@ export class TransactionDispatch extends ChainRpcProvider {
         // Or should we treat the nonce as expired?
         error.reason === BadNonce.reasons.ReplacementUnderpriced
       ) {
-        // Currently only two possibilities are known to (potentially) cause this to happen:
+        // If we are here, likely one of following has occurred:
         // 1. Signer used outside of this class to send tx (should never happen).
         // 2. The router was rebooted, and our nonce has not yet caught up with that in the current pending pool of txs.
-        // If we haven't tried the up-to-date tx count, let's try that next; otherwise, just increment the nonce by 1 until we
-        // get a nonce we haven't tried.
+        // 3. We just performed a backfill operation, and are now catching back up to the *actual* nonce.
         if (!attemptedNonces.includes(transactionCount)) {
+          // If we have not tried mined tx count, let's try that next.
           nonce = transactionCount;
         } else {
-          // TODO: Do we need to set the nonce to the lowest/min value in the array of attempted nonce first?
-          while (attemptedNonces.includes(nonce)) {
-            nonce++;
+          // If we haven't tried the up-to-date tx count (latest or pending), let's try that next.
+          const pendingTransactionCount = await this.getTransactionCount("pending");
+          if (!attemptedNonces.includes(pendingTransactionCount)) {
+            nonce = pendingTransactionCount;
+          } else {
+            // If mined and pending tx count fail, we should just increment the nonce by 1 until we get a nonce we haven't tried.
+            // This is sort of a spray-and-pray solution, but it's the best we can do when providers aren't giving us more reliable info.
+            // Set the nonce to the lowest/min value in the array of attempted nonce first.
+            nonce = Math.min(...attemptedNonces);
+            while (attemptedNonces.includes(nonce)) {
+              nonce++;
+            }
           }
         }
       } else if (error.reason === BadNonce.reasons.NonceIncorrect) {
@@ -306,109 +310,128 @@ export class TransactionDispatch extends ChainRpcProvider {
    * @returns A list of receipts or errors that occurred for each.
    */
   public async send(minTx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
-    const { requestContext, methodContext } = createLoggingContext(this.send.name, context);
+    const method = this.send.name;
+    const { requestContext, methodContext } = createLoggingContext(method, context);
     const txsId = getUuid();
     this.logger.debug("Method start", requestContext, methodContext, {
       chainId: this.chainId,
-      minTx: { to: minTx.to, from: minTx.from },
       txsId,
     });
 
-    const result = await this.queue.add(async (): Promise<{ value: Transaction | NxtpError; success: boolean }> => {
-      try {
-        // Wait until there's room in the buffer.
-        if (this.inflightBuffer.isFull) {
-          this.logger.warn("Inflight buffer is full! Waiting in queue to send.", requestContext, methodContext, {
-            chainId: this.chainId,
-            bufferLength: this.inflightBuffer.length,
-            txsId,
-          });
-          while (this.inflightBuffer.isFull) {
-            await delay(200);
-          }
-        }
-
-        // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
-        // that, if we get past this method, we can *generally* assume that the transaction will go through on submit - although it's
-        // still possible to revert due to a state change below.
-        let gas = await this.getGas(minTx, requestContext);
-        if (this.chainId === 42161) {
-          gas = new Gas(gas.baseValue, BigNumber.from(10_000_000));
-        }
-
-        // Get initial nonce.
-        const attemptedNonces: number[] = [];
-        let { nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces);
-
-        // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
-        // go through on the first try.
-        let transaction: Transaction | undefined = undefined;
-        let lastErrorReceived: Error | undefined = undefined;
-        // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
-        let iterations = 0;
-        while (
-          iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
-          (!transaction || !transaction.didSubmit)
-        ) {
-          iterations++;
-          // Create a new transaction instance to track lifecycle. We will be submitting below.
-          transaction = new Transaction(
-            requestContext,
-            minTx,
-            nonce,
-            gas,
-            {
-              confirmationTimeout: this.confirmationTimeout,
-              confirmationsRequired: this.confirmationsRequired,
-            },
-            txsId,
-          );
-          this.logger.debug("Sending initial submit for transaction.", requestContext, methodContext, {
-            chainId: this.chainId,
-            iterations,
-            lastErrorReceived,
-            transaction: transaction.loggable,
-            nonceInfo: {
-              backfill,
-              transactionCount,
-              localNonce: this.nonce,
-              assignedNonce: nonce,
-            },
-          });
-          try {
-            await this.submit(transaction);
-          } catch (error) {
-            if (error.type === BadNonce.type) {
-              lastErrorReceived = error.reason;
-              ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
-              continue;
+    const result = await this.queue.add(
+      async (): Promise<{ value: OnchainTransaction | NxtpError; success: boolean }> => {
+        try {
+          // Wait until there's room in the buffer.
+          if (this.inflightBuffer.isFull) {
+            this.logger.warn("Inflight buffer is full! Waiting in queue to send.", requestContext, methodContext, {
+              chainId: this.chainId,
+              bufferLength: this.inflightBuffer.length,
+              txsId,
+            });
+            while (this.inflightBuffer.isFull) {
+              // TODO: This delay was raised to help alleviate a "trickling bottleneck" when the inflight buffer remains full for
+              // an extended period. An alternative: maybe we should wait until the buffer falls *below* a certain threshold?
+              await delay(10_000);
             }
-            // This could be a reverted error, etc.
-            throw error;
           }
+
+          // Estimate gas here will throw if the transaction is going to revert on-chain for "legit" reasons. This means
+          // that, if we get past this method, we can *generally* assume that the transaction will go through on submit - although it's
+          // still possible to revert due to a state change below.
+          const attemptedNonces: number[] = [];
+          const [gasLimit, gasPrice, nonceInfo] = await Promise.all([
+            this.estimateGas(minTx),
+            this.getGasPrice(requestContext),
+            this.determineNonce(attemptedNonces),
+          ]);
+          let { nonce, backfill, transactionCount } = nonceInfo;
+
+          // TODO: Remove hardcoded (exposed gasLimitInflation config var should replace this).
+          let gas = new Gas(gasPrice, gasLimit);
+          if (this.chainId === 42161) {
+            gas = new Gas(gas.baseValue, BigNumber.from(10_000_000));
+          }
+
+          // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
+          // go through on the first try.
+          let transaction: OnchainTransaction | undefined = undefined;
+          let lastErrorReceived: Error | undefined = undefined;
+
+          // It should never take more than MAX_INFLIGHT_TRANSACTIONS + 2 iterations to get the transaction through.
+          let iterations = 0;
+          while (
+            iterations < TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS + 2 &&
+            (!transaction || !transaction.didSubmit)
+          ) {
+            iterations++;
+            // Create a new transaction instance to track lifecycle. We will be submitting below.
+            transaction = new OnchainTransaction(
+              requestContext,
+              minTx,
+              nonce,
+              gas,
+              {
+                confirmationTimeout: this.confirmationTimeout,
+                confirmationsRequired: this.confirmationsRequired,
+              },
+              txsId,
+            );
+            this.logger.debug("Sending initial submit for transaction.", requestContext, methodContext, {
+              chainId: this.chainId,
+              iterations,
+              lastErrorReceived,
+              transaction: transaction.loggable,
+              nonceInfo: {
+                attemptedNonces,
+                backfill: backfill ?? undefined,
+                transactionCount,
+                localNonce: this.nonce,
+                assignedNonce: nonce,
+              },
+            });
+            try {
+              if (backfill) {
+                const replaced = this.inflightBuffer.getTxByNonce(transaction.nonce);
+                // Lets make sure we only replace/backfill a transaction that did not actually make it to chain.
+                if (replaced) {
+                  transaction.gas.price = replaced.gas.price;
+                }
+              }
+              await this.submit(transaction);
+            } catch (error) {
+              if (error.type === BadNonce.type) {
+                lastErrorReceived = error.reason;
+                ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
+                continue;
+              }
+              // This could be a reverted error, etc.
+              throw error;
+            }
+          }
+          if (!transaction || transaction.responses.length === 0) {
+            throw new InitialSubmitFailure(
+              "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
+            );
+          }
+          // Push submitted transaction to inflight buffer.
+          this.inflightBuffer.push(transaction);
+          // Increment the successful nonce, and assign our local nonce to that value.
+          this.nonce = nonce + 1;
+          return { value: transaction, success: true };
+        } catch (error) {
+          return { value: error, success: false };
         }
-        if (!transaction || transaction.responses.length === 0) {
-          throw new TransactionServiceFailure(
-            "Transaction never submitted: exceeded maximum iterations in initial submit loop.",
-          );
-        }
-        // Push submitted transaction to inflight buffer.
-        this.inflightBuffer.push(transaction);
-        // Increment the successful nonce, and assign our local nonce to that value.
-        this.nonce = nonce + 1;
-        return { value: transaction, success: true };
-      } catch (error) {
-        return { value: error, success: false };
-      }
-    });
+      },
+    );
 
     if (!result.success) {
       throw result.value;
     }
 
-    const transaction = result.value as Transaction;
+    const transaction = result.value as OnchainTransaction;
     // Wait for transaction to be picked up by the mine and confirm loops and closed out.
     while (!transaction.didFinish && !transaction.error) {
+      // TODO: Use wait, and wait a designated number of blocks if possible to optimize!
       await delay(1_000);
     }
 
@@ -417,13 +440,18 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
 
     if (!transaction.receipt) {
-      throw new TransactionServiceFailure("Transaction did not return a receipt");
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.NoReceipt, method);
     }
 
     return transaction.receipt;
   }
 
-  private async submit(transaction: Transaction) {
+  /**
+   * Submit an OnchainTransaction to the chain.
+   *
+   * @param transaction - OnchainTransaction object to modify based on submit result.
+   */
+  private async submit(transaction: OnchainTransaction) {
     const method = this.submit.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
     this.logger.debug("Method start", requestContext, methodContext, {
@@ -434,7 +462,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Check to make sure we haven't already mined this transaction.
     if (transaction.didFinish) {
       // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
-      throw new TransactionServiceFailure("Submit was called but transaction is already completed.", { method });
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.SubmitOutOfOrder, method);
     }
 
     // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
@@ -445,20 +473,41 @@ export class TransactionDispatch extends ChainRpcProvider {
       const lastPrice = transaction.responses[transaction.responses.length - 1].gasPrice;
       if (lastPrice && transaction.gas.price.lte(lastPrice)) {
         // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
-        throw new TransactionServiceFailure("Gas price was not incremented from last transaction.", { method });
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
       }
     }
 
     // Increment transaction # attempts made.
     transaction.attempt++;
-    // Set the timestamp according to when we last submitted.
-    transaction.timestamp = Date.now();
 
     // Send the tx.
-    const result = await this.sendTransaction(transaction);
-    // If we end up with an error, it should be thrown here.
-    if (result.isErr()) {
-      const error = result.error;
+    try {
+      const response = await this.sendTransaction(transaction);
+      // Add this response to our local response history.
+      if (transaction.hashes.includes(response.hash)) {
+        // Duplicate response? This should never happen.
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.DuplicateHash, method, {
+          chainId: this.chainId,
+          response,
+          transaction: transaction.loggable,
+        });
+      }
+      transaction.responses.push(response);
+
+      this.logger.info(`Tx submitted.`, requestContext, methodContext, {
+        chainId: this.chainId,
+        response: {
+          hash: response.hash,
+          nonce: response.nonce,
+          gasPrice: response.gasPrice ? utils.formatUnits(response.gasPrice, "gwei") : undefined,
+          gasLimit: response.gasLimit.toString(),
+        },
+        transaction: transaction.loggable,
+      });
+      this.callbacks.onSubmit(transaction);
+    } catch (error) {
+      // If we end up with an error, it should be thrown here. But first, log loudly if we get an insufficient
+      // funds error.
       if (
         error.type === TransactionReverted.type &&
         (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds
@@ -474,30 +523,16 @@ export class TransactionDispatch extends ChainRpcProvider {
           },
         );
       }
-      throw result.error;
+      throw error;
     }
-
-    // Add this response to our local response history.
-    const response = result.value;
-    if (transaction.hashes.includes(response.hash)) {
-      // Duplicate response? This should never happen.
-      throw new TransactionServiceFailure("Received a transaction response with a duplicate hash!", {
-        method,
-        chainId: this.chainId,
-        response,
-        transaction: transaction.loggable,
-      });
-    }
-    transaction.responses.push(response);
-
-    this.logger.info(`Tx submitted.`, requestContext, methodContext, {
-      chainId: this.chainId,
-      transaction: transaction.loggable,
-    });
-    this.callbacks.onSubmit(transaction);
   }
 
-  private async mine(transaction: Transaction) {
+  /**
+   * Wait for an OnchainTransaction to be mined (1 confirmation).
+   *
+   * @param transaction - OnchainTransaction object to modify based on mine result.
+   */
+  private async mine(transaction: OnchainTransaction) {
     const method = this.mine.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
     this.logger.debug("Method start", requestContext, methodContext, {
@@ -507,18 +542,38 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Ensure we've submitted at least 1 tx.
     if (!transaction.didSubmit) {
-      throw new TransactionServiceFailure("Transaction mine was called, but no transaction has been sent.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.MineOutOfOrder, method, {
         chainId: this.chainId,
         transaction: transaction.loggable,
       });
     }
 
-    // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
-    // it will throw a TransactionTimeout error.
-    const result = await this.confirmTransaction(transaction, 1);
-    if (result.isErr()) {
-      const { error: _error } = result;
+    try {
+      // Get receipt for tx with at least 1 confirmation. If it times out (using default, configured timeout),
+      // it will throw a TransactionTimeout error.
+      const receipt = await this.confirmTransaction(transaction, 1);
+
+      // Sanity checks.
+      if (receipt.status === 0) {
+        // This should never occur. We should always get a TransactionReverted error in this event.
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotThrowRevert, method, {
+          chainId: this.chainId,
+          receipt,
+          transaction: transaction.loggable,
+        });
+      } else if (receipt.confirmations < 1) {
+        // Again, should never occur.
+        throw new TransactionProcessingError(TransactionProcessingError.reasons.InsufficientConfirmations, method, {
+          chainId: this.chainId,
+          receipt: transaction.receipt,
+          confirmations: receipt.confirmations,
+          transaction: transaction.loggable,
+        });
+      }
+
+      // Set transaction's receipt.
+      transaction.receipt = receipt;
+    } catch (_error) {
       if (_error.type === TransactionReplaced.type) {
         const error = _error as TransactionReplaced;
         this.logger.debug(
@@ -531,18 +586,15 @@ export class TransactionDispatch extends ChainRpcProvider {
             transaction: transaction.loggable,
           },
         );
+
         // Sanity check.
         if (!error.replacement || !error.receipt) {
-          throw new TransactionServiceFailure(
-            "Transaction was replaced, but no replacement transaction and/or receipt was returned.",
-            {
-              method,
-              chainId: this.chainId,
-              replacement: error.replacement,
-              receipt: error.receipt,
-              transaction: transaction.loggable,
-            },
-          );
+          throw new TransactionProcessingError(TransactionProcessingError.reasons.ReplacedButNoReplacement, method, {
+            chainId: this.chainId,
+            replacement: error.replacement,
+            receipt: error.receipt,
+            transaction: transaction.loggable,
+          });
         }
 
         // Validate that we've been replaced by THIS transaction (and not an unrecognized transaction).
@@ -552,7 +604,6 @@ export class TransactionDispatch extends ChainRpcProvider {
         ) {
           throw error;
         }
-
         // error.receipt - the receipt of the replacement transaction (a TransactionReceipt)
         transaction.receipt = error.receipt;
       } else if (_error.type === TransactionReverted.type) {
@@ -564,41 +615,14 @@ export class TransactionDispatch extends ChainRpcProvider {
       } else {
         throw _error;
       }
-    } else {
-      const receipt = result.value;
-      // Sanity checks.
-      if (receipt == null) {
-        // Receipt is undefined or null. This should never occur; timeout should occur before this does,
-        // as a null receipt indicates 0 confirmations.
-        throw new TransactionServiceFailure("Unable to obtain receipt: ethers responded with null.", {
-          method,
-          chainId: this.chainId,
-          receipt,
-          transaction: transaction.loggable,
-        });
-      } else if (receipt.status === 0) {
-        // This should never occur. We should always get a TransactionReverted error in this event.
-        throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
-          method,
-          chainId: this.chainId,
-          receipt,
-          transaction: transaction.loggable,
-        });
-      } else if (receipt.confirmations < 1) {
-        // Again, should never occur.
-        throw new TransactionServiceFailure("Receipt did not have any confirmations, should have timed out!", {
-          method,
-          chainId: this.chainId,
-          receipt: transaction.receipt,
-          transaction: transaction.loggable,
-        });
-      }
-      // Set transaction's receipt.
-      transaction.receipt = receipt;
     }
 
     this.logger.info(`Tx mined.`, requestContext, methodContext, {
       chainId: this.chainId,
+      receipt: {
+        transactionHash: transaction.receipt.transactionHash,
+        blockNumber: transaction.receipt.blockNumber,
+      },
       transaction: transaction.loggable,
     });
     this.callbacks.onMined(transaction);
@@ -609,16 +633,9 @@ export class TransactionDispatch extends ChainRpcProvider {
    * a desired number of confirmation blocks. If confirmation times out, throws TimeoutError.
    * If all txs, including replacements, are reverted, throws TransactionReverted.
    *
-   * @privateRemarks
-   *
-   * Ultimately, we should see 1 tx accepted and confirmed, and the rest - if any - rejected (due to
-   * replacement) and confirmed. If at least 1 tx has been accepted and received 1 confirmation, we will
-   * wait an extended period for the desired number of confirmations. If no further confirmations appear
-   * (which is extremely unlikely), we throw a TransactionServiceFailure.NotEnoughConfirmations.
-   *
-   * @param transaction -
+   * @param transaction - OnchainTransaction object to modify based on confirm result.
    */
-  private async confirm(transaction: Transaction) {
+  private async confirm(transaction: OnchainTransaction) {
     const method = this.confirm.name;
     const { requestContext, methodContext } = createLoggingContext(method, transaction.context);
     this.logger.debug("Method start", requestContext, methodContext, {
@@ -628,68 +645,75 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Ensure we've submitted a tx.
     if (!transaction.didSubmit) {
-      throw new TransactionServiceFailure("Transaction mine was called, but no transaction has been sent.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.MineOutOfOrder, method, {
         chainId: this.chainId,
         transaction: transaction.loggable,
       });
     }
 
     if (!transaction.receipt) {
-      throw new TransactionServiceFailure(
-        "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
-        {
-          method,
-          chainId: this.chainId,
-          receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
-          transaction: transaction.loggable,
-        },
-      );
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.ConfirmOutOfOrder, method, {
+        chainId: this.chainId,
+        receipt: transaction.receipt === undefined ? "undefined" : transaction.receipt,
+        transaction: transaction.loggable,
+      });
     }
 
     // Here we wait for the target confirmations.
     // TODO: Ensure we are comfortable with how this timeout period is calculated.
     const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
-    const confirmResult = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
-    if (confirmResult.isErr()) {
-      // No other errors should occur during this confirmation attempt. This could occur during a reorg.
-      throw new TransactionServiceFailure(TransactionServiceFailure.reasons.NotEnoughConfirmations, {
-        method,
-        chainId: this.chainId,
-        receipt: transaction.receipt,
-        error: transaction.error,
-        transaction: transaction.loggable,
-      });
+    let receipt: providers.TransactionReceipt;
+    try {
+      receipt = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
+    } catch (error) {
+      this.logger.error(
+        "Did not get enough confirmations for a *mined* transaction! Did a re-org occur?",
+        requestContext,
+        methodContext,
+        jsonifyError(error),
+        {
+          chainId: this.chainId,
+          transaction: transaction.loggable,
+          confirmations: transaction.receipt.confirmations,
+          confirmationsRequired: this.confirmationsRequired,
+        },
+      );
+      // No other errors should normally occur during this confirmation attempt. This could occur during a reorg.
+      throw new NotEnoughConfirmations(
+        this.confirmationsRequired,
+        transaction.receipt.transactionHash,
+        transaction.receipt.confirmations,
+        {
+          method,
+          chainId: this.chainId,
+          receipt: transaction.receipt,
+          error: transaction.error,
+          transaction: transaction.loggable,
+        },
+      );
     }
-    const receipt = confirmResult.value;
-    if (receipt == null) {
-      // Should never occur.
-      throw new TransactionServiceFailure("Transaction receipt was null.", {
-        method,
-        chainId: this.chainId,
-        badReceipt: receipt,
-        minedReceipt: transaction.receipt,
-        transaction: transaction.loggable,
-      });
-    } else if (receipt.status === 0) {
+
+    // Sanity checks.
+    if (receipt.status === 0) {
       // This should never occur. We should always get a TransactionReverted error in this event : and that error should
       // have been thrown in the mine() method.
-      throw new TransactionServiceFailure("Transaction was reverted but TransactionReverted error was not thrown.", {
-        method,
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotThrowRevert, method, {
         chainId: this.chainId,
         receipt,
         transaction: transaction.loggable,
       });
     }
+
     transaction.receipt = receipt;
 
     this.logger.info(`Tx confirmed.`, requestContext, methodContext, {
       chainId: this.chainId,
       receipt: {
-        gasUsed: receipt.gasUsed.toString(),
-        transactionHash: receipt.transactionHash,
-        blockHash: receipt.blockHash,
+        transactionHash: transaction.receipt.transactionHash,
+        confirmations: transaction.receipt.confirmations,
+        blockNumber: transaction.receipt.blockNumber,
       },
+      transactionExecutionTime: Date.now() - transaction.timestamp,
       transaction: transaction.loggable,
     });
     this.callbacks.onConfirm(transaction);
@@ -697,40 +721,54 @@ export class TransactionDispatch extends ChainRpcProvider {
 
   /**
    * Bump the gas price for this tx up by the configured percentage.
+   *
+   * @param transaction - OnchainTransaction object to modify based on bump result.
    */
-  public async bump(transaction: Transaction) {
+  public async bump(transaction: OnchainTransaction) {
     const { requestContext, methodContext } = createLoggingContext(this.bump.name, transaction.context);
-    if (transaction.attempt >= Transaction.MAX_ATTEMPTS) {
-      const error = new TransactionServiceFailure(TransactionServiceFailure.reasons.MaxAttemptsReached, {
-        gasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
-        transaction: transaction.loggable,
-      });
-      throw error;
-    } else if (transaction.bumps >= transaction.hashes.length) {
+    if (
+      transaction.bumps >= transaction.hashes.length ||
+      transaction.gas.price.gte(BigNumber.from(this.config.gasMaximum))
+    ) {
       // If we've already bumped this tx but it's failed to resubmit, we should return here without bumping.
       // The number of gas bumps we've done should always be less than the number of txs we've submitted.
+      this.logger.warn("Bump skipped.", requestContext, methodContext, {
+        chainId: this.chainId,
+        bumps: transaction.bumps,
+        gasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
+        gasMaximum: utils.formatUnits(this.config.gasMaximum, "gwei"),
+      });
       return;
     }
     transaction.bumps++;
     const previousPrice = transaction.gas.price;
     // Get the current gas baseline price, in case it's changed drastically in the last block.
-    const result = await this.getGasPrice(requestContext);
-    const updatedPrice = result.isOk() ? result.value : BigNumber.from(0);
+    let updatedPrice: BigNumber;
+    try {
+      updatedPrice = await this.getGasPrice(requestContext);
+    } catch {
+      updatedPrice = BigNumber.from(this.config.gasMinimum);
+    }
     const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
     // Scale up gas by percentage as specified by config.
     transaction.gas.price = determinedBaseline
       .add(determinedBaseline.mul(this.config.gasReplacementBumpPercent).div(100))
       .add(1);
-    this.logger.info(`Bumping tx gas price for reattempt.`, requestContext, methodContext, {
+    this.logger.info(`Tx bumped.`, requestContext, methodContext, {
       chainId: this.chainId,
-      latestAvgPrice: `${utils.formatUnits(updatedPrice, "gwei")} gwei`,
-      previousPrice: `${utils.formatUnits(previousPrice, "gwei")} gwei`,
-      newGasPrice: `${utils.formatUnits(transaction.gas.price, "gwei")} gwei`,
+      updatedPrice: utils.formatUnits(updatedPrice, "gwei"),
+      previousPrice: utils.formatUnits(previousPrice, "gwei"),
+      newGasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
       transaction: transaction.loggable,
     });
   }
 
-  private async fail(transaction: Transaction) {
+  /**
+   * Handles OnchainTransaction failure.
+   *
+   * @param transaction - OnchainTransaction object to read from and modify based on fail event.
+   */
+  private async fail(transaction: OnchainTransaction) {
     const { requestContext, methodContext } = createLoggingContext(this.fail.name, transaction.context);
     this.logger.error(
       "Tx failed.",
@@ -743,44 +781,5 @@ export class TransactionDispatch extends ChainRpcProvider {
       },
     );
     this.callbacks.onFail(transaction);
-  }
-
-  /// HELPERS
-  /**
-   * A helper method to get the Gas tracker instance, which is used to hold price and limit.
-   *
-   * @param transaction - The transaction to get the Gas tracker for.
-   *
-   * @returns A GasTracker instance.
-   *
-   * @throws TransactionReverted if gas estimate fails.
-   */
-  private async getGas(transaction: WriteTransaction, context?: RequestContext): Promise<Gas> {
-    const { requestContext, methodContext } = createLoggingContext(this.getGas.name, context);
-    // Get gas estimate.
-    let gasLimit: BigNumber;
-    let result = await this.estimateGas(transaction);
-    if (result.isErr()) {
-      if (result.error.type === TransactionReverted.type) {
-        // If we get a TransactionReverted error, that means the gas estimate call
-        // indicated our transaction would fail on-chain. The details of the failure will
-        // be included in the error.
-        throw result.error;
-      }
-      this.logger.warn("Estimate gas failed due to an unexpected error.", requestContext, methodContext, {
-        transaction: transaction,
-        error: jsonifyError(result.error),
-      });
-      throw result.error;
-    } else {
-      gasLimit = result.value;
-    }
-
-    // Get gas price and create tracker instance.
-    result = await this.getGasPrice(requestContext);
-    if (result.isErr()) {
-      throw result.error;
-    }
-    return new Gas(result.value, gasLimit);
   }
 }

@@ -17,6 +17,7 @@ import {
   NotEnoughLiquidity,
   SenderChainDataInvalid,
   BidExpiryInvalid,
+  NotEnoughAmount,
 } from "../errors";
 import {
   decodeAuctionBid,
@@ -41,7 +42,7 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, config } = getContext();
+  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // HOTFIX: add sanitation check before cancellable validation
@@ -86,9 +87,28 @@ export const prepare = async (
     throw new AuctionSignerInvalid(routerAddress, recovered, { methodContext, requestContext });
   }
 
-  if (!BigNumber.from(bid.amount).eq(senderAmount) || bid.transactionId !== invariantData.transactionId) {
+  const thresholdPct = Number(config.allowedTolerance.toString().split(".")[0]);
+  const highThreshold = BigNumber.from(bid.amount)
+    .mul(100 + thresholdPct)
+    .div(100);
+  const lowThreshold = BigNumber.from(bid.amount)
+    .mul(100 - thresholdPct)
+    .div(100);
+  if (
+    BigNumber.from(senderAmount).gt(highThreshold) ||
+    BigNumber.from(senderAmount).lt(lowThreshold) ||
+    bid.transactionId !== invariantData.transactionId
+  ) {
     // cancellable error
-    throw new SenderChainDataInvalid({ methodContext, requestContext });
+    throw new SenderChainDataInvalid({
+      methodContext,
+      requestContext,
+      senderAmount: senderAmount.toString(),
+      highThreshold: highThreshold.toString(),
+      lowThreshold: lowThreshold.toString(),
+      bid,
+      invariantData,
+    });
   }
 
   const { sendingChainIdx, receivingChainIdx, swapPoolIdx } = getSwapIdxList(
@@ -159,6 +179,17 @@ export const prepare = async (
         subgraphBalance: routerBalance.toString(),
       });
     }
+  }
+
+  // Make sure amount is sensible
+  if (BigNumber.from(receiverAmount).lt(0)) {
+    throw new NotEnoughAmount({
+      receiverAmount,
+      preparedAmount: senderAmount.toString(),
+      transactionId: invariantData.transactionId,
+      methodContext,
+      requestContext,
+    });
   }
 
   // Handle the expiries.
