@@ -1,10 +1,10 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { expect, mkAddress, getChainData } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
 import * as entities from "../../../src/lib/entities/metrics";
-import { contractReaderMock, txServiceMock } from "../../globalTestHook";
-import { configMock } from "../../utils";
+import { contractReaderMock, ctxMock, txServiceMock } from "../../globalTestHook";
+import { chainDataMock, configMock } from "../../utils";
 import { parseEther } from "@ethersproject/units";
 
 describe("getAssetName", () => {
@@ -13,10 +13,39 @@ describe("getAssetName", () => {
     const name = metrics.getAssetName(assetId, chainId);
     expect(name).to.be.eq("TEST");
   });
+
+  it("should fallback to chaindata if theres no name in the pool", () => {
+    const { assetId, chainId } = configMock.swapPools[0].assets[0];
+    configMock.swapPools[0] = {
+      ...configMock.swapPools[0],
+      name: undefined,
+    };
+    const mainnetEquivalent = mkAddress("0xabc");
+
+    chainDataMock.set(chainId.toString(), {
+      assetId: {
+        [assetId]: {
+          mainnetEquivalent,
+        },
+      },
+    });
+
+    chainDataMock.set("1", {
+      assetId: {
+        [mainnetEquivalent]: {
+          symbol: "TEST_CHAIN_DATA",
+        },
+      },
+    });
+
+    const name = metrics.getAssetName(assetId, chainId);
+    expect(name).to.be.eq("TEST_CHAIN_DATA");
+  });
 });
 
 describe("collectOnchainLiquidity", () => {
   it("should work with varying decimals", async () => {
+    ctxMock.chainData = await getChainData();
     // constants
     const amt = "10";
     const price = "0.5";
@@ -42,7 +71,11 @@ describe("collectOnchainLiquidity", () => {
     txServiceMock.getTokenPrice.resolves(parseEther(price));
 
     // create stub for decimals
-    decimals.map((dec, idx) => txServiceMock.getDecimalsForAsset.onCall(idx).resolves(dec));
+    txServiceMock.getDecimalsForAsset.callsFake((chainId: number, _assetId: string) => {
+      const idx = chainIds.findIndex((c) => c === chainId);
+      const ret = decimals[idx];
+      return Promise.resolve(ret ?? 18);
+    });
 
     // run
     const ret = await metrics.collectOnchainLiquidity();
@@ -123,6 +156,79 @@ describe("collectExpressiveLiquidity", () => {
         },
       ],
     });
+  });
+});
+
+describe("collectGasBalance", () => {
+  it("should work", async () => {
+    const chainIds = Object.keys(configMock.chainConfig).map((c) => +c);
+    const balance = 100;
+    txServiceMock.getBalance.resolves(BigNumber.from(utils.parseEther(balance.toString())));
+    const expected = {};
+    chainIds.map((c) => {
+      expected[c] = balance;
+    });
+    expect(await metrics.collectGasBalance()).to.be.deep.eq(expected);
+  });
+
+  it("should work if theres an error on one chain", async () => {
+    const chainIds = Object.keys(configMock.chainConfig)
+      .map((c) => +c)
+      .slice(0, 2);
+    console.log("chainIds");
+    const balance = 100;
+    txServiceMock.getBalance.onFirstCall().resolves(BigNumber.from(utils.parseEther(balance.toString())));
+    txServiceMock.getBalance.onSecondCall().rejects(new Error("fail"));
+    const expected = { [chainIds[0]]: balance };
+    expect(await metrics.collectGasBalance()).to.be.deep.eq(expected);
+  });
+});
+
+describe("collectRpcHeads", () => {
+  it("should work", async () => {
+    const chainIds = Object.keys(configMock.chainConfig).map((c) => +c);
+    const block = 100000;
+    txServiceMock.getBlockNumber.resolves(block);
+    const expected = {};
+    chainIds.map((c) => {
+      expected[c] = block;
+    });
+    expect(await metrics.collectRpcHeads()).to.be.deep.eq(expected);
+  });
+
+  it("should work if theres an error on one chain", async () => {
+    const chainIds = Object.keys(configMock.chainConfig)
+      .map((c) => +c)
+      .slice(0, 2);
+    const block = 100;
+    txServiceMock.getBlockNumber.onFirstCall().resolves(block);
+    txServiceMock.getBlockNumber.onSecondCall().rejects(new Error("fail"));
+    const expected = { [chainIds[0]]: block };
+    expect(await metrics.collectRpcHeads()).to.be.deep.eq(expected);
+  });
+});
+
+describe("collectSubgraphHeads", () => {
+  it("should work", async () => {
+    const chainIds = Object.keys(configMock.chainConfig).map((c) => +c);
+    const block = 100000;
+    (contractReaderMock.getSyncRecords as any).resolves([{ synced: true, syncedBlock: block }]);
+    const expected = {};
+    chainIds.map((c) => {
+      expected[c] = block;
+    });
+    expect(await metrics.collectSubgraphHeads()).to.be.deep.eq(expected);
+  });
+
+  it("should work if theres an error on one chain", async () => {
+    const chainIds = Object.keys(configMock.chainConfig)
+      .map((c) => +c)
+      .slice(0, 2);
+    const block = 100;
+    (contractReaderMock.getSyncRecords as any).onFirstCall().resolves([{ synced: true, syncedBlock: block }]);
+    (contractReaderMock.getSyncRecords as any).onSecondCall().rejects(new Error("fail"));
+    const expected = { [chainIds[0]]: block };
+    expect(await metrics.collectSubgraphHeads()).to.be.deep.eq(expected);
   });
 });
 

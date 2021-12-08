@@ -1,5 +1,5 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock, getChainData, Logger } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock, Logger } from "@connext/nxtp-utils";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
@@ -9,6 +9,7 @@ import {
   singleChainTransactionMock,
   configMock,
   activeTransactionFulfillMock,
+  chainDataMock,
 } from "./utils";
 import { Context } from "../src/router";
 import { ContractReader } from "../src/adapters/subgraph";
@@ -72,7 +73,7 @@ export const mochaHooks = {
       contractReader: contractReaderMock,
       contractWriter: contractWriterMock,
       logger: new Logger({ name: "ctxMock", level: process.env.LOG_LEVEL || "silent" }),
-      chainData: await getChainData(),
+      chainData: chainDataMock,
       messaging: messagingMock as unknown as RouterNxtpNatsMessagingService,
       txService: txServiceMock as unknown as TransactionService,
       wallet: walletMock,
