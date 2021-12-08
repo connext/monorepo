@@ -1,5 +1,4 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
-import { getAddress } from "@ethersproject/address";
 import { constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
 import {
@@ -68,13 +67,13 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
   }
 
   const entry =
-    chainData.get(chainId.toString())?.assetId[getAddress(assetId)] ??
+    chainData.get(chainId.toString())?.assetId[utils.getAddress(assetId)] ??
     chainData.get(chainId.toString())?.assetId[assetId.toUpperCase()] ??
     chainData.get(chainId.toString())?.assetId[assetId.toLowerCase()];
 
   if (entry?.mainnetEquivalent) {
     const mainnetEntry =
-      chainData.get("1")?.assetId[getAddress(entry.mainnetEquivalent)] ??
+      chainData.get("1")?.assetId[utils.getAddress(entry.mainnetEquivalent)] ??
       chainData.get("1")?.assetId[entry.mainnetEquivalent.toUpperCase()] ??
       chainData.get("1")?.assetId[entry.mainnetEquivalent.toLowerCase()];
     return mainnetEntry?.symbol;
