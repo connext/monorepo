@@ -101,20 +101,12 @@ describe("Meta Tx Operation", () => {
   });
 
   it("should error if not allowed to relay globally", async () => {
+    const metaTxMock = metaTxInputMock("Fulfill");
     const old = configMock.allowRelay;
     configMock.allowRelay = false;
-    await expect(sendMetaTx(metaTxInputMock("Fulfill") as any, requestContext)).to.eventually.be.rejectedWith(
-      NotAllowedFulfillRelay,
-    );
-    configMock.allowRelay = old;
-  });
-
-  it("should error if not allowed to relay for chain", async () => {
-    const metaTxMock = metaTxInputMock("Fulfill");
-    const old = configMock.chainConfig[metaTxMock.chainId].allowRelay;
     configMock.chainConfig[metaTxMock.chainId].allowRelay = false;
     await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotAllowedFulfillRelay);
-    configMock.chainConfig[metaTxMock.chainId].allowRelay = old;
+    configMock.allowRelay = old;
   });
 
   it("should error on metatx fulfill type if fee is < expected", async () => {
