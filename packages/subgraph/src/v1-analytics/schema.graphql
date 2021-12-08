@@ -4,8 +4,8 @@ type AssetBalance @entity {
   router: Router!
   assetId: Bytes!
   supplied: BigInt!
-  locked: BigInt!
   removed: BigInt!
+  locked: BigInt!
   volume: BigInt!
   volumeIn: BigInt!
 }
@@ -91,10 +91,6 @@ type HourlyMetric @entity {
   assetId: String!
   # hourly volume per asset
   volume: BigInt!
-  # hourly liquidity per asset
-  liquidity: BigInt!
-  # hourly number of transactions per asset
-  txCount: BigInt!
   # number of completed transactions with this chain as the sending chain
   sendingTxCount: BigInt!
   # number of completed transactions with this chain as the receiving chain
@@ -114,8 +110,6 @@ type DayMetric @entity {
   assetId: String!
   # day volume per asset
   volume: BigInt!
-  # day number of transactions per asset
-  txCount: BigInt!
   # number of completed transactions with this chain as the sending chain
   sendingTxCount: BigInt!
   # number of completed transactions with this chain as the receiving chain
