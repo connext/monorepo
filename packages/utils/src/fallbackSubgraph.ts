@@ -2,6 +2,8 @@ import { NxtpError } from "./error";
 import { getSubgraphHealth } from "./subgraphHealth";
 
 export type SubgraphSyncRecord = {
+  uri: string;
+  name: string;
   synced: boolean;
   latestBlock: number;
   syncedBlock: number;
@@ -18,8 +20,6 @@ type CallMetric = {
 };
 
 type Subgraph<T extends SubgraphSdk> = {
-  uri: string;
-  name: string;
   client: T;
   record: SubgraphSyncRecord;
   priority: number;
@@ -81,12 +81,12 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       return split[split.length - 1];
     };
     this.subgraphs = sdks.map(({ client, uri }) => ({
-      // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
-      // which ones are most in sync.
-      uri: uri.replace("https://", "").split(".com")[0],
-      name: getSubgraphName(uri),
       client,
       record: {
+        // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
+        // which ones are most in sync.
+        uri: uri.replace("https://", "").split(".com")[0],
+        name: getSubgraphName(uri),
         synced: true,
         latestBlock: -1,
         syncedBlock: -1,
@@ -185,7 +185,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
         let syncedBlock;
         // First, try to use the subgraph health API.
         try {
-          const health = await withRetries(async () => await getSubgraphHealth(subgraph.name));
+          const health = await withRetries(async () => await getSubgraphHealth(subgraph.record.name));
           if (health && health.latestBlock && health.chainHeadBlock) {
             latestBlock = health.latestBlock;
             syncedBlock = health.chainHeadBlock;
