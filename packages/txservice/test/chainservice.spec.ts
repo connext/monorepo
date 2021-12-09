@@ -49,7 +49,7 @@ describe("ChainService", () => {
     );
 
     (ChainService as any).instance = undefined;
-    chainService = new ChainService(logger, { chains }, signer);
+    chainService = new ChainService(logger, chains, signer);
 
     // NOTE: Chain service SHOULD instantiate a provider for this chain and SHOULD pass VALID callbacks
     // that link to event emitters (see: DispatchCallbacks type).

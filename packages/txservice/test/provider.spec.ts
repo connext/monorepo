@@ -3,7 +3,7 @@ import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonS
 
 import { Gas, OnchainTransaction, SyncProvider } from "../src/types";
 import { ChainRpcProvider } from "../src/provider";
-import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
+import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import {
   makeChaiReadable,
   TEST_FULL_TX,
@@ -49,6 +49,7 @@ describe("ChainRpcProvider", () => {
 
     const chainId = TEST_SENDER_CHAIN_ID;
     const chainConfig: ChainConfig = {
+      ...DEFAULT_CHAIN_CONFIG,
       providers: [
         {
           url: "https://-------------",
@@ -60,17 +61,7 @@ describe("ChainRpcProvider", () => {
     };
 
     syncProvidersStub = Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
-    chainProvider = new ChainRpcProvider(
-      logger,
-      chainId,
-      chainConfig,
-      {
-        ...DEFAULT_CONFIG,
-        gasInitialBumpPercent: 20,
-        gasPriceMaxIncreaseScalar: 200,
-      },
-      signer,
-    );
+    chainProvider = new ChainRpcProvider(logger, chainId, chainConfig, signer);
     // One block = 10ms for the purposes of testing.
     (chainProvider as any).blockPeriod = 10;
     Sinon.stub(chainProvider as any, "execute").callsFake(fakeExecuteMethod);

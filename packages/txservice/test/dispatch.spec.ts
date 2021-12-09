@@ -3,7 +3,7 @@ import { expect } from "@connext/nxtp-utils/src/expect";
 import { BigNumber, providers, Wallet } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
-import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
+import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
 import {
   BadNonce,
@@ -98,6 +98,7 @@ describe("TransactionDispatch", () => {
     (signer as any).address = ADDRESS;
 
     const chainConfig: ChainConfig = {
+      ...DEFAULT_CHAIN_CONFIG,
       providers: [
         {
           url: "https://-------------",
@@ -105,22 +106,13 @@ describe("TransactionDispatch", () => {
       ],
       confirmations: 1,
       confirmationTimeout: 10_000,
-      gasStations: [],
     };
 
     Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
     Sinon.stub(ChainRpcProvider.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
-    txDispatch = new TransactionDispatch(
-      logger,
-      TEST_SENDER_CHAIN_ID,
-      chainConfig,
-      { ...DEFAULT_CONFIG },
-      signer,
-      dispatchCallbacks,
-      false,
-    );
+    txDispatch = new TransactionDispatch(logger, TEST_SENDER_CHAIN_ID, chainConfig, signer, dispatchCallbacks, false);
 
     // This will stub all dispatch methods. Methods below should be restored manually as needed.
     stubAllDispatchMethods();
