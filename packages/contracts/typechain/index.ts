@@ -23,6 +23,7 @@ export type { Counter } from "./Counter";
 export type { FeeERC20 } from "./FeeERC20";
 export type { LibAssetTest } from "./LibAssetTest";
 export type { RevertableERC20 } from "./RevertableERC20";
+export type { TestAggregator } from "./TestAggregator";
 export type { TestERC20 } from "./TestERC20";
 export type { TransactionManager } from "./TransactionManager";
 
@@ -48,5 +49,6 @@ export { Counter__factory } from "./factories/Counter__factory";
 export { FeeERC20__factory } from "./factories/FeeERC20__factory";
 export { LibAssetTest__factory } from "./factories/LibAssetTest__factory";
 export { RevertableERC20__factory } from "./factories/RevertableERC20__factory";
+export { TestAggregator__factory } from "./factories/TestAggregator__factory";
 export { TestERC20__factory } from "./factories/TestERC20__factory";
 export { TransactionManager__factory } from "./factories/TransactionManager__factory";
