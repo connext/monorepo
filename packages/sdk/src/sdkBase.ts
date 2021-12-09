@@ -132,7 +132,7 @@ export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfig
  *
  */
 export class NxtpSdkBase {
-  private readonly transactionManager: TransactionManager;
+  public readonly transactionManager: TransactionManager;
   // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
   public readonly chainReader: ChainReader;
   private readonly messaging: UserNxtpNatsMessagingService;

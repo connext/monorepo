@@ -80,6 +80,10 @@ export class SdkManager {
               authUrl,
               network,
             );
+
+            //sanitize hanging transactions from previous runs.
+            await agent.sanitizeAgentTransactions(onchain.wallets[idx]);
+
             return agent;
           }),
       );

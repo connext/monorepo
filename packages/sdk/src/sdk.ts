@@ -1,4 +1,4 @@
-import { BigNumber, providers, Signer, utils, constants } from "ethers";
+import { ethers, BigNumber, providers, Signer, utils, constants } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -81,12 +81,12 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
  */
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
-  private readonly sdkBase: NxtpSdkBase;
+  public readonly sdkBase: NxtpSdkBase;
   private readonly logger: Logger;
   public readonly chainData?: Map<string, ChainData>;
 
   constructor(
-    private readonly config: {
+    public readonly config: {
       chainConfig: SdkBaseChainConfigParams;
       signer: Signer;
       messagingSigner?: Signer;
@@ -663,8 +663,10 @@ export class NxtpSdk {
       return { transactionHash: response.transactionResponse!.transactionHash };
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillResponse = await connectedSigner.sendTransaction(response.transactionRequest!);
-
+      const fulfillResponse = await connectedSigner.sendTransaction({
+        ...response.transactionRequest!,
+        gasLimit: BigNumber.from(3000000),
+      });
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { transactionHash: fulfillResponse.hash };
     }
@@ -692,11 +694,18 @@ export class NxtpSdk {
     this.logger.info("Method started", requestContext, methodContext, { chainId, cancelParams });
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
-    const connectedSigner = this.config.signer;
-    // TODO: Safe to remove?
+
+    const newProvider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com/v1/b4a9eb8014ae7256dd3eff3507b2a973976bb5bf");
+    // const connectedSigner = this.config.signer;
+
+
+    // TODO: Safe to remove? 
     // if (isNode()) {
-    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[chainId].provider);
+      const newSigner = this.config.signer;
+      const connectedSigner = newSigner.connect(newProvider);
     // }
+    this.logger.debug(`connected signer ${JSON.stringify(await connectedSigner.provider?.getNetwork())}`);
+
 
     const cancelResponse = await connectedSigner.sendTransaction(cancelReq);
     this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });

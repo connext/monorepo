@@ -48,10 +48,10 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   // Fund agents with tokens on sending + receiving chain
   if (manager) {
     log.info(`Gifting agents sending chain ${sendingChainId}`);
-    await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
+    // await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
 
     log.info(`Gifting agents receiving chain ${receivingChainId}`);
-    await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
+    // await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
 
     // Begin transfers
     log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
@@ -59,7 +59,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     const provider = config.chainConfig[sendingChainId].provider;
     const chainData = await getChainData();
     const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, provider, chainData);
-    const amount = utils.parseUnits("0.0001", decimals).toString();
+    const amount = utils.parseUnits("10000", decimals).toString();
 
     const startTime = Date.now();
     const killSwitch = await manager.startCyclicalTransfers({

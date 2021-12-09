@@ -94,7 +94,7 @@ describe("Integration", () => {
       const tx = await sugarDaddy.connect(sendingChainProvider).sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to router mined");
-    }
+    
 
     if (balanceReceiving.lt(MIN_ETH)) {
       logger.info({ chainId: RECEIVING_CHAIN }, "Sending ETH_GIFT to router");
