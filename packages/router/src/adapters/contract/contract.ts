@@ -36,7 +36,7 @@ export const startContractListeners = (): void => {
       const contract = new Contract(
         conf.transactionManagerAddress,
         TransactionManagerArtifact.abi,
-        txService.getProvider(chainId).leadProvider,
+        txService.getProvider(chainId).fallbackProvider,
       ) as TTransactionManager;
       contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
         prepareEvt.post({ event, args, chainId });

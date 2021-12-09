@@ -44,7 +44,7 @@ export class ChainRpcProvider {
   public leadProvider: SyncProvider | undefined;
 
   // TODO: Remove fallback provider?
-  private readonly fallbackProvider: providers.FallbackProvider;
+  public readonly fallbackProvider: providers.FallbackProvider;
   private readonly signer?: Signer;
 
   private lastUsedGasPrice: BigNumber | undefined = undefined;
