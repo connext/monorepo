@@ -5,4 +5,10 @@ export const GAS_ESTIMATES = {
   prepareL1: "17300", // https://optimistic.etherscan.io/tx/0xd3ae8d8980aa464c4256ef6c734f7eb58211a02a6016201903e30fd35ec3bff8
   fulfillL1: "11800", // https://optimistic.etherscan.io/tx/0x280a1e70c10095d748babb85fa56fdf8285cdcae3e3962eae3dc451045c0b220
   cancelL1: "11800", // TODO
+  prepareRouterContract: "", // TODO
+  fulfillRouterContract: "", // TODO
+  cancelRouterContract: "", // TODO
+  prepareRouterContractL1: "", // TODO
+  fulfillRouterContractL1: "", // TODO
+  cancelRouterContractL1: "", // TODO
 };

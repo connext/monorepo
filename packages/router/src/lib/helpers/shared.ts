@@ -241,7 +241,7 @@ export const calculateGasFee = async (
   requestContext: RequestContext,
   methodContext: MethodContext,
 ): Promise<BigNumber> => {
-  const { txService } = getContext();
+  const { txService, isRouterContract } = getContext();
 
   const assetIdOnMainnet = await getMainnetEquivalent(assetId, chainId);
   const tokenPricingChain = assetIdOnMainnet ? 1 : chainId;
@@ -259,6 +259,7 @@ export const calculateGasFee = async (
     nativeTokenPricingAssetId,
     decimals,
     method,
+    isRouterContract,
     requestContext,
     methodContext,
   );
