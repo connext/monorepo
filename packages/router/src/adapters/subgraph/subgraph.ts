@@ -380,7 +380,20 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   signature: correspondingReceiverTx?.signature,
                   relayerFee: correspondingReceiverTx?.relayerFee,
                   callData: correspondingReceiverTx?.callData,
-                  receiverFulfilledHash: correspondingReceiverTx?.fulfillTransactionHash,
+                  hashes: {
+                    sending: {
+                      prepareHash: senderTx.prepareTransactionHash,
+                      cancelHash: senderTx.cancelTransactionHash,
+                      fulfillHash: senderTx.fulfillTransactionHash,
+                    },
+                    receiving: correspondingReceiverTx
+                      ? {
+                          prepareHash: correspondingReceiverTx.prepareTransactionHash,
+                          cancelHash: correspondingReceiverTx.cancelTransactionHash,
+                          fulfillHash: correspondingReceiverTx.fulfillTransactionHash,
+                        }
+                      : undefined,
+                  },
                 },
                 status: CrosschainTransactionStatus.ReceiverFulfilled,
               } as ActiveTransaction<"ReceiverFulfilled">;

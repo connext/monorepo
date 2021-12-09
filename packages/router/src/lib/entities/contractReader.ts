@@ -44,15 +44,9 @@ export type CrosschainTransactionPayload = {
   [CrosschainTransactionStatus.SenderPrepared]: PreparePayload;
   [CrosschainTransactionStatus.SenderExpired]: Record<string, never>;
   [CrosschainTransactionStatus.ReceiverNotConfigured]: Record<string, never>;
-  [CrosschainTransactionStatus.ReceiverPrepared]: PreparePayload & {
-    receiverPreparedHash: string;
-  };
-  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload & {
-    receiverFulfilledHash: string;
-  };
-  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload & {
-    receiverCancelledHash: string;
-  };
+  [CrosschainTransactionStatus.ReceiverPrepared]: PreparePayload;
+  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload;
+  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload;
   [CrosschainTransactionStatus.ReceiverExpired]: Record<string, never>;
 };
 
