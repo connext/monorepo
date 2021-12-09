@@ -2,7 +2,7 @@ import { providers, BigNumber } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
 
-import { FullTransaction, ReadTransaction, WriteTransaction } from "../src/types";
+import { ReadTransaction, WriteTransaction } from "../src/types";
 
 type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
@@ -38,7 +38,7 @@ export const TEST_TX_RESPONSE: TransactionResponse = {
   wait: () => Promise.resolve({} as TransactionReceipt),
 };
 
-export const TEST_FULL_TX: FullTransaction = {
+export const TEST_FULL_TX: providers.TransactionRequest = {
   ...TEST_TX,
   nonce: 1,
   gasPrice: TEST_TX_RESPONSE.gasPrice,

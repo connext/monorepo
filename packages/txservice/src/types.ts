@@ -16,12 +16,6 @@ export type WriteTransaction = {
   value: BigNumberish;
 } & ReadTransaction;
 
-export type FullTransaction = {
-  nonce: number;
-  gasPrice: BigNumber;
-  gasLimit: BigNumber;
-} & WriteTransaction;
-
 /// Events
 export type TxServiceSubmittedEvent = {
   responses: providers.TransactionResponse[];
@@ -195,12 +189,14 @@ export class OnchainTransaction {
   /**
    * Retrieves all params needed to format a full transaction, including current gas price set, nonce, etc.
    */
-  public get params(): FullTransaction {
+  public get params(): providers.TransactionRequest {
     return {
       ...this.minTx,
       gasPrice: this.gas.price,
       nonce: this.nonce,
       gasLimit: this.gas.limit,
+      // TODO: Support EIP-1559 transactions.
+      type: 0,
     };
   }
 
