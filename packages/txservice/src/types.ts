@@ -195,6 +195,8 @@ export class OnchainTransaction {
       gasPrice: this.gas.price,
       nonce: this.nonce,
       gasLimit: this.gas.limit,
+      // TODO: Support EIP-1559 transactions.
+      type: 0,
     };
   }
 
