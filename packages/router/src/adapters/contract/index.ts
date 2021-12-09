@@ -1,8 +1,6 @@
 import { CancelParams, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
-import { startContractListeners } from "../../lib/helpers";
-
 import {
   prepareTransactionManager,
   prepareRouterContract,
@@ -12,6 +10,7 @@ import {
   cancelTransactionManager,
   removeLiquidityTransactionManager,
   getRouterBalance,
+  startContractListeners,
 } from "./contract";
 
 export type ContractWriter = {

@@ -5,9 +5,6 @@ import {
   getInvariantTransactionDigest,
   getVariantTransactionDigest,
   TransactionData,
-  PrepareParams,
-  FulfillParams,
-  CancelParams,
   multicall as _multicall,
   Call,
   MethodContext,
@@ -274,39 +271,6 @@ export const getTokenPriceFromOnChain = async (
 ): Promise<BigNumber> => {
   const { txService } = getContext();
   return txService.getTokenPriceFromOnChain(chainId, assetId, requestContext);
-};
-
-export const prepareEvt = new Evt<{ event: any; args: PrepareParams }>(); // TODO: fix types
-export const fulfillEvt = new Evt<{ event: any; args: FulfillParams }>();
-export const cancelEvt = new Evt<{ event: any; args: CancelParams }>();
-
-export const startContractListeners = (): void => {
-  const { config } = getContext();
-  Object.entries(config.chainConfig).forEach(async ([_chainId]) => {
-    // const chainId = Number(_chainId);
-    if (config.routerContractAddress) {
-      // needs event listeners for listening to relayed events
-      // TODO remove this when we can query gelato for tx receipts
-      // alternatively allow listening on the subgraph
-      // const contract = new Contract(
-      //   conf.transactionManagerAddress,
-      //   TransactionManagerArtifact.abi,
-      //   txService.getProvider(chainId).provider,
-      // ) as TTransactionManager;
-      // contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
-      //   prepareEvt.post({ event, args });
-      // });
-      // contract.on(
-      //   "TransactionFulfilled",
-      //   (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
-      //     fulfillEvt.post({ event, args });
-      //   },
-      // );
-      // contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
-      //   cancelEvt.post({ event, args });
-      // });
-    }
-  });
 };
 
 export const sanitationCheck = async (
