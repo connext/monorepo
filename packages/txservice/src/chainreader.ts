@@ -269,6 +269,7 @@ export class ChainReader {
         sendingNativeAssetId,
         outputDecimals,
         "fulfill",
+        false,
         requestContext,
         methodContext,
       ),
@@ -281,6 +282,7 @@ export class ChainReader {
         receivingNativeAssetId,
         outputDecimals,
         "prepare",
+        false,
         requestContext,
         methodContext,
       ),
@@ -329,6 +331,7 @@ export class ChainReader {
       receivingNativeAssetId,
       outputDecimals,
       "fulfill",
+      false,
       requestContext,
       methodContext,
     );
@@ -357,7 +360,7 @@ export class ChainReader {
     nativeTokenAssetId: string,
     decimals: number,
     method: "prepare" | "fulfill" | "cancel",
-    isRouterContract = false,
+    isRouterContract: boolean,
     requestContext: RequestContext,
     methodContext?: MethodContext,
   ): Promise<BigNumber> {
