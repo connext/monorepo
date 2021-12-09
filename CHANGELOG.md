@@ -3,6 +3,7 @@
 ## Next Release
 
 - [router] Cleanup prometheus collection
+- [router/txservice] Explicitly use legacy transactions only
 
 # 0.0.99
 
