@@ -64,7 +64,7 @@ export class Web3Signer extends Signer {
         chainId: tx.chainId || undefined,
       },
       // If an EIP-1559 transaction, use the EIP-1559 specific fields.
-      tx.type && tx.type === 2
+      tx.type === 2
         ? {
             maxFeePerGas: tx.maxFeePerGas,
             maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
