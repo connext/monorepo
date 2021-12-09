@@ -740,11 +740,12 @@ export class NxtpSdkBase {
             const code = await this.chainReader.getCode(receivingChainId, data.bid.router);
             if (code !== "0x") {
               const encodedData = new Interface(RouterAbi).encodeFunctionData("routerSigner");
-              const routerSigner = await this.chainReader.readTx({
+              let routerSigner = await this.chainReader.readTx({
                 to: data.bid.router,
                 data: encodedData,
                 chainId: receivingChainId,
               });
+              routerSigner = utils.getAddress(utils.hexDataSlice(routerSigner, 12)); // convert 32 bytes to 20 bytes
 
               if (routerSigner !== signer) {
                 const msg = "Invalid routerContract signature on bid";
