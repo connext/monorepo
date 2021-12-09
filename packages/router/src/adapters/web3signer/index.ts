@@ -54,16 +54,27 @@ export class Web3Signer extends Signer {
 
   public async signTransaction(transaction: providers.TransactionRequest): Promise<string> {
     const tx = await utils.resolveProperties(transaction);
-    const baseTx: utils.UnsignedTransaction = {
-      to: tx.to || undefined,
-      nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
-      gasLimit: tx.gasLimit || undefined,
-      gasPrice: tx.gasPrice || undefined,
-      data: tx.data || undefined,
-      value: tx.value || undefined,
-      chainId: tx.chainId || undefined,
-      type: tx.type || undefined,
-    };
+    const baseTx: utils.UnsignedTransaction = Object.assign(
+      {
+        to: tx.to || undefined,
+        nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
+        gasLimit: tx.gasLimit || undefined,
+        data: tx.data || undefined,
+        value: tx.value || undefined,
+        chainId: tx.chainId || undefined,
+      },
+      // If an EIP-1559 transaction, use the EIP-1559 specific fields.
+      tx.type && tx.type === 2
+        ? {
+            maxFeePerGas: tx.maxFeePerGas,
+            maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
+            type: 2,
+          }
+        : {
+            gasPrice: tx.gasPrice,
+            type: 0,
+          },
+    );
 
     const identifier = await this.api.getPublicKey();
     const digestBytes = utils.serializeTransaction(baseTx);
