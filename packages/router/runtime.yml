@@ -1,7 +1,7 @@
 schema: http://localhost:8010/subgraphs/name/connext/nxtp
-documents: "./src/adapters/subgraph/queries.ts"
+documents: "./src/adapters/subgraph/runtime/queries.ts"
 generates:
-  ./src/adapters/subgraph/graphqlsdk.ts:
+  ./src/adapters/subgraph/runtime/graphqlsdk.ts:
     plugins:
       - typescript
       - typescript-operations

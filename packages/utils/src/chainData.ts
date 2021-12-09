@@ -25,6 +25,7 @@ export type ChainData = {
   >;
   rpc: string[];
   subgraph: string[];
+  analyticsSubgraph?: string[];
   faucets: string[];
   infoURL: string;
   gasStations: string[];

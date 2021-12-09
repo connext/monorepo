@@ -17,19 +17,16 @@ import { BigNumber, constants, utils } from "ethers/lib/ethers";
 import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
+  Router as TRouter,
 } from "@connext/nxtp-contracts/typechain";
-import { Router as TRouter } from "@connext/nxtp-contracts/typechain";
-
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
-import { NotExistPriceOracle } from "../../lib/errors/contracts";
-import { getContext } from "../../router";
-
-import { SanitationCheckFailed } from "../errors";
 import { Evt } from "evt";
+
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
+import { getContext } from "../../router";
+import { SanitationCheckFailed } from "../errors";
 
 const { HashZero } = constants;
 /**
@@ -101,13 +98,46 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
 };
 
 /**
+ *
+ * Converts the received amount into the sending asset, assuming 1:1 price
+ *
+ * @param sendingAssetId The asset address on source chain
+ * @param sendingChainId The source chain Id
+ * @param receivingAssetId The asset address on destination chain
+ * @param receivingChainId The destination chain Id
+ * @returns
+ */
+export const getFeesInSendingAsset = async (
+  receivedAmount: BigNumber, // receiving asset
+  sentAmount: BigNumber,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
+): Promise<string> => {
+  const { txService } = getContext();
+  const [sendingDecimals, receivingDecimals] = await Promise.all([
+    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
+    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
+  ]);
+
+  const normalizedReceived = receivedAmount.mul(BigNumber.from(10).pow(18 - receivingDecimals));
+  const normalizedSending = sentAmount.mul(BigNumber.from(10).pow(18 - sendingDecimals));
+
+  // Assume 1:1 once normalized
+  const fees = normalizedReceived.sub(normalizedSending).div(BigNumber.from(10).pow(18 - sendingDecimals));
+
+  return fees.toString();
+};
+
+/**
  * Helper to calculate router gas fee in token
  *
  * @param sendingAssetId The asset address on source chain
  * @param sendingChainId The source chain Id
  * @param receivingAssetId The asset address on destination chain
  * @param receivingChainId The destination chain Id
- * @param _outputDecimals Decimal number of receiving asset
+ * @param outputDecimals Decimal number of receiving asset
  * @param requestContext Request context instance
  */
 export const calculateGasFeeInReceivingToken = async (
@@ -250,9 +280,9 @@ export const fulfillEvt = new Evt<{ event: any; args: FulfillParams }>();
 export const cancelEvt = new Evt<{ event: any; args: CancelParams }>();
 
 export const startContractListeners = (): void => {
-  const { config, txService } = getContext();
-  Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
-    const chainId = Number(_chainId);
+  const { config } = getContext();
+  Object.entries(config.chainConfig).forEach(async ([_chainId]) => {
+    // const chainId = Number(_chainId);
     if (config.routerContractAddress) {
       // needs event listeners for listening to relayed events
       // TODO remove this when we can query gelato for tx receipts

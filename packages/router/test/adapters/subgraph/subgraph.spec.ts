@@ -10,7 +10,7 @@ import {
 import { constants } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
-import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
+import { TransactionStatus } from "../../../src/adapters/subgraph/runtime/graphqlsdk";
 import {
   getActiveTransactions,
   getAssetBalance,

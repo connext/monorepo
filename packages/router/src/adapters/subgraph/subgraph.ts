@@ -13,19 +13,26 @@ import { BigNumber, constants } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
-import { ActiveTransaction, SingleChainTransaction, CrosschainTransactionStatus } from "../../lib/entities";
+import {
+  ActiveTransaction,
+  SingleChainTransaction,
+  CrosschainTransactionStatus,
+  ExpressiveAssetBalance,
+} from "../../lib/entities";
 import { handlingTracker } from "../../bindings/contractReader";
 
 import {
   GetAssetBalanceQuery,
+  GetAssetBalancesQuery,
   GetReceiverTransactionsQuery,
   GetSenderTransactionsQuery,
   GetTransactionQuery,
   GetTransactionsQuery,
   TransactionStatus as SdkTransactionStatus,
-} from "./graphqlsdk";
+} from "./runtime/graphqlsdk";
+import { GetExpressiveAssetBalancesQuery } from "./analytics/graphqlsdk";
 
-import { getSdks } from ".";
+import { getAnalyticsSdks, getSdks } from "./index";
 
 export const getSyncRecords = async (
   chainId: number,
@@ -314,7 +321,20 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   sending,
                   receiving,
                 },
-                payload: {},
+                payload: {
+                  hashes: {
+                    sending: {
+                      prepareHash: senderTx.prepareTransactionHash,
+                      cancelHash: senderTx.cancelTransactionHash,
+                      fulfillHash: senderTx.fulfillTransactionHash,
+                    },
+                    receiving: {
+                      prepareHash: correspondingReceiverTx?.prepareTransactionHash,
+                      cancelHash: correspondingReceiverTx?.cancelTransactionHash,
+                      fulfillHash: correspondingReceiverTx?.fulfillTransactionHash,
+                    },
+                  },
+                },
                 status: CrosschainTransactionStatus.ReceiverExpired,
               } as ActiveTransaction<"ReceiverExpired">;
             }
@@ -500,11 +520,13 @@ export const getTransactionForChain = async (
     : undefined;
 };
 
-export const getAssetBalance = async (routerAddress: string, assetId: string, chainId: number): Promise<BigNumber> => {
+export const getAssetBalance = async (assetId: string, chainId: number): Promise<BigNumber> => {
   const method = "getAssetBalance";
   const methodId = getUuid();
   const sdks = getSdks();
   const sdk = sdks[chainId];
+
+  const { routerAddress } = getContext();
 
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
@@ -513,4 +535,49 @@ export const getAssetBalance = async (routerAddress: string, assetId: string, ch
   const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
   const bal = await sdk.request<GetAssetBalanceQuery>((client) => client.GetAssetBalance({ assetBalanceId }));
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
+};
+
+export const getAssetBalances = async (chainId: number): Promise<{ assetId: string; amount: BigNumber }[]> => {
+  const { wallet } = getContext();
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId);
+  }
+
+  const addr = await wallet.getAddress();
+  const { assetBalances } = await sdk.request<GetAssetBalancesQuery>((client) =>
+    client.GetAssetBalances({ routerId: addr }),
+  );
+  return assetBalances.map((a) => {
+    return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
+  });
+};
+
+export const getExpressiveAssetBalances = async (chainId: number): Promise<ExpressiveAssetBalance[]> => {
+  const { wallet } = getContext();
+
+  const sdks = getAnalyticsSdks();
+  const sdk = sdks[chainId];
+
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId);
+  }
+
+  const addr = await wallet.getAddress();
+  const { assetBalances } = await sdk.request<GetExpressiveAssetBalancesQuery>((client) =>
+    client.GetExpressiveAssetBalances({ routerId: addr }),
+  );
+  return assetBalances.map((a) => {
+    return {
+      assetId: a.assetId,
+      amount: BigNumber.from(a.amount),
+      supplied: BigNumber.from(a.supplied),
+      locked: BigNumber.from(a.locked),
+      removed: BigNumber.from(a.removed),
+      // volumeIn: BigNumber.from(a.volumeIn),
+      // volume: BigNumber.from(a.volume),
+    };
+  });
 };

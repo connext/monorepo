@@ -1,6 +1,12 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
-import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
+import {
+  getEnvConfig,
+  getConfig,
+  getDeployedTransactionManagerContract,
+  getDeployedPriceOracleContract,
+  getDeployedMulticallContract,
+} from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
 describe("Config", () => {
@@ -18,6 +24,32 @@ describe("Config", () => {
     it("happy func", () => {
       const res = getDeployedTransactionManagerContract(4);
       expect(res).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedPriceOracleContract", () => {
+    it("should undefined if no price oracle", () => {
+      const res = getDeployedPriceOracleContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedPriceOracleContract(4);
+      expect(res.address).to.be.ok;
+      expect(res.abi).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedMulticallContract", () => {
+    it("should undefined if no price oracle", () => {
+      const res = getDeployedMulticallContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedMulticallContract(4);
+      expect(res.address).to.be.ok;
+      expect(res.abi).to.be.ok;
     });
   });
 

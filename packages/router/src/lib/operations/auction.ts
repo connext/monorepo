@@ -24,9 +24,10 @@ import {
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
-import { receivedAuction } from "../../bindings/metrics";
+import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { getAssetName } from "../helpers/metrics";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -38,6 +39,8 @@ export const newAuction = async (
     receivingAssetId: data.receivingAssetId,
     sendingChainId: data.receivingChainId,
     receivingChainId: data.receivingChainId,
+    sendingAssetName: getAssetName(data.sendingAssetId, data.sendingChainId),
+    receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
   const { logger, config, contractReader, txService, wallet, chainData, routerAddress, isRouterContract } =
@@ -85,7 +88,7 @@ export const newAuction = async (
       // Throwing empty error as the ZeroValueBid error below will override it.
       throw new Error("Amount was zero.");
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new ZeroValueBid({
       methodContext,
       requestContext,
@@ -221,7 +224,7 @@ export const newAuction = async (
 
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
-  const balance = await contractReader.getAssetBalance(routerAddress, receivingAssetId, receivingChainId);
+  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {

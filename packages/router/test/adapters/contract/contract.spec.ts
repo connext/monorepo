@@ -7,6 +7,10 @@ import {
   prepareParamsMock,
   cancelParamsMock,
   expect,
+  getInvariantTransactionDigest,
+  invariantDataMock,
+  getRandomBytes32,
+  getVariantTransactionDigest,
 } from "@connext/nxtp-utils";
 
 import * as SharedFns from "../../../src/lib/helpers/shared";
@@ -28,6 +32,7 @@ const encodedDataMock = "0xabcde";
 let interfaceMock: SinonStubbedInstance<Interface>;
 
 describe("Contract Adapter", () => {
+  let sanitationStub;
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
@@ -35,14 +40,98 @@ describe("Contract Adapter", () => {
     stub(SharedFns, "sanitationCheck").resolves();
   });
 
-  describe("#getContractAddress", () => {
-    it("should error if chainId is not supported in config", async () => {
-      const chainId = 1400;
-      expect(() => getContractAddress(chainId)).throws(`No contract exists for chain ${chainId}`);
+  describe("#getContractAddress / #getOracleContractAddress", () => {
+    const badChainId = 1400;
+    const tests = [
+      {
+        field: "transactionManagerAddress",
+        functionName: "getContractAddress",
+        error: `No contract exists for chain ${badChainId}`,
+      },
+      {
+        field: "priceOracleAddress",
+        functionName: "getOracleContractAddress",
+        error: new NotExistPriceOracle(badChainId).message,
+      },
+    ];
+    for (const test of tests) {
+      const { error, field, functionName } = test;
+      it(`${functionName} should error if chainId is not supported in config`, async () => {
+        expect(() => ContractFns[functionName](badChainId)).throws(error);
+      });
+
+      it(`${functionName} should work`, async () => {
+        expect(ContractFns[functionName](1337)).to.be.eq(configMock.chainConfig[1337][field]);
+      });
+    }
+  });
+
+  describe("sanitation check", () => {
+    it("should work for prepare", async () => {
+      const digest = getInvariantTransactionDigest(txDataMock);
+      interfaceMock.encodeFunctionData.returns(digest);
+
+      txServiceMock.readTx.resolves(constants.HashZero);
+
+      await ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare");
+      expect(interfaceMock.encodeFunctionData.firstCall.args).to.be.deep.eq(["variantTransactionData", [digest]]);
+      expect(interfaceMock.encodeFunctionData.callCount).to.be.eq(1);
+    });
+
+    it("should throw an error if the hash is not empty && function is prepare", async () => {
+      const digest = getInvariantTransactionDigest(txDataMock);
+      interfaceMock.encodeFunctionData.returns(digest);
+
+      txServiceMock.readTx.resolves(getRandomBytes32());
+
+      await expect(ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare")).to.be.rejectedWith(
+        new SanitationCheckFailed("prepare", invariantDataMock.transactionId, invariantDataMock.sendingChainId).message,
+      );
+    });
+
+    it("should work for fulfill", async () => {
+      const invariantDigest = getInvariantTransactionDigest(txDataMock);
+      const variantDigest = getVariantTransactionDigest(txDataMock);
+      interfaceMock.encodeFunctionData.returns(invariantDigest);
+
+      txServiceMock.readTx.resolves(variantDigest);
+
+      await ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill");
+      expect(interfaceMock.encodeFunctionData.firstCall.args).to.be.deep.eq([
+        "variantTransactionData",
+        [invariantDigest],
+      ]);
+      expect(interfaceMock.encodeFunctionData.callCount).to.be.eq(1);
+    });
+
+    it("should throw an error if its an empty hash", async () => {
+      const invariantDigest = getInvariantTransactionDigest(txDataMock);
+      interfaceMock.encodeFunctionData.returns(invariantDigest);
+
+      txServiceMock.readTx.resolves(constants.HashZero);
+
+      await expect(ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill")).to.be.rejectedWith(
+        new SanitationCheckFailed("fulfill", txDataMock.transactionId, txDataMock.sendingChainId).message,
+      );
+    });
+
+    it("should throw an error if its a fulfilled hash", async () => {
+      const invariantDigest = getInvariantTransactionDigest(txDataMock);
+      interfaceMock.encodeFunctionData.returns(invariantDigest);
+
+      txServiceMock.readTx.resolves(getVariantTransactionDigest({ ...txDataMock, preparedBlockNumber: 0 }));
+
+      await expect(ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill")).to.be.rejectedWith(
+        new SanitationCheckFailed("fulfill", txDataMock.transactionId, txDataMock.sendingChainId).message,
+      );
     });
   });
 
   describe("#prepare", () => {
+    beforeEach(() => {
+      sanitationStub = stub(ContractFns, "sanitationCheck");
+      sanitationStub.resolves();
+    });
     it("happy case: prepare", async () => {
       const chainId = txDataMock.sendingChainId;
 
@@ -60,9 +149,20 @@ describe("Contract Adapter", () => {
       ]);
       expect(res).to.deep.eq(txReceiptMock);
     });
+
+    it("should fail if encoding fails", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      interfaceMock.encodeFunctionData.throws(new Error("fail"));
+      await expect(prepare(chainId, prepareParamsMock, requestContext)).to.be.rejectedWith("fail");
+    });
   });
 
   describe("#fulfill", () => {
+    beforeEach(() => {
+      sanitationStub = stub(ContractFns, "sanitationCheck");
+      sanitationStub.resolves();
+    });
     it("happy case: fulfill", async () => {
       const chainId = txDataMock.sendingChainId;
 
@@ -78,9 +178,27 @@ describe("Contract Adapter", () => {
       ]);
       expect(res).to.deep.eq(txReceiptMock);
     });
+
+    it("should fail if sanitation check fails", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      sanitationStub.rejects(new Error("fail"));
+      await expect(fulfill(chainId, fulfillParamsMock, requestContext)).to.be.rejectedWith("fail");
+    });
+
+    it("should fail if encoding fails", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      interfaceMock.encodeFunctionData.throws(new Error("fail"));
+      await expect(fulfill(chainId, fulfillParamsMock, requestContext)).to.be.rejectedWith("fail");
+    });
   });
 
   describe("#cancel", () => {
+    beforeEach(() => {
+      sanitationStub = stub(ContractFns, "sanitationCheck");
+      sanitationStub.resolves();
+    });
     it("happy case: cancel", async () => {
       const chainId = txDataMock.sendingChainId;
 
@@ -93,6 +211,20 @@ describe("Contract Adapter", () => {
         },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should fail if sanitation check fails", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      sanitationStub.rejects(new Error("fail"));
+      await expect(fulfill(chainId, cancelParamsMock, requestContext)).to.be.rejectedWith("fail");
+    });
+
+    it("should fail if encoding fails", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      interfaceMock.encodeFunctionData.throws(new Error("fail"));
+      await expect(fulfill(chainId, cancelParamsMock, requestContext)).to.be.rejectedWith("fail");
     });
   });
 
@@ -126,6 +258,14 @@ describe("Contract Adapter", () => {
         recipientAddress,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("getRouterBalance", async () => {
+    it("should work", async () => {
+      txServiceMock.readTx.resolves("10");
+      const ret = await ContractFns.getRouterBalance(1337, routerAddrMock, mkAddress());
+      expect(ret.toNumber()).to.be.eq(10);
     });
   });
 });

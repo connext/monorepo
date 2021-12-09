@@ -788,6 +788,13 @@ export type GetAssetBalanceQueryVariables = Exact<{
 
 export type GetAssetBalanceQuery = { __typename?: 'Query', assetBalance?: Maybe<{ __typename?: 'AssetBalance', amount: any }> };
 
+export type GetAssetBalancesQueryVariables = Exact<{
+  routerId: Scalars['String'];
+}>;
+
+
+export type GetAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any }> };
+
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -967,6 +974,14 @@ export const GetAssetBalanceDocument = gql`
   }
 }
     `;
+export const GetAssetBalancesDocument = gql`
+    query GetAssetBalances($routerId: String!) {
+  assetBalances(where: {router: $routerId}) {
+    amount
+    assetId
+  }
+}
+    `;
 export const GetBlockNumberDocument = gql`
     query GetBlockNumber {
   _meta {
@@ -998,6 +1013,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalance');
+    },
+    GetAssetBalances(variables: GetAssetBalancesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalancesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalancesQuery>(GetAssetBalancesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalances');
     },
     GetBlockNumber(variables?: GetBlockNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetBlockNumberQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetBlockNumberQuery>(GetBlockNumberDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetBlockNumber');
