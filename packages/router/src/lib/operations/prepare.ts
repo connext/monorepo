@@ -133,7 +133,6 @@ export const prepare = async (
   receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const routerBalance = await contractReader.getAssetBalance(
-    invariantData.router,
     invariantData.receivingAssetId,
     invariantData.receivingChainId,
   );

@@ -24,8 +24,7 @@ import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.s
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
-import { NotExistPriceOracle } from "../../lib/errors/contracts";
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { getContext } from "../../router";
 
 import { SanitationCheckFailed } from "../errors";

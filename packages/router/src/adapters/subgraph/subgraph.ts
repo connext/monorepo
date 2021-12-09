@@ -520,11 +520,13 @@ export const getTransactionForChain = async (
     : undefined;
 };
 
-export const getAssetBalance = async (routerAddress: string, assetId: string, chainId: number): Promise<BigNumber> => {
+export const getAssetBalance = async (assetId: string, chainId: number): Promise<BigNumber> => {
   const method = "getAssetBalance";
   const methodId = getUuid();
   const sdks = getSdks();
   const sdk = sdks[chainId];
+
+  const { routerAddress } = getContext();
 
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });

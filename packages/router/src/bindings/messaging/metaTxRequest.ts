@@ -5,6 +5,7 @@ import {
   MetaTxRouterContractCancelPayload,
   MetaTxRouterContractFulfillPayload,
   MetaTxRouterContractPreparePayload,
+  MetaTxTypes,
   MetaTxType,
   NxtpErrorJson,
   RequestContext,
@@ -50,14 +51,9 @@ export const metaTxRequestBinding = async (
     return;
   }
 
-  const transactionId =
-    (data.data as MetaTxFulfillPayload).txData?.transactionId ??
-    (
-      data.data as
-        | MetaTxRouterContractPreparePayload
-        | MetaTxRouterContractFulfillPayload
-        | MetaTxRouterContractCancelPayload
-    ).params?.txData?.transactionId;
+  const { txData, relayerFee } = data.type === MetaTxTypes.Fulfill ? data.data : data.data.params;
+
+  const transactionId = txData.transactionId;
 
   if (!transactionId) {
     throw new NoTransactionId({ data });
