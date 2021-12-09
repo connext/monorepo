@@ -6,7 +6,7 @@ use(solidity);
 
 import { hexlify, keccak256, randomBytes } from "ethers/lib/utils";
 import { Wallet, BigNumberish, constants, providers, Contract } from "ethers";
-import { RevertableERC20, TransactionManager, ERC20, RouterFactory } from "@connext/nxtp-contracts";
+import { RevertableERC20, TransactionManager, ERC20 } from "@connext/nxtp-contracts";
 
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
@@ -22,11 +22,11 @@ import {
   signRouterFulfillTransactionPayload,
   signRouterPrepareTransactionPayload,
 } from "@connext/nxtp-utils";
-import { deployContract, MAX_FEE_PER_GAS, getOnchainBalance } from "./utils";
+import { deployContract, MAX_FEE_PER_GAS } from "./utils";
 import { getContractError } from "../src";
 
 // import types
-import { Router } from "../typechain";
+import { Router, RouterFactory } from "../typechain";
 
 const convertToPrepareArgs = (transaction: InvariantTransactionData, record: VariantTransactionData) => {
   const args = {
@@ -82,7 +82,7 @@ const EmptyBytes = "0x";
 const EmptyCallDataHash = keccak256(EmptyBytes);
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("Router Contract", function () {
+describe("Router.sol", function () {
   const [wallet, routerSigner, routerReceipient, user, receiver, gelato, other] =
     waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
@@ -101,8 +101,6 @@ describe("Router Contract", function () {
     );
 
     routerFactory = await deployContract<RouterFactory>("RouterFactory", wallet.address);
-    const initTx = await routerFactory.init(transactionManagerReceiverSide.address);
-    await initTx.wait();
 
     token = await deployContract<RevertableERC20>(RevertableERC20Artifact);
 
@@ -143,6 +141,9 @@ describe("Router Contract", function () {
 
   beforeEach(async function () {
     ({ routerFactory, transactionManagerReceiverSide, token } = await loadFixture(fixture));
+
+    const initTx = await routerFactory.connect(wallet).init(transactionManagerReceiverSide.address);
+    await initTx.wait();
 
     const createTx: providers.TransactionResponse = await routerFactory
       .connect(routerSigner)

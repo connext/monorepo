@@ -18,7 +18,7 @@ import { getContractError } from "../src";
 
 const { AddressZero } = constants;
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("Router Factory Contract", function () {
+describe("RouterFactory.sol", function () {
   const [wallet, routerSigner, recipient, other] = waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
 
@@ -34,8 +34,6 @@ describe("Router Factory Contract", function () {
 
     routerFactory = await deployContract<RouterFactory>("RouterFactory", wallet.address);
 
-    const initTx = await routerFactory.init(transactionManagerReceiverSide.address);
-    await initTx.wait();
     return {
       routerFactory,
       transactionManagerReceiverSide,
@@ -49,6 +47,9 @@ describe("Router Factory Contract", function () {
 
   beforeEach(async function () {
     ({ transactionManagerReceiverSide, routerFactory } = await loadFixture(fixture));
+
+    const initTx = await routerFactory.connect(wallet).init(transactionManagerReceiverSide.address);
+    await initTx.wait();
   });
 
   describe("constructor", async () => {
