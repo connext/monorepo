@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Cleanup prometheus collection
+
 # 0.0.99
 
 - [txservice] Fix error parsing

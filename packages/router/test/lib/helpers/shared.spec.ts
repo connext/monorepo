@@ -1,9 +1,10 @@
+import { getChainData } from "@connext/nxtp-utils";
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
-import { txServiceMock } from "../../globalTestHook";
+import { ctxMock, txServiceMock } from "../../globalTestHook";
 
 describe("getNtpTimeSeconds", () => {
   it("should work", async () => {
@@ -21,6 +22,7 @@ describe("getMainnetEquivalent", () => {
 
 describe("getMainnetEquivalentFromChainData", () => {
   it("should work", async () => {
+    ctxMock.chainData = await getChainData();
     const result = await shared.getMainnetEquivalentFromChainData(constants.AddressZero, 100);
     expect(result).to.be.eq("0x6B175474E89094C44Da98b954EedeAC495271d0F");
   });

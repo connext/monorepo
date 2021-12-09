@@ -95,12 +95,12 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
 
   const timestamp = event.block.timestamp;
   const router = event.params.router;
-  const receivingChainId = event.params.args.txData.receivingChainId;
-  const sendingChainId = event.params.args.txData.sendingChainId;
+  const receivingChainId = event.params.txData.receivingChainId;
+  const sendingChainId = event.params.txData.sendingChainId;
 
-  const sendingAssetId = event.params.args.txData.sendingAssetId;
-  const receivingAssetId = event.params.args.txData.receivingAssetId;
-  const amount = event.params.args.txData.amount;
+  const sendingAssetId = event.params.txData.sendingAssetId;
+  const receivingAssetId = event.params.txData.receivingAssetId;
+  const amount = event.params.txData.amount;
 
   // receiving chain
   if (chainId == receivingChainId) {
@@ -159,9 +159,9 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   const timestamp = event.block.timestamp;
   const router = event.params.router;
 
-  const receivingChainId = event.params.args.txData.receivingChainId;
-  const receivingAssetId = event.params.args.txData.receivingAssetId;
-  const amount = event.params.args.txData.amount;
+  const receivingChainId = event.params.txData.receivingChainId;
+  const receivingAssetId = event.params.txData.receivingAssetId;
+  const amount = event.params.txData.amount;
 
   // router receives liquidity back on receiver cancel
   if (chainId == receivingChainId) {

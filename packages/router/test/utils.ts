@@ -1,6 +1,6 @@
 import { mkAddress, variantDataMock, invariantDataMock, mkBytes32, chainDataToMap } from "@connext/nxtp-utils";
 
-import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
+import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/runtime/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
 import {
   ActiveTransaction,
