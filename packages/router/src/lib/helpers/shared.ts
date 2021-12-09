@@ -17,18 +17,16 @@ import { BigNumber, constants, utils } from "ethers/lib/ethers";
 import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
+  Router as TRouter,
 } from "@connext/nxtp-contracts/typechain";
-import { Router as TRouter } from "@connext/nxtp-contracts/typechain";
-
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import { Evt } from "evt";
 
 import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { getContext } from "../../router";
-
 import { SanitationCheckFailed } from "../errors";
-import { Evt } from "evt";
 
 const { HashZero } = constants;
 /**
@@ -282,9 +280,9 @@ export const fulfillEvt = new Evt<{ event: any; args: FulfillParams }>();
 export const cancelEvt = new Evt<{ event: any; args: CancelParams }>();
 
 export const startContractListeners = (): void => {
-  const { config, txService } = getContext();
-  Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
-    const chainId = Number(_chainId);
+  const { config } = getContext();
+  Object.entries(config.chainConfig).forEach(async ([_chainId]) => {
+    // const chainId = Number(_chainId);
     if (config.routerContractAddress) {
       // needs event listeners for listening to relayed events
       // TODO remove this when we can query gelato for tx receipts

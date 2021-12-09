@@ -1,5 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress, TChainId, TIntegerString } from "@connext/nxtp-utils";
+import { TAddress, TChainId } from "@connext/nxtp-utils";
 
 export const MetaTxInputSchema = Type.Object({
   type: Type.String(),

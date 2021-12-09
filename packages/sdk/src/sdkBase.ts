@@ -1,4 +1,4 @@
-import { constants, providers, Signer, utils, BigNumber, Wallet, Contract } from "ethers";
+import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
 import { Evt } from "evt";
 import {
   ajv,
