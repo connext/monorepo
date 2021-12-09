@@ -538,17 +538,16 @@ export const getAssetBalance = async (assetId: string, chainId: number): Promise
 };
 
 export const getAssetBalances = async (chainId: number): Promise<{ assetId: string; amount: BigNumber }[]> => {
-  const { wallet } = getContext();
   const sdks = getSdks();
   const sdk = sdks[chainId];
 
+  const { routerAddress } = getContext();
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId);
   }
 
-  const addr = await wallet.getAddress();
   const { assetBalances } = await sdk.request<GetAssetBalancesQuery>((client) =>
-    client.GetAssetBalances({ routerId: addr }),
+    client.GetAssetBalances({ routerId: routerAddress }),
   );
   return assetBalances.map((a) => {
     return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
@@ -556,18 +555,17 @@ export const getAssetBalances = async (chainId: number): Promise<{ assetId: stri
 };
 
 export const getExpressiveAssetBalances = async (chainId: number): Promise<ExpressiveAssetBalance[]> => {
-  const { wallet } = getContext();
-
   const sdks = getAnalyticsSdks();
   const sdk = sdks[chainId];
+
+  const { routerAddress } = getContext();
 
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId);
   }
 
-  const addr = await wallet.getAddress();
   const { assetBalances } = await sdk.request<GetExpressiveAssetBalancesQuery>((client) =>
-    client.GetExpressiveAssetBalances({ routerId: addr }),
+    client.GetExpressiveAssetBalances({ routerId: routerAddress }),
   );
   return assetBalances.map((a) => {
     return {

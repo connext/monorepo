@@ -444,12 +444,12 @@ export const removeLiquidityTransactionManager = async (
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(removeLiquidityTransactionManager.name, requestContext);
 
-  const { logger, txService, wallet } = getContext();
+  const { logger, txService, wallet, signerAddress } = getContext();
 
   logger.info("Method start", requestContext, methodContext, { amount, assetId, recipientAddress });
 
   if (!recipientAddress) {
-    recipientAddress = await wallet.getAddress();
+    recipientAddress = signerAddress;
   }
 
   const nxtpContractAddress = getContractAddress(chainId);
