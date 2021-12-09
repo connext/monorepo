@@ -76,13 +76,14 @@ const convertMockedToActiveTransaction = (
     receivingChainId,
     callDataHash,
     transactionId,
+    preparedTimestamp,
   } = mockedSending;
-  return {
+  const tx: ActiveTransaction = {
     status,
     bidSignature,
     encodedBid,
     encryptedCallData,
-    preparedTimestamp: Math.floor(Date.now() / 1000),
+    preparedTimestamp,
     crosschainTx: {
       invariant: {
         receivingChainTxManagerAddress,
@@ -104,15 +105,16 @@ const convertMockedToActiveTransaction = (
         expiry: mockedSending.expiry,
         preparedBlockNumber: mockedSending.preparedBlockNumber.toNumber(),
       },
-      receiving: mockedReceiving
-        ? {
-            amount: mockedReceiving.amount.toString(),
-            expiry: mockedReceiving.expiry,
-            preparedBlockNumber: mockedReceiving.preparedBlockNumber.toNumber(),
-          }
-        : undefined,
     },
   };
+  if (mockedReceiving) {
+    tx.crosschainTx.receiving = {
+      amount: mockedReceiving.amount.toString(),
+      expiry: mockedReceiving.expiry,
+      preparedBlockNumber: mockedReceiving.preparedBlockNumber.toNumber(),
+    };
+  }
+  return tx;
 };
 
 const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
