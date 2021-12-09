@@ -140,6 +140,7 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     ...DEFAULT_CHAIN_CONFIG,
     ...userDefaultChainConfig,
   };
+  // For each chain, validate the config and merge it with the main config.
   const config: { [chainId: string]: ChainConfig } = {};
   Object.entries(_config).forEach(([chainId, _config]) => {
     const config = _config as any;
@@ -162,13 +163,16 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
       config.providers ?? config.provider;
     const providers = typeof _providers === "string" ? [{ url: _providers }] : _providers;
 
-    // Remove subgraphs from the mix.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { subgraphs, ...remainingConfig } = config;
+    // Remove unused from the mix (such as subgraphs, etc).
+    // NOTE: We use CoreChainConfigSchema here because we do not want providers in the core config.
+    const sanitizedCoreConfig: any = {};
+    Object.keys(CoreChainConfigSchema.properties).forEach((property) => {
+      sanitizedCoreConfig[property] = config[property];
+    });
 
     config[chainId] = {
       ...defaultChainConfig,
-      ...remainingConfig,
+      ...sanitizedCoreConfig,
       providers: providers.map((provider) =>
         typeof provider === "string"
           ? {

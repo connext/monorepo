@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [txservice] Update / expose config vars
+
 # 0.0.99
 
 - [txservice] Fix error parsing

@@ -676,7 +676,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("shouldn't bump if we've reached maximum gas price", async () => {
-      const max = (txDispatch as any).config.gasMaximum;
+      const max = (txDispatch as any).config.gasPriceMaximum;
       transaction.gas.price = BigNumber.from(max);
       // Valid state: we've sent off 2 transactions and bumped once.
       (transaction as any).responses = [TEST_TX_RESPONSE, TEST_TX_RESPONSE];
