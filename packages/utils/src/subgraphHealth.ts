@@ -26,38 +26,49 @@ type SubgraphHealth = {
  *
  * @param subgraphName - name of the subgraph, e.g. "nxtp-bsc-v1-runtime"
  *
- * @returns
+ * @returns SubgraphHealth object with the following fields:
+ * - chainHeadBlock: the latest block number of the chain head
+ * - latestBlock: the latest block number of the subgraph
+ * - lastHealthyBlock: the latest block number of the subgraph that was healthy
+ * - network: the name of the network the subgraph is synced to
+ * - fatalError: if the subgraph is in a failed state, this will contain the error
+ * - health: the health of the subgraph, one of:
+ *   - "healthy": subgraph syncing normally
+ *   - "unhealthy": subgraph syncing but with errors
+ *   - "failed": subgraph halted due to errors
+ * - synced: whether the subgraph is synced to the network
  */
 export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphHealth | undefined> => {
-  const query = `{
-    indexingStatusForCurrentVersion(subgraphName: "connext/${subgraphName}") {
-      health
-      synced
-      fatalError {
-        message
-        block {
-          number
+  const res = await axios({
+    url: SUBGRAPH_HEALTH_URL,
+    method: "post",
+    data: {
+      query: `{
+      indexingStatusForCurrentVersion(subgraphName: "connext/${subgraphName}") {
+        health
+        synced
+        fatalError {
+          message
+          block {
+            number
+          }
+          handler
         }
-        handler
+        chains {
+          network
+          chainHeadBlock {
+            number
+          }
+          latestBlock {
+            number
+          }
+          lastHealthyBlock {
+            number
+          }
+        }
       }
-      chains {
-        network
-        chainHeadBlock {
-          number
-        }
-        latestBlock {
-          number
-        }
-        lastHealthyBlock {
-          number
-        }
-      }
-    }
-  }`;
-  const data = JSON.stringify({ query });
-  const res = await axios.post(SUBGRAPH_HEALTH_URL, {
-    data,
-    headers: { Accept: "application/json; charset=utf-8", "Content-Type": "application/json; chatset=utf-8" },
+    }`,
+    },
   });
   /**
    * Example res:
@@ -81,8 +92,8 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphH
    *   },
    * }
    */
-  if (res && res.data && res.data.indexingStatusForCurrentVersion && res.data.indexingStatusForCurrentVersion) {
-    const status = res.data.indexingStatusForCurrentVersion;
+  if (res && res.data && res.data.data && res.data.data.indexingStatusForCurrentVersion) {
+    const status = res.data.data.indexingStatusForCurrentVersion;
     const networkInfo = status.chains[0];
     return {
       chainHeadBlock: networkInfo.chainHeadBlock,
