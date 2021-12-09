@@ -54,6 +54,17 @@ export class ChainReader {
     this.setupProviders(requestContext, signer);
   }
 
+  /**
+   * Updates the injected signer used for all provider methods.
+   *
+   * @param signer - The new signer to use.
+   */
+  public setSigner(signer: Signer): void {
+    Object.keys(this.providers).forEach((chainId) => {
+      this.providers.get(parseInt(chainId))?.setSigner(signer);
+    });
+  }
+
   /// CHAIN READING METHODS
   /**
    * Create a non-state changing contract call. Returns hexdata that needs to be decoded.

@@ -48,7 +48,7 @@ export class ChainRpcProvider {
 
   // TODO: Remove fallback provider?
   private readonly fallbackProvider: providers.FallbackProvider;
-  private readonly signer?: Signer;
+  private signer?: Signer;
 
   private lastUsedGasPrice: BigNumber | undefined = undefined;
 
@@ -153,6 +153,16 @@ export class ChainRpcProvider {
     // Set up the initial value for block period. Will run asyncronously, and update the value (from the default) when
     // it completes.
     this.setBlockPeriod();
+  }
+
+  /**
+   * Method for setting an injected signer during runtime.
+   *
+   * @param signer - Signer instance used for signing transactions.
+   */
+  public setSigner(signer: Signer) {
+    this.signer = signer;
+    this.signer.connect(this.fallbackProvider);
   }
 
   /**

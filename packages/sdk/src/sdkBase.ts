@@ -1319,6 +1319,7 @@ export class NxtpSdkBase {
    */
   public changeInjectedSigner(signer: Signer) {
     this.config.signer = signer;
+    this.chainReader.setSigner(signer);
   }
 
   /**
