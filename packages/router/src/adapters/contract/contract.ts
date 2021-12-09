@@ -8,7 +8,10 @@ import {
   gelatoSend,
   MetaTxTypes,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, providers } from "ethers/lib/ethers";
+import { Evt } from "evt";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 
 import { getContext } from "../../router";
 import {
@@ -16,10 +19,40 @@ import {
   getTxManagerInterface,
   sanitationCheck,
   getRouterContractInterface,
-  prepareEvt,
-  cancelEvt,
-  fulfillEvt,
 } from "../../lib/helpers";
+
+export const prepareEvt = new Evt<{ event: any; args: PrepareParams; chainId: number }>(); // TODO: fix types
+export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: number }>();
+export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
+
+export const startContractListeners = (): void => {
+  const { config, txService } = getContext();
+  Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
+    const chainId = Number(_chainId);
+    if (config.routerContractAddress) {
+      // needs event listeners for listening to relayed events
+      // TODO remove this when we can query gelato for tx receipts
+      // alternatively allow listening on the subgraph
+      const contract = new Contract(
+        conf.transactionManagerAddress,
+        TransactionManagerArtifact.abi,
+        txService.getProvider(chainId).leadProvider,
+      ) as TTransactionManager;
+      contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
+        prepareEvt.post({ event, args, chainId });
+      });
+      contract.on(
+        "TransactionFulfilled",
+        (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
+          fulfillEvt.post({ event, args, chainId });
+        },
+      );
+      contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
+        cancelEvt.post({ event, args, chainId });
+      });
+    }
+  });
+};
 
 /**
  * Method calls `prepare` on the `TransactionManager` on the given chain. Should be used to `prepare` the receiver-side transaction. Resolves when the transaction has been mined.
