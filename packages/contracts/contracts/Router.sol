@@ -150,7 +150,7 @@ contract Router is Ownable {
     }
 
     return
-      transactionManager.prepare{value: LibAsset.isNativeAsset(args.invariantData.sendingAssetId) ? msg.value : 0}(
+      transactionManager.prepare(
         args
       );
   }
