@@ -198,8 +198,13 @@ export class ChainRpcProvider {
     // Using a timed out variable calculated at the end of the loop - this way we can be sure at
     // least one iteration is completed here.
     let timedOut = false;
+    let remainingConfirmations = confirmations;
+    let mined = false;
+    let reverted: providers.TransactionReceipt[] = [];
+    let errors: NxtpError[] = [];
     while (!timedOut) {
-      const errors: NxtpError[] = [];
+      errors = [];
+      reverted = [];
       // Populate a list of promises to retrieve every receipt for every hash.
       const _receipts: Promise<providers.TransactionReceipt | null>[] = transaction.responses.map(async (response) => {
         try {
@@ -214,9 +219,6 @@ export class ChainRpcProvider {
         (r) => r !== null && r !== undefined,
       ) as providers.TransactionReceipt[];
 
-      let mined = false;
-      const reverted: providers.TransactionReceipt[] = [];
-      let remainingConfirmations = confirmations;
       for (const receipt of receipts) {
         if (receipt.status === 1) {
           // Receipt status is successful, check to see if we have enough confirmations.
@@ -248,8 +250,13 @@ export class ChainRpcProvider {
       }
     }
     throw new TimeoutError({
-      confirmations,
+      targetConfirmations: confirmations,
+      remainingConfirmations,
+      reverted,
+      errors,
       timeout,
+      timedOut,
+      mined,
     });
   }
 

@@ -1,4 +1,4 @@
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { SingleChainTransaction } from "../../lib/entities";
 import { getContext } from "../../router";
 

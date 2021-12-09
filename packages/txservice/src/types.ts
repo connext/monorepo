@@ -1,7 +1,7 @@
 import { delay, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, providers, utils } from "ethers";
 
-import { MaxBufferLengthError, parseError, RpcError, ServerError, TransactionBackfilled } from "./error";
+import { MaxBufferLengthError, parseError, RpcError, TransactionBackfilled } from "./error";
 
 export const { StaticJsonRpcProvider } = providers;
 
@@ -583,7 +583,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
     }
 
     // TODO: Make # of retries configurable?
-    const errors = [];
+    const errors: any[] = [];
     let sendTimestamp = -1;
     for (let i = 1; i <= 5; i++) {
       try {
@@ -600,7 +600,6 @@ export class SyncProvider extends StaticJsonRpcProvider {
                 })
                 .catch((e) => {
                   const error = parseError(e);
-
                   reject(error);
                 });
             }),
@@ -616,21 +615,22 @@ export class SyncProvider extends StaticJsonRpcProvider {
           ),
         );
       } catch (error) {
-        // If the error thrown is a timeout or non-RPC error, we want to go ahead and throw it.
-        if (
-          (error.type !== ServerError.type ||
-            (error as ServerError).reason === ServerError.reasons.TransactionAlreadyKnown) &&
-          (error.type !== RpcError.type || (error as RpcError).reason === RpcError.reasons.Timeout)
-        ) {
-          throw error;
-        } else {
+        // If the error is an RPC Error (that's not a Timeout) we want to throw it.
+        if (error.type === RpcError.type && error.reason !== RpcError.reasons.Timeout) {
           this.updateMetrics(false, sendTimestamp, i, method, params, {
             type: error.type.toString(),
             context: error.context,
           });
           errors.push(error);
+        } else {
+          throw error;
         }
       }
+    }
+
+    if (errors.every((error) => error.type === errors[0].type)) {
+      // If every error type is the same, might as well throw the initial error.
+      throw errors[0];
     }
 
     throw new RpcError(RpcError.reasons.FailedToSend, {

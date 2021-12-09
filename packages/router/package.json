@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.0.98",
+  "version": "0.0.99",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,8 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen": "graphql-codegen"
+    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
+    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
   },
   "nodemonConfig": {
     "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",

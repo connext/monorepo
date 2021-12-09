@@ -15,3 +15,6 @@ export * from "./shared";
 export { signRouterFulfillTransactionPayload } from "./fulfill";
 
 export { signRouterCancelTransactionPayload } from "./cancel";
+export { getNtpTimeSeconds } from "./shared";
+
+export { incrementFees, incrementGasConsumed } from "./metrics";

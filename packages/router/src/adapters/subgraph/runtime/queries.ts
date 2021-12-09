@@ -186,6 +186,15 @@ export const getAssetBalanceById = gql`
   }
 `;
 
+export const getRouterAssetBalancesQuery = gql`
+  query GetAssetBalances($routerId: String!) {
+    assetBalances(where: { router: $routerId }) {
+      amount
+      assetId
+    }
+  }
+`;
+
 export const getBlockNumber = gql`
   query GetBlockNumber {
     _meta {

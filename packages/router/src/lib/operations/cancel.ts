@@ -11,7 +11,7 @@ import { providers, constants, BigNumber, utils } from "ethers";
 import { getContext } from "../../router";
 import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { SenderTxTooNew } from "../errors/cancel";
 import { calculateGasFee, signRouterCancelTransactionPayload } from "../helpers";
 
