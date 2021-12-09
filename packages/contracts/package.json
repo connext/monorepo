@@ -5,6 +5,7 @@
   "scripts": {
     "test": "hardhat test",
     "build": "hardhat compile",
+    "typechain": "hardhat typechain",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
