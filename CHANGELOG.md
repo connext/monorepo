@@ -2,6 +2,8 @@
 
 ## Next Release
 
+# 0.0.100
+
 - [router] Cleanup prometheus collection
 - [router/txservice] Explicitly use legacy transactions only
 - [router] Fix mainnet equivalent
