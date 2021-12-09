@@ -34,6 +34,5 @@ describe("getTokenPriceFromOnChain", () => {
   });
   it("should work", async () => {
     const tokenPrice = await shared.getTokenPriceFromOnChain(1337, mkAddress("0xa"));
-    console.log("tokenPrice = ", tokenPrice.toString());
   });
 });
