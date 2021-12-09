@@ -8,6 +8,7 @@ import { ConfigurationError, ProviderNotConfigured, TransactionReverted } from "
 import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
 import { Gas, NxtpTxServiceEvents, OnchainTransaction } from "../src/types";
+import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -25,10 +26,10 @@ let dispatchCallbacks: DispatchCallbacks;
 let transaction: OnchainTransaction;
 const chains = {
   [TEST_SENDER_CHAIN_ID.toString()]: {
+    ...DEFAULT_CHAIN_CONFIG,
     providers: [{ url: "https://-------------" }],
     confirmations: 1,
-    gasStations: [],
-  },
+  } as ChainConfig,
 };
 
 /// In these tests, we are testing the outer shell of chainservice - the interface, not the core functionality.
@@ -247,12 +248,11 @@ describe("ChainService", () => {
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
-      (chainService as any).config.chains = {
+      (chainService as any).config = {
         [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],
           confirmations: 1,
-          gasStations: [],
         },
       };
       expect(() => (chainService as any).setupProviders(context, signer)).to.throw(ConfigurationError);

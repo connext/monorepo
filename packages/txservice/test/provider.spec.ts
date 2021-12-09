@@ -48,7 +48,7 @@ describe("ChainRpcProvider", () => {
     signer.connect.returns(signer);
 
     const chainId = TEST_SENDER_CHAIN_ID;
-    const chainConfig: ChainConfig = {
+    const config: ChainConfig = {
       ...DEFAULT_CHAIN_CONFIG,
       providers: [
         {
@@ -57,11 +57,10 @@ describe("ChainRpcProvider", () => {
       ],
       confirmations: 1,
       confirmationTimeout: 10_000,
-      gasStations: [],
     };
 
     syncProvidersStub = Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
-    chainProvider = new ChainRpcProvider(logger, chainId, chainConfig, signer);
+    chainProvider = new ChainRpcProvider(logger, chainId, config, signer);
     // One block = 10ms for the purposes of testing.
     (chainProvider as any).blockPeriod = 10;
     Sinon.stub(chainProvider as any, "execute").callsFake(fakeExecuteMethod);
@@ -362,7 +361,7 @@ describe("ChainRpcProvider", () => {
 
     it("should inflate gas limit by configured inflation value", async () => {
       const testInflation = BigNumber.from(10_000);
-      (chainProvider as any).chainConfig.gasLimitInflation = testInflation;
+      (chainProvider as any).config.gasLimitInflation = testInflation;
       const result = await chainProvider.estimateGas(testTx);
       expect(result.eq(BigNumber.from(testGasLimit).add(testInflation))).to.be.true;
     });
@@ -385,7 +384,7 @@ describe("ChainRpcProvider", () => {
 
     it("should accept hardcoded values from config", async () => {
       const expectedGas = "197";
-      (chainProvider as any).chainConfig.defaultInitialGasPrice = expectedGas;
+      (chainProvider as any).config.hardcodedGasPrice = expectedGas;
       const result = await (chainProvider as any).getGasPrice();
       expect(coreSyncProvider.getGasPrice.callCount).to.equal(0);
       expect(result.toString()).to.be.eq(expectedGas);
@@ -451,7 +450,7 @@ describe("ChainRpcProvider", () => {
     it("should use gas station if available", async () => {
       const testGasPriceGwei = 42;
       const testGasPrice = utils.parseUnits(testGasPriceGwei.toString(), "gwei") as BigNumber;
-      (chainProvider as any).chainConfig.gasStations = ["...fakeaddy..."];
+      (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       const axiosStub = Sinon.stub(axios, "get").resolves({ data: { fast: testGasPriceGwei.toString() } });
 
       const result = await (chainProvider as any).getGasPrice();
@@ -463,7 +462,7 @@ describe("ChainRpcProvider", () => {
 
     it("should resort to provider gas price if gas station fails", async () => {
       const testGasPrice = utils.parseUnits("42", "gwei") as BigNumber;
-      (chainProvider as any).chainConfig.gasStations = ["...fakeaddy..."];
+      (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
       const axiosStub = Sinon.stub(axios, "get").rejects(new Error("test"));
       const expectedGas = testGasPrice
@@ -479,7 +478,7 @@ describe("ChainRpcProvider", () => {
 
     it("should handle unexpected params as a gas station failure", async () => {
       const testGasPrice = utils.parseUnits("42", "gwei") as BigNumber;
-      (chainProvider as any).chainConfig.gasStations = ["...fakeaddy..."];
+      (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
       const axiosStub = Sinon.stub(axios, "get").resolves({ data: "bad data, so sad! :(" });
 

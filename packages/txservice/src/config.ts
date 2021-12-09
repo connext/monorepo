@@ -131,8 +131,8 @@ export type ChainConfig = Static<typeof ChainConfigSchema>;
 /// TX SERVICE CONFIG
 // Configuration for each chain that this txservice will be supporting.
 const TransactionServiceConfigSchema = Type.Record(TIntegerString, ChainConfigSchema);
-
 export type TransactionServiceConfig = Static<typeof TransactionServiceConfigSchema>;
+
 export const validateTransactionServiceConfig = (_config: any): TransactionServiceConfig => {
   // Get the default (aka "all") values to be used as defaults for all chain configs.
   const userDefaultChainConfig = _config["all"] ?? _config["default"] ?? {};
@@ -142,32 +142,34 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
   };
   // For each chain, validate the config and merge it with the main config.
   const config: { [chainId: string]: ChainConfig } = {};
-  Object.entries(_config).forEach(([chainId, _config]) => {
-    const config = _config as any;
+  Object.entries(_config).forEach(([chainId, _chainConfig]) => {
+    const chainConfig = _chainConfig as any;
+    // Ignore non-number chainIds.
     if (isNaN(parseInt(chainId))) {
       return;
     }
+
     // Make sure gasPriceMaxIncreaseScalar > 100.
-    if (config.gasPriceMaxIncreaseScalar && config.gasPriceMaxIncreaseScalar < 100) {
+    if (chainConfig.gasPriceMaxIncreaseScalar && chainConfig.gasPriceMaxIncreaseScalar <= 100) {
       throw new ConfigurationError([
         {
           parameter: "gasPriceMaxIncreaseScalar",
           error: "gasPriceMaxIncreaseScalar must be greater than 100.",
-          value: config.gasPriceMaxIncreaseScalar,
+          value: chainConfig.gasPriceMaxIncreaseScalar,
         },
       ]);
     }
 
     // Backwards compatibility with specifying only a single provider under the key "provider".
     const _providers: string | string[] | { url: string; user?: string; password?: string }[] =
-      config.providers ?? config.provider;
+      chainConfig.providers ?? chainConfig.provider;
     const providers = typeof _providers === "string" ? [{ url: _providers }] : _providers;
 
     // Remove unused from the mix (such as subgraphs, etc).
-    // NOTE: We use CoreChainConfigSchema here because we do not want providers in the core config.
+    // NOTE: We use CoreChainConfigSchema here because we do not want providers in the core chain config.
     const sanitizedCoreConfig: any = {};
     Object.keys(CoreChainConfigSchema.properties).forEach((property) => {
-      sanitizedCoreConfig[property] = config[property];
+      sanitizedCoreConfig[property] = chainConfig[property];
     });
 
     config[chainId] = {
