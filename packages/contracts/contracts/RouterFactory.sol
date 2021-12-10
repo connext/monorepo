@@ -47,7 +47,7 @@ contract RouterFactory is IRouterFactory, Ownable {
 
     require(recipient != address(0), "#RF_CR:007");
 
-    address router = Create2.deploy(0, generateSalt(routerSigner), getBytecode());
+    address payable router = payable(Create2.deploy(0, generateSalt(routerSigner), getBytecode()));
     Router(router).init(address(transactionManager), chainId, routerSigner, recipient, msg.sender);
 
     routerAddresses[routerSigner] = router;

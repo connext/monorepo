@@ -217,4 +217,6 @@ contract Router is Ownable {
     // Recover
     return ECDSA.recover(ECDSA.toEthSignedMessageHash(keccak256(encodedPayload)), signature);
   }
+
+  receive() external payable {}
 }

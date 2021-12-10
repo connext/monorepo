@@ -14,14 +14,21 @@ export default task("create-router", "create a router")
     const routerFactoryDeployment = await deployments.get("RouterFactory");
     const routerFactoryAddress = routerFactoryDeployment.address;
 
-    console.log("routerFactoryAddress: ", routerFactoryAddress);
-
     const routerFactory = await ethers.getContractAt("RouterFactory", routerFactoryAddress);
+    let routerAddress = await routerFactory.getRouterAddress(signer);
+
+    const [_signer] = await ethers.getSigners();
+    const code = await _signer.provider!.getCode(routerAddress);
+
+    if (code !== "0x") {
+      console.log("RouterFactory already deployed at: ", routerAddress);
+      // return;
+    }
     const tx = await routerFactory.createRouter(signer, recipient, { from: namedAccounts.deployer });
     console.log("createRouter tx: ", tx);
     const receipt = await tx.wait();
     console.log("createRouter tx mined: ", receipt.transactionHash);
 
-    const routerAddress = await routerFactory.routerAddresses(signer);
+    routerAddress = await routerFactory.routerAddresses(signer);
     console.log("routerAddress ", routerAddress);
   });
