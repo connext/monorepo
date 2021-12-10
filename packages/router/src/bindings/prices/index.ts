@@ -37,7 +37,7 @@ export const bindPrices = async () => {
           }
           if (multicallAddress) {
             // if multicall address is given, we use multicall contract to fetch token price
-            logger.info("fetching token prices using multicall", requestContext, methodContext, {
+            logger.debug("fetching token prices using multicall", requestContext, methodContext, {
               multicallAddress,
               chainId,
               assetIds,
