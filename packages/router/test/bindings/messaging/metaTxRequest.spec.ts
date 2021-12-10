@@ -10,8 +10,8 @@ import {
 } from "@connext/nxtp-utils";
 import { restore, reset, SinonStub, stub } from "sinon";
 import * as operations from "../../../src/lib/operations";
-import { AuctionExpired } from "../../../src/lib/errors";
-import { metaTxRequestBinding } from "../../../src/bindings/messaging/metaTxRequest";
+import { AuctionExpired, NoTransactionId } from "../../../src/lib/errors";
+import { handlingTracker, metaTxRequestBinding } from "../../../src/bindings/messaging/metaTxRequest";
 import { configMock } from "../../utils";
 import { messagingMock } from "../../globalTestHook";
 
@@ -46,9 +46,20 @@ describe("metaTxRequestBinding", () => {
     } as any);
   });
 
-  afterEach(() => {
-    restore();
-    reset();
+  it("should error if there's no tx id", async () => {
+    const oldTxId = data.data.txData.transactionId;
+    data.data.txData.transactionId = undefined;
+    await expect(metaTxRequestBinding(from, inbox, data, undefined, requestContext)).to.be.rejectedWith(
+      NoTransactionId,
+    );
+    data.data.txData.transactionId = oldTxId;
+  });
+
+  it("should do nothing if already handling", async () => {
+    handlingTracker.set(data.data.txData.transactionId, "Fulfill");
+    await metaTxRequestBinding(from, inbox, data, undefined, requestContext);
+    expect(sendMetaTxStub.called).to.be.false;
+    handlingTracker.clear();
   });
 
   it("should work", async () => {

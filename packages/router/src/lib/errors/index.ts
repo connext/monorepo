@@ -6,6 +6,7 @@ export {
   ZeroValueBid,
   AuctionExpired,
   NotEnoughAmount,
+  SubgraphNotSynced,
 } from "./auction";
 
 export { ContractReaderNotAvailableForChain } from "./contractReader";
