@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Write claim signatures upfront and store locally
+
 # 0.0.100
 
 - [router] Cleanup prometheus collection
