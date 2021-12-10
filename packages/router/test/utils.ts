@@ -34,6 +34,7 @@ export const configMock: NxtpRouterConfig = {
       subgraphSyncBuffer: 10,
       gasStations: [],
       allowRelay: true,
+      analyticsSubgraph: ["http://example.com"],
     },
     1338: {
       confirmations: 1,
@@ -47,6 +48,7 @@ export const configMock: NxtpRouterConfig = {
       subgraphSyncBuffer: 10,
       gasStations: [],
       allowRelay: true,
+      analyticsSubgraph: ["http://example.com"],
     },
   },
   priceCacheMode: true,

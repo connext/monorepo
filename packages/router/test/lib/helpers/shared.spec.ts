@@ -1,4 +1,4 @@
-import { createLoggingContext, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { createLoggingContext, expect, getChainData, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";

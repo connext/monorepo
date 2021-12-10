@@ -89,8 +89,6 @@ export const fulfill = async (
       wallet,
     );
 
-    console.log("SIGNED DATA ******* : ", signature);
-
     receipt = await contractWriter.fulfillRouterContract(
       invariantData.sendingChainId,
       {

@@ -1,13 +1,5 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import {
-  RouterNxtpNatsMessagingService,
-  txReceiptMock,
-  sigMock,
-  getChainData,
-  Logger,
-  mkAddress,
-} from "@connext/nxtp-utils";
-import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock, Logger } from "@connext/nxtp-utils";
+import { RouterNxtpNatsMessagingService, txReceiptMock, sigMock, Logger, mkAddress } from "@connext/nxtp-utils";
 import { Wallet, BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";

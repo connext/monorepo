@@ -428,7 +428,7 @@ describe("Subgraph Adapter", () => {
       sdk.GetAssetBalance.resolves({ assetBalance: { amount } });
       getSdkStub.returns(sdks);
 
-      const result = await getAssetBalance(routerAddrMock, assetId, sendingChainId);
+      const result = await getAssetBalance(assetId, sendingChainId);
       expect(result.eq(amount)).to.be.true;
       expect(sdk.GetAssetBalance.calledOnceWithExactly({ assetBalanceId: `${assetId}-${routerAddrMock}` }));
     });
@@ -438,7 +438,7 @@ describe("Subgraph Adapter", () => {
       sdks[sendingChainId] = undefined;
       getSdkStub.returns(sdks);
 
-      await expect(getAssetBalance(routerAddrMock, assetId, sendingChainId)).to.be.rejectedWith(
+      await expect(getAssetBalance(assetId, sendingChainId)).to.be.rejectedWith(
         (new ContractReaderNotAvailableForChain(sendingChainId) as any).message,
       );
     });

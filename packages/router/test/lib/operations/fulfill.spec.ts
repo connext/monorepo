@@ -1,4 +1,11 @@
-import { invariantDataMock, txReceiptMock, expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
+import {
+  invariantDataMock,
+  txReceiptMock,
+  expect,
+  createLoggingContext,
+  mkBytes32,
+  sigMock,
+} from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 import { stub } from "sinon";
 import * as FulfillHelperFns from "../../../src/lib/helpers/fulfill";
@@ -46,7 +53,7 @@ describe("Fulfill Receiver Operation", () => {
       expect(contractWriterMock.fulfillRouterContract).to.be.calledOnceWithExactly(
         invariantDataMock.sendingChainId,
         {
-          relayerFee: fulfillInputMock.relayerFee,
+          relayerFee: "0",
           signature: fulfillInputMock.signature,
           callData: fulfillInputMock.callData,
           txData: {
