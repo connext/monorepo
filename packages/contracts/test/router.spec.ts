@@ -384,7 +384,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
-        sendingChainId,
+        receivingChainId,
         routerSigner,
       );
 
@@ -481,7 +481,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
-        sendingChainId,
+        receivingChainId,
         routerSigner,
       );
       const cancelTx = await routerContract
