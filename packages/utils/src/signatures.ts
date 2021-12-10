@@ -198,6 +198,7 @@ export const signRouterPrepareTransactionPayload = async (
   encodedMeta: string,
   relayerFeeAsset: string,
   relayerFee: string,
+  chainId: number,
   signer: Wallet | Signer,
 ): Promise<string> => {
   const payload = encodeRouterPrepareData(
@@ -210,6 +211,7 @@ export const signRouterPrepareTransactionPayload = async (
     encodedMeta,
     relayerFeeAsset,
     relayerFee,
+    chainId,
   );
   const hash = solidityKeccak256(["bytes"], [payload]);
 
@@ -223,9 +225,18 @@ export const signRouterFulfillTransactionPayload = async (
   encodedMeta: string,
   relayerFeeAsset: string,
   relayerFee: string,
+  chainId: number,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const payload = encodeRouterFulfillData(txData, fulfillSignature, callData, encodedMeta, relayerFeeAsset, relayerFee);
+  const payload = encodeRouterFulfillData(
+    txData,
+    fulfillSignature,
+    callData,
+    encodedMeta,
+    relayerFeeAsset,
+    relayerFee,
+    chainId,
+  );
   const hash = solidityKeccak256(["bytes"], [payload]);
   return sign(hash, signer);
 };
@@ -236,9 +247,10 @@ export const signRouterCancelTransactionPayload = async (
   encodedMeta: string,
   relayerFeeAsset: string,
   relayerFee: string,
+  chainId: number,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const payload = encodeRouterCancelData(txData, cancelSignature, encodedMeta, relayerFeeAsset, relayerFee);
+  const payload = encodeRouterCancelData(txData, cancelSignature, encodedMeta, relayerFeeAsset, relayerFee, chainId);
   const hash = solidityKeccak256(["bytes"], [payload]);
   return sign(hash, signer);
 };

@@ -271,6 +271,7 @@ export const encodeRouterPrepareData = (
   encodedMeta: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
+  chainId: number,
 ): string => {
   return defaultAbiCoder.encode(
     [SignedRouterPrepareDataEncoding],
@@ -287,7 +288,7 @@ export const encodeRouterPrepareData = (
         },
         routerRelayerFeeAsset,
         routerRelayerFee,
-        chainId: invariantData.receivingChainId,
+        chainId,
       },
     ],
   );
@@ -300,6 +301,7 @@ export const encodeRouterFulfillData = (
   encodedMeta: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
+  chainId: number,
 ): string => {
   return defaultAbiCoder.encode(
     [SignedRouterFulfillDataEncoding],
@@ -314,7 +316,7 @@ export const encodeRouterFulfillData = (
         },
         routerRelayerFeeAsset,
         routerRelayerFee,
-        chainId: txData.receivingChainId,
+        chainId,
       },
     ],
   );
@@ -326,6 +328,7 @@ export const encodeRouterCancelData = (
   encodedMeta: string,
   routerRelayerFeeAsset: string,
   routerRelayerFee: string,
+  chainId: number,
 ): string => {
   return defaultAbiCoder.encode(
     [SignedRouterCancelDataEncoding],
@@ -338,7 +341,7 @@ export const encodeRouterCancelData = (
         },
         routerRelayerFeeAsset,
         routerRelayerFee,
-        chainId: txData.receivingChainId,
+        chainId,
       },
     ],
   );

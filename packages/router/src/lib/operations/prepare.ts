@@ -220,7 +220,7 @@ export const prepare = async (
     );
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
       invariantData.receivingChainId,
-      invariantData.receivingAssetId,
+      routerRelayerFeeAsset,
     );
     const routerRelayerFee = await calculateGasFee(
       invariantData.receivingChainId,
@@ -241,6 +241,7 @@ export const prepare = async (
       "0x",
       routerRelayerFeeAsset,
       routerRelayerFee.toString(),
+      invariantData.receivingChainId,
       wallet,
     );
 

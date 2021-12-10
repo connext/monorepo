@@ -66,11 +66,11 @@ export const fulfill = async (
       config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
     );
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
-      invariantData.receivingChainId,
-      invariantData.receivingAssetId,
+      invariantData.sendingChainId,
+      routerRelayerFeeAsset,
     );
     routerRelayerFee = await calculateGasFee(
-      invariantData.receivingChainId,
+      invariantData.sendingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
       "fulfill",
@@ -85,16 +85,19 @@ export const fulfill = async (
       "0x",
       routerRelayerFeeAsset,
       routerRelayerFee.toString(),
+      invariantData.sendingChainId,
       wallet,
     );
+
+    console.log("SIGNED DATA ******* : ", signature);
 
     receipt = await contractWriter.fulfillRouterContract(
       invariantData.sendingChainId,
       {
         txData: { ...invariantData, amount, expiry, preparedBlockNumber },
         signature: fulfillSignature,
-        relayerFee: relayerFee,
-        callData: callData,
+        relayerFee: "0", // no relayer fee on sender side
+        callData,
       },
       routerAddress,
       signature,

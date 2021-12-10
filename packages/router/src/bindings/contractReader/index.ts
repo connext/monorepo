@@ -52,8 +52,8 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("active and handling tracker", requestContext, methodContext, {
-          transactionsLength: transactions.length,
+        logger.info("Active transctions and handling tracker", requestContext, methodContext, {
+          transactions,
           handlingTrackerLength: handlingTracker.size,
           byStatus: Object.keys(CrosschainTransactionStatus).map((status) => {
             return { status, size: [...handlingTracker.values()].map((v) => v.status === status).length };

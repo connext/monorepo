@@ -105,13 +105,8 @@ export const cancel = async (
   let receipt: providers.TransactionReceipt;
 
   if (isRouterContract) {
-    routerRelayerFeeAsset = utils.getAddress(
-      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
-    );
-    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
-      invariantData.receivingChainId,
-      invariantData.receivingAssetId,
-    );
+    routerRelayerFeeAsset = utils.getAddress(config.chainConfig[cancelChain].routerContractRelayerAsset || AddressZero);
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(cancelChain, routerRelayerFeeAsset);
     routerRelayerFee = await calculateGasFee(
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
@@ -127,6 +122,7 @@ export const cancel = async (
       "0x",
       routerRelayerFeeAsset,
       routerRelayerFee.toString(),
+      cancelChain,
       wallet,
     );
 

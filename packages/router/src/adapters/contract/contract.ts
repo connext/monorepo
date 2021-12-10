@@ -7,8 +7,9 @@ import {
   isChainSupportedByGelato,
   gelatoSend,
   MetaTxTypes,
+  jsonifyError,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, Contract, providers } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
 import { Evt } from "evt";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
@@ -26,7 +27,7 @@ export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: nu
 export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
 
 export const startContractListeners = (): void => {
-  const { config, txService } = getContext();
+  const { config, txService, logger } = getContext();
   Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
     const chainId = Number(_chainId);
     if (config.routerContractAddress) {
@@ -39,19 +40,196 @@ export const startContractListeners = (): void => {
         txService.getProvider(chainId).fallbackProvider,
       ) as TTransactionManager;
       contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
-        prepareEvt.post({ event, args, chainId });
+        if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+          console.log("TransactionPrepared: _user, _router, _transactionId, _txData, _caller, args, event: ", {
+            _user,
+            _router,
+            _transactionId,
+            _txData,
+            _caller,
+            args: {
+              amount: args.amount,
+              bidSignature: args.bidSignature,
+              encodedBid: args.encodedBid,
+              encryptedCallData: args.encryptedCallData,
+              expiry: args.expiry,
+              txData: {
+                callDataHash: args.txData.callDataHash,
+                initiator: args.txData.initiator,
+                receivingAssetId: args.txData.receivingAssetId,
+                receivingChainId: args.txData.receivingChainId,
+                sendingChainId: args.txData.sendingChainId,
+                callTo: args.txData.callTo,
+                receivingAddress: args.txData.receivingAddress,
+                receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                router: args.txData.router,
+                sendingAssetId: args.txData.sendingAssetId,
+                sendingChainFallback: args.txData.sendingChainFallback,
+                transactionId: args.txData.transactionId,
+                user: args.txData.user,
+              },
+            },
+            event,
+          });
+
+          prepareEvt.post({
+            event,
+            args: {
+              amount: args.amount,
+              bidSignature: args.bidSignature,
+              encodedBid: args.encodedBid,
+              encryptedCallData: args.encryptedCallData,
+              expiry: args.expiry,
+              txData: {
+                callDataHash: args.txData.callDataHash,
+                initiator: args.txData.initiator,
+                receivingAssetId: args.txData.receivingAssetId,
+                receivingChainId: args.txData.receivingChainId,
+                sendingChainId: args.txData.sendingChainId,
+                callTo: args.txData.callTo,
+                receivingAddress: args.txData.receivingAddress,
+                receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                router: args.txData.router,
+                sendingAssetId: args.txData.sendingAssetId,
+                sendingChainFallback: args.txData.sendingChainFallback,
+                transactionId: args.txData.transactionId,
+                user: args.txData.user,
+              },
+            },
+            chainId,
+          });
+        }
       });
       contract.on(
         "TransactionFulfilled",
         (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
-          fulfillEvt.post({ event, args, chainId });
+          if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+            console.log(
+              "TransactionFulfilled _user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event: ",
+              {
+                _user,
+                _router,
+                _transactionId,
+                args: {
+                  callData: args.callData,
+                  signature: args.signature,
+                  relayerFee: args.relayerFee,
+                  txData: {
+                    callDataHash: args.txData.callDataHash,
+                    initiator: args.txData.initiator,
+                    receivingAssetId: args.txData.receivingAssetId,
+                    receivingChainId: args.txData.receivingChainId,
+                    sendingChainId: args.txData.sendingChainId,
+                    callTo: args.txData.callTo,
+                    receivingAddress: args.txData.receivingAddress,
+                    receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                    router: args.txData.router,
+                    sendingAssetId: args.txData.sendingAssetId,
+                    sendingChainFallback: args.txData.sendingChainFallback,
+                    transactionId: args.txData.transactionId,
+                    user: args.txData.user,
+                    amount: args.txData.amount,
+                    expiry: args.txData.expiry,
+                    preparedBlockNumber: args.txData.preparedBlockNumber,
+                  },
+                },
+                _success,
+                _isContract,
+                _returnData,
+                _caller,
+                event,
+              },
+            );
+            fulfillEvt.post({
+              event,
+              args: {
+                callData: args.callData,
+                signature: args.signature,
+                relayerFee: args.relayerFee,
+                txData: {
+                  callDataHash: args.txData.callDataHash,
+                  initiator: args.txData.initiator,
+                  receivingAssetId: args.txData.receivingAssetId,
+                  receivingChainId: args.txData.receivingChainId,
+                  sendingChainId: args.txData.sendingChainId,
+                  callTo: args.txData.callTo,
+                  receivingAddress: args.txData.receivingAddress,
+                  receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                  router: args.txData.router,
+                  sendingAssetId: args.txData.sendingAssetId,
+                  sendingChainFallback: args.txData.sendingChainFallback,
+                  transactionId: args.txData.transactionId,
+                  user: args.txData.user,
+                  amount: args.txData.amount,
+                  expiry: args.txData.expiry,
+                  preparedBlockNumber: args.txData.preparedBlockNumber,
+                },
+              },
+              chainId,
+            });
+          }
         },
       );
       contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
-        cancelEvt.post({ event, args, chainId });
+        if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+          console.log("TransactionCancelled _user, _router, _transactionId, args, _caller, event: ", {
+            _user,
+            _router,
+            _transactionId,
+            args: {
+              signature: args.signature,
+              txData: {
+                callDataHash: args.txData.callDataHash,
+                initiator: args.txData.initiator,
+                receivingAssetId: args.txData.receivingAssetId,
+                receivingChainId: args.txData.receivingChainId,
+                sendingChainId: args.txData.sendingChainId,
+                callTo: args.txData.callTo,
+                receivingAddress: args.txData.receivingAddress,
+                receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                router: args.txData.router,
+                sendingAssetId: args.txData.sendingAssetId,
+                sendingChainFallback: args.txData.sendingChainFallback,
+                transactionId: args.txData.transactionId,
+                user: args.txData.user,
+                amount: args.txData.amount,
+                expiry: args.txData.expiry,
+                preparedBlockNumber: args.txData.preparedBlockNumber,
+              },
+            },
+            _caller,
+            event,
+          });
+          cancelEvt.post({
+            event,
+            args: {
+              signature: args.signature,
+              txData: {
+                callDataHash: args.txData.callDataHash,
+                initiator: args.txData.initiator,
+                receivingAssetId: args.txData.receivingAssetId,
+                receivingChainId: args.txData.receivingChainId,
+                sendingChainId: args.txData.sendingChainId,
+                callTo: args.txData.callTo,
+                receivingAddress: args.txData.receivingAddress,
+                receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                router: args.txData.router,
+                sendingAssetId: args.txData.sendingAssetId,
+                sendingChainFallback: args.txData.sendingChainFallback,
+                transactionId: args.txData.transactionId,
+                user: args.txData.user,
+                amount: args.txData.amount,
+                expiry: args.txData.expiry,
+                preparedBlockNumber: args.txData.preparedBlockNumber,
+              },
+            },
+            chainId,
+          });
+        }
       });
     }
   });
+  logger.info("Started listening for events on TransactionManager");
 };
 
 /**
@@ -150,7 +328,7 @@ export const prepareRouterContract = async (
 
   if (useRelayer) {
     if (isChainSupportedByGelato(chainId)) {
-      logger.info("gelato prepare", requestContext, methodContext, {
+      logger.info("Gelato prepare", requestContext, methodContext, {
         prepareParams,
         routerRelayerFeeAsset,
         routerRelayerFee,
@@ -176,7 +354,9 @@ export const prepareRouterContract = async (
         const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
         return receipt;
       } catch (err) {
-        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext);
+        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext, {
+          err: jsonifyError(err),
+        });
       }
     }
 
@@ -194,7 +374,7 @@ export const prepareRouterContract = async (
     const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
     return receipt;
   } else {
-    logger.info("router contract prepare", requestContext, methodContext, { prepareParams });
+    logger.info("Router contract prepare", requestContext, methodContext, { prepareParams });
 
     return await txService.sendTx(
       {
@@ -262,7 +442,7 @@ export const fulfillRouterContract = async (
 
   const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
 
-  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "fulfill");
 
   const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
     { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },
@@ -273,8 +453,10 @@ export const fulfillRouterContract = async (
 
   if (useRelayer) {
     if (isChainSupportedByGelato(chainId)) {
-      logger.info("gelato fulfill", requestContext, methodContext, {
+      logger.info("Gelato fulfill", requestContext, methodContext, {
         fulfillParams,
+        routerContractAddress,
+        signature,
         routerRelayerFeeAsset,
         routerRelayerFee,
       });
@@ -290,7 +472,7 @@ export const fulfillRouterContract = async (
         if (!data.taskId) {
           throw new Error("No taskId returned");
         }
-        logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
+        logger.info("Submitted fulfill using Gelato Relayer", requestContext, methodContext, { data });
 
         // listen for event on contract
         const { event } = await fulfillEvt
@@ -299,7 +481,9 @@ export const fulfillRouterContract = async (
         const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
         return receipt;
       } catch (err) {
-        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext);
+        logger.warn("Gelato send failed, falling back to router network", requestContext, methodContext, {
+          err: jsonifyError(err),
+        });
       }
     }
 
@@ -317,7 +501,7 @@ export const fulfillRouterContract = async (
     const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
     return receipt;
   } else {
-    logger.info("router contract fulfill", requestContext, methodContext, { fulfillParams });
+    logger.info("Router contract fulfill", requestContext, methodContext, { fulfillParams });
 
     return await txService.sendTx(
       {
@@ -395,7 +579,7 @@ export const cancelRouterContract = async (
 
   if (useRelayer) {
     if (isChainSupportedByGelato(chainId)) {
-      logger.info("gelato cancel", requestContext, methodContext, {
+      logger.info("Gelato cancel", requestContext, methodContext, {
         cancelParams,
         routerRelayerFeeAsset,
         routerRelayerFee,
@@ -412,7 +596,7 @@ export const cancelRouterContract = async (
         if (!data.taskId) {
           throw new Error("No taskId returned");
         }
-        logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
+        logger.info("Submitted cancel using Gelato Relayer", requestContext, methodContext, { data });
 
         // listen for event on contract
         const { event } = await cancelEvt
@@ -421,7 +605,9 @@ export const cancelRouterContract = async (
         const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
         return receipt;
       } catch (err) {
-        logger.warn("gelato send failed, falling back to router network", requestContext, methodContext);
+        logger.warn("Gelato send failed, falling back to router network", requestContext, methodContext, {
+          err: jsonifyError(err),
+        });
       }
     }
 
@@ -444,7 +630,7 @@ export const cancelRouterContract = async (
     const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
     return receipt;
   } else {
-    logger.info("router contract cancel", requestContext, methodContext, { cancelParams });
+    logger.info("Router contract cancel", requestContext, methodContext, { cancelParams });
 
     return await txService.sendTx(
       {
