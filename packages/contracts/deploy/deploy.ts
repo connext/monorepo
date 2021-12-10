@@ -36,21 +36,23 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
   console.log("deployer: ", deployer);
 
-  // await hre.deployments.deploy("TransactionManager", {
-  //   from: deployer,
-  //   args: [chainId],
-  //   log: true,
-  // });
+  await hre.deployments.deploy("TransactionManager", {
+    from: deployer,
+    args: [chainId],
+    log: true,
+  });
 
   const txManagerDeployment = await hre.deployments.get("TransactionManager");
   const txManagerAddress = txManagerDeployment.address;
 
-  await hre.deployments.deterministic("RouterFactory", {
+  const dep = await hre.deployments.deterministic("RouterFactory", {
     from: deployer,
     salt: hre.ethers.utils.keccak256(deployer),
     args: [deployer],
     log: true,
   });
+  console.log("dep: ", dep);
+  await dep.deploy();
   const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
   const routerFactoryAddress = routerFactoryDeployment.address;
   console.log("routerFactoryAddress: ", routerFactoryAddress);

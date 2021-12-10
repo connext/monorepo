@@ -4425,7 +4425,7 @@
       "chainId": "4",
       "contracts": {
         "ConnextPriceOracle": {
-          "address": "0xb683AB87E435211593FC25AC2CC36A3233d19654",
+          "address": "0x2f97c3025E41FBBa6E7534C9e4D45c0aE7F0dA72",
           "abi": [
             {
               "inputs": [
@@ -4943,7 +4943,7 @@
           ]
         },
         "RouterFactory": {
-          "address": "0x834B3786575A4aFA67089e15c75cFB3dA8a308Ec",
+          "address": "0x045059223C36Cd3D78021c80b3a5fbd8fF49D867",
           "abi": [
             {
               "inputs": [
@@ -7414,7 +7414,7 @@
           ]
         },
         "RouterFactory": {
-          "address": "0x834B3786575A4aFA67089e15c75cFB3dA8a308Ec",
+          "address": "0x045059223C36Cd3D78021c80b3a5fbd8fF49D867",
           "abi": [
             {
               "inputs": [
