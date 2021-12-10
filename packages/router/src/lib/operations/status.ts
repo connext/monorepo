@@ -9,7 +9,7 @@ export const getStatus = async (_requestContext: RequestContext<string>): Promis
   const { requestContext, methodContext } = createLoggingContext(getStatus.name, _requestContext);
 
   const { config, logger, wallet } = getContext();
-  logger.info("Method start", requestContext, methodContext, { requestContext });
+  logger.debug("Method start", requestContext, methodContext, { requestContext });
 
   const routerVersion = version;
   const signerAddress = await wallet.getAddress();

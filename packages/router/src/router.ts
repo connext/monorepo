@@ -119,7 +119,7 @@ export const makeRouter = async () => {
     }
     await bindFastify();
     await bindMetrics();
-    logger.info("Router ready 🚀");
+    logger.info("Router ready!");
   } catch (e) {
     console.error("Error starting router :(", e);
     process.exit();
