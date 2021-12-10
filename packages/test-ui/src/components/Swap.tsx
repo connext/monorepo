@@ -368,8 +368,8 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       throw new Error("Wrong chain");
     }
 
-    await sdk.generateFulfillSignature(auctionResponse, false);
-    const transfer = await sdk.prepareTransfer(auctionResponse, false);
+    await sdk.generateFulfillSignature(auctionResponse);
+    const transfer = await sdk.prepareTransfer(auctionResponse);
     console.log("transfer: ", transfer);
   };
 
