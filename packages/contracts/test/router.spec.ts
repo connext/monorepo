@@ -257,6 +257,7 @@ describe("Router.sol", function () {
       args.encodedMeta,
       routerRelayerFeeAsset,
       routerRelayerFee,
+      receivingChainId,
       routerSigner,
     );
 
@@ -286,6 +287,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
+        receivingChainId,
         other, // bad signer
       );
 
@@ -342,6 +344,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
+        sendingChainId,
         other, // bad signer
       );
 
@@ -381,6 +384,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
+        sendingChainId,
         routerSigner,
       );
 
@@ -448,6 +452,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
+        sendingChainId,
         other, // bad signer
       );
 
@@ -476,6 +481,7 @@ describe("Router.sol", function () {
         args.encodedMeta,
         routerRelayerFeeAsset,
         routerRelayerFee,
+        sendingChainId,
         routerSigner,
       );
       const cancelTx = await routerContract
