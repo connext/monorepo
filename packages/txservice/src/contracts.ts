@@ -38,7 +38,7 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
     return undefined;
   }
   const contract = record[name]?.contracts?.ConnextPriceOracle;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**

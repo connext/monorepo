@@ -22,6 +22,7 @@ import {
   fulfillTransactionManager,
   cancelTransactionManager,
   removeLiquidityTransactionManager,
+  startContractListeners,
 } from "../../../src/adapters/contract/contract";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
@@ -42,7 +43,13 @@ describe("Contract Adapter", () => {
     stub(SharedFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
   });
 
-  describe("sanitation check", () => {
+  describe("#startContractListeners", () => {
+    it("should work", async () => {
+      expect(() => startContractListeners()).to.not.throw();
+    });
+  });
+
+  describe("#sanitationCheck", () => {
     it("should work for prepare", async () => {
       const digest = getInvariantTransactionDigest(txDataMock);
       interfaceMock.encodeFunctionData.returns(digest);
