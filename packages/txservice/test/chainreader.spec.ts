@@ -402,9 +402,7 @@ describe("ChainReader", () => {
         "prepare",
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(
-        testGasPrice.mul(BigNumber.from(GAS_ESTIMATES.prepare)).mul(testEthPrice).div(testTokenPrice).toNumber(),
-      );
+      expect(result.toNumber()).to.be.eq(2679285714285714);
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
@@ -418,9 +416,7 @@ describe("ChainReader", () => {
         "fulfill",
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(
-        testGasPrice.mul(BigNumber.from(GAS_ESTIMATES.fulfill)).mul(testEthPrice).div(testTokenPrice).toNumber(),
-      );
+      expect(result.toNumber()).to.be.eq(3542857142857142);
     });
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
