@@ -472,9 +472,7 @@ describe("NxtpSdkBase", () => {
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
       }, 200);
-      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
-        NoValidBids.getMessage(auctionBid.transactionId),
-      );
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(UnknownAuctionError);
     });
 
     it("should log error if getRouterLiquidity errors", async () => {
