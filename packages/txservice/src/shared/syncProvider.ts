@@ -126,7 +126,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
           ),
         );
       } catch (error) {
-        // If the error is an RPC Error (that's not a Timeout) we want to throw it.
+        // If the error is an RPC Error (that's not a Timeout) we don't want to throw it.
         if (error.type === RpcError.type && error.reason !== RpcError.reasons.Timeout) {
           this.updateMetrics(false, sendTimestamp, i, method, params, {
             type: error.type.toString(),
@@ -137,11 +137,6 @@ export class SyncProvider extends StaticJsonRpcProvider {
           throw error;
         }
       }
-    }
-
-    if (errors.every((error) => error.type === errors[0].type)) {
-      // If every error type is the same, might as well throw the initial error.
-      throw errors[0];
     }
 
     throw new RpcError(RpcError.reasons.FailedToSend, {

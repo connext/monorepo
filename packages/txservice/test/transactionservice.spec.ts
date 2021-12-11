@@ -1,28 +1,28 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
+import { EvtError } from "evt";
 
-import { ChainService } from "../src/chainservice";
+import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
+
+import { TransactionService } from "../src/transactionservice";
 import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
-import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./utils";
 import {
   ConfigurationError,
   ProviderNotConfigured,
   TransactionReverted,
-  Gas,
   NxtpTxServiceEvents,
   OnchainTransaction,
 } from "../src/shared";
-import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
-import { EvtError } from "evt";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
+import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
-  name: "ChainServiceTest",
+  name: "TransactionServiceTest",
 });
 
 let signer: SinonStubbedInstance<Wallet>;
-let chainService: ChainService;
+let chainService: TransactionService;
 let dispatch: SinonStubbedInstance<TransactionDispatch>;
 let context: RequestContext = {
   id: "",
@@ -40,7 +40,7 @@ const chains = {
 
 /// In these tests, we are testing the outer shell of chainservice - the interface, not the core functionality.
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
-describe("ChainService", () => {
+describe("TransactionService", () => {
   beforeEach(() => {
     dispatch = createStubInstance(TransactionDispatch);
     signer = createStubInstance(Wallet);
@@ -58,8 +58,8 @@ describe("ChainService", () => {
       "1",
     );
 
-    (ChainService as any).instance = undefined;
-    chainService = new ChainService(logger, chains, signer);
+    (TransactionService as any).instance = undefined;
+    chainService = new TransactionService(logger, chains, signer);
 
     // NOTE: Chain service SHOULD instantiate a provider for this chain and SHOULD pass VALID callbacks
     // that link to event emitters (see: DispatchCallbacks type).
@@ -84,7 +84,7 @@ describe("ChainService", () => {
   describe("#constructor", () => {
     it("will not instantiate twice", () => {
       expect(() => {
-        new ChainService(logger, {}, signer);
+        new TransactionService(logger, {}, signer);
       }).to.throw(NxtpError);
     });
   });

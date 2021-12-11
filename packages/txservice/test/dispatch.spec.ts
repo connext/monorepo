@@ -20,11 +20,14 @@ import {
 } from "../src/shared";
 import {
   makeChaiReadable,
+  MockOnchainTransactionState,
+  MOCK_REQUEST_CONTEXT,
   TEST_FULL_TX,
   TEST_SENDER_CHAIN_ID,
   TEST_TX,
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
+  getMockOnchainTransaction,
 } from "./utils";
 
 const logger = new Logger({
@@ -38,11 +41,6 @@ let signer: SinonStubbedInstance<Wallet>;
 let transaction: OnchainTransaction;
 let txDispatch: TransactionDispatch;
 let dispatchCallbacks: DispatchCallbacks;
-let context: RequestContext = {
-  id: "",
-  origin: "",
-};
-
 let getGasPriceStub: SinonStub;
 let estimateGasStub: SinonStub;
 let getTransactionCountStub: SinonStub;
@@ -74,19 +72,15 @@ const stubAllDispatchMethods = (): void => {
   confirmTransactionStub = stub(txDispatch, "confirmTransaction").resolves(txReceiptMock);
 };
 
-let fakeTransactionState: {
-  didSubmit: boolean;
-  didFinish: boolean;
-};
+let mockTransactionState: MockOnchainTransactionState;
 
 describe("TransactionDispatch", () => {
+  const context = MOCK_REQUEST_CONTEXT;
+
   beforeEach(async () => {
     (TransactionDispatch as any).MAX_INFLIGHT_TRANSACTIONS = OG_MAX_INFLIGHT_TRANSACTIONS;
 
-    fakeTransactionState = {
-      didSubmit: false,
-      didFinish: false,
-    };
+    ({ state: mockTransactionState, transaction } = getMockOnchainTransaction());
 
     dispatchCallbacks = {
       onSubmit: Sinon.spy(),
@@ -117,30 +111,6 @@ describe("TransactionDispatch", () => {
 
     // This will stub all dispatch methods. Methods below should be restored manually as needed.
     stubAllDispatchMethods();
-
-    context.id = getRandomBytes32();
-    context.origin = "TransactionDispatchTest";
-
-    transaction = new OnchainTransaction(
-      context,
-      TEST_TX,
-      TEST_TX_RESPONSE.nonce,
-      {
-        limit: BigNumber.from(24007),
-        price: utils.parseUnits("5", "gwei"),
-      },
-      {
-        confirmationTimeout: 1,
-        confirmationsRequired: 1,
-      },
-      "test_tx_uuid",
-    );
-    stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-    stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
-    (transaction as any).context = context;
-    transaction.attempt = 0;
-    (transaction as any).timestamp = undefined;
-    transaction.responses = [];
   });
 
   afterEach(() => {
@@ -426,12 +396,12 @@ describe("TransactionDispatch", () => {
     beforeEach(() => {
       // Setting the state ahead of time so when we do reach the waiting portions of send, it will wrap up right away.
       // NOTE: State updating is usually relagated to the mine/confirm loops.
-      fakeTransactionState.didSubmit = true;
-      fakeTransactionState.didFinish = true;
+      mockTransactionState.didSubmit = true;
+      mockTransactionState.didFinish = true;
 
       submitStub.callsFake(async (transaction: OnchainTransaction) => {
-        stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-        stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
+        stub(transaction, "didSubmit").get(() => mockTransactionState.didSubmit);
+        stub(transaction, "didFinish").get(() => mockTransactionState.didFinish);
         transaction.responses = [TEST_TX_RESPONSE];
         transaction.receipt = TEST_TX_RECEIPT;
       });
@@ -527,7 +497,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("should throw if the transaction is already finished", async () => {
-      fakeTransactionState.didFinish = true;
+      mockTransactionState.didFinish = true;
       await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
@@ -555,12 +525,12 @@ describe("TransactionDispatch", () => {
 
   describe("#mine", () => {
     beforeEach(() => {
-      fakeTransactionState.didSubmit = true;
+      mockTransactionState.didSubmit = true;
       mineStub.restore();
     });
 
     it("throws if tx did not submit", async () => {
-      fakeTransactionState.didSubmit = false;
+      mockTransactionState.didSubmit = false;
       await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
@@ -633,7 +603,7 @@ describe("TransactionDispatch", () => {
         ...txReceiptMock,
         confirmations: 10,
       });
-      fakeTransactionState.didSubmit = true;
+      mockTransactionState.didSubmit = true;
       transaction.receipt = txReceiptMock;
 
       confirmStub.restore();
@@ -652,7 +622,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("throws if you have not submitted yet", async () => {
-      fakeTransactionState.didSubmit = false;
+      mockTransactionState.didSubmit = false;
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
         TransactionProcessingError.reasons.MineOutOfOrder,
       );
