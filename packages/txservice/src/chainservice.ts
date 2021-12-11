@@ -16,8 +16,8 @@ import {
   ConfigurationError,
   ProviderNotConfigured,
 } from "./shared";
-import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
+import { TransactionDispatch } from "./dispatch";
 
 // TODO: Should take on the logic of Dispatch (rename to TransactionDispatch) and consume ChainReader instead of extending it.
 /**

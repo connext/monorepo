@@ -731,39 +731,46 @@ export class TransactionDispatch extends ChainRpcProvider {
    */
   public async bump(transaction: OnchainTransaction) {
     const { requestContext, methodContext } = createLoggingContext(this.bump.name, transaction.context);
+    const currentGasPrice = (transaction.gas.price ?? transaction.gas.maxPriorityFeePerGas)!;
     if (
       transaction.bumps >= transaction.hashes.length ||
-      transaction.gas.price.gte(BigNumber.from(this.config.gasPriceMaximum))
+      currentGasPrice.gte(BigNumber.from(this.config.gasPriceMaximum))
     ) {
       // If we've already bumped this tx but it's failed to resubmit, we should return here without bumping.
       // The number of gas bumps we've done should always be less than the number of txs we've submitted.
       this.logger.warn("Bump skipped.", requestContext, methodContext, {
         chainId: this.chainId,
         bumps: transaction.bumps,
-        gasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
+        gasPrice: utils.formatUnits(currentGasPrice, "gwei"),
         gasMaximum: utils.formatUnits(this.config.gasPriceMaximum, "gwei"),
       });
       return;
     }
     transaction.bumps++;
-    const previousPrice = transaction.gas.price;
-    // Get the current gas baseline price, in case it's changed drastically in the last block.
-    let updatedPrice: BigNumber;
+    // TODO: EIP-1559 support.
+    // Get the current gas baseline price, in case it has changed drastically in the last block.
+    let updatedGasPrice: BigNumber;
     try {
-      updatedPrice = await this.getGasPrice(requestContext, false);
+      updatedGasPrice = await this.getGasPrice(requestContext, false);
     } catch {
-      updatedPrice = BigNumber.from(this.config.gasPriceMinimum);
+      updatedGasPrice = BigNumber.from(this.config.gasPriceMinimum);
     }
-    const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
+    const determinedBaseline = updatedGasPrice.gt(currentGasPrice) ? updatedGasPrice : currentGasPrice;
     // Scale up gas by percentage as specified by config.
-    transaction.gas.price = determinedBaseline
-      .add(determinedBaseline.mul(this.config.gasPriceReplacementBumpPercent).div(100))
-      .add(1);
+    if (transaction.type === 0) {
+      transaction.gas.price = determinedBaseline
+        .add(determinedBaseline.mul(this.config.gasPriceReplacementBumpPercent).div(100))
+        .add(1);
+    } else {
+      transaction.gas.maxPriorityFeePerGas = determinedBaseline
+        .add(determinedBaseline.mul(this.config.gasPriceReplacementBumpPercent).div(100))
+        .add(1);
+    }
+
     this.logger.info(`Tx bumped.`, requestContext, methodContext, {
       chainId: this.chainId,
-      updatedPrice: utils.formatUnits(updatedPrice, "gwei"),
-      previousPrice: utils.formatUnits(previousPrice, "gwei"),
-      newGasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
+      updatedGasPrice: utils.formatUnits(updatedGasPrice, "gwei"),
+      previousGasPrice: utils.formatUnits(currentGasPrice, "gwei"),
       transaction: transaction.loggable,
     });
   }

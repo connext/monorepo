@@ -1,10 +1,11 @@
 import { delay } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
 
-import { parseError, RpcError } from "../error";
+import { parseError, RpcError } from "./error";
 
 export const { StaticJsonRpcProvider } = providers;
 
+// TODO: Should be a multiton mapped by URL (such that no duplicate instances are created).
 /**
  * @classdesc An extension of StaticJsonRpcProvider that manages a providers chain synchronization status
  * and intercepts all RPC send() calls to ensure that the provider is in sync.
@@ -69,13 +70,6 @@ export class SyncProvider extends StaticJsonRpcProvider {
         this._syncedBlockNumber = blockNumber;
         resolve();
       });
-    });
-  }
-
-  public async addBlockListener(onBlock: (blockNumber: number) => void) {
-    this.on("block", async (blockNumber: number) => {
-      this.debugLog("BLOCK_EVENT", blockNumber);
-      onBlock(blockNumber);
     });
   }
 

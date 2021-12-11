@@ -1,6 +1,6 @@
 import { expect } from "@connext/nxtp-utils";
 import { Logger } from "ethers/lib/utils";
-import { parseError, RpcError, ServerError, TransactionReverted } from "../src/error";
+import { parseError, RpcError, ServerError, TransactionReverted } from "../../src/shared";
 
 describe("parseError", () => {
   it("should return error if it is nxtp error", () => {

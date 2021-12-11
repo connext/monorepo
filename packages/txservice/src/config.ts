@@ -3,7 +3,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { parseUnits } from "ethers/lib/utils";
 
-import { ConfigurationError } from "./error";
+import { ConfigurationError } from "./shared";
 
 const TIntegerString = Type.RegEx(/^([0-9])*$/);
 const TUrl = Type.String({ format: "uri" });
@@ -149,15 +149,18 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
       return;
     }
 
-    // Make sure gasPriceMaxIncreaseScalar > 100.
-    if (chainConfig.gasPriceMaxIncreaseScalar && chainConfig.gasPriceMaxIncreaseScalar <= 100) {
-      throw new ConfigurationError([
-        {
-          parameter: "gasPriceMaxIncreaseScalar",
-          error: "gasPriceMaxIncreaseScalar must be greater than 100.",
-          value: chainConfig.gasPriceMaxIncreaseScalar,
-        },
-      ]);
+    // Make sure percentages that must be > 100 are so (if they are specified).
+    const PERCENTAGES_GT_100 = ["gasPriceMaxIncreaseScalar", "gasPriceReplacementBumpPercent"];
+    for (const key of PERCENTAGES_GT_100) {
+      if (chainConfig[key] !== undefined && chainConfig[key] <= 100) {
+        throw new ConfigurationError([
+          {
+            parameter: "gasPriceMaxIncreaseScalar",
+            error: "gasPriceMaxIncreaseScalar must be greater than 100.",
+            value: chainConfig.gasPriceMaxIncreaseScalar,
+          },
+        ]);
+      }
     }
 
     // Backwards compatibility with specifying only a single provider under the key "provider".
@@ -166,12 +169,13 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     const providers = typeof _providers === "string" ? [{ url: _providers }] : _providers;
 
     // Remove unused from the mix (such as subgraphs, etc).
-    // NOTE: We use CoreChainConfigSchema here because we do not want providers in the core chain config.
+    // NOTE: We use CoreChainConfigSchema here because we will format them separately below.
     const sanitizedCoreConfig: any = {};
     Object.keys(CoreChainConfigSchema.properties).forEach((property) => {
       sanitizedCoreConfig[property] = chainConfig[property];
     });
 
+    // Merge the default values with the specified chain config.
     config[chainId] = {
       ...defaultChainConfig,
       ...sanitizedCoreConfig,

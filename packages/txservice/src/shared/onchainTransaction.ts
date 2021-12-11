@@ -137,8 +137,28 @@ export class OnchainTransaction {
     };
   }
 
-  public get loggable(): LoggableTransactionData {
+  /**
+   * Formats gas fees into gwei units.
+   */
+  public get loggableGasFee(): {
+    gasPrice?: string;
+    maxPriorityFeePerGas?: string;
+    maxFeePerGas?: string;
+  } {
     const gasFee = this.gasFee;
+    return {
+      gasPrice: gasFee.gasPrice ? `${utils.formatUnits(gasFee.gasPrice, "gwei")} gwei` : undefined,
+      maxFeePerGas: gasFee.maxFeePerGas ? `${utils.formatUnits(gasFee.maxFeePerGas, "gwei")} gwei` : undefined,
+      maxPriorityFeePerGas: gasFee.maxPriorityFeePerGas
+        ? `${utils.formatUnits(gasFee.maxPriorityFeePerGas, "gwei")} gwei`
+        : undefined,
+    };
+  }
+
+  /**
+   * Packages transaction data into a format best for logging.
+   */
+  public get loggable(): LoggableTransactionData {
     return {
       // These values should always be defined.
       txsId: this.uuid,
@@ -147,11 +167,7 @@ export class OnchainTransaction {
       gasLimit: this.gas.limit.toString(),
 
       // Gas fee values will present themselves depending on which are defined.
-      gasPrice: gasFee.gasPrice ? `${utils.formatUnits(gasFee.gasPrice, "gwei")} gwei` : undefined,
-      maxFeePerGas: gasFee.maxFeePerGas ? `${utils.formatUnits(gasFee.maxFeePerGas, "gwei")} gwei` : undefined,
-      maxPriorityFeePerGas: gasFee.maxPriorityFeePerGas
-        ? `${utils.formatUnits(gasFee.maxPriorityFeePerGas, "gwei")} gwei`
-        : undefined,
+      ...this.loggableGasFee,
 
       // Keeping these values as undefined if 0 in order to keep logs slim (undefined values won't be logged).
       attempt: this.attempt > 0 ? this.attempt : undefined,
