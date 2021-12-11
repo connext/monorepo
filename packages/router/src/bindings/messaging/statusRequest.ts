@@ -27,5 +27,5 @@ export const statusRequestBinding = async (
 
   await messaging.publishStatusResponse(from, inbox, status);
 
-  logger.debug("Handled auction request", requestContext, methodContext, status);
+  logger.debug("Handled status request", requestContext, methodContext, status);
 };
