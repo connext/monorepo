@@ -7,7 +7,7 @@ import {
   Logger,
   RouterNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
-import { ChainConfig, TransactionService } from "@connext/nxtp-txservice";
+import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
@@ -66,21 +66,11 @@ export const makeRouter = async () => {
       logger: context.logger,
     });
     await context.messaging.connect();
-    const chains: { [chainId: string]: ChainConfig } = {};
-    Object.entries(context.config.chainConfig).forEach(([chainId, config]) => {
-      chains[chainId] = {
-        confirmations: config.confirmations,
-        providers: config.providers.map((url) => ({ url })),
-        gasStations: config.gasStations,
-        defaultInitialGasPrice: config.defaultInitialGasPrice,
-      } as ChainConfig;
-    });
+
     // TODO: txserviceconfig log level
     context.txService = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
-      {
-        chains,
-      },
+      context.config.chainConfig as any,
       context.wallet,
     );
 

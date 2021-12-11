@@ -3,7 +3,7 @@ import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonS
 
 import { Gas, OnchainTransaction, SyncProvider } from "../src/types";
 import { ChainRpcProvider } from "../src/provider";
-import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
+import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import {
   makeChaiReadable,
   TEST_FULL_TX,
@@ -48,7 +48,8 @@ describe("ChainRpcProvider", () => {
     signer.connect.returns(signer);
 
     const chainId = TEST_SENDER_CHAIN_ID;
-    const chainConfig: ChainConfig = {
+    const config: ChainConfig = {
+      ...DEFAULT_CHAIN_CONFIG,
       providers: [
         {
           url: "https://-------------",
@@ -56,21 +57,10 @@ describe("ChainRpcProvider", () => {
       ],
       confirmations: 1,
       confirmationTimeout: 10_000,
-      gasStations: [],
     };
 
     syncProvidersStub = Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
-    chainProvider = new ChainRpcProvider(
-      logger,
-      chainId,
-      chainConfig,
-      {
-        ...DEFAULT_CONFIG,
-        gasInitialBumpPercent: 20,
-        gasPriceMaxIncreaseScalar: 200,
-      },
-      signer,
-    );
+    chainProvider = new ChainRpcProvider(logger, chainId, config, signer);
     // One block = 10ms for the purposes of testing.
     (chainProvider as any).blockPeriod = 10;
     Sinon.stub(chainProvider as any, "execute").callsFake(fakeExecuteMethod);
@@ -371,7 +361,7 @@ describe("ChainRpcProvider", () => {
 
     it("should inflate gas limit by configured inflation value", async () => {
       const testInflation = BigNumber.from(10_000);
-      (chainProvider as any).chainConfig.gasLimitInflation = testInflation;
+      (chainProvider as any).config.gasLimitInflation = testInflation;
       const result = await chainProvider.estimateGas(testTx);
       expect(result.eq(BigNumber.from(testGasLimit).add(testInflation))).to.be.true;
     });
@@ -382,7 +372,7 @@ describe("ChainRpcProvider", () => {
       const testGasPrice = utils.parseUnits("100", "gwei") as BigNumber;
       // Gas price gets bumped by X% in this method.
       const expectedGas = testGasPrice
-        .add(testGasPrice.mul((chainProvider as any).config.gasInitialBumpPercent).div(100))
+        .add(testGasPrice.mul((chainProvider as any).config.gasPriceInitialBoostPercent).div(100))
         .toString();
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
 
@@ -394,7 +384,7 @@ describe("ChainRpcProvider", () => {
 
     it("should accept hardcoded values from config", async () => {
       const expectedGas = "197";
-      (chainProvider as any).chainConfig.defaultInitialGasPrice = expectedGas;
+      (chainProvider as any).config.hardcodedGasPrice = expectedGas;
       const result = await (chainProvider as any).getGasPrice();
       expect(coreSyncProvider.getGasPrice.callCount).to.equal(0);
       expect(result.toString()).to.be.eq(expectedGas);
@@ -404,7 +394,7 @@ describe("ChainRpcProvider", () => {
     it("should use cached gas price if calls < 3 seconds apart", async () => {
       const testGasPrice = utils.parseUnits("80", "gwei") as BigNumber;
       const expectedGas = testGasPrice
-        .add(testGasPrice.mul((chainProvider as any).config.gasInitialBumpPercent).div(100))
+        .add(testGasPrice.mul((chainProvider as any).config.gasPriceInitialBoostPercent).div(100))
         .toString();
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
 
@@ -426,11 +416,11 @@ describe("ChainRpcProvider", () => {
 
     it("should bump gas price up to minimum if it is below that", async () => {
       // For test reliability, start from the config value and work backwards.
-      const expectedGasPrice = (chainProvider as any).config.gasMinimum;
+      const expectedGasPrice = (chainProvider as any).config.gasPriceMinimum;
       const testGasPrice = BigNumber.from(expectedGasPrice)
         .sub(
           BigNumber.from(expectedGasPrice)
-            .mul((chainProvider as any).config.gasInitialBumpPercent)
+            .mul((chainProvider as any).config.gasPriceInitialBoostPercent)
             .div(100),
         )
         .sub(utils.parseUnits("1", "gwei"));
@@ -460,7 +450,7 @@ describe("ChainRpcProvider", () => {
     it("should use gas station if available", async () => {
       const testGasPriceGwei = 42;
       const testGasPrice = utils.parseUnits(testGasPriceGwei.toString(), "gwei") as BigNumber;
-      (chainProvider as any).chainConfig.gasStations = ["...fakeaddy..."];
+      (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       const axiosStub = Sinon.stub(axios, "get").resolves({ data: { fast: testGasPriceGwei.toString() } });
 
       const result = await (chainProvider as any).getGasPrice();
@@ -472,11 +462,11 @@ describe("ChainRpcProvider", () => {
 
     it("should resort to provider gas price if gas station fails", async () => {
       const testGasPrice = utils.parseUnits("42", "gwei") as BigNumber;
-      (chainProvider as any).chainConfig.gasStations = ["...fakeaddy..."];
+      (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
       const axiosStub = Sinon.stub(axios, "get").rejects(new Error("test"));
       const expectedGas = testGasPrice
-        .add(testGasPrice.mul((chainProvider as any).config.gasInitialBumpPercent).div(100))
+        .add(testGasPrice.mul((chainProvider as any).config.gasPriceInitialBoostPercent).div(100))
         .toString();
 
       const result = await (chainProvider as any).getGasPrice();
@@ -488,7 +478,7 @@ describe("ChainRpcProvider", () => {
 
     it("should handle unexpected params as a gas station failure", async () => {
       const testGasPrice = utils.parseUnits("42", "gwei") as BigNumber;
-      (chainProvider as any).chainConfig.gasStations = ["...fakeaddy..."];
+      (chainProvider as any).config.gasStations = ["...fakeaddy..."];
       coreSyncProvider.getGasPrice.resolves(testGasPrice);
       const axiosStub = Sinon.stub(axios, "get").resolves({ data: "bad data, so sad! :(" });
 
@@ -500,7 +490,7 @@ describe("ChainRpcProvider", () => {
 
     it("should cap gas price if it hits configured absolute maximum", async () => {
       const testGasPrice = utils.parseUnits("100", "gwei") as BigNumber;
-      (chainProvider as any).config.gasMaximum = testGasPrice;
+      (chainProvider as any).config.gasPriceMaximum = testGasPrice;
       coreSyncProvider.getGasPrice.resolves(testGasPrice.add(utils.parseUnits("1", "gwei")));
 
       const result = await (chainProvider as any).getGasPrice();

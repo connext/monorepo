@@ -277,8 +277,11 @@ export class ProviderNotConfigured extends NxtpError {
 export class ConfigurationError extends NxtpError {
   static readonly type = ConfigurationError.name;
 
-  constructor(public readonly invalidParamaters: any, public readonly context: any = {}) {
-    super("Configuration paramater(s) were invalid.", { ...context, invalidParamaters }, ConfigurationError.type);
+  constructor(
+    public readonly invalidParameters: { parameter: string; error: string; value: any }[],
+    public readonly context: any = {},
+  ) {
+    super("Configuration paramater(s) were invalid.", { ...context, invalidParameters }, ConfigurationError.type);
   }
 }
 

@@ -448,7 +448,7 @@ describe("ChainReader", () => {
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
-      (chainReader as any).config.chains = {
+      (chainReader as any).config = {
         [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],

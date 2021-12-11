@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import { BigNumber, Signer, Wallet, providers, constants, Contract, utils } from "ethers";
 
-import { TransactionServiceConfig, validateProviderConfig, ChainConfig } from "./config";
+import { validateProviderConfig, ChainConfig } from "./config";
 import {
   ConfigurationError,
   GasEstimateInvalid,
@@ -60,9 +60,6 @@ export class ChainRpcProvider {
   // Cache of transient data (i.e. data that can change per block).
   private cache: ProviderCache<ChainRpcProviderCache>;
 
-  public readonly confirmationsRequired: number;
-  public readonly confirmationTimeout: number;
-
   /**
    * A class for managing the usage of an ethers FallbackProvider, and for wrapping calls in
    * retries. Will ensure provider(s) are ready before any use case.
@@ -80,18 +77,14 @@ export class ChainRpcProvider {
   constructor(
     protected readonly logger: Logger,
     public readonly chainId: number,
-    protected readonly chainConfig: ChainConfig,
-    protected readonly config: TransactionServiceConfig,
+    protected readonly config: ChainConfig,
     signer?: string | Signer,
   ) {
     const { requestContext, methodContext } = createLoggingContext("ChainRpcProvider.constructor");
 
-    this.confirmationsRequired = chainConfig.confirmations ?? config.defaultConfirmationsRequired;
-    this.confirmationTimeout = chainConfig.confirmationTimeout ?? config.defaultConfirmationTimeout;
-
     // Register a provider for each url.
     // Make sure all providers are ready()
-    const providerConfigs = chainConfig.providers;
+    const providerConfigs = this.config.providers;
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
@@ -123,11 +116,15 @@ export class ChainRpcProvider {
       // Not enough valid providers were found in configuration.
       // We must throw here, as the router won't be able to support this chain without valid provider configs.
       throw new ConfigurationError(
+        [
+          {
+            parameter: "providers",
+            error: "No valid providers were supplied in configuration for this chain.",
+            value: providerConfigs,
+          },
+        ],
         {
-          providers: `No valid providers were supplied in configuration for chain ${this.chainId}.`,
-        },
-        {
-          providers,
+          chainId,
         },
       );
     }
@@ -194,8 +191,8 @@ export class ChainRpcProvider {
    */
   public async confirmTransaction(
     transaction: OnchainTransaction,
-    confirmations: number = this.confirmationsRequired,
-    timeout: number = this.confirmationTimeout,
+    confirmations: number = this.config.confirmations,
+    timeout: number = this.config.confirmationTimeout,
   ): Promise<providers.TransactionReceipt> {
     const start = Date.now();
     // Using a timed out variable calculated at the end of the loop - this way we can be sure at
@@ -304,7 +301,7 @@ export class ChainRpcProvider {
    * @returns A BigNumber representing the estimated gas value.
    */
   public async estimateGas(transaction: providers.TransactionRequest): Promise<BigNumber> {
-    const { gasLimitInflation } = this.chainConfig;
+    const { gasLimitInflation } = this.config;
 
     return this.execute(false, async (provider: SyncProvider) => {
       // This call will prepare the transaction params for us (hexlify tx, etc).
@@ -322,14 +319,19 @@ export class ChainRpcProvider {
 
   /**
    * Get the current gas price for the chain for which this instance is servicing.
+   *
+   * @param context - RequestContext instance in which we are executing this method.
+   * @param useInitialBoost (default: true) - boolean indicating whether to use the configured initial boost
+   * percentage value.
+   *
    * @returns The BigNumber value for the current gas price.
    */
-  public async getGasPrice(context: RequestContext): Promise<BigNumber> {
+  public async getGasPrice(context: RequestContext, useInitialBoost = true): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(this.getGasPrice.name, context);
 
     // Check if there is a hardcoded value specified for this chain. This should usually only be set
     // for testing/overriding purposes.
-    const hardcoded = this.chainConfig.defaultInitialGasPrice;
+    const hardcoded = this.config.hardcodedGasPrice;
     if (hardcoded) {
       this.logger.info("Using hardcoded gas price for chain", requestContext, methodContext, {
         chainId: this.chainId,
@@ -343,11 +345,11 @@ export class ChainRpcProvider {
       return this.cache.data.gasPrice;
     }
 
-    const { gasInitialBumpPercent, gasMinimum, gasMaximum, gasPriceMaxIncreaseScalar } = this.config;
+    const { gasPriceInitialBoostPercent, gasPriceMinimum, gasPriceMaximum, gasPriceMaxIncreaseScalar } = this.config;
     let gasPrice: BigNumber | undefined = undefined;
 
     // Use gas station APIs, if available.
-    const gasStations = this.chainConfig.gasStations ?? [];
+    const gasStations = this.config.gasStations ?? [];
     for (let i = 0; i < gasStations.length; i++) {
       const uri = gasStations[i];
       let response: any;
@@ -378,7 +380,9 @@ export class ChainRpcProvider {
       gasPrice = await this.execute<BigNumber>(false, async (provider: SyncProvider) => {
         return await provider.getGasPrice();
       });
-      gasPrice = gasPrice.add(gasPrice.mul(gasInitialBumpPercent).div(100));
+      if (useInitialBoost) {
+        gasPrice = gasPrice.add(gasPrice.mul(gasPriceInitialBoostPercent).div(100));
+      }
     }
 
     // Apply a curbing function (if applicable) - this will curb the effect of dramatic network gas spikes.
@@ -406,8 +410,8 @@ export class ChainRpcProvider {
     // Final step to ensure we remain within reasonable, configured bounds for gas price.
     // If the gas price is less than absolute gas minimum, bump it up to minimum.
     // If it's greater than (or equal to) the absolute maximum, set it to that maximum (and log).
-    const min = BigNumber.from(gasMinimum);
-    const max = BigNumber.from(gasMaximum);
+    const min = BigNumber.from(gasPriceMinimum);
+    const max = BigNumber.from(gasPriceMaximum);
     if (gasPrice.lt(min)) {
       gasPrice = min;
     } else if (gasPrice.gte(max)) {

@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [txservice] Reorganization, code coverage improvements
+- [txservice] Update / expose config vars
+
 # 0.0.100
 
 - [router] Cleanup prometheus collection
