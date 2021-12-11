@@ -1,8 +1,8 @@
 import { randomInt } from "crypto";
 import { utils } from "ethers";
 import { SinonStub, stub } from "sinon";
+import { expect, Logger } from "@connext/nxtp-utils";
 
-import { expect, Logger, RequestContext } from "../../../utils/dist";
 import { MaxBufferLengthError, OnchainTransaction, TransactionBuffer } from "../../src/shared";
 import { getMockOnchainTransaction, MockOnchainTransactionState, TEST_ERROR, TEST_SENDER_CHAIN_ID } from "../utils";
 

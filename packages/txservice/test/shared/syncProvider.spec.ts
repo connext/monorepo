@@ -1,7 +1,7 @@
 import { randomInt } from "crypto";
 import { SinonStub, stub } from "sinon";
+import { expect } from "@connext/nxtp-utils";
 
-import { expect } from "../../../utils/dist";
 import { RpcError, SyncProvider } from "../../src/shared";
 import { TEST_ERROR, TEST_SENDER_CHAIN_ID } from "../utils";
 

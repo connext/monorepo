@@ -1,6 +1,5 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-
 import {
   getRandomAddress,
   getRandomBytes32,
@@ -15,7 +14,7 @@ import {
 import { ChainReader } from "../src/chainreader";
 import { ChainRpcProvider } from "../src/provider";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
-import * as contractFns from "../src/contracts";
+import * as contractFns from "../src/shared/contracts";
 import {
   TEST_SENDER_CHAIN_ID,
   TEST_TX,

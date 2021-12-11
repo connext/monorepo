@@ -1,11 +1,19 @@
 import axios from "axios";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { ChainRpcProvider } from "../src/provider";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
+import {
+  OnchainTransaction,
+  SyncProvider,
+  GasEstimateInvalid,
+  RpcError,
+  TimeoutError,
+  TransactionReadError,
+  TransactionReverted,
+} from "../src";
 import {
   makeChaiReadable,
   TEST_FULL_TX,
@@ -16,16 +24,6 @@ import {
   DEFAULT_GAS_LIMIT,
   TEST_TX,
 } from "./utils";
-import {
-  Gas,
-  OnchainTransaction,
-  SyncProvider,
-  GasEstimateInvalid,
-  RpcError,
-  TimeoutError,
-  TransactionReadError,
-  TransactionReverted,
-} from "../src/shared";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",

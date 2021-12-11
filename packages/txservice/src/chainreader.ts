@@ -9,9 +9,16 @@ import {
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
-import { ReadTransaction, ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./shared";
+import {
+  ReadTransaction,
+  ChainNotSupported,
+  ConfigurationError,
+  ProviderNotConfigured,
+  CHAINS_WITH_PRICE_ORACLES,
+  getDeployedPriceOracleContract,
+  getPriceOracleInterface,
+} from "./shared";
 import { ChainRpcProvider } from "./provider";
-import { CHAINS_WITH_PRICE_ORACLES, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
 
 // TODO: Rename to BlockchainService
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should

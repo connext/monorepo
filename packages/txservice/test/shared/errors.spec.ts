@@ -1,5 +1,4 @@
 import { Logger } from "ethers/lib/utils";
-
 import { expect } from "@connext/nxtp-utils";
 
 import { parseError, RpcError, ServerError, TransactionReverted } from "../../src/shared/errors";

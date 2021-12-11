@@ -1,8 +1,7 @@
 import { BigNumber, providers, utils, Wallet } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-
-import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
-import { expect } from "@connext/nxtp-utils/src/expect";
+import { getRandomBytes32, Logger, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
