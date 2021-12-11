@@ -2,7 +2,7 @@ import { providers, BigNumber } from "ethers";
 import { AddressZero, One, Zero } from "@ethersproject/constants";
 import { mkHash, mkAddress } from "@connext/nxtp-utils";
 
-import { ReadTransaction, WriteTransaction } from "../src/types";
+import { ReadTransaction, WriteTransaction } from "../src/shared";
 
 type TransactionReceipt = providers.TransactionReceipt;
 type TransactionResponse = providers.TransactionResponse;
@@ -10,6 +10,7 @@ type TransactionResponse = providers.TransactionResponse;
 export const TEST_SENDER_CHAIN_ID = 1337;
 export const TEST_RECEIVER_CHAIN_ID = 1338;
 export const DEFAULT_GAS_LIMIT = BigNumber.from("21004");
+export const TEST_ERROR = new Error("test");
 
 export const TEST_READ_TX: ReadTransaction = {
   chainId: TEST_SENDER_CHAIN_ID,

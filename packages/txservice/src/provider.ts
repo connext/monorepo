@@ -669,7 +669,7 @@ export class ChainRpcProvider {
         // If the provider was previously synced but fell out of sync, debug log to notify.
         this.logger.debug("Provider fell out of sync.", undefined, undefined, {
           providerBlockNumber,
-          provider: provider.url,
+          provider: provider.name,
           lag: provider.lag,
         });
       }
@@ -683,11 +683,11 @@ export class ChainRpcProvider {
 
     this.logger.debug("Synced provider(s).", requestContext, methodContext, {
       highestBlockNumber,
-      leadProvider: this.leadProvider.url,
+      leadProvider: this.leadProvider.name,
       providers: this.providers
         .filter((p) => p.synced)
         .map((p) => ({
-          url: p.url,
+          url: p.name,
           blockNumber: p.syncedBlockNumber,
           lag: p.lag,
         })),
@@ -720,7 +720,7 @@ export class ChainRpcProvider {
     syncedProviders.forEach((p) => {
       p.priority =
         p.lag -
-        (this.leadProvider && p.url === this.leadProvider.url ? 1 : Math.random()) -
+        (this.leadProvider && p.name === this.leadProvider.name ? 1 : Math.random()) -
         p.cps / this.config.maxProviderCPS -
         p.reliability * 2 +
         p.avgExecTime;

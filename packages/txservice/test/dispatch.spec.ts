@@ -1,11 +1,14 @@
+import { BigNumber, providers, utils, Wallet } from "ethers";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+
 import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils/src/expect";
-import { BigNumber, providers, Wallet } from "ethers";
-import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
+import { ChainRpcProvider } from "../src/provider";
 import {
+  OnchainTransaction,
   BadNonce,
   MaxBufferLengthError,
   NotEnoughConfirmations,
@@ -14,9 +17,7 @@ import {
   TransactionProcessingError,
   TransactionReplaced,
   TransactionReverted,
-} from "../src/error";
-import { ChainRpcProvider } from "../src/provider";
-import { Gas, OnchainTransaction } from "../src/types";
+} from "../src/shared";
 import {
   makeChaiReadable,
   TEST_FULL_TX,
@@ -24,7 +25,7 @@ import {
   TEST_TX,
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
-} from "./constants";
+} from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -124,7 +125,10 @@ describe("TransactionDispatch", () => {
       context,
       TEST_TX,
       TEST_TX_RESPONSE.nonce,
-      new Gas(BigNumber.from(1), BigNumber.from(1)),
+      {
+        limit: BigNumber.from(24007),
+        price: utils.parseUnits("5", "gwei"),
+      },
       {
         confirmationTimeout: 1,
         confirmationsRequired: 1,
@@ -154,7 +158,10 @@ describe("TransactionDispatch", () => {
           data: getRandomBytes32(),
         },
         TEST_TX_RESPONSE.nonce,
-        new Gas(BigNumber.from(1), BigNumber.from(1)),
+        {
+          limit: BigNumber.from(24007),
+          price: utils.parseUnits("5", "gwei"),
+        },
         {
           confirmationTimeout: 1,
           confirmationsRequired: 1,

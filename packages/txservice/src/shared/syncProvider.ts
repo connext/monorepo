@@ -12,7 +12,7 @@ export const { StaticJsonRpcProvider } = providers;
  */
 export class SyncProvider extends StaticJsonRpcProvider {
   private readonly connectionInfo: utils.ConnectionInfo;
-  public readonly url: string;
+  public readonly name: string;
 
   public synced = true;
   public lag = 0;
@@ -34,6 +34,9 @@ export class SyncProvider extends StaticJsonRpcProvider {
   }
   private execTimes: number[] = [];
   public get avgExecTime(): number {
+    if (this.execTimes.length === 0) {
+      return 0.0;
+    }
     // Average execution time over the last N samples.
     this.execTimes = this.execTimes.slice(-SyncProvider.N_SAMPLES);
     return this.execTimes.reduce((a, b) => a + b, 0) / this.execTimes.length;
@@ -50,27 +53,21 @@ export class SyncProvider extends StaticJsonRpcProvider {
     _connectionInfo: utils.ConnectionInfo | string,
     public readonly chainId: number,
     private readonly stallTimeout = 10_000,
-    private readonly debugLogging = true,
+    private readonly debugLogging = false,
   ) {
     super(_connectionInfo, chainId);
     this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
-    this.url = this.connectionInfo.url.replace("https://", "").split(".com")[0];
+    this.name = this.connectionInfo.url.replace("https://", "").replace("http://", "").split(".com")[0];
   }
 
   /**
    * Synchronizes the provider with chain by checking the current block number and updating the syncedBlockNumber
    * property.
    */
-  public sync(): Promise<void> {
-    this.removeAllListeners();
-
-    return new Promise<void>((resolve) => {
-      this.once("block", async (blockNumber: number) => {
-        this.debugLog("SYNCING_BLOCK_EVENT", blockNumber, this.syncedBlockNumber);
-        this._syncedBlockNumber = blockNumber;
-        resolve();
-      });
-    });
+  public async sync(): Promise<void> {
+    const blockNumber = await this.getBlockNumber();
+    this.debugLog("SYNCING_BLOCK_EVENT", blockNumber, this.syncedBlockNumber);
+    this._syncedBlockNumber = blockNumber;
   }
 
   /**
@@ -89,7 +86,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
     // and running smoothly.
     if ((!this.synced && method !== "eth_blockNumber") || !(await this.ready)) {
       throw new RpcError(RpcError.reasons.OutOfSync, {
-        provider: this.url,
+        provider: this.name,
         chainId: this.chainId,
         blockNumber: this.syncedBlockNumber,
         synced: this.synced,
@@ -148,7 +145,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
     }
 
     throw new RpcError(RpcError.reasons.FailedToSend, {
-      provider: this.url,
+      provider: this.name,
       chainId: this.chainId,
       blockNumber: this.syncedBlockNumber,
       errors,
@@ -190,7 +187,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
 
   private debugLog(message: string, ...args: any[]) {
     if (this.debugLogging) {
-      console.log(`[${Date.now()}]`, `(${this.url})`, message, ...args);
+      console.log(`[${Date.now()}]`, `(${this.name})`, message, ...args);
     }
   }
 }

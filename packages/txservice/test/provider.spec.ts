@@ -1,7 +1,9 @@
+import axios from "axios";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 
-import { Gas, OnchainTransaction, SyncProvider } from "../src/types";
+import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
+
 import { ChainRpcProvider } from "../src/provider";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import {
@@ -13,10 +15,17 @@ import {
   TEST_TX_RESPONSE,
   DEFAULT_GAS_LIMIT,
   TEST_TX,
-} from "./constants";
-import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
-import { GasEstimateInvalid, RpcError, TimeoutError, TransactionReadError, TransactionReverted } from "../src/error";
-import axios from "axios";
+} from "./utils";
+import {
+  Gas,
+  OnchainTransaction,
+  SyncProvider,
+  GasEstimateInvalid,
+  RpcError,
+  TimeoutError,
+  TransactionReadError,
+  TransactionReverted,
+} from "../src/shared";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -87,7 +96,10 @@ describe("ChainRpcProvider", () => {
       context,
       TEST_TX,
       TEST_TX_RESPONSE.nonce,
-      new Gas(BigNumber.from(1), BigNumber.from(1)),
+      {
+        limit: BigNumber.from(24007),
+        price: utils.parseUnits("5", "gwei"),
+      },
       {
         confirmationTimeout: 1,
         confirmationsRequired: 1,

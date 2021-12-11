@@ -1,13 +1,19 @@
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
 
 import { ChainService } from "../src/chainservice";
 import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
-import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
-import { ConfigurationError, ProviderNotConfigured, TransactionReverted } from "../src/error";
+import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./utils";
+import {
+  ConfigurationError,
+  ProviderNotConfigured,
+  TransactionReverted,
+  Gas,
+  NxtpTxServiceEvents,
+  OnchainTransaction,
+} from "../src/shared";
 import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
-import { Gas, NxtpTxServiceEvents, OnchainTransaction } from "../src/types";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 
 const logger = new Logger({
@@ -44,7 +50,10 @@ describe("ChainService", () => {
       context,
       TEST_TX,
       1,
-      new Gas(BigNumber.from(1), BigNumber.from(1)),
+      {
+        limit: BigNumber.from(24007),
+        price: utils.parseUnits("5", "gwei"),
+      },
       { confirmationTimeout: 1, confirmationsRequired: 1 },
       "1",
     );

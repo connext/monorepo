@@ -143,25 +143,33 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
   // For each chain, validate the config and merge it with the main config.
   const config: { [chainId: string]: ChainConfig } = {};
   Object.entries(_config).forEach(([chainId, _chainConfig]) => {
-    const chainConfig = _chainConfig as any;
+    const chainConfig = {
+      ...defaultChainConfig,
+      ...(_chainConfig as any),
+    };
     // Ignore non-number chainIds.
     if (isNaN(parseInt(chainId))) {
       return;
     }
 
-    // Make sure percentages that must be > 100 are so (if they are specified).
-    const PERCENTAGES_GT_100 = ["gasPriceMaxIncreaseScalar", "gasPriceReplacementBumpPercent"];
-    for (const key of PERCENTAGES_GT_100) {
-      if (chainConfig[key] !== undefined && chainConfig[key] <= 100) {
-        throw new ConfigurationError([
+    // Make sure config values that must be > X are so (if they are specified).
+    const configValueMins = {
+      ...DEFAULT_CHAIN_CONFIG_VALUE_MINS,
+      hardcodedGasPrice: chainConfig.gasPriceMinimum,
+    };
+    Object.entries(configValueMins).forEach(([key, min]) => {
+      if (chainConfig[key] !== undefined && chainConfig[key] <= min) {
+        const error = new ConfigurationError([
           {
-            parameter: "gasPriceMaxIncreaseScalar",
-            error: "gasPriceMaxIncreaseScalar must be greater than 100.",
-            value: chainConfig.gasPriceMaxIncreaseScalar,
+            parameter: key,
+            error: `${key} must be greater than 100.`,
+            value: chainConfig[key],
           },
         ]);
+        console.error(error);
+        throw error;
       }
-    }
+    });
 
     // Backwards compatibility with specifying only a single provider under the key "provider".
     const _providers: string | string[] | { url: string; user?: string; password?: string }[] =
@@ -177,7 +185,6 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
 
     // Merge the default values with the specified chain config.
     config[chainId] = {
-      ...defaultChainConfig,
       ...sanitizedCoreConfig,
       providers: providers.map((provider) =>
         typeof provider === "string"
@@ -210,4 +217,10 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   // to get 1 confirmation.
   confirmationTimeout: 90_000,
   debug_logRpcCalls: false,
+};
+
+const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {
+  gasPriceMaxIncreaseScalar: 100,
+  gasPriceReplacementBumpPercent: 0,
+  gasLimitInflation: 0,
 };
