@@ -13,8 +13,9 @@ import {
   TxServiceFailedEvent,
   TxServiceMinedEvent,
   TxServiceSubmittedEvent,
-} from "./types";
-import { ConfigurationError, ProviderNotConfigured } from "./error";
+  ConfigurationError,
+  ProviderNotConfigured,
+} from "./shared";
 import { TransactionDispatch } from "./dispatch";
 import { ChainReader } from "./chainreader";
 

@@ -9,9 +9,8 @@ import {
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { ReadTransaction } from "./types";
+import { ReadTransaction, ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./shared";
 import { ChainRpcProvider } from "./provider";
-import { ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./error";
 import { CHAINS_WITH_PRICE_ORACLES, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
 
 export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();

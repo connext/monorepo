@@ -2,6 +2,5 @@
 // internally to this package only.
 export { ChainService as TransactionService } from "./chainservice";
 export * from "./chainreader";
-export * from "./types";
 export * from "./config";
-export * from "./error";
+export * from "./shared";

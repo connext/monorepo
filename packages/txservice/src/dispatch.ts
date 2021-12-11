@@ -11,7 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { Gas, WriteTransaction, OnchainTransaction, TransactionBuffer } from "./types";
+import { Gas, WriteTransaction, OnchainTransaction, TransactionBuffer } from "./shared";
 import {
   BadNonce,
   TransactionReplaced,
@@ -22,7 +22,7 @@ import {
   TransactionProcessingError,
   NotEnoughConfirmations,
   TransactionAlreadyKnown,
-} from "./error";
+} from "./shared/error";
 import { ChainConfig, TransactionServiceConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
@@ -119,7 +119,11 @@ export class TransactionDispatch extends ChainRpcProvider {
     let transaction: OnchainTransaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
-        transaction = this.inflightBuffer.shift()!;
+        transaction = this.inflightBuffer.shift();
+        if (!transaction) {
+          // This shouldn't happen, but this block is a necessity for compilation.
+          return;
+        }
         // Shift the first transaction from the buffer and get it mined.
         let receivedBadNonce = false;
         let shouldResubmit = false;
@@ -348,9 +352,12 @@ export class TransactionDispatch extends ChainRpcProvider {
           let { nonce, backfill, transactionCount } = nonceInfo;
 
           // TODO: Remove hardcoded (exposed gasLimitInflation config var should replace this).
-          let gas = new Gas(gasPrice, gasLimit);
+          const gas: Gas = {
+            limit: gasLimit,
+            price: gasPrice,
+          };
           if (this.chainId === 42161) {
-            gas = new Gas(gas.baseValue, BigNumber.from(10_000_000));
+            gas.limit = BigNumber.from(10_000_000);
           }
 
           // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
@@ -465,20 +472,12 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Check to make sure we haven't already mined this transaction.
     if (transaction.didFinish) {
-      // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
       throw new TransactionProcessingError(TransactionProcessingError.reasons.SubmitOutOfOrder, method);
     }
 
-    // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
-    if (transaction.responses.length > 0) {
-      // NOTE: There *should* always be a gasPrice in every response, but it is
-      // defined as optional. Handle that case?
-      // If there isn't a lastPrice, we're going to skip this validation step.
-      const lastPrice = transaction.responses[transaction.responses.length - 1].gasPrice;
-      if (lastPrice && transaction.gas.price.lte(lastPrice)) {
-        // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
-        throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
-      }
+    // If this is a replacement tx, check to make sure that we have raised the gas price (# of bumps should equal # of txs).
+    if (transaction.responses.length > 0 && transaction.bumps < transaction.responses.length) {
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
     }
 
     // Increment transaction # attempts made.

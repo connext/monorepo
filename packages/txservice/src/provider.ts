@@ -20,8 +20,11 @@ import {
   TimeoutError,
   TransactionReadError,
   TransactionReverted,
-} from "./error";
-import { ProviderCache, ReadTransaction, SyncProvider, OnchainTransaction } from "./types";
+  ProviderCache,
+  ReadTransaction,
+  SyncProvider,
+  OnchainTransaction,
+} from "./shared";
 
 const { FallbackProvider } = providers;
 
@@ -206,14 +209,16 @@ export class ChainRpcProvider {
       errors = [];
       reverted = [];
       // Populate a list of promises to retrieve every receipt for every hash.
-      const _receipts: Promise<providers.TransactionReceipt | null>[] = transaction.responses.map(async (response) => {
-        try {
-          return await this.getTransactionReceipt(response.hash);
-        } catch (error) {
-          errors.push(error);
-          return null;
-        }
-      });
+      const _receipts: Promise<providers.TransactionReceipt | null>[] = transaction.responses.map(
+        async (response: any) => {
+          try {
+            return await this.getTransactionReceipt(response.hash);
+          } catch (error) {
+            errors.push(error);
+            return null;
+          }
+        },
+      );
       // Wait until all the 'receipts' (or errors) have been pushed to the list.
       const receipts = (await Promise.all(_receipts)).filter(
         (r) => r !== null && r !== undefined,
