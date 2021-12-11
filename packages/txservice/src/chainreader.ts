@@ -13,10 +13,13 @@ import { ReadTransaction, ChainNotSupported, ConfigurationError, ProviderNotConf
 import { ChainRpcProvider } from "./provider";
 import { CHAINS_WITH_PRICE_ORACLES, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
 
-export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
+// TODO: Rename to BlockchainService
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
 // probably just expose a provider getter method and have the consumer call that to access the target ChainRpcProvider
 // directly.
+
+// TODO: Condense caching.
+export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 /**
  * @classdesc Performs onchain reads with embedded retries.
  */

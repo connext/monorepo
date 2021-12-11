@@ -1,7 +1,7 @@
 import { delay } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
 
-import { parseError, RpcError } from "./error";
+import { parseError, RpcError } from "./errors";
 
 export const { StaticJsonRpcProvider } = providers;
 

@@ -23,13 +23,13 @@ import { TransactionDispatch } from "./dispatch";
 /**
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
-export class ChainService extends ChainReader {
+export class TransactionService extends ChainReader {
   // TODO: #152 Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
   // private static _instances: Map<string, TransactionService> = new Map();
-  private static instance?: ChainService;
+  private static instance?: TransactionService;
 
   /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
@@ -58,16 +58,16 @@ export class ChainService extends ChainReader {
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
-    if (ChainService.instance) {
+    if (TransactionService.instance) {
       const msg = "CRITICAL: ChainService.constructor was called twice! Please report this incident.";
       const error = new NxtpError(msg);
       logger.error(msg, requestContext, methodContext, error, {
-        instance: ChainService.instance.toString(),
+        instance: TransactionService.instance.toString(),
       });
       throw error;
     }
     // Set the singleton instance.
-    ChainService.instance = this;
+    TransactionService.instance = this;
   }
 
   /**
