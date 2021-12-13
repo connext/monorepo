@@ -18,8 +18,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*",
-    "test/**/*"
+    "src/**/*"
   ],
   "dependencies": {
     "@connext/nxtp-contracts": "workspace:*",

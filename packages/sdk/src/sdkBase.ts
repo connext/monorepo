@@ -108,23 +108,7 @@ export const createMessagingEvt = <T>() => {
 };
 
 export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfigParams): ChainReader => {
-  const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
-  Object.keys(chainConfig).forEach((_chainId) => {
-    const chainId = parseInt(_chainId);
-    // Backwards compatibility with specifying only a single provider under the key "provider".
-    const _providers = chainConfig[chainId].providers ?? (chainConfig as any)[chainId].provider;
-    const providers = typeof _providers === "string" ? [_providers] : _providers;
-    chains[chainId] = {
-      providers: providers.map((provider) =>
-        typeof provider === "string"
-          ? {
-              url: provider,
-            }
-          : provider,
-      ),
-    };
-  });
-  return new ChainReader(logger, { chains });
+  return new ChainReader(logger, chainConfig);
 };
 
 /**

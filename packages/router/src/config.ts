@@ -104,7 +104,6 @@ export const getDeployedMulticallContract = (chainId: number): { address: string
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  defaultInitialGasPrice: Type.Optional(TIntegerString),
   subgraph: Type.Array(Type.String()),
   analyticsSubgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),

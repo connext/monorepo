@@ -1,21 +1,27 @@
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
-
-import { ChainService } from "../src/chainservice";
-import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
-import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./constants";
-import { ConfigurationError, ProviderNotConfigured, TransactionReverted } from "../src/error";
-import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 import { EvtError } from "evt";
-import { Gas, NxtpTxServiceEvents, OnchainTransaction } from "../src/types";
+import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
+
+import { TransactionService } from "../src/transactionservice";
+import { TransactionDispatch, DispatchCallbacks } from "../src/dispatch";
+import {
+  ConfigurationError,
+  ProviderNotConfigured,
+  TransactionReverted,
+  NxtpTxServiceEvents,
+  OnchainTransaction,
+} from "../src/shared";
+import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
+import { makeChaiReadable, TEST_SENDER_CHAIN_ID, TEST_TX, TEST_TX_RESPONSE, TEST_TX_RECEIPT } from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
-  name: "ChainServiceTest",
+  name: "TransactionServiceTest",
 });
 
 let signer: SinonStubbedInstance<Wallet>;
-let chainService: ChainService;
+let chainService: TransactionService;
 let dispatch: SinonStubbedInstance<TransactionDispatch>;
 let context: RequestContext = {
   id: "",
@@ -25,15 +31,15 @@ let dispatchCallbacks: DispatchCallbacks;
 let transaction: OnchainTransaction;
 const chains = {
   [TEST_SENDER_CHAIN_ID.toString()]: {
+    ...DEFAULT_CHAIN_CONFIG,
     providers: [{ url: "https://-------------" }],
     confirmations: 1,
-    gasStations: [],
-  },
+  } as ChainConfig,
 };
 
 /// In these tests, we are testing the outer shell of chainservice - the interface, not the core functionality.
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
-describe("ChainService", () => {
+describe("TransactionService", () => {
   beforeEach(() => {
     dispatch = createStubInstance(TransactionDispatch);
     signer = createStubInstance(Wallet);
@@ -43,13 +49,16 @@ describe("ChainService", () => {
       context,
       TEST_TX,
       1,
-      new Gas(BigNumber.from(1), BigNumber.from(1)),
+      {
+        limit: BigNumber.from(24007),
+        price: utils.parseUnits("5", "gwei"),
+      },
       { confirmationTimeout: 1, confirmationsRequired: 1 },
       "1",
     );
 
-    (ChainService as any).instance = undefined;
-    chainService = new ChainService(logger, { chains }, signer);
+    (TransactionService as any).instance = undefined;
+    chainService = new TransactionService(logger, chains, signer);
 
     // NOTE: Chain service SHOULD instantiate a provider for this chain and SHOULD pass VALID callbacks
     // that link to event emitters (see: DispatchCallbacks type).
@@ -74,7 +83,7 @@ describe("ChainService", () => {
   describe("#constructor", () => {
     it("will not instantiate twice", () => {
       expect(() => {
-        new ChainService(logger, {}, signer);
+        new TransactionService(logger, {}, signer);
       }).to.throw(NxtpError);
     });
   });
@@ -247,12 +256,11 @@ describe("ChainService", () => {
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
-      (chainService as any).config.chains = {
+      (chainService as any).config = {
         [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],
           confirmations: 1,
-          gasStations: [],
         },
       };
       expect(() => (chainService as any).setupProviders(context, signer)).to.throw(ConfigurationError);
