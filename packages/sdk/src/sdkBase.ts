@@ -79,6 +79,7 @@ import {
   ApproveParams,
 } from "./types";
 import {
+  getTransactionId,
   getTimestampInSeconds,
   getExpiry,
   getMinExpiryBuffer,
@@ -507,7 +508,10 @@ export class NxtpSdkBase {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const transactionId = params.transactionId ?? getRandomBytes32();
+    const user = await this.config.signerAddress;
+    const transactionId =
+      params.transactionId ?? getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
+
     const { requestContext, methodContext } = createLoggingContext(
       this.getTransferQuote.name,
       undefined,
@@ -528,8 +532,6 @@ export class NxtpSdkBase {
       });
       throw error;
     }
-
-    const user = await this.config.signerAddress;
 
     const {
       sendingAssetId,
