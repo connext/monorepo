@@ -1,4 +1,4 @@
-import { BigNumber, utils, Wallet } from "ethers";
+import { BigNumber, constants, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import {
   getRandomAddress,
@@ -8,7 +8,6 @@ import {
   expect,
   Logger,
   requestContextMock,
-  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 
 import { ChainReader } from "../src/chainreader";
@@ -105,6 +104,35 @@ describe("ChainReader", () => {
       provider.getBalance.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getGasPrice", () => {
+    it("happy", async () => {
+      provider.getGasPrice.resolves(BigNumber.from(42));
+      const gasPrice = await chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock);
+      expect(gasPrice.toString()).to.equal("42");
+    });
+  });
+
+  describe("#getBlock", () => {
+    it("happy", async () => {
+      const block: providers.Block = {
+        number: 42,
+        transactions: [],
+        hash: "0xaaa",
+        parentHash: "0xbbb",
+        timestamp: 0,
+        miner: "0xff",
+        difficulty: 0,
+        extraData: "0xggg",
+        gasLimit: constants.One,
+        gasUsed: constants.One,
+        nonce: "42",
+      };
+      provider.getBlock.resolves(block);
+      const _block = await chainReader.getBlock(TEST_SENDER_CHAIN_ID, "latest");
+      expect(_block).to.deep.equal(block);
     });
   });
 
@@ -379,10 +407,11 @@ describe("ChainReader", () => {
     const testEthPrice = utils.parseEther("31");
     const testTokenPrice = utils.parseEther("7");
     const testGasPrice = utils.parseUnits("5", "gwei");
+    let chainsPriceOraclesStub: SinonStub;
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
-      (contractFns.CHAINS_WITH_PRICE_ORACLES as any) = [1];
+      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1]);
       tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
       gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
       tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
@@ -391,7 +420,7 @@ describe("ChainReader", () => {
     });
 
     it("happy: should calculate for prepare if chain included and prepare specified", async () => {
-      const result = await (chainReader as any).calculateGasFee(
+      const result = await chainReader.calculateGasFee(
         1,
         1,
         mkAddress("0x0"),
@@ -399,13 +428,14 @@ describe("ChainReader", () => {
         mkAddress("0x0"),
         18,
         "prepare",
+        false,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(2679285714285714);
+      expect(result.toNumber()).to.be.eq(2480000000000000);
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
-      const result = await (chainReader as any).calculateGasFee(
+      const result = await chainReader.calculateGasFee(
         1,
         1,
         mkAddress("0x0"),
@@ -413,13 +443,14 @@ describe("ChainReader", () => {
         mkAddress("0x0"),
         18,
         "fulfill",
+        false,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(3542857142857142);
+      expect(result.toNumber()).to.be.eq(2790000000000000);
     });
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
-      const result = await (chainReader as any).calculateGasFee(
+      const result = await chainReader.calculateGasFee(
         TEST_SENDER_CHAIN_ID,
         TEST_SENDER_CHAIN_ID,
         mkAddress("0x0"),
@@ -427,8 +458,27 @@ describe("ChainReader", () => {
         mkAddress("0x0"),
         18,
         "prepare",
+        false,
         requestContextMock,
       );
+      expect(result.toNumber()).to.be.eq(0);
+    });
+
+    it.skip("special case for chainId 10", async () => {
+      chainsPriceOraclesStub.value([10]);
+      provider.getGasPrice.resolves(testGasPrice);
+      const result = await chainReader.calculateGasFee(
+        10,
+        10,
+        mkAddress("0x0"),
+        10,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        false,
+        requestContextMock,
+      );
+      console.log("result: ", result.toString());
       expect(result.toNumber()).to.be.eq(0);
     });
   });
