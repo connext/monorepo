@@ -38,14 +38,7 @@ import {
   GetTransferQuote,
   SdkBaseChainConfigParams,
 } from "./types";
-import {
-  signFulfillTransactionPayload,
-  encodeAuctionBid,
-  ethereumRequest,
-  getGasLimit,
-  getWalletNonce,
-  getTransactionId,
-} from "./utils";
+import { signFulfillTransactionPayload, encodeAuctionBid, ethereumRequest, getGasLimit } from "./utils";
 import { SubgraphEvent, SubgraphEvents } from "./subgraph/subgraph";
 import { NxtpSdkBase } from "./sdkBase";
 
@@ -456,10 +449,6 @@ export class NxtpSdk {
    */
   public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<GetTransferQuote> {
     const user = await this.config.signer.getAddress();
-
-    const userNonce = await getWalletNonce(this.config.signer);
-
-    params.transactionId = getTransactionId(params.sendingChainId.toString(), user, userNonce.toString());
 
     const callData = params.callData ?? "0x";
     let encryptedCallData = "0x";

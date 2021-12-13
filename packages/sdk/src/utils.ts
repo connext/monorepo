@@ -13,11 +13,7 @@ import {
   isChainSupportedByGelato as _isChainSupportedByGelato,
   getDecimalsForAsset as _getDecimalsForAsset,
 } from "@connext/nxtp-utils";
-import { Signer, utils } from "ethers";
-
-export const getWalletNonce = async (signer: Signer): Promise<number> => {
-  return await signer.getTransactionCount();
-};
+import { utils } from "ethers";
 
 export const getTransactionId = (chainId: string, signerAddress: string, randomSalt: string): string => {
   return utils.keccak256(
