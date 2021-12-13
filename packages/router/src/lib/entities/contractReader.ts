@@ -19,6 +19,13 @@ export type Tracker = {
   block: number;
 };
 
+export type ActiveTransactionsTracker = {
+  status: TCrosschainTransactionStatus | "Processing";
+  transactionsId: string;
+  sendingChainId: number;
+  receivingChainId: number;
+};
+
 export type PreparePayload = {
   encryptedCallData: string;
   encodedBid: string;

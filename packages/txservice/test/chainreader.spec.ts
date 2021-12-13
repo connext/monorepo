@@ -1,18 +1,5 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-
-import { ChainReader } from "../src/chainreader";
-import { ChainRpcProvider } from "../src/provider";
-import {
-  TEST_SENDER_CHAIN_ID,
-  TEST_TX,
-  TEST_READ_TX,
-  TEST_TX_RECEIPT,
-  makeChaiReadable,
-  TEST_RECEIVER_CHAIN_ID,
-} from "./constants";
-import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
-import * as contractFns from "../src/contracts";
 import {
   getRandomAddress,
   getRandomBytes32,
@@ -23,7 +10,19 @@ import {
   requestContextMock,
   GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
-import { formatUnits, Interface, parseEther, parseUnits } from "ethers/lib/utils";
+
+import { ChainReader } from "../src/chainreader";
+import { ChainRpcProvider } from "../src/provider";
+import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
+import * as contractFns from "../src/shared/contracts";
+import {
+  TEST_SENDER_CHAIN_ID,
+  TEST_TX,
+  TEST_READ_TX,
+  TEST_TX_RECEIPT,
+  makeChaiReadable,
+  TEST_RECEIVER_CHAIN_ID,
+} from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -209,9 +208,9 @@ describe("ChainReader", () => {
     let getDeployedPriceOracleContractStub: SinonStub;
     let getPriceOracleInterfaceStub: SinonStub;
     let readTxStub: SinonStub;
-    let interfaceStub: SinonStubbedInstance<Interface>;
+    let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
-      interfaceStub = createStubInstance(Interface);
+      interfaceStub = createStubInstance(utils.Interface);
       getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
       getPriceOracleInterfaceStub.returns(interfaceStub);
       getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
@@ -254,9 +253,9 @@ describe("ChainReader", () => {
     let getDeployedPriceOracleContractStub: SinonStub;
     let getPriceOracleInterfaceStub: SinonStub;
     let readTxStub: SinonStub;
-    let interfaceStub: SinonStubbedInstance<Interface>;
+    let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
-      interfaceStub = createStubInstance(Interface);
+      interfaceStub = createStubInstance(utils.Interface);
       getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
       getPriceOracleInterfaceStub.returns(interfaceStub);
       getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
@@ -377,9 +376,9 @@ describe("ChainReader", () => {
   });
 
   describe("#calculateGasFee", () => {
-    const testEthPrice = parseEther("31");
-    const testTokenPrice = parseEther("7");
-    const testGasPrice = parseUnits("5", "gwei");
+    const testEthPrice = utils.parseEther("31");
+    const testTokenPrice = utils.parseEther("7");
+    const testGasPrice = utils.parseUnits("5", "gwei");
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
@@ -444,7 +443,7 @@ describe("ChainReader", () => {
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
-      (chainReader as any).config.chains = {
+      (chainReader as any).config = {
         [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],

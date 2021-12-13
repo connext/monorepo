@@ -164,7 +164,7 @@ export const calculateGasFeeInReceivingToken = async (
   const nativeTokenPricingReceivingChain = receicingNativeAssetIdOnMainnet ? 1 : receivingChainId;
   const nativeTokenPricingAssetIdReceivingChain = receicingNativeAssetIdOnMainnet
     ? receicingNativeAssetIdOnMainnet
-    : receivingAssetId;
+    : constants.AddressZero;
 
   return txService.calculateGasFeeInReceivingToken(
     tokenPricingSendingChain,

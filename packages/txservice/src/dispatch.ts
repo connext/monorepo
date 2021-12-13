@@ -11,7 +11,6 @@ import {
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { Gas, WriteTransaction, OnchainTransaction, TransactionBuffer } from "./types";
 import {
   BadNonce,
   TransactionReplaced,
@@ -22,8 +21,12 @@ import {
   TransactionProcessingError,
   NotEnoughConfirmations,
   TransactionAlreadyKnown,
-} from "./error";
-import { ChainConfig, TransactionServiceConfig } from "./config";
+  Gas,
+  WriteTransaction,
+  OnchainTransaction,
+  TransactionBuffer,
+} from "./shared";
+import { ChainConfig } from "./config";
 import { ChainRpcProvider } from "./provider";
 
 export type DispatchCallbacks = {
@@ -75,13 +78,12 @@ export class TransactionDispatch extends ChainRpcProvider {
   constructor(
     logger: Logger,
     public readonly chainId: number,
-    chainConfig: ChainConfig,
-    config: TransactionServiceConfig,
+    config: ChainConfig,
     signer: string | Signer,
     private readonly callbacks: DispatchCallbacks,
     startLoops = true,
   ) {
-    super(logger, chainId, chainConfig, config, signer);
+    super(logger, chainId, config, signer);
     this.inflightBuffer = new TransactionBuffer(logger, TransactionDispatch.MAX_INFLIGHT_TRANSACTIONS, {
       name: "INFLIGHT",
       chainId: this.chainId,
@@ -119,7 +121,11 @@ export class TransactionDispatch extends ChainRpcProvider {
     let transaction: OnchainTransaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
-        transaction = this.inflightBuffer.shift()!;
+        transaction = this.inflightBuffer.shift();
+        if (!transaction) {
+          // This shouldn't happen, but this block is a necessity for compilation.
+          return;
+        }
         // Shift the first transaction from the buffer and get it mined.
         let receivedBadNonce = false;
         let shouldResubmit = false;
@@ -348,9 +354,12 @@ export class TransactionDispatch extends ChainRpcProvider {
           let { nonce, backfill, transactionCount } = nonceInfo;
 
           // TODO: Remove hardcoded (exposed gasLimitInflation config var should replace this).
-          let gas = new Gas(gasPrice, gasLimit);
+          const gas: Gas = {
+            limit: gasLimit,
+            price: gasPrice,
+          };
           if (this.chainId === 42161) {
-            gas = new Gas(gas.baseValue, BigNumber.from(10_000_000));
+            gas.limit = BigNumber.from(10_000_000);
           }
 
           // Here we are going to ensure our initial submit gets through at the correct nonce. If all goes well, it should
@@ -372,8 +381,8 @@ export class TransactionDispatch extends ChainRpcProvider {
               nonce,
               gas,
               {
-                confirmationTimeout: this.confirmationTimeout,
-                confirmationsRequired: this.confirmationsRequired,
+                confirmationTimeout: this.config.confirmationTimeout,
+                confirmationsRequired: this.config.confirmations,
               },
               txsId,
             );
@@ -465,20 +474,12 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Check to make sure we haven't already mined this transaction.
     if (transaction.didFinish) {
-      // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
       throw new TransactionProcessingError(TransactionProcessingError.reasons.SubmitOutOfOrder, method);
     }
 
-    // Check to make sure that, if this is a replacement tx, the replacement gas is higher.
-    if (transaction.responses.length > 0) {
-      // NOTE: There *should* always be a gasPrice in every response, but it is
-      // defined as optional. Handle that case?
-      // If there isn't a lastPrice, we're going to skip this validation step.
-      const lastPrice = transaction.responses[transaction.responses.length - 1].gasPrice;
-      if (lastPrice && transaction.gas.price.lte(lastPrice)) {
-        // NOTE: We do not set this._error here, as the transaction hasn't failed - just the txservice.
-        throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
-      }
+    // If this is a replacement tx, check to make sure that we have raised the gas price (# of bumps should equal # of txs).
+    if (transaction.responses.length > 0 && transaction.bumps < transaction.responses.length) {
+      throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
     }
 
     // Increment transaction # attempts made.
@@ -665,10 +666,10 @@ export class TransactionDispatch extends ChainRpcProvider {
 
     // Here we wait for the target confirmations.
     // TODO: Ensure we are comfortable with how this timeout period is calculated.
-    const timeout = this.confirmationTimeout * this.confirmationsRequired * 2;
+    const timeout = this.config.confirmationTimeout * this.config.confirmations * 2;
     let receipt: providers.TransactionReceipt;
     try {
-      receipt = await this.confirmTransaction(transaction, this.confirmationsRequired, timeout);
+      receipt = await this.confirmTransaction(transaction, this.config.confirmations, timeout);
     } catch (error) {
       this.logger.error(
         "Did not get enough confirmations for a *mined* transaction! Did a re-org occur?",
@@ -679,12 +680,12 @@ export class TransactionDispatch extends ChainRpcProvider {
           chainId: this.chainId,
           transaction: transaction.loggable,
           confirmations: transaction.receipt.confirmations,
-          confirmationsRequired: this.confirmationsRequired,
+          confirmationsRequired: this.config.confirmations,
         },
       );
       // No other errors should normally occur during this confirmation attempt. This could occur during a reorg.
       throw new NotEnoughConfirmations(
-        this.confirmationsRequired,
+        this.config.confirmations,
         transaction.receipt.transactionHash,
         transaction.receipt.confirmations,
         {
@@ -730,39 +731,46 @@ export class TransactionDispatch extends ChainRpcProvider {
    */
   public async bump(transaction: OnchainTransaction) {
     const { requestContext, methodContext } = createLoggingContext(this.bump.name, transaction.context);
+    const currentGasPrice = (transaction.gas.price ?? transaction.gas.maxPriorityFeePerGas)!;
     if (
       transaction.bumps >= transaction.hashes.length ||
-      transaction.gas.price.gte(BigNumber.from(this.config.gasMaximum))
+      currentGasPrice.gte(BigNumber.from(this.config.gasPriceMaximum))
     ) {
       // If we've already bumped this tx but it's failed to resubmit, we should return here without bumping.
       // The number of gas bumps we've done should always be less than the number of txs we've submitted.
       this.logger.warn("Bump skipped.", requestContext, methodContext, {
         chainId: this.chainId,
         bumps: transaction.bumps,
-        gasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
-        gasMaximum: utils.formatUnits(this.config.gasMaximum, "gwei"),
+        gasPrice: utils.formatUnits(currentGasPrice, "gwei"),
+        gasMaximum: utils.formatUnits(this.config.gasPriceMaximum, "gwei"),
       });
       return;
     }
     transaction.bumps++;
-    const previousPrice = transaction.gas.price;
-    // Get the current gas baseline price, in case it's changed drastically in the last block.
-    let updatedPrice: BigNumber;
+    // TODO: EIP-1559 support.
+    // Get the current gas baseline price, in case it has changed drastically in the last block.
+    let updatedGasPrice: BigNumber;
     try {
-      updatedPrice = await this.getGasPrice(requestContext);
+      updatedGasPrice = await this.getGasPrice(requestContext, false);
     } catch {
-      updatedPrice = BigNumber.from(this.config.gasMinimum);
+      updatedGasPrice = BigNumber.from(this.config.gasPriceMinimum);
     }
-    const determinedBaseline = updatedPrice.gt(previousPrice) ? updatedPrice : previousPrice;
+    const determinedBaseline = updatedGasPrice.gt(currentGasPrice) ? updatedGasPrice : currentGasPrice;
     // Scale up gas by percentage as specified by config.
-    transaction.gas.price = determinedBaseline
-      .add(determinedBaseline.mul(this.config.gasReplacementBumpPercent).div(100))
-      .add(1);
+    if (transaction.type === 0) {
+      transaction.gas.price = determinedBaseline
+        .add(determinedBaseline.mul(this.config.gasPriceReplacementBumpPercent).div(100))
+        .add(1);
+    } else {
+      transaction.gas.maxPriorityFeePerGas = determinedBaseline
+        .add(determinedBaseline.mul(this.config.gasPriceReplacementBumpPercent).div(100))
+        .add(1);
+    }
+
     this.logger.info(`Tx bumped.`, requestContext, methodContext, {
       chainId: this.chainId,
-      updatedPrice: utils.formatUnits(updatedPrice, "gwei"),
-      previousPrice: utils.formatUnits(previousPrice, "gwei"),
-      newGasPrice: utils.formatUnits(transaction.gas.price, "gwei"),
+      updatedGasPrice: utils.formatUnits(updatedGasPrice, "gwei"),
+      previousGasPrice: utils.formatUnits(currentGasPrice, "gwei"),
       transaction: transaction.loggable,
     });
   }

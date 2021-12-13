@@ -1,11 +1,13 @@
-import { getRandomBytes32, Logger, mkAddress, RequestContext, txReceiptMock } from "@connext/nxtp-utils";
-import { expect } from "@connext/nxtp-utils/src/expect";
-import { BigNumber, providers, Wallet } from "ethers";
+import { BigNumber, providers, utils, Wallet } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { getRandomBytes32, Logger, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 
-import { ChainConfig, DEFAULT_CONFIG } from "../src/config";
+import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
+import { ChainRpcProvider } from "../src/provider";
 import {
+  OnchainTransaction,
   BadNonce,
   MaxBufferLengthError,
   NotEnoughConfirmations,
@@ -14,17 +16,18 @@ import {
   TransactionProcessingError,
   TransactionReplaced,
   TransactionReverted,
-} from "../src/error";
-import { ChainRpcProvider } from "../src/provider";
-import { Gas, OnchainTransaction } from "../src/types";
+} from "../src/shared";
 import {
   makeChaiReadable,
+  MockOnchainTransactionState,
+  MOCK_REQUEST_CONTEXT,
   TEST_FULL_TX,
   TEST_SENDER_CHAIN_ID,
   TEST_TX,
   TEST_TX_RECEIPT,
   TEST_TX_RESPONSE,
-} from "./constants";
+  getMockOnchainTransaction,
+} from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -37,11 +40,6 @@ let signer: SinonStubbedInstance<Wallet>;
 let transaction: OnchainTransaction;
 let txDispatch: TransactionDispatch;
 let dispatchCallbacks: DispatchCallbacks;
-let context: RequestContext = {
-  id: "",
-  origin: "",
-};
-
 let getGasPriceStub: SinonStub;
 let estimateGasStub: SinonStub;
 let getTransactionCountStub: SinonStub;
@@ -73,19 +71,15 @@ const stubAllDispatchMethods = (): void => {
   confirmTransactionStub = stub(txDispatch, "confirmTransaction").resolves(txReceiptMock);
 };
 
-let fakeTransactionState: {
-  didSubmit: boolean;
-  didFinish: boolean;
-};
+let mockTransactionState: MockOnchainTransactionState;
 
 describe("TransactionDispatch", () => {
+  const context = MOCK_REQUEST_CONTEXT;
+
   beforeEach(async () => {
     (TransactionDispatch as any).MAX_INFLIGHT_TRANSACTIONS = OG_MAX_INFLIGHT_TRANSACTIONS;
 
-    fakeTransactionState = {
-      didSubmit: false,
-      didFinish: false,
-    };
+    ({ state: mockTransactionState, transaction } = getMockOnchainTransaction());
 
     dispatchCallbacks = {
       onSubmit: Sinon.spy(),
@@ -98,6 +92,7 @@ describe("TransactionDispatch", () => {
     (signer as any).address = ADDRESS;
 
     const chainConfig: ChainConfig = {
+      ...DEFAULT_CHAIN_CONFIG,
       providers: [
         {
           url: "https://-------------",
@@ -105,46 +100,16 @@ describe("TransactionDispatch", () => {
       ],
       confirmations: 1,
       confirmationTimeout: 10_000,
-      gasStations: [],
     };
 
     Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
     Sinon.stub(ChainRpcProvider.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
-    txDispatch = new TransactionDispatch(
-      logger,
-      TEST_SENDER_CHAIN_ID,
-      chainConfig,
-      { ...DEFAULT_CONFIG },
-      signer,
-      dispatchCallbacks,
-      false,
-    );
+    txDispatch = new TransactionDispatch(logger, TEST_SENDER_CHAIN_ID, chainConfig, signer, dispatchCallbacks, false);
 
     // This will stub all dispatch methods. Methods below should be restored manually as needed.
     stubAllDispatchMethods();
-
-    context.id = getRandomBytes32();
-    context.origin = "TransactionDispatchTest";
-
-    transaction = new OnchainTransaction(
-      context,
-      TEST_TX,
-      TEST_TX_RESPONSE.nonce,
-      new Gas(BigNumber.from(1), BigNumber.from(1)),
-      {
-        confirmationTimeout: 1,
-        confirmationsRequired: 1,
-      },
-      "test_tx_uuid",
-    );
-    stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-    stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
-    (transaction as any).context = context;
-    transaction.attempt = 0;
-    (transaction as any).timestamp = undefined;
-    transaction.responses = [];
   });
 
   afterEach(() => {
@@ -162,7 +127,10 @@ describe("TransactionDispatch", () => {
           data: getRandomBytes32(),
         },
         TEST_TX_RESPONSE.nonce,
-        new Gas(BigNumber.from(1), BigNumber.from(1)),
+        {
+          limit: BigNumber.from(24007),
+          price: utils.parseUnits("5", "gwei"),
+        },
         {
           confirmationTimeout: 1,
           confirmationsRequired: 1,
@@ -427,12 +395,12 @@ describe("TransactionDispatch", () => {
     beforeEach(() => {
       // Setting the state ahead of time so when we do reach the waiting portions of send, it will wrap up right away.
       // NOTE: State updating is usually relagated to the mine/confirm loops.
-      fakeTransactionState.didSubmit = true;
-      fakeTransactionState.didFinish = true;
+      mockTransactionState.didSubmit = true;
+      mockTransactionState.didFinish = true;
 
       submitStub.callsFake(async (transaction: OnchainTransaction) => {
-        stub(transaction, "didSubmit").get(() => fakeTransactionState.didSubmit);
-        stub(transaction, "didFinish").get(() => fakeTransactionState.didFinish);
+        stub(transaction, "didSubmit").get(() => mockTransactionState.didSubmit);
+        stub(transaction, "didFinish").get(() => mockTransactionState.didFinish);
         transaction.responses = [TEST_TX_RESPONSE];
         transaction.receipt = TEST_TX_RECEIPT;
       });
@@ -528,7 +496,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("should throw if the transaction is already finished", async () => {
-      fakeTransactionState.didFinish = true;
+      mockTransactionState.didFinish = true;
       await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
@@ -556,12 +524,12 @@ describe("TransactionDispatch", () => {
 
   describe("#mine", () => {
     beforeEach(() => {
-      fakeTransactionState.didSubmit = true;
+      mockTransactionState.didSubmit = true;
       mineStub.restore();
     });
 
     it("throws if tx did not submit", async () => {
-      fakeTransactionState.didSubmit = false;
+      mockTransactionState.didSubmit = false;
       await expect((txDispatch as any).mine(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
@@ -634,7 +602,7 @@ describe("TransactionDispatch", () => {
         ...txReceiptMock,
         confirmations: 10,
       });
-      fakeTransactionState.didSubmit = true;
+      mockTransactionState.didSubmit = true;
       transaction.receipt = txReceiptMock;
 
       confirmStub.restore();
@@ -653,7 +621,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("throws if you have not submitted yet", async () => {
-      fakeTransactionState.didSubmit = false;
+      mockTransactionState.didSubmit = false;
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(
         TransactionProcessingError.reasons.MineOutOfOrder,
       );
@@ -684,7 +652,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("shouldn't bump if we've reached maximum gas price", async () => {
-      const max = (txDispatch as any).config.gasMaximum;
+      const max = (txDispatch as any).config.gasPriceMaximum;
       transaction.gas.price = BigNumber.from(max);
       // Valid state: we've sent off 2 transactions and bumped once.
       (transaction as any).responses = [TEST_TX_RESPONSE, TEST_TX_RESPONSE];

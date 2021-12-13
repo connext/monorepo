@@ -2,7 +2,7 @@ import { Signer, providers } from "ethers";
 import { Evt } from "evt";
 import { createLoggingContext, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
-import { TransactionServiceConfig, ChainConfig } from "./config";
+import { ChainConfig } from "./config";
 import {
   WriteTransaction,
   OnchainTransaction,
@@ -13,22 +13,23 @@ import {
   TxServiceFailedEvent,
   TxServiceMinedEvent,
   TxServiceSubmittedEvent,
-} from "./types";
-import { ConfigurationError, ProviderNotConfigured } from "./error";
-import { TransactionDispatch } from "./dispatch";
+  ConfigurationError,
+  ProviderNotConfigured,
+} from "./shared";
 import { ChainReader } from "./chainreader";
+import { TransactionDispatch } from "./dispatch";
 
 // TODO: Should take on the logic of Dispatch (rename to TransactionDispatch) and consume ChainReader instead of extending it.
 /**
  * @classdesc Handles submitting, confirming, and bumping gas of arbitrary transactions onchain. Also performs onchain reads with embedded retries
  */
-export class ChainService extends ChainReader {
+export class TransactionService extends ChainReader {
   // TODO: #152 Add an object/dictionary statically to the class prototype mapping the
   // signer to a flag indicating whether there is an instance using that signer.
   // This will prevent two queue instances using the same signer and therefore colliding.
   // Idea is to have essentially a modified 'singleton'-like pattern.
   // private static _instances: Map<string, TransactionService> = new Map();
-  private static instance?: ChainService;
+  private static instance?: TransactionService;
 
   /// Events emitted in lifecycle of TransactionService's sendTx.
   private evts: { [K in NxtpTxServiceEvent]: Evt<NxtpTxServiceEventPayloads[K]> } = {
@@ -51,22 +52,22 @@ export class ChainService extends ChainReader {
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.
    */
-  constructor(logger: Logger, config: Partial<TransactionServiceConfig>, signer: string | Signer) {
+  constructor(logger: Logger, config: any, signer: string | Signer) {
     super(logger, config, signer);
     const { requestContext, methodContext } = createLoggingContext("ChainService.constructor");
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
     // const _signer: string = typeof signer === "string" ? signer : signer.getAddress();
     // if (TransactionService._instances.has(_signer)) {}
-    if (ChainService.instance) {
+    if (TransactionService.instance) {
       const msg = "CRITICAL: ChainService.constructor was called twice! Please report this incident.";
       const error = new NxtpError(msg);
       logger.error(msg, requestContext, methodContext, error, {
-        instance: ChainService.instance.toString(),
+        instance: TransactionService.instance.toString(),
       });
       throw error;
     }
     // Set the singleton instance.
-    ChainService.instance = this;
+    TransactionService.instance = this;
   }
 
   /**
@@ -188,15 +189,23 @@ export class ChainService extends ChainReader {
   protected setupProviders(context: RequestContext, signer: string | Signer) {
     const { methodContext } = createLoggingContext(this.setupProviders.name, context);
     // For each chain ID / provider, map out all the utils needed for each chain.
-    const chains = this.config.chains;
-    Object.keys(chains).forEach((chainId) => {
+    Object.keys(this.config).forEach((chainId) => {
       // Get this chain's config.
-      const chain: ChainConfig = chains[chainId];
+      const chain: ChainConfig = this.config[chainId];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
-        const error = new ConfigurationError({
-          providers,
-        });
+        const error = new ConfigurationError(
+          [
+            {
+              parameter: "providers",
+              error: "No valid providers were supplied in configuration for this chain.",
+              value: providers,
+            },
+          ],
+          {
+            chainId,
+          },
+        );
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
           chainId,
           providers,
@@ -204,7 +213,7 @@ export class ChainService extends ChainReader {
         throw error;
       }
       const chainIdNumber = parseInt(chainId);
-      const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, this.config, signer, {
+      const provider = new TransactionDispatch(this.logger, chainIdNumber, chain, signer, {
         onSubmit: (transaction: OnchainTransaction) =>
           this.evts[NxtpTxServiceEvents.TransactionSubmitted].post({ responses: transaction.responses }),
         onMined: (transaction: OnchainTransaction) =>

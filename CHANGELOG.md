@@ -2,8 +2,14 @@
 
 ## Next Release
 
+- [txservice] Reorganization, code coverage improvements
+- [txservice] Update / expose config vars
+
+# 0.0.100
+
 - [router] Cleanup prometheus collection
 - [router/txservice] Explicitly use legacy transactions only
+- [router] Fix mainnet equivalent
 
 # 0.0.99
 
