@@ -96,6 +96,7 @@ describe("NxtpSdk", () => {
 
     stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
+    stub(utils, "getWalletNonce").resolves(1);
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
