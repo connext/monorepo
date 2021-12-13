@@ -245,7 +245,7 @@ describe("NxtpSdk", () => {
       }
       expect(error).to.be.an("error");
 
-      expect(error.message).to.be.eq(NoTransactionManager.getMessage(sendingChainId));
+      expect(error.message).to.be.eq(NoTransactionManager.getMessage());
     });
 
     it("should error if subgraph doesn't exist for chainId", async () => {
@@ -272,7 +272,7 @@ describe("NxtpSdk", () => {
         error = e;
       }
       expect(error).to.be.an("error");
-      expect(error.message).to.be.eq(NoSubgraph.getMessage(sendingChainId));
+      expect(error.message).to.be.eq(NoSubgraph.getMessage());
     });
 
     it("happy: constructor, get transactionManager address", async () => {
@@ -328,9 +328,7 @@ describe("NxtpSdk", () => {
 
       ethereumRequestMock.throws(new Error("fails"));
 
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("public key encryption failed"),
-      );
+      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(EncryptionError.getMessage());
     });
 
     it("should fail if encrypt fails", async () => {
@@ -339,9 +337,7 @@ describe("NxtpSdk", () => {
 
       encryptMock.throws(new Error("fails"));
 
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(
-        EncryptionError.getMessage("public key encryption failed"),
-      );
+      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(EncryptionError.getMessage());
     });
 
     it("happy: should get a transfer quote ", async () => {
@@ -368,9 +364,7 @@ describe("NxtpSdk", () => {
 
       await expect(
         sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
-      ).to.eventually.be.rejectedWith(
-        SubmitError.getMessage(user, "approve", auctionBid.sendingAssetId, auctionBid.sendingChainId),
-      );
+      ).to.eventually.be.rejectedWith(SubmitError.getMessage());
     });
 
     it("happy: prepare transfer with suffice approval", async () => {
@@ -432,7 +426,7 @@ describe("NxtpSdk", () => {
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
           }),
-        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
+        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
       });
 
       it("unknown receivingChainId", async () => {
@@ -444,7 +438,7 @@ describe("NxtpSdk", () => {
             encodedBid: EmptyCallDataHash,
             bidSignature: EmptyCallDataHash,
           }),
-        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage(1400, supportedChains));
+        ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
       });
     });
 
@@ -462,7 +456,7 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith(EncryptionError.getMessage("decryption failed"));
+      ).to.eventually.be.rejectedWith(EncryptionError.getMessage());
     });
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
@@ -481,7 +475,7 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith(FulfillTimeout.getMessage(1_000, transaction.receivingChainId));
+      ).to.eventually.be.rejectedWith(FulfillTimeout.getMessage());
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
