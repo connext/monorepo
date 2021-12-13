@@ -49,7 +49,8 @@ import {
   UnknownAuctionError,
   ChainNotConfigured,
   InvalidBidSignature,
-  SubgraphsNotSynced,
+  SendingChainSubgraphsNotSynced,
+  ReceivingChainSubgraphsNotSynced,
   NoPriceOracle,
   InvalidParamStructure,
   FulfillTimeout,
@@ -560,8 +561,18 @@ export class NxtpSdkBase {
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { sendingChainId, receivingChainId });
+    if (!sendingSyncStatus.synced) {
+      throw new SendingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId,
+        receivingChainId,
+      });
+    }
+
+    if (!receivingSyncStatus.synced) {
+      throw new ReceivingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId,
+        receivingChainId,
+      });
     }
 
     if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
@@ -847,8 +858,18 @@ export class NxtpSdkBase {
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, actualAmount });
+    if (!sendingSyncStatus.synced) {
+      throw new SendingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId: transferParams.bid.sendingChainId,
+        receivingChainId: transferParams.bid.receivingChainId,
+      });
+    }
+
+    if (!receivingSyncStatus.synced) {
+      throw new ReceivingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId: transferParams.bid.sendingChainId,
+        receivingChainId: transferParams.bid.receivingChainId,
+      });
     }
 
     const { bid, bidSignature } = transferParams;
