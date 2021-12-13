@@ -32,6 +32,7 @@ import {
   senderFulfilled,
   senderCancelled,
   receiverCancelled,
+  ActiveTransactionsTracker,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
@@ -43,6 +44,7 @@ const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const handlingTracker: Map<string, Tracker> = new Map();
+export let activeTransactionsTracker: ActiveTransactionsTracker[] = [];
 
 export const bindContractReader = async () => {
   const { contractReader, logger, config } = getContext();
@@ -52,14 +54,24 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("active and handling tracker", requestContext, methodContext, {
-          transactions,
+        activeTransactionsTracker = transactions.map((v) => {
+          return {
+            status: v.status,
+            transactionsId: v.crosschainTx.invariant.transactionId,
+            sendingChainId: v.crosschainTx.invariant.sendingChainId,
+            receivingChainId: v.crosschainTx.invariant.receivingChainId,
+          };
+        });
+
+        logger.info("active transactions", requestContext, methodContext, {
+          transactionsLength: transactions.length,
+          transactions: activeTransactionsTracker,
+        });
+        logger.info("handling tracker", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
           byStatus: Object.keys(CrosschainTransactionStatus).map((status) => {
             return { status, size: [...handlingTracker.values()].map((v) => v.status === status).length };
           }),
-        });
-        logger.debug("active and handling tracker details", requestContext, methodContext, {
           handlingTracker: [...handlingTracker],
         });
       }

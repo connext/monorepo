@@ -388,6 +388,7 @@ export type StatusResponse = {
   routerAddress: string;
   signerAddress: string;
   trackerLength: number;
+  activeTransactionsLength: number;
   swapPools: Map<number, string[]>;
   supportedChains: number[];
 };

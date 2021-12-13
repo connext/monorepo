@@ -1,6 +1,7 @@
 export {
   CrosschainTransactionStatus,
   TCrosschainTransactionStatus,
+  ActiveTransactionsTracker,
   Tracker,
   ActiveTransaction,
   SingleChainTransaction,
