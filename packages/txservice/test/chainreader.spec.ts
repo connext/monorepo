@@ -1,5 +1,5 @@
 import { BigNumber, constants, providers, utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
 import {
   getRandomAddress,
   getRandomBytes32,
@@ -8,6 +8,7 @@ import {
   expect,
   Logger,
   requestContextMock,
+  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 
 import { ChainReader } from "../src/chainreader";
@@ -464,9 +465,9 @@ describe("ChainReader", () => {
       expect(result.toNumber()).to.be.eq(0);
     });
 
-    it.skip("special case for chainId 10", async () => {
+    it("special case for chainId 10 prepare", async () => {
       chainsPriceOraclesStub.value([10]);
-      provider.getGasPrice.resolves(testGasPrice);
+      gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
         10,
@@ -478,8 +479,41 @@ describe("ChainReader", () => {
         false,
         requestContextMock,
       );
-      console.log("result: ", result.toString());
-      expect(result.toNumber()).to.be.eq(0);
+      expect(result.toNumber()).to.be.eq(2863071428571428);
+    });
+
+    it("special case for chainId 10 fulfill", async () => {
+      chainsPriceOraclesStub.value([10]);
+      gasPriceStub.resolves(testGasPrice);
+      const result = await chainReader.calculateGasFee(
+        10,
+        10,
+        mkAddress("0x0"),
+        10,
+        mkAddress("0x0"),
+        18,
+        "fulfill",
+        false,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(3051285714285714);
+    });
+
+    it("special case for chainId 10 cancel", async () => {
+      chainsPriceOraclesStub.value([10]);
+      gasPriceStub.resolves(testGasPrice);
+      const result = await chainReader.calculateGasFee(
+        10,
+        10,
+        mkAddress("0x0"),
+        10,
+        mkAddress("0x0"),
+        18,
+        "cancel",
+        false,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(3051285714285714);
     });
   });
 
