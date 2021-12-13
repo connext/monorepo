@@ -87,6 +87,7 @@ describe("NxtpSdk", () => {
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TxResponse);
     signer.connect.returns(signer);
+    signer.getTransactionCount.resolves(1);
     sdkBase = createStubInstance(NxtpSdkBase);
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
@@ -96,7 +97,6 @@ describe("NxtpSdk", () => {
 
     stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
-    stub(utils, "getWalletNonce").resolves(1);
 
     balanceStub = stub(utils, "getOnchainBalance");
     balanceStub.resolves(BigNumber.from(0));
