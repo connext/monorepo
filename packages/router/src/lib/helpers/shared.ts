@@ -19,7 +19,6 @@ import {
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import { Evt } from "evt";
 
 import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { getContext } from "../../router";
