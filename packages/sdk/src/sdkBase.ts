@@ -729,7 +729,6 @@ export class NxtpSdkBase {
           // validate bid
           // check router sig on bid
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
-          console.log("signer: ", signer);
           if (signer !== data.bid.router) {
             const code = await this.chainReader.getCode(receivingChainId, data.bid.router);
             if (code !== "0x") {
