@@ -257,7 +257,7 @@ describe("Router.sol", function () {
   });
 
   describe("addRelayerFee", () => {
-    it("should add relayer fee", async () => {
+    it.skip("should add relayer fee", async () => {
       const amount = "100";
       const assetId = token.address;
       const tx = await routerContract.connect(routerSigner).addRelayerFee(amount, assetId);
