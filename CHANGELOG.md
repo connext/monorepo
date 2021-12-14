@@ -2,6 +2,8 @@
 
 ## Next Release
 
+# 0.0.101
+
 - [txservice] Reorganization, code coverage improvements
 - [txservice] Update / expose config vars
 
