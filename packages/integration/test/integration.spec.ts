@@ -239,7 +239,7 @@ describe("Integration", () => {
     );
 
     const finishRes = await userSdk.fulfillTransfer(event, true);
-    console.info("fullfill Transfer at receiver side", finishRes);
+    logger.info("fullfill Transfer at receiver side", finishRes);
 
     expect(finishRes.transactionHash).to.be.ok;
   };
