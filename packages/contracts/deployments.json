@@ -14223,7 +14223,7 @@
       "chainId": "56",
       "contracts": {
         "ConnextPriceOracle": {
-          "address": "0xa408CbBEF74CeE1c4014D7A3f2F7DBbdbad846e2",
+          "address": "0x45adFa7763b123e456d677d876F6a1C52aFc8085",
           "abi": [
             {
               "inputs": [
@@ -14253,6 +14253,31 @@
                 }
               ],
               "name": "AggregatorUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "oldPrice",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "newPrice",
+                  "type": "uint256"
+                }
+              ],
+              "name": "DirectPriceUpdated",
               "type": "event"
             },
             {
@@ -14332,6 +14357,25 @@
                   "internalType": "contract AggregatorV3Interface",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "assetPrices",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -14520,6 +14564,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_price",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setDirectPrice",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "wrapped",
               "outputs": [
@@ -14535,7 +14597,7 @@
           ]
         },
         "Multicall": {
-          "address": "0x67F61B7A0F9E8048098aAf05e9da71666B8116A2",
+          "address": "0x966dc92E72376ae21CC2793333f83B4c394DDC3c",
           "abi": [
             {
               "inputs": [
@@ -14572,33 +14634,136 @@
               ],
               "stateMutability": "nonpayable",
               "type": "function"
+            }
+          ]
+        },
+        "RouterFactory": {
+          "address": "0x44F4c367b6753fcA6BC5d6325035924260BE374e",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_owner",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "transactionManager",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterCreated",
+              "type": "event"
             },
             {
               "inputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "blockNumber",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
                 }
               ],
-              "name": "getBlockHash",
+              "name": "createRouter",
               "outputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "blockHash",
-                  "type": "bytes32"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                }
+              ],
+              "name": "getRouterAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_transactionManager",
+                  "type": "address"
+                }
+              ],
+              "name": "init",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
-              "name": "getCurrentBlockCoinbase",
+              "name": "owner",
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "coinbase",
+                  "name": "",
                   "type": "address"
                 }
               ],
@@ -14607,12 +14772,25 @@
             },
             {
               "inputs": [],
-              "name": "getCurrentBlockDifficulty",
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "routerAddresses",
               "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "difficulty",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -14620,25 +14798,12 @@
             },
             {
               "inputs": [],
-              "name": "getCurrentBlockGasLimit",
+              "name": "transactionManager",
               "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "gaslimit",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "getCurrentBlockTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
+                  "internalType": "contract ITransactionManager",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -14648,32 +14813,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "addr",
+                  "name": "newOwner",
                   "type": "address"
                 }
               ],
-              "name": "getEthBalance",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "balance",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "getLastBlockHash",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "blockHash",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
@@ -23125,7 +23271,7 @@
       "chainId": "137",
       "contracts": {
         "ConnextPriceOracle": {
-          "address": "0x60f536FFa588980e46f8d4c7FaF646083473Ba8A",
+          "address": "0x1F1047476ce5d696023A4A31e037a753E860Ab8C",
           "abi": [
             {
               "inputs": [
@@ -23155,6 +23301,31 @@
                 }
               ],
               "name": "AggregatorUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "oldPrice",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "newPrice",
+                  "type": "uint256"
+                }
+              ],
+              "name": "DirectPriceUpdated",
               "type": "event"
             },
             {
@@ -23234,6 +23405,25 @@
                   "internalType": "contract AggregatorV3Interface",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "assetPrices",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -23422,6 +23612,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_price",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setDirectPrice",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "wrapped",
               "outputs": [
@@ -23437,7 +23645,7 @@
           ]
         },
         "Multicall": {
-          "address": "0xae6b4E753242927FFF02D9120083183d2ED6175b",
+          "address": "0x643eA0a4305e396C6A33a85398366cFdfb07dAca",
           "abi": [
             {
               "inputs": [
@@ -23474,33 +23682,136 @@
               ],
               "stateMutability": "nonpayable",
               "type": "function"
+            }
+          ]
+        },
+        "RouterFactory": {
+          "address": "0x44F4c367b6753fcA6BC5d6325035924260BE374e",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_owner",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "transactionManager",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterCreated",
+              "type": "event"
             },
             {
               "inputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "blockNumber",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
                 }
               ],
-              "name": "getBlockHash",
+              "name": "createRouter",
               "outputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "blockHash",
-                  "type": "bytes32"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                }
+              ],
+              "name": "getRouterAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_transactionManager",
+                  "type": "address"
+                }
+              ],
+              "name": "init",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
-              "name": "getCurrentBlockCoinbase",
+              "name": "owner",
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "coinbase",
+                  "name": "",
                   "type": "address"
                 }
               ],
@@ -23509,12 +23820,25 @@
             },
             {
               "inputs": [],
-              "name": "getCurrentBlockDifficulty",
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "routerAddresses",
               "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "difficulty",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -23522,25 +23846,12 @@
             },
             {
               "inputs": [],
-              "name": "getCurrentBlockGasLimit",
+              "name": "transactionManager",
               "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "gaslimit",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "getCurrentBlockTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
+                  "internalType": "contract ITransactionManager",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -23550,32 +23861,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "addr",
+                  "name": "newOwner",
                   "type": "address"
                 }
               ],
-              "name": "getEthBalance",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "balance",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "getLastBlockHash",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "blockHash",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
@@ -30034,7 +30326,7 @@
       "chainId": "42161",
       "contracts": {
         "ConnextPriceOracle": {
-          "address": "0x6461dC57aEad54b02e28D1C01De6FDfc9D6692d2",
+          "address": "0x57d1e2c546f605b8fbd38Cbf97E052b4477C8De5",
           "abi": [
             {
               "inputs": [
@@ -30064,6 +30356,31 @@
                 }
               ],
               "name": "AggregatorUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "oldPrice",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "newPrice",
+                  "type": "uint256"
+                }
+              ],
+              "name": "DirectPriceUpdated",
               "type": "event"
             },
             {
@@ -30143,6 +30460,25 @@
                   "internalType": "contract AggregatorV3Interface",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "assetPrices",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -30331,6 +30667,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_price",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setDirectPrice",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "wrapped",
               "outputs": [
@@ -30346,7 +30700,7 @@
           ]
         },
         "Multicall": {
-          "address": "0x8a0bd1773139C6609e861B9ab68082587a3cD581",
+          "address": "0x2d7aca3bD909bc5DC6DC70894669Adfb6483Bf5F",
           "abi": [
             {
               "inputs": [
@@ -30383,33 +30737,136 @@
               ],
               "stateMutability": "nonpayable",
               "type": "function"
+            }
+          ]
+        },
+        "RouterFactory": {
+          "address": "0x44F4c367b6753fcA6BC5d6325035924260BE374e",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_owner",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "transactionManager",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterCreated",
+              "type": "event"
             },
             {
               "inputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "blockNumber",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
                 }
               ],
-              "name": "getBlockHash",
+              "name": "createRouter",
               "outputs": [
                 {
-                  "internalType": "bytes32",
-                  "name": "blockHash",
-                  "type": "bytes32"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "routerSigner",
+                  "type": "address"
+                }
+              ],
+              "name": "getRouterAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_transactionManager",
+                  "type": "address"
+                }
+              ],
+              "name": "init",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
-              "name": "getCurrentBlockCoinbase",
+              "name": "owner",
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "coinbase",
+                  "name": "",
                   "type": "address"
                 }
               ],
@@ -30418,12 +30875,25 @@
             },
             {
               "inputs": [],
-              "name": "getCurrentBlockDifficulty",
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "routerAddresses",
               "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "difficulty",
-                  "type": "uint256"
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -30431,25 +30901,12 @@
             },
             {
               "inputs": [],
-              "name": "getCurrentBlockGasLimit",
+              "name": "transactionManager",
               "outputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "gaslimit",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "getCurrentBlockTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
+                  "internalType": "contract ITransactionManager",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -30459,32 +30916,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "addr",
+                  "name": "newOwner",
                   "type": "address"
                 }
               ],
-              "name": "getEthBalance",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "balance",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "getLastBlockHash",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "blockHash",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
