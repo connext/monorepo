@@ -8,7 +8,6 @@ import {
   expect,
   Logger,
   requestContextMock,
-  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
 
 import { ChainReader } from "../src/chainreader";

@@ -31,7 +31,6 @@ import {
   NoSubgraph,
   NoTransactionManager,
   SendingChainSubgraphsNotSynced,
-  ReceivingChainSubgraphsNotSynced,
   UnknownAuctionError,
   InvalidCallTo,
   NoValidBids,
@@ -457,6 +456,7 @@ describe("NxtpSdkBase", () => {
 
       recoverAuctionBidMock.returns(auctionBid.user);
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+      chainReader.getCode.resolves("0x");
 
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
@@ -730,9 +730,7 @@ describe("NxtpSdkBase", () => {
             "0",
             true,
           ),
-        ).to.eventually.be.rejectedWith(
-          InvalidParamStructure.getMessage("fulfillTransfer", "TransactionPrepareEventParams"),
-        );
+        ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage());
       });
     });
 
@@ -1133,7 +1131,7 @@ describe("NxtpSdkBase", () => {
 
     it("should error for non-configured chain", async () => {
       await expect(sdk.getGasPrice(11111, requestContextMock)).eventually.be.rejectedWith(
-        ChainNotConfigured.getMessage(11111, supportedChains),
+        ChainNotConfigured.getMessage(),
       );
     });
   });

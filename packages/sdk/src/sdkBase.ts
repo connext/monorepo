@@ -721,9 +721,6 @@ export class NxtpSdkBase {
         transactionId,
         inbox,
       });
-      if (auctionResponses.length === 0) {
-        throw new NoBids(auctionWaitTimeMs, transactionId, payload);
-      }
       if (dryRun) {
         return { ...auctionResponses[0], metaTxRelayerFee };
       }
@@ -732,6 +729,7 @@ export class NxtpSdkBase {
           // validate bid
           // check router sig on bid
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
+          console.log("signer: ", signer);
           if (signer !== data.bid.router) {
             const code = await this.chainReader.getCode(receivingChainId, data.bid.router);
             if (code !== "0x") {
@@ -809,10 +807,15 @@ export class NxtpSdkBase {
         }),
       );
     } catch (e) {
+      console.log("e: ", e);
       this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
         transactionId,
       });
       throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
+    }
+
+    if (receivedBids.length === 0) {
+      throw new NoBids(auctionWaitTimeMs, transactionId, payload, { requestContext, methodContext });
     }
 
     const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
