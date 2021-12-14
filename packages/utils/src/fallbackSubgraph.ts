@@ -245,10 +245,10 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
   }
 
   private getOrderedSdks(syncRequired = false, minBlock = 0): Subgraph<T>[] {
-    // Compile metrics.
-    const subgraphs = this.subgraphs.filter((sdk) =>
-      sdk.record.syncedBlock > minBlock && syncRequired ? sdk.record.synced : true,
+    const subgraphs = this.subgraphs.filter(
+      (sdk) => sdk.record.syncedBlock >= minBlock && (syncRequired ? sdk.record.synced : true),
     );
+    // Compile metrics.
     subgraphs.forEach((subgraph) => {
       // Get the last N calls (we will replace the calls property with the return value below).
       const calls = subgraph.metrics.calls.slice(-FallbackSubgraph.METRIC_WINDOW);
