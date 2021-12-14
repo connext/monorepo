@@ -225,6 +225,26 @@ describe("Router.sol", function () {
     });
   });
 
+  describe("setRecipient", () => {
+    it("should set contract property recipient", async () => {
+      const newSigner = Wallet.createRandom();
+      const tx = await routerContract.connect(routerSigner).setRecipient(newSigner.address);
+      const receipt = await tx.wait();
+      expect(receipt.status).to.eq(1);
+      expect(await routerContract.recipient()).to.eq(newSigner.address);
+    });
+  });
+
+  describe("setSigner", () => {
+    it("should set contract property routerSigner", async () => {
+      const newSigner = Wallet.createRandom();
+      const tx = await routerContract.connect(routerSigner).setSigner(newSigner.address);
+      const receipt = await tx.wait();
+      expect(receipt.status).to.eq(1);
+      expect(await routerContract.routerSigner()).to.eq(newSigner.address);
+    });
+  });
+
   describe("removeLiquidity", () => {
     it("should remove liquidity", async () => {
       const amount = "100";
