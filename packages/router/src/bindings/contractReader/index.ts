@@ -63,15 +63,12 @@ export const bindContractReader = async () => {
           };
         });
 
-        logger.info("active transactions", requestContext, methodContext, {
-          transactionsLength: transactions.length,
-          transactions: activeTransactionsTracker,
+        logger.info("active transactions tracker", requestContext, methodContext, {
+          activeTransactionsLength: transactions.length,
+          activeTransactionsTracker: activeTransactionsTracker,
         });
         logger.info("handling tracker", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
-          byStatus: Object.keys(CrosschainTransactionStatus).map((status) => {
-            return { status, size: [...handlingTracker.values()].map((v) => v.status === status).length };
-          }),
           handlingTracker: [...handlingTracker],
         });
       }
