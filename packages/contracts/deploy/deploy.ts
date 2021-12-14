@@ -62,6 +62,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("Initing router factory");
     const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
     console.log("initTx: ", initTx);
+    await initTx.wait();
   }
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
