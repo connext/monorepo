@@ -1,4 +1,5 @@
 import { invariantDataMock, txReceiptMock, expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
+import { SinonStub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock } from "../../globalTestHook";
@@ -9,6 +10,10 @@ const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 const { fulfill } = getOperations();
 
 describe("Fulfill Receiver Operation", () => {
+  beforeEach(() => {
+    Object.values(contractWriterMock).forEach((method: any) => (method as SinonStub).resetHistory());
+  });
+
   describe("#fulfillReceiver", () => {
     it("should error if invariant data validation fails", async () => {
       const _invariantDataMock = { ...invariantDataMock, user: "abc" };
