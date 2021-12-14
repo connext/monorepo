@@ -20,7 +20,7 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const erc20Address = "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10";
+const erc20Address = "0x9FBDa871d559710256a2502A2517b794B482Db40";
 
 const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddressReceiving = txManagerAddressSending;

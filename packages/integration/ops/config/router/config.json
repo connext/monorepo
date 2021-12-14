@@ -23,8 +23,8 @@
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
+        { "chainId": 1337, "assetId": "0x9FBDa871d559710256a2502A2517b794B482Db40" },
+        { "chainId": 1338, "assetId": "0x9FBDa871d559710256a2502A2517b794B482Db40" }
       ]
     },
     {

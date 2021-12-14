@@ -375,7 +375,6 @@ export class ChainReader {
     // If the list of chains with deployed Price Oracle Contracts does not include
     // this chain ID, return 0.
     if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId) || !CHAINS_WITH_PRICE_ORACLES.includes(nativeTokenChainId)) {
-      console.log("FOOOOO");
       return constants.Zero;
     }
 
