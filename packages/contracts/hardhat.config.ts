@@ -125,6 +125,11 @@ const config: HardhatUserConfig = {
       chainId: 100,
       url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
     },
+    fuse: {
+      accounts: { mnemonic },
+      chainId: 122,
+      url: "https://rpc.fuse.io/",
+    },
     matic: {
       accounts: { mnemonic },
       chainId: 137,

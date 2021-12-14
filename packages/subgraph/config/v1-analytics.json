@@ -30,6 +30,12 @@
     "startBlock": 18291901
   },
   {
+    "subgraphName": "connext/nxtp-fuse-v1-analytics",
+    "network": "fuse",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 14427174
+  },
+  {
     "subgraphName": "connext/nxtp-matic-v1-analytics",
     "network": "matic",
     "address": "0x6090De2EC76eb1Dc3B5d632734415c93c44Fd113",
