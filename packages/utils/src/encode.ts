@@ -250,6 +250,12 @@ const SignedRouterCancelDataEncoding = tidy(`tuple(
   uint256 chainId
   )`);
 
+const SignedRouterRemoveLiquidityDataEncoding = tidy(`tuple(
+  uint256 amount,
+  address assetId,
+  uint256 chainId
+)`);
+
 /**
  * Encodes data for prepare function
  * @param invariantData
@@ -346,12 +352,6 @@ export const encodeRouterCancelData = (
     ],
   );
 };
-
-const SignedRouterRemoveLiquidityDataEncoding = tidy(`tuple(
-  uint256 amount,
-  address assetId,
-  uint256 chainId
-)`);
 
 export const encodeRouterRemoveLiquidityData = (amount: string, assetId: string, chainId: number): string => {
   return defaultAbiCoder.encode([SignedRouterRemoveLiquidityDataEncoding], [{ amount, assetId, chainId }]);

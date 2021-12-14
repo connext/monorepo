@@ -236,6 +236,28 @@ describe("Router.sol", function () {
     });
   });
 
+  describe("addRelayerFee", () => {
+    it("should add relayer fee", async () => {
+      const amount = "100";
+      const assetId = token.address;
+      const tx = await routerContract.connect(routerSigner).addRelayerFee(amount, assetId);
+      const receipt = await tx.wait();
+      expect(receipt.status).to.eq(1);
+      // TODO: Check that the relayer fee was added
+    });
+  });
+
+  describe("removeRelayerFee", () => {
+    it("should remove relayer fee", async () => {
+      const amount = "100";
+      const assetId = token.address;
+      const tx = await routerContract.connect(routerSigner).removeRelayerFee(amount, assetId);
+      const receipt = await tx.wait();
+      expect(receipt.status).to.eq(1);
+      // TODO: Check if fee is removed
+    });
+  });
+
   const prepare = async (
     transaction: InvariantTransactionData,
     record: VariantTransactionData,

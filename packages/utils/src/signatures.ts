@@ -263,6 +263,5 @@ export const signRemoveLiquidityTransactionPayload = (
 ): Promise<string> => {
   const payload = encodeRouterRemoveLiquidityData(amount, assetId, chainId);
   const hash = solidityKeccak256(["bytes"], [payload]);
-
   return sign(hash, signer);
 };
