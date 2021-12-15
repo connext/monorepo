@@ -14,6 +14,12 @@ import {
   RemoveLiquidityRequest,
   RemoveLiquidityRequestSchema,
   RemoveLiquidityResponseSchema,
+  AddLiquidityForRequest,
+  AddLiquidityForRequestSchema,
+  AddLiquidityForResponseSchema,
+  MigrateLiquidityRequest,
+  MigrateLiquidityRequestSchema,
+  MigrateLiquidityResponseSchema,
 } from "./schema";
 
 export const bindFastify = () =>
@@ -61,6 +67,54 @@ export const bindFastify = () =>
             requestContext,
           );
           return { transactionHash: result.transactionHash };
+        } catch (err) {
+          return res.code(400).send({ err: jsonifyError(err), requestContext });
+        }
+      },
+    );
+
+    server.post<{ Body: AddLiquidityForRequest }>(
+      "/add-liquidity-for",
+      { schema: { body: AddLiquidityForRequestSchema, response: { "2xx": AddLiquidityForResponseSchema } } },
+      async (req, res) => {
+        const requestContext = createRequestContext("/add-liquidity-for");
+        const { adminToken, chainId, amount, assetId, routerAddress } = req.body;
+        if (adminToken !== config.adminToken) {
+          return res.code(401).send("Unauthorized to perform this operation");
+        }
+        try {
+          const result = await contractWriter.migrateLiquidity(chainId, amount, assetId, routerAddress, requestContext);
+          return {
+            removeLiqudityTx: result.removeLiqudityTx.transactionHash,
+            addLiquidityForTx: result.addLiquidityForTx.transactionHash,
+          };
+        } catch (err) {
+          return res.code(400).send({ err: jsonifyError(err), requestContext });
+        }
+      },
+    );
+
+    server.post<{ Body: MigrateLiquidityRequest }>(
+      "/migrate-liquidity",
+      { schema: { body: MigrateLiquidityRequestSchema, response: { "2xx": MigrateLiquidityResponseSchema } } },
+      async (req, res) => {
+        const requestContext = createRequestContext("/migrate-liquidity");
+        const { adminToken, chainId, amount, assetId, newRouterAddress } = req.body;
+        if (adminToken !== config.adminToken) {
+          return res.code(401).send("Unauthorized to perform this operation");
+        }
+        try {
+          const result = await contractWriter.migrateLiquidity(
+            chainId,
+            amount,
+            assetId,
+            newRouterAddress,
+            requestContext,
+          );
+          return {
+            removeLiqudityTx: result.removeLiqudityTx.transactionHash,
+            addLiquidityForTx: result.addLiquidityForTx.transactionHash,
+          };
         } catch (err) {
           return res.code(400).send({ err: jsonifyError(err), requestContext });
         }
