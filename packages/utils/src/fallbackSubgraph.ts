@@ -115,12 +115,12 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * @returns A Promise of the generic type.
    * @throws Error if the subgraphs are out of sync (and syncRequired is true).
    */
-  public async request<Q>(method: (client: T) => Promise<Q>, syncRequired = false, minBlock?: number): Promise<Q> {
+  public async request<Q>(method: (client: T) => Promise<Q>, syncRequired = false): Promise<Q> {
     // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
     if (syncRequired && !this.inSync) {
       throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
     }
-    const orderedSubgraphs = this.getOrderedSdks(syncRequired, minBlock);
+    const orderedSubgraphs = this.getOrderedSdks();
     const errors: Error[] = [];
     // Try each SDK client in order of priority.
     for (const subgraph of orderedSubgraphs) {
@@ -182,13 +182,16 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       this.subgraphs.map(async (subgraph, index) => {
         const errors: any[] = [];
         let latestBlock = _latestBlock;
-        let syncedBlock;
+        let syncedBlock: number | undefined;
         // First, try to use the subgraph health API.
         try {
           const health = await withRetries(async () => await getSubgraphHealth(subgraph.record.name));
           if (health && health.latestBlock && health.chainHeadBlock) {
-            latestBlock = health.latestBlock;
-            syncedBlock = health.chainHeadBlock;
+            // Make sure the values are valid numbers.
+            const healthLatestBlock = parseInt(health.latestBlock.number);
+            latestBlock = typeof healthLatestBlock === "number" ? healthLatestBlock : latestBlock;
+            const healthChainHeadBlock = parseInt(health.chainHeadBlock.number);
+            syncedBlock = typeof healthChainHeadBlock === "number" ? healthChainHeadBlock : undefined;
           } else if (health && health.fatalError) {
             throw new NxtpError("Subgraph health query response had fatal error present.", {
               health,
@@ -244,18 +247,21 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
     return this.records;
   }
 
-  private getOrderedSdks(syncRequired = false, minBlock = 0): Subgraph<T>[] {
-    const subgraphs = this.subgraphs.filter(
-      (sdk) => sdk.record.syncedBlock >= minBlock && (syncRequired ? sdk.record.synced : true),
-    );
-    // Compile metrics.
-    subgraphs.forEach((subgraph) => {
+  private getOrderedSdks(): Subgraph<T>[] {
+    // Order the subgraphs based on these metrics:
+    // 1. Lag, which is the difference between the latest block and the subgraph's latest block.
+    // 2. CPS, which is the number of calls per second the subgraph has been making (averaged over last N calls).
+    // 3. Reliability, which is how often RPC calls to that subgraph are successful / total calls out of last N calls.
+    // 4. Average execution time, which is the average execution time of the last N calls.
+    this.subgraphs.forEach((subgraph) => {
       // Get the last N calls (we will replace the calls property with the return value below).
       const calls = subgraph.metrics.calls.slice(-FallbackSubgraph.METRIC_WINDOW);
       // Average calls per second over the window.
-      const windowStart = calls[0]?.timestamp ?? 0;
-      const windowEnd = calls[calls.length - 1]?.timestamp ?? 0;
-      const cps = calls.length / (windowEnd - windowStart);
+      const tsWindowStart = calls[0]?.timestamp ?? 0;
+      const tsWindowEnd = calls[calls.length - 1]?.timestamp ?? 0;
+      const tsWindow = tsWindowEnd - tsWindowStart;
+      // Timestamp window must be >= 1 second for sufficient sample size.
+      const cps = tsWindow >= 1 ? calls.length / tsWindow : 0;
       // Average execution time for each call.
       const avgExecTime = calls.reduce((sum, call) => sum + call.execTime, 0) / calls.length;
       // Reliability is the ratio of successful calls to total calls.
@@ -266,14 +272,6 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
         avgExecTime,
         reliability,
       };
-    });
-
-    // Order the subgraphs based on these metrics:
-    // 1. Lag, which is the difference between the latest block and the subgraph's latest block.
-    // 2. CPS, which is the number of calls per second the subgraph has been making (averaged over last N calls).
-    // 3. Reliability, which is how often RPC calls to that subgraph are successful / total calls out of last N calls.
-    // 4. Average execution time, which is the average execution time of the last N calls.
-    subgraphs.forEach((subgraph) => {
       subgraph.priority =
         subgraph.record.lag -
         subgraph.metrics.cps / FallbackSubgraph.MAX_CPS -
