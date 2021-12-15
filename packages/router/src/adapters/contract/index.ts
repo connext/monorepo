@@ -9,6 +9,8 @@ import {
   cancelRouterContract,
   cancelTransactionManager,
   removeLiquidityTransactionManager,
+  addLiquidityForTransactionManager,
+  migrateLiquidity,
   getRouterBalance,
   startContractListeners,
 } from "./contract";
@@ -66,6 +68,20 @@ export type ContractWriter = {
     recipientAddress: string | undefined,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
+  addLiquidityForTransactionManager: (
+    chainId: number,
+    amount: string,
+    assetId: string,
+    routerAddress: string | undefined,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  migrateLiquidity: (
+    chainId: number,
+    amount: string,
+    assetId: string,
+    newRouterAddress: string | undefined,
+    requestContext: RequestContext,
+  ) => Promise<{ removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt }>;
   getRouterBalance: (chainId: number, router: string, assetId: string) => Promise<BigNumber>;
 };
 
@@ -79,6 +95,8 @@ export const contractWriter = (): ContractWriter => {
     cancelRouterContract,
     cancelTransactionManager,
     removeLiquidityTransactionManager,
+    addLiquidityForTransactionManager,
+    migrateLiquidity,
     getRouterBalance,
   };
 };
