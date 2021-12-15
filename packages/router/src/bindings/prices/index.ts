@@ -4,7 +4,7 @@ import { cachedPriceMap } from "@connext/nxtp-txservice";
 
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
-import { getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
+import { getMainnetEquivalent, getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
 
 const PRICE_LOOP_INTERVAL = 15_000;
 export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
@@ -15,26 +15,51 @@ export const bindPrices = async () => {
 
   setInterval(async () => {
     const chainAssetMap: Map<number, string[]> = new Map();
-    config.swapPools.forEach((pool) => {
-      pool.assets.forEach((asset) => {
-        if (!chainAssetMap.get(asset.chainId)) {
-          chainAssetMap.set(asset.chainId, []);
+    for (let swapPoolIdx = 0; swapPoolIdx < config.swapPools.length; swapPoolIdx++) {
+      const pool = config.swapPools[swapPoolIdx];
+      for (let assetIdx = 0; assetIdx < pool.assets.length; assetIdx++) {
+        const asset = pool.assets[assetIdx];
+        const cachingAssetIdOnMainnet = await getMainnetEquivalent(asset.assetId, asset.chainId);
+        const cachingTokenChainId = cachingAssetIdOnMainnet ? 1 : asset.chainId;
+        const cachingTokenAssetId = cachingAssetIdOnMainnet ? cachingAssetIdOnMainnet : asset.assetId;
+        if (!chainAssetMap.has(cachingTokenChainId)) {
+          chainAssetMap.set(cachingTokenChainId, []);
         }
-        chainAssetMap.get(asset.chainId)?.push(asset.assetId);
-      });
-    });
+        chainAssetMap.get(cachingTokenChainId)!.push(cachingTokenAssetId);
+      }
+    }
+
     const curTimeInSecs = await getNtpTimeSeconds();
-    const keys = chainAssetMap.keys();
+    let keys = chainAssetMap.keys();
+
+    // check native tokens are already queued.
+    for (const key of keys) {
+      const chainId = key;
+
+      const cachingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, chainId);
+      const cachingNativeTokenChainId = cachingNativeAssetIdOnMainnet ? 1 : chainId;
+      const cachingNativeTokenAssetId = cachingNativeAssetIdOnMainnet
+        ? cachingNativeAssetIdOnMainnet
+        : constants.AddressZero;
+
+      const assetIds = chainAssetMap.get(cachingNativeTokenChainId);
+      if (assetIds) {
+        if (!assetIds.includes(cachingNativeTokenAssetId)) {
+          assetIds.push(cachingNativeTokenAssetId);
+        }
+      } else {
+        chainAssetMap.set(cachingNativeTokenChainId, [cachingNativeTokenAssetId]);
+      }
+    }
+
+    keys = chainAssetMap.keys();
     try {
       for (const key of keys) {
         const chainId = key;
         const assetIds = chainAssetMap.get(chainId);
         const priceOracleContract = getDeployedPriceOracleContract(chainId);
         if (assetIds && priceOracleContract && priceOracleContract.address) {
-          const multicallAddress = config.chainConfig[chainId].multicallAddress;
-          if (!assetIds.includes(constants.AddressZero)) {
-            assetIds.push(constants.AddressZero);
-          }
+          const multicallAddress = config.chainConfig[chainId]?.multicallAddress;
           if (multicallAddress) {
             // if multicall address is given, we use multicall contract to fetch token price
             logger.debug("fetching token prices using multicall", requestContext, methodContext, {
@@ -93,7 +118,7 @@ export const bindPrices = async () => {
           }
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       logger.error(
         "Error getting token prices, waiting for next loop",
         requestContext,

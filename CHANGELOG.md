@@ -2,6 +2,10 @@
 
 ## Next Release
 
+- [router] Undefined handling in `bindPrices`
+
+# 0.0.101
+
 - [txservice] Reorganization, code coverage improvements
 - [txservice] Update / expose config vars
 

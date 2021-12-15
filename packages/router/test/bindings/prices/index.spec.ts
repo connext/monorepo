@@ -27,6 +27,7 @@ describe("Fetching Price Binding", () => {
       priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
       priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
       multicallStub = stub(SharedFns, "multicall");
+      stub(SharedFns, "getMainnetEquivalent").resolves(null);
       getTokenPriceFromOnChainStub = stub(SharedFns, "getTokenPriceFromOnChain");
     });
 
