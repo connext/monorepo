@@ -1,3 +1,5 @@
+import { request } from "graphql-request";
+
 import { NxtpError } from "./error";
 import { getSubgraphHealth } from "./subgraphHealth";
 
@@ -20,6 +22,7 @@ type CallMetric = {
 };
 
 type Subgraph<T extends SubgraphSdk> = {
+  url: string;
   client: T;
   record: SubgraphSyncRecord;
   priority: number;
@@ -72,21 +75,22 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
   constructor(
     private readonly chainId: number,
     // We use the URIs in sync records for reference in logging.
-    sdks: { client: T; uri: string }[],
+    sdks: { client: T; url: string }[],
     private readonly maxLag: number,
     private readonly stallTimeout = 10_000,
   ) {
-    const getSubgraphName = (uri: string) => {
-      const split = uri.split("/");
+    const getSubgraphName = (url: string) => {
+      const split = url.split("/");
       return split[split.length - 1];
     };
-    this.subgraphs = sdks.map(({ client, uri }) => ({
+    this.subgraphs = sdks.map(({ client, url }) => ({
+      url,
       client,
       record: {
         // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
         // which ones are most in sync.
-        uri: uri.replace("https://", "").split(".com")[0],
-        name: getSubgraphName(uri),
+        uri: url.replace("https://", "").split(".com")[0],
+        name: getSubgraphName(url),
         synced: true,
         latestBlock: -1,
         syncedBlock: -1,
@@ -103,6 +107,12 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
     }));
   }
 
+  public async query(query: string): Promise<any> {
+    this.request((_, url) => {
+      return request(url, query);
+    });
+  }
+
   /**
    * Make an SDK request using the fallback subgraph wrapper.
    *
@@ -113,7 +123,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * @returns A Promise of the generic type.
    * @throws Error if the subgraphs are out of sync (and syncRequired is true).
    */
-  public async request<Q>(method: (client: T) => Promise<Q>, syncRequired = false): Promise<Q> {
+  public async request<Q>(method: (client: T, url: string) => Promise<Q>, syncRequired = false): Promise<Q> {
     // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
     if (syncRequired && !this.inSync) {
       throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
@@ -128,7 +138,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
             const startTime = Date.now();
             let success = false;
             try {
-              const result = await method(subgraph.client);
+              const result = await method(subgraph.client, subgraph.url);
               success = true;
               resolve(result);
             } catch (e) {
@@ -175,7 +185,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       }
     };
 
-    // Using a Promise.all here to ensure we do our GetBlockNumber queries in parallel.
+    // Using a Promise.all here to ensure we do all queries/requests in parallel.
     await Promise.all(
       this.subgraphs.map(async (subgraph, index) => {
         const errors: any[] = [];
