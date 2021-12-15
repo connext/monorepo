@@ -210,7 +210,10 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
               return [];
             }
             const query = await _sdk.request<GetTransactionsQuery>((client) =>
-              client.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) }),
+              client.GetTransactionsWithRouter({
+                transactionIds: txIds.map((t) => t.toLowerCase()),
+                routerId: routerAddress.toLowerCase(),
+              }),
             );
             return query.transactions;
           }),
