@@ -32,6 +32,7 @@ type Config = {
   logLevel?: string;
   natsUrl?: string;
   authUrl?: string;
+  network?: string;
 };
 
 // Copy/pasted from json file in the README - this should generally work for local chain load testing.
@@ -90,6 +91,7 @@ export const getConfig = (useDefaultLocal = false): Config => {
     };
   });
   return {
+    network: data.network || "testnet",
     routers: [],
     ...data,
     chainConfig,
