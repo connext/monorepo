@@ -693,6 +693,11 @@ export class Subgraph {
     return fulfilledTxs.flat().concat(cancelledTxs.flat());
   }
 
+  public async query(chainId: number, query: string): Promise<any> {
+    const subgraph = this.sdks[chainId];
+    return await subgraph.query(query);
+  }
+
   /**
    * Update the sync statuses of subgraph providers for each chain.
    * This will enable FallbackSubgraph to use the most in-sync subgraph provider.
