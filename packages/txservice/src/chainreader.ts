@@ -390,7 +390,6 @@ export class ChainReader {
     let l1GasInUsd = BigNumber.from(0);
     if (chainId === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-      console.log("gasPriceMainnet: ", gasPriceMainnet.toString());
       let gasEstimate = "0";
       if (method === "prepare") {
         gasEstimate = isRouterContract ? GAS_ESTIMATES.prepareRouterContractL1 : GAS_ESTIMATES.prepareL1;

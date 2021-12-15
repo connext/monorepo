@@ -806,7 +806,6 @@ export class NxtpSdkBase {
         }),
       );
     } catch (e) {
-      console.log("e: ", e);
       this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
         transactionId,
       });
