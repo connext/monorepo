@@ -595,6 +595,94 @@ export const removeLiquidityTransactionManager = async (
   );
 };
 
+export const addLiquidityForTransactionManager = async (
+  chainId: number,
+  amount: string,
+  assetId: string,
+  routerAddress: string | undefined,
+  requestContext: RequestContext,
+): Promise<providers.TransactionReceipt> => {
+  const { methodContext } = createLoggingContext(addLiquidityForTransactionManager.name, requestContext);
+
+  const { logger, txService, wallet, signerAddress } = getContext();
+
+  logger.info("Method start", requestContext, methodContext, { amount, assetId, routerAddress });
+
+  if (!routerAddress) {
+    routerAddress = signerAddress;
+  }
+
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  const encodedData = getTxManagerInterface().encodeFunctionData("addLiquidityFor", [amount, assetId, routerAddress]);
+  return await txService.sendTx(
+    {
+      to: nxtpContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
+};
+
+export const migrateLiquidity = async (
+  chainId: number,
+  amount: string,
+  assetId: string,
+  newRouterAddress: string | undefined,
+  requestContext: RequestContext,
+): Promise<{ removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt }> => {
+  const { methodContext } = createLoggingContext(migrateLiquidity.name, requestContext);
+  const { logger, signerAddress } = getContext();
+
+  logger.info("Method start", requestContext, methodContext, {
+    chainId,
+    amount,
+    assetId,
+    signerAddress,
+    newRouterAddress,
+  });
+
+  const removeLiqudityTx = await removeLiquidityTransactionManager(
+    chainId,
+    amount,
+    assetId,
+    signerAddress,
+    requestContext,
+  );
+
+  logger.info("Removed Liquidity", requestContext, methodContext, {
+    chainId,
+    amount,
+    assetId,
+    receiverAddress: signerAddress,
+    removeLiqudityTx,
+  });
+
+  const addLiquidityForTx = await addLiquidityForTransactionManager(
+    chainId,
+    amount,
+    assetId,
+    newRouterAddress,
+    requestContext,
+  );
+
+  logger.info("Added Liquidity", requestContext, methodContext, {
+    chainId,
+    amount,
+    assetId,
+    newRouterAddress: newRouterAddress,
+    addLiquidityForTx,
+  });
+
+  return {
+    removeLiqudityTx,
+    addLiquidityForTx,
+  };
+};
+
 export const getRouterBalance = async (chainId: number, router: string, assetId: string): Promise<BigNumber> => {
   const { txService } = getContext();
 
