@@ -3,6 +3,7 @@
 ## Next Release
 
 - [router] Undefined handling in `bindPrices`
+- [router/sdk] Get active transactions specific to users and routers
 
 # 0.0.101
 
