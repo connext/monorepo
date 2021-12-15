@@ -96,9 +96,9 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphH
     const status = res.data.data.indexingStatusForCurrentVersion;
     const networkInfo = status.chains[0];
     return {
-      chainHeadBlock: networkInfo.chainHeadBlock,
-      latestBlock: networkInfo.latestBlock,
-      lastHealthyBlock: networkInfo.lastHealthyBlock,
+      chainHeadBlock: parseInt(networkInfo.chainHeadBlock.number),
+      latestBlock: parseInt(networkInfo.latestBlock.number),
+      lastHealthyBlock: parseInt(networkInfo.lastHealthyBlock.number),
       network: networkInfo.network,
       fatalError: status.fatalError,
       health: status.health,

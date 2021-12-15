@@ -90,9 +90,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
         synced: true,
         latestBlock: -1,
         syncedBlock: -1,
-        // Setting maxLag + 1 as default to ensure we don't use the subgraph in this current state
-        // by virtue of this metric (sync() must be called first).
-        lag: this.maxLag + 1,
+        lag: 0,
         errors: undefined,
       },
       priority: 0,
@@ -187,11 +185,9 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
         try {
           const health = await withRetries(async () => await getSubgraphHealth(subgraph.record.name));
           if (health && health.latestBlock && health.chainHeadBlock) {
-            // Make sure the values are valid numbers.
-            const healthLatestBlock = parseInt(health.latestBlock.number);
-            latestBlock = typeof healthLatestBlock === "number" ? healthLatestBlock : latestBlock;
-            const healthChainHeadBlock = parseInt(health.chainHeadBlock.number);
-            syncedBlock = typeof healthChainHeadBlock === "number" ? healthChainHeadBlock : undefined;
+            // Sanity check: make sure the values are valid numbers.
+            latestBlock = typeof health.latestBlock === "number" ? health.latestBlock : latestBlock;
+            syncedBlock = typeof health.chainHeadBlock === "number" ? health.chainHeadBlock : undefined;
           } else if (health && health.fatalError) {
             throw new NxtpError("Subgraph health query response had fatal error present.", {
               health,
@@ -238,7 +234,9 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
           synced: latestBlock - syncedBlock <= this.maxLag,
           latestBlock,
           syncedBlock,
-          lag: latestBlock - syncedBlock,
+          // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
+          // block vs synced block.
+          lag: Math.max(0, latestBlock - syncedBlock),
           // Even though no errors may have occurred, we will tack them on the record anyway.
           errors: errors.length > 0 ? errors : undefined,
         };
