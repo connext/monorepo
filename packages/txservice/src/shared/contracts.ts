@@ -4,13 +4,21 @@ import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/Con
 import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain";
 
 /**
+ * Helper to allow easy mocking
+ */
+export const getContractDeployments: any = () => {
+  return contractDeployments;
+};
+
+/**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
  */
 export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
   const chainIdsForGasFee: number[] = [];
-  Object.keys(contractDeployments).forEach((chainId) => {
-    const record = (contractDeployments as any)[chainId];
+  const _contractDeployments = getContractDeployments();
+  Object.keys(_contractDeployments).forEach((chainId) => {
+    const record = (_contractDeployments as any)[chainId];
     const chainName = Object.keys(record)[0];
     if (chainName) {
       const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
@@ -32,7 +40,8 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
  * deployed.
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const _contractDeployments = getContractDeployments();
+  const record = (_contractDeployments as any)[String(chainId)] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
