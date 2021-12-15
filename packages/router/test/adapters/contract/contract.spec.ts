@@ -23,6 +23,8 @@ import {
   cancelTransactionManager,
   removeLiquidityTransactionManager,
   startContractListeners,
+  addLiquidityForTransactionManager,
+  migrateLiquidity,
 } from "../../../src/adapters/contract/contract";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
@@ -240,6 +242,56 @@ describe("Contract Adapter", () => {
         recipientAddress,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("#addLiquidityFor", () => {
+    it("if no recipient, use wallet address", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x6");
+
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, undefined, requestContext);
+      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("addLiquidityFor", [
+        amount,
+        assetId,
+        signerAddress,
+      ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("happy case: addLiquidityFor", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x1");
+      const routerAddress = mkAddress("0x2");
+
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, routerAddress, requestContext);
+
+      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("addLiquidityFor", [
+        amount,
+        assetId,
+        routerAddress,
+      ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("#migrateLiquidity", () => {
+    it("happy case: migrate liquidity", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x1");
+      const newRouterAddress = mkAddress("0x2");
+
+      const res = await migrateLiquidity(chainId, amount, assetId, newRouterAddress, requestContext);
+      expect(interfaceMock.encodeFunctionData).calledWith("removeLiquidity", [amount, assetId, signerAddress]);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, newRouterAddress]);
+      expect(res.removeLiqudityTx).to.deep.eq(txReceiptMock);
+      expect(res.addLiquidityForTx).to.deep.eq(txReceiptMock);
     });
   });
 
