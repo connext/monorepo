@@ -107,6 +107,13 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
     }));
   }
 
+  /**
+   * Raw string query method.
+   *
+   * @param query - GraphQL query string.
+   *
+   * @returns any, whatever the expected GraphQL response is.
+   */
   public async query(query: string): Promise<any> {
     this.request((_, url) => {
       return request(url, query);
