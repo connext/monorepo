@@ -116,7 +116,7 @@ export class TransactionBuffer extends Array<OnchainTransaction> {
   }
 
   public getTxByNonce(nonce: number): OnchainTransaction | undefined {
-    return this.find((tx) => tx.nonce === nonce) ?? this.lastShiftedTx;
+    return this.lastShiftedTx?.nonce === nonce ? this.lastShiftedTx : this.find((tx) => tx.nonce === nonce);
   }
 
   private log(message?: string, context: any = {}, error = false) {
