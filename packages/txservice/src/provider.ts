@@ -17,13 +17,14 @@ import {
   parseError,
   RpcError,
   ServerError,
-  TimeoutError,
+  OperationTimeout,
   TransactionReadError,
   TransactionReverted,
   ProviderCache,
   ReadTransaction,
   SyncProvider,
   OnchainTransaction,
+  StallTimeout,
 } from "./shared";
 
 const { FallbackProvider } = providers;
@@ -251,7 +252,7 @@ export class ChainRpcProvider {
         await this.wait(remainingConfirmations);
       }
     }
-    throw new TimeoutError({
+    throw new OperationTimeout({
       targetConfirmations: confirmations,
       remainingConfirmations,
       reverted,
@@ -610,20 +611,21 @@ export class ChainRpcProvider {
       this.checkSigner();
     }
     const errors: NxtpError[] = [];
-    const syncedProviders = this.shuffleSyncedProviders();
-    for (const provider of syncedProviders) {
+    const shuffledProviders = this.shuffleSyncedProviders();
+    for (const provider of shuffledProviders) {
       try {
         return await method(provider);
       } catch (e) {
         // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
         // however, as it will return instantly if the error is already a NxtpError.
         const error = parseError(e);
-        // If the error thrown is a timeout or non-RPC or non-Server error, we want to go ahead and throw it.
-        // e.g. a TransactionReverted, TransactionReplaced, etc.
-        if (error.type !== ServerError.type && error.type !== RpcError.type) {
-          throw error;
-        } else {
+        if (error.type === ServerError.type || error.type === RpcError.type || error.type === StallTimeout.type) {
+          // If the method threw a StallTimeout, RpcError, or ServerError, that indicates a problem with the provider and not
+          // the call - so we'll retry the call with a different provider (if available).
           errors.push(error);
+        } else {
+          // e.g. a TransactionReverted, TransactionReplaced, etc.
+          throw error;
         }
       }
     }
@@ -653,7 +655,11 @@ export class ChainRpcProvider {
 
     // First, sync all providers simultaneously.
     await Promise.all(
-      this.providers.map((p) => new Promise((resolve, reject) => p.sync().then(resolve).catch(reject))),
+      this.providers.map(async (p) => {
+        try {
+          await p.sync();
+        } catch (e) {}
+      }),
     );
 
     // Find the provider with the highest block number and use that as source of truth.
