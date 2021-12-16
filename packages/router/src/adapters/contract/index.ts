@@ -77,10 +77,10 @@ export type ContractWriter = {
   ) => Promise<providers.TransactionReceipt>;
   migrateLiquidity: (
     chainId: number,
-    amount: string,
     assetId: string,
-    newRouterAddress: string | undefined,
     requestContext: RequestContext,
+    routerAddress?: string,
+    amount?: string,
   ) => Promise<{ removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt }>;
   getRouterBalance: (chainId: number, router: string, assetId: string) => Promise<BigNumber>;
 };

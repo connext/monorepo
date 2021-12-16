@@ -287,7 +287,7 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const newRouterAddress = mkAddress("0x2");
 
-      const res = await migrateLiquidity(chainId, amount, assetId, newRouterAddress, requestContext);
+      const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
       expect(interfaceMock.encodeFunctionData).calledWith("removeLiquidity", [amount, assetId, signerAddress]);
       expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, newRouterAddress]);
       expect(res.removeLiqudityTx).to.deep.eq(txReceiptMock);

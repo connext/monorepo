@@ -9,18 +9,20 @@ export type AdminRequest = Static<typeof AdminSchema>;
 export const MigrateLiquidityRequestSchema = Type.Intersect([
   AdminSchema,
   Type.Object({
-    newRouterAddress: TAddress,
     chainId: TChainId,
-    assetId: TAddress,
-    amount: TDecimalString,
+    routerAddress: Type.Optional(TAddress),
+    assets: Type.Optional(Type.Array(TAddress)),
   }),
 ]);
 export type MigrateLiquidityRequest = Static<typeof MigrateLiquidityRequestSchema>;
 
-export const MigrateLiquidityResponseSchema = Type.Object({
-  removeLiquidityTx: Type.String(),
-  addLiquidityForTx: Type.String(),
-});
+export const MigrateLiquidityResponseSchema = Type.Array(
+  Type.Object({
+    removeLiquidityTx: Type.Optional(Type.String()),
+    addLiquidityForTx: Type.Optional(Type.String()),
+    err: Type.Optional(Type.Any()),
+  }),
+);
 export type MigrateLiquidityResponse = Static<typeof MigrateLiquidityResponseSchema>;
 
 export const AddLiquidityForRequestSchema = Type.Intersect([

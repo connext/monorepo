@@ -629,20 +629,24 @@ export const addLiquidityForTransactionManager = async (
 
 export const migrateLiquidity = async (
   chainId: number,
-  amount: string,
   assetId: string,
-  newRouterAddress: string | undefined,
   requestContext: RequestContext,
+  routerAddress?: string,
+  amount?: string,
 ): Promise<{ removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt }> => {
   const { methodContext } = createLoggingContext(migrateLiquidity.name, requestContext);
-  const { logger, signerAddress } = getContext();
+  const { logger, signerAddress, contractReader } = getContext();
+
+  if (!amount) {
+    amount = (await contractReader.getAssetBalance(assetId, chainId)).toString();
+  }
 
   logger.info("Method start", requestContext, methodContext, {
     chainId,
     amount,
     assetId,
     signerAddress,
-    newRouterAddress,
+    routerAddress,
   });
 
   const removeLiqudityTx = await removeLiquidityTransactionManager(
@@ -665,7 +669,7 @@ export const migrateLiquidity = async (
     chainId,
     amount,
     assetId,
-    newRouterAddress,
+    routerAddress,
     requestContext,
   );
 
@@ -673,7 +677,7 @@ export const migrateLiquidity = async (
     chainId,
     amount,
     assetId,
-    newRouterAddress: newRouterAddress,
+    routerAddress,
     addLiquidityForTx,
   });
 
