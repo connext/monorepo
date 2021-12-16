@@ -1,5 +1,5 @@
 import { request } from "graphql-request";
-
+import { getHostnameFromRegex } from ".";
 import { NxtpError } from "./error";
 import { getSubgraphHealth } from "./subgraphHealth";
 
@@ -50,7 +50,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * Returns boolean representing whether at least one available subgraph is in sync.
    */
   public get inSync(): boolean {
-    return this.subgraphs.some((sdk) => sdk.record.synced);
+    return this.subgraphs.some((subgraph) => subgraph.record.synced);
   }
 
   /**
@@ -58,7 +58,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * whether the records are in fact representative).
    */
   public get hasSynced(): boolean {
-    return this.subgraphs.some((sdk) => sdk.record.syncedBlock !== -1 && sdk.record.latestBlock !== -1);
+    return this.subgraphs.some((subgraph) => subgraph.record.syncedBlock !== -1 && subgraph.record.latestBlock !== -1);
   }
 
   public get records(): SubgraphSyncRecord[] {
@@ -89,7 +89,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       record: {
         // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
         // which ones are most in sync.
-        uri: url.replace("https://", "").split(".com")[0],
+        uri: getHostnameFromRegex(url) ? getHostnameFromRegex(url)!.split(".").slice(0, -1).join(".") : url,
         name: getSubgraphName(url),
         synced: true,
         latestBlock: -1,
