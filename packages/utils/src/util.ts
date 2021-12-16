@@ -79,3 +79,10 @@ export const ajv = addFormats(new Ajv(), [
 ])
   .addKeyword("kind")
   .addKeyword("modifier");
+
+export const getHostnameFromRegex = (url: string) => {
+  // run against regex
+  const matches = /^https?:\/\/([^/?#]+)(?:[/?#]|$)/i.exec(url);
+  // extract hostname (will be null if no match is found)
+  return matches && matches[1];
+};

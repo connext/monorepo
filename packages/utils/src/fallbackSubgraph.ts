@@ -1,3 +1,4 @@
+import { getHostnameFromRegex } from ".";
 import { NxtpError } from "./error";
 import { getSubgraphHealth } from "./subgraphHealth";
 
@@ -85,7 +86,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       record: {
         // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
         // which ones are most in sync.
-        uri: uri.replace("https://", "").split(".com")[0],
+        uri: getHostnameFromRegex(uri) ? getHostnameFromRegex(uri)!.split(".").slice(0, -1).join(".") : uri,
         name: getSubgraphName(uri),
         synced: true,
         latestBlock: -1,
