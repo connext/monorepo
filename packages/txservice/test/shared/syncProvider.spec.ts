@@ -27,7 +27,7 @@ describe("SyncProvider", () => {
     expect(provider.lag).to.be.eq(0);
     expect(provider.priority).to.be.eq(0);
     expect(provider.cps).to.be.eq(0);
-    expect(provider.avgExecTime).to.be.eq(0);
+    expect(provider.latency).to.be.eq(0);
     expect(provider.reliability).to.be.eq(0);
   });
 
@@ -104,8 +104,8 @@ describe("SyncProvider", () => {
     it("success: should update its internal metrics correctly", async () => {
       (provider as any).updateMetrics(true, Date.now() - 1000, 12, "testMethodName", ["testParam1", "testParam2"]);
       expect(provider.reliability).to.be.gt(startingReliability);
-      expect(provider.avgExecTime).to.be.gt(0);
-      expect((provider as any).execTimes.length).to.be.eq(1);
+      expect(provider.latency).to.be.gt(0);
+      expect((provider as any).latencies.length).to.be.eq(1);
     });
 
     it("failure: should update its internal metrics correctly", async () => {
@@ -114,8 +114,8 @@ describe("SyncProvider", () => {
         context: {},
       });
       expect(provider.reliability).to.be.lt(startingReliability);
-      expect(provider.avgExecTime).to.be.gt(0);
-      expect((provider as any).execTimes.length).to.be.eq(1);
+      expect(provider.latency).to.be.gt(0);
+      expect((provider as any).latencies.length).to.be.eq(1);
     });
   });
 });
