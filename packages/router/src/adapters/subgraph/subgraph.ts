@@ -376,30 +376,6 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
                   status: CrosschainTransactionStatus.ReceiverPrepared,
                 } as ActiveTransaction<"ReceiverPrepared">;
               }
-            // if expired, return
-            if (currentTime > receiving.expiry && correspondingReceiverTx?.status === SdkTransactionStatus.Prepared) {
-              return {
-                crosschainTx: {
-                  invariant,
-                  sending,
-                  receiving,
-                },
-                payload: {
-                  hashes: {
-                    sending: {
-                      prepareHash: senderTx.prepareTransactionHash,
-                      cancelHash: senderTx.cancelTransactionHash,
-                      fulfillHash: senderTx.fulfillTransactionHash,
-                    },
-                    receiving: {
-                      prepareHash: correspondingReceiverTx?.prepareTransactionHash,
-                      cancelHash: correspondingReceiverTx?.cancelTransactionHash,
-                      fulfillHash: correspondingReceiverTx?.fulfillTransactionHash,
-                    },
-                  },
-                },
-                status: CrosschainTransactionStatus.ReceiverExpired,
-              } as ActiveTransaction<"ReceiverExpired">;
             }
 
             if (correspondingReceiverTx?.status === SdkTransactionStatus.Fulfilled) {
