@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [txservice] Fixed issue with RPC stall timeout handling
 - [router] Undefined handling in `bindPrices`
 - [router/sdk] Get active transactions specific to users and routers
 
