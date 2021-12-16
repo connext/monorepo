@@ -18,7 +18,7 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
   const chainIdsForGasFee: number[] = [];
   const _contractDeployments = getContractDeployments();
   Object.keys(_contractDeployments).forEach((chainId) => {
-    const record = (_contractDeployments as any)[chainId];
+    const record = _contractDeployments[chainId];
     const chainName = Object.keys(record)[0];
     if (chainName) {
       const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
@@ -41,7 +41,7 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
   const _contractDeployments = getContractDeployments();
-  const record = (_contractDeployments as any)[String(chainId)] ?? {};
+  const record = _contractDeployments[String(chainId)] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
