@@ -2,6 +2,8 @@
 
 ## Next Release -
 
+- [txservice] Fix handling of RPC provider server errors
+
 # 0.0.102
 
 - [txservice] Fixed issue with RPC stall timeout handling
