@@ -1,7 +1,9 @@
 import { request } from "graphql-request";
-import { getHostnameFromRegex } from ".";
+
 import { NxtpError } from "./error";
 import { getSubgraphHealth } from "./subgraphHealth";
+
+import { getHostnameFromRegex } from ".";
 
 export type SubgraphSyncRecord = {
   uri: string;
