@@ -45,8 +45,6 @@ describe("Config", () => {
       const res = getDeployedChainIdsForGasFee();
       expect(res).to.be.includes(4);
       expect(res).to.be.includes(42161);
-      expect(res.address).to.be.ok;
-      expect(res.abi).to.be.ok;
     });
   });
 
