@@ -1,6 +1,6 @@
 # NXTP Changelog
 
-## Next Release
+## Next Release -
 
 # 0.0.102
 
