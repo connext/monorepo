@@ -609,19 +609,18 @@ export class ChainRpcProvider {
     if (needsSigner) {
       this.checkSigner();
     }
-    const errors: any[] = [];
+    const errors: NxtpError[] = [];
     const syncedProviders = this.shuffleSyncedProviders();
     for (const provider of syncedProviders) {
       try {
         return await method(provider);
       } catch (e) {
+        // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
+        // however, as it will return instantly if the error is already a NxtpError.
         const error = parseError(e);
         // If the error thrown is a timeout or non-RPC or non-Server error, we want to go ahead and throw it.
         // e.g. a TransactionReverted, TransactionReplaced, etc.
-        if (
-          error.type !== ServerError.type &&
-          (error.type !== RpcError.type || (error as RpcError).reason === RpcError.reasons.Timeout)
-        ) {
+        if (error.type !== ServerError.type && error.type !== RpcError.type) {
           throw error;
         } else {
           errors.push(error);
@@ -722,7 +721,8 @@ export class ChainRpcProvider {
         p.lag -
         (this.leadProvider && p.name === this.leadProvider.name ? 1 : Math.random()) -
         p.cps / this.config.maxProviderCPS -
-        p.reliability * 2 +
+        // Reliability factor reflects how often RPC errors are encountered, as well as timeouts.
+        p.reliability * 10 +
         p.avgExecTime;
     });
     return syncedProviders.sort((a, b) => a.priority - b.priority);
