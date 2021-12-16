@@ -73,7 +73,7 @@ describe("Fulfill Receiver Operation", () => {
       const receipt = await fulfill(invariantDataMock, fulfillInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfill).to.be.calledOnceWith(
+      expect(contractWriterMock.fulfill).to.be.calledOnceWithExactly(
         invariantDataMock.receivingChainId,
         {
           relayerFee: fulfillInputMock.relayerFee,
