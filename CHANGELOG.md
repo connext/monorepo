@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [txservice] Fixed issue with RPC stall timeout handling
 - [router] Undefined handling in `bindPrices`
 
 # 0.0.101
