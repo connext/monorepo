@@ -677,19 +677,24 @@ export class ChainRpcProvider {
 
     // We want to pick the lead provider here at random from the list of 0-lag providers to ensure that we distribute
     // our block listener RPC calls as evenly as possible across all providers.
-    const leadProviders = this.shuffleSyncedProviders(true);
-    this.leadProvider = leadProviders[(Math.random() * leadProviders.length) | 0];
+    const leadProviders = this.shuffleSyncedProviders();
+    this.leadProvider = leadProviders[0];
 
     this.logger.debug("Synced provider(s).", requestContext, methodContext, {
       highestBlockNumber,
       leadProvider: this.leadProvider.name,
-      providers: this.providers
-        .filter((p) => p.synced)
-        .map((p) => ({
-          url: p.name,
-          blockNumber: p.syncedBlockNumber,
-          lag: p.lag,
-        })),
+      providers: this.providers.map((p) => ({
+        url: p.name,
+        blockNumber: p.syncedBlockNumber,
+        lag: p.lag,
+        synced: p.synced,
+        metrics: {
+          reliability: p.reliability,
+          latency: p.latency,
+          cps: p.cps,
+          priority: p.priority,
+        },
+      })),
     });
   }
 
@@ -710,22 +715,26 @@ export class ChainRpcProvider {
    * @returns all in-sync providers in order of synchronicity with chain, with the lead provider
    * in the first position and the rest shuffled by tier (lag).
    */
-  private shuffleSyncedProviders(zeroLagOnly = false): SyncProvider[] {
-    const syncedProviders = this.providers.filter((p) => (zeroLagOnly ? p.lag === 0 : p.synced));
+  private shuffleSyncedProviders(): SyncProvider[] {
+    // TODO: Should priority be a getter, and calculated internally?
     // Tiered shuffling: providers that have the same lag value (e.g. 0) will be shuffled so as to distribute RPC calls
     // as evenly as possible across all providers; at high load, this can translate to higher efficiency (each time we
     // execute an RPC call, we'll be hitting different providers).
     // Shuffle isn't applied to lead provider - instead, we just guarantee that it's in the first position.
-    syncedProviders.forEach((p) => {
+    this.providers.forEach((p) => {
       p.priority =
         p.lag -
         (this.leadProvider && p.name === this.leadProvider.name ? 1 : Math.random()) -
         p.cps / this.config.maxProviderCPS -
         // Reliability factor reflects how often RPC errors are encountered, as well as timeouts.
         p.reliability * 10 +
-        p.avgExecTime;
+        p.latency;
     });
-    return syncedProviders.sort((a, b) => a.priority - b.priority);
+    // Always start with the in-sync providers and then concat the out of sync subgraphs.
+    return this.providers
+      .filter((p) => p.synced)
+      .sort((a, b) => a.priority - b.priority)
+      .concat(this.providers.filter((p) => !p.synced).sort((a, b) => a.priority - b.priority));
   }
 
   private async setBlockPeriod(): Promise<void> {

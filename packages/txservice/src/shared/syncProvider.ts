@@ -5,6 +5,7 @@ import { parseError, RpcError } from "./errors";
 
 export const { StaticJsonRpcProvider } = providers;
 
+// TODO: Wrap metrics in a type, and add a getter for it for logging purposes (after sync() calls, for example)
 // TODO: Should be a multiton mapped by URL (such that no duplicate instances are created).
 /**
  * @classdesc An extension of StaticJsonRpcProvider that manages a providers chain synchronization status
@@ -32,14 +33,14 @@ export class SyncProvider extends StaticJsonRpcProvider {
     this.cpsTimestamps = this.cpsTimestamps.filter((ts) => now - ts < 10_000);
     return this.cpsTimestamps.length / 10;
   }
-  private execTimes: number[] = [];
-  public get avgExecTime(): number {
-    if (this.execTimes.length === 0) {
+  private latencies: number[] = [];
+  public get latency(): number {
+    if (this.latencies.length === 0) {
       return 0.0;
     }
     // Average execution time over the last N samples.
-    this.execTimes = this.execTimes.slice(-SyncProvider.N_SAMPLES);
-    return this.execTimes.reduce((a, b) => a + b, 0) / this.execTimes.length;
+    this.latencies = this.latencies.slice(-SyncProvider.N_SAMPLES);
+    return this.latencies.reduce((a, b) => a + b, 0) / this.latencies.length;
   }
 
   // This variable is used to track the last block number this provider synced to, and is kept separately from the
@@ -85,11 +86,11 @@ export class SyncProvider extends StaticJsonRpcProvider {
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
     // and running smoothly.
     const ready = await this.ready;
-    if (!ready || (!this.synced && method !== "eth_blockNumber")) {
+    if (!ready) {
       throw new RpcError(RpcError.reasons.OutOfSync, {
         provider: this.name,
         chainId: this.chainId,
-        blockNumber: this.syncedBlockNumber,
+        lastSyncedBlockNumber: this.syncedBlockNumber,
         synced: this.synced,
         lag: this.lag,
         ready,
@@ -171,13 +172,13 @@ export class SyncProvider extends StaticJsonRpcProvider {
     params: any[],
     error?: { type: string; context: any; isTimeout: boolean },
   ) {
-    const execTime = +((Date.now() - sendTimestamp) / 1000).toFixed(2);
-    this.execTimes.push(execTime);
+    const latency = +((Date.now() - sendTimestamp) / 1000).toFixed(2);
+    this.latencies.push(latency);
     if (success) {
       this.reliability = Math.min(1, +(this.reliability + SyncProvider.RELIABILITY_STEP).toFixed(2));
     } else {
       if (error?.isTimeout) {
-        // If the provider really is not responding in stallTimeout time (by default 10s), we should assume
+        // If the provider really is not responding in stallTimeout time (by default 10s!), we should assume
         // it is unresponsive and severely penalize reliability score as a result.
         this.reliability = 0;
       } else {
@@ -189,7 +190,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
       `#${iteration}`,
       method,
       this.cps,
-      execTime,
+      latency,
       this.reliability,
       // TODO: Logging params for these methods is for debugging purposes only.
       ["eth_getBlockByNumber", "eth_getTransactionByHash", "eth_getTransactionReceipt"].includes(method)
