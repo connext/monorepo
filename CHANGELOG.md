@@ -11,6 +11,7 @@
 - [txservice] error types
 - [utils] subgraph health query method implementation
 - [sdk] Add generic subgraph query method
+- [sdk] Add generic subgraph query method
 
 # 0.0.101
 
