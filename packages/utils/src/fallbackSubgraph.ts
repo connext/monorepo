@@ -135,9 +135,7 @@ export class FallbackSubgraph<T extends SdkLike> {
               });
             }
           }),
-          new Promise<Q>((_, reject) =>
-            setTimeout(() => reject(new NxtpError("Timeout")), this.stallTimeout),
-          ),
+          new Promise<Q>((_, reject) => setTimeout(() => reject(new NxtpError("Timeout")), this.stallTimeout)),
         ]);
       } catch (e) {
         errors.push(e);
@@ -228,7 +226,6 @@ export class FallbackSubgraph<T extends SdkLike> {
     return this.sdks
       .filter((sdk) => sdk.record.synced)
       .sort((sdkA, sdkB) => sdkA.priority - sdkB.priority)
-      .concat(this.sdks.filter((sdk) => !sdk.record.synced))
-      .sort((sdkA, sdkB) => sdkA.priority - sdkB.priority);
+      .concat(this.sdks.filter((sdk) => !sdk.record.synced).sort((sdkA, sdkB) => sdkA.priority - sdkB.priority));
   }
 }

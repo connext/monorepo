@@ -9,7 +9,7 @@ import {
   TransactionFulfilled,
   TransactionPrepared,
 } from "../../generated/TransactionManager/TransactionManager";
-import { AssetBalance, Router, HourlyMetric, DayMetric } from "../../generated/schema";
+import { AssetBalance, Router, DayMetric } from "../../generated/schema";
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -75,13 +75,31 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     router.save();
   }
   const chainId = getChainId(event.address);
+
+  const routerAddress = event.params.router;
+  const sendingChainId = event.params.txData.sendingChainId;
+  const sendingAssetId = event.params.txData.sendingAssetId;
+
+  const receivingChainId = event.params.txData.receivingChainId;
+  const receivingAssetId = event.params.txData.receivingAssetId;
+
+  const amount = event.params.txData.amount;
+
   // Get receiving asset balance (update amount and locked)
   // router is providing liquidity on receiver prepare
-  if (chainId == event.params.txData.receivingChainId) {
-    const assetBalance = getOrCreateAssetBalance(event.params.txData.receivingAssetId, event.params.router);
-    assetBalance.amount = assetBalance.amount.minus(event.params.txData.amount);
-    assetBalance.locked = assetBalance.locked.plus(event.params.txData.amount);
-    assetBalance.save();
+  if (chainId == receivingChainId) {
+    const receivingAssetBalance = getOrCreateAssetBalance(receivingAssetId, routerAddress);
+    receivingAssetBalance.amount = receivingAssetBalance.amount.minus(amount);
+    receivingAssetBalance.locked = receivingAssetBalance.locked.plus(amount);
+    receivingAssetBalance.receivingPrepareTxCount = receivingAssetBalance.receivingPrepareTxCount.plus(
+      BigInt.fromI32(1),
+    );
+    receivingAssetBalance.save();
+  } else if (chainId == sendingChainId) {
+    const sendingAssetBalance = getOrCreateAssetBalance(sendingAssetId, routerAddress);
+    sendingAssetBalance.lockedIn = sendingAssetBalance.lockedIn.plus(amount);
+    sendingAssetBalance.sendingPrepareTxCount = sendingAssetBalance.sendingPrepareTxCount.plus(BigInt.fromI32(1));
+    sendingAssetBalance.save();
   }
 }
 
@@ -101,6 +119,7 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   const sendingAssetId = event.params.txData.sendingAssetId;
   const receivingAssetId = event.params.txData.receivingAssetId;
   const amount = event.params.txData.amount;
+  const relayerFee = event.params.relayerFee;
 
   // receiving chain
   if (chainId == receivingChainId) {
@@ -108,43 +127,39 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
     const receivingAssetBalance = getOrCreateAssetBalance(receivingAssetId, router);
     // load metrics
     const dayMetricReceiving = getOrCreateDayMetric(timestamp, receivingAssetId);
-    const hourlyMetricReceiving = getOrCreateHourlyMetric(timestamp, receivingAssetId);
 
     // router releases locked liquidity on receiver fulfill
     receivingAssetBalance.locked = receivingAssetBalance.locked.minus(amount);
     receivingAssetBalance.volume = receivingAssetBalance.volume.plus(amount);
+    receivingAssetBalance.receivingFulfillTxCount = receivingAssetBalance.receivingFulfillTxCount.plus(
+      BigInt.fromI32(1),
+    );
 
     // Update metrics
-    hourlyMetricReceiving.volume = hourlyMetricReceiving.volume.plus(amount);
-    hourlyMetricReceiving.receivingTxCount = hourlyMetricReceiving.receivingTxCount.plus(BigInt.fromI32(1));
-
     dayMetricReceiving.volume = dayMetricReceiving.volume.plus(amount);
     dayMetricReceiving.receivingTxCount = dayMetricReceiving.receivingTxCount.plus(BigInt.fromI32(1));
+    dayMetricReceiving.relayerFee = dayMetricReceiving.relayerFee.plus(relayerFee);
 
     // Save
     receivingAssetBalance.save();
-    hourlyMetricReceiving.save();
     dayMetricReceiving.save();
   } else if (chainId == sendingChainId) {
     // Get asset balance
     const sendingAssetBalance = getOrCreateAssetBalance(sendingAssetId, router);
     // load metrics
     const dayMetricsSending = getOrCreateDayMetric(timestamp, sendingAssetId);
-    const hourlyMetricsSending = getOrCreateHourlyMetric(timestamp, sendingAssetId);
 
     // router receives liquidity back on sender fulfill
     sendingAssetBalance.amount = sendingAssetBalance.amount.plus(amount);
+    sendingAssetBalance.lockedIn = sendingAssetBalance.lockedIn.minus(amount);
     sendingAssetBalance.volumeIn = sendingAssetBalance.volumeIn.plus(amount);
-
-    hourlyMetricsSending.volumeIn = hourlyMetricsSending.volumeIn.plus(amount);
-    hourlyMetricsSending.sendingTxCount = hourlyMetricsSending.sendingTxCount.plus(BigInt.fromI32(1));
+    sendingAssetBalance.sendingFulfillTxCount = sendingAssetBalance.sendingFulfillTxCount.plus(BigInt.fromI32(1));
 
     dayMetricsSending.volumeIn = dayMetricsSending.volumeIn.plus(amount);
     dayMetricsSending.sendingTxCount = dayMetricsSending.sendingTxCount.plus(BigInt.fromI32(1));
 
     // Save
     sendingAssetBalance.save();
-    hourlyMetricsSending.save();
     dayMetricsSending.save();
   }
 }
@@ -159,6 +174,9 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   const timestamp = event.block.timestamp;
   const router = event.params.router;
 
+  const sendingChainId = event.params.txData.sendingChainId;
+  const sendingAssetId = event.params.txData.sendingAssetId;
+
   const receivingChainId = event.params.txData.receivingChainId;
   const receivingAssetId = event.params.txData.receivingAssetId;
   const amount = event.params.txData.amount;
@@ -167,20 +185,25 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   if (chainId == receivingChainId) {
     const receivingAssetBalance = getOrCreateAssetBalance(receivingAssetId, router);
     const dayMetricReceiving = getOrCreateDayMetric(timestamp, receivingAssetId);
-    const hourlyMetricReceiving = getOrCreateHourlyMetric(timestamp, receivingAssetId);
 
     // preparation for the receiving chain
     receivingAssetBalance.amount = receivingAssetBalance.amount.plus(amount);
     receivingAssetBalance.locked = receivingAssetBalance.locked.minus(amount);
+    receivingAssetBalance.receivingCancelTxCount = receivingAssetBalance.receivingCancelTxCount.plus(BigInt.fromI32(1));
 
     // update metrics
-    hourlyMetricReceiving.cancelTxCount = hourlyMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
     dayMetricReceiving.cancelTxCount = dayMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
 
     // save
     receivingAssetBalance.save();
-    hourlyMetricReceiving.save();
     dayMetricReceiving.save();
+  } else if (chainId == sendingChainId) {
+    const sendingAssetBalance = getOrCreateAssetBalance(sendingAssetId, router);
+    sendingAssetBalance.lockedIn = sendingAssetBalance.lockedIn.minus(amount);
+    sendingAssetBalance.sendingCancelTxCount = sendingAssetBalance.sendingCancelTxCount.plus(BigInt.fromI32(1));
+
+    // save
+    sendingAssetBalance.save();
   }
 }
 
@@ -243,25 +266,6 @@ function getOrCreateAssetBalance(assetId: Bytes, router: Address): AssetBalance 
     assetBalance.volumeIn = new BigInt(0);
   }
   return assetBalance;
-}
-
-function getOrCreateHourlyMetric(timestamp: BigInt, assetId: Bytes): HourlyMetric {
-  let hour = timestamp.toI32() / 3600; // rounded
-  let hourStartTimestamp = hour * 3600;
-
-  let hourIDPerAsset = hour.toString() + "-" + assetId.toHex();
-  let hourlyMetric = HourlyMetric.load(hourIDPerAsset);
-  if (hourlyMetric === null) {
-    hourlyMetric = new HourlyMetric(hourIDPerAsset);
-    hourlyMetric.hourStartTimestamp = BigInt.fromI32(hourStartTimestamp);
-    hourlyMetric.assetId = assetId.toHex();
-    hourlyMetric.volume = BigInt.fromI32(0);
-    hourlyMetric.sendingTxCount = BigInt.fromI32(0);
-    hourlyMetric.receivingTxCount = BigInt.fromI32(0);
-    hourlyMetric.cancelTxCount = BigInt.fromI32(0);
-    hourlyMetric.volumeIn = BigInt.fromI32(0);
-  }
-  return hourlyMetric;
 }
 
 function getOrCreateDayMetric(timestamp: BigInt, assetId: Bytes): DayMetric {

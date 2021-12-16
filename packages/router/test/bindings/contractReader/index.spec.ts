@@ -8,7 +8,7 @@ import {
   RequestContextWithTransactionId,
 } from "@connext/nxtp-utils";
 import { reset, restore, SinonStub, stub } from "sinon";
-import { providers } from "ethers/lib/ethers";
+import { providers } from "ethers";
 
 import {
   ActiveTransaction,

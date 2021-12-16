@@ -511,7 +511,8 @@ export class NxtpSdkBase {
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
     const user = await this.config.signerAddress;
-    const transactionId = getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
+    const transactionId =
+      params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
 
     const { requestContext, methodContext } = createLoggingContext(
       this.getTransferQuote.name,
