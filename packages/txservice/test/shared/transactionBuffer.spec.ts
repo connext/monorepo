@@ -1,10 +1,7 @@
-import { randomInt } from "crypto";
-import { utils } from "ethers";
-import { SinonStub, stub } from "sinon";
-import { expect, Logger } from "@connext/nxtp-utils";
+import { expect, Logger, NxtpError } from "@connext/nxtp-utils";
 
-import { MaxBufferLengthError, OnchainTransaction, TransactionBuffer } from "../../src/shared";
-import { getMockOnchainTransaction, MockOnchainTransactionState, TEST_ERROR, TEST_SENDER_CHAIN_ID } from "../utils";
+import { MaxBufferLengthError, TransactionBackfilled, TransactionBuffer } from "../../src/shared";
+import { getMockOnchainTransaction, TEST_SENDER_CHAIN_ID } from "../utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -37,6 +34,19 @@ describe("TransactionBuffer", () => {
       buffer.push(transaction);
       expect(buffer.length).to.eq(1);
       expect(buffer[0]).to.deep.eq(transaction);
+    });
+
+    it("should error out backfilled / replaced tx", () => {
+      const nonce = 1234567;
+      const { transaction: tx1 } = getMockOnchainTransaction(nonce);
+      buffer.push(tx1);
+
+      const { transaction: tx2 } = getMockOnchainTransaction(nonce);
+      buffer.push(tx2);
+
+      expect(buffer.length).to.eq(1);
+      expect(buffer[0]).to.deep.eq(tx2);
+      expect((tx1.error as NxtpError).type).to.be.eq(TransactionBackfilled.type);
     });
 
     it("throws MaxBufferLengthError if at max length", () => {
