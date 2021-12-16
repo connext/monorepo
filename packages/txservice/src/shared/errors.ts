@@ -25,7 +25,7 @@ export class RpcError extends NxtpError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ConnectionReset: "Connection was reset by peer.",
-    Timeout: "Request timed out",
+    StallTimeout: "Request stalled and timed out",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {

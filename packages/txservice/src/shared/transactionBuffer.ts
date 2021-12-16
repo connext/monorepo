@@ -92,9 +92,11 @@ export class TransactionBuffer extends Array<OnchainTransaction> {
             break;
           }
         }
-        // This splice operation will replace that transaction in the buffer.
+        // This splice operation will insert the new transaction into the correct position in the buffer,
+        // and possibly replace an existing transaction with the same nonce.
         replacedTx = super.splice(index, shouldReplace ? 1 : 0, tx)[0];
       }
+      // This error setting will cause any processes currently using this transaction to error out.
       replacedTx.error = new TransactionBackfilled({
         replacement: tx.loggable,
       });
@@ -116,7 +118,7 @@ export class TransactionBuffer extends Array<OnchainTransaction> {
   }
 
   public getTxByNonce(nonce: number): OnchainTransaction | undefined {
-    return this.find((tx) => tx.nonce === nonce) ?? this.lastShiftedTx;
+    return this.lastShiftedTx?.nonce === nonce ? this.lastShiftedTx : this.find((tx) => tx.nonce === nonce);
   }
 
   private log(message?: string, context: any = {}, error = false) {

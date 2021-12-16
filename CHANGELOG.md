@@ -1,6 +1,12 @@
 # NXTP Changelog
 
-## Next Release
+## Next Release -
+
+# 0.0.102
+
+- [txservice] Fixed issue with RPC stall timeout handling
+- [router] Undefined handling in `bindPrices`
+- [router/sdk] Get active transactions specific to users and routers
 
 - [txservice] error types
 - [utils] subgraph health query method implementation

@@ -727,7 +727,7 @@ describe("ChainRpcProvider", () => {
         provider.lag = 0;
         provider.reliability = 0.5;
         Sinon.stub(provider, "cps").get(() => 1);
-        Sinon.stub(provider, "avgExecTime").get(() => 0.5);
+        Sinon.stub(provider, "latency").get(() => 0.5);
       }
 
       syncProvidersStub.restore();
@@ -766,7 +766,7 @@ describe("ChainRpcProvider", () => {
         // in order to isolate the logic for prioritizing based on lag.
         provider.reliability = 0.5;
         Sinon.stub(provider, "cps").get(() => 1);
-        Sinon.stub(provider, "avgExecTime").get(() => 0.5);
+        Sinon.stub(provider, "latency").get(() => 0.5);
         testProviders.push(provider);
       }
       const leadProviderUrl = "mr. lead provider";
@@ -778,10 +778,9 @@ describe("ChainRpcProvider", () => {
 
       expect(shuffledProviders).to.be.an("array");
 
-      // All providers should be in sync.
-      expect(shuffledProviders.length).to.be.eq(inSyncProvidersCount);
-      expect(shuffledProviders.every((p: SyncProvider) => p.synced)).to.be.true;
-      expect(shuffledProviders).to.not.deep.equal(testProviders);
+      // Should return list in order: first <inSyncProvidersCount> are in-sync, remaining are out-of-sync.
+      expect(shuffledProviders.slice(0, inSyncProvidersCount).every((p: SyncProvider) => p.synced)).to.be.true;
+      expect(shuffledProviders.slice(inSyncProvidersCount).every((p: SyncProvider) => p.synced)).to.be.false;
 
       // First provider should be the lead provider.
       expect(shuffledProviders[0].url).to.be.eq(leadProviderUrl);
