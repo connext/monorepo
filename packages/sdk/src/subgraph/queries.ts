@@ -174,6 +174,49 @@ export const getTransactionsByIdsQuery = gql`
   }
 `;
 
+export const getTransactionsByIdsWithUserQuery = gql`
+  query GetTransactionsWithUser($transactionIds: [Bytes!], $userId: String!) {
+    transactions(where: { transactionId_in: $transactionIds, user: $userId }) {
+      id
+      status
+      chainId
+      preparedTimestamp
+      user {
+        id
+      }
+      router {
+        id
+      }
+      initiator
+      receivingChainTxManagerAddress
+      sendingAssetId
+      receivingAssetId
+      sendingChainFallback
+      receivingAddress
+      callTo
+      sendingChainId
+      receivingChainId
+      callDataHash
+      transactionId
+      amount
+      expiry
+      preparedBlockNumber
+      encryptedCallData
+      encodedBid
+      bidSignature
+      relayerFee
+      signature
+      callData
+      prepareCaller
+      fulfillCaller
+      cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
+    }
+  }
+`;
+
 export const getBlockNumber = gql`
   query GetBlockNumber {
     _meta {

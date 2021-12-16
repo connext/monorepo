@@ -178,6 +178,45 @@ export const getTransactionsByIdsQuery = gql`
   }
 `;
 
+export const getTransactionsByIdsWithRouterQuery = gql`
+  query GetTransactionsWithRouter($transactionIds: [Bytes!], $routerId: String!) {
+    transactions(where: { transactionId_in: $transactionIds, router: $routerId }) {
+      id
+      status
+      chainId
+      user {
+        id
+      }
+      router {
+        id
+      }
+      initiator
+      receivingChainTxManagerAddress
+      sendingAssetId
+      receivingAssetId
+      sendingChainFallback
+      receivingAddress
+      callTo
+      sendingChainId
+      receivingChainId
+      callDataHash
+      transactionId
+      amount
+      expiry
+      preparedBlockNumber
+      relayerFee
+      signature
+      callData
+      prepareCaller
+      fulfillCaller
+      cancelCaller
+      prepareTransactionHash
+      fulfillTransactionHash
+      cancelTransactionHash
+    }
+  }
+`;
+
 export const getAssetBalanceById = gql`
   query GetAssetBalance($assetBalanceId: ID!) {
     assetBalance(id: $assetBalanceId) {

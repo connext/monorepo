@@ -22,10 +22,10 @@ export const bindPrices = async () => {
         const cachingAssetIdOnMainnet = await getMainnetEquivalent(asset.assetId, asset.chainId);
         const cachingTokenChainId = cachingAssetIdOnMainnet ? 1 : asset.chainId;
         const cachingTokenAssetId = cachingAssetIdOnMainnet ? cachingAssetIdOnMainnet : asset.assetId;
-        if (!chainAssetMap.get(cachingTokenChainId)) {
+        if (!chainAssetMap.has(cachingTokenChainId)) {
           chainAssetMap.set(cachingTokenChainId, []);
         }
-        chainAssetMap.get(cachingTokenChainId)?.push(cachingTokenAssetId);
+        chainAssetMap.get(cachingTokenChainId)!.push(cachingTokenAssetId);
       }
     }
 
@@ -59,7 +59,7 @@ export const bindPrices = async () => {
         const assetIds = chainAssetMap.get(chainId);
         const priceOracleContract = getDeployedPriceOracleContract(chainId);
         if (assetIds && priceOracleContract && priceOracleContract.address) {
-          const multicallAddress = config.chainConfig[chainId].multicallAddress;
+          const multicallAddress = config.chainConfig[chainId]?.multicallAddress;
           if (multicallAddress) {
             // if multicall address is given, we use multicall contract to fetch token price
             logger.info("fetching token prices using multicall", requestContext, methodContext, {
@@ -118,7 +118,7 @@ export const bindPrices = async () => {
           }
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       logger.error(
         "Error getting token prices, waiting for next loop",
         requestContext,
