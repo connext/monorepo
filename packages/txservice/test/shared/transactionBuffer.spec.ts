@@ -41,7 +41,36 @@ describe("TransactionBuffer", () => {
     });
   });
 
-  describe("#shift", () => {});
+  describe("#shift", () => {
+    it("happy shift", () => {
+      let shiftedTx: OnchainTransaction;
+      let i: number;
 
-  describe("#getTxByNonce", () => {});
+      // empty buffer returns undefined
+      expect(buffer.shift()).to.be.equal(undefined);
+
+      for (i = 0; i < buffer.maxLength; i++) {
+        const { transaction } = getMockOnchainTransaction(i);
+        buffer.push(transaction);
+      }
+
+      shiftedTx = buffer.shift();
+      expect(buffer.length).to.be.equal(buffer.maxLength - 1);
+      expect(shiftedTx.nonce).to.be.equal(0);
+    });
+  });
+
+  describe("#getTxByNonce", () => {
+    it("happy getTx from Nonce", () => {
+      let i: number;
+      for (i = 0; i < buffer.maxLength; i++) {
+        const { transaction } = getMockOnchainTransaction(i + 1);
+        buffer.push(transaction);
+      }
+
+      expect(buffer.getTxByNonce(1)).to.be.deep.eq(buffer[0]);
+      expect(buffer.getTxByNonce(buffer.maxLength)).to.be.deep.eq(buffer[buffer.maxLength - 1]);
+      expect(buffer.getTxByNonce(buffer.maxLength + 1)).to.be.eq(undefined);
+    });
+  });
 });
