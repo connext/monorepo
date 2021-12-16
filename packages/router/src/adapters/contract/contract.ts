@@ -18,7 +18,7 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 
 import { getContext } from "../../router";
-import { TransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { NotExistPriceOracle, SanitationCheckFailed } from "../../lib/errors/contracts";
 
 const { HashZero } = constants;

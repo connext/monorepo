@@ -33,7 +33,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     assetBalance.amount = new BigInt(0);
   }
   // add new amount
-  assetBalance.amount = assetBalance!.amount.plus(event.params.amount);
+  assetBalance.amount = assetBalance.amount.plus(event.params.amount);
   assetBalance.save();
 }
 
@@ -167,8 +167,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
   if (chainId == transaction.receivingChainId) {
     let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
-    assetBalance.amount = assetBalance.amount.minus(transaction.amount);
-    assetBalance.save();
+    assetBalance!.amount = assetBalance!.amount.minus(transaction.amount);
+    assetBalance!.save();
   }
 }
 
@@ -197,16 +197,16 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   transaction!.save();
 
   // router receives liquidity back on sender fulfill
-  if (transaction.chainId == transaction.sendingChainId) {
-    let assetBalanceId = transaction.sendingAssetId.toHex() + "-" + event.params.router.toHex();
+  if (transaction!.chainId == transaction!.sendingChainId) {
+    let assetBalanceId = transaction!.sendingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
-      assetBalance.assetId = transaction.sendingAssetId;
+      assetBalance.assetId = transaction!.sendingAssetId;
       assetBalance.router = event.params.router.toHex();
       assetBalance.amount = new BigInt(0);
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
+    assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
     assetBalance.save();
   }
 }
@@ -230,16 +230,16 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   transaction!.save();
 
   // router receives liquidity back on receiver cancel
-  if (transaction.chainId == transaction.receivingChainId) {
-    let assetBalanceId = transaction.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+  if (transaction!.chainId == transaction!.receivingChainId) {
+    let assetBalanceId = transaction!.receivingAssetId.toHex() + "-" + event.params.router.toHex();
     let assetBalance = AssetBalance.load(assetBalanceId);
     if (assetBalance == null) {
       assetBalance = new AssetBalance(assetBalanceId);
-      assetBalance.assetId = transaction.receivingAssetId;
+      assetBalance.assetId = transaction!.receivingAssetId;
       assetBalance.router = event.params.router.toHex();
       assetBalance.amount = new BigInt(0);
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction.amount);
+    assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
     assetBalance.save();
   }
 }

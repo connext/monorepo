@@ -65,13 +65,46 @@ export const getMainnetEquivalent = async (assetId: string, chainId: number): Pr
 };
 
 /**
+ *
+ * Converts the received amount into the sending asset, assuming 1:1 price
+ *
+ * @param sendingAssetId The asset address on source chain
+ * @param sendingChainId The source chain Id
+ * @param receivingAssetId The asset address on destination chain
+ * @param receivingChainId The destination chain Id
+ * @returns
+ */
+export const getFeesInSendingAsset = async (
+  receivedAmount: BigNumber, // receiving asset
+  sentAmount: BigNumber,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
+): Promise<string> => {
+  const { txService } = getContext();
+  const [sendingDecimals, receivingDecimals] = await Promise.all([
+    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
+    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
+  ]);
+
+  const normalizedReceived = receivedAmount.mul(BigNumber.from(10).pow(18 - receivingDecimals));
+  const normalizedSending = sentAmount.mul(BigNumber.from(10).pow(18 - sendingDecimals));
+
+  // Assume 1:1 once normalized
+  const fees = normalizedReceived.sub(normalizedSending).div(BigNumber.from(10).pow(18 - sendingDecimals));
+
+  return fees.toString();
+};
+
+/**
  * Helper to calculate router gas fee in token
  *
  * @param sendingAssetId The asset address on source chain
  * @param sendingChainId The source chain Id
  * @param receivingAssetId The asset address on destination chain
  * @param receivingChainId The destination chain Id
- * @param _outputDecimals Decimal number of receiving asset
+ * @param outputDecimals Decimal number of receiving asset
  * @param requestContext Request context instance
  */
 export const calculateGasFeeInReceivingToken = async (
@@ -101,7 +134,7 @@ export const calculateGasFeeInReceivingToken = async (
   const nativeTokenPricingReceivingChain = receicingNativeAssetIdOnMainnet ? 1 : receivingChainId;
   const nativeTokenPricingAssetIdReceivingChain = receicingNativeAssetIdOnMainnet
     ? receicingNativeAssetIdOnMainnet
-    : receivingAssetId;
+    : constants.AddressZero;
 
   return txService.calculateGasFeeInReceivingToken(
     tokenPricingSendingChain,

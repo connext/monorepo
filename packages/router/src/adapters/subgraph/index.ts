@@ -2,12 +2,20 @@ import { FallbackSubgraph, RequestContext, SubgraphSyncRecord } from "@connext/n
 import { BigNumber } from "ethers/lib/ethers";
 import { GraphQLClient } from "graphql-request";
 
-import { ActiveTransaction, SingleChainTransaction } from "../../lib/entities";
+import { ActiveTransaction, ExpressiveAssetBalance, SingleChainTransaction } from "../../lib/entities";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
 import { getContext } from "../../router";
 
-import { getSdk, Sdk } from "./graphqlsdk";
-import { getActiveTransactions, getAssetBalance, getTransactionForChain, getSyncRecords } from "./subgraph";
+import { getSdk, Sdk } from "./runtime/graphqlsdk";
+import { getSdk as getAnalyticsSdk, Sdk as AnalyticsSdk } from "./analytics/graphqlsdk";
+import {
+  getActiveTransactions,
+  getAssetBalance,
+  getTransactionForChain,
+  getSyncRecords,
+  getAssetBalances,
+  getExpressiveAssetBalances,
+} from "./subgraph";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
@@ -26,6 +34,23 @@ export type ContractReader = {
    * @returns The available balance
    */
   getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
+
+  /**
+   * Returns available liquidity for any of the assets
+   *
+   * @param chainId - The chain you want to determine liquidity on
+   * @returns An array of asset ids and amounts of liquidity
+   */
+  getAssetBalances: (chainId: number) => Promise<{ assetId: string; amount: BigNumber }[]>;
+
+  /**
+   * Returns the detailed analytics view of router liquidity
+   *
+   * @param chainId - The chain you want to determine liquidity on
+   * @returns An array of asset ids and amounts of liquidity
+   */
+  getExpressiveAssetBalances: (chainId: number) => Promise<ExpressiveAssetBalance[]>;
+
   getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
 };
 
@@ -38,13 +63,32 @@ export const getSdks = (): Record<number, FallbackSubgraph<Sdk>> => {
   return sdks;
 };
 
+const analyticsSdks: Record<number, FallbackSubgraph<AnalyticsSdk>> = {};
+
+export const getAnalyticsSdks = (): Record<number, FallbackSubgraph<AnalyticsSdk>> => {
+  if (Object.keys(analyticsSdks).length === 0) {
+    throw new ContractReaderNotAvailableForChain(0);
+  }
+  return analyticsSdks;
+};
+
 export const subgraphContractReader = (): ContractReader => {
   const { config } = getContext();
-  Object.entries(config.chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer }]) => {
+  Object.entries(config.chainConfig).forEach(([chainId, { subgraph, analyticsSubgraph, subgraphSyncBuffer }]) => {
     const chainIdNumber = parseInt(chainId);
     const sdksWithClients = subgraph.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
     const fallbackSubgraph = new FallbackSubgraph<Sdk>(chainIdNumber, sdksWithClients, subgraphSyncBuffer);
     sdks[chainIdNumber] = fallbackSubgraph;
+
+    const analyticsSdksWithClients = analyticsSubgraph.map((uri) => ({
+      client: getAnalyticsSdk(new GraphQLClient(uri)),
+      uri,
+    }));
+    analyticsSdks[chainIdNumber] = new FallbackSubgraph<AnalyticsSdk>(
+      chainIdNumber,
+      analyticsSdksWithClients,
+      subgraphSyncBuffer,
+    );
   });
 
   return {
@@ -52,5 +96,7 @@ export const subgraphContractReader = (): ContractReader => {
     getTransactionForChain,
     getAssetBalance,
     getSyncRecords,
+    getAssetBalances,
+    getExpressiveAssetBalances,
   };
 };

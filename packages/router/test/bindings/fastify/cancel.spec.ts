@@ -6,8 +6,8 @@ import {
   senderPrepareDataMock,
   txDataMock,
 } from "@connext/nxtp-utils";
-import { SinonStub, stub } from "sinon";
-import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
+import { SinonStub } from "sinon";
+import { TransactionStatus } from "../../../src/adapters/subgraph/runtime/graphqlsdk";
 import { prepareCancel } from "../../../src/bindings/fastify/cancel";
 import { NoSenderTxFound, ReceiverTxInvalidStatus, SenderTxInvalidStatus } from "../../../src/bindings/fastify/errors";
 import { SingleChainTransaction } from "../../../src/lib/entities";

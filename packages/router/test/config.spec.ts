@@ -6,6 +6,7 @@ import {
   getDeployedTransactionManagerContract,
   getDeployedPriceOracleContract,
   getDeployedChainIdsForGasFee,
+  getDeployedMulticallContract,
 } from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
@@ -44,6 +45,21 @@ describe("Config", () => {
       const res = getDeployedChainIdsForGasFee();
       expect(res).to.be.includes(4);
       expect(res).to.be.includes(42161);
+      expect(res.address).to.be.ok;
+      expect(res.abi).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedMulticallContract", () => {
+    it("should undefined if no price oracle", () => {
+      const res = getDeployedMulticallContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedMulticallContract(4);
+      expect(res.address).to.be.ok;
+      expect(res.abi).to.be.ok;
     });
   });
 

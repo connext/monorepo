@@ -16,32 +16,36 @@ import {
   FulfillPayload,
   PreparePayload,
   Tracker,
+  attemptedTransfer,
+  completedTransfer,
+  successfulAuction,
+  TransactionReasons,
+  senderFailedCancel,
+  receiverFailedPrepare,
+  senderFailedFulfill,
+  receiverExpired,
+  senderExpired,
+  receiverFailedCancel,
+  senderPrepared,
+  receiverPrepared,
+  receiverFulfilled,
+  senderFulfilled,
+  senderCancelled,
+  receiverCancelled,
+  ActiveTransactionsTracker,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
-import {
-  attemptedTransfer,
-  completedTransfer,
-  feesCollected,
-  gasConsumed,
-  receiverExpired,
-  receiverFailedExpired,
-  receiverFailedPrepare,
-  receiverPrepared,
-  senderCancelled,
-  senderExpired,
-  senderFailedCancel,
-  senderFailedExpired,
-  senderFailedFulfill,
-  senderFulfilled,
-  totalTransferredVolume,
-} from "../metrics";
+import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
+import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
+import { getFeesInSendingAsset } from "../../lib/helpers/shared";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const handlingTracker: Map<string, Tracker> = new Map();
-export let pendingLiquidityMap: Map<string, BigNumber> = new Map();
+export const pendingLiquidityMap: Map<string, BigNumber> = new Map();
+export let activeTransactionsTracker: ActiveTransactionsTracker[] = [];
 
 export const bindContractReader = async () => {
   const { contractReader, logger, config } = getContext();
@@ -51,14 +55,21 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("active and handling tracker", requestContext, methodContext, {
-          transactionsLength: transactions.length,
-          handlingTrackerLength: handlingTracker.size,
-          byStatus: Object.keys(CrosschainTransactionStatus).map((status) => {
-            return { status, size: [...handlingTracker.values()].map((v) => v.status === status).length };
-          }),
+        activeTransactionsTracker = transactions.map((v) => {
+          return {
+            status: v.status,
+            transactionsId: v.crosschainTx.invariant.transactionId,
+            sendingChainId: v.crosschainTx.invariant.sendingChainId,
+            receivingChainId: v.crosschainTx.invariant.receivingChainId,
+          };
         });
-        logger.debug("active and handling tracker details", requestContext, methodContext, {
+
+        logger.info("active transactions tracker", requestContext, methodContext, {
+          activeTransactionsLength: transactions.length,
+          activeTransactionsTracker: activeTransactionsTracker,
+        });
+        logger.info("handling tracker", requestContext, methodContext, {
+          handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -261,22 +272,65 @@ export const handleSingle = async (
       );
       logger.info("Prepared receiver", requestContext, methodContext, { txHash: receipt?.transactionHash });
 
+      // if successfully prepared, was successful auction, sender/receiver prepare
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
+      successfulAuction.inc(
+        {
+          sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+          receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+          sendingAssetName,
+          receivingAssetName,
+        },
+        1,
+      );
+      senderPrepared.inc({
+        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
       receiverPrepared.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: receivingAssetName,
       });
+      logger.info("Prepared receiver", requestContext, methodContext, { txHash: receipt?.transactionHash });
       attemptedTransfer.inc({
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+        sendingAssetName,
+        receivingAssetName,
       });
-      gasConsumed.inc({
-        reason: "SENDER PREPARE", // TODO type this?
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        amount: receipt!.gasUsed.toString(),
-      });
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.receivingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.PrepareReceiver,
+        requestContext,
+      );
     } catch (err: any) {
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
+      receiverFailedPrepare.inc({
+        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: receivingAssetName,
+      });
       const json = jsonifyError(err);
       if (safeJsonStringify(json).includes("#P:015")) {
         logger.warn("Receiver transaction already prepared", requestContext, methodContext, { error: json });
@@ -284,10 +338,6 @@ export const handleSingle = async (
       } else {
         logger.error("Error preparing receiver", requestContext, methodContext, json, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
-        });
-        receiverFailedPrepare.inc({
-          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-          chainId: _transaction.crosschainTx.invariant.receivingChainId,
         });
       }
       if (err.cancellable === true) {
@@ -304,17 +354,39 @@ export const handleSingle = async (
             },
             requestContext,
           );
-          logger.info("Cancelled transaction", requestContext, methodContext, { txHash: cancelRes?.transactionHash });
           senderCancelled.inc({
+            assetId: transaction.crosschainTx.invariant.sendingAssetId,
+            chainId: transaction.crosschainTx.invariant.sendingChainId,
+            assetName: sendingAssetName,
+          });
+          logger.info("Cancelled transaction", requestContext, methodContext, { txHash: cancelRes?.transactionHash });
+          // if successfully cancelled, was successful auction
+          successfulAuction.inc(
+            {
+              sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+              receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+              sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+              receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+              sendingAssetName,
+              receivingAssetName: receivingAssetName,
+            },
+            1,
+          );
+          incrementGasConsumed(
+            _transaction.crosschainTx.invariant.sendingChainId,
+            cancelRes!.gasUsed,
+            TransactionReasons.CancelSender,
+            requestContext,
+          );
+        } catch (cancelErr: any) {
+          senderFailedCancel.inc({
             assetId: _transaction.crosschainTx.invariant.sendingAssetId,
             chainId: _transaction.crosschainTx.invariant.sendingChainId,
+            assetName: getAssetName(
+              _transaction.crosschainTx.invariant.sendingAssetId,
+              _transaction.crosschainTx.invariant.sendingChainId,
+            ),
           });
-          gasConsumed.inc({
-            reason: "SENDER CANCEL", // TODO type this?
-            chainId: _transaction.crosschainTx.invariant.sendingChainId,
-            amount: cancelRes!.gasUsed.toString(),
-          });
-        } catch (cancelErr: any) {
           const cancelJson = jsonifyError(cancelErr);
           if (safeJsonStringify(jsonifyError(cancelErr)).includes("#C:019")) {
             logger.warn("Already cancelled", requestContext, methodContext, {
@@ -324,10 +396,6 @@ export const handleSingle = async (
           } else {
             logger.error("Error cancelling sender", requestContext, methodContext, cancelJson, {
               chainId: transaction.crosschainTx.invariant.sendingChainId,
-            });
-            senderFailedCancel.inc({
-              assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-              chainId: _transaction.crosschainTx.invariant.sendingChainId,
             });
           }
         }
@@ -340,7 +408,7 @@ export const handleSingle = async (
       // this should not happen, this should get checked before this point
       throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
     }
-    if (!_transaction.payload.hashes.receiving) {
+    if (!_transaction.payload.hashes?.receiving) {
       logger.warn("No receiving hashes with ReceiverFulfilled status", requestContext, methodContext, {
         hashes: _transaction.payload.hashes,
       });
@@ -377,45 +445,94 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Fulfilled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
-      senderFulfilled.inc({
-        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
-      });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
       completedTransfer.inc({
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+        sendingAssetName,
+        receivingAssetName,
       });
-      totalTransferredVolume.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        amount: _transaction.crosschainTx.sending.amount,
-      });
-      // Add difference between sending and receiving amount
-      feesCollected.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        amount: BigNumber.from(_transaction.crosschainTx.sending.amount)
-          .sub(_transaction.crosschainTx.receiving!.amount)
-          .toString(),
-      });
-      gasConsumed.inc({
-        reason: "SENDER FULFILL", // TODO type this?
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
-        amount: receipt!.gasUsed.toString(),
-      });
+      receiverFulfilled.inc(
+        {
+          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          chainId: _transaction.crosschainTx.invariant.receivingChainId,
+          assetName: receivingAssetName,
+        },
+        1,
+      );
+      senderFulfilled.inc(
+        {
+          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+          assetName: sendingAssetName,
+        },
+        1,
+      );
+      // Update total transferred volume (denominated in receiving asset)
+      incrementTotalTransferredVolume(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+        _transaction.crosschainTx.receiving!.amount,
+        requestContext,
+      );
+      // wrap in promise so it isnt awaited
+      const incrementFeesPromise = async () => {
+        // Get the fees in sending asset
+        // NOTE: may not be exact same rate depending on oracle returns
+        const fees = await getFeesInSendingAsset(
+          BigNumber.from(_transaction.crosschainTx.receiving!.amount),
+          BigNumber.from(_transaction.crosschainTx.sending.amount),
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
+        );
+        logger.info("Got fees in sending asset", requestContext, methodContext, {
+          receivedAmount: _transaction.crosschainTx.receiving!.amount,
+          sentAmount: _transaction.crosschainTx.sending.amount,
+          fees,
+        });
+
+        // Add difference between sending and receiving amount
+        await incrementFees(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+          BigNumber.from(fees).gt(0) ? fees : "0",
+          requestContext,
+        );
+      };
+      incrementFeesPromise();
+
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.FulfillSender,
+        requestContext,
+      );
     } catch (err: any) {
+      senderFailedFulfill.inc({
+        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
+      });
       const jsonErr = jsonifyError(err);
       if (safeJsonStringify(jsonErr).includes("#F:019")) {
         logger.warn("Sender already fulfilled", requestContext, methodContext, { error: jsonErr });
       } else {
         logger.error("Error fulfilling sender", requestContext, methodContext, jsonErr, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
-        });
-        senderFailedFulfill.inc({
-          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-          chainId: _transaction.crosschainTx.invariant.sendingChainId,
         });
       }
     }
@@ -425,7 +542,7 @@ export const handleSingle = async (
       transaction.crosschainTx.invariant.transactionId,
     );
     const _transaction = transaction as ActiveTransaction<"ReceiverExpired">;
-    if (!_transaction.payload.hashes.receiving) {
+    if (!_transaction.payload.hashes?.receiving) {
       logger.warn("No receiving hashes with ReceiverExpired status", requestContext, methodContext, {
         hashes: _transaction.payload.hashes,
       });
@@ -447,26 +564,41 @@ export const handleSingle = async (
       logger.info("Cancelled receiver", requestContext, methodContext, {
         txHash: receipt?.transactionHash,
       });
+      const receivingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
+      );
+      receiverCancelled.inc({
+        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: receivingAssetName,
+      });
       receiverExpired.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: receivingAssetName,
       });
-      gasConsumed.inc({
-        reason: "RECEIVER EXPIRED", // TODO type this?
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        amount: receipt!.gasUsed.toString(),
-      });
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.receivingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelReceiver,
+        requestContext,
+      );
     } catch (err: any) {
+      receiverFailedCancel.inc({
+        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
+        ),
+      });
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling receiver", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.receivingChainId,
-        });
-        receiverFailedExpired.inc({
-          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-          chainId: _transaction.crosschainTx.invariant.receivingChainId,
         });
       }
     }
@@ -496,15 +628,26 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
+      senderCancelled.inc({
+        assetId: transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
       senderExpired.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
       });
-      gasConsumed.inc({
-        reason: "SENDER EXPIRED", // TODO type this?
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
-        amount: receipt!.gasUsed.toString(),
-      });
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelSender,
+        requestContext,
+      );
     } catch (err: any) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
@@ -512,10 +655,6 @@ export const handleSingle = async (
       } else {
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
-        });
-        senderFailedExpired.inc({
-          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-          chainId: _transaction.crosschainTx.invariant.sendingChainId,
         });
       }
     }
@@ -549,26 +688,36 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
       senderCancelled.inc({
+        assetId: transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelSender,
+        requestContext,
+      );
+    } catch (err: any) {
+      senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
-      gasConsumed.inc({
-        reason: "SENDER CANCEL", // TODO type this?
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
-        amount: receipt!.gasUsed.toString(),
-      });
-    } catch (err: any) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
-        });
-        senderFailedCancel.inc({
-          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-          chainId: _transaction.crosschainTx.invariant.sendingChainId,
         });
       }
     }
@@ -599,26 +748,36 @@ export const handleSingle = async (
         requestContext,
       );
       logger.info("Cancelled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      const sendingAssetName = getAssetName(
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+      );
       senderCancelled.inc({
+        assetId: transaction.crosschainTx.invariant.sendingAssetId,
+        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        assetName: sendingAssetName,
+      });
+      incrementGasConsumed(
+        _transaction.crosschainTx.invariant.sendingChainId,
+        receipt!.gasUsed,
+        TransactionReasons.CancelSender,
+        requestContext,
+      );
+    } catch (err: any) {
+      senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        assetName: getAssetName(
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+        ),
       });
-      gasConsumed.inc({
-        reason: "SENDER CANCEL", // TODO type this?
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
-        amount: receipt!.gasUsed.toString(),
-      });
-    } catch (err: any) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
         logger.warn("Already cancelled", requestContext, methodContext, { error: errJson });
       } else {
         logger.error("Error cancelling sender", requestContext, methodContext, errJson, {
           chainId: transaction.crosschainTx.invariant.sendingChainId,
-        });
-        senderFailedCancel.inc({
-          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-          chainId: _transaction.crosschainTx.invariant.sendingChainId,
         });
       }
     }

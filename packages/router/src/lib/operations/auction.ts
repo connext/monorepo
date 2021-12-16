@@ -23,7 +23,6 @@ import {
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, SubgraphNotSynced, UserNotAllowed } from "../errors/auction";
-import { receivedAuction } from "../../bindings/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import {
   calculateGasFeeInReceivingToken,
@@ -32,6 +31,8 @@ import {
   getSwapIdxList,
 } from "../helpers/shared";
 import { pendingLiquidityMap } from "../../bindings/contractReader";
+import { receivedAuction } from "../../lib/entities/metrics";
+import { getAssetName } from "../helpers/metrics";
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -43,6 +44,8 @@ export const newAuction = async (
     receivingAssetId: data.receivingAssetId,
     sendingChainId: data.receivingChainId,
     receivingChainId: data.receivingChainId,
+    sendingAssetName: getAssetName(data.sendingAssetId, data.sendingChainId),
+    receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
   const { logger, config, contractReader, txService, wallet } = getContext();
@@ -98,7 +101,7 @@ export const newAuction = async (
       // Throwing empty error as the ZeroValueBid error below will override it.
       throw new Error("Amount was zero.");
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new ZeroValueBid({
       methodContext,
       requestContext,

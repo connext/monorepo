@@ -8,16 +8,25 @@ import {
   getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
-import { TransactionServiceConfig, validateTransactionServiceConfig, DEFAULT_CONFIG, ChainConfig } from "./config";
-import { ReadTransaction } from "./types";
+import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
+import {
+  ReadTransaction,
+  ChainNotSupported,
+  ConfigurationError,
+  ProviderNotConfigured,
+  CHAINS_WITH_PRICE_ORACLES,
+  getDeployedPriceOracleContract,
+  getPriceOracleInterface,
+} from "./shared";
 import { ChainRpcProvider } from "./provider";
-import { ChainNotSupported, ConfigurationError, ProviderNotConfigured } from "./error";
-import { CHAINS_WITH_PRICE_ORACLES, getDeployedPriceOracleContract, getPriceOracleInterface } from "./contracts";
 
-export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
+// TODO: Rename to BlockchainService
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
 // probably just expose a provider getter method and have the consumer call that to access the target ChainRpcProvider
 // directly.
+
+// TODO: Condense caching.
+export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
 /**
  * @classdesc Performs onchain reads with embedded retries.
  */
@@ -38,11 +47,10 @@ export class ChainReader {
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.
    */
-  constructor(protected readonly logger: Logger, config: Partial<TransactionServiceConfig>, signer?: string | Signer) {
+  constructor(protected readonly logger: Logger, config: any, signer?: string | Signer) {
     const { requestContext } = createLoggingContext(this.constructor.name);
     // Set up the config.
-    this.config = Object.assign(DEFAULT_CONFIG, config);
-    validateTransactionServiceConfig(this.config);
+    this.config = validateTransactionServiceConfig(config);
     this.setupProviders(requestContext, signer);
   }
 
@@ -442,15 +450,23 @@ export class ChainReader {
   protected setupProviders(context: RequestContext, signer?: string | Signer) {
     const { methodContext } = createLoggingContext(this.setupProviders.name, context);
     // For each chain ID / provider, map out all the utils needed for each chain.
-    const chains = this.config.chains;
-    Object.keys(chains).forEach((chainId) => {
+    Object.keys(this.config).forEach((chainId) => {
       // Get this chain's config.
-      const chain: ChainConfig = chains[chainId];
+      const chain: ChainConfig = this.config[chainId];
       // Ensure at least one provider is configured.
       if (chain.providers.length === 0) {
-        const error = new ConfigurationError({
-          providers,
-        });
+        const error = new ConfigurationError(
+          [
+            {
+              parameter: "providers",
+              error: "No valid providers were supplied in configuration for this chain.",
+              value: providers,
+            },
+          ],
+          {
+            chainId,
+          },
+        );
         this.logger.error("Failed to create transaction service", context, methodContext, error.toJson(), {
           chainId,
           providers,
@@ -458,7 +474,7 @@ export class ChainReader {
         throw error;
       }
       const chainIdNumber = parseInt(chainId);
-      const provider = new ChainRpcProvider(this.logger, chainIdNumber, chain, this.config, signer);
+      const provider = new ChainRpcProvider(this.logger, chainIdNumber, chain, signer);
       this.providers.set(chainIdNumber, provider);
     });
   }

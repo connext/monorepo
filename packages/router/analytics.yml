@@ -1,0 +1,8 @@
+schema: https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet-v1-analytics
+documents: "./src/adapters/subgraph/analytics/queries.ts"
+generates:
+  ./src/adapters/subgraph/analytics/graphqlsdk.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request

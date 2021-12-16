@@ -49,7 +49,8 @@ import {
   UnknownAuctionError,
   ChainNotConfigured,
   InvalidBidSignature,
-  SubgraphsNotSynced,
+  SendingChainSubgraphsNotSynced,
+  ReceivingChainSubgraphsNotSynced,
   NoPriceOracle,
   InvalidParamStructure,
   FulfillTimeout,
@@ -79,6 +80,7 @@ import {
   ApproveParams,
 } from "./types";
 import {
+  getTransactionId,
   getTimestampInSeconds,
   getExpiry,
   getMinExpiryBuffer,
@@ -108,23 +110,7 @@ export const createMessagingEvt = <T>() => {
 };
 
 export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfigParams): ChainReader => {
-  const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
-  Object.keys(chainConfig).forEach((_chainId) => {
-    const chainId = parseInt(_chainId);
-    // Backwards compatibility with specifying only a single provider under the key "provider".
-    const _providers = chainConfig[chainId].providers ?? (chainConfig as any)[chainId].provider;
-    const providers = typeof _providers === "string" ? [_providers] : _providers;
-    chains[chainId] = {
-      providers: providers.map((provider) =>
-        typeof provider === "string"
-          ? {
-              url: provider,
-            }
-          : provider,
-      ),
-    };
-  });
-  return new ChainReader(logger, { chains });
+  return new ChainReader(logger, chainConfig);
 };
 
 /**
@@ -523,7 +509,10 @@ export class NxtpSdkBase {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const transactionId = params.transactionId ?? getRandomBytes32();
+    const user = await this.config.signerAddress;
+    const transactionId =
+      params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
+
     const { requestContext, methodContext } = createLoggingContext(
       this.getTransferQuote.name,
       undefined,
@@ -544,8 +533,6 @@ export class NxtpSdkBase {
       });
       throw error;
     }
-
-    const user = await this.config.signerAddress;
 
     const {
       sendingAssetId,
@@ -575,8 +562,18 @@ export class NxtpSdkBase {
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { sendingChainId, receivingChainId });
+    if (!sendingSyncStatus.synced) {
+      throw new SendingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId,
+        receivingChainId,
+      });
+    }
+
+    if (!receivingSyncStatus.synced) {
+      throw new ReceivingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId,
+        receivingChainId,
+      });
     }
 
     if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
@@ -862,8 +859,18 @@ export class NxtpSdkBase {
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, actualAmount });
+    if (!sendingSyncStatus.synced) {
+      throw new SendingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId: transferParams.bid.sendingChainId,
+        receivingChainId: transferParams.bid.receivingChainId,
+      });
+    }
+
+    if (!receivingSyncStatus.synced) {
+      throw new ReceivingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId: transferParams.bid.sendingChainId,
+        receivingChainId: transferParams.bid.receivingChainId,
+      });
     }
 
     const { bid, bidSignature } = transferParams;

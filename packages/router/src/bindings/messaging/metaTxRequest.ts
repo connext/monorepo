@@ -9,9 +9,10 @@ import {
 } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 
+import { TransactionReasons } from "../../lib/entities";
+import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
-import { feesCollected } from "../metrics";
 
 export const handlingTracker: Map<string, MetaTxType> = new Map();
 
@@ -111,12 +112,9 @@ export const metaTxRequestBinding = async (
     );
     if (tx) {
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
-      // Increment collected fees on relayer fee
-      feesCollected.inc({
-        assetId: txData.receivingAssetId,
-        chainId: txData.receivingChainId,
-        amount: relayerFee,
-      });
+      // Increment collected fees + gas used on relayer fee
+      incrementFees(txData.receivingAssetId, txData.receivingChainId, relayerFee, requestContext);
+      incrementGasConsumed(txData.receivingChainId, tx.gasUsed, TransactionReasons.Relay, requestContext);
     }
     logger.info("Handled fulfill request", requestContext, methodContext);
   } finally {

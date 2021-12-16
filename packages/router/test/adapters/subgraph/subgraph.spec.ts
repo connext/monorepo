@@ -10,7 +10,7 @@ import {
 import { constants } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
-import { TransactionStatus } from "../../../src/adapters/subgraph/graphqlsdk";
+import { TransactionStatus } from "../../../src/adapters/subgraph/runtime/graphqlsdk";
 import {
   getActiveTransactions,
   getAssetBalance,
@@ -31,6 +31,7 @@ type SdkMock = {
   GetTransaction: SinonStub;
   GetAssetBalance: SinonStub;
   GetBlockNumber: SinonStub;
+  GetTransactionsWithRouter: SinonStub;
 };
 
 let sdks: Record<number, SinonStubbedInstance<FallbackSubgraph<SdkMock>>>;
@@ -62,6 +63,7 @@ describe("Subgraph Adapter", () => {
       GetTransaction: stub().resolves(undefined),
       GetAssetBalance: stub().resolves(constants.Zero),
       GetBlockNumber: stub().resolves({ _meta: { block: { number: 10000 } } }),
+      GetTransactionsWithRouter: stub().resolves({ transactions: [] }),
     };
 
     txServiceMock.getBlockNumber.resolves(10000);
@@ -141,7 +143,7 @@ describe("Subgraph Adapter", () => {
       try {
         await getActiveTransactions(requestContextMock);
       } catch (e) {
-        const expectedErrMessage = (new NoChainConfig(testChainId)).message;
+        const expectedErrMessage = new NoChainConfig(testChainId).message;
         expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
       }
     });
@@ -188,7 +190,7 @@ describe("Subgraph Adapter", () => {
         },
       });
       const testError = new Error("fail");
-      sdk.GetTransactions.rejects(testError);
+      sdk.GetTransactionsWithRouter.rejects(testError);
 
       try {
         await getActiveTransactions(requestContextMock);
@@ -249,14 +251,14 @@ describe("Subgraph Adapter", () => {
           },
         };
       });
-      sdk.GetTransactions.onCall(0).callsFake(async ({ transactionIds }) => {
+      sdk.GetTransactionsWithRouter.onCall(0).callsFake(async ({ transactionIds }) => {
         const expectedId = transactionSubgraphMock.transactionId.toLowerCase();
         expect(transactionIds).to.deep.eq([expectedId]);
         return {
           transactions: [
             {
               ...transactionSubgraphMock,
-              expiry: await getNtpTimeSeconds() - 10,
+              expiry: (await getNtpTimeSeconds()) - 10,
               status: TransactionStatus.Prepared,
             },
           ],
@@ -280,7 +282,7 @@ describe("Subgraph Adapter", () => {
           },
         };
       });
-      sdk.GetTransactions.onCall(0).callsFake(async ({ transactionIds }) => {
+      sdk.GetTransactionsWithRouter.onCall(0).callsFake(async ({ transactionIds }) => {
         const expectedId = transactionSubgraphMock.transactionId.toLowerCase();
         expect(transactionIds).to.deep.eq([expectedId]);
         return {
@@ -310,7 +312,7 @@ describe("Subgraph Adapter", () => {
           },
         };
       });
-      sdk.GetTransactions.onCall(0).callsFake(async ({ transactionIds }) => {
+      sdk.GetTransactionsWithRouter.onCall(0).callsFake(async ({ transactionIds }) => {
         const expectedId = transactionSubgraphMock.transactionId.toLowerCase();
         expect(transactionIds).to.deep.eq([expectedId]);
         return {

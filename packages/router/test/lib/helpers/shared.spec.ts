@@ -1,11 +1,12 @@
 import { createMethodContext, createRequestContext, expect, jsonifyError, mkAddress } from "@connext/nxtp-utils";
 import { BigNumber } from "@ethersproject/bignumber";
 import { stub } from "sinon";
+import { getChainData } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
-import { txServiceMock } from "../../globalTestHook";
+import { ctxMock, txServiceMock } from "../../globalTestHook";
 
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { SwapInvalid } from "../../../src/lib/errors";
@@ -30,6 +31,7 @@ describe("getMainnetEquivalent", () => {
 
 describe("getMainnetEquivalentFromChainData", () => {
   it("should work", async () => {
+    ctxMock.chainData = await getChainData();
     const result = await shared.getMainnetEquivalentFromChainData(constants.AddressZero, 100);
     expect(result).to.be.eq("0x6B175474E89094C44Da98b954EedeAC495271d0F");
   });
@@ -101,6 +103,5 @@ describe("getTokenPriceFromOnChain", () => {
   });
   it("should work", async () => {
     const tokenPrice = await shared.getTokenPriceFromOnChain(1337, mkAddress("0xa"));
-    console.log("tokenPrice = ", tokenPrice.toString());
   });
 });

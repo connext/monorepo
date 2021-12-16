@@ -2,15 +2,7 @@ import { Values, NxtpError } from "@connext/nxtp-utils";
 import { providers } from "ethers";
 import { Logger } from "ethers/lib/utils";
 
-export abstract class TransactionError extends NxtpError {
-  /**
-   * Generic class for all transaction-related errors. Usually appropriate for these
-   * errors to occur throughout transaction lifecycle.
-   */
-  static readonly type = TransactionError.name;
-}
-
-export class MaxBufferLengthError extends TransactionError {
+export class MaxBufferLengthError extends NxtpError {
   /**
    * Thrown if a backfill transaction fails and other txs are attempted
    */
@@ -21,7 +13,7 @@ export class MaxBufferLengthError extends TransactionError {
   }
 }
 
-export class RpcError extends TransactionError {
+export class RpcError extends NxtpError {
   static readonly type = RpcError.name;
 
   /**
@@ -33,7 +25,7 @@ export class RpcError extends TransactionError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ConnectionReset: "Connection was reset by peer.",
-    Timeout: "Request timed out",
+    StallTimeout: "Request stalled and timed out",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
@@ -41,7 +33,7 @@ export class RpcError extends TransactionError {
   }
 }
 
-export class TransactionReadError extends TransactionError {
+export class TransactionReadError extends NxtpError {
   /**
    * An error that indicates that a read transaction failed.
    */
@@ -56,7 +48,7 @@ export class TransactionReadError extends TransactionError {
   }
 }
 
-export class TransactionReverted extends TransactionError {
+export class TransactionReverted extends NxtpError {
   /**
    * An error that indicates that the transaction was reverted on-chain.
    *
@@ -97,7 +89,7 @@ export class TransactionReverted extends TransactionError {
   }
 }
 
-export class TransactionReplaced extends TransactionError {
+export class TransactionReplaced extends NxtpError {
   /**
    * From ethers docs:
    * If the transaction is replaced by another transaction, a TRANSACTION_REPLACED error will be rejected with the following properties:
@@ -120,7 +112,7 @@ export class TransactionReplaced extends TransactionError {
 
 // TODO: #144 Some of these error classes are a bit of an antipattern with the whole "reason" argument structure
 // being missing. They won't function as proper NxtpErrors, essentially.
-export class TimeoutError extends TransactionError {
+export class TimeoutError extends NxtpError {
   /**
    * An error indicating that an operation (typically confirmation) timed out.
    */
@@ -131,7 +123,7 @@ export class TimeoutError extends TransactionError {
   }
 }
 
-export class TransactionBackfilled extends TransactionError {
+export class TransactionBackfilled extends NxtpError {
   /**
    * An error indicating that a transaction was replaced by a backfill, likely because it
    * was unresponsive.
@@ -143,7 +135,7 @@ export class TransactionBackfilled extends TransactionError {
   }
 }
 
-export class UnpredictableGasLimit extends TransactionError {
+export class UnpredictableGasLimit extends NxtpError {
   /**
    * An error that we get back from ethers when we try to do a gas estimate, but this
    * may need to be handled differently.
@@ -155,7 +147,7 @@ export class UnpredictableGasLimit extends TransactionError {
   }
 }
 
-export class BadNonce extends TransactionError {
+export class BadNonce extends NxtpError {
   /**
    * An error indicating that we got a "nonce expired"-like message back from
    * ethers while conducting sendTransaction.
@@ -174,7 +166,7 @@ export class BadNonce extends TransactionError {
   }
 }
 
-export class ServerError extends TransactionError {
+export class ServerError extends NxtpError {
   /**
    * An error indicating that an operation on the node server (such as validation
    * before submitting a transaction) occurred.
@@ -187,11 +179,6 @@ export class ServerError extends TransactionError {
 
   static readonly reasons = {
     BadResponse: "Received bad response from provider.",
-    /**
-     * This one occurs (usually) when we try to send a transaction to multiple providers
-     * and one or more of them already has the transaction in their mempool.
-     */
-    TransactionAlreadyKnown: "Transaction is already indexed by provider.",
   };
 
   constructor(public readonly reason?: Values<typeof ServerError.reasons>, public readonly context: any = {}) {
@@ -199,7 +186,19 @@ export class ServerError extends TransactionError {
   }
 }
 
-export class TransactionKilled extends TransactionError {
+export class TransactionAlreadyKnown extends NxtpError {
+  /**
+   * This one occurs (usually) when we try to send a transaction to multiple providers
+   * and one or more of them already has the transaction in their mempool.
+   */
+  static readonly type = TransactionAlreadyKnown.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Transaction is already indexed by provider.", context, TransactionAlreadyKnown.type);
+  }
+}
+
+export class TransactionKilled extends NxtpError {
   /**
    * An error indicating that the transaction was killed by the monitor loop due to
    * it taking too long, and blocking (potentially too many) transactions in the pending
@@ -278,8 +277,11 @@ export class ProviderNotConfigured extends NxtpError {
 export class ConfigurationError extends NxtpError {
   static readonly type = ConfigurationError.name;
 
-  constructor(public readonly invalidParamaters: any, public readonly context: any = {}) {
-    super("Configuration paramater(s) were invalid.", { ...context, invalidParamaters }, ConfigurationError.type);
+  constructor(
+    public readonly invalidParameters: { parameter: string; error: string; value: any }[],
+    public readonly context: any = {},
+  ) {
+    super("Configuration paramater(s) were invalid.", { ...context, invalidParameters }, ConfigurationError.type);
   }
 }
 
@@ -377,7 +379,7 @@ export const parseError = (error: any): NxtpError => {
     // are status codes and not just part of a hash string, id number, etc.
     return new RpcError(RpcError.reasons.ConnectionReset, context);
   } else if (message.match(/already known|alreadyknown/)) {
-    return new ServerError(ServerError.reasons.TransactionAlreadyKnown, context);
+    return new TransactionAlreadyKnown(context);
   } else if (message.match(/insufficient funds/)) {
     return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
   }

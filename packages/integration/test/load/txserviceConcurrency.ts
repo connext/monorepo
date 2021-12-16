@@ -1,7 +1,7 @@
 import pino from "pino";
 import PriorityQueue from "p-queue";
 import { ChainConfig, NxtpTxServiceEvents, TransactionService, WriteTransaction } from "@connext/nxtp-txservice";
-import { delay, getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
+import { getOnchainBalance, jsonifyError, Logger, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, utils, Wallet } from "ethers";
 // eslint-disable-next-line node/no-extraneous-import
 import { One } from "@ethersproject/constants";
@@ -87,13 +87,7 @@ const txserviceConcurrencyTest = async (
 
   /// MARK - SETUP TX SERVICE.
   logger.info("Creating TransactionService...");
-  const txservice = new TransactionService(
-    new Logger({ level: config.logLevel ?? "debug" }),
-    {
-      chains,
-    },
-    wallet,
-  );
+  const txservice = new TransactionService(new Logger({ level: config.logLevel ?? "debug" }), chains, wallet);
 
   /// MARK - VALIDATE FUNDS.
   // Make sure the funder has enough funding for this test.

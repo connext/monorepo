@@ -79,6 +79,7 @@ export enum AssetBalance_OrderBy {
 export type Block_Height = {
   hash?: Maybe<Scalars['Bytes']>;
   number?: Maybe<Scalars['Int']>;
+  number_gte?: Maybe<Scalars['Int']>;
 };
 
 
@@ -105,6 +106,7 @@ export type Query = {
 export type QueryAssetBalanceArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -115,12 +117,14 @@ export type QueryAssetBalancesArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<AssetBalance_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type QueryRouterArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -131,12 +135,14 @@ export type QueryRoutersArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<Router_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type QueryTransactionArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -147,12 +153,14 @@ export type QueryTransactionsArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<Transaction_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type QueryUserArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -163,6 +171,7 @@ export type QueryUsersArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<User_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -230,6 +239,7 @@ export type Subscription = {
 export type SubscriptionAssetBalanceArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -240,12 +250,14 @@ export type SubscriptionAssetBalancesArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<AssetBalance_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type SubscriptionRouterArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -256,12 +268,14 @@ export type SubscriptionRoutersArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<Router_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type SubscriptionTransactionArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -272,12 +286,14 @@ export type SubscriptionTransactionsArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<Transaction_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type SubscriptionUserArgs = {
   id: Scalars['ID'];
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -288,6 +304,7 @@ export type SubscriptionUsersArgs = {
   orderDirection?: Maybe<OrderDirection>;
   where?: Maybe<User_Filter>;
   block?: Maybe<Block_Height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -356,6 +373,8 @@ export type Transaction_Filter = {
   id_not_in?: Maybe<Array<Scalars['ID']>>;
   status?: Maybe<TransactionStatus>;
   status_not?: Maybe<TransactionStatus>;
+  status_in?: Maybe<Array<TransactionStatus>>;
+  status_not_in?: Maybe<Array<TransactionStatus>>;
   chainId?: Maybe<Scalars['BigInt']>;
   chainId_not?: Maybe<Scalars['BigInt']>;
   chainId_gt?: Maybe<Scalars['BigInt']>;
@@ -781,12 +800,27 @@ export type GetTransactionsQueryVariables = Exact<{
 
 export type GetTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, relayerFee?: Maybe<any>, signature?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
 
+export type GetTransactionsWithRouterQueryVariables = Exact<{
+  transactionIds?: Maybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
+  routerId: Scalars['String'];
+}>;
+
+
+export type GetTransactionsWithRouterQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, status: TransactionStatus, chainId: any, initiator: any, receivingChainTxManagerAddress: any, sendingAssetId: any, receivingAssetId: any, sendingChainFallback: any, receivingAddress: any, callTo: any, sendingChainId: any, receivingChainId: any, callDataHash: any, transactionId: any, amount: any, expiry: any, preparedBlockNumber: any, relayerFee?: Maybe<any>, signature?: Maybe<any>, callData?: Maybe<string>, prepareCaller?: Maybe<any>, fulfillCaller?: Maybe<any>, cancelCaller?: Maybe<any>, prepareTransactionHash: any, fulfillTransactionHash?: Maybe<any>, cancelTransactionHash?: Maybe<any>, user: { __typename?: 'User', id: string }, router: { __typename?: 'Router', id: string } }> };
+
 export type GetAssetBalanceQueryVariables = Exact<{
   assetBalanceId: Scalars['ID'];
 }>;
 
 
 export type GetAssetBalanceQuery = { __typename?: 'Query', assetBalance?: Maybe<{ __typename?: 'AssetBalance', amount: any }> };
+
+export type GetAssetBalancesQueryVariables = Exact<{
+  routerId: Scalars['String'];
+}>;
+
+
+export type GetAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, assetId: any }> };
 
 export type GetBlockNumberQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -960,10 +994,56 @@ export const GetTransactionsDocument = gql`
   }
 }
     `;
+export const GetTransactionsWithRouterDocument = gql`
+    query GetTransactionsWithRouter($transactionIds: [Bytes!], $routerId: String!) {
+  transactions(where: {transactionId_in: $transactionIds, router: $routerId}) {
+    id
+    status
+    chainId
+    user {
+      id
+    }
+    router {
+      id
+    }
+    initiator
+    receivingChainTxManagerAddress
+    sendingAssetId
+    receivingAssetId
+    sendingChainFallback
+    receivingAddress
+    callTo
+    sendingChainId
+    receivingChainId
+    callDataHash
+    transactionId
+    amount
+    expiry
+    preparedBlockNumber
+    relayerFee
+    signature
+    callData
+    prepareCaller
+    fulfillCaller
+    cancelCaller
+    prepareTransactionHash
+    fulfillTransactionHash
+    cancelTransactionHash
+  }
+}
+    `;
 export const GetAssetBalanceDocument = gql`
     query GetAssetBalance($assetBalanceId: ID!) {
   assetBalance(id: $assetBalanceId) {
     amount
+  }
+}
+    `;
+export const GetAssetBalancesDocument = gql`
+    query GetAssetBalances($routerId: String!) {
+  assetBalances(where: {router: $routerId}) {
+    amount
+    assetId
   }
 }
     `;
@@ -996,8 +1076,14 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     GetTransactions(variables?: GetTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionsQuery>(GetTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransactions');
     },
+    GetTransactionsWithRouter(variables: GetTransactionsWithRouterQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionsWithRouterQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionsWithRouterQuery>(GetTransactionsWithRouterDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransactionsWithRouter');
+    },
     GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalance');
+    },
+    GetAssetBalances(variables: GetAssetBalancesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalancesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalancesQuery>(GetAssetBalancesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalances');
     },
     GetBlockNumber(variables?: GetBlockNumberQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetBlockNumberQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetBlockNumberQuery>(GetBlockNumberDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetBlockNumber');

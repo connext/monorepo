@@ -2,6 +2,23 @@
 
 ## Next Release
 
+# 0.0.102
+
+- [txservice] Fixed issue with RPC stall timeout handling
+- [router] Undefined handling in `bindPrices`
+- [router/sdk] Get active transactions specific to users and routers
+
+# 0.0.101
+
+- [txservice] Reorganization, code coverage improvements
+- [txservice] Update / expose config vars
+
+# 0.0.100
+
+- [router] Cleanup prometheus collection
+- [router/txservice] Explicitly use legacy transactions only
+- [router] Fix mainnet equivalent
+
 # 0.0.99
 
 - [txservice] Fix error parsing

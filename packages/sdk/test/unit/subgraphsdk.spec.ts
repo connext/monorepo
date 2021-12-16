@@ -28,7 +28,7 @@ describe("graphqlsdk", () => {
     const c = sdk.GetTransaction({} as any);
     expect(c).to.be.undefined;
 
-    const d = sdk.GetTransactions({} as any);
+    const d = sdk.GetTransactionsWithUser({} as any);
     expect(d).to.be.undefined;
   });
 });

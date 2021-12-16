@@ -449,6 +449,7 @@ export class NxtpSdk {
    */
   public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<GetTransferQuote> {
     const user = await this.config.signer.getAddress();
+
     const callData = params.callData ?? "0x";
     let encryptedCallData = "0x";
     if (callData !== "0x") {
