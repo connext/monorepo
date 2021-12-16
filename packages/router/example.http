@@ -1,6 +1,6 @@
 @routerUrl = http://localhost:8000
 
-@chainId = 100
+@chainId = 4
 @assetId = 0x0000000000000000000000000000000000000000
 
 # 1 ETH
@@ -47,5 +47,5 @@ Content-Type: application/json
 {
   "adminToken": "blahblah",
   "chainId": "{{chainId}}",
-  "routerAddress": "0x5A9e792143bf2708b4765C144451dCa54f559a19"
+  "routerAddress": "0xaF168Da973a5758A3902DA21cf161FCd420899E9"
 }

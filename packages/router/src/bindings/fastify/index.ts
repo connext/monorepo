@@ -121,8 +121,8 @@ export const bindFastify = () =>
           try {
             const _result = await contractWriter.migrateLiquidity(chainId, a, requestContext, routerAddress);
             result.push({
-              removeLiqudityTx: _result.removeLiqudityTx.transactionHash,
-              addLiquidityForTx: _result.addLiquidityForTx.transactionHash,
+              removeLiqudityTx: _result?.removeLiqudityTx.transactionHash,
+              addLiquidityForTx: _result?.addLiquidityForTx.transactionHash,
             });
           } catch (err) {
             code = 400;

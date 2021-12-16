@@ -633,12 +633,22 @@ export const migrateLiquidity = async (
   requestContext: RequestContext,
   routerAddress?: string,
   amount?: string,
-): Promise<{ removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt }> => {
+): Promise<
+  { removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt } | undefined
+> => {
   const { methodContext } = createLoggingContext(migrateLiquidity.name, requestContext);
   const { logger, signerAddress, contractReader } = getContext();
 
   if (!amount) {
     amount = (await contractReader.getAssetBalance(assetId, chainId)).toString();
+    logger.info("Got amount from contract reader", requestContext, methodContext, {
+      amount,
+    });
+  }
+
+  if (BigNumber.from(amount).isZero()) {
+    logger.warn("Amount is zero, nothing to migrate", requestContext, methodContext, { amount });
+    return;
   }
 
   logger.info("Method start", requestContext, methodContext, {
