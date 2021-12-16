@@ -1313,6 +1313,10 @@ export class NxtpSdkBase {
     return gasPrice;
   }
 
+  public async querySubgraph(chainId: number, query: string): Promise<any> {
+    this.subgraph.query(chainId, query);
+  }
+
   /**
    * Changes the signer associated with the sdk
    *
