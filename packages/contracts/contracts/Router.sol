@@ -41,6 +41,8 @@ contract Router is Ownable {
   struct SignedRemoveLiquidityData {
     uint256 amount;
     address assetId;
+    address routerRelayerFeeAsset;
+    uint256 routerRelayerFee;
     uint256 chainId; // For domain separation
   }
 
@@ -129,17 +131,26 @@ contract Router is Ownable {
   function removeLiquidity(
     uint256 amount,
     address assetId,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
     bytes calldata signature
   ) external {
     if (msg.sender != routerSigner) {
       SignedRemoveLiquidityData memory payload = SignedRemoveLiquidityData({
         amount: amount,
         assetId: assetId,
+        routerRelayerFeeAsset: routerRelayerFeeAsset,
+        routerRelayerFee: routerRelayerFee,
         chainId: chainId
       });
 
       address recovered = recoverSignature(abi.encode(payload), signature);
       require(recovered == routerSigner, "#RC_RL:040");
+
+      // Send the relayer the fee
+      if (routerRelayerFee > 0) {
+        LibAsset.transferAsset(routerRelayerFeeAsset, payable(msg.sender), routerRelayerFee);
+      }
     }
 
     emit RemoveLiquidity(amount, assetId, msg.sender);

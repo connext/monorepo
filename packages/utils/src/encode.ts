@@ -253,6 +253,8 @@ const SignedRouterCancelDataEncoding = tidy(`tuple(
 const SignedRouterRemoveLiquidityDataEncoding = tidy(`tuple(
   uint256 amount,
   address assetId,
+  address routerRelayerFeeAsset,
+  uint256 routerRelayerFee,
   uint256 chainId
 )`);
 
@@ -353,6 +355,15 @@ export const encodeRouterCancelData = (
   );
 };
 
-export const encodeRouterRemoveLiquidityData = (amount: string, assetId: string, chainId: number): string => {
-  return defaultAbiCoder.encode([SignedRouterRemoveLiquidityDataEncoding], [{ amount, assetId, chainId }]);
+export const encodeRouterRemoveLiquidityData = (
+  amount: string,
+  assetId: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
+  chainId: number,
+): string => {
+  return defaultAbiCoder.encode(
+    [SignedRouterRemoveLiquidityDataEncoding],
+    [{ amount, assetId, routerRelayerFeeAsset, routerRelayerFee, chainId }],
+  );
 };

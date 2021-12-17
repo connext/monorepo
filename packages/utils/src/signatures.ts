@@ -258,10 +258,12 @@ export const signRouterCancelTransactionPayload = async (
 export const signRemoveLiquidityTransactionPayload = (
   amount: string,
   assetId: string,
+  relayerFeeAsset: string,
+  relayerFee: string,
   chainId: number,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const payload = encodeRouterRemoveLiquidityData(amount, assetId, chainId);
+  const payload = encodeRouterRemoveLiquidityData(amount, assetId, relayerFeeAsset, relayerFee, chainId);
   const hash = solidityKeccak256(["bytes"], [payload]);
   return sign(hash, signer);
 };

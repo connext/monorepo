@@ -29,7 +29,7 @@ interface RouterInterface extends ethers.utils.Interface {
     "owner()": FunctionFragment;
     "prepare(tuple,address,uint256,bytes)": FunctionFragment;
     "recipient()": FunctionFragment;
-    "removeLiquidity(uint256,address,bytes)": FunctionFragment;
+    "removeLiquidity(uint256,address,address,uint256,bytes)": FunctionFragment;
     "removeRelayerFee(uint256,address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "routerFactory()": FunctionFragment;
@@ -145,7 +145,7 @@ interface RouterInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "recipient", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeLiquidity",
-    values: [BigNumberish, string, BytesLike]
+    values: [BigNumberish, string, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "removeRelayerFee",
@@ -396,6 +396,8 @@ export class Router extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -544,6 +546,8 @@ export class Router extends BaseContract {
   removeLiquidity(
     amount: BigNumberish,
     assetId: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -800,6 +804,8 @@ export class Router extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1230,6 +1236,8 @@ export class Router extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1379,6 +1387,8 @@ export class Router extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       assetId: string,
+      routerRelayerFeeAsset: string,
+      routerRelayerFee: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

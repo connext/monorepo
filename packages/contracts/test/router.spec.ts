@@ -249,8 +249,19 @@ describe("Router.sol", function () {
     it("should remove liquidity", async () => {
       const amount = "100";
       const assetId = token.address;
-      const signature = await signRemoveLiquidityTransactionPayload(amount, assetId, receivingChainId, routerSigner);
-      const tx = await routerContract.connect(gelato).removeLiquidity(amount, assetId, signature);
+      const routerRelayerFeeAsset = token.address;
+      const routerRelayerFee = "1";
+      const signature = await signRemoveLiquidityTransactionPayload(
+        amount,
+        assetId,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+        receivingChainId,
+        routerSigner,
+      );
+      const tx = await routerContract
+        .connect(gelato)
+        .removeLiquidity(amount, assetId, routerRelayerFeeAsset, routerRelayerFee, signature);
       const receipt = await tx.wait();
       expect(receipt.status).to.eq(1);
     });
