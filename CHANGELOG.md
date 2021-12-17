@@ -2,6 +2,7 @@
 
 ## Next Release -
 
+- [sdk] Throw valid auction errors correctly
 - [txservice] Fix handling of RPC provider server errors
 
 # 0.0.102
