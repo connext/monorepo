@@ -2,7 +2,7 @@ import { randomInt } from "crypto";
 import { reset, restore, SinonStub, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
 
-import { RpcError, SyncProvider } from "../../src/shared";
+import { RpcError, SyncProvider, TransactionReverted } from "../../src/shared";
 import { TEST_ERROR, TEST_SENDER_CHAIN_ID } from "../utils";
 
 describe("SyncProvider", () => {
@@ -27,8 +27,8 @@ describe("SyncProvider", () => {
     expect(provider.lag).to.be.eq(0);
     expect(provider.priority).to.be.eq(0);
     expect(provider.cps).to.be.eq(0);
-    expect(provider.avgExecTime).to.be.eq(0);
-    expect(provider.reliability).to.be.eq(0);
+    expect(provider.latency).to.be.eq(0);
+    expect(provider.reliability).to.be.eq(1);
   });
 
   describe("#sync", () => {
@@ -101,18 +101,29 @@ describe("SyncProvider", () => {
     it("success: should update its internal metrics correctly", async () => {
       (provider as any).updateMetrics(true, Date.now() - 1000, 12, "testMethodName", ["testParam1", "testParam2"]);
       expect(provider.reliability).to.be.gt(startingReliability);
-      expect(provider.avgExecTime).to.be.gt(0);
-      expect((provider as any).execTimes.length).to.be.eq(1);
+      expect(provider.latency).to.be.gt(0);
+      expect((provider as any).latencies.length).to.be.eq(1);
     });
 
-    it("failure: should update its internal metrics correctly", async () => {
+    it("RPC failure: should update its internal metrics correctly", async () => {
       (provider as any).updateMetrics(false, Date.now() - 1000, 12, "testMethodName", ["testParam1", "testParam2"], {
-        type: "testError",
+        type: RpcError.type,
         context: {},
       });
       expect(provider.reliability).to.be.lt(startingReliability);
-      expect(provider.avgExecTime).to.be.gt(0);
-      expect((provider as any).execTimes.length).to.be.eq(1);
+      expect(provider.latency).to.be.gt(0);
+      expect((provider as any).latencies.length).to.be.eq(1);
+    });
+
+    it("non-RPC failure: should update its internal metrics correctly", async () => {
+      (provider as any).updateMetrics(false, Date.now() - 1000, 12, "testMethodName", ["testParam1", "testParam2"], {
+        type: TransactionReverted.type,
+        context: {},
+      });
+      // Reliability should be unchanged.
+      expect(provider.reliability).to.be.eq(startingReliability);
+      expect(provider.latency).to.be.gt(0);
+      expect((provider as any).latencies.length).to.be.eq(1);
     });
   });
 });

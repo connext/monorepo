@@ -217,6 +217,7 @@ export class Subgraph {
     // Gather matching sending-chain records from the subgraph that will *not*
     // be handled by step 2 (i.e. statuses are *not* prepared)
     const nonPreparedSendingTxs: any[] = [];
+    const user = await this.userAddress;
     const correspondingReceiverTxIdsByChain: Record<string, string[]> = {};
     await Promise.all(
       Object.keys(idsBySendingChains).map(async (sendingChainId) => {
@@ -231,7 +232,7 @@ export class Subgraph {
         }
 
         const { transactions } = await subgraph.request<GetTransactionsQuery>((client) =>
-          client.GetTransactions({ transactionIds: ids }),
+          client.GetTransactionsWithUser({ transactionIds: ids, userId: user.toLowerCase() }),
         );
         if (transactions.length === 0) {
           return;
@@ -269,7 +270,7 @@ export class Subgraph {
           return;
         }
         const { transactions } = await subgraph.request<GetTransactionsQuery>((client) =>
-          client.GetTransactions({ transactionIds: ids }),
+          client.GetTransactionsWithUser({ transactionIds: ids, userId: user.toLowerCase() }),
         );
         if (transactions.length === 0) {
           return;
@@ -371,8 +372,9 @@ export class Subgraph {
                 return undefined;
               }
               const { transactions: correspondingReceiverTxs } = await _sdk.request<GetTransactionsQuery>((client) =>
-                client.GetTransactions({
+                client.GetTransactionsWithUser({
                   transactionIds: senderTxs.map((tx) => tx.transactionId),
+                  userId: user.toLowerCase(),
                 }),
               );
 
@@ -579,8 +581,9 @@ export class Subgraph {
             }
 
             const { transactions: correspondingSenderTxs } = await _sdk.request<GetTransactionsQuery>((client) =>
-              client.GetTransactions({
+              client.GetTransactionsWithUser({
                 transactionIds: receiverTxs.map((tx) => tx.transactionId),
+                userId: user.toLowerCase(),
               }),
             );
 

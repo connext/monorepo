@@ -13,6 +13,14 @@ export class MaxBufferLengthError extends NxtpError {
   }
 }
 
+export class StallTimeout extends NxtpError {
+  static readonly type = StallTimeout.name;
+
+  constructor(public readonly context: any = {}) {
+    super("Request stalled and timed out.", context, StallTimeout.type);
+  }
+}
+
 export class RpcError extends NxtpError {
   static readonly type = RpcError.name;
 
@@ -25,7 +33,6 @@ export class RpcError extends NxtpError {
     FailedToSend: "Failed to send RPC transaction.",
     NetworkError: "An RPC network error occurred.",
     ConnectionReset: "Connection was reset by peer.",
-    Timeout: "Request timed out",
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
@@ -112,14 +119,14 @@ export class TransactionReplaced extends NxtpError {
 
 // TODO: #144 Some of these error classes are a bit of an antipattern with the whole "reason" argument structure
 // being missing. They won't function as proper NxtpErrors, essentially.
-export class TimeoutError extends NxtpError {
+export class OperationTimeout extends NxtpError {
   /**
    * An error indicating that an operation (typically confirmation) timed out.
    */
-  static readonly type = TimeoutError.name;
+  static readonly type = OperationTimeout.name;
 
   constructor(public readonly context: any = {}) {
-    super("Operation timed out.", context, TimeoutError.type);
+    super("Operation timed out.", context, OperationTimeout.type);
   }
 }
 
@@ -403,7 +410,7 @@ export const parseError = (error: any): NxtpError => {
     case Logger.errors.UNPREDICTABLE_GAS_LIMIT:
       return new UnpredictableGasLimit(context);
     case Logger.errors.TIMEOUT:
-      return new TimeoutError(context);
+      return new OperationTimeout(context);
     case Logger.errors.NETWORK_ERROR:
       return new RpcError(RpcError.reasons.NetworkError, context);
     case Logger.errors.SERVER_ERROR:

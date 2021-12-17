@@ -12,7 +12,7 @@ import {
   MaxBufferLengthError,
   NotEnoughConfirmations,
   RpcError,
-  TimeoutError,
+  OperationTimeout,
   TransactionProcessingError,
   TransactionReplaced,
   TransactionReverted,
@@ -147,7 +147,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("should bump if times out during confirming", async () => {
-      mineStub.onCall(0).rejects(new TimeoutError());
+      mineStub.onCall(0).rejects(new OperationTimeout());
       mineStub.onCall(1).resolves();
       await (txDispatch as any).mineLoop();
       expect(mineStub.callCount).to.eq(2);
@@ -163,11 +163,11 @@ describe("TransactionDispatch", () => {
       const stubTx2 = { ...stubTx, data: "0xb" };
       const stubTx3 = { ...stubTx, data: "0xc" };
       (txDispatch as any).inflightBuffer = [stubTx1, stubTx2, stubTx3];
-      mineStub.onCall(0).rejects(new TimeoutError());
+      mineStub.onCall(0).rejects(new OperationTimeout());
       mineStub.onCall(1).resolves();
-      mineStub.onCall(2).rejects(new TimeoutError());
+      mineStub.onCall(2).rejects(new OperationTimeout());
       mineStub.onCall(3).resolves();
-      mineStub.onCall(4).rejects(new TimeoutError());
+      mineStub.onCall(4).rejects(new OperationTimeout());
       mineStub.onCall(5).resolves();
       await (txDispatch as any).mineLoop();
 
@@ -193,7 +193,7 @@ describe("TransactionDispatch", () => {
     it("should assign errors on tx resubmit", async () => {
       const stubTx1 = { ...stubTx, data: "0xa" };
       (txDispatch as any).inflightBuffer = [stubTx1];
-      mineStub.rejects(new TimeoutError());
+      mineStub.rejects(new OperationTimeout());
       const error = new Error("test");
       submitStub.rejects(error);
       await (txDispatch as any).mineLoop();
@@ -637,7 +637,7 @@ describe("TransactionDispatch", () => {
     });
 
     it("escalates error as a TransactionServiceFailure if timeout occurs", async () => {
-      const timeoutError = new TimeoutError("test");
+      const timeoutError = new OperationTimeout("test");
       confirmTransactionStub.rejects(timeoutError);
       await expect((txDispatch as any).confirm(transaction)).to.be.rejectedWith(NotEnoughConfirmations);
     });

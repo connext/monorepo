@@ -1,10 +1,11 @@
 import { delay } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
 
-import { parseError, RpcError } from "./errors";
+import { parseError, RpcError, ServerError, StallTimeout } from "./errors";
 
 export const { StaticJsonRpcProvider } = providers;
 
+// TODO: Wrap metrics in a type, and add a getter for it for logging purposes (after sync() calls, for example)
 // TODO: Should be a multiton mapped by URL (such that no duplicate instances are created).
 /**
  * @classdesc An extension of StaticJsonRpcProvider that manages a providers chain synchronization status
@@ -22,7 +23,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
   // Denominator is the target reliability sample size.
   private static readonly RELIABILITY_STEP = 1 / SyncProvider.N_SAMPLES;
   // A metric used for measuring reliability, based on the number of successful calls / last N calls made.
-  public reliability = 0.0;
+  public reliability = 1.0;
 
   // Used for tracking how many calls we've made in the last second.
   private cpsTimestamps: number[] = [];
@@ -32,14 +33,14 @@ export class SyncProvider extends StaticJsonRpcProvider {
     this.cpsTimestamps = this.cpsTimestamps.filter((ts) => now - ts < 10_000);
     return this.cpsTimestamps.length / 10;
   }
-  private execTimes: number[] = [];
-  public get avgExecTime(): number {
-    if (this.execTimes.length === 0) {
+  private latencies: number[] = [];
+  public get latency(): number {
+    if (this.latencies.length === 0) {
       return 0.0;
     }
     // Average execution time over the last N samples.
-    this.execTimes = this.execTimes.slice(-SyncProvider.N_SAMPLES);
-    return this.execTimes.reduce((a, b) => a + b, 0) / this.execTimes.length;
+    this.latencies = this.latencies.slice(-SyncProvider.N_SAMPLES);
+    return this.latencies.reduce((a, b) => a + b, 0) / this.latencies.length;
   }
 
   // This variable is used to track the last block number this provider synced to, and is kept separately from the
@@ -84,12 +85,15 @@ export class SyncProvider extends StaticJsonRpcProvider {
     // provider.ready returns a Promise which will stall until the network has been established, ignoring
     // errors due to the target node not being active yet. This will ensure we wait until the node is up
     // and running smoothly.
-    if ((!this.synced && method !== "eth_blockNumber") || !(await this.ready)) {
+    const ready = await this.ready;
+    if (!ready) {
       throw new RpcError(RpcError.reasons.OutOfSync, {
         provider: this.name,
         chainId: this.chainId,
-        blockNumber: this.syncedBlockNumber,
+        lastSyncedBlockNumber: this.syncedBlockNumber,
         synced: this.synced,
+        lag: this.lag,
+        ready,
       });
     }
 
@@ -119,21 +123,33 @@ export class SyncProvider extends StaticJsonRpcProvider {
               ? [
                   new Promise(async (_, reject) => {
                     await delay(this.stallTimeout);
-                    reject(new RpcError(RpcError.reasons.Timeout));
+                    reject(
+                      new StallTimeout({
+                        attempt: i,
+                        provider: this.name,
+                        chainId: this.chainId,
+                        stallTimeout: this.stallTimeout,
+                        errors,
+                      }),
+                    );
                   }),
                 ]
               : [],
           ),
         );
       } catch (error) {
-        // If the error is an RPC Error (that's not a Timeout) we don't want to throw it.
-        if (error.type === RpcError.type && error.reason !== RpcError.reasons.Timeout) {
-          this.updateMetrics(false, sendTimestamp, i, method, params, {
-            type: error.type.toString(),
-            context: error.context,
-          });
+        this.updateMetrics(false, sendTimestamp, i, method, params, {
+          type: error.type.toString(),
+          context: error.context,
+        });
+        if (error.type === RpcError.type) {
+          // e.g. ConnectionReset, NetworkError, etc.
+          // This type of error indicates we should retry the call attempt with this provider again.
           errors.push(error);
         } else {
+          // e.g. a TransactionReverted, TransactionReplaced, etc.
+          // NOTE: If this is a StallTimeout or ServerError, we should assume this provider is unresponsive
+          // at the moment, and throw.
           throw error;
         }
       }
@@ -142,7 +158,6 @@ export class SyncProvider extends StaticJsonRpcProvider {
     throw new RpcError(RpcError.reasons.FailedToSend, {
       provider: this.name,
       chainId: this.chainId,
-      blockNumber: this.syncedBlockNumber,
       errors,
     });
   }
@@ -155,19 +170,26 @@ export class SyncProvider extends StaticJsonRpcProvider {
     params: any[],
     error?: { type: string; context: any },
   ) {
-    const execTime = +((Date.now() - sendTimestamp) / 1000).toFixed(2);
-    this.execTimes.push(execTime);
+    const latency = +((Date.now() - sendTimestamp) / 1000).toFixed(2);
+    this.latencies.push(latency);
+
     if (success) {
       this.reliability = Math.min(1, +(this.reliability + SyncProvider.RELIABILITY_STEP).toFixed(2));
-    } else {
+    } else if (error?.type === RpcError.type) {
+      // If the error is an RPC Error, update reliability to reflect provider misbehavior.
       this.reliability = Math.max(0, +(this.reliability - SyncProvider.RELIABILITY_STEP).toFixed(2));
+    } else if (error?.type === StallTimeout.type || error?.type === ServerError.type) {
+      // If the provider really is not responding in stallTimeout time (by default 10s!) or giving bad responses,
+      //  we should assume it is unresponsive in general and severely penalize reliability score as a result.
+      this.reliability = 0;
     }
+
     this.debugLog(
       success ? "RPC_CALL" : "RPC_ERROR",
       `#${iteration}`,
       method,
       this.cps,
-      execTime,
+      latency,
       this.reliability,
       // TODO: Logging params for these methods is for debugging purposes only.
       ["eth_getBlockByNumber", "eth_getTransactionByHash", "eth_getTransactionReceipt"].includes(method)
