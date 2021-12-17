@@ -228,7 +228,7 @@ interface RouterInterface extends ethers.utils.Interface {
     "Prepare(tuple,address,uint256,address)": EventFragment;
     "RelayerFeeAdded(address,uint256,address)": EventFragment;
     "RelayerFeeRemoved(address,uint256,address)": EventFragment;
-    "RemoveLiquidity(uint256,address,address)": EventFragment;
+    "RemoveLiquidity(uint256,address,address,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Cancel"): EventFragment;
@@ -1116,10 +1116,18 @@ export class Router extends BaseContract {
     RemoveLiquidity(
       amount?: null,
       assetId?: null,
+      routerRelayerFeeAsset?: null,
+      routerRelayerFee?: null,
       caller?: null
     ): TypedEventFilter<
-      [BigNumber, string, string],
-      { amount: BigNumber; assetId: string; caller: string }
+      [BigNumber, string, string, BigNumber, string],
+      {
+        amount: BigNumber;
+        assetId: string;
+        routerRelayerFeeAsset: string;
+        routerRelayerFee: BigNumber;
+        caller: string;
+      }
     >;
   };
 
