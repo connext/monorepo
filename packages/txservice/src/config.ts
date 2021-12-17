@@ -166,7 +166,6 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
             value: chainConfig[key],
           },
         ]);
-        console.error(error);
         throw error;
       }
     });
@@ -219,7 +218,7 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   debug_logRpcCalls: false,
 };
 
-const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {
+export const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {
   gasPriceMaxIncreaseScalar: 100,
   gasPriceReplacementBumpPercent: 0,
   gasLimitInflation: 0,

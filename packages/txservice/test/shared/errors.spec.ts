@@ -9,6 +9,7 @@ import {
   TransactionAlreadyKnown,
   MaxAttemptsReached,
   TransactionReverted,
+  BadNonce,
 } from "../../src/shared/errors";
 
 describe("#parseError", () => {
@@ -87,6 +88,15 @@ describe("#parseError", () => {
     expect(parsed).to.be.deep.eq(err);
   });
 
+  it("should handle errors where typeof responseText == string", () => {
+    const err = {
+      responseText: "fail",
+    };
+
+    const parsed = parseError(err);
+    expect(parsed).to.be.deep.eq(err);
+  });
+
   it("should return just err object when it is already nxtp error", () => {
     const err = {
       body: "fail",
@@ -110,6 +120,10 @@ describe("#parseError", () => {
         msg: "gas required exceeds allowance",
         reason: TransactionReverted.reasons.GasExceedsAllowance,
       },
+      {
+        msg: "insufficient funds",
+        reason: TransactionReverted.reasons.InsufficientFunds,
+      },
     ];
 
     for (const { msg, reason } of msgs) {
@@ -122,6 +136,106 @@ describe("#parseError", () => {
         const parsed = parseError(err);
         expect(parsed.message).to.be.eq(reason);
         expect(parsed.context.message).to.be.eq(err.message);
+        expect(parsed.context.chainError.code).to.be.eq(err.code);
+      });
+    }
+  });
+
+  describe("should handle bad nonce errors by regex", () => {
+    const msgs = [
+      {
+        msg: "another transaction with same nonce",
+        reason: BadNonce.reasons.NonceExpired,
+      },
+      {
+        msg: "same hash was already imported",
+        reason: BadNonce.reasons.NonceExpired,
+      },
+      {
+        msg: "transaction nonce is too low",
+        reason: BadNonce.reasons.NonceExpired,
+      },
+      {
+        msg: "nonce too low",
+        reason: BadNonce.reasons.NonceExpired,
+      },
+      {
+        msg: "oldnonce",
+        reason: BadNonce.reasons.NonceExpired,
+      },
+      {
+        msg: "replacement transaction underpriced",
+        reason: BadNonce.reasons.ReplacementUnderpriced,
+      },
+      {
+        msg: "tx doesn't have the correct nonce|invalid transaction nonce",
+        reason: BadNonce.reasons.NonceIncorrect,
+      },
+    ];
+
+    for (const { msg, reason } of msgs) {
+      it(`${msg}`, () => {
+        const err = {
+          code: Logger.errors.CALL_EXCEPTION,
+          message: msg,
+        };
+
+        const parsed = parseError(err);
+        expect(parsed.message).to.be.eq(reason);
+        expect(parsed.context.message).to.be.eq(err.message);
+        expect(parsed.context.chainError.code).to.be.eq(err.code);
+      });
+    }
+  });
+
+  describe("should handle error code", () => {
+    const errors = [
+      {
+        code: Logger.errors.TRANSACTION_REPLACED,
+        reason: "Transaction replaced.",
+      },
+      {
+        code: Logger.errors.INSUFFICIENT_FUNDS,
+        reason: TransactionReverted.reasons.InsufficientFunds,
+      },
+      {
+        code: Logger.errors.CALL_EXCEPTION,
+        reason: TransactionReverted.reasons.CallException,
+      },
+      {
+        code: Logger.errors.NONCE_EXPIRED,
+        reason: BadNonce.reasons.NonceExpired,
+      },
+      {
+        code: Logger.errors.REPLACEMENT_UNDERPRICED,
+        reason: BadNonce.reasons.ReplacementUnderpriced,
+      },
+      {
+        code: Logger.errors.UNPREDICTABLE_GAS_LIMIT,
+        reason: "The gas estimate could not be determined.",
+      },
+      {
+        code: Logger.errors.TIMEOUT,
+        reason: "Operation timed out.",
+      },
+      {
+        code: Logger.errors.NETWORK_ERROR,
+        reason: RpcError.reasons.NetworkError,
+      },
+      {
+        code: Logger.errors.SERVER_ERROR,
+        reason: ServerError.reasons.BadResponse,
+      },
+    ];
+
+    for (const { code, reason } of errors) {
+      it(`${code}`, () => {
+        const err = {
+          code: code,
+        };
+
+        const parsed = parseError(err);
+        expect(parsed.message).to.be.eq(reason);
         expect(parsed.context.chainError.code).to.be.eq(err.code);
       });
     }
