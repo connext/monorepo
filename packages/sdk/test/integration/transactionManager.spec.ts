@@ -399,7 +399,10 @@ describe("Transaction Manager", function () {
       });
 
       it("happy case: when allowance is suffice return undefined", async () => {
-        const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "0");
+        const tx = await tokenA.connect(user).approve(transactionManager.address, "1000");
+        await tx.wait();
+
+        const approveReq = await userTransactionManager.approveTokensIfNeeded(sendingChainId, tokenA.address, "5");
 
         expect(approveReq).to.be.undefined;
       });
