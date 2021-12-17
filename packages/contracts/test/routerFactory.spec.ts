@@ -77,7 +77,7 @@ describe("RouterFactory.sol", function () {
       );
     });
 
-    it("should error if receipient is empty", async () => {
+    it("should error if recipient is empty", async () => {
       await expect(
         routerFactory.connect(routerSigner).createRouter(routerSigner.address, AddressZero),
       ).to.be.revertedWith(getContractError("routerFactory_createRouter: RECIPIENT_EMPTY"));
