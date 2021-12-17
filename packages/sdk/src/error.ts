@@ -27,6 +27,7 @@ export abstract class ParamsError extends NxtpError {
  * @classdesc Represents errors having to do with an auction
  */
 export abstract class AuctionError extends NxtpError {
+  readonly isAuctionError = true;
   static readonly type = AuctionError.name;
 }
 

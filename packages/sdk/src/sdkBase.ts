@@ -32,6 +32,7 @@ import {
   getReceiverAmount,
   ChainData,
   StatusResponse,
+  AuctionPayload,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -690,7 +691,7 @@ export class NxtpSdkBase {
       }, auctionWaitTimeMs);
     });
 
-    const payload = {
+    const payload: AuctionPayload = {
       user,
       initiator: initiator ?? user,
       sendingChainId,
@@ -718,12 +719,14 @@ export class NxtpSdkBase {
         transactionId,
         inbox,
       });
+
       if (auctionResponses.length === 0) {
         throw new NoBids(auctionWaitTimeMs, transactionId, payload);
       }
       if (dryRun) {
         return { ...auctionResponses[0], metaTxRelayerFee };
       }
+
       receivedBids = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
           // validate bid
@@ -788,25 +791,28 @@ export class NxtpSdkBase {
           return data;
         }),
       );
+
+      const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
+      const invalidBids = receivedBids.filter((x) => typeof x === "string") as string[];
+
+      if (validBids.length === 0) {
+        throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
+      }
+
+      const chosen = validBids.sort((a: AuctionResponse, b) => {
+        return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
+      })[0];
+
+      return { ...chosen, metaTxRelayerFee };
     } catch (e) {
       this.logger.error("Auction error", requestContext, methodContext, jsonifyError(e), {
         transactionId,
       });
+      if (e.isAuctionError) {
+        throw e;
+      }
       throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
     }
-
-    const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
-    const invalidBids = receivedBids.filter((x) => typeof x === "string") as string[];
-
-    if (validBids.length === 0) {
-      throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
-    }
-
-    const chosen = validBids.sort((a: AuctionResponse, b) => {
-      return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
-    })[0];
-
-    return { ...chosen, metaTxRelayerFee };
   }
 
   public async approveForPrepare(
