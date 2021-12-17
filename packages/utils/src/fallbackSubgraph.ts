@@ -137,7 +137,7 @@ export class FallbackSubgraph<T extends SdkLike> {
           }),
           new Promise<Q>((_, reject) => setTimeout(() => reject(new NxtpError("Timeout")), this.stallTimeout)),
         ]);
-      } catch (e) {
+      } catch (e: any) {
         errors.push(e);
       }
     }
