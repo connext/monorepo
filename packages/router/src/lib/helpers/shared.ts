@@ -8,6 +8,7 @@ import {
   multicall as _multicall,
   Call,
   MethodContext,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
 import { getAddress, Interface } from "ethers/lib/utils";
 import { BigNumber, constants, utils } from "ethers/lib/ethers";
@@ -42,6 +43,7 @@ export const getContractAddress = (chainId: number): string => {
   return nxtpContractAddress;
 };
 
+export const getErc20ContractInterface = () => new Interface(ERC20Abi);
 export const getRouterContractInterface = () => new Interface(RouterArtifact.abi) as TRouter["interface"];
 
 export const getTxManagerInterface = () =>
