@@ -573,7 +573,7 @@ export const getExpressiveAssetBalances = async (chainId: number): Promise<Expre
 
   const addr = await wallet.getAddress();
   const { assetBalances } = await sdk.request<GetExpressiveAssetBalancesQuery>((client) =>
-    client.GetExpressiveAssetBalances({ routerId: addr }),
+    client.GetExpressiveAssetBalances({ routerId: addr.toLowerCase() }),
   );
   return assetBalances.map((a) => {
     return {
