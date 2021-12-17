@@ -48,7 +48,13 @@ contract Router is Ownable {
 
   event RelayerFeeAdded(address assetId, uint256 amount, address caller);
   event RelayerFeeRemoved(address assetId, uint256 amount, address caller);
-  event RemoveLiquidity(uint256 amount, address assetId, address caller);
+  event RemoveLiquidity(
+    uint256 amount, 
+    address assetId,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee, 
+    address caller
+  );
   event Prepare(
     ITransactionManager.InvariantTransactionData invariantData,
     address routerRelayerFeeAsset,
@@ -153,7 +159,7 @@ contract Router is Ownable {
       }
     }
 
-    emit RemoveLiquidity(amount, assetId, msg.sender);
+    emit RemoveLiquidity(amount, assetId, routerRelayerFeeAsset, routerRelayerFee, msg.sender);
     return transactionManager.removeLiquidity(amount, assetId, payable(recipient));
   }
 
