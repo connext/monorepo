@@ -182,7 +182,7 @@ export class ChainReader {
     const curTimeInSecs = await getNtpTimeSeconds();
 
     // If it's been less than a minute since we retrieved token price, send the last update in token price.
-    if (cachedTokenPrice && cachedTokenPrice.timestamp <= curTimeInSecs + 60) {
+    if (cachedTokenPrice && cachedTokenPrice.timestamp >= curTimeInSecs - 60) {
       return cachedTokenPrice.price;
     }
 
