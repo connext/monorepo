@@ -3,6 +3,7 @@ import {
   RequestContext,
   multicall as _multicall,
   Call,
+  getDecimalsForAsset,
 } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 import { BigNumber, utils, constants } from "ethers";
@@ -84,13 +85,15 @@ export const getFeesInSendingAsset = async (
     txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
   ]);
 
+  // Convert both to 18 decimals
   const normalizedReceived = receivedAmount.mul(BigNumber.from(10).pow(18 - receivingDecimals));
   const normalizedSending = sentAmount.mul(BigNumber.from(10).pow(18 - sendingDecimals));
 
   // Assume 1:1 once normalized
   const fees = normalizedReceived.sub(normalizedSending).div(BigNumber.from(10).pow(18 - sendingDecimals));
 
-  return fees.toString();
+  // Return in sending decimals
+  return fees.div(BigNumber.from(10).pow(18 - sendingDecimals)).toString();
 };
 
 /**
