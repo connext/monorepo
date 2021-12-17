@@ -16,6 +16,7 @@ import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
   Router as TRouter,
+  ERC20 as TERC20,
 } from "@connext/nxtp-contracts/typechain";
 import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -43,7 +44,7 @@ export const getContractAddress = (chainId: number): string => {
   return nxtpContractAddress;
 };
 
-export const getErc20ContractInterface = () => new Interface(ERC20Abi);
+export const getErc20ContractInterface = () => new Interface(ERC20Abi) as TERC20["interface"];
 export const getRouterContractInterface = () => new Interface(RouterArtifact.abi) as TRouter["interface"];
 
 export const getTxManagerInterface = () =>
