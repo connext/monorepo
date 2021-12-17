@@ -104,7 +104,7 @@ export const bindFastify = () =>
       { schema: { body: MigrateLiquidityRequestSchema, response: { "2xx": MigrateLiquidityResponseSchema } } },
       async (req, res) => {
         const requestContext = createRequestContext("/migrate-liquidity");
-        const { adminToken, chainId, assets: _assets, routerAddress } = req.body;
+        const { adminToken, chainId, assets: _assets, newRouterAddress } = req.body;
         if (adminToken !== config.adminToken) {
           return res.code(401).send("Unauthorized to perform this operation");
         }
@@ -119,7 +119,7 @@ export const bindFastify = () =>
         let code = 200;
         for (const a of assets) {
           try {
-            const _result = await contractWriter.migrateLiquidity(chainId, a, requestContext, routerAddress);
+            const _result = await contractWriter.migrateLiquidity(chainId, a, requestContext, newRouterAddress);
             result.push({
               removeLiqudityTx: _result?.removeLiqudityTx.transactionHash,
               addLiquidityForTx: _result?.addLiquidityForTx.transactionHash,

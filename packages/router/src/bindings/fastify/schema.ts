@@ -10,7 +10,7 @@ export const MigrateLiquidityRequestSchema = Type.Intersect([
   AdminSchema,
   Type.Object({
     chainId: TChainId,
-    routerAddress: Type.Optional(TAddress),
+    newRouterAddress: TAddress,
     assets: Type.Optional(Type.Array(TAddress)),
   }),
 ]);
