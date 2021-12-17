@@ -452,6 +452,10 @@ export const handleSingle = async (
         logger.info("Got fees in sending asset", requestContext, methodContext, {
           receivedAmount: _transaction.crosschainTx.receiving!.amount,
           sentAmount: _transaction.crosschainTx.sending.amount,
+          sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+          receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
           fees,
         });
 
