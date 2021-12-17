@@ -222,14 +222,22 @@ interface RouterInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "Cancel(tuple,address,uint256,address)": EventFragment;
+    "Fulfill(tuple,address,uint256,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "Prepare(tuple,address,uint256,address)": EventFragment;
     "RelayerFeeAdded(address,uint256,address)": EventFragment;
     "RelayerFeeRemoved(address,uint256,address)": EventFragment;
+    "RemoveLiquidity(uint256,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Cancel"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Fulfill"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Prepare"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerFeeAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerFeeRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RemoveLiquidity"): EventFragment;
 }
 
 export class Router extends BaseContract {
@@ -821,12 +829,264 @@ export class Router extends BaseContract {
   };
 
   filters: {
+    Cancel(
+      txData?: null,
+      routerRelayerFeeAsset?: null,
+      routerRelayerFee?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [
+        [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        },
+        string,
+        BigNumber,
+        string
+      ],
+      {
+        txData: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        };
+        routerRelayerFeeAsset: string;
+        routerRelayerFee: BigNumber;
+        caller: string;
+      }
+    >;
+
+    Fulfill(
+      txData?: null,
+      routerRelayerFeeAsset?: null,
+      routerRelayerFee?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [
+        [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        },
+        string,
+        BigNumber,
+        string
+      ],
+      {
+        txData: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        };
+        routerRelayerFeeAsset: string;
+        routerRelayerFee: BigNumber;
+        caller: string;
+      }
+    >;
+
     OwnershipTransferred(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
       [string, string],
       { previousOwner: string; newOwner: string }
+    >;
+
+    Prepare(
+      invariantData?: null,
+      routerRelayerFeeAsset?: null,
+      routerRelayerFee?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [
+        [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          string,
+          string
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          callDataHash: string;
+          transactionId: string;
+        },
+        string,
+        BigNumber,
+        string
+      ],
+      {
+        invariantData: [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          string,
+          string
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          callDataHash: string;
+          transactionId: string;
+        };
+        routerRelayerFeeAsset: string;
+        routerRelayerFee: BigNumber;
+        caller: string;
+      }
     >;
 
     RelayerFeeAdded(
@@ -845,6 +1105,15 @@ export class Router extends BaseContract {
     ): TypedEventFilter<
       [string, BigNumber, string],
       { assetId: string; amount: BigNumber; caller: string }
+    >;
+
+    RemoveLiquidity(
+      amount?: null,
+      assetId?: null,
+      caller?: null
+    ): TypedEventFilter<
+      [BigNumber, string, string],
+      { amount: BigNumber; assetId: string; caller: string }
     >;
   };
 
