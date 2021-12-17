@@ -1,7 +1,7 @@
 import { delay } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
 
-import { parseError, RpcError } from "./errors";
+import { parseError, RpcError, ServerError, StallTimeout } from "./errors";
 
 export const { StaticJsonRpcProvider } = providers;
 
@@ -23,7 +23,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
   // Denominator is the target reliability sample size.
   private static readonly RELIABILITY_STEP = 1 / SyncProvider.N_SAMPLES;
   // A metric used for measuring reliability, based on the number of successful calls / last N calls made.
-  public reliability = 0.0;
+  public reliability = 1.0;
 
   // Used for tracking how many calls we've made in the last second.
   private cpsTimestamps: number[] = [];
@@ -124,7 +124,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
                   new Promise(async (_, reject) => {
                     await delay(this.stallTimeout);
                     reject(
-                      new RpcError(RpcError.reasons.StallTimeout, {
+                      new StallTimeout({
                         attempt: i,
                         provider: this.name,
                         chainId: this.chainId,
@@ -138,20 +138,18 @@ export class SyncProvider extends StaticJsonRpcProvider {
           ),
         );
       } catch (error) {
+        this.updateMetrics(false, sendTimestamp, i, method, params, {
+          type: error.type.toString(),
+          context: error.context,
+        });
         if (error.type === RpcError.type) {
-          // If the error is an RPC Error, update metrics to reflect provider misbehavior.
-          const isTimeout = error.reason === RpcError.reasons.StallTimeout;
-          this.updateMetrics(false, sendTimestamp, i, method, params, {
-            type: error.type.toString(),
-            context: error.context,
-            isTimeout,
-          });
-          // If the RPC error is a StallTimeout, we should assume this provider is unresponsive at the moment, and throw.
-          if (isTimeout) {
-            throw error;
-          }
+          // e.g. ConnectionReset, NetworkError, etc.
+          // This type of error indicates we should retry the call attempt with this provider again.
           errors.push(error);
         } else {
+          // e.g. a TransactionReverted, TransactionReplaced, etc.
+          // NOTE: If this is a StallTimeout or ServerError, we should assume this provider is unresponsive
+          // at the moment, and throw.
           throw error;
         }
       }
@@ -170,21 +168,22 @@ export class SyncProvider extends StaticJsonRpcProvider {
     iteration: number,
     method: string,
     params: any[],
-    error?: { type: string; context: any; isTimeout: boolean },
+    error?: { type: string; context: any },
   ) {
     const latency = +((Date.now() - sendTimestamp) / 1000).toFixed(2);
     this.latencies.push(latency);
+
     if (success) {
       this.reliability = Math.min(1, +(this.reliability + SyncProvider.RELIABILITY_STEP).toFixed(2));
-    } else {
-      if (error?.isTimeout) {
-        // If the provider really is not responding in stallTimeout time (by default 10s!), we should assume
-        // it is unresponsive and severely penalize reliability score as a result.
-        this.reliability = 0;
-      } else {
-        this.reliability = Math.max(0, +(this.reliability - SyncProvider.RELIABILITY_STEP).toFixed(2));
-      }
+    } else if (error?.type === RpcError.type) {
+      // If the error is an RPC Error, update reliability to reflect provider misbehavior.
+      this.reliability = Math.max(0, +(this.reliability - SyncProvider.RELIABILITY_STEP).toFixed(2));
+    } else if (error?.type === StallTimeout.type || error?.type === ServerError.type) {
+      // If the provider really is not responding in stallTimeout time (by default 10s!) or giving bad responses,
+      //  we should assume it is unresponsive in general and severely penalize reliability score as a result.
+      this.reliability = 0;
     }
+
     this.debugLog(
       success ? "RPC_CALL" : "RPC_ERROR",
       `#${iteration}`,

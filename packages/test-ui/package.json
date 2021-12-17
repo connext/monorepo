@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-test-ui",
-  "version": "0.0.102",
+  "version": "0.0.103",
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
