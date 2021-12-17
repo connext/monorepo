@@ -15,7 +15,7 @@ import {
   BadNonce,
   TransactionReplaced,
   TransactionReverted,
-  TimeoutError,
+  OperationTimeout,
   TransactionBackfilled,
   InitialSubmitFailure,
   TransactionProcessingError,
@@ -146,7 +146,7 @@ export class TransactionDispatch extends ChainRpcProvider {
               txsId: transaction.uuid,
               error,
             });
-            if (error.type === TimeoutError.type && !receivedBadNonce) {
+            if (error.type === OperationTimeout.type && !receivedBadNonce) {
               // Check to see if this nonce has already been mined; this would imply this transaction got replaced, or
               // failed to reach chain.
               const transactionCount = await this.getTransactionCount("latest");
