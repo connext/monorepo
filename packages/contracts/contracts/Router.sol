@@ -46,6 +46,25 @@ contract Router is Ownable {
 
   event RelayerFeeAdded(address assetId, uint256 amount, address caller);
   event RelayerFeeRemoved(address assetId, uint256 amount, address caller);
+  event RemoveLiquidity(uint256 amount, address assetId, address caller);
+  event Prepare(
+    ITransactionManager.InvariantTransactionData invariantData,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
+    address caller
+  );
+  event Fulfill(
+    ITransactionManager.TransactionData txData,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
+    address caller
+  );
+  event Cancel(
+    ITransactionManager.TransactionData txData,
+    address routerRelayerFeeAsset,
+    uint256 routerRelayerFee,
+    address caller
+  );
 
   constructor(address _routerFactory) {
     routerFactory = _routerFactory;
@@ -123,6 +142,7 @@ contract Router is Ownable {
       require(recovered == routerSigner, "#RC_RL:040");
     }
 
+    emit RemoveLiquidity(amount, assetId, msg.sender);
     return transactionManager.removeLiquidity(amount, assetId, payable(recipient));
   }
 
@@ -149,10 +169,8 @@ contract Router is Ownable {
       }
     }
 
-    return
-      transactionManager.prepare(
-        args
-      );
+    emit Prepare(args.invariantData, routerRelayerFeeAsset, routerRelayerFee, msg.sender);
+    return transactionManager.prepare(args);
   }
 
   function fulfill(
@@ -177,7 +195,7 @@ contract Router is Ownable {
         LibAsset.transferAsset(routerRelayerFeeAsset, payable(msg.sender), routerRelayerFee);
       }
     }
-
+    emit Fulfill(args.txData, routerRelayerFeeAsset, routerRelayerFee, msg.sender);
     return transactionManager.fulfill(args);
   }
 
@@ -203,7 +221,7 @@ contract Router is Ownable {
         LibAsset.transferAsset(routerRelayerFeeAsset, payable(msg.sender), routerRelayerFee);
       }
     }
-
+    emit Cancel(args.txData, routerRelayerFeeAsset, routerRelayerFee, msg.sender);
     return transactionManager.cancel(args);
   }
 
