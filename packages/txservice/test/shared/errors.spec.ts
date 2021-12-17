@@ -1,7 +1,15 @@
 import { Logger } from "ethers/lib/utils";
 import { expect } from "@connext/nxtp-utils";
 
-import { parseError, RpcError, ServerError, TransactionReverted } from "../../src/shared/errors";
+import {
+  parseError,
+  RpcError,
+  ServerError,
+  UnpredictableGasLimit,
+  TransactionAlreadyKnown,
+  MaxAttemptsReached,
+  TransactionReverted,
+} from "../../src/shared/errors";
 
 describe("#parseError", () => {
   it("should return error if it is nxtp error", () => {
@@ -24,6 +32,39 @@ describe("#parseError", () => {
     expect(parsed.message).to.be.eq(ServerError.reasons.BadResponse);
   });
 
+  it("should handle unpredictable gas limit error", () => {
+    const err = {
+      code: Logger.errors.UNPREDICTABLE_GAS_LIMIT,
+      error: {
+        message: "fail",
+      },
+    };
+    const parsed = parseError(err);
+    expect(parsed instanceof UnpredictableGasLimit).to.be.true;
+    expect(parsed.context.message).to.be.eq("fail");
+    expect(parsed.message).to.be.eq("The gas estimate could not be determined.");
+  });
+
+  it("should handle transaction already known error", () => {
+    const err = {
+      error: {
+        message: "already known",
+      },
+    };
+    const parsed = parseError(err);
+    expect(parsed instanceof TransactionAlreadyKnown).to.be.true;
+    expect(parsed.context.message).to.be.eq("already known");
+    expect(parsed.message).to.be.eq("Transaction is already indexed by provider.");
+  });
+
+  it("should handle MaxAttemptsReached error", () => {
+    const err = new MaxAttemptsReached(10);
+    const parsed = parseError(err);
+    expect(parsed instanceof MaxAttemptsReached).to.be.true;
+    expect(parsed.type).to.be.eq("MaxAttemptsReached");
+    expect(parsed.msg).to.be.eq(MaxAttemptsReached.getMessage(10));
+  });
+
   it("should handle all connection errors", () => {
     const errs = ["ECONNRESET", "EADDRINUSE", "ECONNREFUSED", "EPIPE", "ENOTFOUND", "ENETUNREACH", "EAI_AGAIN"];
     errs.forEach((err) => {
@@ -44,6 +85,15 @@ describe("#parseError", () => {
 
     const parsed = parseError(err);
     expect(parsed).to.be.deep.eq(err);
+  });
+
+  it("should return just err object when it is already nxtp error", () => {
+    const err = {
+      body: "fail",
+    };
+
+    const parsed = parseError(err);
+    expect(parseError(parsed)).to.be.deep.eq(parsed);
   });
 
   describe("should handle revert errors by regex", () => {
