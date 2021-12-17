@@ -582,3 +582,66 @@ export const getExpressiveAssetBalances = async (chainId: number): Promise<Expre
     };
   });
 };
+
+// query to get cancelled_fulfilled transactions
+export const getCancelledFulfilledTransactions = async (routerAddress: string, chainId: number) => {
+  const { logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(getCancelledFulfilledTransactions.name);
+
+  logger.info("method start", requestContext, methodContext, {
+    chainId,
+    routerAddress,
+  });
+
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId, {});
+  }
+  // get all sender prepared txs
+  const allSenderCancelled = await sdk.request<GetSenderTransactionsQuery>((client) =>
+    client.GetSenderTransactions({
+      routerId: routerAddress.toLowerCase(),
+      sendingChainId: chainId,
+      status: SdkTransactionStatus.Cancelled,
+    }),
+  );
+
+  // create list of txIds for each receiving chain
+
+  const miniData: any = [];
+  const records = await Promise.all(
+    allSenderCancelled.router!.transactions.map(async (cancelledTx) => {
+      const _sdk = sdks[Number(cancelledTx.receivingChainId)];
+      const receivingSide = await _sdk.request<GetTransactionQuery>((client) =>
+        client.GetTransaction({
+          transactionId: `${
+            cancelledTx.transactionId
+          }-${cancelledTx.user.id.toLowerCase()}-${routerAddress.toLowerCase()}`,
+        }),
+      );
+
+      if (!receivingSide.transaction?.fulfillTransactionHash) {
+        return;
+      }
+
+      miniData.push({
+        cancelledTx: cancelledTx.cancelTransactionHash,
+        fulfilledTx: receivingSide.transaction.fulfillTransactionHash,
+        sendingSideExpiry: Number(cancelledTx.expiry),
+      });
+
+      return { sendingSide: cancelledTx, receivingSide: receivingSide.transaction };
+    }),
+  );
+
+  miniData.sort((a: any, b: any) => {
+    return a.sendingSideExpiry - b.sendingSideExpiry;
+  });
+  const data = {
+    records,
+    miniData,
+  };
+  // writeFileSync("./logs.json", JSON.stringify(data));
+  console.log(data);
+};
