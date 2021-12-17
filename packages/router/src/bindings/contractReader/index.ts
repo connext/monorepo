@@ -463,7 +463,7 @@ export const handleSingle = async (
         await incrementFees(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
-          BigNumber.from(fees).gt(0) ? fees : "0",
+          BigNumber.from(fees),
           requestContext,
         );
       };

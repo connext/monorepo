@@ -255,10 +255,10 @@ export const collectSubgraphHeads = async (): Promise<Record<number, number>> =>
 export const incrementFees = async (
   assetId: string,
   chainId: number,
-  amount: string,
+  amount: BigNumber,
   _requestContext: RequestContext,
 ) => {
-  if (amount === "0") {
+  if (amount.isZero()) {
     return;
   }
   const { logger } = getContext();
@@ -270,7 +270,16 @@ export const incrementFees = async (
     amount,
   });
 
-  const fees = await convertToUsd(assetId, chainId, amount, requestContext);
+  if (amount.isNegative()) {
+    logger.warn("Got negative fees, doing nothing", requestContext, methodContext, {
+      assetId,
+      chainId,
+      amount,
+    });
+    return;
+  }
+
+  const fees = await convertToUsd(assetId, chainId, amount.toString(), requestContext);
 
   logger.debug("Got fees in usd", requestContext, methodContext, {
     assetId,
