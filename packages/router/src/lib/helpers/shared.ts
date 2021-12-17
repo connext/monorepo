@@ -3,7 +3,6 @@ import {
   RequestContext,
   multicall as _multicall,
   Call,
-  getDecimalsForAsset,
 } from "@connext/nxtp-utils";
 import { getAddress } from "ethers/lib/utils";
 import { BigNumber, utils, constants } from "ethers";
