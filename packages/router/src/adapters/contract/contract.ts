@@ -18,6 +18,7 @@ import { getContext } from "../../router";
 import {
   getContractAddress,
   getTxManagerInterface,
+  getErc20ContractInterface,
   sanitationCheck,
   getRouterContractInterface,
 } from "../../lib/helpers";
@@ -601,6 +602,7 @@ export const addLiquidityForTransactionManager = async (
   assetId: string,
   routerAddress: string | undefined,
   requestContext: RequestContext,
+  infiniteApprove = true,
 ): Promise<providers.TransactionReceipt> => {
   const { methodContext } = createLoggingContext(addLiquidityForTransactionManager.name, requestContext);
 
@@ -613,6 +615,42 @@ export const addLiquidityForTransactionManager = async (
   }
 
   const nxtpContractAddress = getContractAddress(chainId);
+
+  if (assetId !== constants.AddressZero) {
+    const approvedData = getErc20ContractInterface().encodeFunctionData("allowance", [
+      signerAddress,
+      nxtpContractAddress,
+    ]);
+    const approvedEncoded = await txService.readTx({
+      to: assetId,
+      data: approvedData,
+      chainId,
+    });
+
+    const [approved] = getErc20ContractInterface().decodeFunctionResult("allowance", approvedEncoded);
+
+    logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
+
+    if (BigNumber.from(approved).lt(amount)) {
+      const data = getErc20ContractInterface().encodeFunctionData("approve", [
+        nxtpContractAddress,
+        infiniteApprove ? constants.MaxUint256 : amount,
+      ]);
+      logger.info("Approve transaction created", requestContext, methodContext);
+      const approveTx = await txService.sendTx(
+        { to: assetId, data, from: signerAddress, chainId, value: constants.Zero },
+        requestContext,
+      );
+      logger.info("Approved Transaction", requestContext, methodContext, {
+        approveTx,
+      });
+    } else {
+      logger.info("Allowance sufficient", requestContext, methodContext, {
+        approved: approved.toString(),
+        amount,
+      });
+    }
+  }
 
   const encodedData = getTxManagerInterface().encodeFunctionData("addLiquidityFor", [amount, assetId, routerAddress]);
   return await txService.sendTx(
