@@ -141,6 +141,7 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
 
     collectExpressiveLiquidityCache.retrieved = Date.now();
     collectExpressiveLiquidityCache.value = converted;
+    logger.debug("Method complete", requestContext, methodContext, { liquidity: converted });
     return converted;
   } catch (e: any) {
     logger.error("Failed to collect expressive liquidity", requestContext, methodContext, jsonifyError(e));
