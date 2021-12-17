@@ -13,7 +13,7 @@ import {
   getVariantTransactionDigest,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
-import { constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers/lib/ethers";
 
 import * as SharedFns from "../../../src/lib/helpers/shared";
 import * as ContractFns from "../../../src/adapters/contract/contract";
@@ -42,6 +42,7 @@ describe("Contract Adapter", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
+    interfaceMock.decodeFunctionResult.returns([BigNumber.from(1000)]);
     stub(SharedFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
   });
 
@@ -246,11 +247,11 @@ describe("Contract Adapter", () => {
   });
 
   describe("#addLiquidityFor", () => {
-    it("if no recipient, use wallet address", async () => {
+    it("should work for native asset", async () => {
       const chainId = txDataMock.sendingChainId;
 
       const amount = "1000";
-      const assetId = mkAddress("0x6");
+      const assetId = constants.AddressZero;
 
       const res = await addLiquidityForTransactionManager(chainId, amount, assetId, undefined, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("addLiquidityFor", [
@@ -261,6 +262,18 @@ describe("Contract Adapter", () => {
       expect(res).to.deep.eq(txReceiptMock);
     });
 
+    it("if no recipient, use wallet address", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x6");
+
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, undefined, requestContext);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, signerAddress]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
     it("happy case: addLiquidityFor", async () => {
       const chainId = txDataMock.sendingChainId;
 
@@ -268,13 +281,9 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const routerAddress = mkAddress("0x2");
 
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
       const res = await addLiquidityForTransactionManager(chainId, amount, assetId, routerAddress, requestContext);
-
-      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("addLiquidityFor", [
-        amount,
-        assetId,
-        routerAddress,
-      ]);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, routerAddress]);
       expect(res).to.deep.eq(txReceiptMock);
     });
   });
@@ -287,6 +296,7 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const newRouterAddress = mkAddress("0x2");
 
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
       const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
       expect(interfaceMock.encodeFunctionData).calledWith("removeLiquidity", [amount, assetId, signerAddress]);
       expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, newRouterAddress]);
