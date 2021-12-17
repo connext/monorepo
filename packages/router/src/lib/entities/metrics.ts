@@ -209,7 +209,6 @@ export const liquiditySupplied = new Gauge({
   labelNames: ["assetId", "chainId", "assetName"],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
-    console.log("**** got expressive liquidity, setting supplied");
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, supplied }) => {
         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, supplied);

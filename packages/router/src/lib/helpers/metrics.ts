@@ -182,6 +182,7 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
       }),
     );
 
+    logger.debug("Method complete", requestContext, methodContext, { liquidity: converted });
     return converted;
   } catch (e: any) {
     logger.error("Failed to collect onchain liquidity", requestContext, methodContext, jsonifyError(e));
