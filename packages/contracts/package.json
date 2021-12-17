@@ -14,7 +14,8 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "hardhat": "hardhat"
+    "hardhat": "hardhat",
+    "deploy:nervos": "ts-node deploy/deploy-nervos.ts"
   },
   "main": "dist/index.js",
   "types": "typechain/index.ts",
@@ -41,7 +42,7 @@
     "@types/node": "^14.17.5",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.4.6",
+    "ethers": "5.4.1",
     "hardhat": "^2.6.8",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
@@ -52,6 +53,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@polyjuice-provider/ethers": "^0.1.1",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "adv": "^0.1.5",
     "ajv": "^8.6.2",
