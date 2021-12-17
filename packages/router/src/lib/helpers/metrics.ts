@@ -91,55 +91,61 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
-  const { requestContext, methodContext } = createLoggingContext(collectOnchainLiquidity.name);
-  logger.debug("Method start", requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext(collectExpressiveLiquidity.name);
 
-  const elapsed = Date.now() - collectExpressiveLiquidityCache.retrieved;
-  if (elapsed < 5_000 && collectExpressiveLiquidityCache.value) {
-    return collectExpressiveLiquidityCache.value;
+  try {
+    logger.debug("Method start", requestContext, methodContext);
+
+    const elapsed = Date.now() - collectExpressiveLiquidityCache.retrieved;
+    if (elapsed < 5_000 && collectExpressiveLiquidityCache.value) {
+      return collectExpressiveLiquidityCache.value;
+    }
+
+    // Get all the supported chains
+    const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
+
+    // Get all the asset balances for that chain
+    const assetBalances: Record<number, ExpressiveAssetBalance[]> = {};
+    await Promise.all(
+      chainIds.map(async (chainId) => {
+        try {
+          assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
+        } catch (e: any) {
+          logger.warn("Failed to get expressive liquidity", requestContext, methodContext, {
+            chainId,
+            error: jsonifyError(e),
+          });
+        }
+      }),
+    );
+
+    // Convert all balances to USD
+    const converted: Record<string, ExpressiveAssetBalance<number>[]> = {};
+    await Promise.all(
+      Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
+        converted[chainId] = [];
+        await Promise.all(
+          assetValues.map(async (value) => {
+            const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
+            const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
+            const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
+            const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
+            // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
+            // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
+            // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
+            converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
+          }),
+        );
+      }),
+    );
+
+    collectExpressiveLiquidityCache.retrieved = Date.now();
+    collectExpressiveLiquidityCache.value = converted;
+    return converted;
+  } catch (e: any) {
+    logger.error("Failed to collect expressive liquidity", requestContext, methodContext, jsonifyError(e));
+    throw e;
   }
-
-  // Get all the supported chains
-  const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
-
-  // Get all the asset balances for that chain
-  const assetBalances: Record<number, ExpressiveAssetBalance[]> = {};
-  await Promise.all(
-    chainIds.map(async (chainId) => {
-      try {
-        assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
-      } catch (e: any) {
-        logger.warn("Failed to get expressive liquidity", requestContext, methodContext, {
-          chainId,
-          error: jsonifyError(e),
-        });
-      }
-    }),
-  );
-
-  // Convert all balances to USD
-  const converted: Record<string, ExpressiveAssetBalance<number>[]> = {};
-  await Promise.all(
-    Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
-      converted[chainId] = [];
-      await Promise.all(
-        assetValues.map(async (value) => {
-          const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
-          const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
-          const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
-          const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
-          // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
-          // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
-          // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
-          converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
-        }),
-      );
-    }),
-  );
-
-  collectExpressiveLiquidityCache.retrieved = Date.now();
-  collectExpressiveLiquidityCache.value = converted;
-  return converted;
 };
 
 export const collectOnchainLiquidity = async (): Promise<Record<number, { assetId: string; amount: number }[]>> => {
@@ -149,32 +155,37 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
   const { requestContext, methodContext } = createLoggingContext(collectOnchainLiquidity.name);
   logger.debug("Method start", requestContext, methodContext);
 
-  // Get all the supported chains
-  const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
+  try {
+    // Get all the supported chains
+    const chainIds = Object.keys(config.chainConfig).map((c) => parseInt(c));
 
-  // Get all the asset balances for that chain
-  const assetBalances: Record<number, { assetId: string; amount: BigNumber }[]> = {};
-  await Promise.all(
-    chainIds.map(async (chainId) => {
-      assetBalances[chainId] = await contractReader.getAssetBalances(chainId);
-    }),
-  );
+    // Get all the asset balances for that chain
+    const assetBalances: Record<number, { assetId: string; amount: BigNumber }[]> = {};
+    await Promise.all(
+      chainIds.map(async (chainId) => {
+        assetBalances[chainId] = await contractReader.getAssetBalances(chainId);
+      }),
+    );
 
-  // Convert all balances to USD
-  const converted: Record<string, { assetId: string; amount: number }[]> = {};
-  await Promise.all(
-    Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
-      converted[chainId] = [];
-      await Promise.all(
-        assetValues.map(async (value) => {
-          const usd = await convertToUsd(value.assetId, parseInt(chainId), value.amount.toString(), requestContext);
-          converted[chainId].push({ assetId: value.assetId, amount: usd });
-        }),
-      );
-    }),
-  );
+    // Convert all balances to USD
+    const converted: Record<string, { assetId: string; amount: number }[]> = {};
+    await Promise.all(
+      Object.entries(assetBalances).map(async ([chainId, assetValues]) => {
+        converted[chainId] = [];
+        await Promise.all(
+          assetValues.map(async (value) => {
+            const usd = await convertToUsd(value.assetId, parseInt(chainId), value.amount.toString(), requestContext);
+            converted[chainId].push({ assetId: value.assetId, amount: usd });
+          }),
+        );
+      }),
+    );
 
-  return converted;
+    return converted;
+  } catch (e: any) {
+    logger.error("Failed to collect onchain liquidity", requestContext, methodContext, jsonifyError(e));
+    throw e;
+  }
 };
 
 export const collectGasBalance = async (): Promise<Record<number, number>> => {
