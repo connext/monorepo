@@ -16,11 +16,33 @@ export enum TaxedMethod {
 
 const DEFAULT_METATX_METHODS = [TaxedMethod.SenderFulfill, TaxedMethod.ReceiverFulfill];
 
+type ChainInfo = {
+  id: number;
+  // Gas price in wei of native token.
+  gasPrice: BigNumber;
+  // Native token price in USD ?
+  ethPrice: BigNumber;
+};
+
 /**
- * Returns the swapRate
+ * Returns the exchange rate, which is the market price of sending token divided by the
+ * market price of the receiving token.
+ *
+ * @param sendingTokenPrice - The price of the sending token in USD Wei (18 decimals).
+ * @param receivingTokenPrice - The price of the receiving token in USD Wei (18 decimals).
+ *
+ * @returns BigNumber - The exchange rate.
+ */
+export const getExchangeRate = (sendingTokenPrice: BigNumber, receivingTokenPrice: BigNumber): BigNumber => {
+  return sendingTokenPrice.div(receivingTokenPrice);
+};
+
+/**
+ * Calculates the vAMM swap rate, which is determined by the ratio between the router's respective liquidity
+ * balances on the sending and receiving chains.
  *
  * @param TODO
- * @returns The swapRate, determined by the AMM
+ * @returns string - The vAMM swap rate.
  *
  * @remarks
  * TODO: getSwapRate using AMM
@@ -30,40 +52,13 @@ export const getSwapRate = async (): Promise<string> => {
 };
 
 /**
- * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
+ * Returns the meta tx buffer in percentage points (integer). The buffer is
+ * a flat fee that is applied to the gas fee used to incentivize relayers.
  *
- * @param amount The amount of the transaction on the sending chain
- * @returns The amount, less fees as determined by the swapRate
- *
- * @remarks
- * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * swapRate`
+ * @returns Percentage value to be added.
  */
-export const getReceiverAmount = async (
-  amount: string,
-  inputDecimals: number,
-  outputDecimals: number,
-): Promise<{ receivingAmount: string; routerFee: string; amountAfterSwapRate: string }> => {
-  // 1. swap rate from AMM
-  const swapRate = await getSwapRate();
-  const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
-
-  // 2. flat fee by Router
-  const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
-  const receivingAmountFloat = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
-
-  const receivingAmount = receivingAmountFloat.split(".")[0];
-
-  const routerFee = amountAfterSwapRate.sub(receivingAmount);
-
-  return { receivingAmount, routerFee: routerFee.toString(), amountAfterSwapRate: amountAfterSwapRate.toString() };
-};
-
-type ChainInfo = {
-  id: number;
-  // Gas price in wei of native token.
-  gasPrice: BigNumber;
-  // Native token price in USD ?
-  ethPrice: BigNumber;
+export const getMetaTxBuffer = () => {
+  return 10; // 10%
 };
 
 export const getGasFees = async (
@@ -131,11 +126,34 @@ const getGasEstimateForMethod = (chainId: number, method: TaxedMethod): string =
 };
 
 /**
- * Returns the meta tx buffer in percentage points (integer). The buffer is
- * a flat fee that is applied to the gas fee used to incentivize relayers.
+ * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
  *
- * @returns Percentage value to be added.
+ *
+ * @param amount The amount of the transaction on the sending chain
+ * @returns The amount, less fees as determined by the swapRate
+ *
+ * @remarks
+ * Here is the math:
+ *                                                  sendingAssetValueUSD
+ *   receivingAssetTokens = sendingAssetTokens *  ------------------------ * (ammSwapRate) - gasFeesInReceivingAssetTokens
+ *                                                 receivingAssetValueUSD
  */
-export const getMetaTxBuffer = () => {
-  return 10; // 10%
+export const getReceivingAmount = async (
+  amount: string,
+  inputDecimals: number,
+  outputDecimals: number,
+): Promise<{ receivingAmount: string; routerFee: string; amountAfterSwapRate: string }> => {
+  // 1. swap rate from AMM
+  const swapRate = await getSwapRate();
+  const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
+
+  // 2. flat fee by Router
+  const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
+  const receivingAmountFloat = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
+
+  const receivingAmount = receivingAmountFloat.split(".")[0];
+
+  const routerFee = amountAfterSwapRate.sub(receivingAmount);
+
+  return { receivingAmount, routerFee: routerFee.toString(), amountAfterSwapRate: amountAfterSwapRate.toString() };
 };
