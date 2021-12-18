@@ -123,8 +123,8 @@ export class Subgraph {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
       const cId = parseInt(chainId);
-      const uris = typeof subgraph === "string" ? [subgraph] : subgraph;
-      const sdksWithClients = uris.map((uri) => ({ client: getSdk(new GraphQLClient(uri)), uri }));
+      const urls = typeof subgraph === "string" ? [subgraph] : subgraph;
+      const sdksWithClients = urls.map((url) => ({ client: getSdk(new GraphQLClient(url)), url }));
       const fallbackSubgraph = new FallbackSubgraph<Sdk>(
         cId,
         sdksWithClients,
@@ -694,6 +694,11 @@ export class Subgraph {
     );
 
     return fulfilledTxs.flat().concat(cancelledTxs.flat());
+  }
+
+  public async query(chainId: number, query: string): Promise<any> {
+    const subgraph = this.sdks[chainId];
+    return await subgraph.query(query);
   }
 
   /**
