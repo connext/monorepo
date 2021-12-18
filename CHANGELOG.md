@@ -2,6 +2,10 @@
 
 ## Next Release
 
+# 0.0.104
+
+- [router] Fix metrics collection
+
 # 0.0.103
 
 - [txservice] Fix handling of RPC provider server errors

@@ -1,4 +1,4 @@
-import { expect, mkAddress, getChainData } from "@connext/nxtp-utils";
+import { expect, mkAddress, getChainData, ChainData } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
@@ -28,7 +28,7 @@ describe("getAssetName", () => {
           mainnetEquivalent,
         },
       },
-    });
+    } as ChainData);
 
     chainDataMock.set("1", {
       assetId: {
@@ -36,7 +36,7 @@ describe("getAssetName", () => {
           symbol: "TEST_CHAIN_DATA",
         },
       },
-    });
+    } as ChainData);
 
     const name = metrics.getAssetName(assetId, chainId);
     expect(name).to.be.eq("TEST_CHAIN_DATA");
@@ -238,7 +238,7 @@ describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume
   const tests = [
     {
       method: "incrementFees",
-      args: [mkAddress(), chainId, parseEther("1").toString()],
+      args: [mkAddress(), chainId, parseEther("1")],
       labels: { assetId: mkAddress(), chainId, assetName },
       value: 10,
       entity: "feesCollected",
