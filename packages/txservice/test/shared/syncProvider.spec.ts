@@ -1,5 +1,5 @@
 import { randomInt } from "crypto";
-import { SinonStub, stub } from "sinon";
+import { reset, restore, SinonStub, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
 
 import { RpcError, SyncProvider, TransactionReverted } from "../../src/shared";
@@ -61,15 +61,12 @@ describe("SyncProvider", () => {
     beforeEach(() => {
       updateMetricsStub = stub(provider as any, "updateMetrics");
       // This will stub StaticJsonRpcProvider (super class) send method. Only needs to be done once.
-      try {
-        superSendStub = stub((provider as any).__proto__, "send").resolves(expectedSendResult);
-      } catch (error) {
-        // TypeError: Attempted to wrap send which is already wrapped
-        // This happens when we've already stubbed the proto method. Should be ignored.
-        if (!(error instanceof TypeError)) {
-          throw error;
-        }
-      }
+      superSendStub = stub((provider as any).__proto__, "send").resolves(expectedSendResult);
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
     });
 
     it("should intercept rpc send call", async () => {

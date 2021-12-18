@@ -16,7 +16,7 @@ export class Web3Signer extends Signer {
     }
     return utils.concat([
       utils.toUtf8Bytes(Web3Signer.MESSAGE_PREFIX),
-      utils.toUtf8Bytes(String(message.length)),
+      utils.toUtf8Bytes(message.length.toString()),
       message,
     ]);
   }
