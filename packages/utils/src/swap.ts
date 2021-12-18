@@ -20,8 +20,31 @@ type ChainInfo = {
   id: number;
   // Gas price in wei of native token.
   gasPrice: BigNumber;
-  // Native token price in USD ?
+  // Native token price in USD wei.
   ethPrice: BigNumber;
+};
+
+type AssetInfo = {
+  id: number;
+  decimals: number;
+  // Price in USD wei.
+  price: BigNumber;
+};
+
+type TransferOutput = {
+  id: string; // Target asset ID, will be redundant but good for sanity check.
+  amount: string; // What the resulting amount will be in target asset, after swap rate and fees are applied.
+  swapRate: string; // Applied vAMM swap rate, if applicable (in fee estimates, this won't be).
+  fees: {
+    total: string; // Amount of asset deducted from initial receiving amount; the sum of everything in `details`.
+    details: {
+      gas: {
+        router: string; // Amount of asset === value in USD for the gas cost for all router-executed transactions.
+        relayer: string; // Amount of asset === value in USD for the gas cost + relayer fee for all relayer-executed transactions.
+      };
+      lp: string; // This is the 0.05% router fee in target asset.
+    };
+  };
 };
 
 /**
@@ -144,8 +167,29 @@ const getGasEstimateForMethod = (chainId: number, method: TaxedMethod): string =
 };
 
 /**
- * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
+ * Calculates gas fees, get vAMM swap rate, and applies router fee. Returns an object with the total receiving amount as well as
+ * all the details for fees, swap rate, etc.
  *
+ * If sendingAmount is 0 (which is valid for fee estimation), the
+ * receiving `amount` will be negative, and only the gas fees will be calculated.
+ *
+ * Additionally, caller should specify which methods to apply relayer fees to.
+ *
+ * If router balances aren't supplied, swap rate will default to 1 (which is valid for fee estimation).
+ */
+// TODO: Convert below getReceivingAmount method to use this signature:
+// export const getReceivingAmount = (
+//   sendingAmount: BigNumberish,
+//   sendingChain: ChainInfo,
+//   sendingAsset: AssetInfo,
+//   receivingChain: ChainInfo,
+//   receivingAsset: AssetInfo,
+// ): TransferOutput => {
+
+// };
+
+/**
+ * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
  *
  * @param amount The amount of the transaction on the sending chain
  * @returns The amount, less fees as determined by the swapRate
