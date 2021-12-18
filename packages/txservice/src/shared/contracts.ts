@@ -41,7 +41,7 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
   const _contractDeployments = getContractDeployments();
-  const record = _contractDeployments[String(chainId)] ?? {};
+  const record = _contractDeployments[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;

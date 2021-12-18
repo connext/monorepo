@@ -23,7 +23,7 @@ import { ChainNotConfigured } from "../error";
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const record = (contractDeployments as any)[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -39,7 +39,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const record = (contractDeployments as any)[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -55,7 +55,7 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   const chainIdsForGasFee: number[] = [];
   const chainIds = Object.keys(contractDeployments);
   chainIds.forEach((chainId) => {
-    const record = (contractDeployments as any)[String(chainId)];
+    const record = (contractDeployments as any)[chainId.toString()];
     const chainName = Object.keys(record)[0];
     if (chainName) {
       const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
