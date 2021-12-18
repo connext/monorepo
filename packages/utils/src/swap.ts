@@ -25,8 +25,8 @@ type ChainInfo = {
 };
 
 /**
- * Returns the exchange rate, which is the market price of sending token divided by the
- * market price of the receiving token.
+ * Returns the exchange rate, which is the market price of receiving token divided by the
+ * market price of the sending token.
  *
  * @param sendingTokenPrice - The price of the sending token in USD Wei (18 decimals).
  * @param receivingTokenPrice - The price of the receiving token in USD Wei (18 decimals).
@@ -34,7 +34,7 @@ type ChainInfo = {
  * @returns BigNumber - The exchange rate.
  */
 export const getExchangeRate = (sendingTokenPrice: BigNumber, receivingTokenPrice: BigNumber): BigNumber => {
-  return sendingTokenPrice.div(receivingTokenPrice);
+  return receivingTokenPrice.div(sendingTokenPrice);
 };
 
 /**
@@ -61,26 +61,44 @@ export const getMetaTxBuffer = () => {
   return 10; // 10%
 };
 
-export const getGasFees = async (
-  // Target token price in USD
+/**
+ * Get gas fee total in target token amount.
+ *
+ * @param tokenPrice - Target token price in USD Wei (18 decimals).
+ * @param tokenDecimals - Target token decimals.
+ * @param sendingChainInfo - Relevant info needed for sending chain.
+ * @param receivingChainInfo - Relevant info needed for receiving chain.
+ * @param metaTxMethods - Methods to which the additional flat relayer fee is applied.
+ *
+ * @returns BigNumber - Gas fee total in target token amount.
+ *
+ * @remarks
+ * Math for calculating gas fee in target token amount for a given method:
+ *
+ *            gasPriceWei * methodGasLimit * nativeTokenPriceUSD
+ * gasFee  = ---------------------------------------------------- * relayerFee? * 10^(tokenDecimals - 18)
+ *                       targetTokenPriceUSD
+ *
+ */
+export const getGasFees = (
   tokenPrice: BigNumber,
   tokenDecimals: number,
-  sendingChain: ChainInfo,
-  receivingChain: ChainInfo,
+  sendingChainInfo: ChainInfo,
+  receivingChainInfo: ChainInfo,
   metaTxMethods: TaxedMethod[] = DEFAULT_METATX_METHODS,
-) => {
+): BigNumber => {
   const operations = [
     {
       method: TaxedMethod.SenderFulfill,
-      chain: sendingChain,
+      chain: sendingChainInfo,
     },
     {
       method: TaxedMethod.ReceiverPrepare,
-      chain: receivingChain,
+      chain: receivingChainInfo,
     },
     {
       method: TaxedMethod.ReceiverFulfill,
-      chain: receivingChain,
+      chain: receivingChainInfo,
     },
   ];
   let total = BigNumber.from(0);
@@ -90,7 +108,7 @@ export const getGasFees = async (
     const gasLimit = getGasEstimateForMethod(id, operation.method);
     // Get the gas price in USD. It will be in wei units - 18 decimals.
     const gasPriceUsd = gasPrice.mul(gasLimit).mul(ethPrice);
-    // Token amount = gasPriceUsd / (tokenPriceUsd * 10^(18 - tokenDecimals))
+    // Token amount = (gasPriceUsd / tokenPriceUsd) / 10^(18 - tokenDecimals)
     const tokenAmount = tokenPrice.isZero()
       ? constants.Zero
       : gasPriceUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - tokenDecimals));
