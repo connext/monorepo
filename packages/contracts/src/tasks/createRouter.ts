@@ -3,28 +3,32 @@ import { task } from "hardhat/config";
 export default task("create-router", "create a router")
   .addParam("signer", "The router's signer address")
   .addParam("recipient", "recipient address")
-  .setAction(async ({ signer, recipient }, { deployments, getNamedAccounts, ethers }) => {
-    const namedAccounts = await getNamedAccounts();
+  .addOptionalParam("routerFactoryAddress", "Override tx manager address")
+  .setAction(async ({ signer, recipient, routerFactoryAddress: _routerFactoryAddress }, { deployments, ethers }) => {
+    const deployer = await ethers.getNamedSigner("deployer");
 
     console.log("signer: ", signer);
     console.log("recipient: ", recipient);
 
-    console.log("namedAccounts: ", namedAccounts);
+    console.log("deployer: ", deployer.address);
 
-    const routerFactoryDeployment = await deployments.get("RouterFactory");
-    const routerFactoryAddress = routerFactoryDeployment.address;
+    let routerFactoryAddress = _routerFactoryAddress;
+    if (!routerFactoryAddress) {
+      const routerFactoryDeployment = await deployments.get("RouterFactory");
+      routerFactoryAddress = routerFactoryDeployment.address;
+    }
+    console.log("routerFactoryAddress: ", routerFactoryAddress);
 
     const routerFactory = await ethers.getContractAt("RouterFactory", routerFactoryAddress);
     let routerAddress = await routerFactory.getRouterAddress(signer);
 
-    const [_signer] = await ethers.getSigners();
-    const code = await _signer.provider!.getCode(routerAddress);
+    const code = await deployer.provider!.getCode(routerAddress);
 
     if (code !== "0x") {
       console.log("RouterFactory already deployed at: ", routerAddress);
-      // return;
+      return;
     }
-    const tx = await routerFactory.createRouter(signer, recipient, { from: namedAccounts.deployer });
+    const tx = await routerFactory.createRouter(signer, recipient, { from: deployer.address });
     console.log("createRouter tx: ", tx);
     const receipt = await tx.wait();
     console.log("createRouter tx mined: ", receipt.transactionHash);
