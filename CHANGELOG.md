@@ -2,6 +2,8 @@
 
 ## Next Release
 
+# 0.1.1
+
 - [router] Improve logic for gelato fallback handling
 - [router] Fix sanitation check for router contract cancel
 
