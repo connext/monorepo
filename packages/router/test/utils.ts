@@ -89,7 +89,7 @@ export const fulfillInputMock: FulfillInput = {
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
   signature: "0xabcd",
   relayerFee: "10",
-  callData: "0xbaa",
+  callData: "0x",
 };
 
 export const mockHashes = {

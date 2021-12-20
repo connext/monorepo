@@ -1,9 +1,17 @@
-import { invariantDataMock, txReceiptMock, expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
-import { constants } from "ethers";
-import { SinonStub } from "sinon";
+import {
+  invariantDataMock,
+  txReceiptMock,
+  expect,
+  createLoggingContext,
+  mkBytes32,
+  sigMock,
+} from "@connext/nxtp-utils";
+import { constants, BigNumber } from "ethers";
+import { SinonStub, stub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
-import { contractWriterMock, isRouterContractMock } from "../../globalTestHook";
+import { contractWriterMock, isRouterContractMock, txServiceMock } from "../../globalTestHook";
+import * as SharedFns from "../../../src/lib/helpers/shared";
 import { fulfillInputMock, routerAddrMock } from "../../utils";
 
 const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
@@ -12,6 +20,7 @@ const { fulfill } = getOperations();
 
 describe("Fulfill Receiver Operation", () => {
   beforeEach(() => {
+    stub(SharedFns, "getMainnetEquivalent").resolves(constants.AddressZero);
     Object.values(contractWriterMock).forEach((method: any) => (method as SinonStub).resetHistory());
   });
 
@@ -38,6 +47,8 @@ describe("Fulfill Receiver Operation", () => {
 
     it("happy: should fulfill on sender chain with router contract", async () => {
       isRouterContractMock.value(true);
+      const routerRelayerFee = BigNumber.from("1");
+      txServiceMock.calculateGasFee.resolves(routerRelayerFee);
       const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
       expect(receipt).to.deep.eq(txReceiptMock);
       expect(contractWriterMock.fulfillRouterContract).to.be.calledOnceWithExactly(
@@ -54,9 +65,9 @@ describe("Fulfill Receiver Operation", () => {
           },
         },
         routerAddrMock,
-        "0xfee",
+        sigMock,
         constants.AddressZero,
-        "123",
+        routerRelayerFee.toString(),
         true,
         requestContext,
       );
