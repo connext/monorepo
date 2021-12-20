@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Improve logic for gelato fallback handling
+
 # 0.1.0
 
 - [router/sdk] Router contract integration
