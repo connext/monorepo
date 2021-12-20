@@ -1,11 +1,17 @@
 import { createLoggingContext, expect, getChainData, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
+import { Interface } from "ethers/lib/utils";
+import { SinonStubbedInstance, createStubInstance, stub } from "sinon";
+import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
 
 const { requestContext, methodContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
+
+const encodedDataMock = "0xabcde";
+let interfaceMock: SinonStubbedInstance<Interface>;
 
 describe("getNtpTimeSeconds", () => {
   it("should work", async () => {
@@ -81,5 +87,20 @@ describe("calculateGasFee", () => {
     const gasFee = await shared.calculateGasFee(1337, mkAddress("0xa"), 18, "prepare", requestContext, methodContext);
 
     expect(gasFee.toString()).to.be.eq(utils.parseEther("1").toString());
+  });
+});
+
+describe("isRouterWhitelisted", () => {
+  beforeEach(() => {
+    interfaceMock = createStubInstance(Interface);
+    stub(shared, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+    interfaceMock.encodeFunctionData.returns(encodedDataMock);
+    txServiceMock.readTx.resolves("0x0000000000000000000000000000000000000000000000000000000000000001");
+    interfaceMock.decodeFunctionResult.returns([true]);
+  });
+  it("should work", async () => {
+    const status = await shared.isRouterWhitelisted(mkAddress("0xa"), 1337);
+
+    expect(status).to.be.true;
   });
 });
