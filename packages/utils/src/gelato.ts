@@ -27,7 +27,7 @@ const endpoints = {
   [CHAIN_ID.AVALANCHE]: "https://relay.avalanche.fra.gelato.digital/relay",
 };
 
-const sendFulfill = async (
+const gelatoSend = async (
   chainId: number,
   dest: string,
   data: string,
@@ -57,7 +57,7 @@ const gelatoFulfill = async (
   const args = { ...fulfillArgs, encodedMeta: "0x" };
   const data = abi.encodeFunctionData("fulfill", [args]);
   const token = fulfillArgs.txData.receivingAssetId;
-  const ret = await sendFulfill(chainId, address, data, token, fulfillArgs.relayerFee);
+  const ret = await gelatoSend(chainId, address, data, token, fulfillArgs.relayerFee);
   return ret;
 };
 
@@ -65,4 +65,4 @@ const isChainSupportedByGelato = (chainId: number): boolean => {
   return Object.values(CHAIN_ID).indexOf(chainId) !== -1;
 };
 
-export { gelatoFulfill, isChainSupportedByGelato };
+export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };

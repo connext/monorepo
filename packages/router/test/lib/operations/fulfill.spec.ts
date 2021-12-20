@@ -1,9 +1,18 @@
-import { invariantDataMock, txReceiptMock, expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
-import { SinonStub } from "sinon";
+import {
+  invariantDataMock,
+  txReceiptMock,
+  expect,
+  createLoggingContext,
+  mkBytes32,
+  sigMock,
+} from "@connext/nxtp-utils";
+import { constants, BigNumber } from "ethers";
+import { SinonStub, stub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
-import { contractWriterMock } from "../../globalTestHook";
-import { fulfillInputMock } from "../../utils";
+import { contractWriterMock, isRouterContractMock, txServiceMock } from "../../globalTestHook";
+import * as SharedFns from "../../../src/lib/helpers/shared";
+import { fulfillInputMock, routerAddrMock } from "../../utils";
 
 const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 
@@ -11,6 +20,7 @@ const { fulfill } = getOperations();
 
 describe("Fulfill Receiver Operation", () => {
   beforeEach(() => {
+    stub(SharedFns, "getMainnetEquivalent").resolves(constants.AddressZero);
     Object.values(contractWriterMock).forEach((method: any) => (method as SinonStub).resetHistory());
   });
 
@@ -29,33 +39,22 @@ describe("Fulfill Receiver Operation", () => {
       );
     });
 
-    it("should error if prepare input validation fails for side", async () => {
-      const _fulfillInputMock = { ...fulfillInputMock, side: "buggy" };
-      await expect(fulfill(invariantDataMock, _fulfillInputMock, requestContext)).to.eventually.be.rejectedWith(
-        "Params invalid",
-      );
-    });
-
-    it("should error if no config available for receiving chain", async () => {
+    it("should error if no config available for sending chain", async () => {
       await expect(
-        fulfill({ ...invariantDataMock, receivingChainId: 1234 }, fulfillInputMock, requestContext),
+        fulfill({ ...invariantDataMock, sendingChainId: 1234 }, fulfillInputMock, requestContext),
       ).to.eventually.be.rejectedWith("No chain config for chainId");
     });
 
-    it("should error if relayer fee is lower than the lower bound", async () => {
-      await expect(
-        fulfill(invariantDataMock, { ...fulfillInputMock, relayerFee: "100000000000" }, requestContext),
-      ).to.eventually.be.rejectedWith("Not enough relayer fee");
-    });
-
-    it("happy: should fulfill on sender chain", async () => {
-      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock, side: "sender" }, requestContext);
-
+    it("happy: should fulfill on sender chain with router contract", async () => {
+      isRouterContractMock.value(true);
+      const routerRelayerFee = BigNumber.from("1");
+      txServiceMock.calculateGasFee.resolves(routerRelayerFee);
+      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfill).to.be.calledOnceWith(
+      expect(contractWriterMock.fulfillRouterContract).to.be.calledOnceWithExactly(
         invariantDataMock.sendingChainId,
         {
-          relayerFee: fulfillInputMock.relayerFee,
+          relayerFee: "0",
           signature: fulfillInputMock.signature,
           callData: fulfillInputMock.callData,
           txData: {
@@ -65,16 +64,21 @@ describe("Fulfill Receiver Operation", () => {
             preparedBlockNumber: fulfillInputMock.preparedBlockNumber,
           },
         },
+        routerAddrMock,
+        sigMock,
+        constants.AddressZero,
+        routerRelayerFee.toString(),
+        true,
         requestContext,
       );
     });
 
-    it("happy: should fulfill on receiver chain", async () => {
-      const receipt = await fulfill(invariantDataMock, fulfillInputMock, requestContext);
+    it("happy: should fulfill on sender chain", async () => {
+      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfill).to.be.calledOnceWith(
-        invariantDataMock.receivingChainId,
+      expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWith(
+        invariantDataMock.sendingChainId,
         {
           relayerFee: fulfillInputMock.relayerFee,
           signature: fulfillInputMock.signature,

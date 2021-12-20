@@ -1,10 +1,11 @@
-import { getChainData } from "@connext/nxtp-utils";
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { createLoggingContext, expect, getChainData, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 
 import { getNtpTimeSeconds } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
+
+const { requestContext, methodContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
 
 describe("getNtpTimeSeconds", () => {
   it("should work", async () => {
@@ -34,5 +35,51 @@ describe("getTokenPriceFromOnChain", () => {
   });
   it("should work", async () => {
     const tokenPrice = await shared.getTokenPriceFromOnChain(1337, mkAddress("0xa"));
+    expect(tokenPrice.toString()).to.be.eq(utils.parseEther("1").toString());
+  });
+});
+
+describe("calculateGasFeeInReceivingToken", () => {
+  beforeEach(() => {
+    txServiceMock.calculateGasFeeInReceivingToken.resolves(utils.parseEther("1"));
+  });
+  it("should work", async () => {
+    const gasFeeInReceivingToken = await shared.calculateGasFeeInReceivingToken(
+      mkAddress("0xa"),
+      1337,
+      mkAddress("0xb"),
+      1338,
+      18,
+      requestContext,
+    );
+
+    expect(gasFeeInReceivingToken.toString()).to.be.eq(utils.parseEther("1").toString());
+  });
+});
+
+describe("calculateGasFeeInReceivingTokenForFulfill", () => {
+  beforeEach(() => {
+    txServiceMock.calculateGasFeeInReceivingTokenForFulfill.resolves(utils.parseEther("1"));
+  });
+  it("should work", async () => {
+    const gasFeeInReceivingToken = await shared.calculateGasFeeInReceivingTokenForFulfill(
+      mkAddress("0xa"),
+      1337,
+      18,
+      requestContext,
+    );
+
+    expect(gasFeeInReceivingToken.toString()).to.be.eq(utils.parseEther("1").toString());
+  });
+});
+
+describe("calculateGasFee", () => {
+  beforeEach(() => {
+    txServiceMock.calculateGasFee.resolves(utils.parseEther("1"));
+  });
+  it("should work", async () => {
+    const gasFee = await shared.calculateGasFee(1337, mkAddress("0xa"), 18, "prepare", requestContext, methodContext);
+
+    expect(gasFee.toString()).to.be.eq(utils.parseEther("1").toString());
   });
 });

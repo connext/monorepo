@@ -83,7 +83,7 @@ Make sure you put a similarly structured config in your `packages/integration/op
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
   "swapPools": [
     {
       "name": "TEST",

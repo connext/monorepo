@@ -1,4 +1,12 @@
-import { createLoggingContext, jsonifyError, MetaTxFulfillPayload, NxtpError } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  jsonifyError,
+  MetaTxFulfillPayload,
+  MetaTxRouterContractCancelPayload,
+  MetaTxRouterContractFulfillPayload,
+  MetaTxRouterContractPreparePayload,
+  NxtpError,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
 
@@ -49,7 +57,13 @@ export const bindMessaging = async () => {
     const { requestContext, methodContext } = createLoggingContext(
       "subscribeToMetaTxRequest",
       undefined,
-      (data?.data as MetaTxFulfillPayload)?.txData?.transactionId,
+      (data?.data as MetaTxFulfillPayload)?.txData?.transactionId ??
+        (
+          data?.data as
+            | MetaTxRouterContractPreparePayload
+            | MetaTxRouterContractFulfillPayload
+            | MetaTxRouterContractCancelPayload
+        ).params?.txData?.transactionId,
     );
 
     if (e) {

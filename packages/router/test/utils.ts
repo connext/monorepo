@@ -12,6 +12,7 @@ import {
 } from "../src/lib/entities";
 
 export const routerAddrMock = mkAddress("0xb");
+export const routerContractAddressMock = mkAddress("0xccc");
 
 export const MUTATED_AMOUNT = "100000000000000000000";
 export const MUTATED_BUFFER = 123400;
@@ -29,10 +30,11 @@ export const configMock: NxtpRouterConfig = {
       priceOracleAddress: mkAddress("0x0"),
       multicallAddress: mkAddress("0x1"),
       minGas: "100",
-      relayerFeeThreshold: 100,
-      allowFulfillRelay: true,
+      relayerFeeThreshold: 10,
       subgraphSyncBuffer: 10,
       gasStations: [],
+      allowRelay: true,
+      analyticsSubgraph: ["http://example.com"],
     },
     1338: {
       confirmations: 1,
@@ -42,12 +44,15 @@ export const configMock: NxtpRouterConfig = {
       priceOracleAddress: mkAddress("0x0"),
       multicallAddress: mkAddress("0x1"),
       minGas: "100",
-      relayerFeeThreshold: 100,
-      allowFulfillRelay: true,
+      relayerFeeThreshold: 10,
       subgraphSyncBuffer: 10,
       gasStations: [],
+      allowRelay: true,
+      analyticsSubgraph: ["http://example.com"],
     },
   },
+  priceCacheMode: true,
+  routerContractAddress: routerContractAddressMock,
   mnemonic: "hello world",
   natsUrl: "http://example.com",
   logLevel: "info",
@@ -62,6 +67,7 @@ export const configMock: NxtpRouterConfig = {
     },
   ],
   allowedTolerance: 10,
+  allowRelay: true,
   host: "0.0.0.0",
   port: 8080,
   requestLimit: 2000,
@@ -83,8 +89,7 @@ export const fulfillInputMock: FulfillInput = {
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
   signature: "0xabcd",
   relayerFee: "10",
-  callData: "0xbaa",
-  side: "receiver",
+  callData: "0x",
 };
 
 export const mockHashes = {
@@ -145,3 +150,7 @@ export const chainDataMock = chainDataToMap([
     confirmations: 1,
   },
 ]);
+
+export const relayerFeeMock = "1234";
+
+export const callDataMock = "0xabc";

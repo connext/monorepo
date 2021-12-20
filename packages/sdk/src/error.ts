@@ -298,8 +298,8 @@ export class NotEnoughAmount extends NxtpError {
  * @classdesc Thrown if no bids received in given timeout
  */
 export class NoBids extends AuctionError {
-  static getMessage() {
-    return `No bids received`;
+  static getMessage(timeout: number, transactionId: string) {
+    return `No bids received within ${timeout}ms, txId ${transactionId}`;
   }
 
   constructor(
@@ -308,7 +308,11 @@ export class NoBids extends AuctionError {
     public readonly auction: AuctionPayload,
     public readonly context: any = {},
   ) {
-    super(NoBids.getMessage(), { transactionId, auction, ...context }, AuctionError.type);
+    super(
+      NoBids.getMessage(timeout, transactionId),
+      { transactionId, timeout, auction, ...context },
+      AuctionError.type,
+    );
   }
 }
 

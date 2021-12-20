@@ -11,6 +11,7 @@ import { HardhatUserConfig } from "hardhat/types";
 
 import "./src/tasks/addRouter";
 import "./src/tasks/addAsset";
+import "./src/tasks/createRouter";
 import "./src/tasks/addLiquidity";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
@@ -118,7 +119,7 @@ const config: HardhatUserConfig = {
     chapel: {
       accounts: { mnemonic },
       chainId: 97,
-      url: "https://data-seed-prebsc-2-s1.binance.org:8545/",
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
     },
     xdai: {
       accounts: { mnemonic },

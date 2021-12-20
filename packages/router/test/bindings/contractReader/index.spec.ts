@@ -181,7 +181,6 @@ describe("Contract Reader Binding", () => {
         signature: fulfill.payload.signature,
         callData: fulfill.payload.callData,
         relayerFee: fulfill.payload.relayerFee,
-        side: "sender",
       });
     });
 
@@ -189,9 +188,7 @@ describe("Contract Reader Binding", () => {
       const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
         ...activeTransactionFulfillMock,
         payload: {
-          hashes: {
-            ...activeTransactionFulfillMock.payload.hashes,
-          },
+          hashes: activeTransactionFulfillMock.payload.hashes,
         },
         status: CrosschainTransactionStatus.ReceiverExpired,
       };

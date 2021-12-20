@@ -22,6 +22,9 @@ import { bindPrices } from "./bindings/prices";
 export type Context = {
   config: NxtpRouterConfig;
   wallet: Wallet | Web3Signer;
+  isRouterContract: boolean;
+  routerAddress: string;
+  signerAddress: string;
   logger: Logger;
   messaging: RouterNxtpNatsMessagingService;
   txService: TransactionService;
@@ -52,10 +55,19 @@ export const makeRouter = async () => {
     context.wallet = context.config.mnemonic
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
+    context.signerAddress = await context.wallet.getAddress();
+    context.isRouterContract = context.config.routerContractAddress ? true : false;
+    context.routerAddress = context.config.routerContractAddress || context.signerAddress;
     context.logger = new Logger({
       level: context.config.logLevel,
       name: context.wallet.address,
     });
+    context.logger.info("Connected Router", requestContext, methodContext, {
+      signerAddress: context.signerAddress,
+      isRouterContract: context.isRouterContract,
+      routerAddress: context.routerAddress,
+    });
+
     context.logger.info("Config generated", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
@@ -97,7 +109,7 @@ export const makeRouter = async () => {
     }
     await bindFastify();
     await bindMetrics();
-    logger.info("Router ready 🚀");
+    logger.info("Router ready!");
   } catch (e) {
     console.error("Error starting router :(", e);
     process.exit();

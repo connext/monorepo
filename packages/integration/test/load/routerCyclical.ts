@@ -26,7 +26,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     new Logger({ level: config.logLevel ?? "info" }),
     config.natsUrl,
     config.authUrl,
-    // config.network
+    config.network,
   );
   log.info({ agents: numberOfAgents }, "Created manager");
 
@@ -59,7 +59,7 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     const provider = config.chainConfig[sendingChainId].provider;
     const chainData = await getChainData();
     const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, provider, chainData);
-    const amount = utils.parseUnits("0.0001", decimals).toString();
+    const amount = utils.parseUnits(config.network === "mainnet" ? "0.0001" : "10", decimals).toString();
 
     const startTime = Date.now();
     const killSwitch = await manager.startCyclicalTransfers({

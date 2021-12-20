@@ -45,10 +45,10 @@ export class ChainRpcProvider {
   // The array of underlying SyncProviders.
   private readonly providers: SyncProvider[];
   // The provider that's most in sync with the chain, and has an active block listener.
-  private leadProvider: SyncProvider | undefined;
+  public leadProvider: SyncProvider | undefined;
 
   // TODO: Remove fallback provider?
-  private readonly fallbackProvider: providers.FallbackProvider;
+  public readonly fallbackProvider: providers.FallbackProvider;
   private readonly signer?: Signer;
 
   private lastUsedGasPrice: BigNumber | undefined = undefined;

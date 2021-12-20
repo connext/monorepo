@@ -5,7 +5,7 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { BigNumber, providers } from "ethers/lib/ethers";
+import { BigNumber, providers, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { PrepareInput, PrepareInputSchema } from "../entities";
@@ -26,9 +26,12 @@ import {
   recoverAuctionBid,
   validBidExpiry,
   validExpiryBuffer,
+  sanitationCheck,
+  signRouterPrepareTransactionPayload,
 } from "../helpers";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
+import { calculateGasFee, calculateGasFeeInReceivingToken } from "../helpers/shared";
 
+const { AddressZero } = constants;
 export const prepare = async (
   invariantData: InvariantTransactionData,
   input: PrepareInput,
@@ -36,11 +39,21 @@ export const prepare = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, txService, config } = getContext();
+  const {
+    logger,
+    wallet,
+    contractWriter,
+    contractReader,
+    txService,
+    config,
+    isRouterContract,
+    routerAddress,
+    signerAddress,
+  } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // HOTFIX: add sanitation check before cancellable validation
-  await contractWriter.sanitationCheck(
+  await sanitationCheck(
     invariantData.receivingChainId,
     { ...invariantData, amount: "0", expiry: 0, preparedBlockNumber: 0 },
     "prepare",
@@ -74,11 +87,10 @@ export const prepare = async (
   const bid = decodeAuctionBid(encodedBid);
   logger.info("Decoded bid from event", requestContext, methodContext, { bid });
 
-  const routerAddress = await wallet.getAddress();
   const recovered = recoverAuctionBid(bid, bidSignature);
-  if (recovered !== routerAddress) {
+  if (recovered !== signerAddress) {
     // cancellable error
-    throw new AuctionSignerInvalid(routerAddress, recovered, { methodContext, requestContext });
+    throw new AuctionSignerInvalid(signerAddress, recovered, { methodContext, requestContext });
   }
 
   const thresholdPct = Number(config.allowedTolerance.toString().split(".")[0]);
@@ -125,6 +137,7 @@ export const prepare = async (
   logger.info("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });
+
   receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const routerBalance = await contractReader.getAssetBalance(
@@ -200,20 +213,79 @@ export const prepare = async (
   }
 
   logger.info("Validated input", requestContext, methodContext);
-  logger.info("Sending receiver prepare tx", requestContext, methodContext);
 
-  const receipt = await contractWriter.prepare(
-    invariantData.receivingChainId,
-    {
-      txData: invariantData,
-      amount: receiverAmount,
-      expiry: receiverExpiry,
-      bidSignature,
-      encodedBid,
+  if (isRouterContract) {
+    const routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset ?? AddressZero,
+    );
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+      invariantData.receivingChainId,
+      routerRelayerFeeAsset,
+    );
+    const routerRelayerFee = await calculateGasFee(
+      invariantData.receivingChainId,
+      routerRelayerFeeAsset,
+      relayerFeeAssetDecimal,
+      "prepare",
+      requestContext,
+      methodContext,
+    );
+
+    const signature = await signRouterPrepareTransactionPayload(
+      invariantData,
+      receiverAmount,
+      receiverExpiry,
       encryptedCallData,
-    },
-    requestContext,
-  );
-  logger.info("Sent receiver prepare tx", requestContext, methodContext, { transactionHash: receipt.transactionHash });
-  return receipt;
+      encodedBid,
+      bidSignature,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      invariantData.receivingChainId,
+      wallet,
+    );
+
+    logger.info("Sending receiver prepare router contract tx", requestContext, methodContext);
+
+    const receipt = await contractWriter.prepareRouterContract(
+      invariantData.receivingChainId,
+      {
+        txData: invariantData,
+        amount: receiverAmount,
+        expiry: receiverExpiry,
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      },
+      routerAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      true,
+      requestContext,
+    );
+    logger.info("Sent receiver prepare router contract tx", requestContext, methodContext, {
+      transactionHash: receipt.transactionHash,
+    });
+    return receipt;
+  } else {
+    logger.info("Sending receiver prepare tx", requestContext, methodContext);
+
+    const receipt = await contractWriter.prepareTransactionManager(
+      invariantData.receivingChainId,
+      {
+        txData: invariantData,
+        amount: receiverAmount,
+        expiry: receiverExpiry,
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      },
+      requestContext,
+    );
+    logger.info("Sent receiver prepare tx", requestContext, methodContext, {
+      transactionHash: receipt.transactionHash,
+    });
+    return receipt;
+  }
 };

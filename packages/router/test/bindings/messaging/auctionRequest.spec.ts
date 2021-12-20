@@ -34,6 +34,7 @@ const auctionPayload: AuctionPayload = {
 
 const bid: AuctionBid = {
   user: auctionPayload.user,
+  initiator: auctionPayload.user,
   router: mkAddress("0xccc"),
   initiator: auctionPayload.user,
   sendingChainId: auctionPayload.sendingChainId,
