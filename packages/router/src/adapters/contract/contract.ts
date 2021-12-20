@@ -494,7 +494,7 @@ export const cancelRouterContract = async (
 
   const { txData, signature: cancelSignature } = cancelParams;
 
-  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "cancel");
 
   const encodedData = getRouterContractInterface().encodeFunctionData("cancel", [
     { txData, signature: cancelSignature, encodedMeta: "0x" },
