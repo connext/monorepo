@@ -32,6 +32,7 @@ import {
   senderFulfilled,
   senderCancelled,
   receiverCancelled,
+  ActiveTransactionsTracker,
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
@@ -43,6 +44,7 @@ const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const handlingTracker: Map<string, Tracker> = new Map();
+export let activeTransactionsTracker: ActiveTransactionsTracker[] = [];
 
 export const bindContractReader = async () => {
   const { contractReader, logger, config } = getContext();
@@ -52,14 +54,21 @@ export const bindContractReader = async () => {
     try {
       transactions = await contractReader.getActiveTransactions();
       if (transactions.length > 0) {
-        logger.info("active and handling tracker", requestContext, methodContext, {
-          transactionsLength: transactions.length,
-          handlingTrackerLength: handlingTracker.size,
-          byStatus: Object.keys(CrosschainTransactionStatus).map((status) => {
-            return { status, size: [...handlingTracker.values()].map((v) => v.status === status).length };
-          }),
+        activeTransactionsTracker = transactions.map((v) => {
+          return {
+            status: v.status,
+            transactionsId: v.crosschainTx.invariant.transactionId,
+            sendingChainId: v.crosschainTx.invariant.sendingChainId,
+            receivingChainId: v.crosschainTx.invariant.receivingChainId,
+          };
         });
-        logger.debug("active and handling tracker details", requestContext, methodContext, {
+
+        logger.info("active transactions tracker", requestContext, methodContext, {
+          activeTransactionsLength: transactions.length,
+          activeTransactionsTracker: activeTransactionsTracker,
+        });
+        logger.info("handling tracker", requestContext, methodContext, {
+          handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
         });
       }
@@ -384,7 +393,6 @@ export const handleSingle = async (
           signature: fulfillPayload.signature,
           callData: fulfillPayload.callData,
           relayerFee: fulfillPayload.relayerFee,
-          side: "sender",
         },
         requestContext,
       );
@@ -443,6 +451,10 @@ export const handleSingle = async (
         logger.info("Got fees in sending asset", requestContext, methodContext, {
           receivedAmount: _transaction.crosschainTx.receiving!.amount,
           sentAmount: _transaction.crosschainTx.sending.amount,
+          sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+          receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
           fees,
         });
 
@@ -450,7 +462,7 @@ export const handleSingle = async (
         await incrementFees(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
-          BigNumber.from(fees).gt(0) ? fees : "0",
+          BigNumber.from(fees),
           requestContext,
         );
       };

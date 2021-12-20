@@ -5,14 +5,16 @@ import {
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { providers, BigNumber } from "ethers";
+import { providers, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
-import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
-import { NotAllowedFulfillRelay } from "../errors/fulfill";
-import { calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
+import { NoChainConfig, ParamsInvalid } from "../errors";
+import { calculateGasFee, signRouterFulfillTransactionPayload } from "../helpers";
 
+const { AddressZero, Zero } = constants;
+
+// sender fulfill
 export const fulfill = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
@@ -20,7 +22,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config, chainData, txService } = getContext();
+  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress } = getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -48,75 +50,72 @@ export const fulfill = async (
     });
   }
 
-  const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
+  const { signature: fulfillSignature, callData, relayerFee, amount, expiry, preparedBlockNumber } = input;
 
-  const fulfillChain = side === "sender" ? invariantData.sendingChainId : invariantData.receivingChainId;
+  let routerRelayerFeeAsset = AddressZero;
+  let routerRelayerFee = Zero;
 
-  if (!config.chainConfig[fulfillChain]) {
-    throw new NoChainConfig(fulfillChain, { methodContext, requestContext, invariantData, input });
+  if (!config.chainConfig[invariantData.sendingChainId]) {
+    throw new NoChainConfig(invariantData.sendingChainId, { methodContext, requestContext, invariantData, input });
   }
 
-  // Only check for relayer fee at receiving side
-  if (fulfillChain === invariantData.receivingChainId) {
-    const relayerFeeLowerBound = config.chainConfig[fulfillChain].relayerFeeThreshold;
-    const allowFulfillRelay = config.chainConfig[fulfillChain].allowFulfillRelay;
-    if (!allowFulfillRelay) {
-      throw new NotAllowedFulfillRelay(fulfillChain, {
-        methodContext,
-        requestContext,
-        relayerFee: input.relayerFee,
-        relayerFeeLowerBound: relayerFeeLowerBound,
-        invariantData,
-        input,
-      });
-    }
+  let receipt: providers.TransactionReceipt;
+  // router contract needs to have fee added
+  if (isRouterContract) {
+    routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+    );
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+      invariantData.sendingChainId,
+      routerRelayerFeeAsset,
+    );
+    routerRelayerFee = await calculateGasFee(
+      invariantData.sendingChainId,
+      routerRelayerFeeAsset,
+      relayerFeeAssetDecimal,
+      "fulfill",
+      requestContext,
+      methodContext,
+    );
 
-    // Send to tx service
-    logger.info("Sending fulfill tx", requestContext, methodContext, { signature, side });
+    const signature = await signRouterFulfillTransactionPayload(
+      { ...invariantData, amount, expiry, preparedBlockNumber },
+      fulfillSignature,
+      callData,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      invariantData.sendingChainId,
+      wallet,
+    );
 
-    let outputDecimals = chainData.get(invariantData.receivingChainId.toString())?.assetId[
-      invariantData.receivingAssetId
-    ]?.decimals;
-    if (!outputDecimals) {
-      outputDecimals = await txService.getDecimalsForAsset(
-        invariantData.receivingChainId,
-        invariantData.receivingAssetId,
-      );
-    }
-    logger.info("Got output decimals", requestContext, methodContext, { outputDecimals });
-    const expectedFulfillFee = await calculateGasFeeInReceivingTokenForFulfill(
-      invariantData.receivingAssetId,
-      invariantData.receivingChainId,
-      outputDecimals,
+    receipt = await contractWriter.fulfillRouterContract(
+      invariantData.sendingChainId,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: fulfillSignature,
+        relayerFee: "0", // no relayer fee on sender side
+        callData,
+      },
+      routerAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      true,
       requestContext,
     );
-    logger.info("Expected Fulfill fee in router side", requestContext, methodContext, {
-      expectedFulfillFee: expectedFulfillFee.toString(),
-    });
-    const recvAmountLowerBound = expectedFulfillFee.mul(100 - relayerFeeLowerBound).div(100);
-
-    if (BigNumber.from(amount).sub(input.relayerFee).lt(recvAmountLowerBound)) {
-      throw new NotEnoughRelayerFee(fulfillChain, {
-        methodContext,
-        requestContext,
-        relayerFee: input.relayerFee,
-        recvAmountLowerBound: recvAmountLowerBound.toString(),
-        invariantData,
-        input,
-      });
-    }
+  } else {
+    receipt = await contractWriter.fulfillTransactionManager(
+      invariantData.sendingChainId,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: fulfillSignature,
+        relayerFee: relayerFee,
+        callData: callData,
+      },
+      requestContext,
+    );
   }
-
-  const receipt = await contractWriter.fulfill(
-    fulfillChain,
-    {
-      txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-      signature: signature,
-      relayerFee: relayerFee,
-      callData: callData,
-    },
-    requestContext,
-  );
   logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };

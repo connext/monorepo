@@ -1,18 +1,5 @@
-import { BigNumber, utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
-
-import { ChainReader } from "../src/chainreader";
-import { ChainRpcProvider } from "../src/provider";
-import {
-  TEST_SENDER_CHAIN_ID,
-  TEST_TX,
-  TEST_READ_TX,
-  TEST_TX_RECEIPT,
-  makeChaiReadable,
-  TEST_RECEIVER_CHAIN_ID,
-} from "./constants";
-import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/error";
-import * as contractFns from "../src/contracts";
+import { BigNumber, constants, providers, utils, Wallet } from "ethers";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
 import {
   getRandomAddress,
   getRandomBytes32,
@@ -21,9 +8,20 @@ import {
   expect,
   Logger,
   requestContextMock,
-  GAS_ESTIMATES,
 } from "@connext/nxtp-utils";
-import { formatUnits, Interface, parseEther, parseUnits } from "ethers/lib/utils";
+
+import { cachedPriceMap, ChainReader } from "../src/chainreader";
+import { ChainRpcProvider } from "../src/provider";
+import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
+import * as contractFns from "../src/shared/contracts";
+import {
+  TEST_SENDER_CHAIN_ID,
+  TEST_TX,
+  TEST_READ_TX,
+  TEST_TX_RECEIPT,
+  makeChaiReadable,
+  TEST_RECEIVER_CHAIN_ID,
+} from "./utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -106,6 +104,24 @@ describe("ChainReader", () => {
       provider.getBalance.rejects(new RpcError("fail"));
 
       await expect(chainReader.getBalance(TEST_SENDER_CHAIN_ID, mkAddress("0xaaa"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getGasPrice", () => {
+    it("happy", async () => {
+      const testGasPrice = utils.parseUnits("5", "gwei");
+      provider.getGasPrice.resolves(testGasPrice);
+
+      const gasPrice = await chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock);
+
+      expect(gasPrice.eq(testGasPrice)).to.be.true;
+      expect(provider.getGasPrice.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getGasPrice.rejects(new RpcError("fail"));
+
+      await expect(chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock)).to.be.rejectedWith("fail");
     });
   });
 
@@ -208,10 +224,11 @@ describe("ChainReader", () => {
     const priceOracleContractFakeAddr = mkAddress("0x7f");
     let getDeployedPriceOracleContractStub: SinonStub;
     let getPriceOracleInterfaceStub: SinonStub;
+    let getTokenPriceFromOnChainStub: SinonStub;
     let readTxStub: SinonStub;
-    let interfaceStub: SinonStubbedInstance<Interface>;
+    let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
-      interfaceStub = createStubInstance(Interface);
+      interfaceStub = createStubInstance(utils.Interface);
       getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
       getPriceOracleInterfaceStub.returns(interfaceStub);
       getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
@@ -247,6 +264,40 @@ describe("ChainReader", () => {
         ChainNotSupported,
       );
     });
+
+    it("should return cached price if updated timestamp less than 1 min", async () => {
+      getTokenPriceFromOnChainStub = Sinon.stub(chainReader, "getTokenPriceFromOnChain");
+      const assetId = mkAddress("0xc3");
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const tokenPrice = BigNumber.from("5812471953821");
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId);
+      cachedPriceMap.set(cachedPriceKey, {
+        timestamp: currentTimestamp - 30,
+        price: tokenPrice,
+      });
+
+      getTokenPriceFromOnChainStub.returns(BigNumber.from("581247195382112121212"));
+      expect((await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId)).toString()).to.be.eq(
+        tokenPrice.toString(),
+      );
+    });
+
+    it("should return real price if updated timestamp more than 1 min", async () => {
+      getTokenPriceFromOnChainStub = Sinon.stub(chainReader, "getTokenPriceFromOnChain");
+      const assetId = mkAddress("0xc3");
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const tokenPrice = BigNumber.from("5812471953821");
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId);
+
+      cachedPriceMap.set(cachedPriceKey, {
+        timestamp: currentTimestamp - 61,
+        price: tokenPrice,
+      });
+      getTokenPriceFromOnChainStub.returns(BigNumber.from("581247195382112121212"));
+      expect((await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId)).toString()).to.be.eq(
+        "581247195382112121212",
+      );
+    });
   });
 
   describe("#getTokenPriceFromOnChain", () => {
@@ -254,9 +305,9 @@ describe("ChainReader", () => {
     let getDeployedPriceOracleContractStub: SinonStub;
     let getPriceOracleInterfaceStub: SinonStub;
     let readTxStub: SinonStub;
-    let interfaceStub: SinonStubbedInstance<Interface>;
+    let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
-      interfaceStub = createStubInstance(Interface);
+      interfaceStub = createStubInstance(utils.Interface);
       getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
       getPriceOracleInterfaceStub.returns(interfaceStub);
       getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
@@ -377,13 +428,14 @@ describe("ChainReader", () => {
   });
 
   describe("#calculateGasFee", () => {
-    const testEthPrice = parseEther("31");
-    const testTokenPrice = parseEther("7");
-    const testGasPrice = parseUnits("5", "gwei");
+    const testEthPrice = utils.parseEther("31");
+    const testTokenPrice = utils.parseEther("7");
+    const testGasPrice = utils.parseUnits("5", "gwei");
+    let chainsPriceOraclesStub: SinonStub;
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
-      (contractFns.CHAINS_WITH_PRICE_ORACLES as any) = [1];
+      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1]);
       tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
       gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
       tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
@@ -392,7 +444,7 @@ describe("ChainReader", () => {
     });
 
     it("happy: should calculate for prepare if chain included and prepare specified", async () => {
-      const result = await (chainReader as any).calculateGasFee(
+      const result = await chainReader.calculateGasFee(
         1,
         1,
         mkAddress("0x0"),
@@ -400,15 +452,14 @@ describe("ChainReader", () => {
         mkAddress("0x0"),
         18,
         "prepare",
+        false,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(
-        testGasPrice.mul(BigNumber.from(GAS_ESTIMATES.prepare)).mul(testEthPrice).div(testTokenPrice).toNumber(),
-      );
+      expect(result.toNumber()).to.be.eq(2480000000000000);
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
-      const result = await (chainReader as any).calculateGasFee(
+      const result = await chainReader.calculateGasFee(
         1,
         1,
         mkAddress("0x0"),
@@ -416,15 +467,14 @@ describe("ChainReader", () => {
         mkAddress("0x0"),
         18,
         "fulfill",
+        false,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(
-        testGasPrice.mul(BigNumber.from(GAS_ESTIMATES.fulfill)).mul(testEthPrice).div(testTokenPrice).toNumber(),
-      );
+      expect(result.toNumber()).to.be.eq(2790000000000000);
     });
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
-      const result = await (chainReader as any).calculateGasFee(
+      const result = await chainReader.calculateGasFee(
         TEST_SENDER_CHAIN_ID,
         TEST_SENDER_CHAIN_ID,
         mkAddress("0x0"),
@@ -432,9 +482,67 @@ describe("ChainReader", () => {
         mkAddress("0x0"),
         18,
         "prepare",
+        false,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(0);
+    });
+
+    it("special case for chainId 10 prepare", async () => {
+      chainsPriceOraclesStub.value([10]);
+      gasPriceStub.resolves(testGasPrice);
+      const result = await chainReader.calculateGasFee(
+        10,
+        10,
+        mkAddress("0x0"),
+        10,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        false,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(2863071428571428);
+    });
+
+    it("special case for chainId 10 fulfill", async () => {
+      chainsPriceOraclesStub.value([10]);
+      gasPriceStub.resolves(testGasPrice);
+      const result = await chainReader.calculateGasFee(
+        10,
+        10,
+        mkAddress("0x0"),
+        10,
+        mkAddress("0x0"),
+        18,
+        "fulfill",
+        false,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(3051285714285714);
+    });
+
+    it("special case for chainId 10 cancel", async () => {
+      chainsPriceOraclesStub.value([10]);
+      gasPriceStub.resolves(testGasPrice);
+      const result = await chainReader.calculateGasFee(
+        10,
+        10,
+        mkAddress("0x0"),
+        10,
+        mkAddress("0x0"),
+        18,
+        "cancel",
+        false,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(3051285714285714);
+    });
+  });
+
+  describe("#isSupportedChain", () => {
+    it("should return false for unsupported chain", async () => {
+      expect(chainReader.isSupportedChain(111111)).to.be.false;
     });
   });
 
@@ -448,7 +556,7 @@ describe("ChainReader", () => {
 
   describe("#setupProviders", () => {
     it("throws if not a single provider config is provided for a chainId", async () => {
-      (chainReader as any).config.chains = {
+      (chainReader as any).config = {
         [TEST_SENDER_CHAIN_ID.toString()]: {
           // Providers list here should never be empty.
           providers: [],

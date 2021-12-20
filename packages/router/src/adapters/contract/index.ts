@@ -1,47 +1,104 @@
-import { CancelParams, FulfillParams, PrepareParams, RequestContext, TransactionData } from "@connext/nxtp-utils";
+import { CancelParams, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers/lib/ethers";
 
-import { prepare, fulfill, cancel, removeLiquidity, getRouterBalance, sanitationCheck } from "./contract";
+import {
+  prepareTransactionManager,
+  prepareRouterContract,
+  fulfillTransactionManager,
+  fulfillRouterContract,
+  cancelRouterContract,
+  cancelTransactionManager,
+  removeLiquidityTransactionManager,
+  addLiquidityForTransactionManager,
+  migrateLiquidity,
+  getRouterBalance,
+  startContractListeners,
+} from "./contract";
 
 export type ContractWriter = {
-  prepare: (
+  prepareTransactionManager: (
     chainId: number,
     prepareParams: PrepareParams,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
-  fulfill: (
+  prepareRouterContract: (
+    chainId: number,
+    prepareParams: PrepareParams,
+    routerContractAddress: string,
+    signature: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
+    useRelayer: boolean,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  fulfillTransactionManager: (
     chainId: number,
     fulfillParams: FulfillParams,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
-  cancel: (
+  fulfillRouterContract: (
+    chainId: number,
+    fulfillParams: FulfillParams,
+    routerContractAddress: string,
+    signature: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
+    useRelayer: boolean,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  cancelTransactionManager: (
     chainId: number,
     cancelParams: CancelParams,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
-  removeLiquidity: (
+  cancelRouterContract: (
+    chainId: number,
+    cancelParams: CancelParams,
+    routerContractAddress: string,
+    signature: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
+    useRelayer: boolean,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  removeLiquidityTransactionManager: (
     chainId: number,
     amount: string,
     assetId: string,
     recipientAddress: string | undefined,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
-  getRouterBalance: (chainId: number, router: string, assetId: string) => Promise<BigNumber>;
-  sanitationCheck: (
+  addLiquidityForTransactionManager: (
     chainId: number,
-    transactionData: TransactionData,
-    functionCall: "prepare" | "fulfill" | "cancel",
-    _requestContext?: RequestContext<string>,
-  ) => Promise<void>;
+    amount: string,
+    assetId: string,
+    routerAddress: string | undefined,
+    requestContext: RequestContext,
+  ) => Promise<providers.TransactionReceipt>;
+  migrateLiquidity: (
+    chainId: number,
+    assetId: string,
+    requestContext: RequestContext,
+    routerAddress?: string,
+    amount?: string,
+  ) => Promise<
+    { removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt } | undefined
+  >;
+  getRouterBalance: (chainId: number, router: string, assetId: string) => Promise<BigNumber>;
 };
 
 export const contractWriter = (): ContractWriter => {
+  startContractListeners();
   return {
-    prepare,
-    fulfill,
-    cancel,
-    removeLiquidity,
+    prepareTransactionManager,
+    prepareRouterContract,
+    fulfillTransactionManager,
+    fulfillRouterContract,
+    cancelRouterContract,
+    cancelTransactionManager,
+    removeLiquidityTransactionManager,
+    addLiquidityForTransactionManager,
+    migrateLiquidity,
     getRouterBalance,
-    sanitationCheck,
   };
 };

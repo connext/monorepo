@@ -4,168 +4,139 @@ import {
   FulfillParams,
   PrepareParams,
   RequestContext,
-  getInvariantTransactionDigest,
-  getVariantTransactionDigest,
-  TransactionData,
+  isChainSupportedByGelato,
+  gelatoSend,
+  MetaTxTypes,
+  jsonifyError,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, providers } from "ethers/lib/ethers";
-import { Interface } from "ethers/lib/utils";
-import {
-  TransactionManager as TTransactionManager,
-  ConnextPriceOracle as TConnextPriceOracle,
-} from "@connext/nxtp-contracts/typechain";
+import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
+import { Evt } from "evt";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
 
 import { getContext } from "../../router";
-import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
-import { NotExistPriceOracle, SanitationCheckFailed } from "../../lib/errors/contracts";
+import {
+  getContractAddress,
+  getTxManagerInterface,
+  getErc20ContractInterface,
+  sanitationCheck,
+  isRouterWhitelisted,
+  getRouterContractInterface,
+} from "../../lib/helpers";
 
-const { HashZero } = constants;
+export const prepareEvt = new Evt<{ event: any; args: PrepareParams; chainId: number }>(); // TODO: fix types
+export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: number }>();
+export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
 
-export const getContractAddress = (chainId: number): string => {
-  const { config } = getContext();
-  const nxtpContractAddress = config.chainConfig[chainId]?.transactionManagerAddress;
-  if (!nxtpContractAddress) {
-    throw new Error(`No contract exists for chain ${chainId}`);
-  }
-  return nxtpContractAddress;
-};
-
-export const getOracleContractAddress = (chainId: number, requestContext: RequestContext): string => {
-  const { config } = getContext();
-  const oracleContractAddress = config.chainConfig[chainId]?.priceOracleAddress;
-  if (!oracleContractAddress) {
-    throw new NotExistPriceOracle(chainId, requestContext);
-  }
-  return oracleContractAddress;
-};
-
-export const getTxManagerInterface = () =>
-  new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
-
-export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
-
-export const sanitationCheck = async (
-  chainId: number,
-  transactionData: TransactionData,
-  functionCall: "prepare" | "fulfill" | "cancel",
-  _requestContext?: RequestContext<string>,
-) => {
-  const { txService, contractReader } = getContext();
-
-  const { requestContext, methodContext } = createLoggingContext(
-    sanitationCheck.name,
-    _requestContext,
-    transactionData.transactionId,
-  );
-
-  const nxtpContractAddress = getContractAddress(chainId);
-
-  const invariantDigest = getInvariantTransactionDigest({
-    receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
-    user: transactionData.user,
-    router: transactionData.router,
-    initiator: transactionData.initiator,
-    sendingAssetId: transactionData.sendingAssetId,
-    receivingAssetId: transactionData.receivingAssetId,
-    sendingChainFallback: transactionData.sendingChainFallback,
-    callTo: transactionData.callTo,
-    receivingAddress: transactionData.receivingAddress,
-    sendingChainId: transactionData.sendingChainId,
-    receivingChainId: transactionData.receivingChainId,
-    callDataHash: transactionData.callDataHash,
-    transactionId: transactionData.transactionId,
-  });
-
-  const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
-    invariantDigest,
-  ]);
-
-  const variantTransactionDigest = await txService.readTx({
-    chainId,
-    to: nxtpContractAddress,
-    data: encodeVariantTransactionData,
-  });
-
-  if (functionCall === "prepare") {
-    // variantTransactionDigest exist then transaction is already prepared
-    if (variantTransactionDigest !== HashZero) {
-      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
-        requestContext,
-        methodContext,
-        variantTransactionDigest,
-      });
-    }
-  } else {
-    const expectedVariantDigest = getVariantTransactionDigest({
-      amount: transactionData.amount,
-      expiry: transactionData.expiry,
-      preparedBlockNumber: transactionData.preparedBlockNumber,
-    });
-
-    if (expectedVariantDigest === variantTransactionDigest) {
-      // All is good, no issues
-      return;
-    }
-
-    // transaction should be prepared before fulfill
-    if (variantTransactionDigest === HashZero) {
-      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
-        requestContext,
-        methodContext,
-        variantTransactionDigest,
-      });
-    }
-
-    // transaction is already fulfilled
-    // get expected fulfilled/cancelled variant hash
-    const fulfilledOrCancelledVariant = getVariantTransactionDigest({
-      amount: transactionData.amount,
-      expiry: transactionData.expiry,
-      preparedBlockNumber: 0,
-    });
-
-    if (variantTransactionDigest === fulfilledOrCancelledVariant) {
-      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
-        requestContext,
-        methodContext,
-        variantTransactionDigest,
-        fulfilledOrCancelledVariant,
-      });
-    }
-
-    if (functionCall === "cancel" && chainId === transactionData.sendingChainId) {
-      const receivingChainNxtpContractAddress = getContractAddress(transactionData.receivingChainId);
-
-      const receivingChainVariantTransactionDigest = await txService.readTx({
-        chainId: transactionData.receivingChainId,
-        to: receivingChainNxtpContractAddress,
-        data: encodeVariantTransactionData,
-      });
-
-      if (receivingChainVariantTransactionDigest === HashZero) {
-        // cancel is allowed when no transaction is prepared
-        return;
-      } else {
-        const receivingChainTransaction = await contractReader.getTransactionForChain(
-          transactionData.transactionId,
-          transactionData.user,
-          transactionData.receivingChainId,
-        );
-
-        if (receivingChainTransaction?.status === TransactionStatus.Cancelled) {
-          // cancel is allowed when transaction is cancelled on receiving chain
-          return;
-        } else {
-          throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
-            requestContext,
-            methodContext,
+export const startContractListeners = (): void => {
+  const { config, txService, logger } = getContext();
+  Object.entries(config.chainConfig).forEach(async ([_chainId, conf]) => {
+    const chainId = Number(_chainId);
+    if (config.routerContractAddress) {
+      // needs event listeners for listening to relayed events
+      // TODO remove this when we can query gelato for tx receipts
+      // alternatively allow listening on the subgraph
+      const contract = new Contract(
+        conf.transactionManagerAddress,
+        TransactionManagerArtifact.abi,
+        txService.getProvider(chainId).fallbackProvider,
+      ) as TTransactionManager;
+      contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
+        if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+          prepareEvt.post({
+            event,
+            args: {
+              amount: args.amount,
+              bidSignature: args.bidSignature,
+              encodedBid: args.encodedBid,
+              encryptedCallData: args.encryptedCallData,
+              expiry: args.expiry,
+              txData: {
+                callDataHash: args.invariantData.callDataHash,
+                initiator: args.invariantData.initiator,
+                receivingAssetId: args.invariantData.receivingAssetId,
+                receivingChainId: args.invariantData.receivingChainId,
+                sendingChainId: args.invariantData.sendingChainId,
+                callTo: args.invariantData.callTo,
+                receivingAddress: args.invariantData.receivingAddress,
+                receivingChainTxManagerAddress: args.invariantData.receivingChainTxManagerAddress,
+                router: args.invariantData.router,
+                sendingAssetId: args.invariantData.sendingAssetId,
+                sendingChainFallback: args.invariantData.sendingChainFallback,
+                transactionId: args.invariantData.transactionId,
+                user: args.invariantData.user,
+              },
+            },
+            chainId,
           });
         }
-      }
+      });
+      contract.on(
+        "TransactionFulfilled",
+        (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
+          if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+            fulfillEvt.post({
+              event,
+              args: {
+                callData: args.callData,
+                signature: args.signature,
+                relayerFee: args.relayerFee,
+                txData: {
+                  callDataHash: args.txData.callDataHash,
+                  initiator: args.txData.initiator,
+                  receivingAssetId: args.txData.receivingAssetId,
+                  receivingChainId: args.txData.receivingChainId,
+                  sendingChainId: args.txData.sendingChainId,
+                  callTo: args.txData.callTo,
+                  receivingAddress: args.txData.receivingAddress,
+                  receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                  router: args.txData.router,
+                  sendingAssetId: args.txData.sendingAssetId,
+                  sendingChainFallback: args.txData.sendingChainFallback,
+                  transactionId: args.txData.transactionId,
+                  user: args.txData.user,
+                  amount: args.txData.amount,
+                  expiry: args.txData.expiry,
+                  preparedBlockNumber: args.txData.preparedBlockNumber,
+                },
+              },
+              chainId,
+            });
+          }
+        },
+      );
+      contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
+        if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+          cancelEvt.post({
+            event,
+            args: {
+              signature: args.signature,
+              txData: {
+                callDataHash: args.txData.callDataHash,
+                initiator: args.txData.initiator,
+                receivingAssetId: args.txData.receivingAssetId,
+                receivingChainId: args.txData.receivingChainId,
+                sendingChainId: args.txData.sendingChainId,
+                callTo: args.txData.callTo,
+                receivingAddress: args.txData.receivingAddress,
+                receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+                router: args.txData.router,
+                sendingAssetId: args.txData.sendingAssetId,
+                sendingChainFallback: args.txData.sendingChainFallback,
+                transactionId: args.txData.transactionId,
+                user: args.txData.user,
+                amount: args.txData.amount,
+                expiry: args.txData.expiry,
+                preparedBlockNumber: args.txData.preparedBlockNumber,
+              },
+            },
+            chainId,
+          });
+        }
+      });
     }
-  }
+  });
+  logger.info("Started listening for events on TransactionManager");
 };
 
 /**
@@ -183,20 +154,23 @@ export const sanitationCheck = async (
  * @returns If successful, returns `TransactionReceipt` from the prepare transaction sent to the `TransactionManager.sol`. If it fails, returns a `TransactionManagerError`
  *
  */
-export const prepare = async (
+export const prepareTransactionManager = async (
   chainId: number,
   prepareParams: PrepareParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(prepare.name);
+  const { methodContext } = createLoggingContext(prepareTransactionManager.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info("Method start", requestContext, methodContext, { prepareParams });
+  logger.info("Method start", requestContext, methodContext, {
+    prepareParams,
+  });
 
   const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
 
-  const nxtpContractAddress = getContractAddress(chainId);
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
 
+  const nxtpContractAddress = getContractAddress(chainId);
   const encodedData = getTxManagerInterface().encodeFunctionData("prepare", [
     {
       invariantData: txData,
@@ -221,24 +195,144 @@ export const prepare = async (
   );
 };
 
-export const fulfill = async (
+export const prepareRouterContract = async (
+  chainId: number,
+  prepareParams: PrepareParams,
+  routerContractAddress: string,
+  signature: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
+  useRelayer: boolean,
+  requestContext: RequestContext,
+): Promise<providers.TransactionReceipt> => {
+  const { methodContext } = createLoggingContext(prepareRouterContract.name);
+
+  const { logger, txService, wallet, messaging } = getContext();
+  logger.info("Method start", requestContext, methodContext, {
+    prepareParams,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+  });
+
+  const { txData, amount, expiry, encodedBid, bidSignature, encryptedCallData } = prepareParams;
+
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
+
+  const encodedData = getRouterContractInterface().encodeFunctionData("prepare", [
+    {
+      invariantData: txData,
+      amount,
+      expiry,
+      encryptedCallData,
+      encodedBid,
+      bidSignature,
+      encodedMeta: "0x",
+    },
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+    signature,
+  ]);
+
+  // 1. Prepare tx using relayer if chain is supported by gelato.
+  if (useRelayer && isChainSupportedByGelato(chainId)) {
+    logger.info("Gelato prepare", requestContext, methodContext, {
+      prepareParams,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
+    try {
+      const data = await gelatoSend(
+        chainId,
+        routerContractAddress,
+        encodedData,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      );
+      if (!data.taskId) {
+        throw new Error("No taskId returned");
+      }
+      logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
+
+      // listen for event on contract
+      const { event } = await prepareEvt
+        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+        .waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err) {
+      logger.warn("gelato send failed, falling back to router network", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
+  }
+
+  // 2. If gelato is not supported, or gelato send failed, try using the router network.
+  if (useRelayer) {
+    logger.info("router network prepare", requestContext, methodContext, {
+      prepareParams,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
+    try {
+      await messaging.publishMetaTxRequest({
+        chainId,
+        to: routerContractAddress,
+        type: MetaTxTypes.RouterContractPrepare,
+        data: {
+          params: prepareParams,
+          signature,
+          relayerFee: routerRelayerFee,
+          relayerFeeAsset: routerRelayerFeeAsset,
+        },
+      });
+
+      // listen for event on contract
+      const { event } = await prepareEvt
+        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+        .waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err) {
+      // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
+      // (see waitFor) is the error we actually caught in this block.
+      logger.warn("router network failed, falling back to txservice", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
+  }
+
+  // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
+  logger.info("txservice prepare", requestContext, methodContext, { prepareParams });
+  return await txService.sendTx(
+    {
+      to: routerContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
+};
+
+export const fulfillTransactionManager = async (
   chainId: number,
   fulfillParams: FulfillParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(fulfill.name);
+  const { methodContext } = createLoggingContext(fulfillTransactionManager.name);
 
   const { logger, txService, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext);
 
-  const { txData, relayerFee, signature, callData } = fulfillParams;
-
-  const nxtpContractAddress = getContractAddress(chainId);
+  const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
 
   await sanitationCheck(chainId, txData, "fulfill");
 
+  const nxtpContractAddress = getContractAddress(chainId);
+
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [
-    { txData, relayerFee, signature, callData, encodedMeta: "0x" },
+    { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },
   ]);
 
   return await txService.sendTx(
@@ -253,23 +347,119 @@ export const fulfill = async (
   );
 };
 
-export const cancel = async (
+export const fulfillRouterContract = async (
+  chainId: number,
+  fulfillParams: FulfillParams,
+  routerContractAddress: string,
+  signature: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
+  useRelayer: boolean,
+  requestContext: RequestContext,
+): Promise<providers.TransactionReceipt> => {
+  const { methodContext } = createLoggingContext(fulfillRouterContract.name);
+
+  const { logger, txService, wallet, messaging } = getContext();
+  logger.info("Method start", requestContext, methodContext, {
+    fulfillParams,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+  });
+
+  const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
+
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "fulfill");
+
+  const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
+    { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+    signature,
+  ]);
+
+  if (useRelayer) {
+    if (isChainSupportedByGelato(chainId)) {
+      logger.info("Gelato fulfill", requestContext, methodContext, {
+        fulfillParams,
+        routerContractAddress,
+        signature,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      });
+
+      try {
+        const data = await gelatoSend(
+          chainId,
+          routerContractAddress,
+          encodedData,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
+        );
+        if (!data.taskId) {
+          throw new Error("No taskId returned");
+        }
+        logger.info("Submitted fulfill using Gelato Relayer", requestContext, methodContext, { data });
+
+        // listen for event on contract
+        const { event } = await fulfillEvt
+          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+          .waitFor(300_000);
+        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+        return receipt;
+      } catch (err) {
+        logger.warn("Gelato send failed, falling back to router network", requestContext, methodContext, {
+          err: jsonifyError(err),
+        });
+      }
+    }
+
+    await messaging.publishMetaTxRequest({
+      chainId,
+      to: routerContractAddress,
+      type: MetaTxTypes.RouterContractFulfill,
+      data: { params: fulfillParams, signature, relayerFee: routerRelayerFee, relayerFeeAsset: routerRelayerFeeAsset },
+    });
+
+    // listen for event on contract
+    const { event } = await fulfillEvt
+      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+      .waitFor(300_000);
+    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+    return receipt;
+  } else {
+    logger.info("Router contract fulfill", requestContext, methodContext, { fulfillParams });
+
+    return await txService.sendTx(
+      {
+        to: routerContractAddress,
+        data: encodedData,
+        value: constants.Zero,
+        chainId,
+        from: wallet.address,
+      },
+      requestContext,
+    );
+  }
+};
+
+export const cancelTransactionManager = async (
   chainId: number,
   cancelParams: CancelParams,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(cancel.name);
+  const { methodContext } = createLoggingContext(cancelTransactionManager.name);
 
   const { logger, txService, wallet } = getContext();
   logger.info("Method start", requestContext, methodContext, { cancelParams });
 
-  const { txData, signature } = cancelParams;
+  const { txData, signature: cancelSignature } = cancelParams;
+  await sanitationCheck(chainId, txData, "cancel");
 
   const nxtpContractAddress = getContractAddress(chainId);
 
-  await sanitationCheck(chainId, txData, "cancel");
-
-  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [{ txData, signature, encodedMeta: "0x" }]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("cancel", [
+    { txData, signature: cancelSignature, encodedMeta: "0x" },
+  ]);
 
   return await txService.sendTx(
     {
@@ -283,6 +473,104 @@ export const cancel = async (
   );
 };
 
+export const cancelRouterContract = async (
+  chainId: number,
+  cancelParams: CancelParams,
+  routerContractAddress: string,
+  signature: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
+  useRelayer: boolean,
+  requestContext: RequestContext,
+): Promise<providers.TransactionReceipt> => {
+  const { methodContext } = createLoggingContext(cancelRouterContract.name);
+
+  const { logger, txService, wallet, messaging } = getContext();
+  logger.info("Method start", requestContext, methodContext, {
+    cancelParams,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+  });
+
+  const { txData, signature: cancelSignature } = cancelParams;
+
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
+
+  const encodedData = getRouterContractInterface().encodeFunctionData("cancel", [
+    { txData, signature: cancelSignature, encodedMeta: "0x" },
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+    signature,
+  ]);
+
+  if (useRelayer) {
+    if (isChainSupportedByGelato(chainId)) {
+      logger.info("Gelato cancel", requestContext, methodContext, {
+        cancelParams,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      });
+
+      try {
+        const data = await gelatoSend(
+          chainId,
+          routerContractAddress,
+          encodedData,
+          routerRelayerFeeAsset,
+          routerRelayerFee,
+        );
+        if (!data.taskId) {
+          throw new Error("No taskId returned");
+        }
+        logger.info("Submitted cancel using Gelato Relayer", requestContext, methodContext, { data });
+
+        // listen for event on contract
+        const { event } = await cancelEvt
+          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+          .waitFor(300_000);
+        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+        return receipt;
+      } catch (err) {
+        logger.warn("Gelato send failed, falling back to router network", requestContext, methodContext, {
+          err: jsonifyError(err),
+        });
+      }
+    }
+
+    await messaging.publishMetaTxRequest({
+      chainId,
+      to: routerContractAddress,
+      type: MetaTxTypes.RouterContractCancel,
+      data: {
+        params: cancelParams,
+        signature,
+        relayerFee: routerRelayerFee,
+        relayerFeeAsset: routerRelayerFeeAsset,
+      },
+    });
+
+    // listen for event on contract
+    const { event } = await cancelEvt
+      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+      .waitFor(300_000);
+    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
+    return receipt;
+  } else {
+    logger.info("Router contract cancel", requestContext, methodContext, { cancelParams });
+
+    return await txService.sendTx(
+      {
+        to: routerContractAddress,
+        data: encodedData,
+        value: constants.Zero,
+        chainId,
+        from: wallet.address,
+      },
+      requestContext,
+    );
+  }
+};
+
 /**
  * Removes liquidity from the `TransactionManager` on the provided chain.
  *
@@ -292,21 +580,21 @@ export const cancel = async (
  * @param recipientAddress - The address you'd like the funds to be sent to
  * @returns If successful, returns `TransactionReceipt` for the removeLiquidity transaction. If it fails, returns a `TransactionManagerError`
  */
-export const removeLiquidity = async (
+export const removeLiquidityTransactionManager = async (
   chainId: number,
   amount: string,
   assetId: string,
   recipientAddress: string | undefined,
   requestContext: RequestContext,
 ): Promise<providers.TransactionReceipt> => {
-  const { methodContext } = createLoggingContext(removeLiquidity.name, requestContext);
+  const { methodContext } = createLoggingContext(removeLiquidityTransactionManager.name, requestContext);
 
-  const { logger, txService, wallet } = getContext();
+  const { logger, txService, wallet, signerAddress } = getContext();
 
   logger.info("Method start", requestContext, methodContext, { amount, assetId, recipientAddress });
 
   if (!recipientAddress) {
-    recipientAddress = await wallet.getAddress();
+    recipientAddress = signerAddress;
   }
 
   const nxtpContractAddress = getContractAddress(chainId);
@@ -326,6 +614,153 @@ export const removeLiquidity = async (
     },
     requestContext,
   );
+};
+
+export const addLiquidityForTransactionManager = async (
+  chainId: number,
+  amount: string,
+  assetId: string,
+  routerAddress: string | undefined,
+  requestContext: RequestContext,
+  infiniteApprove = true,
+): Promise<providers.TransactionReceipt> => {
+  const { methodContext } = createLoggingContext(addLiquidityForTransactionManager.name, requestContext);
+
+  const { logger, txService, wallet, signerAddress } = getContext();
+
+  logger.info("Method start", requestContext, methodContext, { amount, assetId, routerAddress });
+
+  if (!routerAddress) {
+    routerAddress = signerAddress;
+  }
+
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  if (assetId !== constants.AddressZero) {
+    const approvedData = getErc20ContractInterface().encodeFunctionData("allowance", [
+      signerAddress,
+      nxtpContractAddress,
+    ]);
+    const approvedEncoded = await txService.readTx({
+      to: assetId,
+      data: approvedData,
+      chainId,
+    });
+
+    const [approved] = getErc20ContractInterface().decodeFunctionResult("allowance", approvedEncoded);
+
+    logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
+
+    if (BigNumber.from(approved).lt(amount)) {
+      const data = getErc20ContractInterface().encodeFunctionData("approve", [
+        nxtpContractAddress,
+        infiniteApprove ? constants.MaxUint256 : amount,
+      ]);
+      logger.info("Approve transaction created", requestContext, methodContext);
+      const approveTx = await txService.sendTx(
+        { to: assetId, data, from: signerAddress, chainId, value: constants.Zero },
+        requestContext,
+      );
+      logger.info("Approved Transaction", requestContext, methodContext, {
+        approveTx,
+      });
+    } else {
+      logger.info("Allowance sufficient", requestContext, methodContext, {
+        approved: approved.toString(),
+        amount,
+      });
+    }
+  }
+
+  const encodedData = getTxManagerInterface().encodeFunctionData("addLiquidityFor", [amount, assetId, routerAddress]);
+  return await txService.sendTx(
+    {
+      to: nxtpContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
+};
+
+export const migrateLiquidity = async (
+  chainId: number,
+  assetId: string,
+  requestContext: RequestContext,
+  routerAddress?: string,
+  amount?: string,
+): Promise<
+  { removeLiqudityTx: providers.TransactionReceipt; addLiquidityForTx: providers.TransactionReceipt } | undefined
+> => {
+  const { methodContext } = createLoggingContext(migrateLiquidity.name, requestContext);
+  const { logger, signerAddress, contractReader } = getContext();
+
+  if (routerAddress) {
+    const res = await isRouterWhitelisted(routerAddress, chainId);
+    if (!res) {
+      logger.warn("router isn't whitelisted", requestContext, methodContext, { routerAddress: routerAddress, chainId });
+      return;
+    }
+  }
+
+  if (!amount) {
+    amount = (await contractReader.getAssetBalance(assetId, chainId)).toString();
+    logger.info("Got amount from contract reader", requestContext, methodContext, {
+      amount,
+    });
+  }
+
+  if (BigNumber.from(amount).isZero()) {
+    logger.warn("Amount is zero, nothing to migrate", requestContext, methodContext, { amount });
+    return;
+  }
+
+  logger.info("Method start", requestContext, methodContext, {
+    chainId,
+    amount,
+    assetId,
+    signerAddress,
+    routerAddress,
+  });
+
+  const removeLiqudityTx = await removeLiquidityTransactionManager(
+    chainId,
+    amount,
+    assetId,
+    signerAddress,
+    requestContext,
+  );
+
+  logger.info("Removed Liquidity", requestContext, methodContext, {
+    chainId,
+    amount,
+    assetId,
+    receiverAddress: signerAddress,
+    removeLiqudityTx,
+  });
+
+  const addLiquidityForTx = await addLiquidityForTransactionManager(
+    chainId,
+    amount,
+    assetId,
+    routerAddress,
+    requestContext,
+  );
+
+  logger.info("Added Liquidity", requestContext, methodContext, {
+    chainId,
+    amount,
+    assetId,
+    routerAddress,
+    addLiquidityForTx,
+  });
+
+  return {
+    removeLiqudityTx,
+    addLiquidityForTx,
+  };
 };
 
 export const getRouterBalance = async (chainId: number, router: string, assetId: string): Promise<BigNumber> => {

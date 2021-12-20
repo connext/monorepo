@@ -1,7 +1,6 @@
 import {
   TChainId,
   TAddress,
-  TIntegerString,
   TransactionDataSchema,
   PrepareParams,
   Logger,
@@ -12,6 +11,7 @@ import {
   UserNxtpNatsMessagingService,
   AuctionResponseSchema,
   ChainData,
+  TIntegerString,
 } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Signer } from "ethers";
@@ -106,7 +106,7 @@ export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
 
 export const GetTransferQuoteSchema = Type.Intersect([
   AuctionResponseSchema,
-  Type.Object({ metaTxRelayerFee: TIntegerString }),
+  Type.Object({ totalFee: TIntegerString, routerFee: TIntegerString, metaTxRelayerFee: TIntegerString }),
 ]);
 export type GetTransferQuote = Static<typeof GetTransferQuoteSchema>;
 

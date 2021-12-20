@@ -18,12 +18,13 @@
   "natsUrl": "nats://nats:4222",
   "authUrl": "http://auth:5040",
   "web3SignerUrl": "http://signer:9000",
+  "allowRelay": true,
   "swapPools": [
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
+        { "chainId": 1337, "assetId": "0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F" },
+        { "chainId": 1338, "assetId": "0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F" }
       ]
     },
     {

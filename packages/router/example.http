@@ -1,10 +1,10 @@
 @routerUrl = http://localhost:8000
 
-@chainId = 100
-@assetId = 0x0000000000000000000000000000000000000000
+@chainId = 4
+@assetId = 0x9ac2c46d7acc21c881154d57c0dc1c55a3139198
 
 # 1 ETH
-@amount = 1000000000000000000
+@amount = 27506903307558379434029545
 
 ### CONFIG
 GET {{routerUrl}}/config
@@ -38,4 +38,26 @@ Content-Type: application/json
   "transactionId": "0x76ed04081dc333c51575bf785389e46d8e7d85563b28b16da78e2597aada4791",
   "senderChainId": 137,
   "user": "0xf4cf09a03f2d9e3b86105d043dd7c45de9d9753c"
+}
+
+### MIGRATE LIQUIDITY
+POST {{routerUrl}}/migrate-liquidity
+Content-Type: application/json
+
+{
+  "adminToken": "blahblah",
+  "chainId": "{{chainId}}",
+  "routerAddress": "0xaF168Da973a5758A3902DA21cf161FCd420899E9"
+}
+
+### ADD LIQUIDITY FOR
+POST {{routerUrl}}/add-liquidity-for
+Content-Type: application/json
+
+{
+  "adminToken": "",
+  "chainId": "{{chainId}}",
+  "routerAddress": "0xaF168Da973a5758A3902DA21cf161FCd420899E9",
+  "assetId": "{{assetId}}",
+  "amount": "{{amount}}"
 }

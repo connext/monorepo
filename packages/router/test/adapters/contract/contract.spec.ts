@@ -12,16 +12,25 @@ import {
   getRandomBytes32,
   getVariantTransactionDigest,
 } from "@connext/nxtp-utils";
-
-import { fulfill, prepare, cancel, removeLiquidity } from "../../../src/adapters/contract/contract";
-import * as ContractFns from "../../../src/adapters/contract/contract";
-import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { Interface } from "ethers/lib/utils";
+import { BigNumber, constants } from "ethers/lib/ethers";
+
+import * as SharedFns from "../../../src/lib/helpers/shared";
+import * as ContractFns from "../../../src/adapters/contract/contract";
+import {
+  prepareTransactionManager,
+  fulfillTransactionManager,
+  cancelTransactionManager,
+  removeLiquidityTransactionManager,
+  startContractListeners,
+  addLiquidityForTransactionManager,
+  migrateLiquidity,
+} from "../../../src/adapters/contract/contract";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
-import { configMock, routerAddrMock } from "../../utils";
-import { NotExistPriceOracle, SanitationCheckFailed } from "../../../src/lib/errors/contracts";
-import { txServiceMock } from "../../globalTestHook";
-import { constants } from "ethers";
+import { routerAddrMock } from "../../utils";
+import { signerAddress, txServiceMock } from "../../globalTestHook";
+import { SanitationCheckFailed } from "../../../src/lib/errors";
 
 const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
@@ -29,49 +38,29 @@ const encodedDataMock = "0xabcde";
 let interfaceMock: SinonStubbedInstance<Interface>;
 
 describe("Contract Adapter", () => {
-  let sanitationStub;
+  let sanitationStub: any;
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
-    stub(ContractFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+    interfaceMock.decodeFunctionResult.returns([BigNumber.from(1000)]);
+    stub(SharedFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
   });
 
-  describe("#getContractAddress / #getOracleContractAddress", () => {
-    const badChainId = 1400;
-    const tests = [
-      {
-        field: "transactionManagerAddress",
-        functionName: "getContractAddress",
-        error: `No contract exists for chain ${badChainId}`,
-      },
-      {
-        field: "priceOracleAddress",
-        functionName: "getOracleContractAddress",
-        error: new NotExistPriceOracle(badChainId).message,
-      },
-    ];
-    for (const test of tests) {
-      const { error, field, functionName } = test;
-      it(`${functionName} should error if chainId is not supported in config`, async () => {
-        expect(() => ContractFns[functionName](badChainId)).throws(error);
-      });
-
-      it(`${functionName} should work`, async () => {
-        expect(ContractFns[functionName](1337)).to.be.eq(configMock.chainConfig[1337][field]);
-      });
-    }
+  describe("#startContractListeners", () => {
+    it("should work", async () => {
+      expect(() => startContractListeners()).to.not.throw();
+    });
   });
 
-  describe("sanitation check", () => {
+  describe("#sanitationCheck", () => {
     it("should work for prepare", async () => {
       const digest = getInvariantTransactionDigest(txDataMock);
       interfaceMock.encodeFunctionData.returns(digest);
 
       txServiceMock.readTx.resolves(constants.HashZero);
 
-      await ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare");
-      expect(interfaceMock.encodeFunctionData.firstCall.args).to.be.deep.eq(["variantTransactionData", [digest]]);
-      expect(interfaceMock.encodeFunctionData.callCount).to.be.eq(1);
+      await SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare");
+      expect(interfaceMock.encodeFunctionData).to.be.calledOnceWithExactly("variantTransactionData", [digest]);
     });
 
     it("should throw an error if the hash is not empty && function is prepare", async () => {
@@ -80,7 +69,7 @@ describe("Contract Adapter", () => {
 
       txServiceMock.readTx.resolves(getRandomBytes32());
 
-      await expect(ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare")).to.be.rejectedWith(
+      await expect(SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare")).to.be.rejectedWith(
         new SanitationCheckFailed("prepare", invariantDataMock.transactionId, invariantDataMock.sendingChainId).message,
       );
     });
@@ -92,7 +81,7 @@ describe("Contract Adapter", () => {
 
       txServiceMock.readTx.resolves(variantDigest);
 
-      await ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill");
+      await SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill");
       expect(interfaceMock.encodeFunctionData.firstCall.args).to.be.deep.eq([
         "variantTransactionData",
         [invariantDigest],
@@ -106,7 +95,7 @@ describe("Contract Adapter", () => {
 
       txServiceMock.readTx.resolves(constants.HashZero);
 
-      await expect(ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill")).to.be.rejectedWith(
+      await expect(SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill")).to.be.rejectedWith(
         new SanitationCheckFailed("fulfill", txDataMock.transactionId, txDataMock.sendingChainId).message,
       );
     });
@@ -117,7 +106,7 @@ describe("Contract Adapter", () => {
 
       txServiceMock.readTx.resolves(getVariantTransactionDigest({ ...txDataMock, preparedBlockNumber: 0 }));
 
-      await expect(ContractFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill")).to.be.rejectedWith(
+      await expect(SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "fulfill")).to.be.rejectedWith(
         new SanitationCheckFailed("fulfill", txDataMock.transactionId, txDataMock.sendingChainId).message,
       );
     });
@@ -125,13 +114,13 @@ describe("Contract Adapter", () => {
 
   describe("#prepare", () => {
     beforeEach(() => {
-      sanitationStub = stub(ContractFns, "sanitationCheck");
-      sanitationStub.resolves();
+      sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });
+
     it("happy case: prepare", async () => {
       const chainId = txDataMock.sendingChainId;
 
-      const res = await prepare(chainId, prepareParamsMock, requestContext);
+      const res = await prepareTransactionManager(chainId, prepareParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("prepare", [
         {
           invariantData: prepareParamsMock.txData,
@@ -150,19 +139,19 @@ describe("Contract Adapter", () => {
       const chainId = txDataMock.sendingChainId;
 
       interfaceMock.encodeFunctionData.throws(new Error("fail"));
-      await expect(prepare(chainId, prepareParamsMock, requestContext)).to.be.rejectedWith("fail");
+      await expect(prepareTransactionManager(chainId, prepareParamsMock, requestContext)).to.be.rejectedWith("fail");
     });
   });
 
   describe("#fulfill", () => {
     beforeEach(() => {
-      sanitationStub = stub(ContractFns, "sanitationCheck");
-      sanitationStub.resolves();
+      sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });
+
     it("happy case: fulfill", async () => {
       const chainId = txDataMock.sendingChainId;
 
-      const res = await fulfill(chainId, fulfillParamsMock, requestContext);
+      const res = await fulfillTransactionManager(chainId, fulfillParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
         {
           txData: fulfillParamsMock.txData,
@@ -179,26 +168,26 @@ describe("Contract Adapter", () => {
       const chainId = txDataMock.sendingChainId;
 
       sanitationStub.rejects(new Error("fail"));
-      await expect(fulfill(chainId, fulfillParamsMock, requestContext)).to.be.rejectedWith("fail");
+      await expect(fulfillTransactionManager(chainId, fulfillParamsMock, requestContext)).to.be.rejectedWith("fail");
     });
 
     it("should fail if encoding fails", async () => {
       const chainId = txDataMock.sendingChainId;
 
       interfaceMock.encodeFunctionData.throws(new Error("fail"));
-      await expect(fulfill(chainId, fulfillParamsMock, requestContext)).to.be.rejectedWith("fail");
+      await expect(fulfillTransactionManager(chainId, fulfillParamsMock, requestContext)).to.be.rejectedWith("fail");
     });
   });
 
   describe("#cancel", () => {
     beforeEach(() => {
-      sanitationStub = stub(ContractFns, "sanitationCheck");
-      sanitationStub.resolves();
+      sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });
+
     it("happy case: cancel", async () => {
       const chainId = txDataMock.sendingChainId;
 
-      const res = await cancel(chainId, cancelParamsMock, requestContext);
+      const res = await cancelTransactionManager(chainId, cancelParamsMock, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWith("cancel", [
         {
           txData: cancelParamsMock.txData,
@@ -213,14 +202,14 @@ describe("Contract Adapter", () => {
       const chainId = txDataMock.sendingChainId;
 
       sanitationStub.rejects(new Error("fail"));
-      await expect(fulfill(chainId, cancelParamsMock, requestContext)).to.be.rejectedWith("fail");
+      await expect(cancelTransactionManager(chainId, cancelParamsMock, requestContext)).to.be.rejectedWith("fail");
     });
 
     it("should fail if encoding fails", async () => {
       const chainId = txDataMock.sendingChainId;
 
       interfaceMock.encodeFunctionData.throws(new Error("fail"));
-      await expect(fulfill(chainId, cancelParamsMock, requestContext)).to.be.rejectedWith("fail");
+      await expect(cancelTransactionManager(chainId, cancelParamsMock, requestContext)).to.be.rejectedWith("fail");
     });
   });
 
@@ -231,11 +220,11 @@ describe("Contract Adapter", () => {
       const amount = "1000";
       const assetId = mkAddress("0x6");
 
-      const res = await removeLiquidity(chainId, amount, assetId, undefined, requestContext);
+      const res = await removeLiquidityTransactionManager(chainId, amount, assetId, undefined, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("removeLiquidity", [
         amount,
         assetId,
-        routerAddrMock,
+        signerAddress,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
     });
@@ -247,13 +236,72 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const recipientAddress = mkAddress("0x2");
 
-      const res = await removeLiquidity(chainId, amount, assetId, recipientAddress, requestContext);
+      const res = await removeLiquidityTransactionManager(chainId, amount, assetId, recipientAddress, requestContext);
       expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("removeLiquidity", [
         amount,
         assetId,
         recipientAddress,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("#addLiquidityFor", () => {
+    it("should work for native asset", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = constants.AddressZero;
+
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, undefined, requestContext);
+      expect(interfaceMock.encodeFunctionData).calledOnceWithExactly("addLiquidityFor", [
+        amount,
+        assetId,
+        signerAddress,
+      ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("if no recipient, use wallet address", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x6");
+
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, undefined, requestContext);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, signerAddress]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("happy case: addLiquidityFor", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x1");
+      const routerAddress = mkAddress("0x2");
+
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, routerAddress, requestContext);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, routerAddress]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("#migrateLiquidity", () => {
+    it("happy case: migrate liquidity", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x1");
+      const newRouterAddress = mkAddress("0x2");
+
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
+      expect(interfaceMock.encodeFunctionData).calledWith("removeLiquidity", [amount, assetId, signerAddress]);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, newRouterAddress]);
+      expect(res.removeLiqudityTx).to.deep.eq(txReceiptMock);
+      expect(res.addLiquidityForTx).to.deep.eq(txReceiptMock);
     });
   });
 

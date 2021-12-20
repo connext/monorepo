@@ -40,7 +40,7 @@ dotenvConfig();
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const record = (contractDeployments as any)[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -56,7 +56,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const record = (contractDeployments as any)[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -73,7 +73,7 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   const chainIdsForGasFee: number[] = [];
   const chainIds = Object.keys(contractDeployments);
   chainIds.forEach((chainId) => {
-    const record = (contractDeployments as any)[String(chainId)];
+    const record = (contractDeployments as any)[chainId.toString()];
     const chainName = Object.keys(record)[0];
     if (chainName) {
       const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
@@ -92,7 +92,7 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const record = (contractDeployments as any)[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -104,7 +104,6 @@ export const getDeployedMulticallContract = (chainId: number): { address: string
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  defaultInitialGasPrice: Type.Optional(TIntegerString),
   subgraph: Type.Array(Type.String()),
   analyticsSubgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
@@ -112,9 +111,10 @@ export const TChainConfig = Type.Object({
   multicallAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
   gasStations: Type.Array(Type.String()),
-  allowFulfillRelay: Type.Boolean(),
+  allowRelay: Type.Boolean(),
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
   subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
+  routerContractRelayerAsset: Type.Optional(Type.String()),
 });
 
 export const TSwapPool = Type.Object({
@@ -143,12 +143,14 @@ export const NxtpRouterConfigSchema = Type.Object({
   natsUrl: Type.String(),
   authUrl: Type.String(),
   mnemonic: Type.Optional(Type.String()),
+  routerContractAddress: Type.Optional(Type.String()), // address of deployed Router.sol contract
   web3SignerUrl: Type.Optional(Type.String()),
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
   requestLimit: Type.Number(),
   allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
+  allowRelay: Type.Boolean(),
   cleanUpMode: Type.Boolean(),
   priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
@@ -212,6 +214,8 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
+    routerContractAddress:
+      process.env.NXTP_ROUTER_CONTRACT_ADDRESS || configJson.routerContractAddress || configFile.routerContractAddress,
     authUrl,
     natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
@@ -237,6 +241,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       configJson.allowedTolerance ||
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
+    allowRelay: process.env.NXTP_ALLOW_RELAY || configJson.allowRelay || configFile.allowRelay || false,
   };
 
   const overridechainRecommendedConfirmations =
@@ -338,8 +343,8 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
 
-    if (chainConfig.allowFulfillRelay === undefined || chainConfig.allowFulfillRelay === null) {
-      nxtpConfig.chainConfig[chainId].allowFulfillRelay = true;
+    if (chainConfig.allowRelay === undefined || chainConfig.allowRelay === null) {
+      nxtpConfig.chainConfig[chainId].allowRelay = false;
     }
 
     if (!chainConfig.subgraph) {

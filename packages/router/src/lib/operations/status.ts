@@ -1,20 +1,16 @@
-import { createLoggingContext, RequestContext, StatusResponse } from "@connext/nxtp-utils";
+import { RequestContext, StatusResponse } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
-import { handlingTracker } from "../../bindings/contractReader";
+import { handlingTracker, activeTransactionsTracker } from "../../bindings/contractReader";
 // @ts-ignore
 import { version } from "../../../package.json";
 
-export const getStatus = async (_requestContext: RequestContext<string>): Promise<StatusResponse> => {
-  const { requestContext, methodContext } = createLoggingContext(getStatus.name, _requestContext);
-
-  const { config, logger, wallet } = getContext();
-  logger.info("Method start", requestContext, methodContext, { requestContext });
+export const getStatus = (_requestContext: RequestContext<string>): StatusResponse => {
+  const { config, isRouterContract, signerAddress, routerAddress } = getContext();
 
   const routerVersion = version;
-  const signerAddress = await wallet.getAddress();
-  const routerAddress = signerAddress;
   const trackerLength = handlingTracker.size;
+  const activeTransactionsLength = activeTransactionsTracker.length;
 
   const chainAssetMap: Map<number, string[]> = new Map();
   config.swapPools.forEach((pool) => {
@@ -33,10 +29,12 @@ export const getStatus = async (_requestContext: RequestContext<string>): Promis
   });
 
   const _status: StatusResponse = {
+    isRouterContract,
     routerVersion,
     routerAddress,
     signerAddress,
     trackerLength,
+    activeTransactionsLength,
     swapPools: chainAssetMap,
     supportedChains,
   };

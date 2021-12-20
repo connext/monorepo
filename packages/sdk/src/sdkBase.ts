@@ -35,6 +35,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { abi as RouterAbi } from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
@@ -49,7 +50,8 @@ import {
   UnknownAuctionError,
   ChainNotConfigured,
   InvalidBidSignature,
-  SubgraphsNotSynced,
+  SendingChainSubgraphsNotSynced,
+  ReceivingChainSubgraphsNotSynced,
   NoPriceOracle,
   InvalidParamStructure,
   FulfillTimeout,
@@ -79,6 +81,7 @@ import {
   ApproveParams,
 } from "./types";
 import {
+  getTransactionId,
   getTimestampInSeconds,
   getExpiry,
   getMinExpiryBuffer,
@@ -108,23 +111,7 @@ export const createMessagingEvt = <T>() => {
 };
 
 export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfigParams): ChainReader => {
-  const chains: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
-  Object.keys(chainConfig).forEach((_chainId) => {
-    const chainId = parseInt(_chainId);
-    // Backwards compatibility with specifying only a single provider under the key "provider".
-    const _providers = chainConfig[chainId].providers ?? (chainConfig as any)[chainId].provider;
-    const providers = typeof _providers === "string" ? [_providers] : _providers;
-    chains[chainId] = {
-      providers: providers.map((provider) =>
-        typeof provider === "string"
-          ? {
-              url: provider,
-            }
-          : provider,
-      ),
-    };
-  });
-  return new ChainReader(logger, { chains });
+  return new ChainReader(logger, chainConfig);
 };
 
 /**
@@ -416,11 +403,7 @@ export class NxtpSdkBase {
     });
 
     // calculate router fee
-    const { receivingAmount: receiverAmount, routerFee } = await getReceiverAmount(
-      amount,
-      inputDecimals,
-      outputDecimals,
-    );
+    const { receivingAmount: swapAmount, routerFee } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
 
     // calculate gas fee
     const gasFee = await this.estimateFeeForRouterTransfer(
@@ -450,12 +433,14 @@ export class NxtpSdkBase {
       methodContext,
     );
 
-    const totalFee = gasFee.add(relayerFee).add(routerFee);
+    const totalGasFee = gasFee.add(relayerFee).add(gasFee);
+    const totalFee = totalGasFee.add(routerFee);
+    const receiverAmount = BigNumber.from(swapAmount).sub(totalGasFee);
 
     return {
-      receiverAmount,
-      routerFee,
+      receiverAmount: receiverAmount.toString(),
       totalFee: totalFee.toString(),
+      routerFee,
       gasFee: gasFee.toString(),
       relayerFee: relayerFee.toString(),
     };
@@ -523,7 +508,10 @@ export class NxtpSdkBase {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const transactionId = params.transactionId ?? getRandomBytes32();
+    const user = await this.config.signerAddress;
+    const transactionId =
+      params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
+
     const { requestContext, methodContext } = createLoggingContext(
       this.getTransferQuote.name,
       undefined,
@@ -545,8 +533,6 @@ export class NxtpSdkBase {
       throw error;
     }
 
-    const user = await this.config.signerAddress;
-
     const {
       sendingAssetId,
       sendingChainId,
@@ -565,18 +551,31 @@ export class NxtpSdkBase {
       auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
       numAuctionResponsesQuorum,
     } = params;
-    if (!this.config.chainConfig[sendingChainId]) {
+
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.providers;
+    if (!sendingChainProvider) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (!this.config.chainConfig[receivingChainId]) {
+    if (!receivingChainProvider) {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { sendingChainId, receivingChainId });
+    if (!sendingSyncStatus.synced) {
+      throw new SendingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId,
+        receivingChainId,
+      });
+    }
+
+    if (!receivingSyncStatus.synced) {
+      throw new ReceivingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId,
+        receivingChainId,
+      });
     }
 
     if (parseFloat(slippageTolerance) < parseFloat(MIN_SLIPPAGE_TOLERANCE)) {
@@ -623,7 +622,7 @@ export class NxtpSdkBase {
       receivingAssetId,
     });
 
-    if (BigNumber.from(receiverAmount).lt(totalFee)) {
+    if (BigNumber.from(receiverAmount).lt(0)) {
       throw new NotEnoughAmount({ receiverAmount, totalFee, routerFee, gasFee, relayerFee: metaTxRelayerFee });
     }
 
@@ -721,11 +720,8 @@ export class NxtpSdkBase {
         transactionId,
         inbox,
       });
-      if (auctionResponses.length === 0) {
-        throw new NoBids(auctionWaitTimeMs, transactionId, payload);
-      }
       if (dryRun) {
-        return { ...auctionResponses[0], metaTxRelayerFee };
+        return { ...auctionResponses[0], totalFee, metaTxRelayerFee, routerFee };
       }
       receivedBids = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
@@ -733,9 +729,26 @@ export class NxtpSdkBase {
           // check router sig on bid
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
           if (signer !== data.bid.router) {
-            const msg = "Invalid router signature on bid";
-            this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
-            return msg;
+            const code = await this.chainReader.getCode(receivingChainId, data.bid.router);
+            if (code !== "0x") {
+              const encodedData = new Interface(RouterAbi).encodeFunctionData("routerSigner");
+              let routerSigner = await this.chainReader.readTx({
+                to: data.bid.router,
+                data: encodedData,
+                chainId: receivingChainId,
+              });
+              routerSigner = utils.getAddress(utils.hexDataSlice(routerSigner, 12)); // convert 32 bytes to 20 bytes
+
+              if (routerSigner !== signer) {
+                const msg = "Invalid routerContract signature on bid";
+                this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router, routerSigner });
+                return msg;
+              }
+            } else {
+              const msg = "Invalid router signature on bid";
+              this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
+              return msg;
+            }
           }
 
           // check contract for router liquidity
@@ -798,6 +811,10 @@ export class NxtpSdkBase {
       throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
     }
 
+    if (receivedBids.length === 0) {
+      throw new NoBids(auctionWaitTimeMs, transactionId, payload, { requestContext, methodContext });
+    }
+
     const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
     const invalidBids = receivedBids.filter((x) => typeof x === "string") as string[];
 
@@ -809,7 +826,7 @@ export class NxtpSdkBase {
       return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
     })[0];
 
-    return { ...chosen, metaTxRelayerFee };
+    return { ...chosen, totalFee, metaTxRelayerFee, routerFee };
   }
 
   public async approveForPrepare(
@@ -862,8 +879,18 @@ export class NxtpSdkBase {
 
     const sendingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.sendingChainId);
     const receivingSyncStatus = this.getSubgraphSyncStatus(transferParams.bid.receivingChainId);
-    if (!sendingSyncStatus.synced || !receivingSyncStatus.synced) {
-      throw new SubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, { transferParams, actualAmount });
+    if (!sendingSyncStatus.synced) {
+      throw new SendingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId: transferParams.bid.sendingChainId,
+        receivingChainId: transferParams.bid.receivingChainId,
+      });
+    }
+
+    if (!receivingSyncStatus.synced) {
+      throw new ReceivingChainSubgraphsNotSynced(sendingSyncStatus, receivingSyncStatus, {
+        sendingChainId: transferParams.bid.sendingChainId,
+        receivingChainId: transferParams.bid.receivingChainId,
+      });
     }
 
     const { bid, bidSignature } = transferParams;
@@ -1304,6 +1331,10 @@ export class NxtpSdkBase {
     } catch (e) {}
 
     return gasPrice;
+  }
+
+  public async querySubgraph(chainId: number, query: string): Promise<any> {
+    this.subgraph.query(chainId, query);
   }
 
   /**

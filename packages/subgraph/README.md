@@ -59,22 +59,22 @@ You can find the correct values in the `packages/contracts/deployments` director
 
 Then, once you added the `subgraph name`, `network`, `start block number` and `address`. You can deploy the subgraph for the appropriate chain.
 
-For example, if you want to use contract version `v1`, under `staging`, run:
+For example, if you want to use contract version `v1-runtime`, under `v1-runtime`, run:
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy v1 staging rinkeby <graph-access-token>
+yarn workspace @connext/nxtp-subgraph deploy v1-runtime v1-runtime rinkeby <graph-access-token>
 ```
 
 OR
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy:staging rinkeby <graph-access-token>
+yarn workspace @connext/nxtp-subgraph deploy:v1-runtime rinkeby <graph-access-token>
 ```
 
 You can also deploy subgraph on all the networks for given environment at once by using `ALL`.
 
 ```sh
-yarn workspace @connext/nxtp-subgraph deploy v1 staging all <graph-access-token>
+yarn workspace @connext/nxtp-subgraph deploy v1-runtime v1-runtime all <graph-access-token>
 ```
 
 **NOTE:** Before deploying, ensure you are properly authed with the graph service. See their [documentation](https://thegraph.com/docs/deploy-a-subgraph) for more information.

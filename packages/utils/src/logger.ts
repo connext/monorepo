@@ -10,7 +10,7 @@ export type LogLevel = "fatal" | "error" | "warn" | "info" | "debug" | "trace" |
  */
 export class Logger {
   private log: BaseLogger;
-  constructor(private readonly opts: LoggerOptions, private readonly forcedLevel?: LogLevel) {
+  constructor(private readonly opts: LoggerOptions, public readonly forcedLevel?: LogLevel) {
     this.log = pino(this.opts);
   }
 

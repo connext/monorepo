@@ -1,14 +1,14 @@
 import {
   createLoggingContext,
-  MetaTxFulfillPayload,
   MetaTxPayload,
-  MetaTxType,
   MetaTxTypes,
+  MetaTxType,
   NxtpErrorJson,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
+import { BigNumber } from "ethers";
 
+import { NoTransactionId } from "../../lib/errors";
 import { TransactionReasons } from "../../lib/entities";
 import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
 import { getOperations } from "../../lib/operations";
@@ -24,7 +24,7 @@ export const metaTxRequestBinding = async (
   _requestContext?: RequestContext,
 ) => {
   const { messaging, logger, config } = getContext();
-  const { fulfill } = getOperations();
+  const { sendMetaTx } = getOperations();
   const { requestContext, methodContext } = createLoggingContext(
     metaTxRequestBinding.name,
     _requestContext,
@@ -48,76 +48,32 @@ export const metaTxRequestBinding = async (
     return;
   }
 
-  if (data.type !== MetaTxTypes.Fulfill) {
-    logger.warn("Unhandled metatx type", requestContext, methodContext, { chainConfig, type: data.type });
-    return;
-  }
+  const { txData, relayerFee } = data.type === MetaTxTypes.Fulfill ? data.data : data.data.params;
 
-  if (getAddress(data.to) !== getAddress(chainConfig.transactionManagerAddress)) {
-    logger.warn(
-      "Provided transactionManagerAddress does not map to our configured transactionManagerAddress",
-      requestContext,
-      methodContext,
-      { to: data.to, transactionManagerAddress: chainConfig.transactionManagerAddress },
-    );
-    return;
-  }
+  const transactionId = txData.transactionId;
 
-  const { txData, callData, relayerFee, signature }: MetaTxFulfillPayload = data.data;
-  if (chainId !== txData.receivingChainId) {
-    logger.warn("Request not sent for receiving chain", requestContext, methodContext, {
-      chainId,
-      receivingChainId: txData.receivingChainId,
-    });
-    return;
+  if (!transactionId) {
+    throw new NoTransactionId({ data });
   }
-
-  const record = handlingTracker.get(txData.transactionId);
+  const record = handlingTracker.get(transactionId);
   if (record && record === data.type) {
     logger.info("Handling metatx request for tx", requestContext, methodContext, {
       type: data.type,
+      record: record,
     });
     return;
   }
-  handlingTracker.set(txData.transactionId, data.type);
-
-  logger.debug("Handling fulfill request", requestContext, methodContext);
+  handlingTracker.set(transactionId, data.type);
   try {
-    const tx = await fulfill(
-      {
-        receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
-        user: txData.user,
-        router: txData.router,
-        initiator: txData.initiator,
-        sendingChainId: txData.sendingChainId,
-        sendingAssetId: txData.sendingAssetId,
-        sendingChainFallback: txData.sendingChainFallback,
-        receivingChainId: txData.receivingChainId,
-        receivingAssetId: txData.receivingAssetId,
-        receivingAddress: txData.receivingAddress,
-        callDataHash: txData.callDataHash,
-        callTo: txData.callTo,
-        transactionId: txData.transactionId,
-      },
-      {
-        amount: txData.amount,
-        expiry: txData.expiry,
-        preparedBlockNumber: txData.preparedBlockNumber,
-        signature,
-        relayerFee,
-        callData,
-        side: "receiver",
-      },
-      { ...requestContext, transactionId: txData.transactionId },
-    );
+    const tx = await sendMetaTx(data, requestContext as any);
     if (tx) {
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
       // Increment collected fees + gas used on relayer fee
-      incrementFees(txData.receivingAssetId, txData.receivingChainId, relayerFee, requestContext);
+      incrementFees(txData.receivingAssetId, txData.receivingChainId, BigNumber.from(relayerFee), requestContext);
       incrementGasConsumed(txData.receivingChainId, tx.gasUsed, TransactionReasons.Relay, requestContext);
     }
     logger.info("Handled fulfill request", requestContext, methodContext);
   } finally {
-    handlingTracker.delete(txData.transactionId);
+    handlingTracker.delete(transactionId);
   }
 };

@@ -50,7 +50,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
   const { logger, txService, config } = getContext();
 
   const { methodContext } = createLoggingContext(setSyncRecord.name, requestContext);
-  let records: SubgraphSyncRecord[] = [{ synced: false, latestBlock: -1, syncedBlock: -1, lag: -1, uri: "" }];
+  let records: SubgraphSyncRecord[] = [];
   try {
     const sdks = getSdks();
     const sdk = sdks[chainId];
@@ -65,7 +65,14 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
     logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
       chainId,
       latestBlock,
-      records: records.map((r) => ({ synced: r.synced, lag: r.lag, syncedBlock: r.syncedBlock, uri: r.uri })),
+      records: records.map((r) => ({
+        synced: r.synced,
+        lag: r.lag,
+        syncedBlock: r.syncedBlock,
+        uri: r.uri,
+        name: r.name,
+        errors: r.errors,
+      })),
     });
   } catch (e: any) {
     logger.error(`Error getting sync records for chain ${chainId}`, requestContext, methodContext, jsonifyError(e), {
@@ -102,11 +109,9 @@ export const sdkSenderTransactionToCrosschainTransaction = (sdkSendingTransactio
 
 export const getActiveTransactions = async (_requestContext?: RequestContext): Promise<ActiveTransaction<any>[]> => {
   // get global context
-  const { wallet, logger, config } = getContext();
+  const { logger, config, routerAddress } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(getActiveTransactions.name, _requestContext);
-
-  const routerAddress = await wallet.getAddress();
 
   // get local context
   const sdks = getSdks();
@@ -210,7 +215,10 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
               return [];
             }
             const query = await _sdk.request<GetTransactionsQuery>((client) =>
-              client.GetTransactions({ transactionIds: txIds.map((t) => t.toLowerCase()) }),
+              client.GetTransactionsWithRouter({
+                transactionIds: txIds.map((t) => t.toLowerCase()),
+                routerId: routerAddress.toLowerCase(),
+              }),
             );
             return query.transactions;
           }),
@@ -473,8 +481,7 @@ export const getTransactionForChain = async (
   const method = "getTransactionForChain";
   const methodId = getUuid();
 
-  const { wallet } = getContext();
-  const routerAddress = await wallet.getAddress();
+  const { routerAddress } = getContext();
 
   const sdks = getSdks();
   const sdk = sdks[chainId];
@@ -526,32 +533,31 @@ export const getTransactionForChain = async (
 export const getAssetBalance = async (assetId: string, chainId: number): Promise<BigNumber> => {
   const method = "getAssetBalance";
   const methodId = getUuid();
-  const { wallet } = getContext();
   const sdks = getSdks();
   const sdk = sdks[chainId];
+
+  const { routerAddress } = getContext();
 
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
 
-  const routerAddress = await wallet.getAddress();
   const assetBalanceId = `${assetId.toLowerCase()}-${routerAddress.toLowerCase()}`;
   const bal = await sdk.request<GetAssetBalanceQuery>((client) => client.GetAssetBalance({ assetBalanceId }));
   return bal.assetBalance?.amount ? BigNumber.from(bal.assetBalance?.amount) : constants.Zero;
 };
 
 export const getAssetBalances = async (chainId: number): Promise<{ assetId: string; amount: BigNumber }[]> => {
-  const { wallet } = getContext();
   const sdks = getSdks();
   const sdk = sdks[chainId];
 
+  const { routerAddress } = getContext();
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId);
   }
 
-  const addr = await wallet.getAddress();
   const { assetBalances } = await sdk.request<GetAssetBalancesQuery>((client) =>
-    client.GetAssetBalances({ routerId: addr }),
+    client.GetAssetBalances({ routerId: routerAddress }),
   );
   return assetBalances.map((a) => {
     return { assetId: a.assetId, amount: BigNumber.from(a.amount) };
@@ -559,18 +565,17 @@ export const getAssetBalances = async (chainId: number): Promise<{ assetId: stri
 };
 
 export const getExpressiveAssetBalances = async (chainId: number): Promise<ExpressiveAssetBalance[]> => {
-  const { wallet } = getContext();
-
   const sdks = getAnalyticsSdks();
   const sdk = sdks[chainId];
+
+  const { routerAddress } = getContext();
 
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId);
   }
 
-  const addr = await wallet.getAddress();
   const { assetBalances } = await sdk.request<GetExpressiveAssetBalancesQuery>((client) =>
-    client.GetExpressiveAssetBalances({ routerId: addr }),
+    client.GetExpressiveAssetBalances({ routerId: routerAddress }),
   );
   return assetBalances.map((a) => {
     return {
@@ -583,4 +588,67 @@ export const getExpressiveAssetBalances = async (chainId: number): Promise<Expre
       // volume: BigNumber.from(a.volume),
     };
   });
+};
+
+// query to get cancelled_fulfilled transactions
+export const getCancelledFulfilledTransactions = async (routerAddress: string, chainId: number) => {
+  const { logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(getCancelledFulfilledTransactions.name);
+
+  logger.info("method start", requestContext, methodContext, {
+    chainId,
+    routerAddress,
+  });
+
+  const sdks = getSdks();
+  const sdk = sdks[chainId];
+  if (!sdk) {
+    throw new ContractReaderNotAvailableForChain(chainId, {});
+  }
+  // get all sender prepared txs
+  const allSenderCancelled = await sdk.request<GetSenderTransactionsQuery>((client) =>
+    client.GetSenderTransactions({
+      routerId: routerAddress.toLowerCase(),
+      sendingChainId: chainId,
+      status: SdkTransactionStatus.Cancelled,
+    }),
+  );
+
+  // create list of txIds for each receiving chain
+
+  const miniData: any = [];
+  const records = await Promise.all(
+    allSenderCancelled.router!.transactions.map(async (cancelledTx) => {
+      const _sdk = sdks[Number(cancelledTx.receivingChainId)];
+      const receivingSide = await _sdk.request<GetTransactionQuery>((client) =>
+        client.GetTransaction({
+          transactionId: `${
+            cancelledTx.transactionId
+          }-${cancelledTx.user.id.toLowerCase()}-${routerAddress.toLowerCase()}`,
+        }),
+      );
+
+      if (!receivingSide.transaction?.fulfillTransactionHash) {
+        return;
+      }
+
+      miniData.push({
+        cancelledTx: cancelledTx.cancelTransactionHash,
+        fulfilledTx: receivingSide.transaction.fulfillTransactionHash,
+        sendingSideExpiry: Number(cancelledTx.expiry),
+      });
+
+      return { sendingSide: cancelledTx, receivingSide: receivingSide.transaction };
+    }),
+  );
+
+  miniData.sort((a: any, b: any) => {
+    return a.sendingSideExpiry - b.sendingSideExpiry;
+  });
+  const data = {
+    records,
+    miniData,
+  };
+  // writeFileSync("./logs.json", JSON.stringify(data));
+  console.log(data);
 };

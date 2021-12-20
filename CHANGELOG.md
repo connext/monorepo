@@ -3,16 +3,58 @@
 ## Next Release
 
 - [sdk] Write claim signatures upfront and store locally
+- [router] Improve logic for gelato fallback handling
+
+# 0.1.0
+
+- [router/sdk] Router contract integration
+
+# 0.0.105
+
+- [sdk] update transaferQuote
+- [contracts] fuse deployment
+- [txService] Fix and Bump test coverage
+
+# 0.0.104
+
+- [router] Fix metrics collection
+- [router] Fix cache duration for token prices
+
+# 0.0.103
+
+- [txservice] Fix handling of RPC provider server errors
+
+# 0.0.102
+
+- [txservice] Fixed issue with RPC stall timeout handling
+- [router] Undefined handling in `bindPrices`
+- [router/sdk] Get active transactions specific to users and routers
+- [subgraph] more analytics updates
+- [sdk] update generateTransactionId method
+- [txservice] error types
+- [utils] subgraph health query method implementation
+- [sdk] Add generic subgraph query method
+- [sdk] Add generic subgraph query method
+
+# 0.0.101
+
+- [txservice] Reorganization, code coverage improvements
+- [txservice] Update / expose config vars
+- [router] add active transactions logs
+- [sdk] generateTransactionId method
 
 # 0.0.100
 
 - [router] Cleanup prometheus collection
 - [router/txservice] Explicitly use legacy transactions only
 - [router] Fix mainnet equivalent
+- [subgraph] analytics graphs updates
 
 # 0.0.99
 
 - [txservice] Fix error parsing
+- [router] router status messaging
+- [sdk] getRouterStatus method
 
 ## 0.0.98
 

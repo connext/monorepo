@@ -8,7 +8,7 @@ const TEST_ROUTERS = [
   "0x627306090abaB3A6e1400e9345bC60c78a8BEf57", // local router
 ];
 
-const SKIP_SETUP = [1, 10, 56, 250, 137, 100, 1285, 42161, 43114];
+const SKIP_SETUP = [1, 10, 56, 250, 137, 100, 122, 1285, 42161, 43114];
 const WRAPPED_ETH_MAP = new Map();
 WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainnet WETH
 WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH
@@ -42,6 +42,27 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
+  const txManagerDeployment = await hre.deployments.get("TransactionManager");
+  const txManagerAddress = txManagerDeployment.address;
+
+  // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
+  await hre.deployments.deploy("RouterFactory", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+  });
+  const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
+  const routerFactoryAddress = routerFactoryDeployment.address;
+  console.log("routerFactoryAddress: ", routerFactoryAddress);
+  const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
+  const exists = await routerFactory.transactionManager();
+  if (exists === hre.ethers.constants.AddressZero) {
+    console.log("Initing router factory");
+    const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
+    console.log("initTx: ", initTx);
+    await initTx.wait();
+  }
+
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
     await hre.deployments.deploy("ConnextPriceOracle", {
@@ -57,7 +78,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
-  if (!SKIP_SETUP.includes(parseInt(chainId))) {
+  if (!SKIP_SETUP.includes(parseInt(chainId)) && !process.env.SKIP_SETUP) {
     console.log("Deploying test token on non-mainnet chain");
     await hre.deployments.deploy("TestERC20", {
       from: deployer,

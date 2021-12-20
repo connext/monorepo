@@ -6,10 +6,9 @@ import {
   delay,
   getRandomBytes32,
   RequestContextWithTransactionId,
-  VariantTransactionData,
 } from "@connext/nxtp-utils";
 import { reset, restore, SinonStub, stub } from "sinon";
-import { providers } from "ethers/lib/ethers";
+import { providers } from "ethers";
 
 import {
   ActiveTransaction,
@@ -182,7 +181,6 @@ describe("Contract Reader Binding", () => {
         signature: fulfill.payload.signature,
         callData: fulfill.payload.callData,
         relayerFee: fulfill.payload.relayerFee,
-        side: "sender",
       });
     });
 
@@ -190,9 +188,7 @@ describe("Contract Reader Binding", () => {
       const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
         ...activeTransactionFulfillMock,
         payload: {
-          hashes: {
-            ...activeTransactionFulfillMock.payload.hashes,
-          },
+          hashes: activeTransactionFulfillMock.payload.hashes,
         },
         status: CrosschainTransactionStatus.ReceiverExpired,
       };

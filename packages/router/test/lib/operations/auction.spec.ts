@@ -8,7 +8,7 @@ import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 import { BigNumber, constants } from "ethers/lib/ethers";
-import { SubgraphNotSynced } from "../../../src/lib/errors/auction";
+import { AuctionExpired, SubgraphNotSynced, ZeroValueBid } from "../../../src/lib/errors";
 
 const requestContext = createRequestContext("TEST", mkBytes32());
 
@@ -51,6 +51,16 @@ describe("Auction Operation", () => {
     it("should error if auction payload data validation fails", async () => {
       const _auctionPayload = { ...auctionPayload, user: "abc" };
       await expect(newAuction(_auctionPayload, requestContext)).to.eventually.be.rejectedWith("Params invalid");
+    });
+
+    it("should error if zero value bid", async () => {
+      const _auctionPayload = { ...auctionPayload, amount: "0" };
+      await expect(newAuction(_auctionPayload, requestContext)).to.eventually.be.rejectedWith(ZeroValueBid);
+    });
+
+    it("should error if expiry too close", async () => {
+      const _auctionPayload = { ...auctionPayload, expiry: Math.floor(Date.now() / 1000) };
+      await expect(newAuction(_auctionPayload, requestContext)).to.eventually.be.rejectedWith(AuctionExpired);
     });
 
     it("should error if not enough available liquidity for auction", async () => {

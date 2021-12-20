@@ -641,7 +641,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 sendingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[0],
                 receivingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[1],
                 asset: selectedPoolIndex,
-                amount: "1",
+                amount: "10",
               }}
             >
               <Form.Item label="Sending Chain" name="sendingChain">
