@@ -20,6 +20,7 @@ const mockSwapPools: Map<number, string[]> = new Map();
 mockSwapPools.set(txDataMock.sendingChainId, [txDataMock.sendingAssetId]);
 mockSwapPools.set(txDataMock.receivingChainId, [txDataMock.receivingAssetId]);
 const mockStatusResponse: StatusResponse = {
+  isRouterContract: true,
   routerVersion: "v69.420",
   routerAddress: mkAddress("0xabc123"),
   signerAddress: mkAddress("0xdef456"),
@@ -32,7 +33,7 @@ const { requestContext } = createLoggingContext("statusRequestBinding", undefine
 
 describe("#statusRequestBinding", () => {
   beforeEach(async () => {
-    getStatusStub = stub().resolves(mockStatusResponse);
+    getStatusStub = stub().returns(mockStatusResponse);
     stub(operations, "getOperations").returns({
       getStatus: getStatusStub,
     } as any);
