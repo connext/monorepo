@@ -6,7 +6,7 @@ import { handlingTracker, activeTransactionsTracker } from "../../bindings/contr
 import { version } from "../../../package.json";
 
 export const getStatus = (_requestContext: RequestContext<string>): StatusResponse => {
-  const { config, signerAddress, routerAddress } = getContext();
+  const { config, isRouterContract, signerAddress, routerAddress } = getContext();
 
   const routerVersion = version;
   const trackerLength = handlingTracker.size;
@@ -29,6 +29,7 @@ export const getStatus = (_requestContext: RequestContext<string>): StatusRespon
   });
 
   const _status: StatusResponse = {
+    isRouterContract,
     routerVersion,
     routerAddress,
     signerAddress,
