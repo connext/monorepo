@@ -411,3 +411,20 @@ export const sanitationCheck = async (
 export const multicall = async (abi: any[], calls: Call[], multicallAddress: string, rpcUrl: string) => {
   return await _multicall(abi, calls, multicallAddress, rpcUrl);
 };
+
+export const isRouterWhitelisted = async (routerAddress: string, chainId: number): Promise<boolean> => {
+  const { txService } = getContext();
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  const encodeApprovedRoutersData = getTxManagerInterface().encodeFunctionData("approvedRouters", [routerAddress]);
+
+  const approvedRoutersEncoded = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeApprovedRoutersData,
+  });
+
+  const [result] = getTxManagerInterface().decodeFunctionResult("approvedRouters", approvedRoutersEncoded);
+
+  return result;
+};
