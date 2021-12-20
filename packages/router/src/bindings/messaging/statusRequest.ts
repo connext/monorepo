@@ -20,12 +20,7 @@ export const statusRequestBinding = async (
     return;
   }
 
-  // On every new auction broadcast, route to the new auction handler
-  logger.debug("Received status request", requestContext, methodContext);
-
-  const status: StatusResponse = await getStatus(requestContext);
+  const status: StatusResponse = getStatus(requestContext);
 
   await messaging.publishStatusResponse(from, inbox, status);
-
-  logger.debug("Handled status request", requestContext, methodContext, status);
 };
