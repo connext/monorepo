@@ -50,7 +50,7 @@ export const prepare = async (
     routerAddress,
     signerAddress,
   } = getContext();
-  logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
+  logger.debug("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
   // HOTFIX: add sanitation check before cancellable validation
   await sanitationCheck(

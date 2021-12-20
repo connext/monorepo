@@ -134,7 +134,7 @@ export class TransactionManager {
       prepareParams.txData.transactionId,
     );
 
-    this.logger.info("Method start", requestContext, methodContext, { chainId, prepareParams });
+    this.logger.debug("Method start", requestContext, methodContext, { chainId, prepareParams });
 
     this.assertChainIsConfigured(chainId);
     const { transactionManagerAddress } = this.chainConfig[chainId];
@@ -204,7 +204,7 @@ export class TransactionManager {
       cancelParams.txData.transactionId,
     );
 
-    this.logger.info("Method start", requestContext, methodContext, { cancelParams });
+    this.logger.debug("Method start", requestContext, methodContext, { cancelParams });
 
     this.assertChainIsConfigured(chainId);
     const { transactionManagerAddress } = this.chainConfig[chainId];
@@ -257,7 +257,7 @@ export class TransactionManager {
       fulfillParams.txData.transactionId,
     );
 
-    this.logger.info("Method start", requestContext, methodContext, { fulfillParams });
+    this.logger.debug("Method start", requestContext, methodContext, { fulfillParams });
 
     this.assertChainIsConfigured(chainId);
     const { transactionManagerAddress } = this.chainConfig[chainId];
@@ -306,7 +306,7 @@ export class TransactionManager {
       _requestContext,
     );
 
-    this.logger.info("Method start", requestContext, methodContext, { chainId, assetId, amount });
+    this.logger.debug("Method start", requestContext, methodContext, { chainId, assetId, amount });
 
     this.assertChainIsConfigured(chainId);
     const { transactionManagerAddress } = this.chainConfig[chainId];

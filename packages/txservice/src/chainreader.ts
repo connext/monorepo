@@ -251,7 +251,7 @@ export class ChainReader {
       this.calculateGasFeeInReceivingToken.name,
       _requestContext,
     );
-    this.logger.info("Method start", requestContext, methodContext, {
+    this.logger.debug("Method start", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
       sendingChainIdForGasPrice,
@@ -323,7 +323,7 @@ export class ChainReader {
       this.calculateGasFeeInReceivingTokenForFulfill.name,
       _requestContext,
     );
-    this.logger.info("Method start", requestContext, methodContext, {
+    this.logger.debug("Method start", requestContext, methodContext, {
       receivingChainId,
       receivingAssetId,
       receivingChainIdForGasPrice,

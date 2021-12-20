@@ -161,7 +161,7 @@ export const prepareTransactionManager = async (
   const { methodContext } = createLoggingContext(prepareTransactionManager.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info("Method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     prepareParams,
   });
 
@@ -207,7 +207,7 @@ export const prepareRouterContract = async (
   const { methodContext } = createLoggingContext(prepareRouterContract.name);
 
   const { logger, txService, wallet, messaging } = getContext();
-  logger.info("Method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     prepareParams,
     routerRelayerFeeAsset,
     routerRelayerFee,
@@ -303,7 +303,7 @@ export const fulfillTransactionManager = async (
   const { methodContext } = createLoggingContext(fulfillTransactionManager.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info("Method start", requestContext, methodContext);
+  logger.debug("Method start", requestContext, methodContext);
 
   const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
 
@@ -340,7 +340,7 @@ export const fulfillRouterContract = async (
   const { methodContext } = createLoggingContext(fulfillRouterContract.name);
 
   const { logger, txService, wallet, messaging } = getContext();
-  logger.info("Method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     fulfillParams,
     routerRelayerFeeAsset,
     routerRelayerFee,
@@ -430,7 +430,7 @@ export const cancelTransactionManager = async (
   const { methodContext } = createLoggingContext(cancelTransactionManager.name);
 
   const { logger, txService, wallet } = getContext();
-  logger.info("Method start", requestContext, methodContext, { cancelParams });
+  logger.debug("Method start", requestContext, methodContext, { cancelParams });
 
   const { txData, signature: cancelSignature } = cancelParams;
   await sanitationCheck(chainId, txData, "cancel");
@@ -466,7 +466,7 @@ export const cancelRouterContract = async (
   const { methodContext } = createLoggingContext(cancelRouterContract.name);
 
   const { logger, txService, wallet, messaging } = getContext();
-  logger.info("Method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     cancelParams,
     routerRelayerFeeAsset,
     routerRelayerFee,
@@ -571,7 +571,7 @@ export const removeLiquidityTransactionManager = async (
 
   const { logger, txService, wallet, signerAddress } = getContext();
 
-  logger.info("Method start", requestContext, methodContext, { amount, assetId, recipientAddress });
+  logger.debug("Method start", requestContext, methodContext, { amount, assetId, recipientAddress });
 
   if (!recipientAddress) {
     recipientAddress = signerAddress;
@@ -608,7 +608,7 @@ export const addLiquidityForTransactionManager = async (
 
   const { logger, txService, wallet, signerAddress } = getContext();
 
-  logger.info("Method start", requestContext, methodContext, { amount, assetId, routerAddress });
+  logger.debug("Method start", requestContext, methodContext, { amount, assetId, routerAddress });
 
   if (!routerAddress) {
     routerAddress = signerAddress;
@@ -689,7 +689,7 @@ export const migrateLiquidity = async (
     return;
   }
 
-  logger.info("Method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     chainId,
     amount,
     assetId,

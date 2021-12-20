@@ -28,7 +28,7 @@ export const cancel = async (
 
   const { logger, contractWriter, contractReader, txService, isRouterContract, config, wallet, routerAddress } =
     getContext();
-  logger.info("Method start", requestContext, methodContext, { invariantData, input });
+  logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
