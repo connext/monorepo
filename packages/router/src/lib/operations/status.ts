@@ -5,15 +5,10 @@ import { handlingTracker, activeTransactionsTracker } from "../../bindings/contr
 // @ts-ignore
 import { version } from "../../../package.json";
 
-export const getStatus = async (_requestContext: RequestContext<string>): Promise<StatusResponse> => {
-  const { requestContext, methodContext } = createLoggingContext(getStatus.name, _requestContext);
-
-  const { config, logger, wallet } = getContext();
-  logger.debug("Method start", requestContext, methodContext, { requestContext });
+export const getStatus = (_requestContext: RequestContext<string>): StatusResponse => {
+  const { config, signerAddress, routerAddress } = getContext();
 
   const routerVersion = version;
-  const signerAddress = await wallet.getAddress();
-  const routerAddress = signerAddress;
   const trackerLength = handlingTracker.size;
   const activeTransactionsLength = activeTransactionsTracker.length;
 
