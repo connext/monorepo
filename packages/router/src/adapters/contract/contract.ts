@@ -20,6 +20,7 @@ import {
   getTxManagerInterface,
   getErc20ContractInterface,
   sanitationCheck,
+  isRouterWhitelisted,
   getRouterContractInterface,
 } from "../../lib/helpers";
 
@@ -676,6 +677,14 @@ export const migrateLiquidity = async (
 > => {
   const { methodContext } = createLoggingContext(migrateLiquidity.name, requestContext);
   const { logger, signerAddress, contractReader } = getContext();
+
+  if (routerAddress) {
+    const res = await isRouterWhitelisted(routerAddress, chainId);
+    if (!res) {
+      logger.warn("router isn't whitelisted", requestContext, methodContext, { routerAddress: routerAddress, chainId });
+      return;
+    }
+  }
 
   if (!amount) {
     amount = (await contractReader.getAssetBalance(assetId, chainId)).toString();
