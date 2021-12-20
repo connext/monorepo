@@ -268,6 +268,12 @@ export const prepareRouterContract = async (
 
   // 2. If gelato is not supported, or gelato send failed, try using the router network.
   if (useRelayer) {
+    logger.info("router network prepare", requestContext, methodContext, {
+      prepareParams,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
     try {
       await messaging.publishMetaTxRequest({
         chainId,
@@ -296,7 +302,7 @@ export const prepareRouterContract = async (
   }
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
-  logger.info("Router contract prepare", requestContext, methodContext, { prepareParams });
+  logger.info("txservice prepare", requestContext, methodContext, { prepareParams });
   return await txService.sendTx(
     {
       to: routerContractAddress,
