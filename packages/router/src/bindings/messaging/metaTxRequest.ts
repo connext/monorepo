@@ -6,6 +6,7 @@ import {
   NxtpErrorJson,
   RequestContext,
 } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { NoTransactionId } from "../../lib/errors";
 import { TransactionReasons } from "../../lib/entities";
@@ -68,7 +69,7 @@ export const metaTxRequestBinding = async (
     if (tx) {
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
       // Increment collected fees + gas used on relayer fee
-      incrementFees(txData.receivingAssetId, txData.receivingChainId, relayerFee, requestContext);
+      incrementFees(txData.receivingAssetId, txData.receivingChainId, BigNumber.from(relayerFee), requestContext);
       incrementGasConsumed(txData.receivingChainId, tx.gasUsed, TransactionReasons.Relay, requestContext);
     }
     logger.info("Handled fulfill request", requestContext, methodContext);

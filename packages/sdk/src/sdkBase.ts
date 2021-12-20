@@ -403,11 +403,7 @@ export class NxtpSdkBase {
     });
 
     // calculate router fee
-    const { receivingAmount: receiverAmount, routerFee } = await getReceiverAmount(
-      amount,
-      inputDecimals,
-      outputDecimals,
-    );
+    const { receivingAmount: swapAmount, routerFee } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
 
     // calculate gas fee
     const gasFee = await this.estimateFeeForRouterTransfer(
@@ -437,12 +433,14 @@ export class NxtpSdkBase {
       methodContext,
     );
 
-    const totalFee = gasFee.add(relayerFee).add(routerFee);
+    const totalGasFee = gasFee.add(relayerFee).add(gasFee);
+    const totalFee = totalGasFee.add(routerFee);
+    const receiverAmount = BigNumber.from(swapAmount).sub(totalGasFee);
 
     return {
-      receiverAmount,
-      routerFee,
+      receiverAmount: receiverAmount.toString(),
       totalFee: totalFee.toString(),
+      routerFee,
       gasFee: gasFee.toString(),
       relayerFee: relayerFee.toString(),
     };
@@ -624,7 +622,7 @@ export class NxtpSdkBase {
       receivingAssetId,
     });
 
-    if (BigNumber.from(receiverAmount).lt(totalFee)) {
+    if (BigNumber.from(receiverAmount).lt(0)) {
       throw new NotEnoughAmount({ receiverAmount, totalFee, routerFee, gasFee, relayerFee: metaTxRelayerFee });
     }
 
@@ -723,7 +721,7 @@ export class NxtpSdkBase {
         inbox,
       });
       if (dryRun) {
-        return { ...auctionResponses[0], metaTxRelayerFee };
+        return { ...auctionResponses[0], totalFee, metaTxRelayerFee, routerFee };
       }
       receivedBids = await Promise.all(
         auctionResponses.map(async (data: AuctionResponse) => {
@@ -828,7 +826,7 @@ export class NxtpSdkBase {
       return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
     })[0];
 
-    return { ...chosen, metaTxRelayerFee };
+    return { ...chosen, totalFee, metaTxRelayerFee, routerFee };
   }
 
   public async approveForPrepare(
@@ -1333,6 +1331,10 @@ export class NxtpSdkBase {
     } catch (e) {}
 
     return gasPrice;
+  }
+
+  public async querySubgraph(chainId: number, query: string): Promise<any> {
+    this.subgraph.query(chainId, query);
   }
 
   /**

@@ -1,15 +1,6 @@
-import {
-  invariantDataMock,
-  txReceiptMock,
-  expect,
-  createLoggingContext,
-  mkBytes32,
-  sigMock,
-} from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers/lib/ethers";
-import { stub } from "sinon";
-import * as FulfillHelperFns from "../../../src/lib/helpers/fulfill";
-import * as SharedHelperFns from "../../../src/lib/helpers/shared";
+import { invariantDataMock, txReceiptMock, expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
+import { constants } from "ethers";
+import { SinonStub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
 import { contractWriterMock, isRouterContractMock } from "../../globalTestHook";
@@ -20,9 +11,8 @@ const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 const { fulfill } = getOperations();
 
 describe("Fulfill Receiver Operation", () => {
-  beforeEach(async () => {
-    stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(123));
-    stub(FulfillHelperFns, "signRouterFulfillTransactionPayload").resolves("0xfee");
+  beforeEach(() => {
+    Object.values(contractWriterMock).forEach((method: any) => (method as SinonStub).resetHistory());
   });
 
   describe("#fulfillReceiver", () => {

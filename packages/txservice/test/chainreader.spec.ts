@@ -10,7 +10,7 @@ import {
   requestContextMock,
 } from "@connext/nxtp-utils";
 
-import { ChainReader } from "../src/chainreader";
+import { cachedPriceMap, ChainReader } from "../src/chainreader";
 import { ChainRpcProvider } from "../src/provider";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
 import * as contractFns from "../src/shared/contracts";
@@ -109,30 +109,19 @@ describe("ChainReader", () => {
 
   describe("#getGasPrice", () => {
     it("happy", async () => {
-      provider.getGasPrice.resolves(BigNumber.from(42));
-      const gasPrice = await chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock);
-      expect(gasPrice.toString()).to.equal("42");
-    });
-  });
+      const testGasPrice = utils.parseUnits("5", "gwei");
+      provider.getGasPrice.resolves(testGasPrice);
 
-  describe("#getBlock", () => {
-    it("happy", async () => {
-      const block: providers.Block = {
-        number: 42,
-        transactions: [],
-        hash: "0xaaa",
-        parentHash: "0xbbb",
-        timestamp: 0,
-        miner: "0xff",
-        difficulty: 0,
-        extraData: "0xggg",
-        gasLimit: constants.One,
-        gasUsed: constants.One,
-        nonce: "42",
-      };
-      provider.getBlock.resolves(block);
-      const _block = await chainReader.getBlock(TEST_SENDER_CHAIN_ID, "latest");
-      expect(_block).to.deep.equal(block);
+      const gasPrice = await chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock);
+
+      expect(gasPrice.eq(testGasPrice)).to.be.true;
+      expect(provider.getGasPrice.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getGasPrice.rejects(new RpcError("fail"));
+
+      await expect(chainReader.getGasPrice(TEST_SENDER_CHAIN_ID, requestContextMock)).to.be.rejectedWith("fail");
     });
   });
 
@@ -235,6 +224,7 @@ describe("ChainReader", () => {
     const priceOracleContractFakeAddr = mkAddress("0x7f");
     let getDeployedPriceOracleContractStub: SinonStub;
     let getPriceOracleInterfaceStub: SinonStub;
+    let getTokenPriceFromOnChainStub: SinonStub;
     let readTxStub: SinonStub;
     let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
@@ -272,6 +262,40 @@ describe("ChainReader", () => {
       getDeployedPriceOracleContractStub.returns(undefined);
       await expect(chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith(
         ChainNotSupported,
+      );
+    });
+
+    it("should return cached price if updated timestamp less than 1 min", async () => {
+      getTokenPriceFromOnChainStub = Sinon.stub(chainReader, "getTokenPriceFromOnChain");
+      const assetId = mkAddress("0xc3");
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const tokenPrice = BigNumber.from("5812471953821");
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId);
+      cachedPriceMap.set(cachedPriceKey, {
+        timestamp: currentTimestamp - 30,
+        price: tokenPrice,
+      });
+
+      getTokenPriceFromOnChainStub.returns(BigNumber.from("581247195382112121212"));
+      expect((await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId)).toString()).to.be.eq(
+        tokenPrice.toString(),
+      );
+    });
+
+    it("should return real price if updated timestamp more than 1 min", async () => {
+      getTokenPriceFromOnChainStub = Sinon.stub(chainReader, "getTokenPriceFromOnChain");
+      const assetId = mkAddress("0xc3");
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      const tokenPrice = BigNumber.from("5812471953821");
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId);
+
+      cachedPriceMap.set(cachedPriceKey, {
+        timestamp: currentTimestamp - 61,
+        price: tokenPrice,
+      });
+      getTokenPriceFromOnChainStub.returns(BigNumber.from("581247195382112121212"));
+      expect((await chainReader.getTokenPrice(TEST_SENDER_CHAIN_ID, assetId)).toString()).to.be.eq(
+        "581247195382112121212",
       );
     });
   });
@@ -513,6 +537,12 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(3051285714285714);
+    });
+  });
+
+  describe("#isSupportedChain", () => {
+    it("should return false for unsupported chain", async () => {
+      expect(chainReader.isSupportedChain(111111)).to.be.false;
     });
   });
 

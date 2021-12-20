@@ -2,6 +2,10 @@
 
 ## Next Release
 
+# 0.0.104
+
+- [router] Fix metrics collection
+
 # 0.0.103
 
 - [txservice] Fix handling of RPC provider server errors
@@ -11,6 +15,11 @@
 - [txservice] Fixed issue with RPC stall timeout handling
 - [router] Undefined handling in `bindPrices`
 - [router/sdk] Get active transactions specific to users and routers
+
+- [txservice] error types
+- [utils] subgraph health query method implementation
+- [sdk] Add generic subgraph query method
+- [sdk] Add generic subgraph query method
 
 # 0.0.101
 

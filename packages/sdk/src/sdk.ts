@@ -712,6 +712,10 @@ export class NxtpSdk {
     return await this.sdkBase.chainReader.getDecimalsForAsset(chainId, assetId);
   }
 
+  public async querySubgraph(chainId: number, query: string): Promise<any> {
+    this.sdkBase.querySubgraph(chainId, query);
+  }
+
   /**
    * Changes the signer associated with the sdk
    *

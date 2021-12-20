@@ -66,7 +66,7 @@ export const totalTransferredVolume = new Counter({
 // *native asset* amount rather than USD
 export const gasBalance = new Gauge({
   name: "router_gas_balance",
-  help: "router_onchain_liquidity_help",
+  help: "router_gas_balance_help",
   labelNames: ["chainId", "assetName"] as const,
   async collect() {
     const balances = await collectGasBalance();

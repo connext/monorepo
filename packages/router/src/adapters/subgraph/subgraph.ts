@@ -50,7 +50,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
   const { logger, txService, config } = getContext();
 
   const { methodContext } = createLoggingContext(setSyncRecord.name, requestContext);
-  let records: SubgraphSyncRecord[] = [{ synced: false, latestBlock: -1, syncedBlock: -1, lag: -1, uri: "" }];
+  let records: SubgraphSyncRecord[] = [];
   try {
     const sdks = getSdks();
     const sdk = sdks[chainId];
@@ -65,7 +65,14 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
     logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
       chainId,
       latestBlock,
-      records: records.map((r) => ({ synced: r.synced, lag: r.lag, syncedBlock: r.syncedBlock, uri: r.uri })),
+      records: records.map((r) => ({
+        synced: r.synced,
+        lag: r.lag,
+        syncedBlock: r.syncedBlock,
+        uri: r.uri,
+        name: r.name,
+        errors: r.errors,
+      })),
     });
   } catch (e: any) {
     logger.error(`Error getting sync records for chain ${chainId}`, requestContext, methodContext, jsonifyError(e), {
