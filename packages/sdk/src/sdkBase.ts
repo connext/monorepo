@@ -333,20 +333,9 @@ export class NxtpSdkBase {
     receivingAssetId: string;
   }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
     const { requestContext, methodContext } = createLoggingContext(this.getEstimateReceiverAmount.name, undefined);
-
     const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
 
-    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
-    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.providers;
-    if (!sendingChainProvider) {
-      throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    if (!receivingChainProvider) {
-      throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
-    }
-
-    this.logger.debug("Estimating receiver amount in receiving token", requestContext, methodContext, {
+    this.logger.debug("Estimating receiver amount", requestContext, methodContext, {
       amount,
       sendingChainId,
       sendingAssetId,
@@ -358,19 +347,9 @@ export class NxtpSdkBase {
     const inputDecimals = await this.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
 
     const outputDecimals = await this.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
-    this.logger.debug("Estimating receiver amount in receiving token", requestContext, methodContext, {
-      amount,
-      sendingChainId,
-      sendingAssetId,
-      inputDecimals,
-      receivingChainId,
-      receivingAssetId,
-      outputDecimals,
-    });
 
     // calculate router fee
     const { receivingAmount: swapAmount, routerFee } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
-
     // calculate gas fee
 
     const gasFee = await this.chainReader.calculateGasFeeInReceivingToken(
@@ -391,10 +370,10 @@ export class NxtpSdkBase {
       requestContext,
     );
 
-    const totalGasFee = gasFee.add(relayerFee).add(gasFee);
-    const totalFee = totalGasFee.add(routerFee);
+    const totalGasFee = gasFee.add(relayerFee);
     const receiverAmount = BigNumber.from(swapAmount).sub(totalGasFee);
 
+    const totalFee = totalGasFee.add(routerFee);
     return {
       receiverAmount: receiverAmount.toString(),
       totalFee: totalFee.toString(),
