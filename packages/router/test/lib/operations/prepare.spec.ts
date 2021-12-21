@@ -28,8 +28,6 @@ let recoverAuctionBidStub: SinonStub<[bid: AuctionBid, signature: string], strin
 let validExpiryStub: SinonStub<[expiry: number], boolean>;
 let decodeAuctionBidStub: SinonStub<[data: string], AuctionBid>;
 let validBidExpiryStub: SinonStub<[bidExpiry: number, currentTime: number], boolean>;
-let calculateGasFeeInReceivingTokenForFulfillStub: SinonStub;
-let calculateGasFeeInReceivingTokenStub: SinonStub;
 
 const { prepare } = getOperations();
 
@@ -48,6 +46,9 @@ describe("Prepare Receiver Operation", () => {
       validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
       stub(SharedHelperFns, "sanitationCheck").resolves();
+      txServiceMock.calculateGasFee.resolves(BigNumber.from(123));
+      txServiceMock.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(1233));
+      txServiceMock.calculateGasFeeInReceivingToken.resolves(BigNumber.from(1234));
       stub(PrepareHelperFns, "signRouterPrepareTransactionPayload").resolves("0xfee");
     });
 

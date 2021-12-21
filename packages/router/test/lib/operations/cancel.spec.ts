@@ -20,6 +20,7 @@ const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32("0x
 
 describe("Cancel Sender Operation", () => {
   beforeEach(async () => {
+    txServiceMock.calculateGasFee.resolves(BigNumber.from("123"));
     stub(SharedHelperFns, "sanitationCheck").resolves();
     stub(CancelHelperFns, "signRouterCancelTransactionPayload").resolves("0xfee");
   });

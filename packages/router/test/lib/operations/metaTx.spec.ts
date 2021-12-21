@@ -28,7 +28,7 @@ import { sendMetaTx } from "../../../src/lib/operations/metaTx";
 import { MetaTxInput } from "../../../src/lib/entities";
 import { NotAllowedFulfillRelay, NotEnoughRelayerFee } from "../../../src/lib/errors";
 import { SinonStub, stub } from "sinon";
-import { contractWriterMock } from "../../globalTestHook";
+import { contractWriterMock, txServiceMock } from "../../globalTestHook";
 
 const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32("0xabc"));
 
@@ -81,9 +81,6 @@ const metaTxInputMock = <T extends MetaTxType>(type: T): MetaTxInput => {
 };
 
 describe("Meta Tx Operation", () => {
-  let calculateGasFeeInReceivingTokenForFulfillStub: SinonStub;
-  let calculateGasFeeStub: SinonStub;
-
   it("should error if invalid data", async () => {
     const metaTxMock = metaTxInputMock("Fulfill");
     metaTxMock.chainId = undefined;
@@ -102,7 +99,7 @@ describe("Meta Tx Operation", () => {
 
   it("should error on metatx fulfill type if fee is < expected", async () => {
     const metaTxMock = metaTxInputMock("Fulfill");
-    calculateGasFeeInReceivingTokenForFulfillStub.resolves(BigNumber.from(12345)); // expected 1234
+    txServiceMock.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(12345)); // expected 1234
     await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotEnoughRelayerFee);
   });
 
@@ -124,7 +121,7 @@ describe("Meta Tx Operation", () => {
 
   it("should error on metatx router contract prepare type if fee is < expected", async () => {
     const metaTxMock = metaTxInputMock("RouterContractPrepare");
-    calculateGasFeeStub.resolves(BigNumber.from(12345)); // expected 1234
+    txServiceMock.calculateGasFee.resolves(BigNumber.from(12345)); // expected 1234
     await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotEnoughRelayerFee);
   });
 
@@ -153,7 +150,7 @@ describe("Meta Tx Operation", () => {
 
   it("should error on metatx router contract fulfill type if fee is < expected", async () => {
     const metaTxMock = metaTxInputMock("RouterContractFulfill");
-    calculateGasFeeStub.resolves(BigNumber.from(12345)); // expected 1234
+    txServiceMock.calculateGasFee.resolves(BigNumber.from(12345)); // expected 1234
     await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotEnoughRelayerFee);
   });
 
@@ -180,7 +177,7 @@ describe("Meta Tx Operation", () => {
 
   it("should error on metatx router contract fulfill type if fee is < expected", async () => {
     const metaTxMock = metaTxInputMock("RouterContractCancel");
-    calculateGasFeeStub.resolves(BigNumber.from(12345)); // expected 1234
+    txServiceMock.calculateGasFee.resolves(BigNumber.from(12345)); // expected 1234
     await expect(sendMetaTx(metaTxMock as any, requestContext)).to.eventually.be.rejectedWith(NotEnoughRelayerFee);
   });
 
