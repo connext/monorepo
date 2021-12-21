@@ -1,16 +1,16 @@
 import { BigNumber, constants } from "ethers";
-import { createLoggingContext, getNtpTimeSeconds, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, getNtpTimeSeconds, jsonifyError, getMainnetEquivalent } from "@connext/nxtp-utils";
 import { cachedPriceMap } from "@connext/nxtp-txservice";
 
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
-import { getMainnetEquivalent, getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
+import { getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
 
 const PRICE_LOOP_INTERVAL = 15_000;
 export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
 
 export const bindPrices = async () => {
-  const { logger, config } = getContext();
+  const { logger, config, chainData } = getContext();
   const { requestContext, methodContext } = createLoggingContext("bindPrices");
 
   setInterval(async () => {
@@ -19,7 +19,7 @@ export const bindPrices = async () => {
       const pool = config.swapPools[swapPoolIdx];
       for (let assetIdx = 0; assetIdx < pool.assets.length; assetIdx++) {
         const asset = pool.assets[assetIdx];
-        const cachingAssetIdOnMainnet = await getMainnetEquivalent(asset.assetId, asset.chainId);
+        const cachingAssetIdOnMainnet = await getMainnetEquivalent(asset.chainId, asset.assetId, chainData);
         const cachingTokenChainId = cachingAssetIdOnMainnet ? 1 : asset.chainId;
         const cachingTokenAssetId = cachingAssetIdOnMainnet ? cachingAssetIdOnMainnet : asset.assetId;
         if (!chainAssetMap.has(cachingTokenChainId)) {
@@ -36,7 +36,7 @@ export const bindPrices = async () => {
     for (const key of keys) {
       const chainId = key;
 
-      const cachingNativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, chainId);
+      const cachingNativeAssetIdOnMainnet = await getMainnetEquivalent(chainId, constants.AddressZero, chainData);
       const cachingNativeTokenChainId = cachingNativeAssetIdOnMainnet ? 1 : chainId;
       const cachingNativeTokenAssetId = cachingNativeAssetIdOnMainnet
         ? cachingNativeAssetIdOnMainnet
