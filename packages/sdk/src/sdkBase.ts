@@ -1,3 +1,5 @@
+import { randomInt } from "crypto";
+
 import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
 import { Evt } from "evt";
 import {
@@ -822,9 +824,18 @@ export class NxtpSdkBase {
       throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
     }
 
-    const chosen = validBids.sort((a: AuctionResponse, b) => {
+    const maximumBid = validBids.sort((a: AuctionResponse, b) => {
       return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
     })[0];
+
+    const filteredBids = validBids.filter((a: AuctionResponse) =>
+      BigNumber.from(a.bid.amountReceived)
+        .sub(maximumBid.bid.amountReceived)
+        .abs()
+        .lte(BigNumber.from(maximumBid.bid.amountReceived).mul(5).div(100)),
+    );
+
+    const chosen = filteredBids[Math.floor(Math.random() * (filteredBids.length - 1))];
 
     return { ...chosen, totalFee, metaTxRelayerFee, routerFee };
   }
