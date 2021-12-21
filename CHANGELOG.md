@@ -2,6 +2,10 @@
 
 ## Next Release
 
+# 0.1.3
+
+- [router] Fix admin function for checking approved router
+
 # 0.1.2
 
 - [router] Further improve logic for gelato fallback handling
