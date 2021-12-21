@@ -48,15 +48,7 @@ describe("Prepare Receiver Operation", () => {
       validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
       stub(SharedHelperFns, "sanitationCheck").resolves();
-      stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(123));
       stub(PrepareHelperFns, "signRouterPrepareTransactionPayload").resolves("0xfee");
-      calculateGasFeeInReceivingTokenForFulfillStub = stub(
-        SharedHelperFns,
-        "calculateGasFeeInReceivingTokenForFulfill",
-      ).resolves(BigNumber.from(1233));
-      calculateGasFeeInReceivingTokenStub = stub(SharedHelperFns, "calculateGasFeeInReceivingToken").resolves(
-        BigNumber.from(1234),
-      );
     });
 
     it("should error if invariant data validation fails", async () => {

@@ -84,15 +84,6 @@ describe("Meta Tx Operation", () => {
   let calculateGasFeeInReceivingTokenForFulfillStub: SinonStub;
   let calculateGasFeeStub: SinonStub;
 
-  beforeEach(async () => {
-    calculateGasFeeInReceivingTokenForFulfillStub = stub(
-      SharedHelperFns,
-      "calculateGasFeeInReceivingTokenForFulfill",
-    ).resolves(BigNumber.from(1233));
-
-    calculateGasFeeStub = stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(1233));
-  });
-
   it("should error if invalid data", async () => {
     const metaTxMock = metaTxInputMock("Fulfill");
     metaTxMock.chainId = undefined;

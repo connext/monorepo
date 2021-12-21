@@ -21,7 +21,6 @@ const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32("0x
 describe("Cancel Sender Operation", () => {
   beforeEach(async () => {
     stub(SharedHelperFns, "sanitationCheck").resolves();
-    stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(123));
     stub(CancelHelperFns, "signRouterCancelTransactionPayload").resolves("0xfee");
   });
 

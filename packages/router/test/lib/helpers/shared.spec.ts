@@ -45,51 +45,6 @@ describe("getTokenPriceFromOnChain", () => {
   });
 });
 
-describe("calculateGasFeeInReceivingToken", () => {
-  beforeEach(() => {
-    txServiceMock.calculateGasFeeInReceivingToken.resolves(utils.parseEther("1"));
-  });
-  it("should work", async () => {
-    const gasFeeInReceivingToken = await shared.calculateGasFeeInReceivingToken(
-      mkAddress("0xa"),
-      1337,
-      mkAddress("0xb"),
-      1338,
-      18,
-      requestContext,
-    );
-
-    expect(gasFeeInReceivingToken.toString()).to.be.eq(utils.parseEther("1").toString());
-  });
-});
-
-describe("calculateGasFeeInReceivingTokenForFulfill", () => {
-  beforeEach(() => {
-    txServiceMock.calculateGasFeeInReceivingTokenForFulfill.resolves(utils.parseEther("1"));
-  });
-  it("should work", async () => {
-    const gasFeeInReceivingToken = await shared.calculateGasFeeInReceivingTokenForFulfill(
-      mkAddress("0xa"),
-      1337,
-      18,
-      requestContext,
-    );
-
-    expect(gasFeeInReceivingToken.toString()).to.be.eq(utils.parseEther("1").toString());
-  });
-});
-
-describe("calculateGasFee", () => {
-  beforeEach(() => {
-    txServiceMock.calculateGasFee.resolves(utils.parseEther("1"));
-  });
-  it("should work", async () => {
-    const gasFee = await shared.calculateGasFee(1337, mkAddress("0xa"), 18, "prepare", requestContext, methodContext);
-
-    expect(gasFee.toString()).to.be.eq(utils.parseEther("1").toString());
-  });
-});
-
 describe("isRouterWhitelisted", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
