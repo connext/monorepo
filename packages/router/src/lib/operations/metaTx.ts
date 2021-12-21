@@ -21,7 +21,6 @@ import {
   NotEnoughRelayerFee,
   ParamsInvalid,
 } from "../errors";
-import { calculateGasFee, calculateGasFeeInReceivingTokenForFulfill } from "../helpers/shared";
 
 export const sendMetaTx = async <T extends MetaTxType>(
   input: MetaTxPayload<T>,
@@ -29,7 +28,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(sendMetaTx.name, _requestContext);
 
-  const { logger, contractWriter, config, chainData, txService } = getContext();
+  const { logger, contractWriter, config, chainData, txService, isRouterContract } = getContext();
   logger.debug("Method start", requestContext, methodContext, { input });
 
   // Validate Input schema
@@ -75,10 +74,11 @@ export const sendMetaTx = async <T extends MetaTxType>(
       outputDecimals = await txService.getDecimalsForAsset(txData.receivingChainId, txData.receivingAssetId);
     }
     logger.info("Got output decimals", requestContext, methodContext, { outputDecimals });
-    const expectedFulfillFee = await calculateGasFeeInReceivingTokenForFulfill(
-      txData.receivingAssetId,
+    const expectedFulfillFee = await txService.calculateGasFeeInReceivingTokenForFulfill(
       txData.receivingChainId,
+      txData.receivingAssetId,
       outputDecimals,
+      chainData,
       requestContext,
     );
     logger.info("Expected Fulfill fee in router side", requestContext, methodContext, {
@@ -127,13 +127,14 @@ export const sendMetaTx = async <T extends MetaTxType>(
         relayerFee,
       } = data as MetaTxRouterContractPreparePayload;
 
-      const routerRelayerFee = await calculateGasFee(
+      const routerRelayerFee = await txService.calculateGasFee(
         chainId,
         relayerFeeAsset,
         relayerFeeAssetDecimal,
         "prepare",
+        isRouterContract,
+        chainData,
         requestContext,
-        methodContext,
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
@@ -174,13 +175,14 @@ export const sendMetaTx = async <T extends MetaTxType>(
         relayerFee,
       } = data as MetaTxRouterContractFulfillPayload;
 
-      const routerRelayerFee = await calculateGasFee(
+      const routerRelayerFee = await txService.calculateGasFee(
         chainId,
         relayerFeeAsset,
         relayerFeeAssetDecimal,
         "fulfill",
+        isRouterContract,
+        chainData,
         requestContext,
-        methodContext,
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
@@ -222,13 +224,14 @@ export const sendMetaTx = async <T extends MetaTxType>(
       const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
       const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
 
-      const routerRelayerFee = await calculateGasFee(
+      const routerRelayerFee = await txService.calculateGasFee(
         chainId,
         relayerFeeAsset,
         relayerFeeAssetDecimal,
         "cancel",
+        isRouterContract,
+        chainData,
         requestContext,
-        methodContext,
       );
 
       const recvAmountLowerBound = routerRelayerFee.mul(100 - relayerFeeLowerBound).div(100);
