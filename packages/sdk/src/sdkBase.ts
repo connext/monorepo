@@ -306,6 +306,25 @@ export class NxtpSdkBase {
     return this.subgraph.getHistoricalTransactions();
   }
 
+  public async calculateGasFeeInReceivingTokenForFulfill(
+    receivingChainId: number,
+    receivingAssetId: string,
+  ): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(
+      this.calculateGasFeeInReceivingTokenForFulfill.name,
+      undefined,
+    );
+
+    this.logger.info("Method started", requestContext, methodContext);
+    const outputDecimals = await this.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
+    return await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      this.chainData,
+    );
+  }
+
   public async getEstimateReceiverAmount(params: {
     amount: string;
     sendingChainId: number;
@@ -388,7 +407,7 @@ export class NxtpSdkBase {
   public async getRouterStatus(requestee: string): Promise<StatusResponse[]> {
     const { requestContext, methodContext } = createLoggingContext(this.getRouterStatus.name, undefined, "");
 
-    this.logger.info("Method started", requestContext, methodContext);
+    this.logger.debug("Method started", requestContext, methodContext);
 
     if (!this.messaging.isConnected()) {
       await this.connectMessaging();
