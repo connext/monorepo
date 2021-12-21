@@ -8,7 +8,6 @@ import {
   gelatoSend,
   MetaTxTypes,
   jsonifyError,
-  MetaTxPayload,
   MetaTxPayloads,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
@@ -408,7 +407,7 @@ export const fulfillRouterContract = async (
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       logger.warn("Router contract fulfill: Gelato send failed", requestContext, methodContext, {
         err: jsonifyError(err),
       });
@@ -424,7 +423,7 @@ export const fulfillRouterContract = async (
     });
 
     try {
-      await messaging.publishMetaTxRequest({
+      const payload = {
         chainId,
         to: routerContractAddress,
         type: MetaTxTypes.RouterContractFulfill,
@@ -433,15 +432,16 @@ export const fulfillRouterContract = async (
           signature,
           relayerFee: routerRelayerFee,
           relayerFeeAsset: routerRelayerFeeAsset,
-        },
-      });
+        } as MetaTxPayloads[typeof MetaTxTypes.RouterContractFulfill],
+      };
+      await messaging.publishMetaTxRequest(payload);
 
       // listen for event on contract
       const { event } = await fulfillEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
       // (see waitFor) is the error we actually caught in this block.
       logger.warn("Router contract fulfill: router network failed", requestContext, methodContext, {
@@ -571,7 +571,7 @@ export const cancelRouterContract = async (
     });
 
     try {
-      await messaging.publishMetaTxRequest({
+      const payload = {
         chainId,
         to: routerContractAddress,
         type: MetaTxTypes.RouterContractCancel,
@@ -580,8 +580,9 @@ export const cancelRouterContract = async (
           signature,
           relayerFee: routerRelayerFee,
           relayerFeeAsset: routerRelayerFeeAsset,
-        },
-      });
+        } as MetaTxPayloads[typeof MetaTxTypes.RouterContractCancel],
+      };
+      await messaging.publishMetaTxRequest(payload);
 
       // listen for event on contract
       const { event } = await cancelEvt
