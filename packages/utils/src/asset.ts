@@ -1,7 +1,7 @@
-import { providers, BigNumber, Contract, constants } from "ethers";
+import { providers, BigNumber, Contract, constants, utils } from "ethers";
 
 import { ERC20Abi } from "./basic";
-import { ChainData } from "./chainData";
+import { ChainData, getChainData } from "./chainData";
 
 export const getOnchainBalance = async (
   assetId: string,
@@ -31,4 +31,17 @@ export const getDecimalsForAsset = async (
   }
   const contract = new Contract(assetId, ERC20Abi, provider);
   return await contract.decimals();
+};
+
+export const getMainnetEquivalent = async (
+  chainId: number,
+  assetId: string,
+  chainData?: Map<string, ChainData>,
+): Promise<string | undefined> => {
+  const chaindata = chainData ?? (await getChainData());
+
+  const chainInfo = chaindata?.get(chainId.toString());
+
+  const mainnetEquivalent = chainInfo?.assetId[assetId]?.mainnetEquivalent;
+  return mainnetEquivalent ? utils.getAddress(mainnetEquivalent) : undefined;
 };
