@@ -4,7 +4,6 @@ import {
   GAS_ESTIMATES,
   Logger,
   RequestContext,
-  MethodContext,
   getNtpTimeSeconds,
   ChainData,
   getMainnetEquivalent,

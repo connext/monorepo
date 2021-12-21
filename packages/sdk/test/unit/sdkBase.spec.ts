@@ -1136,45 +1136,6 @@ describe("NxtpSdkBase", () => {
     });
   });
 
-  describe("#getMainnetEquivalent", () => {
-    beforeEach(async () => {
-      const chainData = await utils.getChainData();
-      const chainConfig = {
-        [sendingChainId]: {
-          providers: ["http://----------------------"],
-          subgraph: "http://example.com",
-          transactionManagerAddress: sendingChainTxManagerAddress,
-        },
-        [receivingChainId]: {
-          providers: ["http://----------------------"],
-          subgraph: "http://example.com",
-          transactionManagerAddress: receivingChainTxManagerAddress,
-        },
-      };
-      sdk = new NxtpSdkBase({
-        chainConfig,
-        natsUrl: "http://example.com",
-        authUrl: "http://example.com",
-        messaging: undefined,
-        logger,
-        signerAddress: Promise.resolve(user),
-        chainData: chainData,
-      });
-    });
-    it("happy: return null if chainData not configured", () => {
-      const result = sdk.getMainnetEquivalent(11111, mkAddress("0xa"));
-      expect(result).to.be.null;
-    });
-    it("happy: return null if equiv doesn't exist", () => {
-      const result = sdk.getMainnetEquivalent(1, mkAddress("0xa"));
-      expect(result).to.be.null;
-    });
-    it("happy: return mainnet equivalent if chainData configured correctly", () => {
-      const result = sdk.getMainnetEquivalent(56, mkAddress("0x0"));
-      expect(result).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52"); // BNB address on mainnet
-    });
-  });
-
   it("happy changeInjectedSigner", () => {
     const signer = createStubInstance(Wallet);
     const res = sdk.changeInjectedSigner(signer);
