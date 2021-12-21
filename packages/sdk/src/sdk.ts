@@ -412,15 +412,9 @@ export class NxtpSdk {
     let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const outputDecimals = await this.sdkBase.chainReader.getDecimalsForAsset(
+      const gasNeeded = await this.sdkBase.calculateGasFeeInReceivingTokenForFulfill(
         txData.receivingChainId,
         txData.receivingAssetId,
-      );
-      const gasNeeded = await this.sdkBase.chainReader.calculateGasFeeInReceivingTokenForFulfill(
-        txData.receivingChainId,
-        txData.receivingAssetId,
-        outputDecimals,
-        this.sdkBase.chainData,
       );
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
