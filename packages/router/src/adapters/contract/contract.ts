@@ -8,7 +8,6 @@ import {
   gelatoSend,
   MetaTxTypes,
   jsonifyError,
-  MetaTxPayload,
   MetaTxPayloads,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";

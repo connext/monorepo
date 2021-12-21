@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Fix "Cannot read property 'transactionId' of undefined" error
+
 # 0.1.1
 
 - [router] Improve logic for gelato fallback handling
