@@ -236,7 +236,7 @@ export const prepareRouterContract = async (
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
   if (useRelayer && isChainSupportedByGelato(chainId)) {
-    logger.info("Gelato prepare", requestContext, methodContext, {
+    logger.info("Router contract prepare: sending using Gelato relayer", requestContext, methodContext, {
       prepareParams,
       routerRelayerFeeAsset,
       routerRelayerFee,
@@ -253,7 +253,7 @@ export const prepareRouterContract = async (
       if (!data.taskId) {
         throw new Error("No taskId returned");
       }
-      logger.info("Submitted prepare using Gelato Relayer", requestContext, methodContext, { data });
+      logger.info("Router contract prepare: sent using Gelato relayer", requestContext, methodContext, { data });
 
       // listen for event on contract
       const { event } = await prepareEvt
@@ -261,7 +261,7 @@ export const prepareRouterContract = async (
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
-      logger.warn("gelato send failed, falling back to router network", requestContext, methodContext, {
+      logger.warn("Router contract prepare: Gelato send failed", requestContext, methodContext, {
         err: jsonifyError(err),
       });
     }
@@ -269,7 +269,7 @@ export const prepareRouterContract = async (
 
   // 2. If gelato is not supported, or gelato send failed, try using the router network.
   if (useRelayer) {
-    logger.info("router network prepare", requestContext, methodContext, {
+    logger.info("Router contract prepare: sending using router network", requestContext, methodContext, {
       prepareParams,
       routerRelayerFeeAsset,
       routerRelayerFee,
@@ -297,14 +297,14 @@ export const prepareRouterContract = async (
     } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
       // (see waitFor) is the error we actually caught in this block.
-      logger.warn("router network failed, falling back to txservice", requestContext, methodContext, {
+      logger.warn("Router contract prepare: router network failed", requestContext, methodContext, {
         err: jsonifyError(err),
       });
     }
   }
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
-  logger.info("txservice prepare", requestContext, methodContext, { prepareParams });
+  logger.info("Router contract prepare: sending using txservice", requestContext, methodContext, { prepareParams });
   return await txService.sendTx(
     {
       to: routerContractAddress,
@@ -379,69 +379,89 @@ export const fulfillRouterContract = async (
     signature,
   ]);
 
-  if (useRelayer) {
-    if (isChainSupportedByGelato(chainId)) {
-      logger.info("Gelato fulfill", requestContext, methodContext, {
-        fulfillParams,
-        routerContractAddress,
-        signature,
-        routerRelayerFeeAsset,
-        routerRelayerFee,
-      });
-
-      try {
-        const data = await gelatoSend(
-          chainId,
-          routerContractAddress,
-          encodedData,
-          routerRelayerFeeAsset,
-          routerRelayerFee,
-        );
-        if (!data.taskId) {
-          throw new Error("No taskId returned");
-        }
-        logger.info("Submitted fulfill using Gelato Relayer", requestContext, methodContext, { data });
-
-        // listen for event on contract
-        const { event } = await fulfillEvt
-          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-          .waitFor(300_000);
-        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-        return receipt;
-      } catch (err: any) {
-        logger.warn("Gelato send failed, falling back to router network", requestContext, methodContext, {
-          err: jsonifyError(err),
-        });
-      }
-    }
-
-    await messaging.publishMetaTxRequest({
-      chainId,
-      to: routerContractAddress,
-      type: MetaTxTypes.RouterContractFulfill,
-      data: { params: fulfillParams, signature, relayerFee: routerRelayerFee, relayerFeeAsset: routerRelayerFeeAsset },
+  // 1. Prepare tx using relayer if chain is supported by gelato.
+  if (useRelayer && isChainSupportedByGelato(chainId)) {
+    logger.info("Router contract fulfill: sending using Gelato relayer", requestContext, methodContext, {
+      fulfillParams,
+      routerContractAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
     });
 
-    // listen for event on contract
-    const { event } = await fulfillEvt
-      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-      .waitFor(300_000);
-    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-    return receipt;
-  } else {
-    logger.info("Router contract fulfill", requestContext, methodContext, { fulfillParams });
-
-    return await txService.sendTx(
-      {
-        to: routerContractAddress,
-        data: encodedData,
-        value: constants.Zero,
+    try {
+      const data = await gelatoSend(
         chainId,
-        from: wallet.address,
-      },
-      requestContext,
-    );
+        routerContractAddress,
+        encodedData,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      );
+      if (!data.taskId) {
+        throw new Error("No taskId returned");
+      }
+      logger.info("Router contract fulfill: sent using Gelato relayer", requestContext, methodContext, { data });
+
+      // listen for event on contract
+      const { event } = await fulfillEvt
+        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+        .waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err: any) {
+      logger.warn("Router contract fulfill: Gelato send failed", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
   }
+
+  // 2. If gelato is not supported, or gelato send failed, try using the router network.
+  if (useRelayer) {
+    logger.info("Router contract fulfill: sending using router network", requestContext, methodContext, {
+      fulfillParams,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
+    try {
+      const payload = {
+        chainId,
+        to: routerContractAddress,
+        type: MetaTxTypes.RouterContractFulfill,
+        data: {
+          params: fulfillParams,
+          signature,
+          relayerFee: routerRelayerFee,
+          relayerFeeAsset: routerRelayerFeeAsset,
+        } as MetaTxPayloads[typeof MetaTxTypes.RouterContractFulfill],
+      };
+      await messaging.publishMetaTxRequest(payload);
+
+      // listen for event on contract
+      const { event } = await fulfillEvt
+        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+        .waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err: any) {
+      // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
+      // (see waitFor) is the error we actually caught in this block.
+      logger.warn("Router contract fulfill: router network failed", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
+  }
+
+  // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
+  logger.info("Router contract fulfill: sending using txservice", requestContext, methodContext, { fulfillParams });
+  return await txService.sendTx(
+    {
+      to: routerContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
 };
 
 export const cancelTransactionManager = async (
@@ -505,72 +525,90 @@ export const cancelRouterContract = async (
     signature,
   ]);
 
-  if (useRelayer) {
-    if (isChainSupportedByGelato(chainId)) {
-      logger.info("Gelato cancel", requestContext, methodContext, {
-        cancelParams,
-        routerRelayerFeeAsset,
-        routerRelayerFee,
-      });
-
-      try {
-        const data = await gelatoSend(
-          chainId,
-          routerContractAddress,
-          encodedData,
-          routerRelayerFeeAsset,
-          routerRelayerFee,
-        );
-        if (!data.taskId) {
-          throw new Error("No taskId returned");
-        }
-        logger.info("Submitted cancel using Gelato Relayer", requestContext, methodContext, { data });
-
-        // listen for event on contract
-        const { event } = await cancelEvt
-          .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-          .waitFor(300_000);
-        const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-        return receipt;
-      } catch (err: any) {
-        logger.warn("Gelato send failed, falling back to router network", requestContext, methodContext, {
-          err: jsonifyError(err),
-        });
-      }
-    }
-
-    await messaging.publishMetaTxRequest({
-      chainId,
-      to: routerContractAddress,
-      type: MetaTxTypes.RouterContractCancel,
-      data: {
-        params: cancelParams,
-        signature,
-        relayerFee: routerRelayerFee,
-        relayerFeeAsset: routerRelayerFeeAsset,
-      },
+  // 1. Prepare tx using relayer if chain is supported by gelato.
+  if (useRelayer && isChainSupportedByGelato(chainId)) {
+    logger.info("Router contract cancel: sending using Gelato relayer", requestContext, methodContext, {
+      cancelParams,
+      routerContractAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
     });
 
-    // listen for event on contract
-    const { event } = await cancelEvt
-      .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
-      .waitFor(300_000);
-    const receipt = await txService.getTransactionReceipt(chainId, event.transactionHash);
-    return receipt;
-  } else {
-    logger.info("Router contract cancel", requestContext, methodContext, { cancelParams });
-
-    return await txService.sendTx(
-      {
-        to: routerContractAddress,
-        data: encodedData,
-        value: constants.Zero,
+    try {
+      const data = await gelatoSend(
         chainId,
-        from: wallet.address,
-      },
-      requestContext,
-    );
+        routerContractAddress,
+        encodedData,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      );
+      if (!data.taskId) {
+        throw new Error("No taskId returned");
+      }
+      logger.info("Router contract cancel: sent using Gelato relayer", requestContext, methodContext, {
+        data,
+      });
+
+      // listen for event on contract
+      const { event } = await cancelEvt
+        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+        .waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err: any) {
+      logger.warn("Router contract cancel: Gelato send failed", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
   }
+
+  // 2. If gelato is not supported, or gelato send failed, try using the router network.
+  if (useRelayer) {
+    logger.info("Router contract cancel: sending using router network", requestContext, methodContext, {
+      cancelParams,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
+    try {
+      const payload = {
+        chainId,
+        to: routerContractAddress,
+        type: MetaTxTypes.RouterContractCancel,
+        data: {
+          params: cancelParams,
+          signature,
+          relayerFee: routerRelayerFee,
+          relayerFeeAsset: routerRelayerFeeAsset,
+        } as MetaTxPayloads[typeof MetaTxTypes.RouterContractCancel],
+      };
+      await messaging.publishMetaTxRequest(payload);
+
+      // listen for event on contract
+      const { event } = await cancelEvt
+        .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
+        .waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err) {
+      // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
+      // (see waitFor) is the error we actually caught in this block.
+      logger.warn("Router contract cancel: router network failed", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
+  }
+
+  logger.info("Router contract cancel: sending using txservice", requestContext, methodContext, { cancelParams });
+  return await txService.sendTx(
+    {
+      to: routerContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
 };
 
 /**
