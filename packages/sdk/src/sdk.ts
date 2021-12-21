@@ -1,4 +1,4 @@
-import { BigNumber, providers, Signer, utils, constants } from "ethers";
+import { BigNumber, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,

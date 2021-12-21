@@ -8,12 +8,10 @@ import {
   multicall as _multicall,
   getMainnetEquivalent as _getMainnetEquivalent,
   Call,
-  MethodContext,
   ERC20Abi,
-  ChainData,
 } from "@connext/nxtp-utils";
-import { getAddress, Interface } from "ethers/lib/utils";
-import { BigNumber, constants, utils } from "ethers/lib/ethers";
+import { Interface } from "ethers/lib/utils";
+import { BigNumber, constants } from "ethers";
 import {
   TransactionManager as TTransactionManager,
   ConnextPriceOracle as TConnextPriceOracle,
