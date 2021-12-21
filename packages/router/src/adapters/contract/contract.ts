@@ -8,6 +8,8 @@ import {
   gelatoSend,
   MetaTxTypes,
   jsonifyError,
+  MetaTxPayload,
+  MetaTxPayloads,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
 import { Evt } from "evt";
@@ -259,7 +261,7 @@ export const prepareRouterContract = async (
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       logger.warn("Router contract prepare: Gelato send failed", requestContext, methodContext, {
         err: jsonifyError(err),
       });
@@ -275,7 +277,7 @@ export const prepareRouterContract = async (
     });
 
     try {
-      await messaging.publishMetaTxRequest({
+      const payload = {
         chainId,
         to: routerContractAddress,
         type: MetaTxTypes.RouterContractPrepare,
@@ -284,15 +286,16 @@ export const prepareRouterContract = async (
           signature,
           relayerFee: routerRelayerFee,
           relayerFeeAsset: routerRelayerFeeAsset,
-        },
-      });
+        } as MetaTxPayloads[typeof MetaTxTypes.RouterContractPrepare],
+      };
+      await messaging.publishMetaTxRequest(payload);
 
       // listen for event on contract
       const { event } = await prepareEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
       // (see waitFor) is the error we actually caught in this block.
       logger.warn("Router contract prepare: router network failed", requestContext, methodContext, {
@@ -513,7 +516,7 @@ export const cancelRouterContract = async (
 
   const { txData, signature: cancelSignature } = cancelParams;
 
-  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "prepare");
+  await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "cancel");
 
   const encodedData = getRouterContractInterface().encodeFunctionData("cancel", [
     { txData, signature: cancelSignature, encodedMeta: "0x" },
@@ -552,7 +555,7 @@ export const cancelRouterContract = async (
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       logger.warn("Router contract cancel: Gelato send failed", requestContext, methodContext, {
         err: jsonifyError(err),
       });
