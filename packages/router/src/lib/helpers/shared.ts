@@ -6,6 +6,7 @@ import {
   getVariantTransactionDigest,
   TransactionData,
   multicall as _multicall,
+  getMainnetEquivalent as _getMainnetEquivalent,
   Call,
   MethodContext,
   ERC20Abi,
@@ -32,6 +33,7 @@ const { HashZero } = constants;
  * Helper to allow easy mocking
  */
 
+export const getMainnetEquivalent = _getMainnetEquivalent;
 export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };

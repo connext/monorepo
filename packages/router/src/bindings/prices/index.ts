@@ -1,10 +1,10 @@
 import { BigNumber, constants } from "ethers";
-import { createLoggingContext, getNtpTimeSeconds, jsonifyError, getMainnetEquivalent } from "@connext/nxtp-utils";
+import { createLoggingContext, getNtpTimeSeconds, jsonifyError } from "@connext/nxtp-utils";
 import { cachedPriceMap } from "@connext/nxtp-txservice";
 
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
-import { getTokenPriceFromOnChain, multicall } from "../../lib/helpers/shared";
+import { getTokenPriceFromOnChain, multicall, getMainnetEquivalent } from "../../lib/helpers/shared";
 
 const PRICE_LOOP_INTERVAL = 15_000;
 export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
