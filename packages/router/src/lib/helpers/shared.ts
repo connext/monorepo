@@ -416,6 +416,23 @@ export const isRouterWhitelisted = async (routerAddress: string, chainId: number
   const { txService } = getContext();
   const nxtpContractAddress = getContractAddress(chainId);
 
+  // First check if ownership is renounced
+  const encodeRenounced = getTxManagerInterface().encodeFunctionData("isRouterOwnershipRenounced");
+
+  const renouncedResult = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeRenounced,
+  });
+
+  const [renounced] = getTxManagerInterface().decodeFunctionResult("isRouterOwnershipRenounced", renouncedResult);
+
+  // If so, return true (no whitelist)
+  if (renounced) {
+    return true;
+  }
+
+  // If not, check the router is approved
   const encodeApprovedRoutersData = getTxManagerInterface().encodeFunctionData("approvedRouters", [routerAddress]);
 
   const approvedRoutersEncoded = await txService.readTx({
