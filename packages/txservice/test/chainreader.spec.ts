@@ -361,16 +361,11 @@ describe("ChainReader", () => {
       calculateGasFeeStub.onSecondCall().resolves(gasFeeReceiverPrepare);
       const result = await chainReader.calculateGasFeeInReceivingToken(
         TEST_SENDER_CHAIN_ID,
-        TEST_SENDER_CHAIN_ID,
         sendingAssetId,
-        TEST_SENDER_CHAIN_ID,
-        mkAddress("0x0"),
-        TEST_RECEIVER_CHAIN_ID,
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x0"),
         18,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(expectedTotal.toNumber());
@@ -407,11 +402,9 @@ describe("ChainReader", () => {
       calculateGasFeeStub.onFirstCall().resolves(gasFee);
       const result = await chainReader.calculateGasFeeInReceivingTokenForFulfill(
         TEST_RECEIVER_CHAIN_ID,
-        TEST_RECEIVER_CHAIN_ID,
         assetId,
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x0"),
         18,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(gasFee.toNumber());
@@ -446,13 +439,11 @@ describe("ChainReader", () => {
     it("happy: should calculate for prepare if chain included and prepare specified", async () => {
       const result = await chainReader.calculateGasFee(
         1,
-        1,
-        mkAddress("0x0"),
-        1,
         mkAddress("0x0"),
         18,
         "prepare",
         false,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(2480000000000000);
@@ -461,13 +452,11 @@ describe("ChainReader", () => {
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
       const result = await chainReader.calculateGasFee(
         1,
-        1,
-        mkAddress("0x0"),
-        1,
         mkAddress("0x0"),
         18,
         "fulfill",
         false,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(2790000000000000);
@@ -476,13 +465,11 @@ describe("ChainReader", () => {
     it("should return zero if price oracle isn't configured for that chain", async () => {
       const result = await chainReader.calculateGasFee(
         TEST_SENDER_CHAIN_ID,
-        TEST_SENDER_CHAIN_ID,
-        mkAddress("0x0"),
-        TEST_SENDER_CHAIN_ID,
         mkAddress("0x0"),
         18,
         "prepare",
         false,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(0);
@@ -493,13 +480,11 @@ describe("ChainReader", () => {
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
-        10,
-        mkAddress("0x0"),
-        10,
         mkAddress("0x0"),
         18,
         "prepare",
         false,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(2863071428571428);
@@ -510,13 +495,11 @@ describe("ChainReader", () => {
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
-        10,
-        mkAddress("0x0"),
-        10,
         mkAddress("0x0"),
         18,
         "fulfill",
         false,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(3051285714285714);
@@ -527,13 +510,11 @@ describe("ChainReader", () => {
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
-        10,
-        mkAddress("0x0"),
-        10,
         mkAddress("0x0"),
         18,
         "cancel",
         false,
+        undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(3051285714285714);
