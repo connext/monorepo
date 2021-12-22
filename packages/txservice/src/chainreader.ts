@@ -387,7 +387,7 @@ export class ChainReader {
     }
 
     let gasLimit = BigNumber.from("0");
-    const gasLimits = getHardcodedGasLimits(gasPriceChainId);
+    const gasLimits = getHardcodedGasLimits(chainId);
     if (method === "prepare") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
