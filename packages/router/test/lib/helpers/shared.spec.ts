@@ -72,11 +72,16 @@ describe("isRouterWhitelisted", () => {
     stub(shared, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
     txServiceMock.readTx.resolves("0x0000000000000000000000000000000000000000000000000000000000000001");
-    interfaceMock.decodeFunctionResult.returns([true]);
   });
   it("should work", async () => {
+    interfaceMock.decodeFunctionResult.onFirstCall().returns([true]);
     const status = await shared.isRouterWhitelisted(mkAddress("0xa"), 1337);
-
+    expect(status).to.be.true;
+  });
+  it("should check if the router is approved", async () => {
+    interfaceMock.decodeFunctionResult.onFirstCall().returns([false]);
+    interfaceMock.decodeFunctionResult.onSecondCall().returns([true]);
+    const status = await shared.isRouterWhitelisted(mkAddress("0xa"), 1337);
     expect(status).to.be.true;
   });
 });
