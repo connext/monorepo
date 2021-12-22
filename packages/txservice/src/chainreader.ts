@@ -1,12 +1,13 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
 import {
   createLoggingContext,
-  GAS_ESTIMATES,
+  DEFAULT_GAS_ESTIMATES,
   Logger,
   RequestContext,
   getNtpTimeSeconds,
   ChainData,
   getMainnetEquivalent,
+  getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
@@ -376,22 +377,23 @@ export class ChainReader {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
       let gasEstimate = "0";
       if (method === "prepare") {
-        gasEstimate = isRouterContract ? GAS_ESTIMATES.prepareRouterContractL1 : GAS_ESTIMATES.prepareL1;
+        gasEstimate = DEFAULT_GAS_ESTIMATES.prepareL1;
       } else if (method === "fulfill") {
-        gasEstimate = isRouterContract ? GAS_ESTIMATES.fulfillRouterContractL1 : GAS_ESTIMATES.fulfillL1;
+        gasEstimate = DEFAULT_GAS_ESTIMATES.fulfillL1;
       } else {
-        gasEstimate = isRouterContract ? GAS_ESTIMATES.cancelRouterContractL1 : GAS_ESTIMATES.cancelL1;
+        gasEstimate = DEFAULT_GAS_ESTIMATES.cancelL1;
       }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
 
     let gasLimit = BigNumber.from("0");
+    const gasLimits = getHardcodedGasLimits(gasPriceChainId);
     if (method === "prepare") {
-      gasLimit = BigNumber.from(isRouterContract ? GAS_ESTIMATES.prepareRouterContract : GAS_ESTIMATES.prepare);
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
-      gasLimit = BigNumber.from(isRouterContract ? GAS_ESTIMATES.fulfillRouterContract : GAS_ESTIMATES.fulfill);
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
     } else {
-      gasLimit = BigNumber.from(isRouterContract ? GAS_ESTIMATES.cancelRouterContract : GAS_ESTIMATES.cancel);
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.cancelRouterContract : gasLimits.cancel);
     }
     const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()

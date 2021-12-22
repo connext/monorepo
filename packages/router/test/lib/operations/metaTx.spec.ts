@@ -107,7 +107,7 @@ describe("Meta Tx Operation", () => {
     const metaTxMock = metaTxInputMock("Fulfill");
     const receipt = await sendMetaTx(metaTxMock as any, requestContext);
     expect(receipt).to.deep.eq(txReceiptMock);
-    expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWithExactly(
+    expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWith(
       metaTxMock.data.txData.sendingChainId,
       {
         txData: metaTxMock.data.txData,

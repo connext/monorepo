@@ -7,7 +7,7 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  GAS_ESTIMATES,
+  DEFAULT_GAS_ESTIMATES,
   requestContextMock,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
