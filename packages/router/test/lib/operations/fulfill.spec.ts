@@ -54,7 +54,7 @@ describe("Fulfill Receiver Operation", () => {
       expect(contractWriterMock.fulfillRouterContract).to.be.calledOnceWithExactly(
         invariantDataMock.sendingChainId,
         {
-          relayerFee: "0",
+          relayerFee: fulfillInputMock.relayerFee,
           signature: fulfillInputMock.signature,
           callData: fulfillInputMock.callData,
           txData: {
