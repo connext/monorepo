@@ -6,6 +6,7 @@
     "test": "hardhat test",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
+    "whitelist": "ts-node ./src/whitelist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
