@@ -4,7 +4,7 @@ import { Interface } from "ethers/lib/utils";
 import { SinonStubbedInstance, createStubInstance, stub } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 
-import { getNtpTimeSeconds } from "../../../src/lib/helpers";
+import { getNtpTimeSeconds, getMainnetEquivalent } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
 
@@ -17,6 +17,13 @@ describe("getNtpTimeSeconds", () => {
   it("should work", async () => {
     const result = await getNtpTimeSeconds();
     expect(result).to.be.eq(Math.floor(Date.now() / 1000));
+  });
+});
+
+describe("getMainnetEquivalent", () => {
+  it("should work", async () => {
+    const result = await getMainnetEquivalent(56, "0x0000000000000000000000000000000000000000");
+    expect(result).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52");
   });
 });
 
