@@ -9,6 +9,7 @@ import {
   getMainnetEquivalent as _getMainnetEquivalent,
   Call,
   ERC20Abi,
+  ChainData,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants } from "ethers";
@@ -31,7 +32,10 @@ const { HashZero } = constants;
  * Helper to allow easy mocking
  */
 
-export const getMainnetEquivalent = _getMainnetEquivalent;
+export const getMainnetEquivalent = async (chainId: number, assetId: string, chainData?: Map<string, ChainData>) => {
+  return await _getMainnetEquivalent(chainId, assetId, chainData);
+};
+
 export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };

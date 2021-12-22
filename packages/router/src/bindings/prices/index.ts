@@ -51,7 +51,6 @@ export const bindPrices = async () => {
         chainAssetMap.set(cachingNativeTokenChainId, [cachingNativeTokenAssetId]);
       }
     }
-
     keys = chainAssetMap.keys();
     try {
       for (const key of keys) {
