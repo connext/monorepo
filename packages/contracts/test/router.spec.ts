@@ -83,7 +83,7 @@ const EmptyCallDataHash = keccak256(EmptyBytes);
 
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Router.sol", function () {
-  const [wallet, routerSigner, routerReceipient, user, receiver, gelato, other] =
+  const [wallet, routerSigner, routerRecipient, user, receiver, gelato, other] =
     waffle.provider.getWallets() as Wallet[];
   let routerFactory: RouterFactory;
   let transactionManagerReceiverSide: TransactionManager;
@@ -147,7 +147,7 @@ describe("Router.sol", function () {
 
     const createTx: providers.TransactionResponse = await routerFactory
       .connect(routerSigner)
-      .createRouter(routerSigner.address, routerReceipient.address);
+      .createRouter(routerSigner.address, routerRecipient.address);
 
     const receipt = await createTx.wait();
     expect(receipt.status).to.be.eq(1);
@@ -221,7 +221,7 @@ describe("Router.sol", function () {
     });
 
     it("should get recipient", async () => {
-      expect(await routerContract.recipient()).to.eq(routerReceipient.address);
+      expect(await routerContract.recipient()).to.eq(routerRecipient.address);
     });
   });
 
