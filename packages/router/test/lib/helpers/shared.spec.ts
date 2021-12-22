@@ -37,6 +37,35 @@ describe("getTokenPriceFromOnChain", () => {
   });
 });
 
+describe("getFeesInSendingAsset", () => {
+  beforeEach(() => {
+    txServiceMock.getDecimalsForAsset.resolves(18);
+  });
+  it("should work", async () => {
+    const sentAmount = utils.parseEther("100");
+    const receivedAmount = utils.parseEther("90");
+    const res = await shared.getFeesInSendingAsset(
+      receivedAmount,
+      sentAmount,
+      mkAddress("0xa"),
+      1337,
+      mkAddress("0xb"),
+      1338,
+    );
+    expect(res.toString()).to.be.eq(utils.parseEther("10").toString());
+  });
+});
+
+describe("getContractAddress", () => {
+  it("should work", () => {
+    expect(shared.getContractAddress(1337)).to.be.eq(mkAddress("0xaaa"));
+    expect(shared.getContractAddress(1338)).to.be.eq(mkAddress("0xbbb"));
+  });
+  it("should throw error", () => {
+    expect(() => shared.getContractAddress(1)).to.throw(Error);
+  });
+});
+
 describe("isRouterWhitelisted", () => {
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
