@@ -28,10 +28,10 @@ import {
   RequestContext,
   MethodContext,
   calculateExchangeAmount,
-  GAS_ESTIMATES,
   getReceiverAmount,
   ChainData,
   StatusResponse,
+  getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -1186,7 +1186,8 @@ export class NxtpSdkBase {
       decimals,
     });
 
-    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+    const gasLimits = getHardcodedGasLimits(chainId);
+    const gasLimitForPrepare = BigNumber.from(gasLimits.prepare);
     let totalCost = constants.Zero;
     try {
       const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);
