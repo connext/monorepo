@@ -66,7 +66,7 @@ export class ChainReader {
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction): Promise<string> {
-    return await this.getProvider(tx.chainId).readTransaction(tx);
+    return await this.getProvider(tx.chainId).readContract(tx);
   }
 
   /**
