@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Fix relayer fee
+
 # 0.1.3
 
 - [router] Fix admin function for checking approved router
