@@ -7,7 +7,7 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  GAS_ESTIMATES,
+  DEFAULT_GAS_ESTIMATES,
   requestContextMock,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
@@ -1018,7 +1018,7 @@ describe("NxtpSdkBase", () => {
         null,
       );
 
-      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.prepare).mul("1000000000"));
+      expect(result).to.be.eq(BigNumber.from(DEFAULT_GAS_ESTIMATES.prepare).mul("1000000000"));
     });
 
     it("happy: should return zero price if price oracle isn't configured", async () => {
