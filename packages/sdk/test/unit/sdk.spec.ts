@@ -13,14 +13,14 @@ import {
 import { expect } from "chai";
 import { Wallet, constants, BigNumber } from "ethers";
 import { getAddress, keccak256 } from "ethers/lib/utils";
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { NxtpSdk } from "../../src/sdk";
 
 import * as utils from "../../src/utils";
 import * as sdkIndex from "../../src/sdk";
 import { TxResponse, TxReceipt, EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
-import { Evt } from "evt";
+import { Evt, EvtError } from "evt";
 import {
   EncryptionError,
   SubmitError,
@@ -29,7 +29,7 @@ import {
   ChainNotConfigured,
   FulfillTimeout,
 } from "../../src/error";
-import { CrossChainParams } from "../../src";
+import { CrossChainParams, NxtpSdkEvent, NxtpSdkEventPayloads, NxtpSdkEvents } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
 import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
@@ -62,6 +62,7 @@ describe("NxtpSdk", () => {
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
   let priceOracleAddress: string = mkAddress("0xccc");
+  let assetAddress: string = mkAddress("0xccc");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
   const supportedChains = [sendingChainId.toString(), receivingChainId.toString()];
@@ -94,6 +95,7 @@ describe("NxtpSdk", () => {
     sdkBase.cancel.resolves(CancelReq);
     (sdkBase as any).chainReader = chainReader;
     chainReader.getDecimalsForAsset.resolves(18);
+    chainReader.getBalance.resolves(BigNumber.from("100"));
 
     stub(TransactionManagerHelperFns, "getDeployedChainIdsForGasFee").returns([1337, 1338]);
     stub(utils, "getTimestampInSeconds").resolves(Math.floor(Date.now() / 1000));
@@ -297,6 +299,16 @@ describe("NxtpSdk", () => {
         network: "testnet",
         logger,
       });
+
+      const instanceFromCreate = NxtpSdk.create({
+        chainConfig,
+        signer,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: undefined,
+        network: "testnet",
+        logger,
+      });
     });
   });
 
@@ -318,6 +330,20 @@ describe("NxtpSdk", () => {
     it("should work", async () => {
       await sdk.getHistoricalTransactions();
       expect(sdkBase.getHistoricalTransactions).to.be.calledOnceWithExactly();
+    });
+  });
+
+  describe("#getRouterStatus", () => {
+    it("happy getRouterStatus", async () => {
+      await sdk.getRouterStatus("test");
+      expect(sdkBase.getRouterStatus).to.be.calledOnceWithExactly("test");
+    });
+  });
+
+  describe("#getSubgraphSyncStatus", () => {
+    it("happy getSubgraphSyncStatus", async () => {
+      await sdk.getSubgraphSyncStatus(1);
+      expect(sdkBase.getSubgraphSyncStatus).to.be.calledOnceWithExactly(1);
     });
   });
 
@@ -590,6 +616,19 @@ describe("NxtpSdk", () => {
   });
 
   describe("#cancel", () => {
+    it("should throw if invalid config for chainId", async () => {
+      const { transaction, record } = await getTransactionData();
+      await expect(
+        sdk.cancel(
+          {
+            txData: { ...transaction, ...record },
+            signature: EmptyCallDataHash,
+          },
+          1400000,
+        ),
+      ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
+    });
+
     it("happy: cancel", async () => {
       const { transaction, record } = await getTransactionData();
 
@@ -603,6 +642,245 @@ describe("NxtpSdk", () => {
 
       expect(signer.sendTransaction).to.be.calledOnceWithExactly(CancelReq);
       expect(res).to.be.eq(TxResponse);
+    });
+  });
+
+  describe("#getBalance", () => {
+    it("happy getBalance", async () => {
+      expect(await sdk.getBalance(sendingChainId, assetAddress)).to.be.eq(BigNumber.from("100"));
+    });
+  });
+
+  describe("#getDecimalsForAsset", () => {
+    it("happy getDecimalsForAsset", async () => {
+      expect(await sdk.getDecimalsForAsset(sendingChainId, assetAddress)).to.be.eq(18);
+    });
+  });
+
+  describe("#querySubgraph", () => {
+    it("happy querySubgraph", async () => {
+      await sdk.querySubgraph(sendingChainId, "");
+      expect(sdkBase.querySubgraph).to.be.calledOnceWithExactly(sendingChainId, "");
+    });
+  });
+
+  describe("#attach", () => {
+    it("should attach callback to event", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
+      const SenderTokenApprovalSubmittedSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalSubmitted, SenderTokenApprovalSubmittedSpy);
+
+      const SenderTokenApprovalMinedSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalMined, SenderTokenApprovalMinedSpy);
+
+      const SenderTransactionPrepareSubmittedSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, SenderTransactionPrepareSubmittedSpy);
+
+      const SenderTransactionFulfilledSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, SenderTransactionFulfilledSpy);
+
+      (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      (sdk as any).evts.SenderTokenApprovalMined.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      (sdk as any).evts.SenderTransactionPrepareSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      (sdk as any).evts.SenderTransactionFulfilled.post({
+        txData: { ...transaction, ...record },
+        signature: "",
+        relayerFee: "0",
+        callData: "0x",
+        caller: user,
+      });
+
+      expect(SenderTokenApprovalSubmittedSpy.callCount).to.be.eq(1);
+      expect(SenderTokenApprovalMinedSpy.callCount).to.be.eq(1);
+      expect(SenderTransactionPrepareSubmittedSpy.callCount).to.be.eq(1);
+      expect(SenderTransactionFulfilledSpy.callCount).to.be.eq(1);
+    });
+
+    it("should attach callback of sdkBase for subgraph events", async () => {
+      sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, null, null);
+      expect(sdkBase.attach).to.be.calledOnceWithExactly(NxtpSdkEvents.SenderTransactionPrepared, null, null);
+    });
+  });
+
+  describe("#attachOnce", () => {
+    it("happy", async () => {
+      const spy = Sinon.spy();
+      sdk.attachOnce(NxtpSdkEvents.SenderTokenApprovalSubmitted, spy);
+      (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      expect(spy.callCount).to.equal(1);
+    });
+
+    it("should attachOnce callback of sdkBase for subgraph events", async () => {
+      sdk.attachOnce(NxtpSdkEvents.ReceiverTransactionCancelled, null, null, 0);
+
+      expect(sdkBase.attachOnce).to.be.calledOnceWithExactly(NxtpSdkEvents.ReceiverTransactionCancelled, null, null, 0);
+    });
+  });
+
+  describe("#detach", () => {
+    it("should remove listener from event", async () => {
+      const spy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalSubmitted, spy);
+
+      // Event should be triggered for this round.
+      (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+      expect(spy.callCount).to.equal(1);
+
+      // Event should NOT be triggered for this round.
+      sdk.detach(NxtpSdkEvents.SenderTokenApprovalSubmitted);
+      (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      // Call count should remain the same.
+      expect(spy.callCount).to.equal(1);
+    });
+
+    it("should detach all listeners if no event specified", async () => {
+      const { transaction, record } = await getTransactionData({ sendingChainId: 1400 });
+      const SenderTokenApprovalSubmittedSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalSubmitted, SenderTokenApprovalSubmittedSpy);
+
+      const SenderTokenApprovalMinedSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalMined, SenderTokenApprovalMinedSpy);
+
+      const SenderTransactionPrepareSubmittedSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTransactionPrepareSubmitted, SenderTransactionPrepareSubmittedSpy);
+
+      const SenderTransactionFulfilledSpy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTransactionFulfilled, SenderTransactionFulfilledSpy);
+
+      (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      (sdk as any).evts.SenderTokenApprovalMined.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      (sdk as any).evts.SenderTransactionPrepareSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+
+      (sdk as any).evts.SenderTransactionFulfilled.post({
+        txData: { ...transaction, ...record },
+        signature: "",
+        relayerFee: "0",
+        callData: "0x",
+        caller: user,
+      });
+
+      expect(SenderTokenApprovalSubmittedSpy.callCount).to.be.eq(1);
+      expect(SenderTokenApprovalMinedSpy.callCount).to.be.eq(1);
+      expect(SenderTransactionPrepareSubmittedSpy.callCount).to.be.eq(1);
+      expect(SenderTransactionFulfilledSpy.callCount).to.be.eq(1);
+
+      // Events should NOT be triggered for this round.
+      sdk.detach();
+
+      for (let i = 0; i < 10; i++) {
+        (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+          assetId: assetAddress,
+          chainId: sendingChainId,
+          transactionResponse: TxResponse,
+        });
+
+        (sdk as any).evts.SenderTokenApprovalMined.post({
+          assetId: assetAddress,
+          chainId: sendingChainId,
+          transactionResponse: TxResponse,
+        });
+
+        (sdk as any).evts.SenderTransactionPrepareSubmitted.post({
+          assetId: assetAddress,
+          chainId: sendingChainId,
+          transactionResponse: TxResponse,
+        });
+
+        (sdk as any).evts.SenderTransactionFulfilled.post({
+          txData: { ...transaction, ...record },
+          signature: "",
+          relayerFee: "0",
+          callData: "0x",
+          caller: user,
+        });
+      }
+
+      // Call count should remain the same.
+      expect(SenderTokenApprovalSubmittedSpy.callCount).to.be.eq(1);
+      expect(SenderTokenApprovalMinedSpy.callCount).to.be.eq(1);
+      expect(SenderTransactionPrepareSubmittedSpy.callCount).to.be.eq(1);
+      expect(SenderTransactionFulfilledSpy.callCount).to.be.eq(1);
+    });
+
+    it("should detach callback of sdkBase for subgraph events", async () => {
+      sdk.detach(NxtpSdkEvents.ReceiverTransactionCancelled);
+
+      expect(sdkBase.detach).to.be.calledOnceWithExactly(NxtpSdkEvents.ReceiverTransactionCancelled);
+    });
+  });
+
+  describe("#waitFor", () => {
+    it("should wait for event", async () => {
+      const spy = Sinon.spy();
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalSubmitted, spy);
+
+      // Wrap in a promise here to be sure that the waitFor call is blocking.
+      const promise = new Promise<boolean>(async (resolve) => {
+        await sdk.waitFor(NxtpSdkEvents.SenderTokenApprovalSubmitted, 10_000);
+        resolve(spy.callCount === 1);
+      });
+
+      expect(promise).to.eventually.be.true;
+
+      (sdk as any).evts.SenderTokenApprovalSubmitted.post({
+        assetId: assetAddress,
+        chainId: sendingChainId,
+        transactionResponse: TxResponse,
+      });
+    });
+
+    it("should expire after timeout", async () => {
+      sdk.attach(NxtpSdkEvents.SenderTokenApprovalSubmitted, () => {});
+      await expect(sdk.waitFor(NxtpSdkEvents.SenderTokenApprovalSubmitted, 10)).to.be.rejectedWith(EvtError.Timeout);
+    });
+
+    it("should waitFor of sdkBase for subgraph events", async () => {
+      sdk.waitFor(NxtpSdkEvents.ReceiverTransactionCancelled, 10_000, null);
+
+      expect(sdkBase.waitFor).to.be.calledOnceWithExactly(NxtpSdkEvents.ReceiverTransactionCancelled, 10_000, null);
     });
   });
 

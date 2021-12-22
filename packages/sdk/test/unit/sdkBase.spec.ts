@@ -9,17 +9,19 @@ import {
   Logger,
   GAS_ESTIMATES,
   requestContextMock,
+  calculateExchangeAmount,
+  NATS_AUTH_URL_LOCAL,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { Wallet, constants, BigNumber } from "ethers";
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
 import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
 
 import * as utils from "../../src/utils";
 import * as sdkIndex from "../../src/sdkBase";
-import { EmptyBytes, EmptyCallDataHash, TxRequest } from "../helper";
+import { EmptyBytes, EmptyCallDataHash, TxReceipt, TxRequest } from "../helper";
 import { Evt } from "evt";
 import {
   ChainNotConfigured,
@@ -37,10 +39,11 @@ import {
   NoValidBids,
   RelayFailed,
   NotEnoughAmount,
+  EncryptionError,
 } from "../../src/error";
 import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
-import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus } from "../../src";
-import { Subgraph } from "../../src/subgraph/subgraph";
+import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams } from "../../src";
+import { createSubgraphEvts, Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
@@ -54,6 +57,7 @@ const response = "connected";
 // NOTE: Tried importing the evt module Timeout error here, but the compiler throws.
 // For now, just mocking using the proper message string.
 const mockEvtTimeoutErr = (timeout: number) => new Error(`Evt timeout after ${timeout}ms`);
+const sleep = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
 
 describe("NxtpSdkBase", () => {
   let sdk: NxtpSdkBase;
@@ -209,6 +213,7 @@ describe("NxtpSdkBase", () => {
   ): {
     crossChainParams: CrossChainParams;
     auctionBid: AuctionBid;
+    approveParams: ApproveParams;
     bidSignature: string;
     gasFeeInReceivingToken: string;
     metaTxRelayerFee: string;
@@ -255,7 +260,14 @@ describe("NxtpSdkBase", () => {
     const gasFeeInReceivingToken = _gasFeeInReceivingToken;
     const metaTxRelayerFee = _metaTxRelayerFe;
 
-    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee };
+    const approveParams: ApproveParams = {
+      sendingAssetId: mkAddress("0xa"),
+      sendingChainId,
+      amount: parseEther("1").toString(),
+      transactionId,
+    };
+
+    return { crossChainParams, auctionBid, bidSignature, gasFeeInReceivingToken, metaTxRelayerFee, approveParams };
   };
 
   describe("#constructor", () => {
@@ -326,6 +338,58 @@ describe("NxtpSdkBase", () => {
           }),
       ).to.not.throw;
     });
+
+    it("happy: constructor, init messaging for each network", async () => {
+      const chainConfig = {
+        [4]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+        },
+        [5]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+        },
+      };
+      const res = new NxtpSdkBase({
+        chainConfig,
+        signerAddress: Promise.resolve(user),
+        natsUrl: undefined,
+        authUrl: undefined,
+        messaging: undefined,
+        network: "local",
+        logger,
+      });
+      expect((res as any).messaging.authUrl).to.be.eq(NATS_AUTH_URL_LOCAL);
+    });
+
+    it("happy: constructor, use custom messaging", async () => {
+      const chainConfig = {
+        [4]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+        },
+        [5]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+        },
+      };
+      const messaging = new UserNxtpNatsMessagingService({
+        signer: Wallet.createRandom(),
+        logger,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+      });
+      const res = new NxtpSdkBase({
+        chainConfig,
+        signerAddress: Promise.resolve(user),
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: messaging,
+        network: "testnet",
+        logger,
+      });
+      expect((res as any).messaging.connect).to.not.throw;
+    });
   });
 
   describe("#connectMessaging", () => {
@@ -383,6 +447,23 @@ describe("NxtpSdkBase", () => {
     });
   });
 
+  describe("#approveForPrepare", () => {
+    it("should work", async () => {
+      const { approveParams } = getMock();
+
+      transactionManager.approveTokensIfNeeded.resolves(TxReceipt);
+      const res = await sdk.approveForPrepare(approveParams);
+      expect(res).to.be.deep.eq(TxReceipt);
+    });
+
+    it("should return undefined for native assets", async () => {
+      const { approveParams } = getMock();
+
+      const res = await sdk.approveForPrepare({ ...approveParams, sendingAssetId: constants.AddressZero });
+      expect(res).to.be.deep.eq(undefined);
+    });
+  });
+
   describe("#getTransferQuote", () => {
     beforeEach(() => {
       chainReader.calculateGasFeeInReceivingToken.resolves(BigNumber.from("100000"));
@@ -416,12 +497,25 @@ describe("NxtpSdkBase", () => {
       });
     });
 
-    it("should error if subgraph not synced", async () => {
-      subgraph.getSyncStatus.returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+    it("should error if sender chain subgraph not synced", async () => {
       const { crossChainParams } = getMock();
+      subgraph.getSyncStatus
+        .withArgs(crossChainParams.sendingChainId)
+        .returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
 
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
         SendingChainSubgraphsNotSynced.getMessage(),
+      );
+    });
+
+    it("should error if receiving chain subgraph not synced", async () => {
+      const { crossChainParams } = getMock();
+      subgraph.getSyncStatus
+        .withArgs(crossChainParams.receivingChainId)
+        .returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+
+      await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
+        ReceivingChainSubgraphsNotSynced.getMessage(),
       );
     });
 
@@ -450,6 +544,17 @@ describe("NxtpSdkBase", () => {
     it("should error if receiverAmount is lower than gasFee", async () => {
       const { crossChainParams } = getMock({ amount: "100000" });
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(NotEnoughAmount.getMessage());
+    });
+
+    it("should error if callData !== 0x && encryptedCallData === 0x", async () => {
+      const { crossChainParams } = getMock();
+      await expect(
+        sdk.getTransferQuote({
+          ...crossChainParams,
+          callData: "0x11",
+          encryptedCallData: "0x",
+        }),
+      ).to.eventually.be.rejectedWith(EncryptionError.getMessage());
     });
 
     it("should not include improperly signed bids", async () => {
@@ -508,7 +613,103 @@ describe("NxtpSdkBase", () => {
       );
     });
 
-    it("happy: should get a transfer quote => dryRun ", async () => {
+    it("should error if delayed auctionWaitTimeMs * 2 for a preferred router", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      const nonPreferredBid: AuctionBid = {
+        ...auctionBid,
+        router: mkAddress("0xddd"),
+        amountReceived: BigNumber.from(auctionBid.amountReceived).add(1).toString(),
+      };
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: nonPreferredBid, gasFeeInReceivingToken: "0" } });
+      }, 100);
+
+      setTimeout(() => {
+        messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" } });
+      }, 150);
+
+      await expect(
+        sdk.getTransferQuote({ ...crossChainParams, preferredRouters: [auctionBid.router], auctionWaitTimeMs: 30 }),
+      ).to.eventually.be.rejectedWith(UnknownAuctionError.getMessage());
+
+      // force sleep for next test.
+      await sleep(150);
+    });
+
+    it("should error if dryRun = true, delay more than auctionWaitTimeMs", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" },
+        });
+      }, 100);
+
+      await expect(
+        sdk.getTransferQuote({ ...crossChainParams, dryRun: true, auctionWaitTimeMs: 10 }),
+      ).to.eventually.be.rejectedWith(UnknownAuctionError.getMessage());
+
+      // force sleep for next test.
+      await sleep(100);
+    });
+
+    it("should error if invalid bid received", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" },
+          err: "error",
+        });
+      }, 100);
+
+      await expect(sdk.getTransferQuote({ ...crossChainParams })).to.eventually.be.rejectedWith(
+        UnknownAuctionError.getMessage(),
+      );
+    });
+
+    it("should error if received amount is less than lowerBand", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+
+      const slippageTolerance = "15";
+      const amountReceived = "100000";
+
+      const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
+
+      const amtMinusGas = BigNumber.from(amountReceived).sub(0);
+      const lowerBound = calculateExchangeAmount(amtMinusGas.toString(), lowerBoundExchangeRate).split(".")[0];
+
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: amountReceived }, gasFeeInReceivingToken: "0" },
+        });
+      }, 100);
+
+      //expect(BigNumber.from(auctionBid.amountReceived).lt(lowerBound)).to.be.true;
+      // await expect(
+      //   sdk.getTransferQuote({ ...crossChainParams, slippageTolerance: slippageTolerance }),
+      // ).to.eventually.be.rejectedWith(UnknownAuctionError.getMessage());
+    });
+
+    it("happy: should get a transfer quote => dryRun", async () => {
       const { crossChainParams, auctionBid } = getMock();
 
       recoverAuctionBidMock.returns(auctionBid.router);
@@ -611,6 +812,56 @@ describe("NxtpSdkBase", () => {
       expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: "100004" });
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
+
+    it("happy: should return just number of AuctionResponsesQuorum", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100000" }, gasFeeInReceivingToken: "0" },
+        });
+      }, 10);
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100002" }, gasFeeInReceivingToken: "0" },
+        });
+      }, 20);
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100004" }, gasFeeInReceivingToken: "0" },
+        });
+      }, 50);
+      const res = await sdk.getTransferQuote({ ...crossChainParams, numAuctionResponsesQuorum: 2 });
+
+      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: "100002" });
+      expect(res.bidSignature).to.be.eq(bidSignature);
+
+      await sleep(50);
+    });
+
+    it("happy: should get a transfer quote: dryRun = true", async () => {
+      const { crossChainParams, auctionBid, bidSignature } = getMock();
+
+      recoverAuctionBidMock.returns(auctionBid.router);
+      transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
+
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: { bidSignature, bid: auctionBid, gasFeeInReceivingToken: "0" },
+        });
+      }, 100);
+      const res = await sdk.getTransferQuote({ ...crossChainParams, dryRun: true });
+
+      expect(res.bid).to.be.eq(auctionBid);
+      expect(res.bidSignature).to.be.eq(bidSignature);
+    });
   });
 
   describe("#prepareTransfer", () => {
@@ -648,6 +899,32 @@ describe("NxtpSdkBase", () => {
       await expect(sdk.getTransferQuote(crossChainParams)).to.eventually.be.rejectedWith(
         SendingChainSubgraphsNotSynced.getMessage(),
       );
+    });
+
+    it("should error if sender chain subgraph not synced", async () => {
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({});
+      subgraph.getSyncStatus
+        .withArgs(auctionBid.sendingChainId)
+        .returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith(SendingChainSubgraphsNotSynced.getMessage());
+    });
+
+    it("should error if receiving chain subgraph not synced", async () => {
+      const { auctionBid, bidSignature, gasFeeInReceivingToken } = getMock({});
+      subgraph.getSyncStatus
+        .withArgs(auctionBid.sendingChainId)
+        .returns({ latestBlock: 0, synced: true, syncedBlock: 0 });
+
+      subgraph.getSyncStatus
+        .withArgs(auctionBid.receivingChainId)
+        .returns({ latestBlock: 0, synced: false, syncedBlock: 0 });
+
+      await expect(
+        sdk.prepareTransfer({ bid: auctionBid, bidSignature, gasFeeInReceivingToken }),
+      ).to.eventually.be.rejectedWith(ReceivingChainSubgraphsNotSynced.getMessage());
     });
 
     it("should error if bidSignature undefined", async () => {
@@ -930,6 +1207,42 @@ describe("NxtpSdkBase", () => {
       );
       expect(res.transactionRequest).to.deep.eq(TxRequest);
     });
+
+    it("happy: finish transfer even messaging is not connected", async () => {
+      const { transaction, record } = await getTransactionData();
+
+      messaging.isConnected.returns(false);
+      isChainSupportedByGelatoStub.returns(false);
+
+      const transactionHash = mkHash("0xc");
+
+      subgraph.waitFor.resolves({
+        transactionHash,
+        txData: {
+          ...transaction,
+          ...record,
+          sendingChainId: receivingChainId,
+          receivingChainId: sendingChainId,
+        },
+      } as any);
+
+      const res = await sdk.fulfillTransfer(
+        {
+          txData: { ...transaction, ...record },
+
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        },
+        "0x",
+        "0x",
+        "0",
+        true,
+      );
+
+      expect(res.transactionResponse.transactionHash).to.be.eq(transactionHash);
+      expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
+    });
   });
 
   describe("#cancel", () => {
@@ -1174,6 +1487,148 @@ describe("NxtpSdkBase", () => {
     it("happy: return mainnet equivalent if chainData configured correctly", () => {
       const result = sdk.getMainnetEquivalent(56, mkAddress("0x0"));
       expect(result).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52"); // BNB address on mainnet
+    });
+  });
+
+  describe("#getEstimateReceiverAmount", () => {
+    it("should error if sender chain provider is not defined", async () => {
+      const chainData = await utils.getChainData();
+      const chainConfig = {
+        [sendingChainId]: {
+          providers: undefined,
+          subgraph: "http://example.com",
+          transactionManagerAddress: sendingChainTxManagerAddress,
+        },
+        [receivingChainId]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+          transactionManagerAddress: receivingChainTxManagerAddress,
+        },
+      };
+      sdk = new NxtpSdkBase({
+        chainConfig,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: undefined,
+        logger,
+        signerAddress: Promise.resolve(user),
+        chainData: chainData,
+      });
+      await expect(
+        sdk.getEstimateReceiverAmount({
+          amount: "100000",
+          sendingChainId: sendingChainId,
+          sendingAssetId: sendingAssetId1,
+          receivingChainId: receivingChainId,
+          receivingAssetId: receivingAssetId1,
+        }),
+      ).to.rejectedWith(ChainNotConfigured.getMessage());
+    });
+
+    it("should error if receiving chain provider is not defined", async () => {
+      const chainData = await utils.getChainData();
+      const chainConfig = {
+        [sendingChainId]: {
+          providers: ["http://----------------------"],
+          subgraph: "http://example.com",
+          transactionManagerAddress: sendingChainTxManagerAddress,
+        },
+        [receivingChainId]: {
+          providers: undefined,
+          subgraph: "http://example.com",
+          transactionManagerAddress: receivingChainTxManagerAddress,
+        },
+      };
+      sdk = new NxtpSdkBase({
+        chainConfig,
+        natsUrl: "http://example.com",
+        authUrl: "http://example.com",
+        messaging: undefined,
+        logger,
+        signerAddress: Promise.resolve(user),
+        chainData: chainData,
+      });
+      await expect(
+        sdk.getEstimateReceiverAmount({
+          amount: "100000",
+          sendingChainId: sendingChainId,
+          sendingAssetId: sendingAssetId1,
+          receivingChainId: receivingChainId,
+          receivingAssetId: receivingAssetId1,
+        }),
+      ).to.rejectedWith(ChainNotConfigured.getMessage());
+    });
+  });
+
+  describe("#getRouterStatus", () => {
+    it("happy should work", async () => {
+      const routerAddress = mkAddress("0xcc");
+      setTimeout(() => {
+        messageEvt.post({
+          inbox: "inbox",
+          data: {
+            routerVersion: "0.0.1",
+            routerAddress: routerAddress,
+            signerAddress: user,
+            trackerLength: 0,
+            activeTransactionsLength: 0,
+            swapPools: undefined,
+            supportedChains: [],
+          },
+        });
+      }, 100);
+      const res = await sdk.getRouterStatus("user");
+
+      expect(res.length).to.be.eq(1);
+      expect(res[0].routerVersion).to.be.eq("0.0.1");
+      expect(res[0].routerAddress).to.be.eq(routerAddress);
+      expect(res[0].signerAddress).to.be.eq(user);
+    });
+  });
+
+  describe("#querySubgraph", () => {
+    it("happy", async () => {
+      sdk.querySubgraph(sendingChainId, "test");
+      expect(subgraph.query).to.be.calledOnceWithExactly(sendingChainId, "test");
+    });
+  });
+
+  describe("#attach", () => {
+    it("should attach callback to event", async () => {
+      sdk.attach(NxtpSdkEvents.SenderTransactionPrepared, null, null);
+      expect(subgraph.attach).to.be.calledOnceWithExactly(NxtpSdkEvents.SenderTransactionPrepared, null, null);
+    });
+  });
+
+  describe("#attachOnce", () => {
+    it("happy", async () => {
+      sdk.attachOnce(NxtpSdkEvents.SenderTransactionPrepared, null, null, 10_000);
+      expect(subgraph.attachOnce).to.be.calledOnceWithExactly(
+        NxtpSdkEvents.SenderTransactionPrepared,
+        null,
+        null,
+        10_000,
+      );
+    });
+  });
+
+  describe("#detach", () => {
+    it("happy", async () => {
+      sdk.detach(NxtpSdkEvents.SenderTransactionPrepared);
+      expect(subgraph.detach).to.be.calledOnceWithExactly(NxtpSdkEvents.SenderTransactionPrepared);
+    });
+  });
+
+  describe("#waitFor", () => {
+    it("happy", async () => {
+      sdk.waitFor(NxtpSdkEvents.SenderTransactionPrepared, 10_000, null);
+      expect(subgraph.waitFor).to.be.calledOnceWithExactly(NxtpSdkEvents.SenderTransactionPrepared, 10_000, null);
+    });
+  });
+
+  describe("#assertChainIsConfigured", () => {
+    it("throw if invalid chain Id", async () => {
+      expect(() => sdk.assertChainIsConfigured(1111)).to.throw(ChainNotConfigured.getMessage());
     });
   });
 
