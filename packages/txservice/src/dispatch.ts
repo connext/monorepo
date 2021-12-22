@@ -27,7 +27,7 @@ import {
   TransactionBuffer,
 } from "./shared";
 import { ChainConfig } from "./config";
-import { ChainRpcProvider } from "./provider";
+import { RpcProviderAggregator } from "./rpcProviderAggregator";
 
 export type DispatchCallbacks = {
   onSubmit: (transaction: OnchainTransaction) => void;
@@ -36,11 +36,12 @@ export type DispatchCallbacks = {
   onFail: (transaction: OnchainTransaction) => void;
 };
 
+// TODO: Merge responsibility with TransactionService. Should not extend ProviderAggregator.
 /**
  * @classdesc Transaction lifecycle manager.
  *
  */
-export class TransactionDispatch extends ChainRpcProvider {
+export class TransactionDispatch extends RpcProviderAggregator {
   private loopsRunning = false;
 
   // Based on default per account rate limiting on geth.
@@ -121,58 +122,97 @@ export class TransactionDispatch extends ChainRpcProvider {
     let transaction: OnchainTransaction | undefined = undefined;
     try {
       while (this.inflightBuffer.length > 0) {
+        // Shift the first transaction from the buffer and get it mined.
         transaction = this.inflightBuffer.shift();
         if (!transaction) {
           // This shouldn't happen, but this block is a necessity for compilation.
           return;
         }
-        // Shift the first transaction from the buffer and get it mined.
-        let receivedBadNonce = false;
-        let shouldResubmit = false;
+        const meta = {
+          shouldResubmit: false,
+          shouldBump: false,
+        };
         while (!transaction.didMine && !transaction.error) {
           try {
-            if (shouldResubmit) {
-              // Transaction timed out trying to validate. We should bump the tx and submit again.
-              await this.bump(transaction);
-              // Resubmit
+            if (meta.shouldResubmit) {
+              if (meta.shouldBump) {
+                await this.bump(transaction);
+              }
               await this.submit(transaction);
             }
             await this.mine(transaction);
             this.minedBuffer.push(transaction);
             break;
           } catch (error) {
-            this.logger.debug("Received error waiting for transaction to be mined:", requestContext, methodContext, {
+            this.logger.debug("Received error waiting for transaction to be mined.", requestContext, methodContext, {
               chainId: this.chainId,
               txsId: transaction.uuid,
-              error,
+              error: jsonifyError(error),
             });
-            if (error.type === OperationTimeout.type && !receivedBadNonce) {
-              // Check to see if this nonce has already been mined; this would imply this transaction got replaced, or
-              // failed to reach chain.
-              const transactionCount = await this.getTransactionCount("latest");
-              if (transactionCount > transaction.nonce) {
-                transaction.error = new TransactionBackfilled({
-                  latestTransactionCount: transactionCount,
-                  nonce: transaction.nonce,
+
+            if (error.type === OperationTimeout.type || error.type === BadNonce.type) {
+              // Check to see if the transaction did indeed make it to chain.
+              const responses = await this.getTransaction(transaction);
+              if (responses.every((response) => response === null)) {
+                // If all responses are null, then this transaction was not found / does not exist.
+                this.logger.warn("Transaction was not found on chain!", requestContext, methodContext, {
+                  chainId: this.chainId,
+                  transaction: transaction.loggable,
+                  responses,
                 });
+
+                // Check to see if this nonce has already been mined.
+                const transactionCount = await this.getTransactionCount("latest");
+                if (transactionCount > transaction.nonce) {
+                  // Transaction must have been replaced by another.
+                  transaction.error = new TransactionBackfilled({
+                    latestTransactionCount: transactionCount,
+                    nonce: transaction.nonce,
+                  });
+                } else {
+                  // This transaction does not exist, and this nonce is still the blockade. We should
+                  // resubmit immediately using the same nonce without bumping.
+                  meta.shouldResubmit = true;
+                  meta.shouldBump = false;
+                }
               } else {
-                shouldResubmit = true;
+                const response = responses.find((response) => response !== null)!;
+                if (response.confirmations && response.confirmations > 0) {
+                  // Transaction was mined! We should immediately continue to the next loop without
+                  // resubmitting and let the mine function get the receipt.
+                  meta.shouldResubmit = false;
+                  continue;
+                }
+                // Transaction was found, but it's not going through. We should bump the gas and submit
+                // a replacement to speed things up.
+                meta.shouldResubmit = true;
+                meta.shouldBump = true;
               }
-            } else if (error.type === BadNonce.type) {
-              // If we timeout in the next mine attempt, then we know the transaction was replaced by a foreign (unknown) transaction,
-              // so we'll want to fail the tx with whatever error we get.
-              receivedBadNonce = true;
-              shouldResubmit = false;
             } else if (
               error.type === TransactionReverted.type &&
               error.reason === TransactionReverted.reasons.InsufficientFunds
             ) {
-              // If we get an insufficient funds error during a resubmit, we should log this critical alert but continue to try to mine
-              // whatever txs we've sent so far, on the basis that the router owner will eventually refill the account (and we'll eventually)
-              // be able to bump.
-              // Set shouldResubmit to false; next time around it will only attempt to mine and then if it times out again, it will go back to
-              // attempting to resubmit.
-              shouldResubmit = false;
+              /**
+               * If we get an insufficient funds error during a resubmit, we should log this critical
+               * alert but continue to try to mine whatever txs we've sent so far, on the basis that
+               * the router owner will eventually refill the account (and we'll eventually) be able to
+               * bump.
+               *
+               * Set shouldResubmit to false; next time around it will only attempt to mine. Should the
+               * mine timeout again, it will go back to attempting to resubmit - allowing us to a chance
+               * to respond to a refill for the gas money for this signer.
+               */
+              this.logger.error(
+                "SIGNER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
+                requestContext,
+                methodContext,
+                jsonifyError(error),
+                {
+                  chainId: this.chainId,
+                  transaction: transaction.loggable,
+                },
+              );
+              meta.shouldResubmit = false;
             } else {
               transaction.error = error;
             }
@@ -190,8 +230,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     }
   }
 
-  // TODO: Do we even need a confirm loop / buffer? Shouldn't we just call this.confirm with .then and .catch asyncronously
-  // in the mine loop?
   /**
    * Check for mined transactions in the mined buffer; if any are present it will wait for the target confirmations for each
    * one in FIFO order.
@@ -247,12 +285,7 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Set the nonce initially to the last used nonce. If no nonce has been used yet (i.e. this is the first initial send attempt),
     // set to whichever value is higher: local nonce or txcount. This should almost always be our local nonce, but often both will be the same.
     let nonce =
-      attemptedNonces.length > 0
-        ? attemptedNonces[attemptedNonces.length - 1]
-        : Math.max(
-            this.nonce, // TODO: See below ... + 1 ?
-            transactionCount,
-          );
+      attemptedNonces.length > 0 ? attemptedNonces[attemptedNonces.length - 1] : Math.max(this.nonce, transactionCount);
     // If backfill conditions are met, then we should instead set the nonce to the backfill value.
     const backfill = transactionCount < this.lastReceivedTxCount;
     if (backfill) {
@@ -303,8 +336,6 @@ export class TransactionDispatch extends ChainRpcProvider {
     // Set lastReceivedTxCount - this will be used in future calls of this method to determine if we need to backtrack nonce (i.e. backfill).
     this.lastReceivedTxCount = transactionCount;
     attemptedNonces.push(nonce);
-    // TODO: Should we just set/update the member var nonce here? In which case, add 1 in the TODO above? ^^
-    // this.nonce = nonce;
     return { nonce, backfill, transactionCount };
   }
 
@@ -477,11 +508,6 @@ export class TransactionDispatch extends ChainRpcProvider {
       throw new TransactionProcessingError(TransactionProcessingError.reasons.SubmitOutOfOrder, method);
     }
 
-    // If this is a replacement tx, check to make sure that we have raised the gas price (# of bumps should equal # of txs).
-    if (transaction.responses.length > 0 && transaction.bumps < transaction.responses.length) {
-      throw new TransactionProcessingError(TransactionProcessingError.reasons.DidNotBump, method);
-    }
-
     // Increment transaction # attempts made.
     transaction.attempt++;
 
@@ -518,7 +544,7 @@ export class TransactionDispatch extends ChainRpcProvider {
         (error as TransactionReverted).reason === TransactionReverted.reasons.InsufficientFunds
       ) {
         this.logger.error(
-          "ROUTER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
+          "SIGNER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
           requestContext,
           methodContext,
           jsonifyError(error),

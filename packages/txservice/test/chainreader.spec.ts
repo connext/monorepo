@@ -11,7 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
-import { ChainRpcProvider } from "../src/provider";
+import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
 import * as contractFns from "../src/shared/contracts";
 import {
@@ -30,7 +30,7 @@ const logger = new Logger({
 
 let signer: SinonStubbedInstance<Wallet>;
 let chainReader: ChainReader;
-let provider: SinonStubbedInstance<ChainRpcProvider>;
+let provider: SinonStubbedInstance<RpcProviderAggregator>;
 let context: RequestContext = {
   id: "",
   origin: "",
@@ -40,7 +40,7 @@ let context: RequestContext = {
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
 describe("ChainReader", () => {
   beforeEach(() => {
-    provider = createStubInstance(ChainRpcProvider);
+    provider = createStubInstance(RpcProviderAggregator);
     signer = createStubInstance(Wallet);
     signer.connect.resolves(true);
 

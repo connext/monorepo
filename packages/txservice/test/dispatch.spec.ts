@@ -5,7 +5,7 @@ import { expect } from "@connext/nxtp-utils";
 
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
-import { ChainRpcProvider } from "../src/provider";
+import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
 import {
   OnchainTransaction,
   BadNonce,
@@ -102,8 +102,8 @@ describe("TransactionDispatch", () => {
       confirmationTimeout: 10_000,
     };
 
-    Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
-    Sinon.stub(ChainRpcProvider.prototype as any, "setBlockPeriod").resolves();
+    Sinon.stub(RpcProviderAggregator.prototype as any, "syncProviders").resolves();
+    Sinon.stub(RpcProviderAggregator.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
     txDispatch = new TransactionDispatch(logger, TEST_SENDER_CHAIN_ID, chainConfig, signer, dispatchCallbacks, false);
@@ -497,12 +497,6 @@ describe("TransactionDispatch", () => {
 
     it("should throw if the transaction is already finished", async () => {
       mockTransactionState.didFinish = true;
-      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
-    });
-
-    it("should throw if it's a second attempt and gas price hasn't been increased", async () => {
-      const txResponse: providers.TransactionResponse = { ...TEST_TX_RESPONSE };
-      transaction.responses = [txResponse];
       await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 
