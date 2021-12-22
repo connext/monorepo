@@ -71,17 +71,17 @@ describe("ChainReader", () => {
   describe("#readTx", () => {
     it("happy: returns exactly what it reads", async () => {
       const fakeData = getRandomBytes32();
-      provider.readTransaction.resolves(fakeData);
+      provider.readContract.resolves(fakeData);
 
       const data = await chainReader.readTx(TEST_READ_TX);
 
       expect(data).to.deep.eq(fakeData);
-      expect(provider.readTransaction.callCount).to.equal(1);
-      expect(provider.readTransaction.args[0][0]).to.deep.eq(TEST_READ_TX);
+      expect(provider.readContract.callCount).to.equal(1);
+      expect(provider.readContract.args[0][0]).to.deep.eq(TEST_READ_TX);
     });
 
     it("should throw if provider fails", async () => {
-      provider.readTransaction.rejects(new RpcError("fail"));
+      provider.readContract.rejects(new RpcError("fail"));
 
       await expect(chainReader.readTx(TEST_READ_TX)).to.be.rejectedWith("fail");
     });

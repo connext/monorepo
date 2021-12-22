@@ -147,7 +147,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
             this.logger.debug("Received error waiting for transaction to be mined.", requestContext, methodContext, {
               chainId: this.chainId,
               txsId: transaction.uuid,
-              error: jsonifyError(error),
+              error,
             });
 
             if (error.type === OperationTimeout.type || error.type === BadNonce.type) {
@@ -176,11 +176,13 @@ export class TransactionDispatch extends RpcProviderAggregator {
                   meta.shouldBump = false;
                 }
               } else {
-                const response = responses.find((response) => response !== null)!;
-                if (response.confirmations && response.confirmations > 0) {
+                // Transaction was found on chain.
+                const response = responses.find((response) => response !== null);
+                if (response?.confirmations && response?.confirmations > 0) {
                   // Transaction was mined! We should immediately continue to the next loop without
                   // resubmitting and let the mine function get the receipt.
                   meta.shouldResubmit = false;
+                  meta.shouldBump = false;
                   continue;
                 }
                 // Transaction was found, but it's not going through. We should bump the gas and submit
@@ -213,14 +215,15 @@ export class TransactionDispatch extends RpcProviderAggregator {
                 },
               );
               meta.shouldResubmit = false;
+              meta.shouldBump = false;
             } else {
               transaction.error = error;
             }
           }
-          // If any errors occurred, fail that transaction and move on.
-          if (transaction.error) {
-            await this.fail(transaction);
-          }
+        }
+        // If any errors occurred, fail that transaction and move on.
+        if (transaction.error) {
+          await this.fail(transaction);
         }
       }
     } catch (error) {

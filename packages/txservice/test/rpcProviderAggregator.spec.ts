@@ -272,24 +272,24 @@ describe("RpcProviderAggregator", () => {
     });
   });
 
-  describe("#readTransaction", () => {
-    it("happy: should read the transaction", async () => {
+  describe("#readContract", () => {
+    it("happy: should perform contract read method as given", async () => {
       const fakeData = getRandomBytes32();
       signer.call.resolves(fakeData);
 
-      const result = await chainProvider.readTransaction(TEST_READ_TX);
+      const result = await chainProvider.readContract(TEST_READ_TX);
 
       expect(signer.call.callCount).to.equal(1);
       expect(signer.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
       expect(result).to.be.eq(fakeData);
     });
 
-    it("should return error result if the signer readTransaction call throws", async () => {
+    it("should return error result if the signer readContract call throws", async () => {
       const testError = new Error("test error");
       signer.call.rejects(testError);
 
       // The error.context.error is the "test error" thrown by the signer.call.
-      await expect(chainProvider.readTransaction(TEST_READ_TX)).to.be.rejectedWith(TransactionReadError);
+      await expect(chainProvider.readContract(TEST_READ_TX)).to.be.rejectedWith(TransactionReadError);
     });
 
     it("should execute with provider if no signer available", async () => {
@@ -297,7 +297,7 @@ describe("RpcProviderAggregator", () => {
       (chainProvider as any).signer = undefined;
       coreSyncProvider.call.resolves(fakeData);
 
-      const result = await chainProvider.readTransaction(TEST_READ_TX);
+      const result = await chainProvider.readContract(TEST_READ_TX);
 
       expect(signer.call.callCount).to.equal(0);
       expect(coreSyncProvider.call.callCount).to.equal(1);
