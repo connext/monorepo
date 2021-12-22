@@ -372,7 +372,7 @@ export class ChainReader {
 
     // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
     let l1GasInUsd = BigNumber.from(0);
-    if (chainIdForTokenPrice === 10) {
+    if (chainIdForGasPrice === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
       let gasEstimate = "0";
       if (method === "prepare") {
