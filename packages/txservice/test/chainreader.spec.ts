@@ -369,23 +369,19 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(expectedTotal.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 7)).to.deep.eq([
-        TEST_SENDER_CHAIN_ID,
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
         TEST_SENDER_CHAIN_ID,
         sendingAssetId,
-        TEST_SENDER_CHAIN_ID,
-        mkAddress("0x0"),
         18,
         "fulfill",
+        false,
       ]);
-      expect(calculateGasFeeStub.getCall(1).args.slice(0, 7)).to.deep.eq([
-        TEST_RECEIVER_CHAIN_ID,
+      expect(calculateGasFeeStub.getCall(1).args.slice(0, 5)).to.deep.eq([
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x0"),
         18,
         "prepare",
+        false,
       ]);
     });
   });
@@ -408,14 +404,12 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(gasFee.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 7)).to.deep.eq([
-        TEST_RECEIVER_CHAIN_ID,
+      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
         TEST_RECEIVER_CHAIN_ID,
         assetId,
-        TEST_RECEIVER_CHAIN_ID,
-        mkAddress("0x0"),
         18,
         "fulfill",
+        false,
       ]);
     });
   });
@@ -476,7 +470,7 @@ describe("ChainReader", () => {
     });
 
     it("special case for chainId 10 prepare", async () => {
-      chainsPriceOraclesStub.value([10]);
+      chainsPriceOraclesStub.value([1, 10]);
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
@@ -491,7 +485,7 @@ describe("ChainReader", () => {
     });
 
     it("special case for chainId 10 fulfill", async () => {
-      chainsPriceOraclesStub.value([10]);
+      chainsPriceOraclesStub.value([1, 10]);
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
@@ -506,7 +500,7 @@ describe("ChainReader", () => {
     });
 
     it("special case for chainId 10 cancel", async () => {
-      chainsPriceOraclesStub.value([10]);
+      chainsPriceOraclesStub.value([1, 10]);
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
