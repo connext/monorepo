@@ -28,13 +28,14 @@ import {
   RequestContext,
   MethodContext,
   calculateExchangeAmount,
-  GAS_ESTIMATES,
   getReceiverAmount,
   ChainData,
   StatusResponse,
+  getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { abi as RouterAbi } from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
@@ -550,11 +551,14 @@ export class NxtpSdkBase {
       auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
       numAuctionResponsesQuorum,
     } = params;
-    if (!this.config.chainConfig[sendingChainId]) {
+
+    const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
+    const receivingChainProvider = this.config.chainConfig[receivingChainId]?.providers;
+    if (!sendingChainProvider) {
       throw new ChainNotConfigured(sendingChainId, Object.keys(this.config.chainConfig));
     }
 
-    if (!this.config.chainConfig[receivingChainId]) {
+    if (!receivingChainProvider) {
       throw new ChainNotConfigured(receivingChainId, Object.keys(this.config.chainConfig));
     }
 
@@ -716,9 +720,6 @@ export class NxtpSdkBase {
         transactionId,
         inbox,
       });
-      if (auctionResponses.length === 0) {
-        throw new NoBids(auctionWaitTimeMs, transactionId, payload);
-      }
       if (dryRun) {
         return { ...auctionResponses[0], totalFee, metaTxRelayerFee, routerFee };
       }
@@ -728,9 +729,26 @@ export class NxtpSdkBase {
           // check router sig on bid
           const signer = recoverAuctionBid(data.bid, data.bidSignature ?? "");
           if (signer !== data.bid.router) {
-            const msg = "Invalid router signature on bid";
-            this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
-            return msg;
+            const code = await this.chainReader.getCode(receivingChainId, data.bid.router);
+            if (code !== "0x") {
+              const encodedData = new Interface(RouterAbi).encodeFunctionData("routerSigner");
+              let routerSigner = await this.chainReader.readTx({
+                to: data.bid.router,
+                data: encodedData,
+                chainId: receivingChainId,
+              });
+              routerSigner = utils.getAddress(utils.hexDataSlice(routerSigner, 12)); // convert 32 bytes to 20 bytes
+
+              if (routerSigner !== signer) {
+                const msg = "Invalid routerContract signature on bid";
+                this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router, routerSigner });
+                return msg;
+              }
+            } else {
+              const msg = "Invalid router signature on bid";
+              this.logger.warn(msg, requestContext, methodContext, { signer, router: data.bid.router });
+              return msg;
+            }
           }
 
           // check contract for router liquidity
@@ -793,6 +811,10 @@ export class NxtpSdkBase {
       throw new UnknownAuctionError(transactionId, jsonifyError(e), payload, { transactionId });
     }
 
+    if (receivedBids.length === 0) {
+      throw new NoBids(auctionWaitTimeMs, transactionId, payload, { requestContext, methodContext });
+    }
+
     const validBids = receivedBids.filter((x) => typeof x !== "string") as AuctionResponse[];
     const invalidBids = receivedBids.filter((x) => typeof x === "string") as string[];
 
@@ -800,9 +822,18 @@ export class NxtpSdkBase {
       throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
     }
 
-    const chosen = validBids.sort((a: AuctionResponse, b) => {
+    const maximumBid = validBids.sort((a: AuctionResponse, b) => {
       return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
     })[0];
+
+    const filteredBids = validBids.filter((a: AuctionResponse) =>
+      BigNumber.from(a.bid.amountReceived)
+        .sub(maximumBid.bid.amountReceived)
+        .abs()
+        .lte(BigNumber.from(maximumBid.bid.amountReceived).mul(5).div(100)),
+    );
+
+    const chosen = filteredBids[Math.floor(Math.random() * (filteredBids.length - 1))];
 
     return { ...chosen, totalFee, metaTxRelayerFee, routerFee };
   }
@@ -1164,7 +1195,8 @@ export class NxtpSdkBase {
       decimals,
     });
 
-    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+    const gasLimits = getHardcodedGasLimits(chainId);
+    const gasLimitForPrepare = BigNumber.from(gasLimits.prepare);
     let totalCost = constants.Zero;
     try {
       const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);

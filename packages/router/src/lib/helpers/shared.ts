@@ -1,20 +1,56 @@
 import {
   getNtpTimeSeconds as _getNtpTimeSeconds,
   RequestContext,
+  createLoggingContext,
+  getInvariantTransactionDigest,
+  getVariantTransactionDigest,
+  TransactionData,
   multicall as _multicall,
   Call,
+  MethodContext,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
-import { BigNumber, utils, constants } from "ethers";
+import { getAddress, Interface } from "ethers/lib/utils";
+import { BigNumber, constants, utils } from "ethers/lib/ethers";
+import {
+  TransactionManager as TTransactionManager,
+  ConnextPriceOracle as TConnextPriceOracle,
+  Router as TRouter,
+  ERC20 as TERC20,
+} from "@connext/nxtp-contracts/typechain";
+import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 
+import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { getContext } from "../../router";
+import { SanitationCheckFailed } from "../errors";
 
+const { HashZero } = constants;
 /**
  * Helper to allow easy mocking
  */
+
 export const getNtpTimeSeconds = async () => {
   return await _getNtpTimeSeconds();
 };
+
+export const getContractAddress = (chainId: number): string => {
+  const { config } = getContext();
+  const nxtpContractAddress = config.chainConfig[chainId]?.transactionManagerAddress;
+  if (!nxtpContractAddress) {
+    throw new Error(`No contract exists for chain ${chainId}`);
+  }
+  return nxtpContractAddress;
+};
+
+export const getErc20ContractInterface = () => new Interface(ERC20Abi) as TERC20["interface"];
+export const getRouterContractInterface = () => new Interface(RouterArtifact.abi) as TRouter["interface"];
+
+export const getTxManagerInterface = () =>
+  new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+
+export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
 
 /**
  * Returns the mainnet equivalent of the given asset on the given chain from chain data.
@@ -187,6 +223,51 @@ export const calculateGasFeeInReceivingTokenForFulfill = async (
   );
 };
 
+/**
+ * Helper to calculate gas fee for specific transactions
+ *
+ * @param chainId The network id that we're going to get gas fee on
+ * @param assetId The asset address that we're going to get gas fee in
+ * @param decimals Decimal number of assets
+ * @param method "prepare" | "fulfill" | "cancel"
+ * @param requestContext Request context instance.
+ * @param methodContext Method context instance.
+ * @param whichChain "sending" | "receiving"
+ */
+export const calculateGasFee = async (
+  chainId: number,
+  assetId: string,
+  decimals: number,
+  method: "prepare" | "fulfill" | "cancel",
+  requestContext: RequestContext,
+  methodContext: MethodContext,
+): Promise<BigNumber> => {
+  const { txService, isRouterContract } = getContext();
+
+  const assetIdOnMainnet = await getMainnetEquivalent(assetId, chainId);
+  const tokenPricingChain = assetIdOnMainnet ? 1 : chainId;
+  const tokenPricingAssetId = assetIdOnMainnet ? assetIdOnMainnet : assetId;
+
+  const nativeAssetIdOnMainnet = await getMainnetEquivalent(constants.AddressZero, chainId);
+  const nativeTokenPricingChain = nativeAssetIdOnMainnet ? 1 : chainId;
+  const nativeTokenPricingAssetId = nativeAssetIdOnMainnet ? nativeAssetIdOnMainnet : constants.AddressZero;
+
+  const gasFeeRes = await txService.calculateGasFee(
+    tokenPricingChain,
+    chainId,
+    tokenPricingAssetId,
+    nativeTokenPricingChain,
+    nativeTokenPricingAssetId,
+    decimals,
+    method,
+    isRouterContract,
+    requestContext,
+    methodContext,
+  );
+
+  return gasFeeRes;
+};
+
 export const getTokenPriceFromOnChain = async (
   chainId: number,
   assetId: string,
@@ -196,6 +277,127 @@ export const getTokenPriceFromOnChain = async (
   return txService.getTokenPriceFromOnChain(chainId, assetId, requestContext);
 };
 
+export const sanitationCheck = async (
+  chainId: number,
+  transactionData: TransactionData,
+  functionCall: "prepare" | "fulfill" | "cancel",
+  _requestContext?: RequestContext<string>,
+) => {
+  const { txService, contractReader } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(
+    sanitationCheck.name,
+    _requestContext,
+    transactionData.transactionId,
+  );
+
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  const invariantDigest = getInvariantTransactionDigest({
+    receivingChainTxManagerAddress: transactionData.receivingChainTxManagerAddress,
+    user: transactionData.user,
+    router: transactionData.router,
+    initiator: transactionData.initiator,
+    sendingAssetId: transactionData.sendingAssetId,
+    receivingAssetId: transactionData.receivingAssetId,
+    sendingChainFallback: transactionData.sendingChainFallback,
+    callTo: transactionData.callTo,
+    receivingAddress: transactionData.receivingAddress,
+    sendingChainId: transactionData.sendingChainId,
+    receivingChainId: transactionData.receivingChainId,
+    callDataHash: transactionData.callDataHash,
+    transactionId: transactionData.transactionId,
+  });
+
+  const encodeVariantTransactionData = getTxManagerInterface().encodeFunctionData("variantTransactionData", [
+    invariantDigest,
+  ]);
+
+  const variantTransactionDigest = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeVariantTransactionData,
+  });
+
+  if (functionCall === "prepare") {
+    // variantTransactionDigest exist then transaction is already prepared
+    if (variantTransactionDigest !== HashZero) {
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+        requestContext,
+        methodContext,
+        variantTransactionDigest,
+      });
+    }
+  } else {
+    const expectedVariantDigest = getVariantTransactionDigest({
+      amount: transactionData.amount,
+      expiry: transactionData.expiry,
+      preparedBlockNumber: transactionData.preparedBlockNumber,
+    });
+
+    if (expectedVariantDigest === variantTransactionDigest) {
+      // All is good, no issues
+      return;
+    }
+
+    // transaction should be prepared before fulfill
+    if (variantTransactionDigest === HashZero) {
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+        requestContext,
+        methodContext,
+        variantTransactionDigest,
+      });
+    }
+
+    // transaction is already fulfilled
+    // get expected fulfilled/cancelled variant hash
+    const fulfilledOrCancelledVariant = getVariantTransactionDigest({
+      amount: transactionData.amount,
+      expiry: transactionData.expiry,
+      preparedBlockNumber: 0,
+    });
+
+    if (variantTransactionDigest === fulfilledOrCancelledVariant) {
+      throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+        requestContext,
+        methodContext,
+        variantTransactionDigest,
+        fulfilledOrCancelledVariant,
+      });
+    }
+
+    if (functionCall === "cancel" && chainId === transactionData.sendingChainId) {
+      const receivingChainNxtpContractAddress = getContractAddress(transactionData.receivingChainId);
+
+      const receivingChainVariantTransactionDigest = await txService.readTx({
+        chainId: transactionData.receivingChainId,
+        to: receivingChainNxtpContractAddress,
+        data: encodeVariantTransactionData,
+      });
+
+      if (receivingChainVariantTransactionDigest === HashZero) {
+        // cancel is allowed when no transaction is prepared
+        return;
+      } else {
+        const receivingChainTransaction = await contractReader.getTransactionForChain(
+          transactionData.transactionId,
+          transactionData.user,
+          transactionData.receivingChainId,
+        );
+
+        if (receivingChainTransaction?.status === TransactionStatus.Cancelled) {
+          // cancel is allowed when transaction is cancelled on receiving chain
+          return;
+        } else {
+          throw new SanitationCheckFailed(functionCall, transactionData.transactionId, chainId, {
+            requestContext,
+            methodContext,
+          });
+        }
+      }
+    }
+  }
+};
 /**
  * Runs multiple calls at a time, call data should be read methods. used to make it easier for sinon mocks to happen in test cases.
  *
@@ -208,4 +410,38 @@ export const getTokenPriceFromOnChain = async (
  */
 export const multicall = async (abi: any[], calls: Call[], multicallAddress: string, rpcUrl: string) => {
   return await _multicall(abi, calls, multicallAddress, rpcUrl);
+};
+
+export const isRouterWhitelisted = async (routerAddress: string, chainId: number): Promise<boolean> => {
+  const { txService } = getContext();
+  const nxtpContractAddress = getContractAddress(chainId);
+
+  // First check if ownership is renounced
+  const encodeRenounced = getTxManagerInterface().encodeFunctionData("isRouterOwnershipRenounced");
+
+  const renouncedResult = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeRenounced,
+  });
+
+  const [renounced] = getTxManagerInterface().decodeFunctionResult("isRouterOwnershipRenounced", renouncedResult);
+
+  // If so, return true (no whitelist)
+  if (renounced) {
+    return true;
+  }
+
+  // If not, check the router is approved
+  const encodeApprovedRoutersData = getTxManagerInterface().encodeFunctionData("approvedRouters", [routerAddress]);
+
+  const approvedRoutersEncoded = await txService.readTx({
+    chainId,
+    to: nxtpContractAddress,
+    data: encodeApprovedRoutersData,
+  });
+
+  const [result] = getTxManagerInterface().decodeFunctionResult("approvedRouters", approvedRoutersEncoded);
+
+  return result;
 };

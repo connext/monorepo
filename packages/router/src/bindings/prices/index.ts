@@ -62,7 +62,7 @@ export const bindPrices = async () => {
           const multicallAddress = config.chainConfig[chainId]?.multicallAddress;
           if (multicallAddress) {
             // if multicall address is given, we use multicall contract to fetch token price
-            logger.info("fetching token prices using multicall", requestContext, methodContext, {
+            logger.debug("fetching token prices using multicall", requestContext, methodContext, {
               multicallAddress,
               chainId,
               assetIds,
@@ -79,7 +79,7 @@ export const bindPrices = async () => {
                 Math.floor(Math.random() * (config.chainConfig[chainId].providers.length - 1))
               ];
             const tokenPrices = await multicall(priceOracleContract.abi, calls, multicallAddress, randomRpcUrl);
-            logger.info("fetching token prices using multicall done", requestContext, methodContext, {
+            logger.debug("fetching token prices using multicall done", requestContext, methodContext, {
               multicallAddress,
               assetIds,
               tokenPrices,
@@ -93,7 +93,7 @@ export const bindPrices = async () => {
             }
           } else {
             // if multicall address isn't given, we use Promise.all to fetch token price
-            logger.info("fetching token prices using Promise", requestContext, methodContext, {
+            logger.debug("fetching token prices using Promise", requestContext, methodContext, {
               chainId,
               assetIds,
             });

@@ -20,7 +20,7 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const erc20Address = "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10";
+const erc20Address = "0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F";
 
 const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddressReceiving = txManagerAddressSending;
@@ -239,7 +239,7 @@ describe("Integration", () => {
     );
 
     const finishRes = await userSdk.fulfillTransfer(event, true);
-    console.info("fullfill Transfer at receiver side", finishRes);
+    logger.info("fullfill Transfer at receiver side", finishRes);
 
     expect(finishRes.transactionHash).to.be.ok;
   };

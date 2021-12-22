@@ -5,9 +5,6 @@ import PriorityQueue from "p-queue";
 import { getDecimals, getOnchainBalance, sendGift } from "./chain";
 import { ChainConfig } from "./config";
 
-// const MINIMUM_FUNDING_MULTIPLE = 2;
-// const USER_MIN_ETH = utils.parseEther("0.2");
-// const USER_MIN_TOKEN = utils.parseEther("1000000");
 const NUM_RETRIES = 5;
 export class OnchainAccountManager {
   public readonly wallets: Wallet[] = [];
@@ -29,7 +26,7 @@ export class OnchainAccountManager {
     public readonly MINIMUM_ETH_FUNDING_MULTIPLE = 1,
     public readonly MINIMUM_TOKEN_FUNDING_MULTIPLE = 5,
     private readonly USER_MIN_ETH = utils.parseEther("0.1"),
-    private readonly USER_MIN_TOKEN = utils.parseEther("10000"),
+    private readonly USER_MIN_TOKEN = "10000",
   ) {
     this.funder = Wallet.fromMnemonic(mnemonic);
     for (let i = 0; i < num_users; i++) {
@@ -89,7 +86,7 @@ export class OnchainAccountManager {
     this.cachedDecimals[assetId] = decimals;
 
     const isToken = assetId !== constants.AddressZero;
-    const floor = isToken ? utils.parseUnits(this.USER_MIN_TOKEN.toString(), decimals) : this.USER_MIN_ETH;
+    const floor = isToken ? utils.parseUnits(this.USER_MIN_TOKEN, decimals) : this.USER_MIN_ETH;
     const initial = await getOnchainBalance(assetId, account, provider);
     if (initial.gte(floor)) {
       this.log.info("No need for top up", undefined, undefined, { assetId, account, chainId });
@@ -104,7 +101,7 @@ export class OnchainAccountManager {
     const funderBalance = await getOnchainBalance(assetId, this.funder.address, provider);
     if (funderBalance.lt(toSend)) {
       throw new Error(
-        `${this.funder.address} has insufficient funds of ${assetId} to top up. Has ${utils.formatEther(
+        `${this.funder.address} has insufficient funds for ${assetId} on ${chainId}. Has ${utils.formatEther(
           funderBalance,
         )}, needs ${utils.formatEther(toSend)}`,
       );

@@ -2,9 +2,34 @@
 
 ## Next Release
 
+# 0.1.3
+
+- [router] Fix admin function for checking approved router
+
+# 0.1.2
+
+- [router] Further improve logic for gelato fallback handling
+- [router] Fix "Cannot read property 'transactionId' of undefined" error
+
+# 0.1.1
+
+- [router] Improve logic for gelato fallback handling
+- [router] Fix sanitation check for router contract cancel
+
+# 0.1.0
+
+- [router/sdk] Router contract integration
+
+# 0.0.105
+
+- [sdk] update transaferQuote
+- [contracts] fuse deployment
+- [txService] Fix and Bump test coverage
+
 # 0.0.104
 
 - [router] Fix metrics collection
+- [router] Fix cache duration for token prices
 
 # 0.0.103
 
@@ -15,7 +40,8 @@
 - [txservice] Fixed issue with RPC stall timeout handling
 - [router] Undefined handling in `bindPrices`
 - [router/sdk] Get active transactions specific to users and routers
-
+- [subgraph] more analytics updates
+- [sdk] update generateTransactionId method
 - [txservice] error types
 - [utils] subgraph health query method implementation
 - [sdk] Add generic subgraph query method
@@ -25,16 +51,21 @@
 
 - [txservice] Reorganization, code coverage improvements
 - [txservice] Update / expose config vars
+- [router] add active transactions logs
+- [sdk] generateTransactionId method
 
 # 0.0.100
 
 - [router] Cleanup prometheus collection
 - [router/txservice] Explicitly use legacy transactions only
 - [router] Fix mainnet equivalent
+- [subgraph] analytics graphs updates
 
 # 0.0.99
 
 - [txservice] Fix error parsing
+- [router] router status messaging
+- [sdk] getRouterStatus method
 
 ## 0.0.98
 

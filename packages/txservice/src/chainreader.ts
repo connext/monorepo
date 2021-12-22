@@ -1,11 +1,12 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
 import {
   createLoggingContext,
-  GAS_ESTIMATES,
+  DEFAULT_GAS_ESTIMATES,
   Logger,
   RequestContext,
   MethodContext,
   getNtpTimeSeconds,
+  getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
@@ -277,9 +278,9 @@ export class ChainReader {
         sendingNativeAssetId,
         outputDecimals,
         "fulfill",
+        false,
         requestContext,
         methodContext,
-        "sending",
       ),
       // Calculate gas fees for receiver prepare.
       this.calculateGasFee(
@@ -290,9 +291,9 @@ export class ChainReader {
         receivingNativeAssetId,
         outputDecimals,
         "prepare",
+        false,
         requestContext,
         methodContext,
-        "receiving",
       ),
     ]);
 
@@ -339,9 +340,9 @@ export class ChainReader {
       receivingNativeAssetId,
       outputDecimals,
       "fulfill",
+      false,
       requestContext,
       methodContext,
-      "receiving",
     );
   }
 
@@ -360,22 +361,23 @@ export class ChainReader {
    * @param whichChain - Whether it's sender or receiver chain, used for
    * logging purposes only.
    */
-  private async calculateGasFee(
+  public async calculateGasFee(
     chainId: number,
     gasPriceChainId: number,
     assetId: string,
     nativeTokenChainId: number,
     nativeTokenAssetId: string,
     decimals: number,
-    method: "prepare" | "fulfill",
+    method: "prepare" | "fulfill" | "cancel",
+    isRouterContract: boolean,
     requestContext: RequestContext,
     methodContext?: MethodContext,
-    whichChain: "sending" | "receiving" | "" = "",
   ): Promise<BigNumber> {
     // If the list of chains with deployed Price Oracle Contracts does not include
     // this chain ID, return 0.
-    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId) || !CHAINS_WITH_PRICE_ORACLES.includes(nativeTokenChainId))
+    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId) || !CHAINS_WITH_PRICE_ORACLES.includes(nativeTokenChainId)) {
       return constants.Zero;
+    }
 
     // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
     // on the specified chain.
@@ -389,29 +391,38 @@ export class ChainReader {
     let l1GasInUsd = BigNumber.from(0);
     if (chainId === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-      const gasEstimate = method === "prepare" ? GAS_ESTIMATES.prepareL1 : GAS_ESTIMATES.fulfillL1;
+      let gasEstimate = "0";
+      if (method === "prepare") {
+        gasEstimate = DEFAULT_GAS_ESTIMATES.prepareL1;
+      } else if (method === "fulfill") {
+        gasEstimate = DEFAULT_GAS_ESTIMATES.fulfillL1;
+      } else {
+        gasEstimate = DEFAULT_GAS_ESTIMATES.cancelL1;
+      }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
 
-    const gasLimit =
-      method === "prepare" ? BigNumber.from(GAS_ESTIMATES.prepare) : BigNumber.from(GAS_ESTIMATES.fulfill);
+    let gasLimit = BigNumber.from("0");
+    const gasLimits = getHardcodedGasLimits(gasPriceChainId);
+    if (method === "prepare") {
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
+    } else if (method === "fulfill") {
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
+    } else {
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.cancelRouterContract : gasLimits.cancel);
+    }
     const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
 
-    this.logger.info(
-      `Calculated gas fee on ${whichChain} chain ${chainId} for ${method}`,
-      requestContext,
-      methodContext,
-      {
-        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPrice: ethPrice.toString(),
-        tokenPrice: tokenPrice.toString(),
-        gasPrice: gasPrice.toString(),
-      },
-    );
+    this.logger.info(`Calculated gas fee on chain ${chainId} for ${method}`, requestContext, methodContext, {
+      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+      l1GasInUsd: l1GasInUsd.toString(),
+      ethPrice: ethPrice.toString(),
+      tokenPrice: tokenPrice.toString(),
+      gasPrice: gasPrice.toString(),
+    });
 
     return tokenAmountForGasFee;
   }

@@ -132,7 +132,7 @@ You can also add a `.env` to the `packages/contracts` dir with the above env var
 2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
 ```sh
-yarn workspace @connext/nxtp-contracts deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
+yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
 ```
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
@@ -140,7 +140,7 @@ You should use the `NETWORK_NAME` that corresponds to the correct network within
 3. (optional) To verify the contracts (works with Etherscan-based networks):
 
 ```sh
-yarn workspace @connext/nxtp-contracts etherscan-verify --solc-input --network goerli \<NETWORK_NAME\>
+yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --solc-input --network \<NETWORK_NAME\>
 ```
 
 4. Once the contracts have been deployed, export them using:
@@ -202,4 +202,16 @@ There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. Th
 
 ```sh
 yarn workspace @connext/nxtp-contracts hardhat add-liquidity --network goerli --amount 2500000000000000000000000 --router 0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6 --asset-id 0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682
+```
+
+- Deploy Router Factory
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat deploy-router-factory --network <Network-Name> --signer <Router Signer> --recipient <Router Recipient>
+```
+
+- Create Router Contract
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat create-router --network <Network-Name> --signer <Router Signer> --recipient <Router Recipient>
 ```

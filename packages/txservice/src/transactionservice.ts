@@ -172,7 +172,7 @@ export class TransactionService extends ChainReader {
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  protected getProvider(chainId: number): TransactionDispatch {
+  public getProvider(chainId: number): TransactionDispatch {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
       throw new ProviderNotConfigured(chainId.toString());

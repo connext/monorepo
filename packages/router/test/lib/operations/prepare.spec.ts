@@ -14,7 +14,13 @@ import * as PrepareHelperFns from "../../../src/lib/helpers/prepare";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { MUTATED_AMOUNT, MUTATED_BUFFER, prepareInputMock, routerAddrMock } from "../../utils";
 import { getOperations } from "../../../src/lib/operations";
-import { contractReaderMock, contractWriterMock, txServiceMock } from "../../globalTestHook";
+import {
+  contractReaderMock,
+  contractWriterMock,
+  isRouterContractMock,
+  signerAddress,
+  txServiceMock,
+} from "../../globalTestHook";
 
 const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 
@@ -22,6 +28,8 @@ let recoverAuctionBidStub: SinonStub<[bid: AuctionBid, signature: string], strin
 let validExpiryStub: SinonStub<[expiry: number], boolean>;
 let decodeAuctionBidStub: SinonStub<[data: string], AuctionBid>;
 let validBidExpiryStub: SinonStub<[bidExpiry: number, currentTime: number], boolean>;
+let calculateGasFeeInReceivingTokenForFulfillStub: SinonStub;
+let calculateGasFeeInReceivingTokenStub: SinonStub;
 
 const { prepare } = getOperations();
 
@@ -34,11 +42,21 @@ describe("Prepare Receiver Operation", () => {
         amountAfterSwapRate: MUTATED_AMOUNT,
       });
       stub(PrepareHelperFns, "getReceiverExpiryBuffer").returns(MUTATED_BUFFER);
-      recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(routerAddrMock);
+      recoverAuctionBidStub = stub(PrepareHelperFns, "recoverAuctionBid").returns(signerAddress);
       validExpiryStub = stub(PrepareHelperFns, "validExpiryBuffer").returns(true);
       decodeAuctionBidStub = stub(PrepareHelperFns, "decodeAuctionBid").returns(auctionBidMock);
       validBidExpiryStub = stub(PrepareHelperFns, "validBidExpiry").returns(true);
       stub(SharedHelperFns, "getNtpTimeSeconds").resolves(Math.floor(Date.now() / 1000));
+      stub(SharedHelperFns, "sanitationCheck").resolves();
+      stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(123));
+      stub(PrepareHelperFns, "signRouterPrepareTransactionPayload").resolves("0xfee");
+      calculateGasFeeInReceivingTokenForFulfillStub = stub(
+        SharedHelperFns,
+        "calculateGasFeeInReceivingTokenForFulfill",
+      ).resolves(BigNumber.from(1233));
+      calculateGasFeeInReceivingTokenStub = stub(SharedHelperFns, "calculateGasFeeInReceivingToken").resolves(
+        BigNumber.from(1234),
+      );
     });
 
     it("should error if invariant data validation fails", async () => {
@@ -110,17 +128,43 @@ describe("Prepare Receiver Operation", () => {
       ).to.eventually.be.rejectedWith("Invalid data on sender chain");
     });
 
+    it("happy: should send prepare for receiving chain with router contract", async () => {
+      const baseTime = Math.floor(Date.now() / 1000);
+      (txServiceMock.getBlockTime as SinonStub).resolves(baseTime);
+      isRouterContractMock.value(true);
+      const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
+
+      expect(receipt).to.deep.eq(txReceiptMock);
+      expect(contractWriterMock.prepareRouterContract).to.be.calledOnceWithExactly(
+        invariantDataMock.receivingChainId,
+        {
+          txData: invariantDataMock,
+          amount: BigNumber.from(MUTATED_AMOUNT).sub(1234).toString(),
+          expiry: baseTime + MUTATED_BUFFER,
+          bidSignature: prepareInputMock.bidSignature,
+          encodedBid: prepareInputMock.encodedBid,
+          encryptedCallData: prepareInputMock.encryptedCallData,
+        },
+        routerAddrMock,
+        "0xfee",
+        constants.AddressZero,
+        "123",
+        true,
+        requestContext,
+      );
+    });
+
     it("happy: should send prepare for receiving chain", async () => {
       const baseTime = Math.floor(Date.now() / 1000);
       (txServiceMock.getBlockTime as SinonStub).resolves(baseTime);
       const receipt = await prepare(invariantDataMock, prepareInputMock, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.prepare).to.be.calledOnceWithExactly(
+      expect(contractWriterMock.prepareTransactionManager).to.be.calledOnceWithExactly(
         invariantDataMock.receivingChainId,
         {
           txData: invariantDataMock,
-          amount: BigNumber.from(MUTATED_AMOUNT).sub(100).toString(),
+          amount: BigNumber.from(MUTATED_AMOUNT).sub(1234).toString(),
           expiry: baseTime + MUTATED_BUFFER,
           bidSignature: prepareInputMock.bidSignature,
           encodedBid: prepareInputMock.encodedBid,

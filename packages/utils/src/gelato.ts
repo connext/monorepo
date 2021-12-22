@@ -3,18 +3,9 @@ import { Interface } from "ethers/lib/utils";
 
 import { FulfillParams } from "./transactionManager";
 
-const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
+import { CHAIN_ID } from ".";
 
-const CHAIN_ID = {
-  MAINNET: 1,
-  RINKEBY: 4,
-  GOERLI: 5,
-  BSC: 56,
-  MATIC: 137,
-  FANTOM: 250,
-  ARBITRUM: 42161,
-  AVALANCHE: 43114,
-};
+const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
 
 const endpoints = {
   [CHAIN_ID.MAINNET]: "https://relay.mainnet.fra.gelato.digital/relay",
@@ -27,7 +18,7 @@ const endpoints = {
   [CHAIN_ID.AVALANCHE]: "https://relay.avalanche.fra.gelato.digital/relay",
 };
 
-const sendFulfill = async (
+const gelatoSend = async (
   chainId: number,
   dest: string,
   data: string,
@@ -57,7 +48,7 @@ const gelatoFulfill = async (
   const args = { ...fulfillArgs, encodedMeta: "0x" };
   const data = abi.encodeFunctionData("fulfill", [args]);
   const token = fulfillArgs.txData.receivingAssetId;
-  const ret = await sendFulfill(chainId, address, data, token, fulfillArgs.relayerFee);
+  const ret = await gelatoSend(chainId, address, data, token, fulfillArgs.relayerFee);
   return ret;
 };
 
@@ -65,4 +56,4 @@ const isChainSupportedByGelato = (chainId: number): boolean => {
   return Object.values(CHAIN_ID).indexOf(chainId) !== -1;
 };
 
-export { gelatoFulfill, isChainSupportedByGelato };
+export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };

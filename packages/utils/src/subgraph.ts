@@ -56,6 +56,8 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-xdai-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-runtime",
       ];
+    case 122:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fuse-v1-runtime"];
     case 137:
       return [
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-runtime",
@@ -122,6 +124,8 @@ export const getDeployedAnalyticsSubgraphUri = (chainId: number, chainData?: Map
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-v1-analytics"];
     case 100:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-analytics"];
+    case 122:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fuse-v1-analytics"];
     case 137:
       return ["https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-analytics"];
     case 250:

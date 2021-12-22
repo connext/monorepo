@@ -1,5 +1,4 @@
 {
-  "adminToken": "blahblah",
   "chainConfig": {
     "4": {
       "providers": ["https://rinkeby.infura.io/v3/..."],
@@ -12,6 +11,7 @@
       "subgraph": "https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli"
     }
   },
+  "routers": [],
   "logLevel": "info",
   "network": "testnet",
   "mnemonic": "****MNEMONIC****",
