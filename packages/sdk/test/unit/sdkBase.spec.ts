@@ -593,16 +593,13 @@ describe("NxtpSdkBase", () => {
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
       // To ensure the sdk picks the bid we want, it needs to be >tolerance% above the rest.
-      const baseAmount = BigNumber.from("100000");
-      const preferredBid = baseAmount
-        .add(baseAmount.mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100))
-        .add("1")
-        .toString();
+      const preferredBid = BigNumber.from("100000");
+      const lowBidMax = preferredBid.sub(preferredBid.mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)).sub("1");
       const bids = [];
-      for (let i = 0; i < 10; i++) {
-        bids.push(baseAmount.sub(i * 3).toString());
+      for (let i = 0; i < 9; i++) {
+        bids.push(lowBidMax.sub(i * 3).toString());
       }
-      bids.push(preferredBid);
+      bids.push(preferredBid.toString());
 
       console.log(bids);
 
@@ -616,7 +613,7 @@ describe("NxtpSdkBase", () => {
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
-      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: preferredBid });
+      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: preferredBid.toString() });
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
   });
