@@ -1,4 +1,4 @@
-import { createLoggingContext, expect, getChainData, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { createLoggingContext, ERC20Abi, expect, getChainData, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import { SinonStubbedInstance, createStubInstance, stub } from "sinon";
@@ -7,6 +7,7 @@ import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/T
 import { getNtpTimeSeconds, getMainnetEquivalent } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
 import { ctxMock, txServiceMock } from "../../globalTestHook";
+import { getDeployedPriceOracleContract } from "@connext/nxtp-txservice";
 
 const { requestContext, methodContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
 
@@ -83,5 +84,28 @@ describe("isRouterWhitelisted", () => {
     interfaceMock.decodeFunctionResult.onSecondCall().returns([true]);
     const status = await shared.isRouterWhitelisted(mkAddress("0xa"), 1337);
     expect(status).to.be.true;
+  });
+});
+
+describe("multicall", () => {
+  it("should work", async () => {
+    const priceOralceOnBsc = getDeployedPriceOracleContract(56);
+
+    const calls = [
+      {
+        address: priceOralceOnBsc.address,
+        name: "getTokenPrice",
+        params: [mkAddress("0x0")], // BNB address
+      },
+      {
+        address: priceOralceOnBsc.address,
+        name: "getTokenPrice",
+        params: ["0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"], // WBNB address
+      },
+    ];
+    const rpcUrl = "https://bsc-dataseed.binance.org/";
+    const multicallAddress = "0x966dc92E72376ae21CC2793333f83B4c394DDC3c";
+    const [bnbPrice, wbnbPrice] = await shared.multicall(priceOralceOnBsc.abi, calls, multicallAddress, rpcUrl);
+    expect(bnbPrice.toString()).to.be.eq(wbnbPrice.toString());
   });
 });
