@@ -55,7 +55,6 @@ import {
   NoPriceOracle,
   InvalidParamStructure,
   FulfillTimeout,
-  RelayFailed,
   NotEnoughAmount,
 } from "./error";
 import {
@@ -999,7 +998,7 @@ export class NxtpSdkBase {
     fulfillSignature: string,
     decryptedCallData: string,
     relayerFee = "0",
-    useRelayers = true,
+    _useRelayers = false,
   ): Promise<{
     transactionResponse?: { transactionHash: string; chainId: number };
     transactionRequest?: providers.TransactionRequest;
@@ -1009,6 +1008,7 @@ export class NxtpSdkBase {
       undefined,
       params.txData.transactionId,
     );
+    const useRelayers = _useRelayers && BigNumber.from(relayerFee).gt(0);
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
     const transactionId = params.txData.transactionId;
 
@@ -1045,8 +1045,7 @@ export class NxtpSdkBase {
       if (isChainSupportedByGelato(txData.receivingChainId)) {
         this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
         const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
-        let gelatoSuccess = false;
-        for (let ii = 0; ii < 3; ii++) {
+        for (let i = 0; i < 3; i++) {
           try {
             const data = await gelatoFulfill(
               txData.receivingChainId,
@@ -1063,42 +1062,53 @@ export class NxtpSdkBase {
               throw new Error("No taskId returned");
             }
             this.logger.info("Submitted using Gelato Relayer", requestContext, methodContext, { data });
-            gelatoSuccess = true;
-            break;
+
+            try {
+              const response = await fulfillTxProm;
+              const ret = {
+                transactionHash: response.transactionHash,
+                chainId: response.txData.receivingChainId,
+              };
+              this.logger.info("Method complete", requestContext, methodContext, ret);
+              return { transactionResponse: ret };
+            } catch (e) {
+              throw e.message.includes("Evt timeout")
+                ? new FulfillTimeout(txData.transactionId, FULFILL_TIMEOUT, params.txData.receivingChainId, {
+                    requestContext,
+                    methodContext,
+                  })
+                : e;
+            }
           } catch (err) {
             this.logger.error("Error using Gelato Relayer", requestContext, methodContext, jsonifyError(err), {
-              attemptNum: ii + 1,
+              attemptNum: i + 1,
             });
-            await delay(1000);
-          }
-          if (!gelatoSuccess) {
-            throw new RelayFailed(transactionId, txData.receivingChainId, { requestContext, methodContext });
           }
         }
-      } else {
-        this.logger.info("Fulfilling using relayers", requestContext, methodContext);
-        if (!this.messaging.isConnected()) {
-          await this.connectMessaging();
-        }
-
-        // send through messaging to metatx relayers
-        const responseInbox = generateMessagingInbox();
-
-        const request = {
-          type: MetaTxTypes.Fulfill,
-          relayerFee,
-          to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId)!,
-          chainId: txData.receivingChainId,
-          data: {
-            relayerFee,
-            signature: fulfillSignature,
-            txData,
-            callData: decryptedCallData,
-          },
-        };
-        await this.messaging.publishMetaTxRequest(request, responseInbox);
-        this.logger.info("Submitted using router network", requestContext, methodContext, { request });
       }
+
+      // If Gelato relayer is not supported or otherwise failed, fall back to using router network.
+      this.logger.info("Fulfilling using router network", requestContext, methodContext);
+      if (!this.messaging.isConnected()) {
+        await this.connectMessaging();
+      }
+
+      // send through messaging to metatx relayers
+      const responseInbox = generateMessagingInbox();
+      const request = {
+        type: MetaTxTypes.Fulfill,
+        relayerFee,
+        to: this.transactionManager.getTransactionManagerAddress(txData.receivingChainId)!,
+        chainId: txData.receivingChainId,
+        data: {
+          relayerFee,
+          signature: fulfillSignature,
+          txData,
+          callData: decryptedCallData,
+        },
+      };
+      await this.messaging.publishMetaTxRequest(request, responseInbox);
+      this.logger.info("Submitted using router network", requestContext, methodContext, { request });
 
       try {
         const response = await fulfillTxProm;
