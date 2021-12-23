@@ -30,7 +30,6 @@ import {
   getReceiverAmount,
   ChainData,
   StatusResponse,
-  getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
