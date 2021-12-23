@@ -19,7 +19,7 @@ import {
   getDeployedPriceOracleContract,
   getPriceOracleInterface,
 } from "./shared";
-import { ChainRpcProvider } from "./provider";
+import { RpcProviderAggregator } from "./rpcProviderAggregator";
 
 // TODO: Rename to BlockchainService
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
@@ -32,7 +32,7 @@ export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }
  * @classdesc Performs onchain reads with embedded retries.
  */
 export class ChainReader {
-  protected providers: Map<number, ChainRpcProvider> = new Map();
+  protected providers: Map<number, RpcProviderAggregator> = new Map();
   protected readonly config: TransactionServiceConfig;
 
   /**
@@ -67,7 +67,7 @@ export class ChainReader {
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction): Promise<string> {
-    return await this.getProvider(tx.chainId).readTransaction(tx);
+    return await this.getProvider(tx.chainId).readContract(tx);
   }
 
   /**
@@ -445,7 +445,7 @@ export class ChainReader {
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  protected getProvider(chainId: number): ChainRpcProvider {
+  protected getProvider(chainId: number): RpcProviderAggregator {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
       throw new ProviderNotConfigured(chainId.toString());
@@ -485,7 +485,7 @@ export class ChainReader {
         throw error;
       }
       const chainIdNumber = parseInt(chainId);
-      const provider = new ChainRpcProvider(this.logger, chainIdNumber, chain, signer);
+      const provider = new RpcProviderAggregator(this.logger, chainIdNumber, chain, signer);
       this.providers.set(chainIdNumber, provider);
     });
   }

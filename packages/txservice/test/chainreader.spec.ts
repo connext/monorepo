@@ -11,7 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
-import { ChainRpcProvider } from "../src/provider";
+import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
 import * as contractFns from "../src/shared/contracts";
 import {
@@ -30,7 +30,7 @@ const logger = new Logger({
 
 let signer: SinonStubbedInstance<Wallet>;
 let chainReader: ChainReader;
-let provider: SinonStubbedInstance<ChainRpcProvider>;
+let provider: SinonStubbedInstance<RpcProviderAggregator>;
 let context: RequestContext = {
   id: "",
   origin: "",
@@ -40,7 +40,7 @@ let context: RequestContext = {
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
 describe("ChainReader", () => {
   beforeEach(() => {
-    provider = createStubInstance(ChainRpcProvider);
+    provider = createStubInstance(RpcProviderAggregator);
     signer = createStubInstance(Wallet);
     signer.connect.resolves(true);
 
@@ -71,17 +71,17 @@ describe("ChainReader", () => {
   describe("#readTx", () => {
     it("happy: returns exactly what it reads", async () => {
       const fakeData = getRandomBytes32();
-      provider.readTransaction.resolves(fakeData);
+      provider.readContract.resolves(fakeData);
 
       const data = await chainReader.readTx(TEST_READ_TX);
 
       expect(data).to.deep.eq(fakeData);
-      expect(provider.readTransaction.callCount).to.equal(1);
-      expect(provider.readTransaction.args[0][0]).to.deep.eq(TEST_READ_TX);
+      expect(provider.readContract.callCount).to.equal(1);
+      expect(provider.readContract.args[0][0]).to.deep.eq(TEST_READ_TX);
     });
 
     it("should throw if provider fails", async () => {
-      provider.readTransaction.rejects(new RpcError("fail"));
+      provider.readContract.rejects(new RpcError("fail"));
 
       await expect(chainReader.readTx(TEST_READ_TX)).to.be.rejectedWith("fail");
     });
