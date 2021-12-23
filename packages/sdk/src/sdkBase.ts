@@ -56,7 +56,6 @@ import {
   InvalidParamStructure,
   FulfillTimeout,
   NotEnoughAmount,
-  InvalidRelayerFee,
 } from "./error";
 import {
   TransactionManager,
