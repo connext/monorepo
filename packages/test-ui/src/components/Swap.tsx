@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 import { useEffect, useState, ReactElement } from "react";
-import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
+import { Col, Row, Input, Typography, Form, Button, Select, Table, Switch } from "antd";
 import { BigNumber, constants, providers, Signer, utils } from "ethers";
 import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction, GetTransferQuote } from "@connext/nxtp-sdk";
 import {
@@ -11,7 +11,7 @@ import {
   Logger,
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
-import { parseUnits } from "ethers/lib/utils";
+import { Interface, parseUnits } from "ethers/lib/utils";
 
 import { chainConfig, swapConfig } from "../constants";
 import { getExplorerLinkForTx, mintTokens as _mintTokens, TestTokenABI } from "../utils";
@@ -315,6 +315,21 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       throw new Error("No SDK available");
     }
 
+    const generateCalldata = form.getFieldValue("generateCalldata");
+    let callTo;
+    let callData;
+    if (generateCalldata) {
+      console.log("Generating calldata");
+      callTo = "0x180eb9C86bAFf427B8B91D4e6d61Fb0dD86f1e45";
+      // Get calldata
+      const counter = new Interface([
+        "function incrementAndSend(address assetId, address recipient, uint256 amount) public payable",
+      ]);
+      const address = await signer!.getAddress();
+      callData = counter.encodeFunctionData("incrementAndSend", [receivingAssetId, address, "1"]);
+      console.log("callData: ", callData);
+    }
+
     const sendingDecimals = await sdk.getDecimalsForAsset(sendingChainId, sendingAssetId);
     const receivingDecimals = await sdk.getDecimalsForAsset(receivingChainId, receivingAssetId);
     const response = await sdk.getTransferQuote({
@@ -329,6 +344,8 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         : undefined,
       transactionId,
       expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
+      callData,
+      callTo,
     });
     form.setFieldsValue({
       receivedAmount: utils.formatUnits(response?.bid.amountReceived ?? constants.Zero, receivingDecimals),
@@ -602,14 +619,12 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
               onFinish={() => {
                 transfer();
               }}
-              onFieldsChange={(changed) => {
-                console.log("changed: ", changed);
-              }}
               initialValues={{
                 sendingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[0],
                 receivingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[1],
                 asset: selectedPoolIndex,
                 amount: "10",
+                generateCalldata: false,
               }}
             >
               <Form.Item label="Sending Chain" name="sendingChain">
@@ -730,6 +745,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
 
               <Form.Item label="Preferred Routers" name="preferredRouters">
                 <Input placeholder="Do not use unless testing routers" />
+              </Form.Item>
+
+              <Form.Item label="Generate Calldata" name="generateCalldata" valuePropName="checked">
+                <Switch />
               </Form.Item>
 
               <Form.Item label="Received Amount" name="receivedAmount">
