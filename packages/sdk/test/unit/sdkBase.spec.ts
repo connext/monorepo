@@ -124,6 +124,7 @@ describe("NxtpSdkBase", () => {
     recoverAuctionBidMock.returns(router);
 
     stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
+    stub(sdkIndex, "DELAY_BETWEEN_RETRIES").value(250);
     stub(utils, "generateMessagingInbox").returns("inbox");
     gelatoFulfill = stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
     isChainSupportedByGelatoStub = stub(utils, "isChainSupportedByGelato").returns(true);
@@ -601,8 +602,6 @@ describe("NxtpSdkBase", () => {
       }
       bids.push(preferredBid.toString());
 
-      console.log(bids);
-
       setTimeout(() => {
         bids.forEach((bid) => {
           messageEvt.post({
@@ -732,7 +731,7 @@ describe("NxtpSdkBase", () => {
             },
             "0x",
             "0x",
-            "0",
+            "1",
             true,
           ),
         ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage());
@@ -753,7 +752,7 @@ describe("NxtpSdkBase", () => {
             },
             "0x",
             "0x",
-            "0",
+            "1",
             true,
           ),
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
@@ -773,7 +772,7 @@ describe("NxtpSdkBase", () => {
             },
             "0x",
             "0x",
-            "0",
+            "1",
             true,
           ),
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
@@ -797,7 +796,7 @@ describe("NxtpSdkBase", () => {
           },
           "0x",
           "0x",
-          "0",
+          "1",
           true,
         ),
       ).to.be.rejectedWith(FulfillTimeout.getMessage());
@@ -830,7 +829,7 @@ describe("NxtpSdkBase", () => {
         },
         "0x",
         "0x",
-        "0",
+        "1",
         true,
       );
 
@@ -862,7 +861,7 @@ describe("NxtpSdkBase", () => {
         },
         "0x",
         "0x",
-        "0",
+        "1",
         true,
       );
 
@@ -870,9 +869,10 @@ describe("NxtpSdkBase", () => {
       expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
     });
 
-    it("should error if gelato relay fails", async () => {
+    it("should error if gelato relay and router backup fails", async () => {
       const { transaction, record } = await getTransactionData();
       gelatoFulfill.resolves({ taskId: undefined });
+      messaging.publishMetaTxRequest.rejects(new RelayFailed(transaction.transactionId, 1));
 
       await expect(
         sdk.fulfillTransfer(
@@ -885,7 +885,7 @@ describe("NxtpSdkBase", () => {
           },
           "0x",
           "0x",
-          "0",
+          "1",
           true,
         ),
       ).to.be.rejectedWith(RelayFailed);

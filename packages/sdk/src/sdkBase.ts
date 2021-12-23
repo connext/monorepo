@@ -56,6 +56,7 @@ import {
   InvalidParamStructure,
   FulfillTimeout,
   NotEnoughAmount,
+  InvalidRelayerFee,
 } from "./error";
 import {
   TransactionManager,
@@ -99,6 +100,7 @@ export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
 export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
 export const DEFAULT_AUCTION_TIMEOUT = 6_000;
 export const FULFILL_TIMEOUT = 300_000;
+export const DELAY_BETWEEN_RETRIES = 5_000;
 
 Evt.setDefaultMaxHandlers(250);
 
@@ -1000,8 +1002,8 @@ export class NxtpSdkBase {
     params: Omit<TransactionPreparedEvent, "caller">,
     fulfillSignature: string,
     decryptedCallData: string,
-    relayerFee: string,
-    useRelayers = true,
+    relayerFee = "0",
+    useRelayers = false,
   ): Promise<{
     transactionResponse?: { transactionHash: string; chainId: number };
     transactionRequest?: providers.TransactionRequest;
@@ -1030,6 +1032,10 @@ export class NxtpSdkBase {
     }
 
     const { txData } = params;
+
+    if (useRelayers && BigNumber.from(relayerFee).isZero()) {
+      throw new InvalidRelayerFee(transactionId, txData.receivingChainId);
+    }
 
     if (!this.config.chainConfig[txData.sendingChainId]) {
       throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
@@ -1085,6 +1091,7 @@ export class NxtpSdkBase {
             this.logger.error("Error using Gelato Relayer", requestContext, methodContext, jsonifyError(err), {
               attemptNum: i + 1,
             });
+            await delay(DELAY_BETWEEN_RETRIES);
           }
         }
       }
