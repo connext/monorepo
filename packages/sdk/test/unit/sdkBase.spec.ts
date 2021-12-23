@@ -592,23 +592,31 @@ describe("NxtpSdkBase", () => {
       recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
+      // To ensure the sdk picks the bid we want, it needs to be >tolerance% above the rest.
+      const baseAmount = BigNumber.from("100000");
+      const preferredBid = baseAmount
+        .add(baseAmount.mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100))
+        .add("1")
+        .toString();
+      const bids = [];
+      for (let i = 0; i < 10; i++) {
+        bids.push(baseAmount.sub(i * 3).toString());
+      }
+      bids.push(preferredBid);
+
+      console.log(bids);
+
       setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100000" }, gasFeeInReceivingToken: "0" },
-        });
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100002" }, gasFeeInReceivingToken: "0" },
-        });
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100004" }, gasFeeInReceivingToken: "0" },
+        bids.forEach((bid) => {
+          messageEvt.post({
+            inbox: "inbox",
+            data: { bidSignature, bid: { ...auctionBid, amountReceived: bid }, gasFeeInReceivingToken: "0" },
+          });
         });
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
-      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: "100004" });
+      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: preferredBid });
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
   });
