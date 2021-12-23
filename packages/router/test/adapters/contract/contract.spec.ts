@@ -330,7 +330,7 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const newRouterAddress = mkAddress("0x2");
 
-      isRouterWhitelistedStub.resolves(false);
+      isRouterWhitelistedStub.resolves(true);
       txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
       const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
       expect(res).to.be.undefined;
@@ -343,6 +343,7 @@ describe("Contract Adapter", () => {
       const assetId = mkAddress("0x1");
       const newRouterAddress = mkAddress("0x22222");
 
+      isRouterWhitelistedStub.resolves(false);
       txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
       const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
       expect(res).to.be.undefined;
