@@ -1000,8 +1000,8 @@ export class NxtpSdkBase {
     params: Omit<TransactionPreparedEvent, "caller">,
     fulfillSignature: string,
     decryptedCallData: string,
-    relayerFee = "0",
-    _useRelayers = false,
+    relayerFee: string,
+    useRelayers = true,
   ): Promise<{
     transactionResponse?: { transactionHash: string; chainId: number };
     transactionRequest?: providers.TransactionRequest;
@@ -1011,7 +1011,6 @@ export class NxtpSdkBase {
       undefined,
       params.txData.transactionId,
     );
-    const useRelayers = _useRelayers && BigNumber.from(relayerFee).gt(0);
     this.logger.info("Method started", requestContext, methodContext, { params, useRelayers });
     const transactionId = params.txData.transactionId;
 
