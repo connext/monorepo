@@ -96,7 +96,7 @@ export const fulfill = async (
       {
         txData: { ...invariantData, amount, expiry, preparedBlockNumber },
         signature: fulfillSignature,
-        relayerFee: "0", // no relayer fee on sender side
+        relayerFee,
         callData,
       },
       routerAddress,
