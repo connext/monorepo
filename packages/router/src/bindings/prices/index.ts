@@ -12,7 +12,6 @@ export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
 export const bindPrices = async () => {
   const { logger, config, chainData } = getContext();
   const { requestContext, methodContext } = createLoggingContext("bindPrices");
-
   setInterval(async () => {
     const chainAssetMap: Map<number, string[]> = new Map();
     for (let swapPoolIdx = 0; swapPoolIdx < config.swapPools.length; swapPoolIdx++) {
@@ -47,8 +46,6 @@ export const bindPrices = async () => {
         if (!assetIds.includes(cachingNativeTokenAssetId)) {
           assetIds.push(cachingNativeTokenAssetId);
         }
-      } else {
-        chainAssetMap.set(cachingNativeTokenChainId, [cachingNativeTokenAssetId]);
       }
     }
     keys = chainAssetMap.keys();
