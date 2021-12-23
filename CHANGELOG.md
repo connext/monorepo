@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Make auction selection tests deterministic
+
 ## 0.1.4
 
 - [router] Fix relayer fee
