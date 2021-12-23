@@ -28,7 +28,7 @@ export const metaTxRequestBinding = async (
   const { requestContext, methodContext } = createLoggingContext(
     metaTxRequestBinding.name,
     _requestContext,
-    data?.data?.txData.transactionId,
+    data?.data?.txData?.transactionId ?? data?.data?.params?.transactionId,
   );
   if (err || !data) {
     logger.error("Error in metatx request", requestContext, methodContext, err, {
@@ -50,7 +50,7 @@ export const metaTxRequestBinding = async (
 
   const { txData, relayerFee } = data.type === MetaTxTypes.Fulfill ? data.data : data.data.params;
 
-  const transactionId = txData.transactionId;
+  const transactionId = txData?.transactionId;
 
   if (!transactionId) {
     throw new NoTransactionId({ data });

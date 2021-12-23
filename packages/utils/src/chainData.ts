@@ -2,6 +2,21 @@ import * as fs from "fs";
 
 import { fetchJson } from "ethers/lib/utils";
 
+export const CHAIN_ID = {
+  MAINNET: 1,
+  RINKEBY: 4,
+  GOERLI: 5,
+  OPTIMISM: 10,
+  BSC: 56,
+  XDAI: 100,
+  FUSE: 122,
+  MATIC: 137,
+  FANTOM: 250,
+  MOVR: 1285,
+  ARBITRUM: 42161,
+  AVALANCHE: 43114,
+};
+
 export type ChainData = {
   name: string;
   chainId: number;

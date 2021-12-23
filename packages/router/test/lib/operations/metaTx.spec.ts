@@ -91,6 +91,7 @@ describe("Meta Tx Operation", () => {
     ).resolves(BigNumber.from(1233));
 
     calculateGasFeeStub = stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(1233));
+    (contractWriterMock.fulfillTransactionManager as SinonStub).resetHistory();
   });
 
   it("should error if invalid data", async () => {
@@ -119,7 +120,7 @@ describe("Meta Tx Operation", () => {
     const metaTxMock = metaTxInputMock("Fulfill");
     const receipt = await sendMetaTx(metaTxMock as any, requestContext);
     expect(receipt).to.deep.eq(txReceiptMock);
-    expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWithExactly(
+    expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWith(
       metaTxMock.data.txData.sendingChainId,
       {
         txData: metaTxMock.data.txData,

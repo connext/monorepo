@@ -1,11 +1,13 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "",
   "scripts": {
     "test": "hardhat test",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
+    "whitelist": "ts-node ./src/whitelist.ts",
+    "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
     "dev": "yarn build --watch --preserveWatchOutput",

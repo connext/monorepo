@@ -3,18 +3,9 @@ import { Interface } from "ethers/lib/utils";
 
 import { FulfillParams } from "./transactionManager";
 
-const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
+import { CHAIN_ID } from ".";
 
-const CHAIN_ID = {
-  MAINNET: 1,
-  RINKEBY: 4,
-  GOERLI: 5,
-  BSC: 56,
-  MATIC: 137,
-  FANTOM: 250,
-  ARBITRUM: 42161,
-  AVALANCHE: 43114,
-};
+const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
 
 const endpoints = {
   [CHAIN_ID.MAINNET]: "https://relay.mainnet.fra.gelato.digital/relay",

@@ -7,7 +7,7 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  GAS_ESTIMATES,
+  DEFAULT_GAS_ESTIMATES,
   requestContextMock,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
@@ -592,23 +592,28 @@ describe("NxtpSdkBase", () => {
       recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
+      // To ensure the sdk picks the bid we want, it needs to be >tolerance% above the rest.
+      const preferredBid = BigNumber.from("100000");
+      const lowBidMax = preferredBid.sub(preferredBid.mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)).sub("1");
+      const bids = [];
+      for (let i = 0; i < 9; i++) {
+        bids.push(lowBidMax.sub(i * 3).toString());
+      }
+      bids.push(preferredBid.toString());
+
+      console.log(bids);
+
       setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100000" }, gasFeeInReceivingToken: "0" },
-        });
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100002" }, gasFeeInReceivingToken: "0" },
-        });
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100004" }, gasFeeInReceivingToken: "0" },
+        bids.forEach((bid) => {
+          messageEvt.post({
+            inbox: "inbox",
+            data: { bidSignature, bid: { ...auctionBid, amountReceived: bid }, gasFeeInReceivingToken: "0" },
+          });
         });
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
-      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: "100004" });
+      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: preferredBid.toString() });
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
   });
@@ -1018,7 +1023,7 @@ describe("NxtpSdkBase", () => {
         null,
       );
 
-      expect(result).to.be.eq(BigNumber.from(GAS_ESTIMATES.prepare).mul("1000000000"));
+      expect(result).to.be.eq(BigNumber.from(DEFAULT_GAS_ESTIMATES.prepare).mul("1000000000"));
     });
 
     it("happy: should return zero price if price oracle isn't configured", async () => {

@@ -28,10 +28,10 @@ import {
   RequestContext,
   MethodContext,
   calculateExchangeAmount,
-  GAS_ESTIMATES,
   getReceiverAmount,
   ChainData,
   StatusResponse,
+  getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -119,6 +119,9 @@ export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfig
  *
  */
 export class NxtpSdkBase {
+  // Tolerance is a percentage (5 = 5%).
+  public static BID_DEVIATION_TOLERANCE = 5;
+
   private readonly transactionManager: TransactionManager;
   // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
   public readonly chainReader: ChainReader;
@@ -822,9 +825,18 @@ export class NxtpSdkBase {
       throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
     }
 
-    const chosen = validBids.sort((a: AuctionResponse, b) => {
+    const maximumBid = validBids.sort((a: AuctionResponse, b) => {
       return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
     })[0];
+
+    const filteredBids = validBids.filter((a: AuctionResponse) =>
+      BigNumber.from(a.bid.amountReceived)
+        .sub(maximumBid.bid.amountReceived)
+        .abs()
+        .lte(BigNumber.from(maximumBid.bid.amountReceived).mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)),
+    );
+
+    const chosen = filteredBids[Math.floor(Math.random() * (filteredBids.length - 1))];
 
     return { ...chosen, totalFee, metaTxRelayerFee, routerFee };
   }
@@ -1186,7 +1198,8 @@ export class NxtpSdkBase {
       decimals,
     });
 
-    const gasLimitForPrepare = BigNumber.from(GAS_ESTIMATES.prepare);
+    const gasLimits = getHardcodedGasLimits(chainId);
+    const gasLimitForPrepare = BigNumber.from(gasLimits.prepare);
     let totalCost = constants.Zero;
     try {
       const ethPriceInUsd = await this.chainReader.getTokenPrice(chainId, constants.AddressZero);
