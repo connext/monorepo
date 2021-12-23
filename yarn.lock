@@ -1776,6 +1776,7 @@ __metadata:
     "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@jtbennett/ts-project-scripts": ^1.0.0-rc.4
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3

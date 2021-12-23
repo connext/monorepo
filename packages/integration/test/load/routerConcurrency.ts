@@ -2,10 +2,12 @@ import PriorityQueue from "p-queue";
 import { Logger, getChainData, getDecimalsForAsset } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 
+import * as none from "@connext/nxtp-txservice";
 import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
 import { getOnchainBalance } from "../utils/chain";
 import { writeStatsToFile } from "../utils/reporting";
+
 
 // Time to wait before giving up on tx completion
 const TIMEOUT = 15 * 60 * 1000; // 15m in ms
@@ -20,7 +22,7 @@ const ERROR_PERCENTAGE = 0.5;
  * @param maxConcurrency - Concurrency to build up to. Refleced as the number of agents who will transfer simultaneously
  * @param numberTransactions - Number of transactions each agent will send simultaneously through the router
  */
-const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions: number): Promise<void> => {
+export const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions: number): Promise<void> => {
   const config = getConfig();
   const log = new Logger({ level: config.logLevel ?? "info" });
 
