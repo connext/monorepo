@@ -33,13 +33,14 @@ import {
   NoSubgraph,
   NoTransactionManager,
   SendingChainSubgraphsNotSynced,
+  ReceivingChainSubgraphsNotSynced,
   UnknownAuctionError,
   InvalidCallTo,
   NoValidBids,
   RelayFailed,
   NotEnoughAmount,
   EncryptionError,
-  ReceivingChainSubgraphsNotSynced,
+  NoBids,
 } from "../../src/error";
 import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams } from "../../src";
@@ -82,9 +83,7 @@ describe("NxtpSdkBase", () => {
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
 
   const sendingAssetId1 = mkAddress("0x111");
-  const sendingAssetId1MainnetEquivalent = mkAddress("0x1111");
   const receivingAssetId1 = mkAddress("0x222");
-  const receivingAssetId1MainnetEquivalent = mkAddress("0x2222");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
@@ -96,6 +95,8 @@ describe("NxtpSdkBase", () => {
     chainReader.getDecimalsForAsset.resolves(18);
     chainReader.getTokenPrice.resolves(BigNumber.from(10).pow(21));
     chainReader.isSupportedChain.resolves(true);
+    chainReader.getCode.resolves("0x");
+
     stub(sdkIndex, "setupChainReader").returns(chainReader as any);
 
     const chainConfig = {
@@ -129,7 +130,6 @@ describe("NxtpSdkBase", () => {
     recoverAuctionBidMock.returns(router);
 
     stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
-    stub(sdkIndex, "DELAY_BETWEEN_RETRIES").value(250);
     stub(utils, "generateMessagingInbox").returns("inbox");
     gelatoFulfill = stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
     isChainSupportedByGelatoStub = stub(utils, "isChainSupportedByGelato").returns(true);
@@ -563,7 +563,6 @@ describe("NxtpSdkBase", () => {
 
       recoverAuctionBidMock.returns(auctionBid.user);
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
-      chainReader.getCode.resolves("0x");
 
       setTimeout(() => {
         messageEvt.post({ inbox: "inbox", data: { bidSignature, bid: auctionBid } });
@@ -679,36 +678,8 @@ describe("NxtpSdkBase", () => {
       }, 100);
 
       await expect(sdk.getTransferQuote({ ...crossChainParams })).to.eventually.be.rejectedWith(
-        UnknownAuctionError.getMessage(),
+        NoBids.getMessage(1000, crossChainParams.transactionId),
       );
-    });
-
-    it("should error if received amount is less than lowerBand", async () => {
-      const { crossChainParams, auctionBid, bidSignature } = getMock();
-
-      recoverAuctionBidMock.returns(auctionBid.router);
-
-      const slippageTolerance = "15";
-      const amountReceived = "100000";
-
-      const lowerBoundExchangeRate = (1 - parseFloat(slippageTolerance) / 100).toString();
-
-      const amtMinusGas = BigNumber.from(amountReceived).sub(0);
-      const lowerBound = calculateExchangeAmount(amtMinusGas.toString(), lowerBoundExchangeRate).split(".")[0];
-
-      transactionManager.getRouterLiquidity.resolves(BigNumber.from(amountReceived));
-
-      setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: amountReceived }, gasFeeInReceivingToken: "0" },
-        });
-      }, 100);
-
-      //expect(BigNumber.from(auctionBid.amountReceived).lt(lowerBound)).to.be.true;
-      // await expect(
-      //   sdk.getTransferQuote({ ...crossChainParams, slippageTolerance: slippageTolerance }),
-      // ).to.eventually.be.rejectedWith(UnknownAuctionError.getMessage());
     });
 
     it("happy: should get a transfer quote => dryRun", async () => {
@@ -1333,117 +1304,8 @@ describe("NxtpSdkBase", () => {
 
     it("should error for non-configured chain", async () => {
       await expect(sdk.getGasPrice(11111, requestContextMock)).eventually.be.rejectedWith(
-        ChainNotConfigured.getMessage(),
+        ChainNotConfigured.getMessage(11111, supportedChains),
       );
-    });
-  });
-
-  describe("#getMainnetEquivalent", () => {
-    beforeEach(async () => {
-      const chainData = await utils.getChainData();
-      const chainConfig = {
-        [sendingChainId]: {
-          providers: ["http://----------------------"],
-          subgraph: "http://example.com",
-          transactionManagerAddress: sendingChainTxManagerAddress,
-        },
-        [receivingChainId]: {
-          providers: ["http://----------------------"],
-          subgraph: "http://example.com",
-          transactionManagerAddress: receivingChainTxManagerAddress,
-        },
-      };
-      sdk = new NxtpSdkBase({
-        chainConfig,
-        natsUrl: "http://example.com",
-        authUrl: "http://example.com",
-        messaging: undefined,
-        logger,
-        signerAddress: Promise.resolve(user),
-        chainData: chainData,
-      });
-    });
-    it("happy: return null if chainData not configured", () => {
-      const result = sdk.getMainnetEquivalent(11111, mkAddress("0xa"));
-      expect(result).to.be.null;
-    });
-    it("happy: return null if equiv doesn't exist", () => {
-      const result = sdk.getMainnetEquivalent(1, mkAddress("0xa"));
-      expect(result).to.be.null;
-    });
-    it("happy: return mainnet equivalent if chainData configured correctly", () => {
-      const result = sdk.getMainnetEquivalent(56, mkAddress("0x0"));
-      expect(result).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52"); // BNB address on mainnet
-    });
-  });
-
-  describe("#getEstimateReceiverAmount", () => {
-    it("should error if sender chain provider is not defined", async () => {
-      const chainData = await utils.getChainData();
-      const chainConfig = {
-        [sendingChainId]: {
-          providers: undefined,
-          subgraph: "http://example.com",
-          transactionManagerAddress: sendingChainTxManagerAddress,
-        },
-        [receivingChainId]: {
-          providers: ["http://----------------------"],
-          subgraph: "http://example.com",
-          transactionManagerAddress: receivingChainTxManagerAddress,
-        },
-      };
-      sdk = new NxtpSdkBase({
-        chainConfig,
-        natsUrl: "http://example.com",
-        authUrl: "http://example.com",
-        messaging: undefined,
-        logger,
-        signerAddress: Promise.resolve(user),
-        chainData: chainData,
-      });
-      await expect(
-        sdk.getEstimateReceiverAmount({
-          amount: "100000",
-          sendingChainId: sendingChainId,
-          sendingAssetId: sendingAssetId1,
-          receivingChainId: receivingChainId,
-          receivingAssetId: receivingAssetId1,
-        }),
-      ).to.rejectedWith(ChainNotConfigured.getMessage());
-    });
-
-    it("should error if receiving chain provider is not defined", async () => {
-      const chainData = await utils.getChainData();
-      const chainConfig = {
-        [sendingChainId]: {
-          providers: ["http://----------------------"],
-          subgraph: "http://example.com",
-          transactionManagerAddress: sendingChainTxManagerAddress,
-        },
-        [receivingChainId]: {
-          providers: undefined,
-          subgraph: "http://example.com",
-          transactionManagerAddress: receivingChainTxManagerAddress,
-        },
-      };
-      sdk = new NxtpSdkBase({
-        chainConfig,
-        natsUrl: "http://example.com",
-        authUrl: "http://example.com",
-        messaging: undefined,
-        logger,
-        signerAddress: Promise.resolve(user),
-        chainData: chainData,
-      });
-      await expect(
-        sdk.getEstimateReceiverAmount({
-          amount: "100000",
-          sendingChainId: sendingChainId,
-          sendingAssetId: sendingAssetId1,
-          receivingChainId: receivingChainId,
-          receivingAssetId: receivingAssetId1,
-        }),
-      ).to.rejectedWith(ChainNotConfigured.getMessage());
     });
   });
 
