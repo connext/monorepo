@@ -537,3 +537,28 @@ export class FulfillTimeout extends FulfillError {
     );
   }
 }
+
+/**
+ * @classdesc Thrown when no responses to meta tx request in some timeframe
+ */
+export class InvalidRelayerFee extends FulfillError {
+  static getMessage(transactionId: string, chainId: number) {
+    return `Relayer fee cannot be zero when using relayers for ${transactionId} on chain ${chainId}`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      InvalidRelayerFee.getMessage(transactionId, chainId),
+      {
+        transactionId,
+        chainId,
+        ...context,
+      },
+      InvalidRelayerFee.type,
+    );
+  }
+}

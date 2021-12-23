@@ -39,6 +39,7 @@ import {
   RelayFailed,
   NotEnoughAmount,
   EncryptionError,
+  ReceivingChainSubgraphsNotSynced,
 } from "../../src/error";
 import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams } from "../../src";
@@ -128,6 +129,7 @@ describe("NxtpSdkBase", () => {
     recoverAuctionBidMock.returns(router);
 
     stub(sdkIndex, "DEFAULT_AUCTION_TIMEOUT").value(1_000);
+    stub(sdkIndex, "DELAY_BETWEEN_RETRIES").value(250);
     stub(utils, "generateMessagingInbox").returns("inbox");
     gelatoFulfill = stub(utils, "gelatoFulfill").resolves({ taskId: "foo" });
     isChainSupportedByGelatoStub = stub(utils, "isChainSupportedByGelato").returns(true);
@@ -793,23 +795,26 @@ describe("NxtpSdkBase", () => {
       recoverAuctionBidMock.returns(auctionBid.router);
       transactionManager.getRouterLiquidity.resolves(BigNumber.from(auctionBid.amountReceived));
 
+      // To ensure the sdk picks the bid we want, it needs to be >tolerance% above the rest.
+      const preferredBid = BigNumber.from("100000");
+      const lowBidMax = preferredBid.sub(preferredBid.mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)).sub("1");
+      const bids = [];
+      for (let i = 0; i < 9; i++) {
+        bids.push(lowBidMax.sub(i * 3).toString());
+      }
+      bids.push(preferredBid.toString());
+
       setTimeout(() => {
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100000" }, gasFeeInReceivingToken: "0" },
-        });
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100002" }, gasFeeInReceivingToken: "0" },
-        });
-        messageEvt.post({
-          inbox: "inbox",
-          data: { bidSignature, bid: { ...auctionBid, amountReceived: "100004" }, gasFeeInReceivingToken: "0" },
+        bids.forEach((bid) => {
+          messageEvt.post({
+            inbox: "inbox",
+            data: { bidSignature, bid: { ...auctionBid, amountReceived: bid }, gasFeeInReceivingToken: "0" },
+          });
         });
       }, 100);
       const res = await sdk.getTransferQuote(crossChainParams);
 
-      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: "100004" });
+      expect(res.bid).to.be.deep.eq({ ...auctionBid, amountReceived: preferredBid.toString() });
       expect(res.bidSignature).to.be.eq(bidSignature);
     });
 
@@ -1004,7 +1009,7 @@ describe("NxtpSdkBase", () => {
             },
             "0x",
             "0x",
-            "0",
+            "1",
             true,
           ),
         ).to.eventually.be.rejectedWith(InvalidParamStructure.getMessage());
@@ -1025,7 +1030,7 @@ describe("NxtpSdkBase", () => {
             },
             "0x",
             "0x",
-            "0",
+            "1",
             true,
           ),
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
@@ -1045,7 +1050,7 @@ describe("NxtpSdkBase", () => {
             },
             "0x",
             "0x",
-            "0",
+            "1",
             true,
           ),
         ).to.eventually.be.rejectedWith(ChainNotConfigured.getMessage());
@@ -1069,7 +1074,7 @@ describe("NxtpSdkBase", () => {
           },
           "0x",
           "0x",
-          "0",
+          "1",
           true,
         ),
       ).to.be.rejectedWith(FulfillTimeout.getMessage());
@@ -1102,7 +1107,7 @@ describe("NxtpSdkBase", () => {
         },
         "0x",
         "0x",
-        "0",
+        "1",
         true,
       );
 
@@ -1134,7 +1139,7 @@ describe("NxtpSdkBase", () => {
         },
         "0x",
         "0x",
-        "0",
+        "1",
         true,
       );
 
@@ -1142,9 +1147,10 @@ describe("NxtpSdkBase", () => {
       expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
     });
 
-    it("should error if gelato relay fails", async () => {
+    it("should error if gelato relay and router backup fails", async () => {
       const { transaction, record } = await getTransactionData();
       gelatoFulfill.resolves({ taskId: undefined });
+      messaging.publishMetaTxRequest.rejects(new RelayFailed(transaction.transactionId, 1));
 
       await expect(
         sdk.fulfillTransfer(
@@ -1157,7 +1163,7 @@ describe("NxtpSdkBase", () => {
           },
           "0x",
           "0x",
-          "0",
+          "1",
           true,
         ),
       ).to.be.rejectedWith(RelayFailed);
@@ -1316,123 +1322,6 @@ describe("NxtpSdkBase", () => {
       );
 
       expect(res).to.deep.eq(TxRequest);
-    });
-  });
-
-  describe("#estimateHardcodedFeeForPrepare", () => {
-    it("happy: should return valid price if price oracle is configured", async () => {
-      const { crossChainParams } = getMock();
-
-      const result = await sdk.estimateHardcodedFeeForPrepare(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        18,
-        null,
-        null,
-      );
-
-      expect(result).to.be.eq(BigNumber.from(DEFAULT_GAS_ESTIMATES.prepare).mul("1000000000"));
-    });
-
-    it("happy: should return zero price if price oracle isn't configured", async () => {
-      chainReader.getTokenPrice.rejects(new Error("fail, not supported etc"));
-
-      getDeployedPriceOracleContractStub.returns({ address: null, abi: null });
-      const { crossChainParams } = getMock();
-
-      const result = await sdk.estimateHardcodedFeeForPrepare(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        18,
-        null,
-        null,
-      );
-
-      expect(result).to.be.eq(BigNumber.from("0"));
-    });
-  });
-
-  describe("#estimateFeeForRouterTransfer", () => {
-    it("happy: should consult chain reader method", async () => {
-      const expectedResult = BigNumber.from("10000000");
-      chainReader.calculateGasFeeInReceivingToken.resolves(expectedResult);
-      const { crossChainParams } = getMock();
-      const result = await sdk.estimateFeeForRouterTransfer(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        crossChainParams.sendingChainId,
-        mkAddress("0x0"),
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-        crossChainParams.receivingChainId,
-        mkAddress("0x0"),
-        18,
-        null,
-        null,
-      );
-      expect(result.toString()).to.be.eq(expectedResult.toString());
-      expect(chainReader.calculateGasFeeInReceivingToken.callCount).to.be.eq(1);
-    });
-
-    it.skip("happy: should return zero price if price oracle isn't configured", async () => {
-      const { crossChainParams } = getMock();
-      const result = await sdk.estimateFeeForRouterTransfer(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        crossChainParams.sendingChainId,
-        mkAddress("0x0"),
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-        crossChainParams.receivingChainId,
-        mkAddress("0x0"),
-        18,
-        null,
-        null,
-      );
-      expect(result).to.be.eq("0");
-    });
-  });
-
-  describe("#estimateFeeForMetaTx", () => {
-    it("happy: should consult chain reader method", async () => {
-      const expectedResult = BigNumber.from("10000000");
-      chainReader.calculateGasFeeInReceivingTokenForFulfill.resolves(expectedResult);
-      const { crossChainParams } = getMock();
-      const result = await sdk.estimateFeeForMetaTx(
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-        crossChainParams.receivingChainId,
-        mkAddress("0x0"),
-        18,
-        null,
-        null,
-      );
-      // Expect price to be bumped by the meta tx buffer.
-      expect(result.toString()).to.be.eq(
-        expectedResult.add(expectedResult.mul(utils.getMetaTxBuffer()).div(100)).toString(),
-      );
-      expect(chainReader.calculateGasFeeInReceivingTokenForFulfill.callCount).to.be.eq(1);
-    });
-
-    it.skip("happy: should return zero price if price oracle isn't configured", async () => {
-      const { crossChainParams } = getMock();
-      getDeployedChainIdsForGasFeeStub.returns([11111, 22222]);
-      const result = await sdk.estimateFeeForMetaTx(
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-        crossChainParams.receivingChainId,
-        mkAddress("0x0"),
-        18,
-        null,
-        null,
-      );
-      expect(result).to.be.eq("0");
     });
   });
 

@@ -29,7 +29,6 @@ import {
   sanitationCheck,
   signRouterPrepareTransactionPayload,
 } from "../helpers";
-import { calculateGasFee, calculateGasFeeInReceivingToken } from "../helpers/shared";
 
 const { AddressZero } = constants;
 export const prepare = async (
@@ -49,6 +48,7 @@ export const prepare = async (
     isRouterContract,
     routerAddress,
     signerAddress,
+    chainData,
   } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
 
@@ -126,12 +126,13 @@ export const prepare = async (
 
   let { receivingAmount: receiverAmount } = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
-  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
-    invariantData.sendingAssetId,
+  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
     invariantData.sendingChainId,
-    invariantData.receivingAssetId,
+    invariantData.sendingAssetId,
     invariantData.receivingChainId,
+    invariantData.receivingAssetId,
     outputDecimals,
+    chainData,
     requestContext,
   );
   logger.info("Got gas fee in receiving token", requestContext, methodContext, {
@@ -222,13 +223,14 @@ export const prepare = async (
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
     );
-    const routerRelayerFee = await calculateGasFee(
+    const routerRelayerFee = await txService.calculateGasFee(
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
       "prepare",
+      isRouterContract,
+      chainData,
       requestContext,
-      methodContext,
     );
 
     const signature = await signRouterPrepareTransactionPayload(

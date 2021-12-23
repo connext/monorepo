@@ -1,4 +1,4 @@
-import { expect, createLoggingContext, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, createLoggingContext, mkBytes32, StatusResponse, mkAddress } from "@connext/nxtp-utils";
 
 import { getStatus } from "../../../src/lib/operations/status";
 

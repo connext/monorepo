@@ -10,7 +10,7 @@ import { providers, constants, utils } from "ethers";
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid } from "../errors";
-import { calculateGasFee, signRouterFulfillTransactionPayload } from "../helpers";
+import { signRouterFulfillTransactionPayload } from "../helpers";
 
 const { AddressZero, Zero } = constants;
 
@@ -22,7 +22,8 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress } = getContext();
+  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress, chainData } =
+    getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -69,13 +70,14 @@ export const fulfill = async (
       invariantData.sendingChainId,
       routerRelayerFeeAsset,
     );
-    routerRelayerFee = await calculateGasFee(
+    routerRelayerFee = await txService.calculateGasFee(
       invariantData.sendingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
       "fulfill",
+      isRouterContract,
+      chainData,
       requestContext,
-      methodContext,
     );
 
     const signature = await signRouterFulfillTransactionPayload(
@@ -94,7 +96,7 @@ export const fulfill = async (
       {
         txData: { ...invariantData, amount, expiry, preparedBlockNumber },
         signature: fulfillSignature,
-        relayerFee: "0", // no relayer fee on sender side
+        relayerFee,
         callData,
       },
       routerAddress,

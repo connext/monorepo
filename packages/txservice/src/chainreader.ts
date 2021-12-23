@@ -4,8 +4,9 @@ import {
   DEFAULT_GAS_ESTIMATES,
   Logger,
   RequestContext,
-  MethodContext,
   getNtpTimeSeconds,
+  ChainData,
+  getMainnetEquivalent,
   getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 
@@ -19,7 +20,7 @@ import {
   getDeployedPriceOracleContract,
   getPriceOracleInterface,
 } from "./shared";
-import { ChainRpcProvider } from "./provider";
+import { RpcProviderAggregator } from "./rpcProviderAggregator";
 
 // TODO: Rename to BlockchainService
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
@@ -32,7 +33,7 @@ export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }
  * @classdesc Performs onchain reads with embedded retries.
  */
 export class ChainReader {
-  protected providers: Map<number, ChainRpcProvider> = new Map();
+  protected providers: Map<number, RpcProviderAggregator> = new Map();
   protected readonly config: TransactionServiceConfig;
 
   /**
@@ -67,7 +68,7 @@ export class ChainReader {
    * @returns Encoded hexdata representing result of the read from the chain.
    */
   public async readTx(tx: ReadTransaction): Promise<string> {
-    return await this.getProvider(tx.chainId).readTransaction(tx);
+    return await this.getProvider(tx.chainId).readContract(tx);
   }
 
   /**
@@ -236,16 +237,11 @@ export class ChainReader {
    */
   async calculateGasFeeInReceivingToken(
     sendingChainId: number,
-    sendingChainIdForGasPrice: number,
     sendingAssetId: string,
-    sendingNativeChainId: number,
-    sendingNativeAssetId: string,
     receivingChainId: number,
-    receivingChainIdForGasPrice: number,
     receivingAssetId: string,
-    receivingNativeChainId: number,
-    receivingNativeAssetId: string,
     outputDecimals: number,
+    chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(
@@ -255,14 +251,8 @@ export class ChainReader {
     this.logger.info("Method start", requestContext, methodContext, {
       sendingChainId,
       sendingAssetId,
-      sendingChainIdForGasPrice,
-      sendingNativeChainId,
-      sendingNativeAssetId,
-      receivingAssetId,
       receivingChainId,
-      receivingChainIdForGasPrice,
-      receivingNativeChainId,
-      receivingNativeAssetId,
+      receivingAssetId,
       outputDecimals,
     });
 
@@ -270,30 +260,16 @@ export class ChainReader {
     // is not configured for goerli so theres no way to translate the price to goerli.
     const [senderFulfillGasFee, receiverPrepareGasFee] = await Promise.all([
       // Calculate gas fees for sender fulfill.
-      this.calculateGasFee(
-        sendingChainId,
-        sendingChainIdForGasPrice,
-        sendingAssetId,
-        sendingNativeChainId,
-        sendingNativeAssetId,
-        outputDecimals,
-        "fulfill",
-        false,
-        requestContext,
-        methodContext,
-      ),
+      this.calculateGasFee(sendingChainId, sendingAssetId, outputDecimals, "fulfill", false, chainData, requestContext),
       // Calculate gas fees for receiver prepare.
       this.calculateGasFee(
         receivingChainId,
-        receivingChainIdForGasPrice,
         receivingAssetId,
-        receivingNativeChainId,
-        receivingNativeAssetId,
         outputDecimals,
         "prepare",
         false,
+        chainData,
         requestContext,
-        methodContext,
       ),
     ]);
 
@@ -313,12 +289,10 @@ export class ChainReader {
    */
   async calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId: number,
-    receivingChainIdForGasPrice: number,
     receivingAssetId: string,
-    receivingNativeChainId: number,
-    receivingNativeAssetId: string,
     outputDecimals: number,
-    _requestContext: RequestContext,
+    chainData?: Map<string, ChainData>,
+    _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(
       this.calculateGasFeeInReceivingTokenForFulfill.name,
@@ -327,22 +301,17 @@ export class ChainReader {
     this.logger.info("Method start", requestContext, methodContext, {
       receivingChainId,
       receivingAssetId,
-      receivingChainIdForGasPrice,
-      receivingNativeChainId,
-      receivingNativeAssetId,
       outputDecimals,
     });
+
     return await this.calculateGasFee(
       receivingChainId,
-      receivingChainIdForGasPrice,
       receivingAssetId,
-      receivingNativeChainId,
-      receivingNativeAssetId,
       outputDecimals,
       "fulfill",
       false,
+      chainData,
       requestContext,
-      methodContext,
     );
   }
 
@@ -363,33 +332,48 @@ export class ChainReader {
    */
   public async calculateGasFee(
     chainId: number,
-    gasPriceChainId: number,
     assetId: string,
-    nativeTokenChainId: number,
-    nativeTokenAssetId: string,
     decimals: number,
     method: "prepare" | "fulfill" | "cancel",
     isRouterContract: boolean,
-    requestContext: RequestContext,
-    methodContext?: MethodContext,
+    chainData?: Map<string, ChainData>,
+    _requestContext?: RequestContext,
   ): Promise<BigNumber> {
-    // If the list of chains with deployed Price Oracle Contracts does not include
-    // this chain ID, return 0.
-    if (!CHAINS_WITH_PRICE_ORACLES.includes(chainId) || !CHAINS_WITH_PRICE_ORACLES.includes(nativeTokenChainId)) {
+    const { requestContext, methodContext } = createLoggingContext(this.calculateGasFee.name, _requestContext);
+
+    this.logger.info("Method start", requestContext, methodContext, {
+      chainId,
+      assetId,
+      decimals,
+    });
+
+    const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
+    const chainIdForTokenPrice = assetIdOnMainnet ? 1 : chainId;
+    const chainIdForGasPrice = chainId;
+    const assetIdForTokenPrice = assetIdOnMainnet ? assetIdOnMainnet : assetId;
+
+    const nativeAssetIdOnMainnet = await getMainnetEquivalent(chainId, constants.AddressZero, chainData);
+    const nativeChainIdForTokenPrice = nativeAssetIdOnMainnet ? 1 : chainId;
+    const nativeAssetIdForTokenPrice = nativeAssetIdOnMainnet || constants.AddressZero;
+
+    if (
+      !CHAINS_WITH_PRICE_ORACLES.includes(chainIdForTokenPrice) ||
+      !CHAINS_WITH_PRICE_ORACLES.includes(nativeChainIdForTokenPrice)
+    ) {
       return constants.Zero;
     }
 
     // Use Ethereum mainnet's price oracle for token reference if no price oracle is present
     // on the specified chain.
     const [ethPrice, tokenPrice, gasPrice] = await Promise.all([
-      this.getTokenPrice(nativeTokenChainId, nativeTokenAssetId),
-      this.getTokenPrice(chainId, assetId),
-      this.getGasPrice(gasPriceChainId, requestContext),
+      this.getTokenPrice(nativeChainIdForTokenPrice, nativeAssetIdForTokenPrice),
+      this.getTokenPrice(chainIdForTokenPrice, assetIdForTokenPrice),
+      this.getGasPrice(chainIdForGasPrice, requestContext),
     ]);
 
     // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
     let l1GasInUsd = BigNumber.from(0);
-    if (chainId === 10) {
+    if (chainIdForGasPrice === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
       let gasEstimate = "0";
       if (method === "prepare") {
@@ -403,7 +387,7 @@ export class ChainReader {
     }
 
     let gasLimit = BigNumber.from("0");
-    const gasLimits = getHardcodedGasLimits(gasPriceChainId);
+    const gasLimits = getHardcodedGasLimits(chainId);
     if (method === "prepare") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
@@ -416,13 +400,18 @@ export class ChainReader {
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
 
-    this.logger.info(`Calculated gas fee on chain ${chainId} for ${method}`, requestContext, methodContext, {
-      tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-      l1GasInUsd: l1GasInUsd.toString(),
-      ethPrice: ethPrice.toString(),
-      tokenPrice: tokenPrice.toString(),
-      gasPrice: gasPrice.toString(),
-    });
+    this.logger.info(
+      `Calculated gas fee on chain ${chainIdForTokenPrice} for ${method}`,
+      requestContext,
+      methodContext,
+      {
+        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
+        l1GasInUsd: l1GasInUsd.toString(),
+        ethPrice: ethPrice.toString(),
+        tokenPrice: tokenPrice.toString(),
+        gasPrice: gasPrice.toString(),
+      },
+    );
 
     return tokenAmountForGasFee;
   }
@@ -445,7 +434,7 @@ export class ChainReader {
    * @throws TransactionError.reasons.ProviderNotFound if provider is not configured for
    * that ID.
    */
-  protected getProvider(chainId: number): ChainRpcProvider {
+  protected getProvider(chainId: number): RpcProviderAggregator {
     // Ensure that a signer, provider, etc are present to execute on this chainId.
     if (!this.providers.has(chainId)) {
       throw new ProviderNotConfigured(chainId.toString());
@@ -485,7 +474,7 @@ export class ChainReader {
         throw error;
       }
       const chainIdNumber = parseInt(chainId);
-      const provider = new ChainRpcProvider(this.logger, chainIdNumber, chain, signer);
+      const provider = new RpcProviderAggregator(this.logger, chainIdNumber, chain, signer);
       this.providers.set(chainIdNumber, provider);
     });
   }

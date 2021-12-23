@@ -13,7 +13,7 @@ import { ParamsInvalid, ReceiverTxExists } from "../errors";
 import { CancelInput, CancelInputSchema } from "../entities";
 import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 import { SenderTxTooNew } from "../errors/cancel";
-import { calculateGasFee, signRouterCancelTransactionPayload } from "../helpers";
+import { signRouterCancelTransactionPayload } from "../helpers";
 
 export const SENDER_PREPARE_BUFFER_TIME = 60 * 13; // 13 mins (780s)
 // bsc has 3s block time, is often given 250 lag blocks
@@ -26,8 +26,17 @@ export const cancel = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(cancel.name, _requestContext);
 
-  const { logger, contractWriter, contractReader, txService, isRouterContract, config, wallet, routerAddress } =
-    getContext();
+  const {
+    logger,
+    contractWriter,
+    contractReader,
+    txService,
+    isRouterContract,
+    config,
+    wallet,
+    routerAddress,
+    chainData,
+  } = getContext();
   logger.info("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
@@ -107,13 +116,14 @@ export const cancel = async (
   if (isRouterContract) {
     routerRelayerFeeAsset = utils.getAddress(config.chainConfig[cancelChain].routerContractRelayerAsset || AddressZero);
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(cancelChain, routerRelayerFeeAsset);
-    routerRelayerFee = await calculateGasFee(
+    routerRelayerFee = await txService.calculateGasFee(
       invariantData.receivingChainId,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
       "cancel",
+      isRouterContract,
+      chainData,
       requestContext,
-      methodContext,
     );
 
     const signature = await signRouterCancelTransactionPayload(

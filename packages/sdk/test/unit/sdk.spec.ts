@@ -93,6 +93,7 @@ describe("NxtpSdk", () => {
     sdkBase.approveForPrepare.resolves(ApproveReq);
     sdkBase.prepareTransfer.resolves(PrepareReq);
     sdkBase.cancel.resolves(CancelReq);
+    sdkBase.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(1));
     (sdkBase as any).chainReader = chainReader;
     chainReader.getDecimalsForAsset.resolves(18);
     chainReader.getBalance.resolves(BigNumber.from("100"));
@@ -469,8 +470,6 @@ describe("NxtpSdk", () => {
     });
 
     it("should error if signFulfillTransactionPayload errors", async () => {
-      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
-      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
       const { transaction, record } = await getTransactionData();
 
       ethereumRequestMock.rejects("foo");
@@ -486,8 +485,6 @@ describe("NxtpSdk", () => {
     });
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {
-      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
-      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
       const { transaction, record } = await getTransactionData();
       sdkBase.fulfillTransfer.throws(
         new FulfillTimeout(transaction.transactionId, 1_000, transaction.receivingChainId, {} as any),
@@ -505,9 +502,6 @@ describe("NxtpSdk", () => {
     });
 
     it("happy: finish transfer => useRelayers:true", async () => {
-      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
-      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
-
       const { transaction, record } = await getTransactionData();
 
       const mockTransactionHash = getRandomBytes32();
@@ -528,9 +522,6 @@ describe("NxtpSdk", () => {
     });
 
     it("happy: finish transfer => useRelayers:false", async () => {
-      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
-      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
-
       const { transaction, record } = await getTransactionData();
 
       sdkBase.fulfillTransfer.resolves({ transactionRequest: FulfillReq });
@@ -548,70 +539,6 @@ describe("NxtpSdk", () => {
 
       expect(signer.sendTransaction).to.be.calledOnceWithExactly(FulfillReq);
       expect(res.transactionHash).to.be.eq(TxResponse.hash);
-    });
-  });
-
-  describe("#estimateMetaTxFeeInSendingToken", () => {
-    it("happy: should work", async () => {
-      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
-      const { crossChainParams } = getMock();
-
-      const res = await sdk.estimateMetaTxFeeInSendingToken(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-      );
-
-      expect(res).to.be.eq("1");
-    });
-  });
-
-  describe("#estimateMetaTxFeeInReceivingToken", () => {
-    it("happy: should work", async () => {
-      sdkBase.estimateFeeForMetaTx.resolves(BigNumber.from(1));
-      const { crossChainParams } = getMock();
-
-      const res = await sdk.estimateMetaTxFeeInReceivingToken(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-      );
-
-      expect(res).to.be.eq("1");
-    });
-  });
-
-  describe("#estimateFeeForRouterTransferInSendingToken", () => {
-    it("happy: should work", async () => {
-      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
-      const { crossChainParams } = getMock();
-
-      const res = await sdk.estimateFeeForRouterTransferInSendingToken(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-      );
-
-      expect(res).to.be.eq("1");
-    });
-  });
-
-  describe("#estimateFeeForRouterTransferInReceivingToken", () => {
-    it("happy: should work", async () => {
-      sdkBase.estimateFeeForRouterTransfer.resolves(BigNumber.from(1));
-      const { crossChainParams } = getMock();
-
-      const res = await sdk.estimateFeeForRouterTransferInReceivingToken(
-        crossChainParams.sendingChainId,
-        crossChainParams.sendingAssetId,
-        crossChainParams.receivingChainId,
-        crossChainParams.receivingAssetId,
-      );
-
-      expect(res).to.be.eq("1");
     });
   });
 
