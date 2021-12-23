@@ -26,7 +26,7 @@ import {
   addLiquidityForTransactionManager,
   migrateLiquidity,
 } from "../../../src/adapters/contract/contract";
-import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 import { routerAddrMock } from "../../utils";
 import { signerAddress, txServiceMock } from "../../globalTestHook";
@@ -39,11 +39,13 @@ let interfaceMock: SinonStubbedInstance<Interface>;
 
 describe("Contract Adapter", () => {
   let sanitationStub: any;
+  let isRouterWhitelistedStub: SinonStub;
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
     interfaceMock.decodeFunctionResult.returns([BigNumber.from(1000)]);
     stub(SharedFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+    isRouterWhitelistedStub = stub(SharedFns, "isRouterWhitelisted");
   });
 
   describe("#startContractListeners", () => {
@@ -297,11 +299,53 @@ describe("Contract Adapter", () => {
       const newRouterAddress = mkAddress("0x2");
 
       txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      isRouterWhitelistedStub.resolves(true);
       const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
       expect(interfaceMock.encodeFunctionData).calledWith("removeLiquidity", [amount, assetId, signerAddress]);
       expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, newRouterAddress]);
       expect(res.removeLiqudityTx).to.deep.eq(txReceiptMock);
       expect(res.addLiquidityForTx).to.deep.eq(txReceiptMock);
+    });
+
+    it("should read balance from contractReader if amount is undefined", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "10001000000000000000000";
+      const assetId = mkAddress("0x1");
+      const newRouterAddress = mkAddress("0x2");
+
+      isRouterWhitelistedStub.resolves(true);
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, undefined);
+      expect(interfaceMock.encodeFunctionData).calledWith("removeLiquidity", [amount, assetId, signerAddress]);
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, newRouterAddress]);
+      expect(res.removeLiqudityTx).to.deep.eq(txReceiptMock);
+      expect(res.addLiquidityForTx).to.deep.eq(txReceiptMock);
+    });
+
+    it("should return undefined if amount is zero", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "0";
+      const assetId = mkAddress("0x1");
+      const newRouterAddress = mkAddress("0x2");
+
+      isRouterWhitelistedStub.resolves(false);
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
+      expect(res).to.be.undefined;
+    });
+
+    it("should return undefined if router isn't whitelisted", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x1");
+      const newRouterAddress = mkAddress("0x22222");
+
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e8");
+      const res = await migrateLiquidity(chainId, assetId, requestContext, newRouterAddress, amount);
+      expect(res).to.be.undefined;
     });
   });
 
