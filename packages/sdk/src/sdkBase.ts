@@ -118,6 +118,9 @@ export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfig
  *
  */
 export class NxtpSdkBase {
+  // Tolerance is a percentage (5 = 5%).
+  public static BID_DEVIATION_TOLERANCE = 5;
+
   private readonly transactionManager: TransactionManager;
   // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
   public readonly chainReader: ChainReader;
@@ -829,7 +832,7 @@ export class NxtpSdkBase {
       BigNumber.from(a.bid.amountReceived)
         .sub(maximumBid.bid.amountReceived)
         .abs()
-        .lte(BigNumber.from(maximumBid.bid.amountReceived).mul(5).div(100)),
+        .lte(BigNumber.from(maximumBid.bid.amountReceived).mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)),
     );
 
     const chosen = filteredBids[Math.floor(Math.random() * (filteredBids.length - 1))];
