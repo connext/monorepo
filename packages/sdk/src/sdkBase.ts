@@ -1033,10 +1033,6 @@ export class NxtpSdkBase {
 
     const { txData } = params;
 
-    if (useRelayers && BigNumber.from(relayerFee).isZero()) {
-      throw new InvalidRelayerFee(transactionId, txData.receivingChainId);
-    }
-
     if (!this.config.chainConfig[txData.sendingChainId]) {
       throw new ChainNotConfigured(txData.sendingChainId, Object.keys(this.config.chainConfig));
     }
