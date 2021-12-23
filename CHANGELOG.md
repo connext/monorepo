@@ -2,6 +2,12 @@
 
 ## Next Release
 
+## 0.1.5
+
+- [sdk][router] more unit test
+- [sdk][router][txservice] fee cleanup
+- [sdk] Resort to using router network if gelato fails; set default useRelayers = false
+- [txservice] Check that transaction exists when mine timeout occurs.
 - [sdk] Make auction selection tests deterministic
 
 ## 0.1.4
