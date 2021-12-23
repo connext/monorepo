@@ -91,6 +91,7 @@ describe("Meta Tx Operation", () => {
     ).resolves(BigNumber.from(1233));
 
     calculateGasFeeStub = stub(SharedHelperFns, "calculateGasFee").resolves(BigNumber.from(1233));
+    (contractWriterMock.fulfillTransactionManager as SinonStub).resetHistory();
   });
 
   it("should error if invalid data", async () => {
