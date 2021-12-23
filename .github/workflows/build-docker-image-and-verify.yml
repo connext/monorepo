@@ -12,10 +12,10 @@ name: Build and Push Docker Image - Router
 on:
   push:
     branches:
-      - main
+      - itest-ci-fixes
   pull_request:
     branches:
-      - main
+      - itest-ci-fixes
   create:
     tag:
       - "v*"
@@ -81,9 +81,11 @@ jobs:
           echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/connext/nxtp-router:latest
           docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
-
+      - name: Build Integration Image
+        run: bash docker/build-integration.sh
+      
       - name: Test Integration
-        run: yarn test:integration
+        run: yarn test:dockerized-integration
 
       - name: Print router logs
         if: failure()

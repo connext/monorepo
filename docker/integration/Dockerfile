@@ -43,9 +43,10 @@ RUN yarn build:all
 
 # ----- Bundle the app for deployment -----
 ARG APP_NAME
-RUN yarn workspaces focus --production ${APP_NAME}
-RUN yarn dlx -p @jtbennett/ts-project-scripts tsp bundle $APP_NAME --out-dir /tmp/bundle
-
+##this is run inside of bundle already
+# RUN yarn workspaces focus --production
+##this bundling isnt working, dependency scan dosen't go deep enough (npm-packlist) so instead we build the full image
+# RUN yarn dlx @jtbennett/ts-project-scripts tsp worksapce add nxtp-txservice
 
 # ----------------------------------------
 # Copy files to the deployment image.
@@ -59,19 +60,18 @@ ENV NODE_ENV=production \
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
+RUN ls /home/node
 # ----- Copy files required at runtime by the app -----
-COPY --from=build --chown=node:node /tmp/bundle /home/node
+COPY --from=build --chown=node:node /tmp/build /home/node
 #copy config
-COPY docker/integration/config.json /home/node/integration/ops/config/load/
-
-
+COPY docker/integration/config.json /home/node/packages/integration/ops/config/load/
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-ARG SHORT_APP_DIR
-WORKDIR /home/node/${SHORT_APP_DIR}
+ARG MNEMONIC
+WORKDIR /home/node/packages/integration/
 
 EXPOSE 8001
 
-CMD ["node", "dist/load/routerCyclical.js"]
+CMD ["node", "./dist/load/routerCyclical.js"]
 

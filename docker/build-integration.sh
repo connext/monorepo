@@ -54,7 +54,7 @@ echo "= Build the build stage image and push to registry"
 echo "====="
 docker build \
   --target build \
-  --cache-from "${BUILD_IMAGE}":lattest \
+  --cache-from "${BUILD_IMAGE}":latest \
   --tag "${BUILD_IMAGE}":latest \
   --cache-from "${BUILD_IMAGE}":latest \
   --build-arg TEMP_DEPS_DIR=${TEMP_DEPS_DIR} \
