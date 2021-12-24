@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Fix relaying signature
+
 ## 0.1.5
 
 - [sdk][router] more unit test

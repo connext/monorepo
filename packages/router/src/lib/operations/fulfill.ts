@@ -83,6 +83,7 @@ export const fulfill = async (
     const signature = await signRouterFulfillTransactionPayload(
       { ...invariantData, amount, expiry, preparedBlockNumber },
       fulfillSignature,
+      relayerFee,
       callData,
       "0x",
       routerRelayerFeeAsset,
