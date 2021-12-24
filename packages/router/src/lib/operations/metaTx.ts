@@ -110,12 +110,13 @@ export const sendMetaTx = async <T extends MetaTxType>(
 
     logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   } else {
+    const { relayerFeeAsset } = data as
+      | MetaTxRouterContractPreparePayload
+      | MetaTxRouterContractFulfillPayload
+      | MetaTxRouterContractCancelPayload;
+
     // router contract methods
-    const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
-    let relayerFeeAssetDecimal =
-      relayerFeeAsset === constants.AddressZero
-        ? 18
-        : chainData.get(chainId.toString())?.assetId[relayerFeeAsset]?.decimals;
+    let relayerFeeAssetDecimal = chainData.get(chainId.toString())?.assetId[relayerFeeAsset]?.decimals;
     if (!relayerFeeAssetDecimal) {
       relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
     }
@@ -221,9 +222,6 @@ export const sendMetaTx = async <T extends MetaTxType>(
         signature,
         relayerFee,
       } = data as MetaTxRouterContractCancelPayload;
-
-      const relayerFeeAsset = config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero;
-      const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, relayerFeeAsset);
 
       const routerRelayerFee = await txService.calculateGasFee(
         chainId,
