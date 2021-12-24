@@ -199,31 +199,46 @@ export const newAuction = async (
   // estimate gas for contract
   // - TODO: Get price from AMM
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
-  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
-    sendingChainId,
-    sendingAssetId,
-    receivingChainId,
-    receivingAssetId,
-    outputDecimals,
-    chainData,
-    requestContext,
-  );
 
-  logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
-    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  const [gasFee, relayerFee] = await Promise.all([
+    txService.calculateGasFeeInReceivingToken(
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      chainData,
+      requestContext,
+    ),
+    txService.calculateGasFeeInReceivingTokenForFulfill(
+      receivingChainId,
+      receivingAssetId,
+      outputDecimals,
+      chainData,
+      requestContext,
+    ),
+  ]);
+  const totalFees = gasFee.add(relayerFee);
+
+  logger.debug("Got fees in receiving token", requestContext, methodContext, {
+    totalFees: totalFees.toString(),
+    gasFee: gasFee.toString(),
+    relayerFee: relayerFee.toString(),
   });
 
-  if (amountReceivedInBigNum.lt(gasFeeInReceivingToken)) {
+  if (amountReceivedInBigNum.lt(totalFees)) {
     throw new NotEnoughAmount({
       methodContext,
       requestContext,
       amount,
       amountReceived: amountReceived,
-      gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+      totalFees: totalFees.toString(),
+      gasFee: gasFee.toString(),
+      relayerFee: relayerFee.toString(),
     });
   }
 
-  amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
+  amountReceived = amountReceivedInBigNum.sub(totalFees).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
@@ -299,6 +314,6 @@ export const newAuction = async (
   return {
     bid,
     bidSignature: dryRun ? undefined : bidSignature,
-    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    gasFeeInReceivingToken: gasFee.toString(),
   };
 };
