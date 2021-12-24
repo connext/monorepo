@@ -1,0 +1,52 @@
+{
+  "name": "@connext/nxtp",
+  "version": "0.1.3",
+  "private": true,
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@jtbennett/ts-project-scripts": "^1.0.0-rc.4",
+    "@types/node": "^14.17.5",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "concurrently": "^6.2.1",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jsdoc": "^36.0.7",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.3.5"
+  },
+  "workspaces": [
+    "packages/contracts",
+    "packages/integration",
+    "packages/router",
+    "packages/sdk",
+    "packages/sdk-server",
+    "packages/subgraph",
+    "packages/test-ui",
+    "packages/txservice",
+    "packages/utils"
+  ],
+  "scripts": {
+    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
+    "test:dockerized-integration": "yarn workspace @connext/nxtp-integration docker:all:up && docker ps -a && bash setup-integration-test.sh && sleep 10 && echo 'router logs' && docker container logs --tail 250 router-test && docker container ls && sleep 20 && echo 'dockerized integration test start' && docker run --network=ops_nxtp-test nxtp_integration && yarn docker:stop:all", 
+    "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
+    "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph run build",
+    "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
+    "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
+    "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
+    "tsp:root": "tsp",
+    "tsp": "tsp",
+    "docker:router": "yarn workspace @connext/nxtp-router build && bash docker/build-router.sh",
+    "test:integration": "yarn workspace @connext/nxtp-integration docker:all:up && docker ps -a && bash setup-integration-test.sh && sleep 10 && echo 'router logs' && docker container logs --tail 250 router-test && echo 'integration test start' && yarn workspace @connext/nxtp-integration test && yarn docker:stop:all",
+    "docker:stop:all": "yarn workspace @connext/nxtp-integration docker:all:down",
+    "docker:local:services": "yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh"
+  },
+  "resolutions": {
+    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
+  },
+  "packageManager": "yarn@2.4.2"
+}
+
