@@ -378,6 +378,7 @@ export type AuctionBid = Static<typeof AuctionBidSchema>;
 export const AuctionResponseSchema = Type.Object({
   bid: AuctionBidSchema,
   gasFeeInReceivingToken: TIntegerString,
+  relayerFeeInReceivingToken: TIntegerString,
   bidSignature: Type.Optional(Type.String()),
 });
 

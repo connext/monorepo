@@ -32,9 +32,17 @@ export const auctionRequestBinding = async (
 
   // On every new auction broadcast, route to the new auction handler
   logger.debug("Received auction request", requestContext, methodContext);
-  const { bid, bidSignature, gasFeeInReceivingToken } = await newAuction(data, requestContext);
+  const { bid, bidSignature, gasFeeInReceivingToken, relayerFeeInReceivingToken } = await newAuction(
+    data,
+    requestContext,
+  );
 
-  await messaging.publishAuctionResponse(from, inbox, { bid, bidSignature, gasFeeInReceivingToken });
+  await messaging.publishAuctionResponse(from, inbox, {
+    bid,
+    bidSignature,
+    gasFeeInReceivingToken,
+    relayerFeeInReceivingToken,
+  });
   const sendingAssetName = getAssetName(bid.sendingAssetId, bid.sendingChainId);
   const receivingAssetName = getAssetName(bid.receivingAssetId, bid.receivingChainId);
   logger.debug("Got asset names", requestContext, methodContext, {

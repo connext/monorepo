@@ -199,7 +199,7 @@ export const newAuction = async (
   // estimate gas for contract
   // - TODO: Get price from AMM
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
-  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
+  const gasFee = await txService.calculateGasFeeInReceivingToken(
     sendingChainId,
     sendingAssetId,
     receivingChainId,
@@ -209,21 +209,30 @@ export const newAuction = async (
     requestContext,
   );
 
+  const relayerFee = await txService.calculateGasFeeInReceivingTokenForFulfill(
+    receivingChainId,
+    receivingAssetId,
+    outputDecimals,
+    chainData,
+    requestContext,
+  );
+
   logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
-    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    gasFee: gasFee.toString(),
   });
 
-  if (amountReceivedInBigNum.lt(gasFeeInReceivingToken)) {
+  if (amountReceivedInBigNum.lt(gasFee)) {
     throw new NotEnoughAmount({
       methodContext,
       requestContext,
       amount,
       amountReceived: amountReceived,
-      gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+      gasFee: gasFee.toString(),
+      relayerFee: relayerFee.toString(),
     });
   }
 
-  amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
+  amountReceived = amountReceivedInBigNum.sub(gasFee).sub(relayerFee).toString();
 
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
@@ -299,6 +308,7 @@ export const newAuction = async (
   return {
     bid,
     bidSignature: dryRun ? undefined : bidSignature,
-    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    gasFeeInReceivingToken: gasFee.toString(),
+    relayerFeeInReceivingToken: relayerFee.toString(),
   };
 };
