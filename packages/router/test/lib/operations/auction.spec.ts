@@ -73,7 +73,7 @@ describe("Auction Operation", () => {
     });
 
     it("should error if sending subgraph is out of sync", async () => {
-      const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
+      const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0, name: "" }];
       (contractReaderMock.getSyncRecords as SinonStub).onCall(0).returns(records);
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
         SubgraphNotSynced.getMessage(auctionPayload.receivingChainId, records),
@@ -81,7 +81,7 @@ describe("Auction Operation", () => {
     });
 
     it("should error if receiving subgraph is out of sync", async () => {
-      const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0 }];
+      const records = [{ synced: false, latestBlock: 0, syncedBlock: 0, uri: "", lag: 0, name: "" }];
       (contractReaderMock.getSyncRecords as SinonStub).onCall(1).returns(records);
       await expect(newAuction(auctionPayload, requestContext)).to.be.rejectedWith(
         SubgraphNotSynced.getMessage(auctionPayload.sendingChainId, records),
@@ -101,126 +101,16 @@ describe("Auction Operation", () => {
       );
     });
 
-    it("happy-1: should take a gas fee for fulfill transactions if sendingChain is fee chain", async () => {
+    it("happy: should subtract fees from receiving amount", async () => {
+      const baseReceivingAmount = "100000000000000000000";
       getReceiverAmountStub.returns({
-        receivingAmount: "100000000000000000000",
+        receivingAmount: baseReceivingAmount,
         routerFee: "10",
         amountAfterSwapRate: MUTATED_AMOUNT,
       });
 
-      // it should take a gas fee for fulfill transactions if sendingChain is fee chain.
-      const expectedReceiverAmount = "99999999999999999900";
-      const bid = await newAuction(auctionPayload, requestContext);
-      expect(bid.bid).to.deep.eq({
-        user: auctionPayload.user,
-        router: routerAddrMock,
-        initiator: auctionPayload.initiator,
-        sendingChainId: auctionPayload.sendingChainId,
-        sendingAssetId: auctionPayload.sendingAssetId,
-        amount: auctionPayload.amount,
-        receivingChainId: auctionPayload.receivingChainId,
-        receivingAssetId: auctionPayload.receivingAssetId,
-        amountReceived: expectedReceiverAmount,
-        bidExpiry: BID_EXPIRY,
-        receivingAddress: auctionPayload.receivingAddress,
-        transactionId: auctionPayload.transactionId,
-        expiry: auctionPayload.expiry,
-        callDataHash: auctionPayload.callDataHash,
-        callTo: auctionPayload.callTo,
-        encryptedCallData: auctionPayload.encryptedCallData,
-        sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
-        receivingChainTxManagerAddress:
-          configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
-      });
-
-      expect(bid.bidSignature).to.eq(sigMock);
-    });
-
-    it("happy-2: should take a gas fee for prepare transactions if receivingChain is fee chain", async () => {
-      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-      getReceiverAmountStub.returns({
-        receivingAmount: "100000000000000000000",
-        routerFee: "10",
-        amountAfterSwapRate: MUTATED_AMOUNT,
-      });
-
-      // it should take a gas fee for prepare transactions if receivingChain is fee chain.
-      // amountReceived = amount.sub(prepareGasFee)
-      const expectedReceiverAmount = "99999999999999999900";
-      const bid = await newAuction(auctionPayload, requestContext);
-      expect(bid.bid).to.deep.eq({
-        user: auctionPayload.user,
-        router: routerAddrMock,
-        initiator: auctionPayload.initiator,
-        sendingChainId: auctionPayload.sendingChainId,
-        sendingAssetId: auctionPayload.sendingAssetId,
-        amount: auctionPayload.amount,
-        receivingChainId: auctionPayload.receivingChainId,
-        receivingAssetId: auctionPayload.receivingAssetId,
-        amountReceived: expectedReceiverAmount,
-        bidExpiry: BID_EXPIRY,
-        receivingAddress: auctionPayload.receivingAddress,
-        transactionId: auctionPayload.transactionId,
-        expiry: auctionPayload.expiry,
-        callDataHash: auctionPayload.callDataHash,
-        callTo: auctionPayload.callTo,
-        encryptedCallData: auctionPayload.encryptedCallData,
-        sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
-        receivingChainTxManagerAddress:
-          configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
-      });
-
-      expect(bid.bidSignature).to.eq(sigMock);
-    });
-
-    it("happy-3: should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains", async () => {
-      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-      getReceiverAmountStub.returns({
-        receivingAmount: "100000000000000000000",
-        routerFee: "10",
-        amountAfterSwapRate: MUTATED_AMOUNT,
-      });
-
-      // it should take a gas fee for prepare and fulfill transactions if both sendingChain and receivingChain are fee chains.
-      // amountReceived = amount.sub(prepareGasFee).sub(fulfillGasFee)
-      const expectedReceiverAmount = "99999999999999999900";
-      const bid = await newAuction(auctionPayload, requestContext);
-      expect(bid.bid).to.deep.eq({
-        user: auctionPayload.user,
-        router: routerAddrMock,
-        initiator: auctionPayload.initiator,
-        sendingChainId: auctionPayload.sendingChainId,
-        sendingAssetId: auctionPayload.sendingAssetId,
-        amount: auctionPayload.amount,
-        receivingChainId: auctionPayload.receivingChainId,
-        receivingAssetId: auctionPayload.receivingAssetId,
-        amountReceived: expectedReceiverAmount,
-        bidExpiry: BID_EXPIRY,
-        receivingAddress: auctionPayload.receivingAddress,
-        transactionId: auctionPayload.transactionId,
-        expiry: auctionPayload.expiry,
-        callDataHash: auctionPayload.callDataHash,
-        callTo: auctionPayload.callTo,
-        encryptedCallData: auctionPayload.encryptedCallData,
-        sendingChainTxManagerAddress: configMock.chainConfig[auctionPayload.sendingChainId].transactionManagerAddress,
-        receivingChainTxManagerAddress:
-          configMock.chainConfig[auctionPayload.receivingChainId].transactionManagerAddress,
-      });
-
-      expect(bid.bidSignature).to.eq(sigMock);
-    });
-
-    it("happy-4: shouldn't take a gas fee if both sendingChain and receivingChain aren't fee chains", async () => {
-      AuctionHelperFns.AUCTION_REQUEST_MAP.clear();
-
-      getReceiverAmountStub.returns({
-        receivingAmount: "100000000000000000000",
-        routerFee: "10",
-        amountAfterSwapRate: MUTATED_AMOUNT,
-      });
-
-      // it shouldn't take a gas fee if both sendingChain and receivingChain aren't fee chains
-      const expectedReceiverAmount = "99999999999999999900";
+      // it should take fees for fulfill transactions if sendingChain is fee chain.
+      const expectedReceiverAmount = BigNumber.from(baseReceivingAmount).sub(100).sub(120).toString();
       const bid = await newAuction(auctionPayload, requestContext);
       expect(bid.bid).to.deep.eq({
         user: auctionPayload.user,
@@ -259,7 +149,7 @@ describe("Auction Operation", () => {
         amount: auctionPayload.amount,
         receivingChainId: auctionPayload.receivingChainId,
         receivingAssetId: auctionPayload.receivingAssetId,
-        amountReceived: BigNumber.from(MUTATED_AMOUNT).sub(100).toString(),
+        amountReceived: BigNumber.from(MUTATED_AMOUNT).sub(100).sub(120).toString(),
         bidExpiry: BID_EXPIRY,
         receivingAddress: auctionPayload.receivingAddress,
         transactionId: auctionPayload.transactionId,
