@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.6
+
 - [router] Fix relaying signature
 
 ## 0.1.5
