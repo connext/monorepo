@@ -207,7 +207,7 @@ export class NxtpSdk {
    * @returns Gas fee for router transfer in sending token
    */
   public async getEstimateReceiverAmount(params: {
-    amount: string;
+    amount?: string;
     sendingChainId: number;
     sendingAssetId: string;
     receivingChainId: number;
