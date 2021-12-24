@@ -329,14 +329,15 @@ export class NxtpSdkBase {
   }
 
   public async getEstimateReceiverAmount(params: {
-    amount: string;
+    amount?: string;
     sendingChainId: number;
     sendingAssetId: string;
     receivingChainId: number;
     receivingAssetId: string;
   }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
     const { requestContext, methodContext } = createLoggingContext(this.getEstimateReceiverAmount.name, undefined);
-    const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
+    const { amount: _amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
+    const amount = _amount ?? "0";
 
     this.logger.debug("Estimating receiver amount", requestContext, methodContext, {
       amount,
@@ -762,15 +763,15 @@ export class NxtpSdkBase {
       throw new NoValidBids(transactionId, payload, invalidBids.join(","), receivedBids);
     }
 
-    const maximumBid = validBids.sort((a: AuctionResponse, b) => {
-      return BigNumber.from(a.bid.amountReceived).gt(b.bid.amountReceived) ? -1 : 1;
-    })[0];
-
+    // Choose a random bid within a std deviation tolerance margin (%) of the highest bid offered.
+    // NOTE: This logic is based on the idea that the amount received is only an estimate, and this degree
+    // of imprecision makes all bids within that standard deviation equally preferable.
+    const highestBid = BigNumber.from(Math.max(...validBids.map((x) => parseInt(x.bid.amountReceived))));
     const filteredBids = validBids.filter((a: AuctionResponse) =>
       BigNumber.from(a.bid.amountReceived)
-        .sub(maximumBid.bid.amountReceived)
+        .sub(highestBid)
         .abs()
-        .lte(BigNumber.from(maximumBid.bid.amountReceived).mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)),
+        .lte(highestBid.mul(NxtpSdkBase.BID_DEVIATION_TOLERANCE).div(100)),
     );
 
     const chosen = filteredBids[Math.floor(Math.random() * (filteredBids.length - 1))];
