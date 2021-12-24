@@ -14,6 +14,7 @@ import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/eth
 import { Evt } from "evt";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
+import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 
 import { getContext } from "../../router";
 import {
@@ -372,6 +373,13 @@ export const fulfillRouterContract = async (
 
   await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "fulfill");
 
+  const routerEncoded = await txService.readTx({
+    to: txData.router,
+    data: getRouterContractInterface().encodeFunctionData("routerSigner"),
+    chainId,
+  });
+  const [router] = getRouterContractInterface().decodeFunctionResult("routerSigner", routerEncoded);
+
   logger.info("Generating encoded data", requestContext, methodContext, {
     function: "fulfill",
     txData,
@@ -382,6 +390,7 @@ export const fulfillRouterContract = async (
     routerRelayerFeeAsset,
     routerRelayerFee,
     signature,
+    routerSigner: router,
   });
 
   const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
