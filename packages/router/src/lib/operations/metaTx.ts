@@ -173,6 +173,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
         params: { txData, callData, signature: fulfillSignature, relayerFee: fulfillRelayerFee },
         signature,
         relayerFee,
+        relayerFeeAsset,
       } = data as MetaTxRouterContractFulfillPayload;
 
       const routerRelayerFee = await txService.calculateGasFee(
