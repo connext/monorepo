@@ -153,6 +153,7 @@ export class SdkAgent {
     });
 
     // Create sdk
+    logger.debug(`chainConfig HERE ${JSON.stringify(chainConfig)}`);
     const sdk = new NxtpSdk({
       chainConfig,
       signer: connected,

@@ -69,9 +69,13 @@ COPY docker/integration/config.json /home/node/packages/integration/ops/config/l
 USER node
 
 ARG MNEMONIC
+ARG NUMBER_OF_AGENTS
+ARG DURATION
+
+ENV duration=
 WORKDIR /home/node/packages/integration/
 
 EXPOSE 8001
 
-CMD ["node", "./dist/load/routerCyclical.js"]
+CMD [ "node", "./dist/load/routerCyclical.js"]
 

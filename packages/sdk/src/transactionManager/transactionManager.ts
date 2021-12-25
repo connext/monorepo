@@ -23,6 +23,15 @@ import { ChainNotConfigured } from "../error";
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+  if(chainId === 1337 || chainId === 1338){
+    //use mainnet abi
+    const record = (contractDeployments as any)["0"];
+    const name = Object.keys(record)[0];
+    
+    const contract = record[name]?.contracts?.TransactionManager;
+    //create2 address
+    return {address: "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0", abi:contract.abi};
+  }
   const record = (contractDeployments as any)[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {

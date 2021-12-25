@@ -2,28 +2,28 @@
   "adminToken": "blahblah",
   "chainConfig": {
     "1337": {
-      "providers": ["http://chain-1337-test:8545"],
+      "providers": ["http://chain-1337:8545"],
       "confirmations": 1,
-      "subgraph": "http://graph-node-1337-test:8010/subgraphs/name/connext/nxtp",
+      "subgraph": "http://graph-node-1337:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     },
     "1338": {
-      "providers": ["http://chain-1338-test:8546"],
+      "providers": ["http://chain-1338:8545"],
       "confirmations": 1,
-      "subgraph": "http://graph-node-1338-test:9010/subgraphs/name/connext/nxtp",
+      "subgraph": "http://graph-node-1338:8000/subgraphs/name/connext/nxtp",
       "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
     }
   },
-  "logLevel": "info",
-  "natsUrl": "nats://nats-test:4222",
-  "authUrl": "http://auth-test:5040",
+  "logLevel": "debug",
+  "natsUrl": "nats://nats:4222",
+  "authUrl": "http://auth:5040",
   "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
   "swapPools": [
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
-        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+        { "chainId": 1337, "assetId": "0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241" },
+        { "chainId": 1338, "assetId": "0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241" }
       ]
     },
     {

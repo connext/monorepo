@@ -152,8 +152,9 @@ export class OnchainAccountManager {
     } else {
       const response = _response.value;
       this.log.info("Submitted top up", undefined, undefined, { assetId, account, txHash: response.hash });
-      const receipt = await response.wait();
-      this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: receipt.transactionHash });
+      //ganache local dosent like .wait()
+      // const receipt = await response.wait(1);
+      this.log.info("Topped up account", undefined, undefined, { assetId, account, txHash: response.hash });
     }
 
     // confirm balance

@@ -34,6 +34,11 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai-v1-runtime"];
     case 421611:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby-v1-runtime"];
+    //local
+    case 1337:
+      return ["http://graph-node-1337:8000/subgraphs/name/connext/nxtp"];
+    case 1338:
+      return ["http://graph-node-1338:8000/subgraphs/name/connext/nxtp"];
 
     // mainnets
     case 1:
