@@ -230,8 +230,6 @@ export class TransactionManager {
       },
     ]);
 
-    this.logger.info("Prepare transaction created", requestContext, methodContext);
-
     return {
       to: transactionManagerAddress,
       data,
