@@ -202,7 +202,11 @@ export class NxtpSdkBase {
         },
       ]) => {
         const chainId = parseInt(_chainId);
-        let transactionManagerAddress = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+        let transactionManagerAddress;
+        if(chainId === 1337 || chainId === 1338 ){
+          transactionManagerAddress = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
+        }
+        transactionManagerAddress = _transactionManagerAddress;
         if (!transactionManagerAddress) {
           const res = getDeployedTransactionManagerContract(chainId);
           if (!res || !res.address) {

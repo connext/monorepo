@@ -36,7 +36,14 @@ export default task("mint", "Mint test tokens")
       const receipt = await tx.wait();
       console.log("mint tx mined: ", receipt.transactionHash);
 
+      const alice = "0xf17f52151EbEF6C7334FAD080c5704D77216b732";
+      const tx0 = await erc20.mint(alice, amount, {from: namedAccounts.deployer});
+      await tx0.wait();
+      console.log("alicestx");
+
       const balance = await erc20.balanceOf(mintTo);
+      const alicebalance = await erc20.balanceOf(alice);
       console.log("balance: ", balance.toString());
+      console.log("alice's balance:", alicebalance.toString());
     },
   );

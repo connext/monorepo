@@ -84,6 +84,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer,
       log: true,
     });
+    console.log("Minting test token to testAgents on sending chain");
+    
 
     console.log("Setting up test routers on chain", chainId);
 
