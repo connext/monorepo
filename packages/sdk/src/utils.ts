@@ -20,6 +20,10 @@ import {
  * @returns Gas Limit
  */
 export const getGasLimit = (_chainId: number): number | undefined => {
+  //test chains
+  if(_chainId === 1337 || _chainId === 1338){
+    return 3000000;
+  }
   return undefined;
 };
 

@@ -145,7 +145,7 @@ export class SdkAgent {
     const address = await signer.getAddress();
     logger.debug(`Connecting to chain provider`);
 
-    const connected = signer.connect(chainProviders[4].provider);
+    const connected = signer.connect(chainProviders[1337].provider);
 
     if (!connected.provider) {
       logger.debug(`Couldn't connect to provider for ${chainId}`);
@@ -457,9 +457,12 @@ export class SdkAgent {
             auction.bid.sendingChainId = params.sendingChainId; 
             auction.bid.receivingChainId = params.receivingChainId;
 
-            const prepareTxfr = await this.sdk.prepareTransfer(auction, false);
+
+            
+            const prepareTxfr = await this.sdk.prepareTransfer(auction, true);
             //send prepare to chain
             const receipt = await prepareTxfr.prepareResponse.wait();
+            
             this.logger.debug("Prepare tx confirmed", requestContext, methodContext, { hash: receipt.transactionHash });
           } catch (e) {
             this.logger.warn(`Couldnt prepare transfer :(`, requestContext, methodContext, { error: e.message });

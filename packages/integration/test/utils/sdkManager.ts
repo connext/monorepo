@@ -82,7 +82,7 @@ export class SdkManager {
             );
 
             //sanitize hanging transactions from previous runs.
-            await agent.sanitizeAgentTransactions(onchain.wallets[idx]);
+            // await agent.sanitizeAgentTransactions(onchain.wallets[idx]);
 
             return agent;
           }),
@@ -189,7 +189,7 @@ export class SdkManager {
     // NOTE; we initiate all transactions serially because this isnt
     // a concurrency test. But we don't wait for them to complete
     for (const agent of this.agents) {
-      agent.establishCyclicalTransfers();
+      // agent.establishCyclicalTransfers();
 
       const transactionId = getRandomBytes32();
       this.transactionInfo[transactionId] = { start: Date.now() };
@@ -199,8 +199,9 @@ export class SdkManager {
         receivingAddress: agent.address,
         ...initialParams,
       });
-    }
 
+    }
+ 
     const killSwitch = () => {
       this.agents.map((agent) => {
         agent.cancelCyclicalTransfers();
