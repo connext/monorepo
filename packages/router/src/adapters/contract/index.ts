@@ -68,6 +68,18 @@ export type ContractWriter = {
     recipientAddress: string | undefined,
     requestContext: RequestContext,
   ) => Promise<providers.TransactionReceipt>;
+  removeLiquidityRouterContract: (
+    chainId: number,
+    amount: string,
+    assetId: string,
+    recipientAddress: string | undefined,
+    routerContractAddress: string,
+    signature: string,
+    routerRelayerFeeAsset: string,
+    routerRelayerFee: string,
+    useRelayer: boolean,
+    requestContext: RequestContext,
+  ) => Promise<string>;
   addLiquidityForTransactionManager: (
     chainId: number,
     amount: string,
