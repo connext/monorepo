@@ -14,7 +14,6 @@ import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/eth
 import { Evt } from "evt";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
-import RouterArtifact from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
 
 import { getContext } from "../../router";
 import {
