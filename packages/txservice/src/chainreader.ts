@@ -345,6 +345,7 @@ export class ChainReader {
       chainId,
       assetId,
       decimals,
+      chainData,
     });
 
     const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
@@ -410,6 +411,8 @@ export class ChainReader {
         ethPrice: ethPrice.toString(),
         tokenPrice: tokenPrice.toString(),
         gasPrice: gasPrice.toString(),
+        assetIdOnMainnet,
+        nativeAssetIdOnMainnet,
       },
     );
 
