@@ -1,7 +1,9 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
+import { constants, utils } from "ethers/lib/ethers";
 import fastify from "fastify";
 import { register } from "prom-client";
 
+import { signRouterRemoveLiquidityTransactionPayload } from "../../lib/helpers";
 import { getContext } from "../../router";
 import { handleActiveTransactions } from "../contractReader";
 
@@ -24,7 +26,17 @@ import {
 
 export const bindFastify = () =>
   new Promise<void>((res) => {
-    const { wallet, contractWriter, config, logger, contractReader } = getContext();
+    const {
+      wallet,
+      contractWriter,
+      config,
+      logger,
+      contractReader,
+      isRouterContract,
+      txService,
+      chainData,
+      routerAddress,
+    } = getContext();
 
     const server = fastify();
 
@@ -59,13 +71,49 @@ export const bindFastify = () =>
           return res.code(401).send("Unauthorized to perform this operation");
         }
         try {
-          const result = await contractWriter.removeLiquidityTransactionManager(
-            chainId,
-            amount,
-            assetId,
-            recipientAddress,
-            requestContext,
-          );
+          let result;
+          if (isRouterContract) {
+            const routerRelayerFeeAsset = utils.getAddress(
+              config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero,
+            );
+            const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(chainId, routerRelayerFeeAsset);
+            const routerRelayerFee = await txService.calculateGasFee(
+              chainId,
+              routerRelayerFeeAsset,
+              relayerFeeAssetDecimal,
+              "removeLiquidity",
+              isRouterContract,
+              chainData,
+              requestContext,
+            );
+            const signature = await signRouterRemoveLiquidityTransactionPayload(
+              amount,
+              assetId,
+              routerRelayerFeeAsset,
+              routerRelayerFee.toString(),
+              chainId,
+              wallet,
+            );
+            result = await contractWriter.removeLiquidityRouterContract(
+              chainId,
+              amount,
+              assetId,
+              routerAddress,
+              signature,
+              routerRelayerFeeAsset,
+              routerRelayerFee.toString(),
+              true,
+              requestContext,
+            );
+          } else {
+            result = await contractWriter.removeLiquidityTransactionManager(
+              chainId,
+              amount,
+              assetId,
+              recipientAddress,
+              requestContext,
+            );
+          }
           return { transactionHash: result.transactionHash };
         } catch (err) {
           return res.code(400).send({ err: jsonifyError(err), requestContext });

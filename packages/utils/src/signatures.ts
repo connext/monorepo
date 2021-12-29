@@ -257,7 +257,7 @@ export const signRouterCancelTransactionPayload = async (
   return sign(hash, signer);
 };
 
-export const signRemoveLiquidityTransactionPayload = (
+export const signRouterRemoveLiquidityTransactionPayload = (
   amount: string,
   assetId: string,
   relayerFeeAsset: string,

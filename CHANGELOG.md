@@ -4,6 +4,10 @@
 
 ## 0.1.6
 
+- [router][sdk] - Fix gas estimation issue
+
+## 0.1.6
+
 - [router] Fix relaying signature
 
 ## 0.1.5
