@@ -3,14 +3,14 @@ import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
-import { ChainRpcProvider } from "../src/provider";
+import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import {
   OnchainTransaction,
   SyncProvider,
   GasEstimateInvalid,
   RpcError,
-  TimeoutError,
+  OperationTimeout,
   TransactionReadError,
   TransactionReverted,
 } from "../src";
@@ -31,7 +31,7 @@ const logger = new Logger({
 });
 
 let signer: SinonStubbedInstance<Wallet>;
-let chainProvider: ChainRpcProvider;
+let chainProvider: RpcProviderAggregator;
 let coreFallbackProvider: SinonStubbedInstance<providers.FallbackProvider>;
 let transaction: OnchainTransaction;
 let context: RequestContext = {
@@ -40,14 +40,14 @@ let context: RequestContext = {
 };
 let coreSyncProvider: SinonStubbedInstance<SyncProvider>;
 
-// We're going to stub the execute() method of ChainRpcProvider, then restore it just to test it alone.
+// We're going to stub the execute() method of RpcProviderAggregator, then restore it just to test it alone.
 const fakeExecuteMethod = async <T>(_: boolean, method: (provider: SyncProvider) => Promise<T>): Promise<T> => {
   return method(coreSyncProvider as any);
 };
 
 let syncProvidersStub: SinonStub;
 
-describe("ChainRpcProvider", () => {
+describe("RpcProviderAggregator", () => {
   beforeEach(async () => {
     signer = createStubInstance(Wallet);
     signer.sendTransaction.resolves(TEST_TX_RESPONSE);
@@ -66,8 +66,8 @@ describe("ChainRpcProvider", () => {
       confirmationTimeout: 10_000,
     };
 
-    syncProvidersStub = Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
-    chainProvider = new ChainRpcProvider(logger, chainId, config, signer);
+    syncProvidersStub = Sinon.stub(RpcProviderAggregator.prototype as any, "syncProviders").resolves();
+    chainProvider = new RpcProviderAggregator(logger, chainId, config, signer);
     // One block = 10ms for the purposes of testing.
     (chainProvider as any).blockPeriod = 10;
     Sinon.stub(chainProvider as any, "execute").callsFake(fakeExecuteMethod);
@@ -200,7 +200,7 @@ describe("ChainRpcProvider", () => {
       const testTimeout = -1;
       getTransactionReceiptStub.resolves(null);
 
-      await expect(chainProvider.confirmTransaction(transaction, 10, testTimeout)).to.be.rejectedWith(TimeoutError);
+      await expect(chainProvider.confirmTransaction(transaction, 10, testTimeout)).to.be.rejectedWith(OperationTimeout);
     });
 
     it("should throw reverting transactions if no receipts are successful", async () => {
@@ -272,24 +272,24 @@ describe("ChainRpcProvider", () => {
     });
   });
 
-  describe("#readTransaction", () => {
-    it("happy: should read the transaction", async () => {
+  describe("#readContract", () => {
+    it("happy: should perform contract read method as given", async () => {
       const fakeData = getRandomBytes32();
       signer.call.resolves(fakeData);
 
-      const result = await chainProvider.readTransaction(TEST_READ_TX);
+      const result = await chainProvider.readContract(TEST_READ_TX);
 
       expect(signer.call.callCount).to.equal(1);
       expect(signer.call.getCall(0).args[0]).to.deep.equal(TEST_READ_TX);
       expect(result).to.be.eq(fakeData);
     });
 
-    it("should return error result if the signer readTransaction call throws", async () => {
+    it("should return error result if the signer readContract call throws", async () => {
       const testError = new Error("test error");
       signer.call.rejects(testError);
 
       // The error.context.error is the "test error" thrown by the signer.call.
-      await expect(chainProvider.readTransaction(TEST_READ_TX)).to.be.rejectedWith(TransactionReadError);
+      await expect(chainProvider.readContract(TEST_READ_TX)).to.be.rejectedWith(TransactionReadError);
     });
 
     it("should execute with provider if no signer available", async () => {
@@ -297,7 +297,7 @@ describe("ChainRpcProvider", () => {
       (chainProvider as any).signer = undefined;
       coreSyncProvider.call.resolves(fakeData);
 
-      const result = await chainProvider.readTransaction(TEST_READ_TX);
+      const result = await chainProvider.readContract(TEST_READ_TX);
 
       expect(signer.call.callCount).to.equal(0);
       expect(coreSyncProvider.call.callCount).to.equal(1);

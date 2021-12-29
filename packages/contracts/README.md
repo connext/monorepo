@@ -215,3 +215,15 @@ yarn workspace @connext/nxtp-contracts hardhat deploy-router-factory --network <
 ```sh
 yarn workspace @connext/nxtp-contracts hardhat create-router --network <Network-Name> --signer <Router Signer> --recipient <Router Recipient>
 ```
+
+# whitelist command for multiple networks
+
+```sh
+yarn workspace @connext/nxtp-contracts whitelist <router-address>
+```
+
+# create-router for RouterContract multiple network in one-step
+
+```sh
+yarn workspace @connext/nxtp-contracts create-router <signer-address> <recipient-address>
+```

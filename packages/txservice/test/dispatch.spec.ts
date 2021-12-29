@@ -5,7 +5,7 @@ import { expect } from "@connext/nxtp-utils";
 
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
-import { ChainRpcProvider } from "../src/provider";
+import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
 import {
   OnchainTransaction,
   BadNonce,
@@ -42,6 +42,7 @@ let txDispatch: TransactionDispatch;
 let dispatchCallbacks: DispatchCallbacks;
 let getGasPriceStub: SinonStub;
 let estimateGasStub: SinonStub;
+let getTransactionStub: SinonStub;
 let getTransactionCountStub: SinonStub;
 let sendTransactionStub: SinonStub;
 let getAddressStub: SinonStub;
@@ -60,6 +61,7 @@ const stubAllDispatchMethods = (): void => {
   });
   getAddressStub = stub(txDispatch as any, "getAddress").resolves(signer.address);
   sendTransactionStub = stub(txDispatch as any, "sendTransaction").returns(TEST_TX_RESPONSE);
+  getTransactionStub = stub(txDispatch as any, "getTransaction").resolves([TEST_TX_RESPONSE]);
   getTransactionCountStub = stub(txDispatch as any, "getTransactionCount").resolves(TEST_TX_RESPONSE.nonce);
   getGasPriceStub = stub(txDispatch as any, "getGasPrice").resolves(TEST_FULL_TX.gasPrice);
   estimateGasStub = stub(txDispatch as any, "estimateGas").resolves(TEST_FULL_TX.gasLimit);
@@ -102,8 +104,8 @@ describe("TransactionDispatch", () => {
       confirmationTimeout: 10_000,
     };
 
-    Sinon.stub(ChainRpcProvider.prototype as any, "syncProviders").resolves();
-    Sinon.stub(ChainRpcProvider.prototype as any, "setBlockPeriod").resolves();
+    Sinon.stub(RpcProviderAggregator.prototype as any, "syncProviders").resolves();
+    Sinon.stub(RpcProviderAggregator.prototype as any, "setBlockPeriod").resolves();
 
     // NOTE: This will start dispatch with NO loops running. We will start the loops manually in unit tests below.
     txDispatch = new TransactionDispatch(logger, TEST_SENDER_CHAIN_ID, chainConfig, signer, dispatchCallbacks, false);
@@ -140,25 +142,89 @@ describe("TransactionDispatch", () => {
       (txDispatch as any).inflightBuffer = [stubTx];
     });
 
-    it("should fail if there is a non-timeout tx error", async () => {
+    it("should fail immediately if there is an error attached to tx", async () => {
       stubTx.error = new Error("test error");
       await (txDispatch as any).mineLoop();
-      expect(failStub).callCount(0);
+      // expect(failStub).to.have.been.calledOnceWithExactly(makeChaiReadable(stubTx));
+      expect(failStub.callCount).to.eq(1);
     });
 
-    it("should bump if times out during confirming", async () => {
+    it("should bump and resubmit if timeout occurs while waiting for confirmation", async () => {
       mineStub.onCall(0).rejects(new OperationTimeout());
       mineStub.onCall(1).resolves();
+      getTransactionStub.resolves([
+        {
+          ...TEST_TX_RESPONSE,
+          confirmations: 0,
+        },
+      ]);
+
       await (txDispatch as any).mineLoop();
+
       expect(mineStub.callCount).to.eq(2);
       expect(makeChaiReadable(mineStub.getCall(0).args[0])).to.deep.eq(makeChaiReadable(stubTx));
       expect(makeChaiReadable(mineStub.getCall(1).args[0])).to.deep.eq(makeChaiReadable(stubTx));
       expect(bumpStub).to.have.been.calledOnceWithExactly(stubTx);
       expect(submitStub).to.have.been.calledOnceWithExactly(stubTx);
+      expect(getTransactionStub).to.have.been.calledOnceWithExactly(stubTx);
       expect((txDispatch as any).minedBuffer.length).to.eq(1);
     });
 
-    it("should bump txs in the buffer", async () => {
+    it("should resubmit without bumping if timeout occurs and tx does not exist", async () => {
+      mineStub.onCall(0).rejects(new OperationTimeout());
+      mineStub.onCall(1).resolves();
+      getTransactionStub.resolves([null]);
+
+      await (txDispatch as any).mineLoop();
+
+      expect(mineStub.callCount).to.eq(2);
+      expect(bumpStub.callCount).to.eq(0);
+      expect(submitStub.callCount).to.eq(1);
+      expect(getTransactionStub).to.have.been.calledOnceWithExactly(stubTx);
+      expect((txDispatch as any).minedBuffer.length).to.eq(1);
+    });
+
+    it("should not resubmit if timeout occurs, but tx exists and has 1+ confirmations", async () => {
+      mineStub.onCall(0).rejects(new OperationTimeout());
+      mineStub.onCall(1).resolves();
+      getTransactionStub.resolves([
+        {
+          ...TEST_TX_RESPONSE,
+          confirmations: 1,
+        },
+      ]);
+
+      await (txDispatch as any).mineLoop();
+
+      expect(mineStub.callCount).to.eq(2);
+      expect(bumpStub.callCount).to.eq(0);
+      expect(submitStub.callCount).to.eq(0);
+      expect(getTransactionStub).to.have.been.calledOnceWithExactly(stubTx);
+      expect((txDispatch as any).minedBuffer.length).to.eq(1);
+    });
+
+    it("should not resubmit if insufficient funds error occurs", async () => {
+      // Mine -> Timeout -> Bump+Resubmit -> InsufficientFunds -> Mine (NO Resubmit) -> Success.
+      mineStub.onCall(0).rejects(new OperationTimeout());
+      getTransactionStub.resolves([
+        {
+          ...TEST_TX_RESPONSE,
+          confirmations: 0,
+        },
+      ]);
+      submitStub.onCall(0).rejects(new TransactionReverted(TransactionReverted.reasons.InsufficientFunds));
+      mineStub.onCall(1).resolves();
+
+      await (txDispatch as any).mineLoop();
+
+      expect(mineStub.callCount).to.eq(2);
+      expect(bumpStub.callCount).to.eq(1);
+      expect(submitStub.callCount).to.eq(1);
+      expect(getTransactionStub).to.have.been.calledOnceWithExactly(stubTx);
+      expect((txDispatch as any).minedBuffer.length).to.eq(1);
+    });
+
+    it("should handle multiple txs in the buffer one at a time", async () => {
       const stubTx1 = { ...stubTx, data: "0xa" };
       const stubTx2 = { ...stubTx, data: "0xb" };
       const stubTx3 = { ...stubTx, data: "0xc" };
@@ -190,7 +256,30 @@ describe("TransactionDispatch", () => {
       expect((txDispatch as any).minedBuffer.length).to.deep.eq(1);
     });
 
-    it("should assign errors on tx resubmit", async () => {
+    it("should assign error to transaction on mine fail", async () => {
+      const stubTx1 = { ...stubTx, data: "0xa" };
+      (txDispatch as any).inflightBuffer = [stubTx1];
+      const error = new Error("test");
+      mineStub.rejects(error);
+      getTransactionStub.resolves([
+        {
+          ...TEST_TX_RESPONSE,
+          confirmations: 0,
+        },
+      ]);
+
+      await (txDispatch as any).mineLoop();
+
+      const readableStubTx = makeChaiReadable(stubTx1);
+      expect(mineStub).to.have.been.calledOnceWithExactly(readableStubTx);
+      expect(stubTx1.error).to.eq(error);
+      expect(failStub).to.have.been.calledOnceWithExactly(readableStubTx);
+      // Should have taken tx out of the buffer, but not added to minedBuffer.
+      expect((txDispatch as any).inflightBuffer).to.deep.eq([]);
+      expect((txDispatch as any).minedBuffer).to.deep.eq([]);
+    });
+
+    it("should assign error to onchain transaction object on resubmit fail", async () => {
       const stubTx1 = { ...stubTx, data: "0xa" };
       (txDispatch as any).inflightBuffer = [stubTx1];
       mineStub.rejects(new OperationTimeout());
@@ -219,7 +308,7 @@ describe("TransactionDispatch", () => {
       expect(failStub.getCall(0).args[0].error).to.deep.eq(mineError);
     });
 
-    it("should mine a tx and remove it from the buffer", async () => {
+    it("happy: should mine a tx and remove it from the buffer", async () => {
       await (txDispatch as any).mineLoop();
       expect(mineStub).to.have.been.calledOnceWithExactly(stubTx);
       expect((txDispatch as any).inflightBuffer.length).to.eq(0);
@@ -497,12 +586,6 @@ describe("TransactionDispatch", () => {
 
     it("should throw if the transaction is already finished", async () => {
       mockTransactionState.didFinish = true;
-      await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
-    });
-
-    it("should throw if it's a second attempt and gas price hasn't been increased", async () => {
-      const txResponse: providers.TransactionResponse = { ...TEST_TX_RESPONSE };
-      transaction.responses = [txResponse];
       await expect((txDispatch as any).submit(transaction)).to.eventually.be.rejectedWith(TransactionProcessingError);
     });
 

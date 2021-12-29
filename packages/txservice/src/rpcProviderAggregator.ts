@@ -37,11 +37,12 @@ const DEFAULT_BLOCK_PERIOD = 2_000;
 
 type ChainRpcProviderCache = { gasPrice: BigNumber; transactionCount: number };
 
+// TODO: Multiton?
 /**
- * @classdesc A transaction service provider wrapper that handles the connections to remote providers and parses
- * the responses.
+ * @classdesc An aggregator for all the providers that are used to make RPC calls on a specified chain. Only
+ * 1 aggregator should exist per chain. Responsible for provider fallback capabilities, syncing, and caching.
  */
-export class ChainRpcProvider {
+export class RpcProviderAggregator {
   // The array of underlying SyncProviders.
   private readonly providers: SyncProvider[];
   // The provider that's most in sync with the chain, and has an active block listener.
@@ -273,7 +274,7 @@ export class ChainRpcProvider {
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public async readTransaction(tx: ReadTransaction): Promise<string> {
+  public async readContract(tx: ReadTransaction): Promise<string> {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {
@@ -285,6 +286,41 @@ export class ChainRpcProvider {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }
     });
+  }
+
+  /**
+   * Get the onchain transaction corresponding with the given hash.
+   *
+   * @param tx - Either the string hash of the transaction to retrieve, or the OnchainTransaction object.
+   *
+   * @returns An array of TransactionResponses (the transaction data), or null. If the array is all null, then the
+   * transaction and any/all replacements could not be found. Only 1 element in the array should ever be not null.
+   */
+  public async getTransaction(tx: string | OnchainTransaction): Promise<(providers.TransactionResponse | null)[]> {
+    if (typeof tx === "string") {
+      return this.execute<(providers.TransactionResponse | null)[]>(false, async (provider: SyncProvider) => {
+        return [await provider.getTransaction(tx)];
+      });
+    }
+    const errors: NxtpError[] = [];
+    const txs = await Promise.all(
+      tx.responses.map(async (response) => {
+        try {
+          return this.execute<providers.TransactionResponse | null>(false, async (provider: SyncProvider) => {
+            return await provider.getTransaction(response.hash);
+          });
+        } catch (error) {
+          errors.push(error);
+          return null;
+        }
+      }),
+    );
+    if (errors.length === tx.responses.length) {
+      // All of the executions failed. This indicates a fundamental problem, like all RPC providers are failing.
+      // Throw the first error received.
+      throw errors[0];
+    }
+    return txs;
   }
 
   /**

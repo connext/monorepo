@@ -447,12 +447,15 @@ export class Subgraph {
                     },
                     status: SubgraphEvents.ReceiverTransactionPrepared,
                   };
+                  setTimeout(()=>{this.logger.debug('wait here for active txns to catch up');}, 10000);
+
                   if (!active) {
                     this.logger.warn("Missing active sender tx", requestContext, methodContext, {
                       transactionId: invariant.transactionId,
                       active: Array.from(this.activeTxs.keys()).toString(),
                     });
                   }
+                  
                   // if receiver is prepared, its a receiver prepared
                   // if we are not tracking it or the status changed post an event
                   if (!active || active.status !== SubgraphEvents.ReceiverTransactionPrepared) {

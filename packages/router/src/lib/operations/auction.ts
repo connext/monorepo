@@ -26,7 +26,6 @@ import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSecon
 import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
-import { calculateGasFeeInReceivingToken } from "../helpers/shared";
 import { getAssetName } from "../helpers/metrics";
 
 export const newAuction = async (
@@ -200,14 +199,16 @@ export const newAuction = async (
   // estimate gas for contract
   // - TODO: Get price from AMM
   const amountReceivedInBigNum = BigNumber.from(amountReceived);
-  const gasFeeInReceivingToken = await calculateGasFeeInReceivingToken(
-    sendingAssetId,
+  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
     sendingChainId,
-    receivingAssetId,
+    sendingAssetId,
     receivingChainId,
+    receivingAssetId,
     outputDecimals,
+    chainData,
     requestContext,
   );
+
   logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
     gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
   });

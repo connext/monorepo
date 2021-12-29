@@ -312,7 +312,6 @@ export class TransactionProcessingError extends NxtpError {
     SubmitOutOfOrder: "Submit was called but transaction is already completed.",
     MineOutOfOrder: "Transaction mine or confirm was called, but no transaction has been sent.",
     ConfirmOutOfOrder: "Tried to confirm but tansaction did not complete 'mine' step; no receipt was found.",
-    DidNotBump: "Gas price was not incremented from last transaction.",
     DuplicateHash: "Received a transaction response with a duplicate hash!",
     NoReceipt: "No receipt was returned from the transaction.",
     NullReceipt: "Unable to obtain receipt: ethers responded with null.",

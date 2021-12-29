@@ -378,12 +378,13 @@ describe("Router.sol", function () {
       const { transaction, record } = await getTransactionData();
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
+      const relayerFee = "2";
       await prepare(transaction, record);
 
       // Generate signature from user
       const fulfillSignature = await signFulfillTransactionPayload(
         transaction.transactionId,
-        "0",
+        relayerFee,
         transaction.receivingChainId,
         transaction.receivingChainTxManagerAddress,
         user,
@@ -393,6 +394,7 @@ describe("Router.sol", function () {
       const signature = await signRouterFulfillTransactionPayload(
         args.txData,
         fulfillSignature,
+        relayerFee,
         args.callData,
         args.encodedMeta,
         routerRelayerFeeAsset,
@@ -411,13 +413,14 @@ describe("Router.sol", function () {
 
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
+      const relayerFee = "2";
 
       const { blockNumber } = await prepare(transaction, record);
 
       // Generate signature from user
       const fulfillSignature = await signFulfillTransactionPayload(
         transaction.transactionId,
-        "0",
+        relayerFee,
         transaction.receivingChainId,
         transaction.receivingChainTxManagerAddress,
         user,
@@ -426,13 +429,14 @@ describe("Router.sol", function () {
       const args = convertToFulfillArgs(
         transaction,
         { ...record, preparedBlockNumber: blockNumber },
-        "0",
+        relayerFee,
         fulfillSignature,
       );
 
       const signature = await signRouterFulfillTransactionPayload(
         args.txData,
         fulfillSignature,
+        relayerFee,
         args.callData,
         args.encodedMeta,
         routerRelayerFeeAsset,

@@ -1,4 +1,4 @@
-import { ethers, BigNumber, providers, Signer, utils, constants } from "ethers";
+import { BigNumber, providers, Signer, utils } from "ethers";
 import { Evt } from "evt";
 import {
   UserNxtpNatsMessagingService,
@@ -197,234 +197,23 @@ export class NxtpSdk {
   }
 
   /**
-   * Gets gas fee in sending token for meta transaction
-   *
-   * @param sendingChainId - The network id of sending chain
-   * @param sendingAssetId - The sending asset address
-   * @param receivingChainId - The network id of receiving chain
-   * @param receivingAssetId - The receiving asset address
-   * @returns Gas fee for meta transaction in sending token
-   */
-  public async estimateMetaTxFeeInSendingToken(
-    sendingChainId: number,
-    sendingAssetId: string,
-    receivingChainId: number,
-    receivingAssetId: string,
-  ): Promise<BigNumber> {
-    const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInSendingToken");
-
-    this.sdkBase.assertChainIsConfigured(sendingChainId);
-    this.sdkBase.assertChainIsConfigured(receivingChainId);
-    this.sdkBase.assertChainIsConfigured(1);
-    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
-
-    const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
-    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
-    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
-
-    const sendingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, constants.AddressZero);
-    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
-    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
-      ? sendingNativeAssetIdOnMainnet
-      : constants.AddressZero;
-
-    this.logger.debug("Estimate meta transaction fee in sending token", requestContext, methodContext, {
-      sendingChainId,
-      sendingAssetId,
-      tokenPricingSendingChain,
-      tokenPricingAssetIdSendingChain,
-      nativeTokenPricingSendingChain,
-      nativeTokenPricingAssetIdSendingChain,
-      receivingChainId,
-      receivingAssetId,
-    });
-    const gasInSendingToken = await this.sdkBase.estimateFeeForMetaTx(
-      tokenPricingSendingChain,
-      sendingChainId,
-      tokenPricingAssetIdSendingChain,
-      nativeTokenPricingSendingChain,
-      nativeTokenPricingAssetIdSendingChain,
-      decimals,
-      requestContext,
-      methodContext,
-    );
-    return gasInSendingToken;
-  }
-
-  /**
-   * Gets gas fee in receiving token for meta transaction
-   *
-   * @param sendingChainId - The network id of sending chain
-   * @param sendingAssetId - The sending asset address
-   * @param receivingChainId - The network id of receiving chain
-   * @param receivingAssetId - The receiving asset address
-   * @returns Gas fee for meta transaction in receiving token
-   */
-  public async estimateMetaTxFeeInReceivingToken(
-    sendingChainId: number,
-    sendingAssetId: string,
-    receivingChainId: number,
-    receivingAssetId: string,
-  ): Promise<BigNumber> {
-    const { requestContext, methodContext } = createLoggingContext("estimateMetaTxFeeInReceivingToken");
-
-    this.sdkBase.assertChainIsConfigured(sendingChainId);
-    this.sdkBase.assertChainIsConfigured(receivingChainId);
-    this.sdkBase.assertChainIsConfigured(1);
-    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
-
-    const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
-    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
-    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
-
-    const receivingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, constants.AddressZero);
-    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
-    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
-      ? receivingNativeAssetIdOnMainnet
-      : constants.AddressZero;
-
-    this.logger.debug("Estimate meta transaction fee in sending token", requestContext, methodContext, {
-      sendingChainId,
-      sendingAssetId,
-      receivingChainId,
-      receivingAssetId,
-      tokenPricingReceivingChain,
-      tokenPricingAssetIdReceivingChain,
-    });
-
-    const gasInReceivingToken = await this.sdkBase.estimateFeeForMetaTx(
-      tokenPricingReceivingChain,
-      receivingChainId,
-      tokenPricingAssetIdReceivingChain,
-      nativeTokenPricingReceivingChain,
-      nativeTokenPricingAssetIdReceivingChain,
-      decimals,
-      requestContext,
-      methodContext,
-    );
-    return gasInReceivingToken;
-  }
-
-  /**
    * Gets gas fee in sending token for router transfer
    *
-   * @param sendingChainId - The network id of sending chain
-   * @param sendingAssetId - The sending asset address
-   * @param receivingChainId - The network id of receiving chain
-   * @param receivingAssetId - The receiving asset address
+   * @param params.amount - amount
+   * @param params.sendingChainId - The network id of sending chain
+   * @param params.sendingAssetId - The sending asset address
+   * @param params.receivingChainId - The network id of receiving chain
+   * @param params.receivingAssetId - The receiving asset address
    * @returns Gas fee for router transfer in sending token
    */
-  public async estimateFeeForRouterTransferInSendingToken(
-    sendingChainId: number,
-    sendingAssetId: string,
-    receivingChainId: number,
-    receivingAssetId: string,
-  ): Promise<BigNumber> {
-    const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInSendingToken");
-
-    this.sdkBase.assertChainIsConfigured(sendingChainId);
-    this.sdkBase.assertChainIsConfigured(receivingChainId);
-    this.sdkBase.assertChainIsConfigured(1);
-    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(sendingChainId, sendingAssetId);
-
-    const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
-    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
-    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
-
-    const sendingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, constants.AddressZero);
-    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
-    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
-      ? sendingNativeAssetIdOnMainnet
-      : constants.AddressZero;
-
-    const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
-    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
-    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
-
-    const receivingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, constants.AddressZero);
-    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
-    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
-      ? receivingNativeAssetIdOnMainnet
-      : constants.AddressZero;
-
-    const gasInSendingToken = await this.sdkBase.estimateFeeForRouterTransfer(
-      tokenPricingSendingChain,
-      sendingChainId,
-      tokenPricingAssetIdSendingChain,
-      nativeTokenPricingSendingChain,
-      nativeTokenPricingAssetIdSendingChain,
-      tokenPricingReceivingChain,
-      receivingChainId,
-      tokenPricingAssetIdReceivingChain,
-      nativeTokenPricingReceivingChain,
-      nativeTokenPricingAssetIdReceivingChain,
-      decimals,
-      requestContext,
-      methodContext,
-    );
-
-    return gasInSendingToken;
-  }
-
-  /**
-   * Gets gas fee in receiving token for router transfer
-   *
-   * @param sendingChainId - The network id of sending chain
-   * @param sendingAssetId - The sending asset address
-   * @param receivingChainId - The network id of receiving chain
-   * @param receivingAssetId - The receiving asset address
-   * @returns Gas fee for router transfer in receiving token
-   */
-  public async estimateFeeForRouterTransferInReceivingToken(
-    sendingChainId: number,
-    sendingAssetId: string,
-    receivingChainId: number,
-    receivingAssetId: string,
-  ): Promise<BigNumber> {
-    const { requestContext, methodContext } = createLoggingContext("estimateFeeForRouterTransferInReceivingToken");
-
-    this.sdkBase.assertChainIsConfigured(sendingChainId);
-    this.sdkBase.assertChainIsConfigured(receivingChainId);
-    this.sdkBase.assertChainIsConfigured(1);
-    const decimals = await this.sdkBase.chainReader.getDecimalsForAsset(receivingChainId, receivingAssetId);
-
-    const sendingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, sendingAssetId);
-    const tokenPricingSendingChain = sendingAssetIdOnMainnet ? 1 : sendingChainId;
-    const tokenPricingAssetIdSendingChain = sendingAssetIdOnMainnet ? sendingAssetIdOnMainnet : sendingAssetId;
-
-    const sendingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(sendingChainId, constants.AddressZero);
-    const nativeTokenPricingSendingChain = sendingNativeAssetIdOnMainnet ? 1 : sendingChainId;
-    const nativeTokenPricingAssetIdSendingChain = sendingNativeAssetIdOnMainnet
-      ? sendingNativeAssetIdOnMainnet
-      : constants.AddressZero;
-
-    const receivingAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, receivingAssetId);
-    const tokenPricingReceivingChain = receivingAssetIdOnMainnet ? 1 : receivingChainId;
-    const tokenPricingAssetIdReceivingChain = receivingAssetIdOnMainnet ? receivingAssetIdOnMainnet : receivingAssetId;
-
-    const receivingNativeAssetIdOnMainnet = this.sdkBase.getMainnetEquivalent(receivingChainId, constants.AddressZero);
-    const nativeTokenPricingReceivingChain = receivingNativeAssetIdOnMainnet ? 1 : receivingChainId;
-    const nativeTokenPricingAssetIdReceivingChain = receivingNativeAssetIdOnMainnet
-      ? receivingNativeAssetIdOnMainnet
-      : constants.AddressZero;
-
-    const gasInReceivingToken = await this.sdkBase.estimateFeeForRouterTransfer(
-      tokenPricingSendingChain,
-      sendingChainId,
-      tokenPricingAssetIdSendingChain,
-      nativeTokenPricingSendingChain,
-      nativeTokenPricingAssetIdSendingChain,
-      tokenPricingReceivingChain,
-      receivingChainId,
-      tokenPricingAssetIdReceivingChain,
-      nativeTokenPricingReceivingChain,
-      nativeTokenPricingAssetIdReceivingChain,
-      decimals,
-      requestContext,
-      methodContext,
-    );
-
-    return gasInReceivingToken;
+  public async getEstimateReceiverAmount(params: {
+    amount: string;
+    sendingChainId: number;
+    sendingAssetId: string;
+    receivingChainId: number;
+    receivingAssetId: string;
+  }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
+    return this.sdkBase.getEstimateReceiverAmount(params);
   }
 
   /**
@@ -629,9 +418,7 @@ export class NxtpSdk {
     let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.estimateMetaTxFeeInReceivingToken(
-        txData.sendingChainId,
-        txData.sendingAssetId,
+      const gasNeeded = await this.sdkBase.calculateGasFeeInReceivingTokenForFulfill(
         txData.receivingChainId,
         txData.receivingAssetId,
       );

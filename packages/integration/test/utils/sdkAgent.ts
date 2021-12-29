@@ -145,7 +145,7 @@ export class SdkAgent {
     const address = await signer.getAddress();
     logger.debug(`Connecting to chain provider`);
 
-    const connected = signer.connect(chainProviders[1337].provider);
+    const connected = signer.connect(chainProviders[chainId].provider);
 
     if (!connected.provider) {
       logger.debug(`Couldn't connect to provider for ${chainId}`);
@@ -165,7 +165,6 @@ export class SdkAgent {
     });
 
     // Create sdk
-    logger.debug(`chainConfig HERE ${JSON.stringify(chainConfig)}`);
     const sdk = new NxtpSdk({
       chainConfig,
       signer: connected,

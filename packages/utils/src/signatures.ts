@@ -221,6 +221,7 @@ export const signRouterPrepareTransactionPayload = async (
 export const signRouterFulfillTransactionPayload = async (
   txData: TransactionData,
   fulfillSignature: string,
+  fulfillRelayerFee: string,
   callData: string,
   encodedMeta: string,
   relayerFeeAsset: string,
@@ -231,6 +232,7 @@ export const signRouterFulfillTransactionPayload = async (
   const payload = encodeRouterFulfillData(
     txData,
     fulfillSignature,
+    fulfillRelayerFee,
     callData,
     encodedMeta,
     relayerFeeAsset,
