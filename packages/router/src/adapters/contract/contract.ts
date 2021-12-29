@@ -4,8 +4,8 @@ import {
   FulfillParams,
   PrepareParams,
   RequestContext,
-  isChainSupportedByGelato,
-  gelatoSend,
+  isChainSupportedByGelato as _isChainSupportedByGelato,
+  gelatoSend as _gelatoSend,
   MetaTxTypes,
   jsonifyError,
   MetaTxPayloads,
@@ -28,6 +28,10 @@ import {
 export const prepareEvt = new Evt<{ event: any; args: PrepareParams; chainId: number }>(); // TODO: fix types
 export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: number }>();
 export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
+
+// FOR MOCK TEST
+export const isChainSupportedByGelato = _isChainSupportedByGelato;
+export const gelatoSend = _gelatoSend;
 
 export const startContractListeners = (): void => {
   const { config, txService, logger } = getContext();

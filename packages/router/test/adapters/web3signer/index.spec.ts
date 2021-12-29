@@ -66,6 +66,13 @@ describe("Web3Signer", () => {
     });
   });
 
+  describe("#getAddressFromPublicKey", () => {
+    it("happy", async () => {
+      const result = await (Web3Signer as any).getAddressFromPublicKey(testPublicKey);
+      expect(result).to.eq(testAddress);
+    });
+  });
+
   describe("#signTransaction", () => {
     it("happy", async () => {
       // TODO: Can't seem to stub/overwrite ethers utils, so just going to emulate target functionality here.
