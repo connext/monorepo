@@ -9,6 +9,7 @@ import {
   MetaTxTypes,
   jsonifyError,
   MetaTxPayloads,
+  RemoveLiquidityParams,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
 import { Evt } from "evt";
@@ -28,6 +29,11 @@ import {
 export const prepareEvt = new Evt<{ event: any; args: PrepareParams; chainId: number }>(); // TODO: fix types
 export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: number }>();
 export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
+export const removeLiquidityEvt = new Evt<{
+  event: any;
+  args: RemoveLiquidityParams;
+  chainId: number;
+}>();
 
 export const startContractListeners = (): void => {
   const { config, txService, logger } = getContext();
@@ -131,6 +137,16 @@ export const startContractListeners = (): void => {
                 preparedBlockNumber: args.txData.preparedBlockNumber,
               },
             },
+            chainId,
+          });
+        }
+      });
+
+      contract.on("LiquidityRemoved", (router, assetId, amount, recipient, event) => {
+        if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(router)) {
+          removeLiquidityEvt.post({
+            event,
+            args: { amount, router, assetId, recipient },
             chainId,
           });
         }
@@ -647,6 +663,123 @@ export const removeLiquidityTransactionManager = async (
   return await txService.sendTx(
     {
       to: nxtpContractAddress,
+      data: encodedData,
+      value: constants.Zero,
+      chainId,
+      from: wallet.address,
+    },
+    requestContext,
+  );
+};
+
+export const removeLiquidityRouterContract = async (
+  chainId: number,
+  amount: string,
+  assetId: string,
+  routerContractAddress: string,
+  signature: string,
+  routerRelayerFeeAsset: string,
+  routerRelayerFee: string,
+  useRelayer: boolean,
+  requestContext: RequestContext,
+): Promise<providers.TransactionReceipt> => {
+  const { methodContext } = createLoggingContext(removeLiquidityRouterContract.name);
+
+  const { logger, txService, wallet, messaging } = getContext();
+  logger.info("Method start", requestContext, methodContext, {
+    amount,
+    assetId,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+  });
+
+  const encodedData = getRouterContractInterface().encodeFunctionData("removeLiquidity", [
+    amount,
+    assetId,
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+    signature,
+  ]);
+
+  // 1. Prepare tx using relayer if chain is supported by gelato.
+  if (useRelayer && isChainSupportedByGelato(chainId)) {
+    logger.info("Router contract removeLiquidity: sending using Gelato relayer", requestContext, methodContext, {
+      amount,
+      assetId,
+      routerContractAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
+    try {
+      const data = await gelatoSend(
+        chainId,
+        routerContractAddress,
+        encodedData,
+        routerRelayerFeeAsset,
+        routerRelayerFee,
+      );
+      if (!data.taskId) {
+        throw new Error("No taskId returned");
+      }
+      logger.info("Router contract removeLiquidity: sent using Gelato relayer", requestContext, methodContext, {
+        data,
+      });
+
+      // listen for event on contract
+      const { event } = await removeLiquidityEvt.waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err: any) {
+      logger.warn("Router contract removeLiquidity: Gelato send failed", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
+  }
+
+  // 2. If gelato is not supported, or gelato send failed, try using the router network.
+  if (useRelayer) {
+    logger.info("Router contract removeLiquidity: sending using router network", requestContext, methodContext, {
+      amount,
+      assetId,
+      routerRelayerFeeAsset,
+      routerRelayerFee,
+    });
+
+    try {
+      const payload = {
+        chainId,
+        to: routerContractAddress,
+        type: MetaTxTypes.RouterContractRemoveLiquidity,
+        data: {
+          params: { router: routerContractAddress, amount, assetId },
+          signature,
+          relayerFee: routerRelayerFee,
+          relayerFeeAsset: routerRelayerFeeAsset,
+        } as MetaTxPayloads[typeof MetaTxTypes.RouterContractRemoveLiquidity],
+      };
+      await messaging.publishMetaTxRequest(payload);
+
+      // listen for event on contract
+      const { event } = await removeLiquidityEvt.waitFor(300_000);
+      return await txService.getTransactionReceipt(chainId, event.transactionHash);
+    } catch (err) {
+      // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
+      // (see waitFor) is the error we actually caught in this block.
+      logger.warn("Router contract removeLiquidity: router network failed", requestContext, methodContext, {
+        err: jsonifyError(err),
+      });
+    }
+  }
+
+  logger.info("Router contract removeLiquidity: sending using txservice", requestContext, methodContext, {
+    router: routerContractAddress,
+    amount,
+    assetId,
+  });
+  return await txService.sendTx(
+    {
+      to: routerContractAddress,
       data: encodedData,
       value: constants.Zero,
       chainId,

@@ -71,7 +71,7 @@ export const bindFastify = () =>
           return res.code(401).send("Unauthorized to perform this operation");
         }
         try {
-          let transactionHash;
+          let result;
           if (isRouterContract) {
             const routerRelayerFeeAsset = utils.getAddress(
               config.chainConfig[chainId].routerContractRelayerAsset ?? constants.AddressZero,
@@ -94,11 +94,10 @@ export const bindFastify = () =>
               chainId,
               wallet,
             );
-            const result = await contractWriter.removeLiquidityRouterContract(
+            result = await contractWriter.removeLiquidityRouterContract(
               chainId,
               amount,
               assetId,
-              recipientAddress,
               routerAddress,
               signature,
               routerRelayerFeeAsset,
@@ -107,7 +106,7 @@ export const bindFastify = () =>
               requestContext,
             );
           } else {
-            const result = await contractWriter.removeLiquidityTransactionManager(
+            result = await contractWriter.removeLiquidityTransactionManager(
               chainId,
               amount,
               assetId,

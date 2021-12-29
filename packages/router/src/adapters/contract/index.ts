@@ -13,6 +13,7 @@ import {
   migrateLiquidity,
   getRouterBalance,
   startContractListeners,
+  removeLiquidityRouterContract,
 } from "./contract";
 
 export type ContractWriter = {
@@ -72,14 +73,13 @@ export type ContractWriter = {
     chainId: number,
     amount: string,
     assetId: string,
-    recipientAddress: string | undefined,
     routerContractAddress: string,
     signature: string,
     routerRelayerFeeAsset: string,
     routerRelayerFee: string,
     useRelayer: boolean,
     requestContext: RequestContext,
-  ) => Promise<string>;
+  ) => Promise<providers.TransactionReceipt>;
   addLiquidityForTransactionManager: (
     chainId: number,
     amount: string,
@@ -112,5 +112,6 @@ export const contractWriter = (): ContractWriter => {
     addLiquidityForTransactionManager,
     migrateLiquidity,
     getRouterBalance,
+    removeLiquidityRouterContract,
   };
 };
