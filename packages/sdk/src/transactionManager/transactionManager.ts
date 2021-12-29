@@ -25,7 +25,7 @@ import { ChainNotConfigured } from "../error";
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
   if(chainId === 1337 || chainId === 1338){
     //use mainnet abi
-    const record = (contractDeployments as any)["0"];
+    const record = (contractDeployments as any)["1"];
     const name = Object.keys(record)[0];
     
     const contract = record[name]?.contracts?.TransactionManager;

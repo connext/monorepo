@@ -199,7 +199,8 @@ export class SdkAgent {
     this.sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
       let error: NxtpErrorJson | undefined;
       try {
-        // await this.sdk.fulfillTransfer(data, false);
+        this.logger.debug("auto fulfilling txn");
+        await this.sdk.fulfillTransfer(data, true);
       } catch (e) {
         error = jsonifyError(e);
         this.logger.error("Fulfilling failed", undefined, undefined, error, {

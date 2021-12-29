@@ -189,7 +189,7 @@ export class SdkManager {
     // NOTE; we initiate all transactions serially because this isnt
     // a concurrency test. But we don't wait for them to complete
     for (const agent of this.agents) {
-      // agent.establishCyclicalTransfers();
+      agent.establishCyclicalTransfers();
 
       const transactionId = getRandomBytes32();
       this.transactionInfo[transactionId] = { start: Date.now() };

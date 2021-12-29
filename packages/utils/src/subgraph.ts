@@ -34,11 +34,12 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai-v1-runtime"];
     case 421611:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby-v1-runtime"];
-    //local
+    //local 
+    //todo: should be dynamic depending on if we're running from container or not. 
     case 1337:
-      return ["http://graph-node-1337:8000/subgraphs/name/connext/nxtp"];
+      return ["http://localhost:8010/subgraphs/name/connext/nxtp"];
     case 1338:
-      return ["http://graph-node-1338:8000/subgraphs/name/connext/nxtp"];
+      return ["http://localhost:9010/subgraphs/name/connext/nxtp"];
 
     // mainnets
     case 1:
