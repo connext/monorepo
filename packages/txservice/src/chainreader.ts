@@ -345,7 +345,6 @@ export class ChainReader {
       chainId,
       assetId,
       decimals,
-      chainData,
     });
 
     const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
