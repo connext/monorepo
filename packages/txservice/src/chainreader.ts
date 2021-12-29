@@ -206,7 +206,7 @@ export class ChainReader {
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
     const priceOracleContract = getDeployedPriceOracleContract(chainId);
-    if (!priceOracleContract) {
+    if (!priceOracleContract || !priceOracleContract.address) {
       throw new ChainNotSupported(chainId.toString(), requestContext);
     }
     const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);

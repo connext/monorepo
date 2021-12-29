@@ -33,10 +33,6 @@ export const convertToUsd = async (
 ): Promise<number> => {
   const { txService, logger } = getContext();
 
-  // Get token price
-  const priceOracleContract = getDeployedPriceOracleContract(chainId);
-  if (!priceOracleContract || !priceOracleContract.address) return 0;
-
   const price = await txService.getTokenPrice(chainId, assetId, requestContext);
   if (price.isZero()) {
     // Do nothing
