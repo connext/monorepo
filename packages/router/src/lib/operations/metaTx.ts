@@ -10,7 +10,7 @@ import {
   MetaTxTypes,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, providers } from "ethers/lib/ethers";
+import { BigNumber, providers } from "ethers/lib/ethers";
 
 import { getContext } from "../../router";
 import { MetaTxInputSchema } from "../entities";
