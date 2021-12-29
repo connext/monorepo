@@ -99,7 +99,7 @@ export const getTokenPriceFromOnChain = async (
   requestContext?: RequestContext,
 ): Promise<BigNumber> => {
   const { txService } = getContext();
-  return txService.getTokenPriceFromOnChain(chainId, assetId, requestContext);
+  return txService.getTokenPriceFromOnChain(chainId, assetId, undefined, requestContext);
 };
 
 export const sanitationCheck = async (
