@@ -9,7 +9,7 @@ import {
   SubgraphSyncRecord,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers/lib/ethers";
+import { BigNumber, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
@@ -592,7 +592,7 @@ export const getExpressiveAssetBalances = async (chainId: number): Promise<Expre
 
 // query to get cancelled_fulfilled transactions
 export const getCancelledFulfilledTransactions = async (routerAddress: string, chainId: number) => {
-  const { logger } = getContext();
+  const { logger, chainData, txService } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getCancelledFulfilledTransactions.name);
 
   logger.info("method start", requestContext, methodContext, {
@@ -616,6 +616,7 @@ export const getCancelledFulfilledTransactions = async (routerAddress: string, c
 
   // create list of txIds for each receiving chain
 
+  const totalLoss: Map<string, BigNumber> = new Map();
   const miniData: any = [];
   const records = await Promise.all(
     allSenderCancelled.router!.transactions.map(async (cancelledTx) => {
@@ -638,6 +639,9 @@ export const getCancelledFulfilledTransactions = async (routerAddress: string, c
         sendingSideExpiry: Number(cancelledTx.expiry),
       });
 
+      const pre = BigNumber.from(totalLoss.get(cancelledTx.sendingAssetId) ?? 0);
+
+      totalLoss.set(cancelledTx.sendingAssetId, pre.add(cancelledTx.amount));
       return { sendingSide: cancelledTx, receivingSide: receivingSide.transaction };
     }),
   );
@@ -645,10 +649,20 @@ export const getCancelledFulfilledTransactions = async (routerAddress: string, c
   miniData.sort((a: any, b: any) => {
     return a.sendingSideExpiry - b.sendingSideExpiry;
   });
+
   const data = {
     records,
     miniData,
   };
   // writeFileSync("./logs.json", JSON.stringify(data));
   console.log(data);
+
+  totalLoss.forEach(async (value, key) => {
+    let outputDecimals = chainData.get(chainId.toString())?.assetId[key]?.decimals;
+    if (!outputDecimals) {
+      outputDecimals = await txService.getDecimalsForAsset(chainId, key);
+    }
+
+    console.log(key, utils.formatUnits(value, outputDecimals));
+  });
 };
