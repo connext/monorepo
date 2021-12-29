@@ -42,6 +42,16 @@ export const getMainnetEquivalent = async (
 
   const chainInfo = chaindata?.get(chainId.toString());
 
-  const mainnetEquivalent = chainInfo?.assetId[assetId]?.mainnetEquivalent;
-  return mainnetEquivalent ? utils.getAddress(mainnetEquivalent) : undefined;
+  const equiv = chainInfo
+    ? chainInfo.assetId[utils.getAddress(assetId)] ??
+      chainInfo.assetId[assetId.toLowerCase()] ??
+      chainInfo.assetId[assetId.toUpperCase()] ??
+      chainInfo.assetId[assetId]
+    : undefined;
+
+  if (!equiv || !equiv.mainnetEquivalent) {
+    return undefined;
+  }
+
+  return utils.getAddress(equiv.mainnetEquivalent);
 };
