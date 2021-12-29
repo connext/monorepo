@@ -199,9 +199,8 @@ export class SdkManager {
         receivingAddress: agent.address,
         ...initialParams,
       });
-
     }
- 
+
     const killSwitch = () => {
       this.agents.map((agent) => {
         agent.cancelCyclicalTransfers();
