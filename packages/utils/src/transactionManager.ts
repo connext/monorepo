@@ -79,6 +79,8 @@ export type CancelParams = {
   signature: string;
 };
 
+export type RemoveLiquidityParams = { router: string; assetId: string; amount: string; recipient: string };
+
 // Events
 export const TransactionPreparedEventSchema = Type.Object({
   txData: TransactionDataSchema,
