@@ -11,6 +11,7 @@ import {
   invariantDataMock,
   getRandomBytes32,
   getVariantTransactionDigest,
+  sigMock,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
@@ -26,26 +27,51 @@ import {
   addLiquidityForTransactionManager,
   migrateLiquidity,
 } from "../../../src/adapters/contract/contract";
-import { createStubInstance, SinonStubbedInstance, stub, SinonStub } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub, SinonStub, restore, reset } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
-import { routerAddrMock } from "../../utils";
-import { signerAddress, txServiceMock } from "../../globalTestHook";
+import { RouterInterface } from "@connext/nxtp-contracts/typechain/Router";
+import { routerAddrMock, routerContractAddressMock } from "../../utils";
+import { messagingMock, signerAddress, txServiceMock } from "../../globalTestHook";
 import { SanitationCheckFailed } from "../../../src/lib/errors";
+import { ERC20Interface } from "@connext/nxtp-contracts/typechain/ERC20";
 
 const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
 
 let interfaceMock: SinonStubbedInstance<Interface>;
+let routerInterfaceMock: SinonStubbedInstance<Interface>;
+let erc20InterfaceMock: SinonStubbedInstance<Interface>;
 
 describe("Contract Adapter", () => {
   let sanitationStub: any;
   let isRouterWhitelistedStub: SinonStub;
+  let isChainSupportedByGelatoStub: SinonStub;
+  let gelatoSendStub: SinonStub;
+
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
     interfaceMock.encodeFunctionData.returns(encodedDataMock);
     interfaceMock.decodeFunctionResult.returns([BigNumber.from(1000)]);
     stub(SharedFns, "getTxManagerInterface").returns(interfaceMock as unknown as TransactionManagerInterface);
+
+    routerInterfaceMock = createStubInstance(Interface);
+    routerInterfaceMock.encodeFunctionData.returns(encodedDataMock);
+    routerInterfaceMock.decodeFunctionResult.returns([BigNumber.from(1000)]);
+    stub(SharedFns, "getRouterContractInterface").returns(routerInterfaceMock as unknown as RouterInterface);
+
+    erc20InterfaceMock = createStubInstance(Interface);
+    erc20InterfaceMock.encodeFunctionData.returns(encodedDataMock);
+    erc20InterfaceMock.decodeFunctionResult.returns([BigNumber.from(1000)]);
+    stub(SharedFns, "getErc20ContractInterface").returns(erc20InterfaceMock as unknown as ERC20Interface);
+
     isRouterWhitelistedStub = stub(SharedFns, "isRouterWhitelisted");
+    isChainSupportedByGelatoStub = stub(ContractFns, "isChainSupportedByGelato").returns(true);
+    gelatoSendStub = stub(ContractFns, "gelatoSend");
+  });
+
+  afterEach(() => {
+    restore();
+    reset();
   });
 
   describe("#startContractListeners", () => {
@@ -249,6 +275,11 @@ describe("Contract Adapter", () => {
   });
 
   describe("#addLiquidityFor", () => {
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
     it("should work for native asset", async () => {
       const chainId = txDataMock.sendingChainId;
 
@@ -261,6 +292,21 @@ describe("Contract Adapter", () => {
         assetId,
         signerAddress,
       ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("if insufficient allowance, approve", async () => {
+      const chainId = txDataMock.sendingChainId;
+
+      const amount = "1000";
+      const assetId = mkAddress("0x6");
+      const contractAddress = mkAddress("0xaaa");
+
+      txServiceMock.readTx.resolves("0x00000000000000000000000000000000000000000000000000000000000003e0");
+      const res = await addLiquidityForTransactionManager(chainId, amount, assetId, undefined, requestContext);
+      expect(erc20InterfaceMock.encodeFunctionData.calledOnceWith("allowance", [signerAddress, contractAddress]));
+      expect(erc20InterfaceMock.encodeFunctionData.calledOnceWith("approve", [contractAddress, constants.MaxUint256]));
+      expect(interfaceMock.encodeFunctionData).calledWith("addLiquidityFor", [amount, assetId, signerAddress]);
       expect(res).to.deep.eq(txReceiptMock);
     });
 
@@ -355,6 +401,372 @@ describe("Contract Adapter", () => {
       txServiceMock.readTx.resolves("10");
       const ret = await ContractFns.getRouterBalance(1337, routerAddrMock, mkAddress());
       expect(ret.toNumber()).to.be.eq(10);
+    });
+  });
+
+  describe("prepareRouterContract", async () => {
+    beforeEach(() => {
+      sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+    });
+
+    it("should work", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      const res = await ContractFns.prepareRouterContract(
+        chainId,
+        prepareParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        false,
+        requestContext,
+      );
+      expect(routerInterfaceMock.encodeFunctionData).calledOnceWith("prepare", [
+        {
+          invariantData: prepareParamsMock.txData,
+          amount: prepareParamsMock.amount,
+          expiry: prepareParamsMock.expiry,
+          encryptedCallData: prepareParamsMock.encryptedCallData,
+          encodedBid: prepareParamsMock.encodedBid,
+          bidSignature: prepareParamsMock.bidSignature,
+          encodedMeta: "0x",
+        },
+        routerRelayerFeeAsset,
+        "1",
+        sigMock,
+      ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if useRelayer && chain is supported by gelato", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(true);
+      gelatoSendStub.resolves({
+        taskId: "task",
+      });
+      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+
+      setTimeout(() => {
+        ContractFns.prepareEvt.post({ event: "prepare", args: prepareParamsMock, chainId: chainId });
+      }, 200);
+
+      const res = await ContractFns.prepareRouterContract(
+        chainId,
+        prepareParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        true,
+        requestContext,
+      );
+
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(true);
+      gelatoSendStub.resolves({
+        taskId: undefined,
+      });
+      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+
+      setTimeout(() => {
+        ContractFns.prepareEvt.post({ event: "prepare", args: prepareParamsMock, chainId: chainId });
+      }, 200);
+
+      const res = await ContractFns.prepareRouterContract(
+        chainId,
+        prepareParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        true,
+        requestContext,
+      );
+      expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if not use relayer", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(false);
+      txServiceMock.sendTx
+        .withArgs(
+          {
+            to: routerContractAddressMock,
+            data: encodedDataMock,
+            value: "0x0",
+            chainId,
+            from: mkAddress("0xa"),
+          },
+          requestContext,
+        )
+        .resolves(txReceiptMock);
+
+      const res = await ContractFns.prepareRouterContract(
+        chainId,
+        prepareParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        false,
+        requestContext,
+      );
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("fulfillRouterContract", async () => {
+    beforeEach(() => {
+      sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+    });
+
+    it("should work", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      const res = await ContractFns.fulfillRouterContract(
+        chainId,
+        fulfillParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        false,
+        requestContext,
+      );
+      expect(routerInterfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
+        {
+          txData: fulfillParamsMock.txData,
+          relayerFee: fulfillParamsMock.relayerFee,
+          signature: fulfillParamsMock.signature,
+          callData: fulfillParamsMock.callData,
+          encodedMeta: "0x",
+        },
+        routerRelayerFeeAsset,
+        "1",
+        sigMock,
+      ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if useRelayer && chain is supported by gelato", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(true);
+      gelatoSendStub.resolves({
+        taskId: "task",
+      });
+      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+
+      setTimeout(() => {
+        ContractFns.fulfillEvt.post({ event: "fulfill", args: fulfillParamsMock, chainId: chainId });
+      }, 200);
+
+      const res = await ContractFns.fulfillRouterContract(
+        chainId,
+        fulfillParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        true,
+        requestContext,
+      );
+
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(true);
+      gelatoSendStub.resolves({
+        taskId: undefined,
+      });
+      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+
+      setTimeout(() => {
+        ContractFns.fulfillEvt.post({ event: "fulfill", args: fulfillParamsMock, chainId: chainId });
+      }, 200);
+
+      const res = await ContractFns.fulfillRouterContract(
+        chainId,
+        fulfillParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        true,
+        requestContext,
+      );
+      expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if not use relayer", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(false);
+      txServiceMock.sendTx
+        .withArgs(
+          {
+            to: routerContractAddressMock,
+            data: encodedDataMock,
+            value: "0x0",
+            chainId,
+            from: mkAddress("0xa"),
+          },
+          requestContext,
+        )
+        .resolves(txReceiptMock);
+
+      const res = await ContractFns.fulfillRouterContract(
+        chainId,
+        fulfillParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        false,
+        requestContext,
+      );
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+  });
+
+  describe("cancelRouterContract", async () => {
+    beforeEach(() => {
+      sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+    });
+
+    it("should work", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      const res = await ContractFns.cancelRouterContract(
+        chainId,
+        cancelParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        false,
+        requestContext,
+      );
+      expect(routerInterfaceMock.encodeFunctionData).calledOnceWith("cancel", [
+        {
+          txData: cancelParamsMock.txData,
+          signature: cancelParamsMock.signature,
+          encodedMeta: "0x",
+        },
+        routerRelayerFeeAsset,
+        "1",
+        sigMock,
+      ]);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if useRelayer && chain is supported by gelato", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(true);
+      gelatoSendStub.resolves({
+        taskId: "task",
+      });
+      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+
+      setTimeout(() => {
+        ContractFns.cancelEvt.post({ event: "cancel", args: cancelParamsMock, chainId: chainId });
+      }, 200);
+
+      const res = await ContractFns.cancelRouterContract(
+        chainId,
+        cancelParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        true,
+        requestContext,
+      );
+
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(true);
+      gelatoSendStub.resolves({
+        taskId: undefined,
+      });
+      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+
+      setTimeout(() => {
+        ContractFns.cancelEvt.post({ event: "fulfill", args: cancelParamsMock, chainId: chainId });
+      }, 200);
+
+      const res = await ContractFns.cancelRouterContract(
+        chainId,
+        cancelParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        true,
+        requestContext,
+      );
+      expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
+      expect(res).to.deep.eq(txReceiptMock);
+    });
+
+    it("should work if not use relayer", async () => {
+      const chainId = txDataMock.sendingChainId;
+      const routerRelayerFeeAsset = mkAddress("0x00");
+
+      isChainSupportedByGelatoStub.returns(false);
+      txServiceMock.sendTx
+        .withArgs(
+          {
+            to: routerContractAddressMock,
+            data: encodedDataMock,
+            value: "0x0",
+            chainId,
+            from: mkAddress("0xa"),
+          },
+          requestContext,
+        )
+        .resolves(txReceiptMock);
+
+      const res = await ContractFns.cancelRouterContract(
+        chainId,
+        cancelParamsMock,
+        routerContractAddressMock,
+        sigMock,
+        routerRelayerFeeAsset,
+        "1",
+        false,
+        requestContext,
+      );
+      expect(res).to.deep.eq(txReceiptMock);
     });
   });
 });
