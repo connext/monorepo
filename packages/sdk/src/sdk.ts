@@ -297,7 +297,7 @@ export class NxtpSdk {
     const amount = actualAmount ?? _amount;
 
     const signerAddr = await this.config.signer.getAddress();
-    const connectedSigner = this.config.signer;
+    // const connectedSigner = this.config.signer;
     // TODO: Safe to remove?
     if (isNode()) {
       // connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].providers[0]);
@@ -309,7 +309,9 @@ export class NxtpSdk {
     );
     const gasLimit = getGasLimit(receivingChainId);
     if (approveTxReq) {
-      const correctChainSigner = this.config.signer.connect(new ethers.providers.JsonRpcProvider(this.config.chainConfig[sendingChainId].providers[0]));
+      const correctChainSigner = this.config.signer.connect(
+        new providers.JsonRpcProvider(this.config.chainConfig[sendingChainId].providers[0]),
+      );
       const approveTx = await correctChainSigner.sendTransaction({ ...approveTxReq, gasLimit });
       this.evts.SenderTokenApprovalSubmitted.post({
         assetId: sendingAssetId,
@@ -346,11 +348,13 @@ export class NxtpSdk {
     const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
     this.logger.warn("Generated prepareReq", requestContext, methodContext, { prepareReq });
 
-    const gl = ethers.BigNumber.from(gasLimit);
+    const gl = BigNumber.from(gasLimit);
     // const accurateSigner = this.config.signer.connect(new ethers.providers.JsonRpcProvider(this.config.chainConfig[1337].providers[0]));
-    const correctChainSigner = this.config.signer.connect(new ethers.providers.JsonRpcProvider(this.config.chainConfig[sendingChainId].providers[0]));
-    const prepareResponse = await correctChainSigner.sendTransaction({ ...prepareReq, gasLimit:gl });
-    this.logger.warn("Prepare response", requestContext, methodContext, {prepareResponse});
+    const correctChainSigner = this.config.signer.connect(
+      new providers.JsonRpcProvider(this.config.chainConfig[sendingChainId].providers[0]),
+    );
+    const prepareResponse = await correctChainSigner.sendTransaction({ ...prepareReq, gasLimit: gl });
+    this.logger.warn("Prepare response", requestContext, methodContext, { prepareResponse });
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: {
         txData: {
@@ -489,7 +493,9 @@ export class NxtpSdk {
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
 
-    const newSigner = this.config.signer.connect(new ethers.providers.JsonRpcProvider(this.config.chainConfig[chainId].providers[0]));
+    const newSigner = this.config.signer.connect(
+      new providers.JsonRpcProvider(this.config.chainConfig[chainId].providers[0]),
+    );
     const connectedSigner = newSigner;
 
     const cancelResponse = await connectedSigner.sendTransaction(cancelReq);
