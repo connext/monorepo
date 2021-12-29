@@ -334,7 +334,7 @@ export class ChainReader {
     chainId: number,
     assetId: string,
     decimals: number,
-    method: "prepare" | "fulfill" | "cancel",
+    method: "prepare" | "fulfill" | "cancel" | "removeLiquidity",
     isRouterContract: boolean,
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
@@ -345,6 +345,7 @@ export class ChainReader {
       chainId,
       assetId,
       decimals,
+      chainData,
     });
 
     const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
@@ -380,8 +381,10 @@ export class ChainReader {
         gasEstimate = DEFAULT_GAS_ESTIMATES.prepareL1;
       } else if (method === "fulfill") {
         gasEstimate = DEFAULT_GAS_ESTIMATES.fulfillL1;
-      } else {
+      } else if (method === "cancel") {
         gasEstimate = DEFAULT_GAS_ESTIMATES.cancelL1;
+      } else {
+        gasEstimate = DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
       }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
@@ -392,8 +395,10 @@ export class ChainReader {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
-    } else {
+    } else if (method === "cancel") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.cancelRouterContract : gasLimits.cancel);
+    } else {
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.removeLiquidityRouterContract : gasLimits.removeLiquidity);
     }
     const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()
@@ -410,6 +415,8 @@ export class ChainReader {
         ethPrice: ethPrice.toString(),
         tokenPrice: tokenPrice.toString(),
         gasPrice: gasPrice.toString(),
+        assetIdOnMainnet,
+        nativeAssetIdOnMainnet,
       },
     );
 

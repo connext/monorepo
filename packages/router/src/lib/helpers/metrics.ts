@@ -1,5 +1,6 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils } from "ethers";
+import { getDeployedPriceOracleContract } from "../../config";
 
 import { getContext } from "../../router";
 import {
@@ -33,6 +34,9 @@ export const convertToUsd = async (
   const { txService, logger } = getContext();
 
   // Get token price
+  const priceOracleContract = getDeployedPriceOracleContract(chainId);
+  if (!priceOracleContract || !priceOracleContract.address) return 0;
+
   const price = await txService.getTokenPrice(chainId, assetId, requestContext);
   if (price.isZero()) {
     // Do nothing
