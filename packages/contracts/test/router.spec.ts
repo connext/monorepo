@@ -17,7 +17,7 @@ import {
   signCancelTransactionPayload,
   signFulfillTransactionPayload,
   VariantTransactionData,
-  signRemoveLiquidityTransactionPayload,
+  signRouterRemoveLiquidityTransactionPayload,
   signRouterCancelTransactionPayload,
   signRouterFulfillTransactionPayload,
   signRouterPrepareTransactionPayload,
@@ -251,7 +251,7 @@ describe("Router.sol", function () {
       const assetId = token.address;
       const routerRelayerFeeAsset = token.address;
       const routerRelayerFee = "1";
-      const signature = await signRemoveLiquidityTransactionPayload(
+      const signature = await signRouterRemoveLiquidityTransactionPayload(
         amount,
         assetId,
         routerRelayerFeeAsset,
