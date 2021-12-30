@@ -31,7 +31,7 @@
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
     "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
-    "test:dockerized-integration": "yarn workspace @connext/nxtp-integration docker:all:up && docker ps -a && bash setup-integration-test.sh && sleep 10 && echo 'router logs' && docker container ls && sleep 20 && echo 'dockerized integration test start' && docker run --network=ops_nxtp-test nxtp-integration &&  echo 'router logs' && docker container logs router-test > routerlogs.json  && cat routerlogs.json && yarn docker:stop:all",
+    "test:dockerized-integration": "yarn workspace @connext/nxtp-integration docker:all:up && docker ps -a && bash setup-integration-test.sh && sleep 10 && echo 'router logs' && docker container ls && sleep 20 && echo 'dockerized integration test start' && docker run --network=ops_nxtp-test nxtp-integration &&  echo 'router logs' && docker logs router-test > routerlogs.json  && cat routerlogs.json && docker logs router-test && yarn docker:stop:all",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach --exclude @connext/nxtp-test-ui --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",

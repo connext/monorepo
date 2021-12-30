@@ -36,9 +36,9 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby-v1-runtime"];
     //local
     case 1337:
-      return ["http://localhost:8010/subgraphs/name/connext/nxtp"];
+      return ["http://graph-node-1337:8000/subgraphs/name/connext/nxtp"];
     case 1338:
-      return ["http://localhost:9010/subgraphs/name/connext/nxtp"];
+      return ["http://graph-node-1338:8000/subgraphs/name/connext/nxtp"];
 
     // mainnets
     case 1:
@@ -49,7 +49,7 @@ export const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, 
     case 10:
       return [
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-v1-runtime",
-        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-optimism-v1-runtime",
+        "https://connext.bwarelabs.com/subgrapgit hs/name/connext/nxtp-optimism-v1-runtime",
       ];
     case 56:
       return [
