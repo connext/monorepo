@@ -275,7 +275,7 @@ export class RpcProviderAggregator {
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public async readContract(tx: ReadTransaction, blockTag?: number): Promise<string> {
+  public async readContract(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {

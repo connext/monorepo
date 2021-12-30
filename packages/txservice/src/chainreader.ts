@@ -64,12 +64,12 @@ export class ChainReader {
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
    * @param tx.data - Calldata to send
-   * @param blockTag - (optional) Block number to query, defaults to latest
+   * @param blockTag - (optional) Block tag to query, defaults to latest
    *
    * @returns Encoded hexdata representing result of the read from the chain.
    */
-  public async readTx(tx: ReadTransaction, blockTag?: number): Promise<string> {
-    return await this.getProvider(tx.chainId).readContract(tx);
+  public async readTx(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
+    return await this.getProvider(tx.chainId).readContract(tx, blockTag);
   }
 
   /**
@@ -180,16 +180,12 @@ export class ChainReader {
   public async getTokenPrice(
     chainId: number,
     assetId: string,
-    blockTag?: number,
+    blockTag: providers.BlockTag = "latest",
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
 
-    const cachedPriceKey = chainId
-      .toString()
-      .concat("-")
-      .concat(assetId)
-      .concat(blockTag?.toString() ?? "latest");
+    const cachedPriceKey = chainId.toString().concat("-").concat(assetId).concat(blockTag.toString());
     const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
     const curTimeInSecs = await getNtpTimeSeconds();
 
@@ -212,7 +208,7 @@ export class ChainReader {
   public async getTokenPriceFromOnChain(
     chainId: number,
     assetId: string,
-    blockTag?: number,
+    blockTag: providers.BlockTag = "latest",
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
