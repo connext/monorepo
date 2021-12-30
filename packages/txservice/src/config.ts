@@ -1,3 +1,4 @@
+import { parseProviders } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
@@ -173,7 +174,6 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     // Backwards compatibility with specifying only a single provider under the key "provider".
     const _providers: string | string[] | { url: string; user?: string; password?: string }[] =
       chainConfig.providers ?? chainConfig.provider;
-    const providers = typeof _providers === "string" ? [{ url: _providers }] : _providers;
 
     // Remove unused from the mix (such as subgraphs, etc).
     // NOTE: We use CoreChainConfigSchema here because we will format them separately below.
@@ -185,13 +185,7 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
     // Merge the default values with the specified chain config.
     config[chainId] = {
       ...sanitizedCoreConfig,
-      providers: providers.map((provider) =>
-        typeof provider === "string"
-          ? {
-              url: provider,
-            }
-          : provider,
-      ),
+      providers: parseProviders(_providers),
     } as ChainConfig;
   });
   ajv.compile(TransactionServiceConfigSchema)(config);

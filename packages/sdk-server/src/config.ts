@@ -1,8 +1,8 @@
 import { readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
-import { ajv, Logger, TChainId } from "@connext/nxtp-utils";
-import { SdkBaseConfigParams, NetworkSchema, LogLevelScehma, SdkBaseChainConfigParams } from "@connext/nxtp-sdk";
+import { ajv, Logger, parseProviders, TChainId } from "@connext/nxtp-utils";
+import { SdkConfigParams, NetworkSchema, LogLevelScehma, SdkChainConfig } from "@connext/nxtp-sdk";
 import { Wallet } from "ethers";
 
 export const SdkServerChainConfigSchema = Type.Record(
@@ -29,7 +29,7 @@ export const NxtpSdkServerConfigSchema = Type.Object({
 
 export type NxtpSdkServerConfig = Static<typeof NxtpSdkServerConfigSchema>;
 
-export const getConfig = (): SdkBaseConfigParams => {
+export const getConfig = (): SdkConfigParams => {
   let configFile: any = {};
 
   try {
@@ -69,10 +69,10 @@ export const getConfig = (): SdkBaseConfigParams => {
     ? Wallet.fromMnemonic(serverConfig.messagingMnemonic)
     : undefined;
 
-  const chainConfig: SdkBaseChainConfigParams = {};
+  const chainConfig: SdkChainConfig = {};
   Object.entries(serverConfig.chainConfig).forEach(([chainId, config]) => {
     chainConfig[parseInt(chainId)] = {
-      providers: config.provider,
+      providers: parseProviders(config.provider),
       transactionManagerAddress: config.transactionManagerAddress,
       priceOracleAddress: config.priceOracleAddress,
       subgraph: config.subgraph,
@@ -84,9 +84,8 @@ export const getConfig = (): SdkBaseConfigParams => {
   //   provider:
   // };
 
-  const config: SdkBaseConfigParams = {
+  const config: SdkConfigParams = {
     chainConfig: chainConfig,
-    signerAddress: signer.getAddress(),
     signer,
     messagingSigner,
     logger: new Logger({ name: "sdk-server", level: serverConfig.logLevel }),

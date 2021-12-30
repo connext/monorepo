@@ -10,6 +10,7 @@ import {
   ChainData,
   getChainData,
   StatusResponse,
+  parseProvidersInChainConfig,
 } from "@connext/nxtp-utils";
 
 import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
@@ -87,29 +88,7 @@ export class NxtpSdk {
   private readonly config: SdkConfigParams;
 
   constructor(config: InputSdkConfigParams) {
-    // Parse providers into correct format. Used to ensure backwards compatibility.
-    // TODO: This logic is a bit redundant as the same operation is performed in ChainReader's initialization
-    // in the NxtpSdkBase. It may be better placed in its own utility method.
-    const chainConfig: SdkChainConfig = {};
-    Object.keys(config.chainConfig).forEach((_chainId) => {
-      const chainId = parseInt(_chainId);
-      const _chainConfig = config.chainConfig[chainId];
-      const providers =
-        typeof _chainConfig.providers === "string"
-          ? [{ url: _chainConfig.providers }]
-          : _chainConfig.providers.map((provider) =>
-              typeof provider === "string"
-                ? {
-                    url: provider,
-                  }
-                : provider,
-            );
-      chainConfig[chainId] = {
-        ...config,
-        providers,
-      };
-    });
-
+    const chainConfig = parseProvidersInChainConfig<SdkChainConfig>(config.chainConfig);
     this.config = {
       ...config,
       chainConfig,
