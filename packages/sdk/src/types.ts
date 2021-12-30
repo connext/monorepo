@@ -16,6 +16,8 @@ import {
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Signer } from "ethers";
 
+import { NxtpSdkBase } from "./sdkBase";
+
 export const SdkBaseChainConfigSchema = Type.Record(
   Type.Number(),
   Type.Object({
@@ -45,33 +47,31 @@ export const LogLevelScehma = Type.Union([
 
 export const NetworkSchema = Type.Union([Type.Literal("local"), Type.Literal("testnet"), Type.Literal("mainnet")]);
 
-// export const SdkBaseConfigSchema = Type.Object({
-//   chainConfig: SdkBaseChainConfigParams,
-//   signerAddress: Type.Promise(Type.String()),
-//   signer: Type.Optional(Type.Any(Signer)),
-//   messagingSigner: Type.Optional(Type.Any(Signer)),
-//   logger: Type.Optional(Type.Any(Logger)),
-//   network: Type.Optional(Type.Enum(NetworkEnum)),
-//   natsUrl: Type.Optional(Type.String()),
-//   authUrl: Type.Optional(Type.String()),
-//   messaging: Type.Optional(Type.Any(UserNxtpNatsMessagingService)),
-//   skipPolling: Type.Optional(Type.Boolean()),
-// });
-
-// export type SdkBaseConfigParams = Static<typeof SdkBaseConfigSchema>;
-export type SdkBaseChainConfigParams = {
-  [chainId: number]: {
-    providers: string | string[] | { url: string; user?: string; password?: string }[];
-    transactionManagerAddress?: string;
-    priceOracleAddress?: string;
-    subgraph?: string | string[];
-    subgraphSyncBuffer?: number;
+/// MARK - SDK CONFIG
+// Sdk chainConfig core parameters.
+type CoreChainConfigParams = {
+  transactionManagerAddress?: string;
+  priceOracleAddress?: string;
+  subgraph?: string | string[];
+  subgraphSyncBuffer?: number;
+};
+// Internally used chain config.
+export type SdkChainConfig = {
+  [chainId: number]: CoreChainConfigParams & {
+    providers: { url: string; user?: string; password?: string }[];
   };
 };
-export type SdkBaseConfigParams = {
-  chainConfig: SdkBaseChainConfigParams;
+// Backwards compatible chain config, used as input for constructor.
+export type InputSdkChainConfig = {
+  [chainId: number]: CoreChainConfigParams & {
+    providers: string | string[] | { url: string; user?: string; password?: string }[];
+  };
+};
+
+// Core SDK config parameters.
+type CoreSdkConfigParams = {
   signerAddress: Promise<string>;
-  signer?: Signer;
+  signer: Signer;
   messagingSigner?: Signer;
   logger?: Logger;
   network?: "testnet" | "mainnet" | "local";
@@ -81,6 +81,13 @@ export type SdkBaseConfigParams = {
   skipPolling?: boolean;
   chainData?: Map<string, ChainData>;
 };
+export type SdkConfigParams = {
+  chainConfig: SdkChainConfig;
+} & CoreSdkConfigParams;
+export type InputSdkConfigParams = {
+  chainConfig: InputSdkChainConfig;
+  sdkBase?: NxtpSdkBase;
+} & CoreSdkConfigParams;
 
 export const CrossChainParamsSchema = Type.Object({
   sendingChainId: TChainId,
