@@ -7,6 +7,7 @@ export const getSimpleRPCPRovider = (rpcUrl: string) => {
 export type RawProviders = string | string[] | { url: string; user?: string; password?: string }[];
 export type ProviderConnectionInfo = { url: string; user?: string; password?: string }[];
 
+// Parse providers into correct format. Used to ensure backwards compatibility.
 export const parseProviders = (providers: RawProviders): ProviderConnectionInfo => {
   return typeof providers === "string"
     ? [{ url: providers }]
@@ -19,10 +20,10 @@ export const parseProviders = (providers: RawProviders): ProviderConnectionInfo 
       );
 };
 
+// Convenience method for chain config parsing with nested RawProviders.
 export const parseProvidersInChainConfig = <T>(chainConfig: {
   [chainId: number]: { providers: RawProviders } & T;
 }): { [chainId: number]: { providers: ProviderConnectionInfo } & T } => {
-  // Parse providers into correct format. Used to ensure backwards compatibility.
   const newChainConfig: { [chainId: number]: { providers: ProviderConnectionInfo } & T } = {};
   Object.keys(chainConfig).forEach((_chainId) => {
     const chainId = parseInt(_chainId);
