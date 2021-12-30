@@ -81,10 +81,10 @@ export const createEvts = (): { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]
  */
 export class NxtpSdk {
   private evts: { [K in NxtpSdkEvent]: Evt<NxtpSdkEventPayloads[K]> } = createEvts();
-  public readonly sdkBase: NxtpSdkBase;
-  private readonly logger: Logger;
   public readonly chainData?: Map<string, ChainData>;
-  public readonly config: SdkConfigParams;
+  private readonly sdkBase: NxtpSdkBase;
+  private readonly logger: Logger;
+  private readonly config: SdkConfigParams;
 
   constructor(config: InputSdkConfigParams) {
     // Parse providers into correct format. Used to ensure backwards compatibility.

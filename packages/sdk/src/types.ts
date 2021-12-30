@@ -70,7 +70,6 @@ export type InputSdkChainConfig = {
 
 // Core SDK config parameters.
 type CoreSdkConfigParams = {
-  signerAddress: Promise<string>;
   signer: Signer;
   messagingSigner?: Signer;
   logger?: Logger;

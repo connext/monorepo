@@ -133,18 +133,8 @@ export class NxtpSdkBase {
   private readonly statusResponseEvt = createMessagingEvt<StatusResponse>();
 
   constructor(private readonly config: SdkConfigParams) {
-    const {
-      signerAddress,
-      chainConfig,
-      messagingSigner,
-      messaging,
-      natsUrl,
-      authUrl,
-      logger,
-      network,
-      skipPolling,
-      chainData,
-    } = this.config;
+    const { chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling, chainData } =
+      this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
     this.config.network = network ?? "testnet";
@@ -247,6 +237,7 @@ export class NxtpSdkBase {
         };
       },
     );
+    const signerAddress = this.config.signer.getAddress();
     this.transactionManager = new TransactionManager(
       txManagerConfig,
       this.chainReader,
@@ -452,7 +443,7 @@ export class NxtpSdkBase {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const user = await this.config.signerAddress;
+    const user = await this.config.signer.getAddress();
     const transactionId =
       params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
 
