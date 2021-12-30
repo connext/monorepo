@@ -466,6 +466,7 @@ export class SdkAgent {
         if (auction?.bid) {
           this.logger.debug(`Preparing Transfer`, requestContext, methodContext, {
             txid: bid.transactionId,
+            auction,
           });
           try {
             auction.bid.sendingChainId = params.sendingChainId;
