@@ -63,7 +63,6 @@ import {
   TransactionManagerChainConfig,
 } from "./transactionManager/transactionManager";
 import {
-  SdkBaseConfigParams,
   NxtpSdkEventPayloads,
   CrossChainParams,
   CrossChainParamsSchema,
@@ -74,8 +73,9 @@ import {
   ActiveTransaction,
   CancelParams,
   GetTransferQuote,
-  SdkBaseChainConfigParams,
   ApproveParams,
+  SdkConfigParams,
+  SdkChainConfig,
 } from "./types";
 import {
   getTransactionId,
@@ -107,7 +107,7 @@ export const createMessagingEvt = <T>() => {
   return Evt.create<{ inbox: string; data?: T; err?: any }>();
 };
 
-export const setupChainReader = (logger: Logger, chainConfig: SdkBaseChainConfigParams): ChainReader => {
+export const setupChainReader = (logger: Logger, chainConfig: SdkChainConfig): ChainReader => {
   return new ChainReader(logger, chainConfig);
 };
 
@@ -132,19 +132,9 @@ export class NxtpSdkBase {
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
   private readonly statusResponseEvt = createMessagingEvt<StatusResponse>();
 
-  constructor(private readonly config: SdkBaseConfigParams) {
-    const {
-      signerAddress,
-      chainConfig,
-      messagingSigner,
-      messaging,
-      natsUrl,
-      authUrl,
-      logger,
-      network,
-      skipPolling,
-      chainData,
-    } = this.config;
+  constructor(private readonly config: SdkConfigParams) {
+    const { chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling, chainData } =
+      this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
     this.config.network = network ?? "testnet";
@@ -203,7 +193,7 @@ export class NxtpSdkBase {
       ]) => {
         const chainId = parseInt(_chainId);
         let transactionManagerAddress;
-        if(chainId === 1337 || chainId === 1338 ){
+        if (chainId === 1337 || chainId === 1338) {
           transactionManagerAddress = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
         }
         transactionManagerAddress = _transactionManagerAddress;
@@ -247,6 +237,7 @@ export class NxtpSdkBase {
         };
       },
     );
+    const signerAddress = this.config.signer.getAddress();
     this.transactionManager = new TransactionManager(
       txManagerConfig,
       this.chainReader,
@@ -452,7 +443,7 @@ export class NxtpSdkBase {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const user = await this.config.signerAddress;
+    const user = await this.config.signer.getAddress();
     const transactionId =
       params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
 
@@ -1237,5 +1228,31 @@ export class NxtpSdkBase {
     if (!this.config.chainConfig[chainId] || !this.chainReader.isSupportedChain(chainId)) {
       throw new ChainNotConfigured(chainId, Object.keys(this.config.chainConfig));
     }
+  }
+
+  /**
+   * Connects the SDK's injected signer to the correct chain's configured providers and
+   * sends the specified transaction.
+   * @param chainId - The chain to send the transaction on.
+   * @param transaction - The transaction to send.
+   * @returns A promise that resolves with the transaction response.
+   */
+  public async sendTransaction(
+    chainId: number,
+    transaction: providers.TransactionRequest,
+  ): Promise<providers.TransactionResponse> {
+    this.assertChainIsConfigured(chainId);
+    const configProviders = this.config.chainConfig[chainId].providers;
+    const connectedSigner = this.config.signer?.connect(
+      // TODO: Inefficient. Not only redundant with ChainReader's instantiations of ethers providers, but also
+      // there's no need to instantiate every time we send a transaction. Better to do it all at once in constructor...
+      // Better yet to use same resources as ChainReader (i.e. use a multiton?).
+      new providers.FallbackProvider(
+        configProviders.map((p) => ({
+          provider: new providers.StaticJsonRpcProvider(p, chainId),
+        })),
+      ),
+    );
+    return await connectedSigner.sendTransaction(transaction);
   }
 }
