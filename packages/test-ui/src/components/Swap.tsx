@@ -324,8 +324,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       }
       // Get calldata
       const counter = new Interface(["function increment() public"]);
-      const address = await signer!.getAddress();
-      callData = counter.encodeFunctionData("incrementAndSend", [receivingAssetId, address, "1"]);
+      callData = counter.encodeFunctionData("increment", []);
       console.log("callData: ", callData);
     }
 
