@@ -7,7 +7,6 @@ import {
   signAuctionBid,
   createLoggingContext,
   AuctionResponse,
-  isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
 import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
 import { BigNumber, constants } from "ethers";
