@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Properly check low gas on router contracts
+
 ## 0.1.7
 
 - [router][sdk] - Fix gas estimation issue
