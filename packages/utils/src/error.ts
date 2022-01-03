@@ -39,6 +39,7 @@ export class NxtpError extends Error {
     public readonly msg: Values<typeof NxtpError.reasons>,
     public readonly context: any = {},
     public readonly type = NxtpError.name,
+    public readonly level: "debug" | "info" | "warn" | "error" = "error",
   ) {
     super(msg);
   }

@@ -3,7 +3,7 @@ import { constants, Contract, providers, utils, Wallet, BigNumber } from "ethers
 import pino from "pino";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager } from "@connext/nxtp-contracts/typechain";
-import { AuctionResponse, jsonifyError, expect } from "@connext/nxtp-utils";
+import { AuctionResponse, jsonifyError, expect, Logger } from "@connext/nxtp-utils";
 
 const { AddressZero } = constants;
 
@@ -20,22 +20,31 @@ const TestTokenABI = [
   "function mint(address account, uint256 amount)",
 ];
 
-const erc20Address = "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da";
+const erc20Address = "0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F";
 
 const txManagerAddressSending = "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0";
 const txManagerAddressReceiving = txManagerAddressSending;
 
 const SENDING_CHAIN = 1337;
+const SENDING_PROVIDER_URL = "http://localhost:8545";
 const RECEIVING_CHAIN = 1338;
+const RECEIVING_PROVIDER_URL = "http://localhost:8546";
 
-const chainProviders = {
+const sendingChainProvider = new providers.FallbackProvider([
+  new providers.StaticJsonRpcProvider(SENDING_PROVIDER_URL, SENDING_CHAIN),
+]);
+const receivingChainProvider = new providers.FallbackProvider([
+  new providers.StaticJsonRpcProvider(RECEIVING_PROVIDER_URL, RECEIVING_CHAIN),
+]);
+
+const chainConfig = {
   [SENDING_CHAIN]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8545", SENDING_CHAIN)]),
+    providers: [SENDING_PROVIDER_URL],
     transactionManagerAddress: txManagerAddressSending,
     subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
   },
   [RECEIVING_CHAIN]: {
-    provider: new providers.FallbackProvider([new providers.JsonRpcProvider("http://localhost:8546", RECEIVING_CHAIN)]),
+    providers: [RECEIVING_PROVIDER_URL],
     transactionManagerAddress: txManagerAddressReceiving,
     subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
   },
@@ -54,12 +63,12 @@ const TOKEN_GIFT = utils.parseEther("10");
 const txManagerSending = new Contract(
   txManagerAddressSending,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider),
+  sugarDaddy.connect(sendingChainProvider),
 ) as TransactionManager;
 const txManagerReceiving = new Contract(
   txManagerAddressReceiving,
   TransactionManagerArtifact.abi,
-  sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
+  sugarDaddy.connect(receivingChainProvider),
 ) as TransactionManager;
 
 const logger = pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "error" });
@@ -68,40 +77,28 @@ describe("Integration", () => {
   let userSdk: NxtpSdk;
   let userWallet: Wallet;
 
-  const tokenSending = new Contract(
-    erc20Address,
-    TestTokenABI,
-    sugarDaddy.connect(chainProviders[SENDING_CHAIN].provider),
-  );
+  const tokenSending = new Contract(erc20Address, TestTokenABI, sugarDaddy.connect(sendingChainProvider));
 
-  const tokenReceiving = new Contract(
-    erc20Address,
-    TestTokenABI,
-    sugarDaddy.connect(chainProviders[RECEIVING_CHAIN].provider),
-  );
+  const tokenReceiving = new Contract(erc20Address, TestTokenABI, sugarDaddy.connect(receivingChainProvider));
 
   const setupTest = async (sendingTokenAddress: string, receivingTokenAddress: string): Promise<void> => {
     const tokenAddressSending = sendingTokenAddress;
     const tokenAddressReceiving = receivingTokenAddress;
 
-    const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(router);
-    const balanceReceiving = await chainProviders[RECEIVING_CHAIN].provider.getBalance(router);
+    const balanceSending = await sendingChainProvider.getBalance(router);
+    const balanceReceiving = await receivingChainProvider.getBalance(router);
 
     // fund if necessary
     if (balanceSending.lt(MIN_ETH)) {
       logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to router");
-      const tx = await sugarDaddy
-        .connect(chainProviders[SENDING_CHAIN].provider)
-        .sendTransaction({ to: router, value: ETH_GIFT });
+      const tx = await sugarDaddy.connect(sendingChainProvider).sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to router mined");
     }
 
     if (balanceReceiving.lt(MIN_ETH)) {
       logger.info({ chainId: RECEIVING_CHAIN }, "Sending ETH_GIFT to router");
-      const tx = await sugarDaddy
-        .connect(chainProviders[RECEIVING_CHAIN].provider)
-        .sendTransaction({ to: router, value: ETH_GIFT });
+      const tx = await sugarDaddy.connect(receivingChainProvider).sendTransaction({ to: router, value: ETH_GIFT });
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: RECEIVING_CHAIN }, "ETH_GIFT to router mined: ");
     }
@@ -209,9 +206,10 @@ describe("Integration", () => {
     }
   };
 
-  const test = async (sendingAssetId: string, receivingAssetId: string) => {
+  const test = async (sendingAssetId: string, receivingAssetId: string, actualAmount?: boolean) => {
     let quote: AuctionResponse;
     try {
+      await userSdk.getActiveTransactions();
       quote = await userSdk.getTransferQuote({
         amount: utils.parseEther("1").toString(),
         receivingAssetId,
@@ -228,7 +226,11 @@ describe("Integration", () => {
 
     expect(quote.bid).to.be.ok;
     expect(quote.bidSignature).to.be.ok;
-    const res = await userSdk.prepareTransfer(quote!);
+    const res = await userSdk.prepareTransfer(
+      quote!,
+      false,
+      actualAmount ? BigNumber.from(quote.bid.amount).sub(utils.parseEther("0.1")).toString() : undefined,
+    );
     expect(res.prepareResponse.hash).to.be.ok;
     const event = await userSdk.waitFor(
       NxtpSdkEvents.ReceiverTransactionPrepared,
@@ -236,30 +238,21 @@ describe("Integration", () => {
       (data) => data.txData.transactionId === res.transactionId,
     );
 
-    const fulfillEventPromise = userSdk.waitFor(
-      NxtpSdkEvents.ReceiverTransactionFulfilled,
-      100_000,
-      (data) => data.txData.transactionId === res.transactionId,
-    );
+    const finishRes = await userSdk.fulfillTransfer(event, true);
+    logger.info("fullfill Transfer at receiver side", finishRes);
 
-    const finishRes = await userSdk.fulfillTransfer(event, utils.parseEther("0.00001").toString());
-    console.info("fullfill Transfer at receiver side", finishRes);
-
-    expect(finishRes.metaTxResponse).to.be.ok;
-    const fulfillEvent = await fulfillEventPromise;
-    console.info("fullfill Event", fulfillEvent);
-    expect(fulfillEvent).to.be.ok;
+    expect(finishRes.transactionHash).to.be.ok;
   };
 
   beforeEach(async () => {
     userWallet = Wallet.createRandom();
 
     // fund user sender side
-    const balanceSending = await chainProviders[SENDING_CHAIN].provider.getBalance(userWallet.address);
+    const balanceSending = await sendingChainProvider.getBalance(userWallet.address);
     if (balanceSending.lt(TOKEN_GIFT)) {
       logger.info({ chainId: SENDING_CHAIN }, "Sending ETH_GIFT to user");
       const tx = await sugarDaddy
-        .connect(chainProviders[SENDING_CHAIN].provider)
+        .connect(sendingChainProvider)
         .sendTransaction({ to: userWallet.address, value: TOKEN_GIFT });
       const receipt = await tx.wait(2);
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "ETH_GIFT to user mined: ");
@@ -273,12 +266,12 @@ describe("Integration", () => {
       logger.info({ transactionHash: receipt.transactionHash, chainId: SENDING_CHAIN }, "TOKEN_GIFT to user mined: ");
     }
 
-    userSdk = new NxtpSdk(
-      chainProviders,
-      userWallet,
-      pino({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
-      "local",
-    );
+    userSdk = new NxtpSdk({
+      chainConfig,
+      signer: userWallet.connect(sendingChainProvider),
+      logger: new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
+      network: "local",
+    });
   });
 
   it.only("should send ERC20 tokens", async function () {

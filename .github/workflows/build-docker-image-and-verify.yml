@@ -38,7 +38,7 @@ jobs:
 
       - name: Build and push docker image to GitHub repo
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           chmod +x ./docker/build-router.sh
           ./docker/build-router.sh
 
@@ -78,16 +78,20 @@ jobs:
       - name: Get Docker image
         run: |
           yarn workspace @connext/nxtp-router build
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/connext/nxtp-router:latest
           docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
 
       - name: Test Integration
         run: yarn test:integration
 
-      - name: Print logs
+      - name: Print router logs
         if: failure()
         run: docker container ls && docker container logs --tail 250 router-test
+
+      - name: Print graph logs
+        if: failure()
+        run: docker container ls && docker container logs --tail 250 graph-node-1337-test && docker container logs --tail 250 graph-node-1338-test
 
       - name: Lint
         run: yarn lint:all --max-warnings 0

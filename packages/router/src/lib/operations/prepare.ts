@@ -1,11 +1,11 @@
 import {
   ajv,
-  getUuid,
+  createLoggingContext,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { BigNumber, providers } from "ethers/lib/ethers";
+import { BigNumber, providers, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { PrepareInput, PrepareInputSchema } from "../entities";
@@ -16,6 +16,7 @@ import {
   NotEnoughLiquidity,
   SenderChainDataInvalid,
   BidExpiryInvalid,
+  NotEnoughAmount,
 } from "../errors";
 import {
   decodeAuctionBid,
@@ -25,33 +26,48 @@ import {
   recoverAuctionBid,
   validBidExpiry,
   validExpiryBuffer,
+  sanitationCheck,
+  signRouterPrepareTransactionPayload,
 } from "../helpers";
 
+const { AddressZero } = constants;
 export const prepare = async (
   invariantData: InvariantTransactionData,
   input: PrepareInput,
-  requestContext: RequestContext,
+  _requestContext: RequestContext<string>,
 ): Promise<providers.TransactionReceipt | undefined> => {
-  const method = "prepare";
-  const methodId = getUuid();
+  const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
 
-  const { logger, wallet, contractWriter, contractReader, txService, cache } = getContext();
-  logger.info({ method, methodId, invariantData, input, requestContext }, "Method start");
+  const {
+    logger,
+    wallet,
+    contractWriter,
+    contractReader,
+    txService,
+    config,
+    isRouterContract,
+    routerAddress,
+    signerAddress,
+    chainData,
+    cache,
+  } = getContext();
+  logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
+
+  // HOTFIX: add sanitation check before cancellable validation
+  await sanitationCheck(
+    invariantData.receivingChainId,
+    { ...invariantData, amount: "0", expiry: 0, preparedBlockNumber: 0 },
+    "prepare",
+  );
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);
   if (!validInvariantData) {
-    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error(
-      { method, methodId, error: validateInvariantData.errors, invariantData },
-      "Invalid invariantData params",
-    );
+    const msg = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
-      requestContext,
+      paramsError: msg,
+      invariantData,
     });
   }
 
@@ -59,13 +75,10 @@ export const prepare = async (
   const validateInput = ajv.compile(PrepareInputSchema);
   const validInput = validateInput(input);
   if (!validInput) {
-    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
-      requestContext,
+      paramsError: msg,
+      input,
     });
   }
 
@@ -73,17 +86,36 @@ export const prepare = async (
 
   // Validate the prepare data
   const bid = decodeAuctionBid(encodedBid);
-  logger.info({ method, methodId, requestContext, bid }, "Decoded bid from event");
+  logger.info("Decoded bid from event", requestContext, methodContext, { bid });
 
   const recovered = recoverAuctionBid(bid, bidSignature);
-  if (recovered !== wallet.address) {
+  if (recovered !== signerAddress) {
     // cancellable error
-    throw new AuctionSignerInvalid(wallet.address, recovered, { method, methodId, requestContext });
+    throw new AuctionSignerInvalid(signerAddress, recovered, { methodContext, requestContext });
   }
 
-  if (!BigNumber.from(bid.amount).eq(senderAmount) || bid.transactionId !== invariantData.transactionId) {
+  const thresholdPct = Number(config.allowedTolerance.toString().split(".")[0]);
+  const highThreshold = BigNumber.from(bid.amount)
+    .mul(100 + thresholdPct)
+    .div(100);
+  const lowThreshold = BigNumber.from(bid.amount)
+    .mul(100 - thresholdPct)
+    .div(100);
+  if (
+    BigNumber.from(senderAmount).gt(highThreshold) ||
+    BigNumber.from(senderAmount).lt(lowThreshold) ||
+    bid.transactionId !== invariantData.transactionId
+  ) {
     // cancellable error
-    throw new SenderChainDataInvalid({ method, methodId, requestContext });
+    throw new SenderChainDataInvalid({
+      methodContext,
+      requestContext,
+      senderAmount: senderAmount.toString(),
+      highThreshold: highThreshold.toString(),
+      lowThreshold: lowThreshold.toString(),
+      bid,
+      invariantData,
+    });
   }
 
   const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
@@ -93,15 +125,60 @@ export const prepare = async (
     invariantData.receivingAssetId,
   );
 
-  const receiverAmount = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  let { receivingAmount: receiverAmount } = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
+  const amountReceivedInBigNum = BigNumber.from(receiverAmount);
+  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
+    invariantData.sendingChainId,
+    invariantData.sendingAssetId,
+    invariantData.receivingChainId,
+    invariantData.receivingAssetId,
+    outputDecimals,
+    chainData,
+    requestContext,
+  );
+  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  });
+
+  receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   const routerBalance = await contractReader.getAssetBalance(
     invariantData.receivingAssetId,
     invariantData.receivingChainId,
   );
   if (routerBalance.lt(receiverAmount)) {
-    // cancellable error
-    throw new NotEnoughLiquidity(invariantData.receivingChainId, { method, methodId, requestContext });
+    // double check balance on chain
+    const onChainBalance = await contractWriter.getRouterBalance(
+      invariantData.receivingChainId,
+      invariantData.router,
+      invariantData.receivingAssetId,
+    );
+    if (onChainBalance.lt(receiverAmount)) {
+      // cancellable error
+      throw new NotEnoughLiquidity(
+        invariantData.receivingChainId,
+        invariantData.receivingAssetId,
+        onChainBalance.toString(),
+        receiverAmount.toString(),
+        { methodContext, requestContext },
+      );
+    } else {
+      logger.error("Router balance is different onchain vs subgraph", requestContext, methodContext, undefined, {
+        onChainBalance: onChainBalance.toString(),
+        subgraphBalance: routerBalance.toString(),
+      });
+    }
+  }
+
+  // Make sure amount is sensible
+  if (BigNumber.from(receiverAmount).lt(0)) {
+    throw new NotEnoughAmount({
+      receiverAmount,
+      preparedAmount: senderAmount.toString(),
+      transactionId: invariantData.transactionId,
+      methodContext,
+      requestContext,
+    });
   }
 
   // Handle the expiries.
@@ -114,8 +191,7 @@ export const prepare = async (
   if (!validBidExpiry(bid.expiry, currentTime)) {
     // cancellable error
     throw new BidExpiryInvalid(bid.bidExpiry, currentTime, {
-      method,
-      methodId,
+      methodContext,
       requestContext,
     });
   }
@@ -130,8 +206,7 @@ export const prepare = async (
   if (!validExpiryBuffer(receiverBuffer)) {
     // cancellable error
     throw new ExpiryInvalid(receiverExpiry, {
-      method,
-      methodId,
+      methodContext,
       requestContext,
       senderExpiry,
       senderBuffer,
@@ -139,32 +214,87 @@ export const prepare = async (
     });
   }
 
-  logger.info({ method, methodId, requestContext }, "Validated input");
+  logger.info("Validated input", requestContext, methodContext);
 
-  logger.info(
-    { method, methodId, requestContext, transactionId: invariantData.transactionId },
-    "Sending receiver prepare tx",
-  );
+  if (isRouterContract) {
+    const routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset ?? AddressZero,
+    );
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+      invariantData.receivingChainId,
+      routerRelayerFeeAsset,
+    );
+    const routerRelayerFee = await txService.calculateGasFee(
+      invariantData.receivingChainId,
+      routerRelayerFeeAsset,
+      relayerFeeAssetDecimal,
+      "prepare",
+      isRouterContract,
+      chainData,
+      requestContext,
+    );
 
-  const receipt = await contractWriter.prepare(
-    invariantData.receivingChainId,
-    {
-      txData: invariantData,
-      amount: receiverAmount,
-      expiry: receiverExpiry,
-      bidSignature,
-      encodedBid,
+    const signature = await signRouterPrepareTransactionPayload(
+      invariantData,
+      receiverAmount,
+      receiverExpiry,
       encryptedCallData,
-    },
-    requestContext,
-  );
+      encodedBid,
+      bidSignature,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      invariantData.receivingChainId,
+      wallet,
+    );
 
-  await cache.removeOutstandingLiquidity({
-    assetId: invariantData.receivingAssetId,
-    chainId: invariantData.receivingChainId,
-    transactionId: invariantData.transactionId,
-  });
+    logger.info("Sending receiver prepare router contract tx", requestContext, methodContext);
 
-  logger.info({ method, methodId, transactionId: invariantData.transactionId }, "Sent receiver prepare tx");
-  return receipt;
+    const receipt = await contractWriter.prepareRouterContract(
+      invariantData.receivingChainId,
+      {
+        txData: invariantData,
+        amount: receiverAmount,
+        expiry: receiverExpiry,
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      },
+      routerAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      true,
+      requestContext,
+    );
+    logger.info("Sent receiver prepare router contract tx", requestContext, methodContext, {
+      transactionHash: receipt.transactionHash,
+    });
+    return receipt;
+  } else {
+    logger.info("Sending receiver prepare tx", requestContext, methodContext);
+
+    const receipt = await contractWriter.prepareTransactionManager(
+      invariantData.receivingChainId,
+      {
+        txData: invariantData,
+        amount: receiverAmount,
+        expiry: receiverExpiry,
+        bidSignature,
+        encodedBid,
+        encryptedCallData,
+      },
+      requestContext,
+    );
+    logger.info("Sent receiver prepare tx", requestContext, methodContext, {
+      transactionHash: receipt.transactionHash,
+    });
+
+    await cache.removeOutstandingLiquidity({
+      assetId: invariantData.receivingAssetId,
+      chainId: invariantData.receivingChainId,
+      transactionId: invariantData.transactionId,
+    });
+    return receipt;
+  }
 };

@@ -6,7 +6,9 @@ import { utils } from "ethers";
 import {
   ajv,
   ChainData,
+  getChainData,
   getDeployedSubgraphUri,
+  getDeployedAnalyticsSubgraphUri,
   isNode,
   NATS_AUTH_URL,
   NATS_AUTH_URL_LOCAL,
@@ -22,14 +24,21 @@ import {
   TIntegerString,
 } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
-import { fetchJson } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
 const MIN_GAS = utils.parseEther("0.1");
-const MIN_RELAYER_FEE = "0"; // relayerFee is in respective chain native asset unit
+const DEFAULT_RELAYER_FEE_THRESHOLD = "10"; // relayerFee is in respective chain native asset unit
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 dotenvConfig();
+
+/**
+ * Helper to allow easy mocking
+ */
+export const getContractDeployments: any = () => {
+  return contractDeployments;
+};
 
 /**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
@@ -38,63 +47,93 @@ dotenvConfig();
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[String(chainId)] ?? {};
+  const record = getContractDeployments()[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
   }
   const contract = record[name]?.contracts?.TransactionManager;
-  return { address: contract.address, abi: contract.abi };
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-// Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
-export const chainDataToMap = (data: any): Map<string, ChainData> => {
-  const chainData: Map<string, ChainData> = new Map();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const chainId = item.chainId.toString();
-    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")) as ChainData);
-  }
-  return chainData;
-};
-
-const getChainData = async (): Promise<Map<string, ChainData> | undefined> => {
-  const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
-  try {
-    const data = await fetchJson(url);
-    return chainDataToMap(data);
-  } catch (err) {
-    console.error(`Error occurred retrieving chain data from ${url}`, err);
-    // Check to see if we have the chain data cached locally.
-    if (fs.existsSync("./chaindata.json")) {
-      console.info("Using cached chain data.");
-      const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
-      return chainDataToMap(data);
-    }
-    // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
-    console.warn("Could not fetch chain data, and no cached chain data was available.");
+/**
+ * Returns the address of the `ConnextPriceOracle` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = getContractDeployments()[chainId.toString()] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
     return undefined;
   }
+  const contract = record[name]?.contracts?.ConnextPriceOracle;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+/**
+ * Returns the addresses where the price oracle contract is deployed to
+ *
+ */
+export const getDeployedChainIdsForGasFee = (): number[] => {
+  const chainIdsForGasFee: number[] = [];
+  const contractDeployments = getContractDeployments();
+  const chainIds = Object.keys(contractDeployments);
+  chainIds.forEach((chainId) => {
+    const record = contractDeployments[chainId.toString()];
+    const chainName = Object.keys(record)[0];
+    if (chainName) {
+      const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
+      if (priceOracleContract) {
+        chainIdsForGasFee.push(Number(chainId));
+      }
+    }
+  });
+  return chainIdsForGasFee;
+};
+
+/**
+ * Returns the address of the `Multicall` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = getContractDeployments()[chainId.toString()] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.Multicall;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
-  subgraph: Type.String(),
+  subgraph: Type.Array(Type.String()),
+  analyticsSubgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
+  priceOracleAddress: Type.Optional(Type.String()),
+  multicallAddress: Type.Optional(Type.String()),
   minGas: Type.String(),
-  safeRelayerFee: Type.String(),
-  subgraphSyncBuffer: Type.Number({ minimum: 1 }), // If subgraph is out of sync by this number, will not process actions
+  gasStations: Type.Array(Type.String()),
+  allowRelay: Type.Boolean(),
+  relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
+  subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
+  routerContractRelayerAsset: Type.Optional(Type.String()),
 });
 
 export const TSwapPool = Type.Object({
-  name: Type.Optional(Type.String()),
+  name: Type.String(),
   assets: Type.Array(
     Type.Object({
       chainId: TChainId,
       assetId: TAddress,
     }),
   ),
+  mainnetEquivalent: Type.Optional(TAddress),
 });
 
 export const NxtpRouterConfigSchema = Type.Object({
@@ -111,11 +150,19 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   natsUrl: Type.String(),
   authUrl: Type.String(),
-  mnemonic: Type.String(),
+  mnemonic: Type.Optional(Type.String()),
+  routerContractAddress: Type.Optional(Type.String()), // address of deployed Router.sol contract
+  web3SignerUrl: Type.Optional(Type.String()),
   swapPools: Type.Array(TSwapPool),
   port: Type.Number({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
   redisUrl: Type.Optional(Type.String({ format: "uri", pattern: "^redis://[^:]+:[0-9]+$" })),
+  requestLimit: Type.Number(),
+  allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
+  allowRelay: Type.Boolean(),
+  cleanUpMode: Type.Boolean(),
+  priceCacheMode: Type.Boolean(),
+  diagnosticMode: Type.Boolean(),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -125,7 +172,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRouterConfig => {
+export const getEnvConfig = (crossChainData: Map<string, any> | undefined): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -175,6 +222,9 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
+    routerContractAddress:
+      process.env.NXTP_ROUTER_CONTRACT_ADDRESS || configJson.routerContractAddress || configFile.routerContractAddress,
     authUrl,
     natsUrl,
     adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
@@ -192,21 +242,90 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
     port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
     host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
     redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
+    requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
+    cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
+    priceCacheMode: process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCacheMode || configFile.priceCacheMode || true,
+    diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
+    allowedTolerance:
+      process.env.NXTP_ALLOWED_TOLERANCE ||
+      configJson.allowedTolerance ||
+      configFile.allowedTolerance ||
+      DEFAULT_ALLOWED_TOLERANCE,
+    allowRelay: process.env.NXTP_ALLOW_RELAY || configJson.allowRelay || configFile.allowRelay || false,
   };
 
-  const overridechainRecommendedConfirmations = configFile.overridechainRecommendedConfirmations;
-  if (!chainData && chainData!.size == 0 && !overridechainRecommendedConfirmations) {
+  const overridechainRecommendedConfirmations =
+    process.env.NXTP_OVERRIDE_CHAIN_RECOMMENDED_CONFIRMATIONS ||
+    configJson.overridechainRecommendedConfirmations ||
+    configFile.overridechainRecommendedConfirmations ||
+    false;
+  if (!crossChainData && crossChainData!.size == 0 && !overridechainRecommendedConfirmations) {
     throw new Error(
       "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
     );
   }
-  const defaultConfirmations = chainData && chainData.has("1") ? parseInt(chainData.get("1").confirmations) + 3 : 4;
+
+  if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
+    throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
+  }
+
+  // add name to swap pools using mainnet equivalent
+  nxtpConfig.swapPools.forEach((pool, idx) => {
+    if (pool.name) {
+      return;
+    }
+
+    // Try to get mainnet equivalent of assets in the pool
+    let name: string | undefined = undefined;
+    pool.assets.forEach(({ chainId, assetId }) => {
+      if (name) {
+        return;
+      }
+
+      if (!crossChainData || !crossChainData.has(chainId.toString()) || !crossChainData.has("1")) {
+        return;
+      }
+
+      const entry = crossChainData.get(chainId.toString()) as ChainData;
+
+      const mainnetEquivalent =
+        entry.assetId[utils.getAddress(assetId)]?.mainnetEquivalent ??
+        entry.assetId[assetId.toLowerCase()]?.mainnetEquivalent ??
+        entry.assetId[assetId.toUpperCase()]?.mainnetEquivalent;
+      if (!mainnetEquivalent) {
+        return;
+      }
+
+      // Get name from mainnet equivalent
+      const mainnetEntry = crossChainData.get("1") as ChainData;
+      name =
+        mainnetEntry.assetId[utils.getAddress(mainnetEquivalent)]?.symbol ??
+        mainnetEntry.assetId[mainnetEquivalent.toLowerCase()]?.symbol ??
+        mainnetEntry.assetId[mainnetEquivalent.toUpperCase()]?.symbol;
+    });
+
+    if (!name) {
+      throw new Error(
+        `Could not find name for pool: ${JSON.stringify(pool)} at ${idx} in config. Please provide override.`,
+      );
+    }
+    nxtpConfig.swapPools[idx] = { ...pool, name };
+  });
+
+  const defaultConfirmations =
+    crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;
+
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
+    const chainRecommendedConfirmations =
+      crossChainData && crossChainData.has(chainId)
+        ? parseInt(crossChainData.get(chainId).confirmations)
+        : defaultConfirmations;
+    const chainRecommendedGasStations =
+      crossChainData && crossChainData.has(chainId) ? crossChainData.get(chainId).gasStations ?? [] : [];
+
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    const chainRecommendedConfirmations =
-      chainData && chainData.has(chainId) ? parseInt(chainData.get(chainId).confirmations) : defaultConfirmations;
     if (!chainConfig.transactionManagerAddress) {
       const res = getDeployedTransactionManagerContract(parseInt(chainId));
       if (!res) {
@@ -214,29 +333,65 @@ export const getEnvConfig = (chainData: Map<string, any> | undefined): NxtpRoute
       }
       nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
     }
+
+    // allow passed in address to override
+    if (!chainConfig.priceOracleAddress) {
+      const res = getDeployedPriceOracleContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
+    }
+
+    if (!chainConfig.multicallAddress) {
+      const res = getDeployedMulticallContract(parseInt(chainId));
+      nxtpConfig.chainConfig[chainId].multicallAddress = res?.address;
+    }
+
     if (!chainConfig.minGas) {
       nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
     }
-    if (!chainConfig.safeRelayerFee) {
-      nxtpConfig.chainConfig[chainId].safeRelayerFee = MIN_RELAYER_FEE.toString();
+
+    if (!chainConfig.relayerFeeThreshold) {
+      nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
     }
+
+    if (chainConfig.allowRelay === undefined || chainConfig.allowRelay === null) {
+      nxtpConfig.chainConfig[chainId].allowRelay = false;
+    }
+
     if (!chainConfig.subgraph) {
-      const subgraph = getDeployedSubgraphUri(Number(chainId));
-      if (!subgraph) {
+      const defaultSubgraphUri = getDeployedSubgraphUri(Number(chainId), crossChainData);
+      if (!defaultSubgraphUri) {
         throw new Error(`No subgraph for chain ${chainId}`);
       }
-      nxtpConfig.chainConfig[chainId].subgraph = subgraph;
+      nxtpConfig.chainConfig[chainId].subgraph = defaultSubgraphUri;
+    } else if (typeof chainConfig.subgraph === "string") {
+      // Backwards compatibility for subgraph param - support for singular uri string.
+      chainConfig.subgraph = [chainConfig.subgraph];
+    }
+
+    if (!chainConfig.analyticsSubgraph) {
+      const defaultSubgraphUri = getDeployedAnalyticsSubgraphUri(Number(chainId), crossChainData);
+      if (!defaultSubgraphUri) {
+        throw new Error(`No subgraph for chain ${chainId}`);
+      }
+      nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultSubgraphUri;
+    }
+    if (typeof chainConfig.analyticsSubgraph === "string") {
+      chainConfig.analyticsSubgraph = [chainConfig.analyticsSubgraph];
     }
 
     if (!chainConfig.confirmations) {
       nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
     }
 
-    if (!chainConfig.subgraphSyncBuffer) {
-      const syncBuffer = (chainRecommendedConfirmations ?? 1) * 3;
-      nxtpConfig.chainConfig[chainId].subgraphSyncBuffer =
-        syncBuffer * 3 > MIN_SUBGRAPH_SYNC_BUFFER ? syncBuffer * 3 : MIN_SUBGRAPH_SYNC_BUFFER; // 25 blocks min
-    }
+    const syncBuffer =
+      !chainConfig.subgraphSyncBuffer || chainConfig.subgraphSyncBuffer <= 0
+        ? (chainRecommendedConfirmations ?? 1) * 3
+        : chainConfig.subgraphSyncBuffer;
+    // 25 blocks minimum.
+    nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = Math.max(syncBuffer, MIN_SUBGRAPH_SYNC_BUFFER);
+
+    const addedStations = nxtpConfig.chainConfig[chainId].gasStations ?? [];
+    nxtpConfig.chainConfig[chainId].gasStations = addedStations.concat(chainRecommendedGasStations);
 
     // Validate that confirmations is above acceptable/recommended minimum.
     const confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;

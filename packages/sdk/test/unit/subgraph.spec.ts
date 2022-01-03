@@ -2,24 +2,18 @@ import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-util
 import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
-import pino from "pino";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
+import { Logger } from "@connext/nxtp-utils";
 
-import {
-  Subgraph,
-  convertTransactionToTxData,
-  ActiveTransaction,
-  createSubgraphEvts,
-  SubgraphEvents,
-  HistoricalTransactionStatus,
-} from "../../src/subgraph";
-import * as graphqlsdk from "../../src/graphqlsdk";
+import { ActiveTransaction, HistoricalTransactionStatus } from "../../src/types";
+import * as graphqlsdk from "../../src/subgraph/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
-import { InvalidTxStatus } from "../../src/error";
+import { convertTransactionToTxData, createSubgraphEvts, Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
+import { ChainReader } from "../../../txservice/dist";
 
-const logger = pino({ level: process.env.LOG_LEVEL ?? "silent" });
+const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
 const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): TransactionData => {
   const {
@@ -38,12 +32,14 @@ const convertMockedToTransactionData = (mocked: graphqlsdk.Transaction): Transac
     expiry,
     amount,
     preparedBlockNumber,
+    initiator,
   } = mocked;
 
   return {
     receivingChainTxManagerAddress,
     user: user.id,
     router: router.id,
+    initiator,
     sendingAssetId,
     receivingAssetId,
     sendingChainFallback,
@@ -80,18 +76,20 @@ const convertMockedToActiveTransaction = (
     receivingChainId,
     callDataHash,
     transactionId,
+    preparedTimestamp,
   } = mockedSending;
-  return {
+  const tx: ActiveTransaction = {
     status,
     bidSignature,
     encodedBid,
     encryptedCallData,
-    preparedTimestamp: Math.floor(Date.now() / 1000),
+    preparedTimestamp,
     crosschainTx: {
       invariant: {
         receivingChainTxManagerAddress,
         user: user.id,
         router: router.id,
+        initiator: user.id,
         sendingAssetId,
         receivingAssetId,
         sendingChainFallback,
@@ -107,20 +105,24 @@ const convertMockedToActiveTransaction = (
         expiry: mockedSending.expiry,
         preparedBlockNumber: mockedSending.preparedBlockNumber.toNumber(),
       },
-      receiving: mockedReceiving
-        ? {
-            amount: mockedReceiving.amount.toString(),
-            expiry: mockedReceiving.expiry,
-            preparedBlockNumber: mockedReceiving.preparedBlockNumber.toNumber(),
-          }
-        : undefined,
     },
   };
+  if (mockedReceiving) {
+    tx.crosschainTx.receiving = {
+      amount: mockedReceiving.amount.toString(),
+      expiry: mockedReceiving.expiry,
+      preparedBlockNumber: mockedReceiving.preparedBlockNumber.toNumber(),
+    };
+  }
+  return tx;
 };
+
+const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
 
 describe("Subgraph", () => {
   let subgraph: Subgraph;
   let signer: SinonStubbedInstance<Wallet>;
+  let chainReader: SinonStubbedInstance<ChainReader>;
   let sendingChainId: number = 1337;
   let receivingChainId: number = 1338;
   let user: string = mkAddress("0xa");
@@ -129,15 +131,23 @@ describe("Subgraph", () => {
     GetReceiverTransactions: SinonStub;
     GetTransaction: SinonStub;
     GetTransactions: SinonStub;
+    GetBlockNumber: SinonStub;
+    GetTransactionsWithUser: SinonStub;
   };
   let getSdkStub: SinonStub;
 
   const chainConfig = {
     [sendingChainId]: {
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
+      provider: {
+        getBlockNumber: () => Promise.resolve(1),
+      },
     },
     [receivingChainId]: {
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
+      provider: {
+        getBlockNumber: () => Promise.resolve(1),
+      },
     },
   };
 
@@ -152,6 +162,7 @@ describe("Subgraph", () => {
         id: user,
       } as graphqlsdk.User,
       router: {} as graphqlsdk.Router,
+      initiator: user,
       receivingChainTxManagerAddress: mkAddress("0xaa"),
       sendingAssetId: mkAddress("0xc"),
       receivingAssetId: mkAddress("0xd"),
@@ -180,17 +191,22 @@ describe("Subgraph", () => {
     signer = createStubInstance(Wallet);
     signer.getAddress.resolves(user);
 
+    chainReader = createStubInstance(ChainReader);
+    chainReader.isSupportedChain.resolves(true);
+
     sdkStub = {
       GetSenderTransactions: stub().resolves({ transactions: [] }),
       GetReceiverTransactions: stub().resolves({ transactions: [] }),
       GetTransaction: stub().resolves({ transactions: [] }),
       GetTransactions: stub().resolves({ transactions: [] }),
+      GetBlockNumber: stub().resolves({ _meta: { block: { number: 1 } } }),
+      GetTransactionsWithUser: stub().resolves({ transactions: [] }),
     };
 
     getSdkStub = stub(graphqlsdk, "getSdk");
     getSdkStub.returns(sdkStub);
 
-    subgraph = new Subgraph(signer, chainConfig, logger);
+    subgraph = new Subgraph(signer.getAddress(), chainConfig as any, chainReader as any, logger);
   });
 
   afterEach(() => {
@@ -218,7 +234,7 @@ describe("Subgraph", () => {
 
   describe("getActiveTransactions", async () => {
     describe("sender transactions where status is not Prepared", () => {
-      it("should fail if GetTransactions for sending chain fails", async () => {
+      it("should fail if GetTransactionsWithUser for sending chain fails", async () => {
         const transactionId = getRandomBytes32();
         (subgraph as any).activeTxs.set(
           transactionId,
@@ -227,14 +243,23 @@ describe("Subgraph", () => {
             getMockTransaction({ transactionId }),
           ),
         );
+        const testError = new Error("test");
+        sdkStub.GetTransactionsWithUser.onFirstCall().rejects(testError);
 
-        sdkStub.GetTransactions.onFirstCall().rejects(new Error("fail"));
+        try {
+          await subgraph.getActiveTransactions();
+        } catch (e) {
+          const expectedErrMessage = testError.message;
+          expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+        }
 
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
-        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
+        expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
+        });
       });
 
-      it("should fail if GetTransactions for receiving chain fails", async () => {
+      it("should fail if GetTransactionsWithUser for receiving chain fails", async () => {
         const transactionId = getRandomBytes32();
         const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
         (subgraph as any).activeTxs.set(
@@ -242,14 +267,27 @@ describe("Subgraph", () => {
           convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
         );
 
-        sdkStub.GetTransactions.onFirstCall().resolves({
+        sdkStub.GetTransactionsWithUser.onFirstCall().resolves({
           transactions: [subgraphSending],
         });
-        sdkStub.GetTransactions.onSecondCall().rejects(new Error("fail"));
+        const testError = new Error("test");
+        sdkStub.GetTransactionsWithUser.onSecondCall().rejects(testError);
 
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
-        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
-        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({ transactionIds: [transactionId] });
+        try {
+          await subgraph.getActiveTransactions();
+        } catch (e) {
+          const expectedErrMessage = testError.message;
+          expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+        }
+
+        expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
+        });
+        expect(sdkStub.GetTransactionsWithUser.secondCall.args[0]).to.be.deep.eq({
+          transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
+        });
       });
 
       it("should fail if there are receiving chain txs with duplicate txIds", async () => {
@@ -260,20 +298,22 @@ describe("Subgraph", () => {
           convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
         );
 
-        sdkStub.GetTransactions.onFirstCall().resolves({
+        sdkStub.GetTransactionsWithUser.onFirstCall().resolves({
           transactions: [subgraphSending],
         });
-        sdkStub.GetTransactions.onSecondCall().resolves({
+        sdkStub.GetTransactionsWithUser.onSecondCall().resolves({
           transactions: [subgraphSending, subgraphSending],
         });
 
         await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("Duplicate transaction ids");
-        expect(sdkStub.GetTransactions.callCount).to.be.eq(2);
-        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({
+        expect(sdkStub.GetTransactionsWithUser.callCount).to.be.eq(2);
+        expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
         });
-        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({
+        expect(sdkStub.GetTransactionsWithUser.secondCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
         });
       });
 
@@ -285,22 +325,24 @@ describe("Subgraph", () => {
           convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
         );
 
-        sdkStub.GetTransactions.onFirstCall().resolves({
+        sdkStub.GetTransactionsWithUser.onFirstCall().resolves({
           transactions: [subgraphSending],
         });
-        sdkStub.GetTransactions.onSecondCall().resolves({
+        sdkStub.GetTransactionsWithUser.onSecondCall().resolves({
           transactions: [],
         });
 
         await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
           "Sender fulfilled, no fulfilled receiver transaction",
         );
-        expect(sdkStub.GetTransactions.callCount).to.be.eq(2);
-        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({
+        expect(sdkStub.GetTransactionsWithUser.callCount).to.be.eq(2);
+        expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
         });
-        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({
+        expect(sdkStub.GetTransactionsWithUser.secondCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
         });
       });
 
@@ -312,22 +354,24 @@ describe("Subgraph", () => {
           convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
         );
 
-        sdkStub.GetTransactions.onFirstCall().resolves({
+        sdkStub.GetTransactionsWithUser.onFirstCall().resolves({
           transactions: [subgraphSending],
         });
-        sdkStub.GetTransactions.onSecondCall().resolves({
+        sdkStub.GetTransactionsWithUser.onSecondCall().resolves({
           transactions: [{ ...subgraphSending, status: graphqlsdk.TransactionStatus.Prepared }],
         });
 
         await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
           "Sender fulfilled, no fulfilled receiver transaction",
         );
-        expect(sdkStub.GetTransactions.callCount).to.be.eq(2);
-        expect(sdkStub.GetTransactions.firstCall.args[0]).to.be.deep.eq({
+        expect(sdkStub.GetTransactionsWithUser.callCount).to.be.eq(2);
+        expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
         });
-        expect(sdkStub.GetTransactions.secondCall.args[0]).to.be.deep.eq({
+        expect(sdkStub.GetTransactionsWithUser.secondCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
+          userId: (await signer.getAddress()).toLowerCase(),
         });
       });
 
@@ -339,15 +383,16 @@ describe("Subgraph", () => {
           convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending),
         );
 
-        sdkStub.GetTransactions.resolves({
+        sdkStub.GetTransactionsWithUser.resolves({
           transactions: [subgraphSending],
         });
 
         const res = await subgraph.getActiveTransactions();
         expect(res).to.be.deep.eq([]);
         expect(
-          sdkStub.GetTransactions.calledOnceWithExactly({
+          sdkStub.GetTransactionsWithUser.calledOnceWithExactly({
             transactionIds: [transactionId],
+            userId: (await signer.getAddress()).toLowerCase(),
           }),
         ).to.be.true;
       });
@@ -358,7 +403,7 @@ describe("Subgraph", () => {
         const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending);
         (subgraph as any).activeTxs.set(transactionId, active);
 
-        sdkStub.GetTransactions.resolves({
+        sdkStub.GetTransactionsWithUser.resolves({
           transactions: [subgraphSending],
         });
 
@@ -378,10 +423,13 @@ describe("Subgraph", () => {
       it("should post to receiver transaction fulfilled evt if the status is fulfilled", async () => {
         const transactionId = getRandomBytes32();
         const subgraphSending = getMockTransaction({ transactionId, status: graphqlsdk.TransactionStatus.Fulfilled });
-        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending);
+        const active = convertMockedToActiveTransaction(NxtpSdkEvents.SenderTransactionPrepared, subgraphSending, {
+          ...subgraphSending,
+          amount: BigNumber.from(2),
+        });
         (subgraph as any).activeTxs.set(transactionId, active);
 
-        sdkStub.GetTransactions.resolves({
+        sdkStub.GetTransactionsWithUser.resolves({
           transactions: [subgraphSending],
         });
 
@@ -430,8 +478,9 @@ describe("Subgraph", () => {
           status: graphqlsdk.TransactionStatus.Prepared,
         }).resolves({ transactions: [] });
 
-        sdkStub.GetTransactions.withArgs({
+        sdkStub.GetTransactionsWithUser.withArgs({
           transactionIds: [senderPrepared.transactionId],
+          userId: senderPrepared.user.id.toLowerCase(),
         }).resolves({ transactions: [] });
 
         const [res, event] = await Promise.all([
@@ -463,8 +512,9 @@ describe("Subgraph", () => {
           status: graphqlsdk.TransactionStatus.Prepared,
         }).resolves({ transactions: [] });
 
-        sdkStub.GetTransactions.withArgs({
+        sdkStub.GetTransactionsWithUser.withArgs({
           transactionIds: [senderPrepared.transactionId],
+          userId: senderPrepared.user.id.toLowerCase(),
         }).resolves({ transactions: [receiverPrepared] });
 
         const [res, event] = await Promise.all([
@@ -497,8 +547,9 @@ describe("Subgraph", () => {
           status: graphqlsdk.TransactionStatus.Prepared,
         }).resolves({ transactions: [] });
 
-        sdkStub.GetTransactions.withArgs({
+        sdkStub.GetTransactionsWithUser.withArgs({
           transactionIds: [sender.transactionId],
+          userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
         // const res = await subgraph.getActiveTransactions();
@@ -529,8 +580,9 @@ describe("Subgraph", () => {
           status: graphqlsdk.TransactionStatus.Prepared,
         }).resolves({ transactions: [] });
 
-        sdkStub.GetTransactions.withArgs({
+        sdkStub.GetTransactionsWithUser.withArgs({
           transactionIds: [sender.transactionId],
+          userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
         const [res, event] = await Promise.all([
@@ -543,7 +595,7 @@ describe("Subgraph", () => {
 
       it("should fail if it cannot call `GetSenderTransactions`", async () => {
         sdkStub.GetSenderTransactions.rejects(new Error("fail"));
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(GET_ACTIVE_TX_FAILED);
       });
 
       it("should fail if there is a sender tx, but it fails to call `GetTransactions`", async () => {
@@ -559,8 +611,11 @@ describe("Subgraph", () => {
           status: graphqlsdk.TransactionStatus.Prepared,
         }).resolves({ transactions: [] });
 
-        sdkStub.GetTransactions.rejects(new Error("fail"));
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith("fail");
+        sdkStub.GetTransactionsWithUser.rejects(new Error("fail"));
+        // We should get back an empty array, indicating that the senderPrepared mock tx we returned above did not get processed
+        // because GetTransactions failed.
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
       });
 
       it("should return empty array if it cannot find an sdk for the receiving chain on sender tx", async () => {
@@ -599,35 +654,61 @@ describe("Subgraph", () => {
           status: graphqlsdk.TransactionStatus.Prepared,
         }).resolves({ transactions: [] });
 
-        sdkStub.GetTransactions.withArgs({
+        sdkStub.GetTransactionsWithUser.withArgs({
           transactionIds: [sender.transactionId],
+          userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
-        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(
-          InvalidTxStatus.getMessage("fail", sender.transactionId),
-        );
+        // We should not get the tx back that has the wrong status.
+        const res = await subgraph.getActiveTransactions();
+        expect(res).to.be.deep.eq([]);
+      });
+
+      it("should throw if all chains throw errors", async () => {
+        sdkStub.GetSenderTransactions.rejects(new Error("fail"));
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(GET_ACTIVE_TX_FAILED);
       });
     });
   });
 
   describe("getHistoricalTransactions", async () => {
     it("should fail if GetReceiverTransactions fails", async () => {
-      sdkStub.GetReceiverTransactions.rejects(new Error("fail"));
+      const testError = new Error("test");
+      sdkStub.GetReceiverTransactions.rejects(testError);
 
-      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+      try {
+        await subgraph.getActiveTransactions();
+      } catch (e) {
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+      }
     });
 
     it("should fail if GetTransactions fails", async () => {
       sdkStub.GetReceiverTransactions.resolves({ transactions: [transactionSubgraphMock] });
-      sdkStub.GetTransactions.rejects(new Error("fail"));
+      const testError = new Error("test");
+      sdkStub.GetTransactionsWithUser.rejects(testError);
 
-      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+      try {
+        await subgraph.getActiveTransactions();
+      } catch (e) {
+        const expectedErrMessage = testError.message;
+        expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+      }
     });
 
     it("should fail if GetSenderTransactions fails", async () => {
-      sdkStub.GetSenderTransactions.rejects(new Error("fail"));
+      const testError = new Error("test");
+      sdkStub.GetSenderTransactions.rejects(testError);
 
-      await expect(subgraph.getHistoricalTransactions()).to.be.rejectedWith("fail");
+      try {
+        await subgraph.getActiveTransactions();
+      } catch (e) {
+        const expectedErrMessage = testError.message;
+        const chainErrors = e.context.errors;
+        const sendingChainErrors = chainErrors.get(sendingChainId).context.errors;
+        expect(sendingChainErrors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+      }
     });
 
     it("should ignore transactions without matching sender side tx", async () => {
@@ -640,7 +721,7 @@ describe("Subgraph", () => {
     it("should return receiver fulfilled transactions", async () => {
       sdkStub.GetReceiverTransactions.onCall(0).resolves({ transactions: [transactionSubgraphMock] });
       sdkStub.GetReceiverTransactions.onCall(1).resolves({ transactions: [] });
-      sdkStub.GetTransactions.resolves({ transactions: [transactionSubgraphMock] });
+      sdkStub.GetTransactionsWithUser.resolves({ transactions: [transactionSubgraphMock] });
 
       const result = await subgraph.getHistoricalTransactions();
       expect(result).to.be.deep.eq([
@@ -651,6 +732,7 @@ describe("Subgraph", () => {
           crosschainTx: {
             invariant: {
               user,
+              initiator: transactionSubgraphMock.initiator,
               router: transactionSubgraphMock.router.id,
               sendingChainId: parseInt(transactionSubgraphMock.sendingChainId.toString()),
               sendingAssetId: transactionSubgraphMock.sendingAssetId,
@@ -681,7 +763,7 @@ describe("Subgraph", () => {
     it("should return sender cancelled transactions", async () => {
       sdkStub.GetSenderTransactions.onCall(0).resolves({ transactions: [transactionSubgraphMock] });
       sdkStub.GetSenderTransactions.onCall(1).resolves({ transactions: [] });
-      sdkStub.GetTransactions.resolves({ transactions: [transactionSubgraphMock] });
+      sdkStub.GetTransactionsWithUser.resolves({ transactions: [transactionSubgraphMock] });
 
       const result = await subgraph.getHistoricalTransactions();
       expect(result).to.be.deep.eq([
@@ -692,6 +774,7 @@ describe("Subgraph", () => {
             invariant: {
               user,
               router: transactionSubgraphMock.router.id,
+              initiator: transactionSubgraphMock.initiator,
               sendingChainId: parseInt(transactionSubgraphMock.sendingChainId.toString()),
               sendingAssetId: transactionSubgraphMock.sendingAssetId,
               sendingChainFallback: transactionSubgraphMock.sendingChainFallback,
@@ -736,8 +819,9 @@ describe("Subgraph", () => {
         status: graphqlsdk.TransactionStatus.Prepared,
       }).resolves({ transactions: [] });
 
-      sdkStub.GetTransactions.withArgs({
+      sdkStub.GetTransactionsWithUser.withArgs({
         transactionIds: [senderPrepared.transactionId],
+        userId: senderPrepared.user.id.toLowerCase(),
       }).resolves({ transactions: [] });
 
       // Wrap in a promise here to be sure that the waitFor call is blocking.
@@ -769,8 +853,9 @@ describe("Subgraph", () => {
         status: graphqlsdk.TransactionStatus.Prepared,
       }).resolves({ transactions: [] });
 
-      sdkStub.GetTransactions.withArgs({
+      sdkStub.GetTransactionsWithUser.withArgs({
         transactionIds: [senderPrepared.transactionId],
+        userId: senderPrepared.user.id.toLowerCase(),
       }).resolves({ transactions: [] });
 
       // Event should be triggered for this round.

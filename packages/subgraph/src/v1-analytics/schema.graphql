@@ -1,0 +1,58 @@
+type AssetBalance @entity {
+  id: ID!
+  amount: BigInt!
+  router: Router!
+  assetId: Bytes!
+  # added liquidity for this router
+  supplied: BigInt!
+  # removed liquidity for this router
+  removed: BigInt!
+  # sending side prepared asset tracker
+  lockedIn: BigInt!
+  # sending side fulfill asset tracker
+  volumeIn: BigInt!
+  # receiving side prepared asset tracker
+  locked: BigInt!
+  # receiving side fulfill asset tracker
+  volume: BigInt!
+  # txCount
+  # number of prepare transactions with this chain as the sending chain
+  sendingPrepareTxCount: BigInt!
+  # number of fulfill transactions with this chain as the sending chain
+  sendingFulfillTxCount: BigInt!
+  # number of cancel transactions with this chain as the sending chain
+  sendingCancelTxCount: BigInt!
+  # number of prepare transactions with this chain as the receiving chain
+  receivingPrepareTxCount: BigInt!
+  # number of fulfill transactions with this chain as the receiving chain
+  receivingFulfillTxCount: BigInt!
+  # number of cancel transactions with this chain as the receiving chain
+  receivingCancelTxCount: BigInt!
+}
+
+# Router represents a router and its associated liquidity
+type Router @entity {
+  id: ID!
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+}
+
+type DayMetric @entity {
+  # unique hourly id per asset created by dividing timestamp by 86400 and concatenating assetId
+  id: ID!
+  # timestamp rounded down to nearest hour
+  dayStartTimestamp: BigInt!
+  # assetId
+  assetId: String!
+  # day volume per asset
+  volume: BigInt!
+  # day relayerFee per asset
+  relayerFee: BigInt!
+  # number of completed transactions with this chain as the sending chain
+  sendingTxCount: BigInt!
+  # number of completed transactions with this chain as the receiving chain
+  receivingTxCount: BigInt!
+  # cancelled transactions in a day
+  cancelTxCount: BigInt!
+  # daily volume inbound from sending chain per asset
+  volumeIn: BigInt!
+}

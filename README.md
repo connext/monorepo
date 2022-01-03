@@ -2,7 +2,7 @@
 
 # NXTP
 
-**N**oncustodial **X**chain **T**ransfer **P**rotocol.
+**N**oncustodial **X**domain **T**ransfer **P**rotocol.
 
 **Nxtp** is a lightweight protocol for generalized xchain/xrollup transactions that retain the security properties of the underlying execution environment (i.e. it does **not** rely on any external validator set).
 
@@ -15,7 +15,7 @@ The protocol is made up of a simple contract that uses a locking pattern to `pre
 Transactions go through three phases:
 
 1. **Route Auction**: User broadcasts to our network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
-2. **Prepare**: Once the auction is completed, the transaction can be prepared. The user submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid. This transaction locks up the users funds on the sending chiain. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `TransactionManager` on the receiver-side chain, and locks up a corresponding amount of liquidity. The amount locked on the receiving chain is `sending amount - auction fee` so the router is incentivized to complete the transaction.
+2. **Prepare**: Once the auction is completed, the transaction can be prepared. The user submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid. This transaction locks up the users funds on the sending chain. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `TransactionManager` on the receiver-side chain, and locks up a corresponding amount of liquidity. The amount locked on the receiving chain is `sending amount - auction fee` so the router is incentivized to complete the transaction.
 3. **Fulfill**: Upon detecting the `TransactionPrepared` event on the receiver-side chain, the user signs a message and sends it to a relayer, who will earn a fee for submission. The relayer (which may be the router) then submits the message to the `TransactionManager` to complete their transaction on receiver-side chain and claim the funds locked by the router. A relayer is used here to allow users to submit transactions with arbitrary calldata on the receiving chain without needing gas to do so. The router then submits the same signed message and completes transaction on sender-side, unlocking the original `amount`.
 
 If a transaction is not fulfilled within a fixed timeout, it reverts and can be reclaimed by the party that called `prepare` on each chain (initiator). Additionally, transactions can be cancelled unilaterally by the person owed funds on that chain (router for sending chain, user for receiving chain) prior to expiry.
@@ -50,7 +50,7 @@ This monorepo contains the following pieces:
 
 - [Contracts](https://github.com/connext/nxtp/tree/main/packages/contracts) - hold funds for all network participants, and lock/unlock based on data submitted by users and routers
 - [Subgraph](https://github.com/connext/nxtp/tree/main/packages/subgraph) - enables scalable querying/responding by caching onchain data and events.
-- [TxService](https://github.com/connext/nxtp/tree/main/packages/txService) - resiliently attempts to send transactions to chain (with retries, etc.)
+- [TxService](https://github.com/connext/nxtp/tree/main/packages/txservice) - resiliently attempts to send transactions to chain (with retries, etc.)
 - [Messaging](https://github.com/connext/nxtp/blob/main/packages/utils/src/messaging.ts) - prepares, sends, and listens for message data over [nats](https://nats.io)
 - [Router](https://github.com/connext/nxtp/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService
 - [SDK](https://github.com/connext/nxtp/tree/main/packages/sdk) - creates auctions, listens for events and creates transactions on the user side.
@@ -216,7 +216,7 @@ yarn workspace @connext/nxtp-router dev
 - Create `packages/test-ui/.env`. Configure for live chains and the desired messaging:
 
 ```sh
-REACT_APP_CHAIN_CONFIG='{"4":{"provider":["https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/..."]},"5":{"provider":["https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/..."]}}'
+REACT_APP_CHAIN_CONFIG='{"1":{"providers":["https://mainnet.infura.io/v3/...","https://mainnet.infura.io/v3/...","https://mainnet.infura.io/v3/..."]},"4":{"providers":["https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/...","https://rinkeby.infura.io/v3/..."]},"5":{"providers":["https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/...","https://goerli.infura.io/v3/..."]}}'
 REACT_APP_SWAP_CONFIG='[{"name":"TEST","assets":{"4":"0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198","5":"0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682"}}]'
 #REACT_APP_NATS_URL_OVERRIDE=ws://localhost:4221
 #REACT_APP_AUTH_URL_OVERRIDE=http://localhost:5040
@@ -263,8 +263,8 @@ The above command runs local chains and messaging and take care of local deploym
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
-        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
+        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
       ]
     }
   ]

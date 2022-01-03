@@ -1,6 +1,6 @@
-import { mkAddress, variantDataMock, invariantDataMock, mkBytes32 } from "@connext/nxtp-utils";
+import { mkAddress, variantDataMock, invariantDataMock, mkBytes32, chainDataToMap } from "@connext/nxtp-utils";
 
-import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/graphqlsdk";
+import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/runtime/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
 import {
   ActiveTransaction,
@@ -12,8 +12,9 @@ import {
 } from "../src/lib/entities";
 
 export const routerAddrMock = mkAddress("0xb");
+export const routerContractAddressMock = mkAddress("0xccc");
 
-export const MUTATED_AMOUNT = "100";
+export const MUTATED_AMOUNT = "100000000000000000000";
 export const MUTATED_BUFFER = 123400;
 export const BID_EXPIRY = 123401;
 
@@ -24,22 +25,34 @@ export const configMock: NxtpRouterConfig = {
     1337: {
       confirmations: 1,
       providers: ["http://example.com"],
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xaaa"),
+      priceOracleAddress: mkAddress("0x0"),
+      multicallAddress: mkAddress("0x1"),
       minGas: "100",
-      safeRelayerFee: "1000",
+      relayerFeeThreshold: 10,
       subgraphSyncBuffer: 10,
+      gasStations: [],
+      allowRelay: true,
+      analyticsSubgraph: ["http://example.com"],
     },
     1338: {
       confirmations: 1,
       providers: ["http://example.com"],
-      subgraph: "http://example.com",
+      subgraph: ["http://example.com"],
       transactionManagerAddress: mkAddress("0xbbb"),
+      priceOracleAddress: mkAddress("0x0"),
+      multicallAddress: mkAddress("0x1"),
       minGas: "100",
-      safeRelayerFee: "1000",
+      relayerFeeThreshold: 10,
       subgraphSyncBuffer: 10,
+      gasStations: [],
+      allowRelay: true,
+      analyticsSubgraph: ["http://example.com"],
     },
   },
+  priceCacheMode: true,
+  routerContractAddress: routerContractAddressMock,
   mnemonic: "hello world",
   natsUrl: "http://example.com",
   logLevel: "info",
@@ -50,10 +63,16 @@ export const configMock: NxtpRouterConfig = {
         { assetId: mkAddress("0xc"), chainId: 1337 },
         { assetId: mkAddress("0xf"), chainId: 1338 },
       ],
+      mainnetEquivalent: mkAddress("0xd"),
     },
   ],
+  allowedTolerance: 10,
+  allowRelay: true,
   host: "0.0.0.0",
   port: 8080,
+  requestLimit: 2000,
+  cleanUpMode: false,
+  diagnosticMode: false,
 };
 
 export const prepareInputMock: PrepareInput = {
@@ -69,15 +88,19 @@ export const fulfillInputMock: FulfillInput = {
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
   signature: "0xabcd",
-  relayerFee: "100000",
-  callData: "0xbaa",
-  side: "receiver",
+  relayerFee: "10",
+  callData: "0x",
+};
+
+export const mockHashes = {
+  prepareHash: mkBytes32("0xa"),
 };
 
 export const cancelInputMock: CancelInput = {
   amount: variantDataMock.amount,
   expiry: variantDataMock.expiry,
   preparedBlockNumber: variantDataMock.preparedBlockNumber,
+  preparedTransactionHash: mockHashes.prepareHash,
   side: "sender",
 };
 
@@ -94,7 +117,7 @@ export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> =
     bidSignature: "0xdbc",
     encodedBid: "0xdef",
     encryptedCallData: "0xabc",
-    senderPreparedHash: mkBytes32("0xa"),
+    hashes: { sending: mockHashes },
   },
   status: CrosschainTransactionStatus.SenderPrepared,
 };
@@ -105,7 +128,7 @@ export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"
     callData: "0x",
     relayerFee: "100000",
     signature: "0xabc",
-    receiverFulfilledHash: mkBytes32("0xa"),
+    hashes: { sending: mockHashes, receiving: { ...mockHashes, fulfillHash: mkBytes32("0xb") } },
   },
   status: CrosschainTransactionStatus.ReceiverFulfilled,
 };
@@ -120,16 +143,6 @@ export const singleChainTransactionMock: SingleChainTransaction = {
   txData: { ...invariantDataMock, ...variantDataMock },
 };
 
-const chainDataToMap = (data: any) => {
-  const chainData: Map<string, any> = new Map();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const chainId = item.chainId.toString();
-    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")));
-  }
-  return chainData;
-};
-
 export const chainDataMock = chainDataToMap([
   {
     name: "Unit Test Chain",
@@ -137,3 +150,7 @@ export const chainDataMock = chainDataToMap([
     confirmations: 1,
   },
 ]);
+
+export const relayerFeeMock = "1234";
+
+export const callDataMock = "0xabc";

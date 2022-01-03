@@ -1,8 +1,8 @@
 /* eslint-disable require-jsdoc */
 import { ChainData } from "@connext/nxtp-utils";
-import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
+import { Contract, providers, Signer, utils } from "ethers";
 
-const TestTokenABI = [
+export const TestTokenABI = [
   // Read-Only Functions
   "function balanceOf(address owner) view returns (uint256)",
   "function decimals() view returns (uint8)",
@@ -20,32 +20,17 @@ export const mintTokens = async (signer: Signer, assetId: string): Promise<provi
   return response;
 };
 
-export const getBalance = async (
-  address: string,
-  assetId: string,
-  provider: providers.Provider,
-): Promise<BigNumber> => {
-  let balance;
-  if (assetId === constants.AddressZero) {
-    balance = await provider.getBalance(address);
-  } else {
-    const contract = new Contract(assetId, TestTokenABI, provider);
-    balance = await contract.balanceOf(address);
-  }
-  return balance;
-};
-
-export const getChainName = (chainId: number, chainData: ChainData[]): string => {
-  const chain = chainData.find((chain) => chain?.chainId === chainId);
+export const getChainName = (chainId: number, chainData: Map<string, ChainData>): string => {
+  const chain = chainData.get(chainId.toString());
   return chain?.name ?? chainId.toString();
 };
 
-export const getExplorerLinkForTx = (tx: string, chainId: number, chainData: ChainData[]) => {
-  const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
+export const getExplorerLinkForTx = (tx: string, chainId: number, chainData: Map<string, ChainData>) => {
+  const explorer = chainData.get(chainId.toString())?.explorers[0]?.url;
   return explorer ? `${explorer}/tx/${tx}` : "#";
 };
 
-export const getExplorerLinkForAddress = (address: string, chainId: number, chainData: ChainData[]) => {
-  const explorer = chainData.find((data) => data.chainId === chainId)?.explorers[0]?.url;
+export const getExplorerLinkForAddress = (address: string, chainId: number, chainData: Map<string, ChainData>) => {
+  const explorer = chainData.get(chainId.toString())?.explorers[0]?.url;
   return explorer ? `${explorer}/address/${address}` : "#";
 };

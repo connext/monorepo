@@ -1,49 +1,58 @@
-import {
-  arrayToBuffer,
-  decrypt as libDecrypt,
-  deserialize,
-  encrypt as libEncrypt,
-  hexToBuffer,
-  serialize,
-  utf8ToBuffer,
-} from "eccrypto-js";
+import { encrypt as libEncrypt } from "eth-sig-util";
 import { utils } from "ethers";
+import { publicKeyConvert } from "secp256k1";
 
-import { isValidHexString } from "./hexStrings";
+declare const ethereum: any;
+// /**
+//  * Encrypts some message with the provided public key
+//  *
+//  * @param message - Information to encrypt
+//  * @param publicKey - Public key to encrypt with
+//  * @returns Encrypted message
+//  */
+export const encrypt = async (message: string, publicKey: string) => {
+  const buf = Buffer.from(JSON.stringify(libEncrypt(publicKey, { data: message }, "x25519-xsalsa20-poly1305")), "utf8");
+  return "0x" + buf.toString("hex");
+};
 
-/**
- * Converts some input into a buffer
- *
- * @param input - Information to convert to a bugger
- * @returns Bufferified version of the provided input
- */
-export const bufferify = (input: Uint8Array | Buffer | string): Buffer =>
-  typeof input === "string"
-    ? isValidHexString(input)
-      ? hexToBuffer(input)
-      : utf8ToBuffer(input)
-    : !Buffer.isBuffer(input)
-    ? arrayToBuffer(utils.arrayify(input))
-    : input;
-
-/**
- * Encrypts some message with the provided public key
- *
- * @param message - Information to encrypt
- * @param publicKey - Public key to encrypt with
- * @returns Encrypted message
- */
-export const encrypt = async (message: string, publicKey: string): Promise<string> =>
-  utils.hexlify(serialize(await libEncrypt(bufferify(publicKey), utf8ToBuffer(message))));
+export const ethereumRequest = async (method: string, params: string[]): Promise<any> => {
+  // If ethereum.request() exists, the provider is probably EIP-1193 compliant.
+  return await ethereum.request({
+    method,
+    params,
+  });
+};
 
 /**
- * Decrypts some information that was encrypted using a public key corresponding to the private key
+ * Function to derive the address from an EC public key
  *
- * @param encrypted - Information to decrypt
- * @param privateKey - Key that had encrypted the message
- * @returns Unencrypted string
+ * @param publicKey the public key to derive
+ *
+ * @returns the address
  */
-export const decrypt = async (encrypted: string, privateKey: string): Promise<string> =>
-  utils.toUtf8String(
-    await libDecrypt(bufferify(privateKey), deserialize(bufferify(`0x${encrypted.replace(/^0x/, "")}`))),
-  );
+export const getAddressFromPublicKey = (publicKey: string): string => {
+  try {
+    return utils.computeAddress(compressPublicKey(publicKey));
+  } catch (e) {
+    if (
+      e.message === "public key length is invalid" ||
+      e.message === "Expected public key to be an Uint8Array with length [33, 65]" ||
+      e.code === "INVALID_ARGUMENT"
+    ) {
+      throw new Error("The public key must be a string representing 64 bytes");
+    }
+    throw e;
+  }
+};
+
+/**
+ * Converts a public key to its compressed form.
+ */
+export const compressPublicKey = (publicKey: string): Uint8Array => {
+  publicKey = publicKey.replace(/^0x/, "");
+  // if there are more bytes than the key itself, it means there is already a prefix
+  if (publicKey.length % 32 === 0) {
+    publicKey = `04${publicKey}`;
+  }
+  return publicKeyConvert(Buffer.from(publicKey, "hex"));
+};

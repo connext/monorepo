@@ -5,6 +5,8 @@ export {
   NotEnoughGas,
   ZeroValueBid,
   AuctionExpired,
+  NotEnoughAmount,
+  SubgraphNotSynced,
 } from "./auction";
 
 export { ContractReaderNotAvailableForChain } from "./contractReader";
@@ -17,4 +19,10 @@ export {
   BidExpiryInvalid,
 } from "./prepare";
 
-export { NoChainConfig, NotEnoughRelayerFee } from "./fulfill";
+export { SanitationCheckFailed, NotExistPriceOracle } from "./contracts";
+
+export { NoChainConfig, NotEnoughRelayerFee, NotAllowedFulfillRelay } from "./fulfill";
+
+export { ReceiverTxExists } from "./cancel";
+
+export { NoTransactionId, InvalidMetaTxType } from "./metaTx";

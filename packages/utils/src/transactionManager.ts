@@ -7,6 +7,7 @@ export const InvariantTransactionDataSchema = Type.Object({
   receivingChainTxManagerAddress: TAddress,
   user: TAddress,
   router: TAddress,
+  initiator: TAddress,
   sendingAssetId: TAddress,
   receivingAssetId: TAddress,
   sendingChainFallback: TAddress,
@@ -78,14 +79,18 @@ export type CancelParams = {
   signature: string;
 };
 
+export type RemoveLiquidityParams = { router: string; assetId: string; amount: string; recipient: string };
+
 // Events
-export type TransactionPreparedEvent = {
-  txData: TransactionData;
-  caller: string;
-  encryptedCallData: string;
-  encodedBid: string;
-  bidSignature: string;
-};
+export const TransactionPreparedEventSchema = Type.Object({
+  txData: TransactionDataSchema,
+  caller: Type.Optional(TAddress),
+  encryptedCallData: Type.String(),
+  encodedBid: Type.String(),
+  bidSignature: Type.String(),
+});
+
+export type TransactionPreparedEvent = Static<typeof TransactionPreparedEventSchema>;
 
 export type TransactionFulfilledEvent = {
   txData: TransactionData;

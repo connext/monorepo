@@ -40,10 +40,10 @@ module.exports = {
 
     // Clean up unused vars before committing, but this is too onerous during dev.
     "@typescript-eslint/no-unused-vars": "warn",
-
     "@typescript-eslint/no-var-requires": ["off"],
     "@typescript-eslint/no-empty-interface": ["off"],
     "@typescript-eslint/ban-ts-ignore": ["off"],
+    "@typescript-eslint/ban-ts-comment": ["off"],
     "@typescript-eslint/explicit-function-return-type": ["off"],
     "@typescript-eslint/no-empty-function": ["off"],
     "@typescript-eslint/no-unused-expressions": ["off"],

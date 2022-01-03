@@ -79,3 +79,13 @@ export const ajv = addFormats(new Ajv(), [
 ])
   .addKeyword("kind")
   .addKeyword("modifier");
+
+/**
+ * Returns domain name from url string
+ * @param url The http or https string
+ * @returns https://api.thegraph.com/subgraphs/name... => api.thegraph.com
+ */
+export const getHostnameFromRegex = (url: string) => {
+  const matches = /^https?:\/\/([^/?#]+)(?:[/?#]|$)/i.exec(url);
+  return matches && matches[1];
+};

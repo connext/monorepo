@@ -2,19 +2,19 @@
 import { useEffect, useState, ReactElement } from "react";
 import { Col, Row, Input, Typography, Form, Button, Select, Table } from "antd";
 import { BigNumber, constants, providers, Signer, utils } from "ethers";
-import pino from "pino";
-import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction } from "@connext/nxtp-sdk";
+import { ActiveTransaction, NxtpSdk, NxtpSdkEvents, HistoricalTransaction, GetTransferQuote } from "@connext/nxtp-sdk";
 import {
   AuctionResponse,
   ChainData,
   CrosschainTransaction,
   getRandomBytes32,
+  Logger,
   TransactionPreparedEvent,
 } from "@connext/nxtp-utils";
+import { parseUnits } from "ethers/lib/utils";
 
 import { chainConfig, swapConfig } from "../constants";
-import { getBalance, getChainName, getExplorerLinkForTx, mintTokens as _mintTokens } from "../utils";
-import { chainProviders } from "../App";
+import { getExplorerLinkForTx, mintTokens as _mintTokens, TestTokenABI } from "../utils";
 
 const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
   swapConfig.find((sc) =>
@@ -26,7 +26,7 @@ const findAssetInSwap = (crosschainTx: CrosschainTransaction) =>
 type SwapProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
-  chainData?: ChainData[];
+  chainData?: Map<string, ChainData>;
 };
 
 export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactElement => {
@@ -34,8 +34,9 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   const [sdk, setSdk] = useState<NxtpSdk>();
   const [auctionResponse, setAuctionResponse] = useState<AuctionResponse>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<ActiveTransaction[]>([]);
+  const [activeTransferTableColumnsConverted, setActiveTransferTableColumnsConverted] = useState<any[]>([]);
   const [historicalTransferTableColumns, setHistoricalTransferTableColumns] = useState<HistoricalTransaction[]>([]);
-  const [selectedPool, setSelectedPool] = useState(swapConfig[0]);
+  const [selectedPoolIndex, setSelectedPoolIndex] = useState(0);
   const [userBalance, setUserBalance] = useState<BigNumber>();
 
   const [form] = Form.useForm();
@@ -52,23 +53,28 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       setInjectedProviderChainId(chainId);
 
       const sendingChain = form.getFieldValue("sendingChain");
+      console.log('form.getFieldValue("sendingChain"): ', form.getFieldsValue(true));
       console.log("sendingChain: ", sendingChain);
 
       const address = await signer.getAddress();
 
-      const _balance = await getUserBalance(sendingChain, signer);
+      const _balance = await getUserBalance(
+        typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain),
+        signer,
+      );
       console.log("_balance: ", _balance);
       setUserBalance(_balance);
       form.setFieldsValue({ receivingAddress: address });
 
-      const _sdk = new NxtpSdk(
-        chainProviders,
+      const _sdk = await NxtpSdk.create({
+        chainConfig,
         signer,
-        pino({ level: "info" }),
-        (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
-        process.env.REACT_APP_NATS_URL_OVERRIDE,
-        process.env.REACT_APP_AUTH_URL_OVERRIDE,
-      );
+        messaging: undefined,
+        natsUrl: process.env.REACT_APP_NATS_URL_OVERRIDE,
+        authUrl: process.env.REACT_APP_AUTH_URL_OVERRIDE,
+        logger: new Logger({ level: "info" }),
+        network: (process.env.REACT_APP_NETWORK as "mainnet") ?? "mainnet",
+      });
       setSdk(_sdk);
       const activeTxs = await _sdk.getActiveTransactions();
 
@@ -76,6 +82,41 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       // Will not update the transactions appropriately if sender tx prepared and no txs set
       setActiveTransferTableColumns(activeTxs);
       console.log("activeTxs: ", activeTxs);
+
+      const convertedActiveTxs = await Promise.all(
+        activeTxs.map(async (tx) => {
+          let gasAmount = "0";
+          if (tx.status === NxtpSdkEvents.ReceiverTransactionPrepared) {
+            try {
+              gasAmount = "0";
+            } catch (e) {
+              console.log(e);
+            }
+          }
+
+          // Use receiver side info by default
+          const variant = tx.crosschainTx.receiving ?? tx.crosschainTx.sending;
+          return {
+            sentAmount: utils.formatEther(tx.crosschainTx.sending?.amount ?? "0"),
+            receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
+            gasAmount: gasAmount,
+            status: tx.status,
+            sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
+            receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
+            asset: findAssetInSwap(tx.crosschainTx),
+            key: tx.crosschainTx.invariant.transactionId,
+            preparedAt: tx.preparedTimestamp,
+            expires:
+              variant.expiry > Date.now() / 1000
+                ? `${((variant.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
+                : "Expired",
+            action: tx,
+          };
+        }),
+      );
+
+      console.log("convertedActiveTransactions = ", convertedActiveTxs);
+      setActiveTransferTableColumnsConverted(convertedActiveTxs);
 
       const historicalTxs = await _sdk.getHistoricalTransactions();
       setHistoricalTransferTableColumns(historicalTxs);
@@ -157,11 +198,11 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
 
       _sdk.attach(NxtpSdkEvents.ReceiverTransactionFulfilled, async (data) => {
         console.log("ReceiverTransactionFulfilled:", data);
-        setActiveTransferTableColumns(
-          activeTransferTableColumns.filter(
-            (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
-          ),
-        );
+        // setActiveTransferTableColumns(
+        //   activeTransferTableColumns.filter(
+        //     (t) => t.crosschainTx.invariant.transactionId !== data.txData.transactionId,
+        //   ),
+        // );
 
         const historicalTxs = await _sdk.getHistoricalTransactions();
         setHistoricalTransferTableColumns(historicalTxs);
@@ -188,18 +229,19 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     init();
   }, [web3Provider, signer]);
 
-  const getUserBalance = async (chainId: number, _signer: Signer) => {
+  const getUserBalance = async (_chainId: number, _signer: Signer) => {
+    if (_chainId === 0 || !sdk) {
+      return BigNumber.from(0);
+    }
     const address = await _signer.getAddress();
-    const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[chainId];
-    console.log("sendingAssetId: ", sendingAssetId);
+    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[_chainId];
     if (!sendingAssetId) {
       throw new Error("Bad configuration for swap");
     }
-    if (!chainProviders || !chainProviders[chainId]) {
-      throw new Error("No config for chainId");
+    if (!chainConfig || !chainConfig[_chainId]) {
+      throw new Error(`No config for chainId: ${_chainId}. Supported: ${Object.keys(chainConfig).toString()}`);
     }
-    const _balance = await getBalance(address, sendingAssetId, chainProviders[chainId].provider);
-    return _balance;
+    return await sdk.getBalance(_chainId, address, sendingAssetId, TestTokenABI);
   };
 
   const switchChains = async (targetChainId: number) => {
@@ -241,37 +283,50 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     }
   };
 
-  const getTransferQuote = async (
-    sendingChainId: number,
-    sendingAssetId: string,
-    receivingChainId: number,
-    receivingAssetId: string,
-    amount: string,
-    receivingAddress: string,
-    preferredRouter?: string,
-  ): Promise<AuctionResponse | undefined> => {
+  const getTransferQuote = async (): Promise<GetTransferQuote | undefined> => {
     if (!sdk) {
       return;
     }
 
+    const sendingChainId = parseInt(form.getFieldValue("sendingChain"));
     if (injectedProviderChainId !== sendingChainId) {
       alert("Please switch chains to the sending chain!");
       throw new Error("Wrong chain");
     }
+    const receivingChainId = parseInt(form.getFieldValue("receivingChain"));
 
     // Create txid
     const transactionId = getRandomBytes32();
 
+    const sendingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("sendingChain")];
+    const receivingAssetId = swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("receivingChain")];
+    if (!sendingAssetId || !receivingAssetId) {
+      throw new Error("Configuration doesn't support selected swap");
+    }
+
+    if (!sdk) {
+      throw new Error("No SDK available");
+    }
+
+    const sendingDecimals = await sdk.getDecimalsForAsset(sendingChainId, sendingAssetId);
+    const receivingDecimals = await sdk.getDecimalsForAsset(receivingChainId, receivingAssetId);
     const response = await sdk.getTransferQuote({
-      sendingAssetId,
       sendingChainId,
+      sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      receivingAddress,
-      amount,
+      receivingAddress: form.getFieldValue("receivingAddress"),
+      amount: parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
+      preferredRouters: form.getFieldValue("preferredRouters")
+        ? form.getFieldValue("preferredRouters").split(",")
+        : undefined,
       transactionId,
       expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
-      preferredRouter,
+    });
+    form.setFieldsValue({
+      receivedAmount: utils.formatUnits(response?.bid.amountReceived ?? constants.Zero, receivingDecimals),
+      gasFeeAmount: utils.formatUnits(response?.gasFeeInReceivingToken ?? constants.Zero, receivingDecimals),
+      metaTxFeeInRouter: utils.formatUnits(response?.metaTxRelayerFee ?? constants.Zero, receivingDecimals),
     });
     setAuctionResponse(response);
     return response;
@@ -304,13 +359,23 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       return;
     }
 
-    const finish = await sdk.fulfillTransfer({ bidSignature, encodedBid, encryptedCallData, txData });
+    const finish = await sdk.fulfillTransfer({ bidSignature, encodedBid, encryptedCallData, txData }, true);
     console.log("finish: ", finish);
-    if (finish.metaTxResponse?.transactionHash || finish.metaTxResponse?.transactionHash === "") {
+    if (finish?.transactionHash || finish.transactionHash === "") {
       setActiveTransferTableColumns(
         activeTransferTableColumns.filter((t) => t.crosschainTx.invariant.transactionId !== txData.transactionId),
       );
     }
+  };
+
+  const getRouterStatus = async () => {
+    if (!sdk) {
+      return;
+    }
+
+    const res = await sdk.getRouterStatus("testUI");
+
+    console.log(res);
   };
 
   const columns = [
@@ -343,6 +408,11 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
       title: "Received Amount",
       dataIndex: "receivedAmount",
       key: "receivedAmount",
+    },
+    {
+      title: "Gas Amount",
+      dataIndex: "gasAmount",
+      key: "gasAmount",
     },
     {
       title: "Status",
@@ -378,10 +448,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
             <Button
               type="link"
               onClick={() =>
-                sdk?.cancel(
-                  { relayerFee: "0", signature: "0x", txData: sendingTxData },
-                  crosschainTx.invariant.sendingChainId,
-                )
+                sdk?.cancel({ signature: "0x", txData: sendingTxData }, crosschainTx.invariant.sendingChainId)
               }
             >
               Cancel
@@ -461,9 +528,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   ];
 
   const mintTokens = async () => {
-    const testToken = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-      injectedProviderChainId!
-    ];
+    const testToken = swapConfig[form.getFieldValue("asset")]?.assets[injectedProviderChainId!];
     if (!testToken) {
       throw new Error(`Not configured for TEST token on chain: ${injectedProviderChainId}`);
     }
@@ -475,9 +540,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
   };
 
   const addToMetamask = async () => {
-    const testToken = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-      injectedProviderChainId!
-    ];
+    const testToken = swapConfig[form.getFieldValue("asset")]?.assets[injectedProviderChainId!];
     if (!testToken) {
       throw new Error(`Not configured for TEST token on chain: ${injectedProviderChainId}`);
     }
@@ -508,28 +571,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
           <Row>
             <Col span={3}></Col>
             <Col span={20}>
-              <Table
-                columns={columns}
-                dataSource={activeTransferTableColumns.map((tx) => {
-                  // Use receiver side info by default
-                  const variant = tx.crosschainTx.receiving ?? tx.crosschainTx.sending;
-                  return {
-                    sentAmount: utils.formatEther(tx.crosschainTx.sending?.amount ?? "0"),
-                    receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
-                    status: tx.status,
-                    sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
-                    receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
-                    asset: findAssetInSwap(tx.crosschainTx),
-                    key: tx.crosschainTx.invariant.transactionId,
-                    preparedAt: tx.preparedTimestamp,
-                    expires:
-                      variant.expiry > Date.now() / 1000
-                        ? `${((variant.expiry - Date.now() / 1000) / 3600).toFixed(2)} hours`
-                        : "Expired",
-                    action: tx,
-                  };
-                })}
-              />
+              <Table columns={columns} dataSource={activeTransferTableColumnsConverted} />
             </Col>
             <Col span={3}></Col>
           </Row>
@@ -557,10 +599,10 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 console.log("changed: ", changed);
               }}
               initialValues={{
-                sendingChain: getChainName(parseInt(Object.keys(selectedPool.assets)[0]), chainData),
-                receivingChain: getChainName(parseInt(Object.keys(selectedPool.assets)[1]), chainData),
-                asset: selectedPool.name,
-                amount: "1",
+                sendingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[0],
+                receivingChain: Object.keys(swapConfig[selectedPoolIndex].assets)[1],
+                asset: selectedPoolIndex,
+                amount: "10",
               }}
             >
               <Form.Item label="Sending Chain" name="sendingChain">
@@ -574,13 +616,16 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                             console.error("No signer available");
                             return;
                           }
-                          const _balance = await getUserBalance(val as number, signer);
+                          const _balance = await getUserBalance(
+                            typeof val === "number" ? val : parseInt(val as string),
+                            signer,
+                          );
                           setUserBalance(_balance);
                         }}
                       >
-                        {Object.keys(selectedPool.assets).map((chainId) => (
+                        {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
-                            {getChainName(parseInt(chainId), chainData)}
+                            {parseInt(chainId)}
                           </Select.Option>
                         ))}
                       </Select>
@@ -595,7 +640,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                             !web3Provider || injectedProviderChainId === parseInt(form.getFieldValue("sendingChain"))
                           }
                         >
-                          Switch To Chain {getChainName(parseInt(form.getFieldValue("sendingChain")), chainData)}
+                          Switch To Chain {form.getFieldValue("sendingChain")}
                         </Button>
                       )}
                     </Form.Item>
@@ -608,9 +653,9 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                   <Col span={16}>
                     <Form.Item name="receivingChain">
                       <Select>
-                        {Object.keys(selectedPool.assets).map((chainId) => (
+                        {Object.keys(swapConfig[selectedPoolIndex].assets).map((chainId) => (
                           <Select.Option key={chainId} value={chainId}>
-                            {getChainName(parseInt(chainId), chainData)}
+                            {parseInt(chainId)}
                           </Select.Option>
                         ))}
                       </Select>
@@ -619,12 +664,14 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 </Row>
               </Form.Item>
 
-              <Form.Item label="Asset" name="asset">
+              <Form.Item label="Asset">
                 <Row gutter={16}>
                   <Col span={12}>
                     <Form.Item name="asset">
                       <Select
-                        onChange={(value) => (value ? setSelectedPool(swapConfig[parseInt(value?.toString())]) : "")}
+                        onChange={(value) => {
+                          value ? setSelectedPoolIndex(parseInt(value?.toString())) : 0;
+                        }}
                       >
                         {swapConfig.map(({ name }, index) => (
                           <Select.Option key={name} value={index}>
@@ -634,7 +681,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                       </Select>
                     </Form.Item>
                   </Col>
-                  {form.getFieldValue("asset") === "TEST" && (
+                  {swapConfig[selectedPoolIndex].name === "TEST" && (
                     <>
                       <Col span={6}>
                         <Button block onClick={() => mintTokens()}>
@@ -674,7 +721,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                 <Input />
               </Form.Item>
 
-              <Form.Item label="Preferred Router" name="preferredRouter">
+              <Form.Item label="Preferred Routers" name="preferredRouters">
                 <Input placeholder="Do not use unless testing routers" />
               </Form.Item>
 
@@ -688,33 +735,16 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                         !web3Provider || injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain"))
                       }
                       type="primary"
-                      onClick={async () => {
-                        const sendingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))?.assets[
-                          form.getFieldValue("sendingChain")
-                        ];
-                        const receivingAssetId = swapConfig.find((sc) => sc.name === form.getFieldValue("asset"))
-                          ?.assets[form.getFieldValue("receivingChain")];
-                        if (!sendingAssetId || !receivingAssetId) {
-                          throw new Error("Configuration doesn't support selected swap");
-                        }
-                        const response = await getTransferQuote(
-                          parseInt(form.getFieldValue("sendingChain")),
-                          sendingAssetId,
-                          parseInt(form.getFieldValue("receivingChain")),
-                          receivingAssetId,
-                          utils.parseEther(form.getFieldValue("amount")).toString(),
-                          form.getFieldValue("receivingAddress"),
-                          form.getFieldValue("preferredRouter"),
-                        );
-                        form.setFieldsValue({
-                          receivedAmount: utils.formatEther(response?.bid.amountReceived ?? constants.Zero),
-                        });
-                      }}
+                      onClick={getTransferQuote}
                     >
                       Get Quote
                     </Button>
                   }
                 />
+              </Form.Item>
+
+              <Form.Item label="MetaTx Fee (Router)" name="metaTxFeeInRouter">
+                <Input disabled placeholder="..." />
               </Form.Item>
 
               <Form.Item wrapperCol={{ offset: 8, span: 16 }} dependencies={["sendingChain", "receivingChain"]}>
@@ -729,6 +759,40 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                     Transfer
                   </Button>
                 )}
+              </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }} dependencies={["sendingChain", "receivingChain"]}>
+                {() => (
+                  <Button
+                    disabled={
+                      !web3Provider ||
+                      injectedProviderChainId !== parseInt(form.getFieldValue("sendingChain")) ||
+                      form.getFieldValue("sendingChain") === form.getFieldValue("receivingChain")
+                    }
+                    type="primary"
+                    onClick={async () => {
+                      const sendingAssetId =
+                        swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("sendingChain")];
+                      const receivingAssetId =
+                        swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("receivingChain")];
+                      if (!sendingAssetId || !receivingAssetId) {
+                        throw new Error("Configuration doesn't support selected swap");
+                      }
+                    }}
+                  >
+                    Calculate Fee
+                  </Button>
+                )}
+              </Form.Item>
+              <Form.Item label="Transfer Fee (SDK)" name="transferFeeInSDK">
+                <Input disabled placeholder="..." />
+              </Form.Item>
+
+              <Form.Item label="MetaTx Fee (SDK)" name="metaTxFeeInSDK">
+                <Input disabled placeholder="..." />
+              </Form.Item>
+
+              <Form.Item label="Router Status" name="routerStatus">
+                <Button onClick={() => getRouterStatus()}>router status</Button>
               </Form.Item>
             </Form>
           )}
@@ -748,20 +812,22 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
             <Col span={20}>
               <Table
                 columns={historicalColumns}
-                dataSource={historicalTransferTableColumns.map((tx) => {
-                  // Use receiver side info by default
-                  return {
-                    sentAmount: utils.formatEther(tx.crosschainTx.sending.amount),
-                    receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
-                    status: tx.status,
-                    sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
-                    receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
-                    asset: findAssetInSwap(tx.crosschainTx),
-                    key: tx.crosschainTx.invariant.transactionId,
-                    preparedAt: tx.preparedTimestamp,
-                    txHash: { txHash: tx.fulfilledTxHash, chainId: tx.crosschainTx.invariant.receivingChainId },
-                  };
-                })}
+                dataSource={historicalTransferTableColumns
+                  .sort((a, b) => b.preparedTimestamp - a.preparedTimestamp)
+                  .map((tx) => {
+                    // Use receiver side info by default
+                    return {
+                      sentAmount: utils.formatEther(tx.crosschainTx.sending.amount),
+                      receivedAmount: utils.formatEther(tx.crosschainTx.receiving?.amount ?? "0"),
+                      status: tx.status,
+                      sendingChain: tx.crosschainTx.invariant.sendingChainId.toString(),
+                      receivingChain: tx.crosschainTx.invariant.receivingChainId.toString(),
+                      asset: findAssetInSwap(tx.crosschainTx),
+                      key: tx.crosschainTx.invariant.transactionId,
+                      preparedAt: tx.preparedTimestamp,
+                      txHash: { txHash: tx.fulfilledTxHash, chainId: tx.crosschainTx.invariant.receivingChainId },
+                    };
+                  })}
               />
             </Col>
             <Col span={3}></Col>

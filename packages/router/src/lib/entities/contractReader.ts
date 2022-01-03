@@ -1,7 +1,7 @@
 import { CrosschainTransaction, TransactionData } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/graphqlsdk";
+import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 
 export type ContractReader = {
   getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
@@ -34,6 +34,19 @@ export const CrosschainTransactionStatus = {
 
 export type TCrosschainTransactionStatus = typeof CrosschainTransactionStatus[keyof typeof CrosschainTransactionStatus];
 
+export type Tracker = {
+  chainId: number;
+  status: TCrosschainTransactionStatus | "Processing";
+  block: number;
+};
+
+export type ActiveTransactionsTracker = {
+  status: TCrosschainTransactionStatus | "Processing";
+  transactionsId: string;
+  sendingChainId: number;
+  receivingChainId: number;
+};
+
 export type PreparePayload = {
   encryptedCallData: string;
   encodedBid: string;
@@ -48,25 +61,31 @@ export type FulfillPayload = {
   callData: string;
 };
 
+export type TransactionHashes = {
+  prepareHash: string;
+  cancelHash?: string;
+  fulfillHash?: string;
+};
+
 export type CrosschainTransactionPayload = {
-  [CrosschainTransactionStatus.SenderPrepared]: PreparePayload & {
-    senderPreparedHash: string;
-  };
+  [CrosschainTransactionStatus.SenderPrepared]: PreparePayload;
   [CrosschainTransactionStatus.SenderExpired]: Record<string, never>;
   [CrosschainTransactionStatus.ReceiverNotConfigured]: Record<string, never>;
-  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload & {
-    receiverFulfilledHash: string;
-  };
-  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload & {
-    receiverCancelledHash: string;
-  };
+  [CrosschainTransactionStatus.ReceiverFulfilled]: FulfillPayload;
+  [CrosschainTransactionStatus.ReceiverCancelled]: CancelPayload;
   [CrosschainTransactionStatus.ReceiverExpired]: Record<string, never>;
 };
 
 export type ActiveTransaction<T extends TCrosschainTransactionStatus> = {
   status: T;
   crosschainTx: CrosschainTransaction;
-  payload: CrosschainTransactionPayload[T];
+  payload: {
+    hashes: {
+      sending?: TransactionHashes;
+      // ^ optional if receiver prepared w.o sender or sender subgraph behind
+      receiving?: TransactionHashes;
+    };
+  } & CrosschainTransactionPayload[T];
 };
 
 export type SingleChainTransaction = {
@@ -78,5 +97,3 @@ export type SingleChainTransaction = {
   signature?: string; // only there when fulfilled or cancelled
   relayerFee?: string; // only there when fulfilled or cancelled
 };
-
-export type SubgraphSyncRecord = { synced: boolean; latestBlock: number; syncedBlock: number };

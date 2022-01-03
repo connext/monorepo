@@ -24,6 +24,14 @@ export const TxResponse: TransactionResponse = {
   wait: () => Promise.resolve(TxReceipt),
 };
 
+export const TxRequest: providers.TransactionRequest = {
+  to: mkAddress("0xbca"),
+  data: "0xabc",
+  from: AddressZero,
+  gasPrice: One,
+  value: "123",
+};
+
 export const TxReceipt: TransactionReceipt = {
   blockHash: mkHash("0xabc"),
   blockNumber: 123,

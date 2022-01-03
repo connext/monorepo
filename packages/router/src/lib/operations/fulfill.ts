@@ -1,41 +1,41 @@
 import {
   ajv,
-  getUuid,
+  createLoggingContext,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   RequestContext,
 } from "@connext/nxtp-utils";
-import { providers, BigNumber } from "ethers";
+import { providers, constants, utils } from "ethers";
 
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
-import { NoChainConfig, ParamsInvalid, NotEnoughRelayerFee } from "../errors";
+import { NoChainConfig, ParamsInvalid } from "../errors";
+import { signRouterFulfillTransactionPayload } from "../helpers";
 
+const { AddressZero, Zero } = constants;
+
+// sender fulfill
 export const fulfill = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
-  requestContext: RequestContext,
+  _requestContext: RequestContext<string>,
 ): Promise<providers.TransactionReceipt | undefined> => {
-  const method = "fulfill";
-  const methodId = getUuid();
+  const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config } = getContext();
-  logger.info({ method, methodId, requestContext, invariantData, input }, "Method start");
+  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress, chainData } =
+    getContext();
+  logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
   // Validate InvariantData schema
   const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
   const validInvariantData = validateInvariantData(invariantData);
   if (!validInvariantData) {
-    const error = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error(
-      { method, methodId, error: validateInvariantData.errors, invariantData },
-      "Invalid invariantData params",
-    );
+    const msg = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
+      methodContext,
       requestContext,
+      paramsError: msg,
+      invariantData,
     });
   }
 
@@ -43,56 +43,82 @@ export const fulfill = async (
   const validateInput = ajv.compile(FulfillInputSchema);
   const validInput = validateInput(input);
   if (!validInput) {
-    const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error({ method, methodId, error: validateInput.errors, input }, "Invalid input params");
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
-      method,
-      methodId,
-      paramsError: error,
+      methodContext,
       requestContext,
+      paramsError: msg,
     });
   }
 
-  const { signature, callData, relayerFee, amount, expiry, side, preparedBlockNumber } = input;
+  const { signature: fulfillSignature, callData, relayerFee, amount, expiry, preparedBlockNumber } = input;
 
-  // Send to tx service
-  logger.info(
-    { method, methodId, requestContext, transactionId: invariantData.transactionId, signature, side },
-    "Sending fulfill tx",
-  );
+  let routerRelayerFeeAsset = AddressZero;
+  let routerRelayerFee = Zero;
 
-  let fulfillChain: number;
-  if (side === "sender") {
-    fulfillChain = invariantData.sendingChainId;
+  if (!config.chainConfig[invariantData.sendingChainId]) {
+    throw new NoChainConfig(invariantData.sendingChainId, { methodContext, requestContext, invariantData, input });
+  }
+
+  let receipt: providers.TransactionReceipt;
+  // router contract needs to have fee added
+  if (isRouterContract) {
+    routerRelayerFeeAsset = utils.getAddress(
+      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+    );
+    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
+      invariantData.sendingChainId,
+      routerRelayerFeeAsset,
+    );
+    routerRelayerFee = await txService.calculateGasFee(
+      invariantData.sendingChainId,
+      routerRelayerFeeAsset,
+      relayerFeeAssetDecimal,
+      "fulfill",
+      isRouterContract,
+      chainData,
+      requestContext,
+    );
+
+    const signature = await signRouterFulfillTransactionPayload(
+      { ...invariantData, amount, expiry, preparedBlockNumber },
+      fulfillSignature,
+      relayerFee,
+      callData,
+      "0x",
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      invariantData.sendingChainId,
+      wallet,
+    );
+
+    receipt = await contractWriter.fulfillRouterContract(
+      invariantData.sendingChainId,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: fulfillSignature,
+        relayerFee,
+        callData,
+      },
+      routerAddress,
+      signature,
+      routerRelayerFeeAsset,
+      routerRelayerFee.toString(),
+      true,
+      requestContext,
+    );
   } else {
-    fulfillChain = invariantData.receivingChainId;
-  }
-
-  if (!config.chainConfig[fulfillChain]) {
-    throw new NoChainConfig(fulfillChain, { method, methodId, requestContext });
-  }
-
-  const relayerFeeLowerBound = config.chainConfig[fulfillChain].safeRelayerFee;
-  if (BigNumber.from(input.relayerFee).lt(relayerFeeLowerBound)) {
-    throw new NotEnoughRelayerFee(fulfillChain, {
-      method,
-      methodId,
+    receipt = await contractWriter.fulfillTransactionManager(
+      invariantData.sendingChainId,
+      {
+        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+        signature: fulfillSignature,
+        relayerFee: relayerFee,
+        callData: callData,
+      },
       requestContext,
-      relayerFee: input.relayerFee,
-      relayerFeeLowerBound: relayerFeeLowerBound,
-    });
+    );
   }
-
-  const receipt = await contractWriter.fulfill(
-    fulfillChain,
-    {
-      txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-      signature: signature,
-      relayerFee: relayerFee,
-      callData: callData,
-    },
-    requestContext,
-  );
-  logger.info({ method, methodId, requestContext, transactionHash: receipt.transactionHash }, "Method complete");
+  logger.info("Method complete", requestContext, methodContext, { transactionHash: receipt.transactionHash });
   return receipt;
 };

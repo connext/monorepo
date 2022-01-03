@@ -2,7 +2,7 @@ import { expect } from "@connext/nxtp-utils/src/expect";
 import { GraphQLClient } from "graphql-request";
 import { createStubInstance, reset, restore, SinonStubbedInstance } from "sinon";
 
-import { getSdk } from "../../src/graphqlsdk";
+import { getSdk } from "../../src/subgraph/graphqlsdk";
 
 describe("graphqlsdk", () => {
   let client: SinonStubbedInstance<GraphQLClient>;
@@ -28,7 +28,7 @@ describe("graphqlsdk", () => {
     const c = sdk.GetTransaction({} as any);
     expect(c).to.be.undefined;
 
-    const d = sdk.GetTransactions({} as any);
+    const d = sdk.GetTransactionsWithUser({} as any);
     expect(d).to.be.undefined;
   });
 });

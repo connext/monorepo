@@ -1,7 +1,7 @@
 import {
   AuctionBid,
   AuctionPayload,
-  createRequestContext,
+  createLoggingContext,
   expect,
   mkAddress,
   mkBytes32,
@@ -17,6 +17,7 @@ let newAuctionStub: SinonStub;
 
 const auctionPayload: AuctionPayload = {
   user: mkAddress("0xa"),
+  initiator: mkAddress("0xa"),
   sendingChainId: 1337,
   sendingAssetId: mkAddress("0xc"),
   amount: "10000",
@@ -33,7 +34,9 @@ const auctionPayload: AuctionPayload = {
 
 const bid: AuctionBid = {
   user: auctionPayload.user,
+  initiator: auctionPayload.user,
   router: mkAddress("0xccc"),
+  initiator: auctionPayload.user,
   sendingChainId: auctionPayload.sendingChainId,
   sendingAssetId: auctionPayload.sendingAssetId,
   amount: auctionPayload.amount,
@@ -57,11 +60,11 @@ const err = new AuctionExpired(800).toJson();
 const inbox = "inbox";
 const from = mkAddress("0xfff");
 
-const requestContext = createRequestContext("auctionRequestBinding");
+const { requestContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
 
-describe("auctionRequestBinding", () => {
+describe("#auctionRequestBinding", () => {
   beforeEach(async () => {
-    newAuctionStub = stub().resolves({ bid, bidSignature });
+    newAuctionStub = stub().resolves({ bid, bidSignature, gasFeeInReceivingToken: "123", metaTxRelayerFee: "456" });
     stub(operations, "getOperations").returns({
       newAuction: newAuctionStub,
     } as any);
@@ -75,8 +78,15 @@ describe("auctionRequestBinding", () => {
   it("should work", async () => {
     await auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext);
 
-    expect(newAuctionStub.calledOnceWithExactly(auctionPayload, requestContext)).to.be.true;
-    expect(messagingMock.publishAuctionResponse.calledOnceWithExactly(from, inbox, { bid, bidSignature })).to.be.true;
+    expect(newAuctionStub).to.be.calledOnceWith(auctionPayload, {
+      ...requestContext,
+      transactionId: auctionPayload.transactionId,
+    });
+    expect(messagingMock.publishAuctionResponse).to.be.calledOnceWith(from, inbox, {
+      bid,
+      bidSignature,
+      gasFeeInReceivingToken: "123",
+    });
   });
 
   it("should not proceed if there is an error", async () => {
@@ -102,6 +112,9 @@ describe("auctionRequestBinding", () => {
     await expect(auctionRequestBinding(from, inbox, auctionPayload, undefined, requestContext)).to.be.rejectedWith(
       "fail",
     );
-    expect(newAuctionStub.calledOnceWithExactly(auctionPayload, requestContext)).to.be.true;
+    expect(newAuctionStub).to.be.calledOnceWith(auctionPayload, {
+      ...requestContext,
+      transactionId: auctionPayload.transactionId,
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { delay } from "@connext/nxtp-utils";
+import { delay, Logger, getChainData, getDecimalsForAsset } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 import pino from "pino";
 
@@ -14,7 +14,8 @@ import { writeStatsToFile } from "../utils/reporting";
  */
 const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const config = getConfig();
-  const log = pino({ level: config.logLevel ?? "info" });
+  const log = pino({ level: "error" });
+  // const amount = utils.parseEther("100").toString();
 
   const durationMs = duration * 60 * 1000;
   // Create manager
@@ -22,15 +23,17 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
     config.chainConfig,
     config.mnemonic,
     numberOfAgents,
-    log,
+    new Logger({ level: config.logLevel ?? "info" }),
     config.natsUrl,
     config.authUrl,
+    config.network,
   );
   log.info({ agents: numberOfAgents }, "Created manager");
 
   // Get transfer config
   const sendingChainId = parseInt(Object.keys(config.chainConfig)[0]);
   const receivingChainId = parseInt(Object.keys(config.chainConfig)[1]);
+  log.info({ sendingChainId, receivingChainId }, "Picked chains");
   const swap = config.swapPools.find((swap) => {
     // Must have sending and receiving chain
     const chains = swap.assets.map((a) => a.chainId);
@@ -43,43 +46,52 @@ const routerCyclical = async (numberOfAgents: number, duration: number) => {
   const { assetId: receivingAssetId } = swap.assets.find((a) => a.chainId === receivingChainId)!;
 
   // Fund agents with tokens on sending + receiving chain
-  await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
+  if (manager) {
+    log.info(`Gifting agents sending chain ${sendingChainId}`);
+    await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
 
-  await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
+    log.info(`Gifting agents receiving chain ${receivingChainId}`);
+    await manager.giftAgentsOnchain(receivingAssetId, receivingChainId);
 
-  // Begin transfers
-  log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
+    // Begin transfers
+    log.warn({ duration, numberOfAgents }, "Beginning cyclical test");
 
-  const startTime = Date.now();
-  const killSwitch = await manager.startCyclicalTransfers({
-    sendingAssetId,
-    sendingChainId,
-    receivingAssetId,
-    receivingChainId,
-    amount: utils.parseEther("0.0000001").toString(),
-  });
+    const provider = config.chainConfig[sendingChainId].provider;
+    const chainData = await getChainData();
+    const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, provider, chainData);
+    const amount = utils.parseUnits(config.network === "mainnet" ? "0.0001" : "10", decimals).toString();
 
-  await new Promise((resolve) => {
-    setTimeout(() => {
-      log.warn({ duration, numberOfAgents, durationMs, startTime, now: Date.now() }, "Activating kill switch");
-      killSwitch();
-      resolve(undefined);
-    }, durationMs);
-  });
+    const startTime = Date.now();
+    const killSwitch = await manager.startCyclicalTransfers({
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
+      amount,
+    });
 
-  // Wait 90s for stragglers
-  await delay(90 * 1000);
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        log.warn({ duration, numberOfAgents, durationMs, startTime, now: Date.now() }, "Activating kill switch");
+        killSwitch();
+        resolve(undefined);
+      }, durationMs);
+    });
 
-  log.warn({ duration, numberOfAgents }, "Test complete, printing summary");
+    // Wait 90s for stragglers
+    await delay(90 * 1000);
 
-  const summary = manager.getTransferSummary();
-  log.error(summary, "Transfer summary");
+    log.warn({ duration, numberOfAgents }, "Test complete, printing summary");
 
-  // Write transfer summary to file
-  writeStatsToFile(`router.cyclical`, summary);
+    const summary = manager.getTransferSummary();
+    log.error(summary, "Transfer summary");
 
-  log.error("Test complete");
-  process.exit(0);
+    // Write transfer summary to file
+    writeStatsToFile(`router.cyclical`, summary);
+
+    log.error("Test complete");
+    process.exit(0);
+  }
 };
 
-routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "10"), parseInt(process.env.DURATION ?? "15"));
+routerCyclical(parseInt(process.env.NUMBER_OF_AGENTS ?? "1"), parseInt(process.env.DURATION ?? "10"));

@@ -33,8 +33,8 @@ Update your `packages/router/config.json` to have a proper local config, i.e.:
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
-        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
+        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
       ]
     }
   ]
@@ -43,15 +43,21 @@ Update your `packages/router/config.json` to have a proper local config, i.e.:
 
 Start the chains and messaging with:
 
-`yarn workspace @connext/nxtp-integration docker:services:up`
+```
+yarn workspace @connext/nxtp-integration docker:services:up
+```
 
 Make sure you have added your router address to the `TEST_ROUTERS` array in `packages/contracts/deploy.ts` (this will ensure the router has liquidity and both the router and the asset are whitelisted), then deploy + setup the contracts:
 
-`bash setup-integration-test.sh`
+```
+bash setup-integration-test.sh
+```
 
 The start the router:
 
-`yarn workspace @connext/nxtp-router dev`.
+```
+yarn workspace @connext/nxtp-router dev
+```
 
 Make sure you put a similarly structured config in your `packages/integration/ops/config/load/config.json` (can use the same mnemonic as router, make sure accounts[0] is funded):
 
@@ -77,13 +83,13 @@ Make sure you put a similarly structured config in your `packages/integration/op
   "logLevel": "info",
   "natsUrl": "nats://localhost:4222",
   "authUrl": "http://localhost:5040",
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
   "swapPools": [
     {
       "name": "TEST",
       "assets": [
-        { "chainId": 1337, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" },
-        { "chainId": 1338, "assetId": "0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da" }
+        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
+        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
       ]
     }
   ]
@@ -92,4 +98,24 @@ Make sure you put a similarly structured config in your `packages/integration/op
 
 Then run the tests using the appropriate script. For example, to run the router concurrency tests, use:
 
-`yarn workspace @connext/nxtp-integration concurrency:router`
+```
+yarn workspace @connext/nxtp-integration concurrency:router
+```
+
+### Running Web3Signer locally and testing integration
+
+Web3Signer is used to securely host private keys for signing transactions. (see: https://docs.web3signer.consensys.net/en/latest/)
+
+A sample key file is provided in ops/config/router/. To create a docker container to host web3signer locally, use:
+
+```
+yarn workspace @connext/nxtp-integration docker:web3signer:up
+```
+
+To run the router with this test integration instance of web3signer, add to the router config:
+
+```
+"web3SignerUrl": "http://0.0.0.0:9000"
+```
+
+Remove the "mnemonic" entry from the config if you have one. Make sure the docker instance is running and web3signer is reachable.

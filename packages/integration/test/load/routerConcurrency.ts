@@ -1,5 +1,6 @@
-import pino from "pino";
 import PriorityQueue from "p-queue";
+import { Logger, getChainData, getDecimalsForAsset } from "@connext/nxtp-utils";
+import { utils } from "ethers";
 
 import { SdkManager } from "../utils/sdkManager";
 import { getConfig } from "../utils/config";
@@ -9,7 +10,7 @@ import { writeStatsToFile } from "../utils/reporting";
 // Time to wait before giving up on tx completion
 const TIMEOUT = 15 * 60 * 1000; // 15m in ms
 // Amount to send in each tx (in wei)
-const AMOUNT_PER_TRANSFER = "100000";
+const AMOUNT_PER_TRANSFER = "10";
 // The max percentage of errors we will accept before exiting the test.
 const ERROR_PERCENTAGE = 0.5;
 
@@ -21,7 +22,7 @@ const ERROR_PERCENTAGE = 0.5;
  */
 const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions: number): Promise<void> => {
   const config = getConfig();
-  const log = pino({ level: config.logLevel ?? "info" });
+  const log = new Logger({ level: config.logLevel ?? "info" });
 
   // Get transfer info from config
   // TODO: randomize?
@@ -47,7 +48,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     config.natsUrl,
     config.authUrl,
   );
-  log.warn({ agents: numberTransactions + 1 }, "Created manager");
+  log.warn("Created manager", undefined, undefined, { agents: numberTransactions + 1 });
 
   // Update with token
   await manager.giftAgentsOnchain(sendingAssetId, sendingChainId);
@@ -55,9 +56,14 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
   let concurrency = 0;
   const stats = [];
 
+  const provider = config.chainConfig[sendingChainId].provider;
+  const chainData = await getChainData();
+  const decimals = await getDecimalsForAsset(sendingAssetId, sendingChainId, provider, chainData);
+  const amountToSend = utils.parseUnits(AMOUNT_PER_TRANSFER, decimals);
+
   for (const _ of Array(maxConcurrency).fill(0)) {
     concurrency += 1;
-    log.warn({ concurrency }, "Beginning concurrency test");
+    log.warn("Beginning concurrency test", undefined, undefined, { concurrency });
 
     // Create a queue to hold all payments with the given
     // concurrency
@@ -74,12 +80,8 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
       .map((_) => {
         const task = async () => {
           const agent = manager.getRandomAgent();
-          const balance = await getOnchainBalance(
-            sendingAssetId,
-            agent.address,
-            config.chainConfig[sendingChainId].provider,
-          );
-          if (balance.lt(AMOUNT_PER_TRANSFER)) {
+          const balance = await getOnchainBalance(sendingAssetId, agent.address, provider);
+          if (balance.lt(amountToSend)) {
             throw new Error(`Agent has insufficient funds of ${sendingAssetId}`);
           }
           // TODO: has to work with tokens!
@@ -89,7 +91,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
               sendingChainId,
               receivingAssetId,
               receivingChainId,
-              amount: AMOUNT_PER_TRANSFER,
+              amount: amountToSend.toString(),
             },
             TIMEOUT,
             agent,
@@ -101,7 +103,7 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     const results = await Promise.all(tasks.map((task) => queue.add(task)));
 
     // TODO: process loop stats
-    log.warn({}, "Processing loop stats");
+    log.warn("Processing loop stats");
     const errors = results.map((t) => t.error).filter((e) => !!e);
     const executionTimes = results.map((t) => t.end! - t.start).sort((a, b) => a - b);
     const executionTimesMinutes = executionTimes.map((t) => t / 60_000);
@@ -118,17 +120,20 @@ const routerConcurrencyTest = async (maxConcurrency: number, numberTransactions:
     };
     stats.push(loopStats);
     if (errors.length / results.length >= ERROR_PERCENTAGE) {
-      log.error({ ...loopStats, errorThreshold: ERROR_PERCENTAGE }, "Passed failing threshold, exiting increases");
+      log.warn("Passed failing threshold, exiting increases", undefined, undefined, {
+        ...loopStats,
+        errorThreshold: ERROR_PERCENTAGE,
+      });
       break;
     }
     const msg = concurrency === maxConcurrency ? "Completed tests" : "Increasing concurrency";
-    log.warn(loopStats, msg);
+    log.warn(msg, undefined, undefined, loopStats);
   }
 
   /// MARK - SAVE RESULTS.
   writeStatsToFile(`router.concurrency`, stats);
 
-  log.error({ maxConcurrency, concurrency }, "Test complete");
+  log.warn("Test complete", undefined, undefined, { maxConcurrency, concurrency });
   process.exit(0);
 };
 

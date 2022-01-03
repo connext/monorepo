@@ -1,6 +1,14 @@
-import { InvariantTransactionData, mkBytes32, RequestContext, txReceiptMock, expect, delay } from "@connext/nxtp-utils";
-import { createStubInstance, reset, restore, SinonStub, stub } from "sinon";
-import { providers } from "ethers/lib/ethers";
+import {
+  InvariantTransactionData,
+  mkBytes32,
+  txReceiptMock,
+  expect,
+  delay,
+  getRandomBytes32,
+  RequestContextWithTransactionId,
+} from "@connext/nxtp-utils";
+import { reset, restore, SinonStub, stub } from "sinon";
+import { providers } from "ethers";
 
 import {
   ActiveTransaction,
@@ -17,22 +25,34 @@ import { ContractReaderNotAvailableForChain, ExpiryInvalid } from "../../../src/
 import { activeTransactionFulfillMock, activeTransactionPrepareMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
 
-let prepareMock: SinonStub<
-  [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContext],
-  Promise<providers.TransactionReceipt>
->;
-let fulfillMock: SinonStub<
-  [invariantData: InvariantTransactionData, input: FulfillInput, requestContext: RequestContext],
-  Promise<providers.TransactionReceipt>
->;
-
-let cancelMock: SinonStub<
-  [invariantData: InvariantTransactionData, input: CancelInput, requestContext: RequestContext],
-  Promise<providers.TransactionReceipt>
->;
+let context: RequestContextWithTransactionId = {
+  id: "",
+  origin: "",
+  transactionId: "",
+};
 
 describe("Contract Reader Binding", () => {
+  beforeEach(() => {
+    context.id = getRandomBytes32();
+    context.origin = "ChainServiceTest";
+    context.transactionId = getRandomBytes32();
+  });
+
   describe("#handleSingle", () => {
+    let prepareMock: SinonStub<
+      [invariantData: InvariantTransactionData, input: PrepareInput, requestContext: RequestContextWithTransactionId],
+      Promise<providers.TransactionReceipt>
+    >;
+
+    let fulfillMock: SinonStub<
+      [invariantData: InvariantTransactionData, input: FulfillInput, requestContext: RequestContextWithTransactionId],
+      Promise<providers.TransactionReceipt>
+    >;
+
+    let cancelMock: SinonStub<
+      [invariantData: InvariantTransactionData, input: CancelInput, requestContext: RequestContextWithTransactionId],
+      Promise<providers.TransactionReceipt>
+    >;
     beforeEach(() => {
       prepareMock = stub(PrepareFns, "prepare").resolves(txReceiptMock);
       fulfillMock = stub(FulfillFns, "fulfill").resolves(txReceiptMock);
@@ -47,12 +67,14 @@ describe("Contract Reader Binding", () => {
           invariant: { ...activeTransactionPrepareMock.crosschainTx.invariant, sendingChainId: 1234 },
         },
       };
-      await expect(binding.handleSingle(prepare)).to.eventually.be.rejectedWith(ContractReaderNotAvailableForChain);
+      await expect(binding.handleSingle(prepare, context)).to.eventually.be.rejectedWith(
+        ContractReaderNotAvailableForChain,
+      );
     });
 
     it("should handle SenderPrepared", async () => {
       const prepare: ActiveTransaction<"SenderPrepared"> = activeTransactionPrepareMock;
-      await binding.handleSingle(prepare);
+      await binding.handleSingle(prepare, context);
 
       // prepare receiver
       expect(prepareMock).to.be.calledOnceWith(prepare.crosschainTx.invariant, {
@@ -67,7 +89,7 @@ describe("Contract Reader Binding", () => {
     it("should handle SenderPrepared error not cancellable", async () => {
       prepareMock.rejects(new Error("foo"));
       const prepare: ActiveTransaction<"SenderPrepared"> = activeTransactionPrepareMock;
-      await binding.handleSingle(prepare);
+      await binding.handleSingle(prepare, context);
 
       expect(prepareMock).to.be.calledOnceWith(prepare.crosschainTx.invariant, {
         senderExpiry: prepare.crosschainTx.sending.expiry,
@@ -83,7 +105,7 @@ describe("Contract Reader Binding", () => {
     it("should handle SenderPrepared error cancellable", async () => {
       prepareMock.rejects(new ExpiryInvalid(1234));
       const prepare: ActiveTransaction<"SenderPrepared"> = activeTransactionPrepareMock;
-      await binding.handleSingle(prepare);
+      await binding.handleSingle(prepare, context);
 
       expect(prepareMock).to.be.calledOnceWith(prepare.crosschainTx.invariant, {
         senderExpiry: prepare.crosschainTx.sending.expiry,
@@ -97,6 +119,7 @@ describe("Contract Reader Binding", () => {
         amount: prepare.crosschainTx.sending.amount,
         expiry: prepare.crosschainTx.sending.expiry,
         preparedBlockNumber: prepare.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: prepare.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -105,7 +128,7 @@ describe("Contract Reader Binding", () => {
       prepareMock.rejects(new ExpiryInvalid(1234));
       cancelMock.rejects(new Error("foo"));
       const prepare: ActiveTransaction<"SenderPrepared"> = activeTransactionPrepareMock;
-      await binding.handleSingle(prepare);
+      await binding.handleSingle(prepare, context);
 
       expect(prepareMock).to.be.calledOnceWith(prepare.crosschainTx.invariant, {
         senderExpiry: prepare.crosschainTx.sending.expiry,
@@ -119,6 +142,7 @@ describe("Contract Reader Binding", () => {
         amount: prepare.crosschainTx.sending.amount,
         expiry: prepare.crosschainTx.sending.expiry,
         preparedBlockNumber: prepare.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: prepare.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -129,7 +153,7 @@ describe("Contract Reader Binding", () => {
       const fulfill: ActiveTransaction<"ReceiverFulfilled"> = activeTransactionFulfillMock;
       const badTx = { ...txReceiptMock, confirmations: 0 };
       txServiceMock.getTransactionReceipt.resolves(badTx);
-      await binding.handleSingle(fulfill);
+      await binding.handleSingle(fulfill, context);
       expect(fulfillMock).callCount(0);
     });
 
@@ -141,12 +165,14 @@ describe("Contract Reader Binding", () => {
           invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, receivingChainId: 1234 },
         },
       };
-      await expect(binding.handleSingle(prepare)).to.eventually.be.rejectedWith(ContractReaderNotAvailableForChain);
+      await expect(binding.handleSingle(prepare, context)).to.eventually.be.rejectedWith(
+        ContractReaderNotAvailableForChain,
+      );
     });
 
     it("should handle ReceiverFulfilled", async () => {
       const fulfill: ActiveTransaction<"ReceiverFulfilled"> = activeTransactionFulfillMock;
-      await binding.handleSingle(fulfill);
+      await binding.handleSingle(fulfill, context);
 
       expect(fulfillMock).to.be.calledOnceWith(fulfill.crosschainTx.invariant, {
         amount: fulfill.crosschainTx.sending.amount,
@@ -155,25 +181,55 @@ describe("Contract Reader Binding", () => {
         signature: fulfill.payload.signature,
         callData: fulfill.payload.callData,
         relayerFee: fulfill.payload.relayerFee,
-        side: "sender",
       });
     });
 
     it("should handle ReceiverExpired", async () => {
       const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
         ...activeTransactionFulfillMock,
-        payload: undefined,
+        payload: {
+          hashes: activeTransactionFulfillMock.payload.hashes,
+        },
         status: CrosschainTransactionStatus.ReceiverExpired,
       };
-      await binding.handleSingle(receiverExpired);
+      await binding.handleSingle(receiverExpired, context);
 
       // receiverExpired
       expect(cancelMock).to.be.calledOnceWith(receiverExpired.crosschainTx.invariant, {
         amount: receiverExpired.crosschainTx.receiving.amount,
         expiry: receiverExpired.crosschainTx.receiving.expiry,
         preparedBlockNumber: receiverExpired.crosschainTx.receiving.preparedBlockNumber,
+        preparedTransactionHash: receiverExpired.payload.hashes.receiving.prepareHash,
         side: "receiver",
       });
+    });
+
+    it("should handle already cancelled in ReceiverExpired", async () => {
+      const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
+        ...activeTransactionFulfillMock,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
+        status: CrosschainTransactionStatus.ReceiverExpired,
+      };
+      cancelMock.rejects(new Error("#C:019"));
+      await binding.handleSingle(receiverExpired, context);
+    });
+
+    it("should handle error in ReceiverExpired", async () => {
+      const receiverExpired: ActiveTransaction<"ReceiverExpired"> = {
+        ...activeTransactionFulfillMock,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
+        status: CrosschainTransactionStatus.ReceiverExpired,
+      };
+      cancelMock.rejects(new Error("fail"));
+      await binding.handleSingle(receiverExpired, context);
     });
 
     it("should handle SenderExpired", async () => {
@@ -183,17 +239,58 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.SenderExpired,
       };
-      await binding.handleSingle(senderExpiredNoReceiver);
+      await binding.handleSingle(senderExpiredNoReceiver, context);
 
       expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
+    });
+
+    it("should handle already cancelled in SenderExpired", async () => {
+      const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
+        status: CrosschainTransactionStatus.SenderExpired,
+      };
+      cancelMock.rejects(new Error("#C:019"));
+      await binding.handleSingle(senderExpiredNoReceiver, context);
+    });
+
+    it("should handle error in SenderExpired", async () => {
+      const senderExpiredNoReceiver: ActiveTransaction<"SenderExpired"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
+        status: CrosschainTransactionStatus.SenderExpired,
+      };
+      cancelMock.rejects(new Error("fail"));
+      await binding.handleSingle(senderExpiredNoReceiver, context);
     });
 
     it("should handle ReceiverCancelled", async () => {
@@ -203,15 +300,20 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      await binding.handleSingle(senderExpiredNoReceiver);
+      await binding.handleSingle(senderExpiredNoReceiver, context);
 
       expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -224,15 +326,20 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      await binding.handleSingle(senderExpiredNoReceiver);
+      await binding.handleSingle(senderExpiredNoReceiver, context);
 
       expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -247,15 +354,20 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      await binding.handleSingle(senderExpiredNoReceiver);
+      await binding.handleSingle(senderExpiredNoReceiver, context);
 
       expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -270,15 +382,20 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      await binding.handleSingle(senderExpiredNoReceiver);
+      await binding.handleSingle(senderExpiredNoReceiver, context);
 
       expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
         amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
         expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
         preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
@@ -292,16 +409,21 @@ describe("Contract Reader Binding", () => {
           ...activeTransactionFulfillMock.crosschainTx,
           receiving: undefined,
         },
-        payload: undefined,
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
         status: CrosschainTransactionStatus.ReceiverNotConfigured,
       };
 
-      await binding.handleSingle(receiverNotConfigured);
+      await binding.handleSingle(receiverNotConfigured, context);
 
       expect(cancelMock).to.be.calledOnceWith(receiverNotConfigured.crosschainTx.invariant, {
         amount: receiverNotConfigured.crosschainTx.sending.amount,
         expiry: receiverNotConfigured.crosschainTx.sending.expiry,
         preparedBlockNumber: receiverNotConfigured.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: receiverNotConfigured.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
@@ -310,8 +432,20 @@ describe("Contract Reader Binding", () => {
       const badTx = { ...txReceiptMock, confirmations: 0 };
       txServiceMock.getTransactionReceipt.resolves(badTx);
       const prepare: ActiveTransaction<"SenderPrepared"> = { ...activeTransactionPrepareMock };
-      await binding.handleSingle(prepare);
+      await binding.handleSingle(prepare, context);
       expect(prepareMock).callCount(0);
+    });
+
+    it("should handle sender already fulfilled", async () => {
+      const fulfill: ActiveTransaction<"ReceiverFulfilled"> = activeTransactionFulfillMock;
+      fulfillMock.rejects(new Error("#F:019"));
+      await binding.handleSingle(fulfill, context);
+    });
+
+    it("should handle sender fulfill error", async () => {
+      const fulfill: ActiveTransaction<"ReceiverFulfilled"> = activeTransactionFulfillMock;
+      fulfillMock.rejects(new Error("fail"));
+      await binding.handleSingle(fulfill, context);
     });
   });
 
@@ -326,10 +460,14 @@ describe("Contract Reader Binding", () => {
           invariant: { ...activeTransactionFulfillMock.crosschainTx.invariant, transactionId: mkBytes32("0xeee") },
         },
       };
-      binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, prepare.status);
+      binding.handlingTracker.set(prepare.crosschainTx.invariant.transactionId, {
+        status: prepare.status,
+        chainId: prepare.crosschainTx.invariant.receivingChainId,
+        block: txReceiptMock.blockNumber,
+      });
       await binding.handleActiveTransactions([prepare, fulfill]);
       expect(handleSingleStub).callCount(1);
-      expect(handleSingleStub).to.be.calledOnceWithExactly(fulfill);
+      expect(handleSingleStub).to.be.calledOnceWith(fulfill);
       binding.handlingTracker.clear();
     });
   });
@@ -352,12 +490,19 @@ describe("Contract Reader Binding", () => {
       reset();
     });
 
+    it("should error if contract reader active transactions fails", async () => {
+      (contractReaderMock.getActiveTransactions as SinonStub).throws(new Error("fails"));
+      await binding.bindContractReader();
+      await delay(interval + 10);
+      expect((contractReaderMock.getActiveTransactions as SinonStub).callCount).to.be.eq(1);
+      expect(handleActiveTransactionsStub.callCount).to.be.eq(0);
+    });
+
     it("should work", async () => {
       await binding.bindContractReader();
       await delay(interval + 10);
       expect((contractReaderMock.getActiveTransactions as SinonStub).callCount).to.be.eq(1);
       expect(handleActiveTransactionsStub.callCount).to.be.eq(1);
-      // done();
     });
   });
 });

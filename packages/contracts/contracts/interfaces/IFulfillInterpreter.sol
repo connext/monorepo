@@ -11,7 +11,8 @@ interface IFulfillInterpreter {
     uint256 amount,
     bytes callData,
     bytes returnData,
-    bool success
+    bool success,
+    bool isContract
   );
 
   function getTransactionManager() external returns (address);
@@ -23,5 +24,5 @@ interface IFulfillInterpreter {
     address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
-  ) external payable returns (bool success, bytes memory returnData);
+  ) external payable returns (bool success, bool isContract, bytes memory returnData);
 }

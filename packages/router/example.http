@@ -1,10 +1,10 @@
 @routerUrl = http://localhost:8080
 
 @chainId = 4
-@assetId = 0x0000000000000000000000000000000000000000
+@assetId = 0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198
 
 # 1 ETH
-@amount = 1000000000000000000
+@amount = 1
 
 ### CONFIG
 GET {{routerUrl}}/config
@@ -14,7 +14,50 @@ POST {{routerUrl}}/remove-liquidity
 Content-Type: application/json
 
 {
-  "chainId": 5,
+  "adminToken": "blahblah",
+  "chainId": "{{chainId}}",
   "assetId": "{{assetId}}",
-  "amount": "{{amount}}" 
+  "amount": "{{amount}}",
+  "recipientAddress": "0x5A9e792143bf2708b4765C144451dCa54f559a19"
+}
+
+### PROCESS ACTIVE TXS
+POST {{routerUrl}}/process-active-transactions
+Content-Type: application/json
+
+{
+  "adminToken": "blahblah"
+}
+
+### CANCEL SENDER
+POST {{routerUrl}}/cancel-sender
+Content-Type: application/json
+
+{
+  "adminToken": "blahblah",
+  "transactionId": "0x76ed04081dc333c51575bf785389e46d8e7d85563b28b16da78e2597aada4791",
+  "senderChainId": 137,
+  "user": "0xf4cf09a03f2d9e3b86105d043dd7c45de9d9753c"
+}
+
+### MIGRATE LIQUIDITY
+POST {{routerUrl}}/migrate-liquidity
+Content-Type: application/json
+
+{
+  "adminToken": "blahblah",
+  "chainId": "{{chainId}}",
+  "routerAddress": "0xaF168Da973a5758A3902DA21cf161FCd420899E9"
+}
+
+### ADD LIQUIDITY FOR
+POST {{routerUrl}}/add-liquidity-for
+Content-Type: application/json
+
+{
+  "adminToken": "",
+  "chainId": "{{chainId}}",
+  "routerAddress": "0xaF168Da973a5758A3902DA21cf161FCd420899E9",
+  "assetId": "{{assetId}}",
+  "amount": "{{amount}}"
 }

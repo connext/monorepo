@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.0.31",
+  "version": "0.1.7",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,8 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen": "graphql-codegen"
+    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
+    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
   },
   "nodemonConfig": {
     "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
@@ -46,8 +47,9 @@
     "adv": "^0.1.5",
     "ajv": "^8.6.2",
     "ajv-formats": "^2.1.1",
+    "axios": "^0.24.0",
     "dotenv": "^10.0.0",
-    "ethers": "^5.4.4",
+    "ethers": "^5.4.6",
     "evt": "^1.10.1",
     "fastify": "^3.20.2",
     "graphql": "^15.5.1",
@@ -55,7 +57,9 @@
     "graphql-tag": "^2.12.5",
     "ioredis": "^4.27.8",
     "ioredis-mock": "^5.6.0",
-    "pino": "^6.13.0"
+    "pino": "^6.13.0",
+    "prom-client": "13.2.0",
+    "secp256k1": "^4.0.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.0.1",
@@ -68,6 +72,7 @@
     "@types/ioredis": "^4",
     "@types/mocha": "^9.0.0",
     "@types/pino": "^6.3.11",
+    "@types/secp256k1": "^4",
     "@types/sinon": "^10.0.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",

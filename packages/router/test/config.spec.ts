@@ -1,24 +1,109 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
-import { stub, restore, reset } from "sinon";
-import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
-import * as ConfigHelperFns from "../src/config";
+import Sinon, { stub, restore, reset, SinonStub } from "sinon";
+import {
+  getEnvConfig,
+  getConfig,
+  getDeployedTransactionManagerContract,
+  getDeployedPriceOracleContract,
+  getDeployedMulticallContract,
+  getDeployedChainIdsForGasFee,
+} from "../src/config";
+import * as ConfigFns from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
 describe("Config", () => {
+  let testChainId = 1336;
+  let testAddress = "0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  let contractDeployment: any;
+
+  beforeEach(() => {
+    contractDeployment = {
+      [String(testChainId)]: {
+        test: {
+          name: "test",
+          chainId: testChainId,
+          contracts: {
+            TransactionManager: {
+              address: testAddress,
+              abi: ["fakeAbi()"],
+            },
+            ConnextPriceOracle: {
+              address: testAddress,
+              abi: ["fakeAbi()"],
+            },
+            Multicall: {
+              address: testAddress,
+              abi: ["fakeAbi()"],
+            },
+          },
+        },
+      },
+    };
+  });
+
   afterEach(() => {
     restore();
     reset();
   });
 
   describe("#getDeployedTransactionManagerContract", () => {
+    beforeEach(() => {
+      Sinon.stub(ConfigFns, "getContractDeployments").returns(contractDeployment);
+    });
+
     it("should undefined if no transaction manager", () => {
       const res = getDeployedTransactionManagerContract(0);
       expect(res).to.be.undefined;
     });
 
     it("happy func", () => {
-      const res = getDeployedTransactionManagerContract(4);
+      const res = getDeployedTransactionManagerContract(testChainId);
       expect(res).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedPriceOracleContract", () => {
+    beforeEach(() => {
+      Sinon.stub(ConfigFns, "getContractDeployments").returns(contractDeployment);
+    });
+
+    it("should undefined if no price oracle", () => {
+      const res = getDeployedPriceOracleContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedPriceOracleContract(testChainId);
+      expect(res.address).to.be.ok;
+      expect(res.abi).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedChainIdsForGasFee", () => {
+    beforeEach(() => {
+      Sinon.stub(ConfigFns, "getContractDeployments").returns(contractDeployment);
+    });
+
+    it("happy func", () => {
+      const res = getDeployedChainIdsForGasFee();
+      expect(res.length).to.be.ok;
+    });
+  });
+
+  describe("#getDeployedMulticallContract", () => {
+    beforeEach(() => {
+      Sinon.stub(ConfigFns, "getContractDeployments").returns(contractDeployment);
+    });
+
+    it("should undefined if no price oracle", () => {
+      const res = getDeployedMulticallContract(0);
+      expect(res).to.be.undefined;
+    });
+
+    it("happy func", () => {
+      const res = getDeployedMulticallContract(testChainId);
+      expect(res.address).to.be.ok;
+      expect(res.abi).to.be.ok;
     });
   });
 
@@ -31,16 +116,7 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify(configMock),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
+      expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
 
     it("should error if transaction manager address is missing", () => {
@@ -56,17 +132,7 @@ describe("Config", () => {
         }),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      console.log(error);
-      expect(error.message).to.include("No transactionManager address");
+      expect(() => getEnvConfig(chainDataMock)).throw("No transactionManager address");
     });
 
     it("should error if validation fails", () => {
@@ -82,17 +148,7 @@ describe("Config", () => {
         }),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      console.log(error);
-      expect(error.message).to.include("must have required property");
+      expect(() => getEnvConfig(chainDataMock)).throw("must have required property");
     });
 
     it("should read config from NXTP Config with local network values overridden", () => {
@@ -120,16 +176,7 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify(configMock),
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
+      expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
 
     it("should getEnvConfig", () => {
@@ -144,16 +191,7 @@ describe("Config", () => {
         NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
-      let res;
-      let error;
-
-      try {
-        res = getEnvConfig(chainDataMock);
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).to.be.undefined;
+      expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
   });
 
@@ -187,24 +225,6 @@ describe("Config", () => {
         NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
-      const env = getEnvConfig(chainDataMock);
-      const config = await getConfig();
-      expect(config).to.be.deep.eq(env);
-    });
-
-    it("should work if chainDataToMap errors", async () => {
-      stub(process, "env").value({
-        ...process.env,
-        NXTP_AUTH_URL: configMock.authUrl,
-        NXTP_NATS_URL: configMock.natsUrl,
-        NXTP_MNEMONIC: configMock.mnemonic,
-        NXTP_ADMIN_TOKEN: configMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chainConfig),
-        NXTP_SWAP_POOLS: JSON.stringify(configMock.swapPools),
-        NXTP_LOG_LEVEL: configMock.logLevel,
-      });
-
-      stub(ConfigHelperFns, "chainDataToMap").rejects(new Error("fails"));
       const env = getEnvConfig(chainDataMock);
       const config = await getConfig();
       expect(config).to.be.deep.eq(env);

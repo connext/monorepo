@@ -3,11 +3,12 @@ import {
   AuctionBid,
   AuctionPayloadSchema,
   AuctionPayload,
-  getUuid,
   RequestContext,
   signAuctionBid,
+  createLoggingContext,
+  AuctionResponse,
 } from "@connext/nxtp-utils";
-import { getAddress } from "ethers/lib/utils";
+import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
@@ -19,30 +20,41 @@ import {
   ZeroValueBid,
   AuctionExpired,
   ParamsInvalid,
+  NotEnoughAmount,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
+import { receivedAuction } from "../../lib/entities/metrics";
+import { AUCTION_REQUEST_MAP } from "../helpers/auction";
+import { getAssetName } from "../helpers/metrics";
 
 export const newAuction = async (
   data: AuctionPayload,
-  requestContext: RequestContext,
-): Promise<{ bid: AuctionBid; bidSignature?: string }> => {
-  const method = "newAuction";
-  const methodId = getUuid();
+  _requestContext: RequestContext<string>,
+): Promise<AuctionResponse> => {
+  const { requestContext, methodContext } = createLoggingContext(newAuction.name, _requestContext);
+  receivedAuction.inc({
+    sendingAssetId: data.sendingAssetId,
+    receivingAssetId: data.receivingAssetId,
+    sendingChainId: data.receivingChainId,
+    receivingChainId: data.receivingChainId,
+    sendingAssetName: getAssetName(data.sendingAssetId, data.sendingChainId),
+    receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
+  });
 
-  const { logger, config, contractReader, txService, wallet, cache } = getContext();
-  logger.info({ method, methodId, requestContext, data }, "Method start");
+  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, isRouterContract, cache } =
+    getContext();
+  logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
   const validateInput = ajv.compile(AuctionPayloadSchema);
   const validInput = validateInput(data);
   if (!validInput) {
     const error = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    logger.error({ method, methodId, error: validateInput.errors, data }, "Invalid params");
     throw new ParamsInvalid({
-      method,
-      methodId,
+      methodContext,
       paramsError: error,
+      data,
       requestContext,
     });
   }
@@ -61,6 +73,7 @@ export const newAuction = async (
     transactionId,
     receivingAddress,
     dryRun,
+    initiator,
   } = data;
 
   // TODO: Implement rate limit per user (approximately 1/5s ?).
@@ -74,10 +87,9 @@ export const newAuction = async (
       // Throwing empty error as the ZeroValueBid error below will override it.
       throw new Error("Amount was zero.");
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new ZeroValueBid({
-      methodId,
-      method,
+      methodContext,
       requestContext,
       amount,
       receivingAssetId,
@@ -86,12 +98,38 @@ export const newAuction = async (
     });
   }
 
-  // Validate expiry is valid (greater than current time plus a buffer).
+  const allowedSwap = config.swapPools.find(
+    (pool) =>
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
+      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
+  );
+  if (!allowedSwap) {
+    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
+      methodContext,
+      requestContext,
+    });
+  }
+
   const currentTime = await getNtpTimeSeconds();
+
+  // Validate request limit
+  const lastAttemptTime = AUCTION_REQUEST_MAP.get(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+  ) as number;
+  if (lastAttemptTime && lastAttemptTime + config.requestLimit > currentTime * 1000) {
+    throw new AuctionRateExceeded(currentTime - lastAttemptTime, {
+      methodContext,
+      requestContext,
+      lastAttemptTime,
+      currentTime,
+      minimalPeriod: config.requestLimit,
+    });
+  }
+
+  // Validate expiry is valid (greater than current time plus a buffer).
   if (expiry <= currentTime + AUCTION_EXPIRY_BUFFER) {
     throw new AuctionExpired(expiry, {
-      methodId,
-      method,
+      methodContext,
       requestContext,
       expiry,
       currentTime,
@@ -102,11 +140,6 @@ export const newAuction = async (
   // validate that assets/chains are supported and there is enough liquidity
   // and gas on both sender and receiver side.
   // TODO: will need to track this offchain
-  const [inputDecimals, outputDecimals] = await Promise.all([
-    txService.getDecimalsForAsset(sendingChainId, sendingAssetId),
-    txService.getDecimalsForAsset(receivingChainId, receivingAssetId),
-  ]);
-  logger.info({ method, methodId, inputDecimals, outputDecimals }, "Got decimals");
 
   // validate config
   const sendingConfig = config.chainConfig[sendingChainId];
@@ -118,8 +151,7 @@ export const newAuction = async (
     receivingConfig.providers.length === 0
   ) {
     throw new ProvidersNotAvailable([sendingChainId, receivingChainId], {
-      methodId,
-      method,
+      methodContext,
       requestContext,
       sendingChainId,
       receivingChainId,
@@ -127,69 +159,92 @@ export const newAuction = async (
   }
 
   // Make sure subgraphs are synced
-  const receivingSyncRecord = contractReader.getSyncRecord(receivingChainId);
-  if (!receivingSyncRecord.synced) {
-    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecord, {
-      methodId,
-      method,
+  const receivingSyncRecords = await contractReader.getSyncRecords(receivingChainId, requestContext);
+  if (!receivingSyncRecords.some((record) => record.synced)) {
+    throw new SubgraphNotSynced(receivingChainId, receivingSyncRecords, {
+      methodContext,
       requestContext,
       transactionId,
     });
   }
 
-  const sendingSyncRecord = contractReader.getSyncRecord(sendingChainId);
-  if (!sendingSyncRecord.synced) {
-    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecord, {
-      methodId,
-      method,
+  const sendingSyncRecords = await contractReader.getSyncRecords(sendingChainId, requestContext);
+  if (!sendingSyncRecords.some((record) => record.synced)) {
+    throw new SubgraphNotSynced(sendingChainId, sendingSyncRecords, {
+      methodContext,
       requestContext,
       transactionId,
     });
   }
 
-  const allowedSwap = config.swapPools.find(
-    (pool) =>
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
-      pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
-  );
-  if (!allowedSwap) {
-    throw new SwapInvalid(sendingChainId, sendingAssetId, receivingChainId, receivingAssetId, {
-      methodId,
-      method,
-      requestContext,
-    });
+  let inputDecimals = chainData.get(sendingChainId.toString())?.assetId[sendingAssetId]?.decimals;
+  if (!inputDecimals) {
+    inputDecimals = await txService.getDecimalsForAsset(sendingChainId, sendingAssetId);
   }
+
+  let outputDecimals = chainData.get(receivingChainId.toString())?.assetId[receivingAssetId]?.decimals;
+  if (!outputDecimals) {
+    outputDecimals = await txService.getDecimalsForAsset(receivingChainId, receivingAssetId);
+  }
+  logger.debug("Got decimals", requestContext, methodContext, { inputDecimals, outputDecimals });
 
   // getting the swap rate from the receiver side config
-  const amountReceived = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+  let { receivingAmount: amountReceived } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
+
+  // (TODO in what other scenarios would auction fail here? We should make sure
+  // that router does not bid unless it is *sure* it's doing ok)
+  // If you can support the transfer:
+  // Next, prepare bid
+  // Get fee rate
+  // estimate gas for contract
+  // - TODO: Get price from AMM
+  const amountReceivedInBigNum = BigNumber.from(amountReceived);
+  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
+    sendingChainId,
+    sendingAssetId,
+    receivingChainId,
+    receivingAssetId,
+    outputDecimals,
+    chainData,
+    requestContext,
+  );
+
+  logger.debug("Got gas fee in receiving token", requestContext, methodContext, {
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  });
+
+  if (amountReceivedInBigNum.lt(gasFeeInReceivingToken)) {
+    throw new NotEnoughAmount({
+      methodContext,
+      requestContext,
+      amount,
+      amountReceived: amountReceived,
+      gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+    });
+  }
+
+  amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
   let availableLiquidity = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
-  logger.info(
-    { method, methodId, requestContext, balance: availableLiquidity.toString() },
-    "Got available liquidity from contract reader",
-  );
+  logger.info("Got available liquidity from contract reader", requestContext, methodContext, {
+    balance: availableLiquidity.toString(),
+  });
 
   // get cached outstanding amount
   const outstandingLiquidity = await cache.getOutstandingLiquidity({
     assetId: receivingAssetId,
     chainId: receivingChainId,
   });
-  logger.info(
-    { method, methodId, requestContext, balance: outstandingLiquidity.toString() },
-    "Got available liquidity from contract reader",
-  );
+  logger.info("Got available liquidity from contract reader", requestContext, methodContext, {
+    balance: outstandingLiquidity.toString(),
+  });
 
   availableLiquidity = availableLiquidity.sub(outstandingLiquidity);
 
   if (availableLiquidity.lt(amountReceived)) {
-    throw new NotEnoughLiquidity(receivingChainId, {
-      methodId,
-      method,
+    throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, availableLiquidity.toString(), amountReceived, {
+      methodContext,
       requestContext,
-      availableLiquidity: availableLiquidity.toString(),
-      amountReceived,
-      receivingAssetId,
-      receivingChainId,
     });
   }
 
@@ -202,33 +257,52 @@ export const newAuction = async (
     transactionId,
   });
 
-  const [senderBalance, receiverBalance] = await Promise.all([
-    txService.getBalance(sendingChainId, wallet.address),
-    txService.getBalance(receivingChainId, wallet.address),
-  ]);
-  logger.info({ method, methodId }, "Got balances");
-  if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
-    throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
-      methodId,
-      method,
+  const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
+  logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
+  if (balance.lt(amountReceived)) {
+    throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
+      methodContext,
       requestContext,
     });
   }
-  logger.info({ method, methodId, requestContext }, "Auction validation complete, generating bid");
-  // (TODO in what other scenarios would auction fail here? We should make sure
-  // that router does not bid unless it is *sure* it's doing ok)
-  // If you can support the transfer:
-  // Next, prepare bid
-  // - TODO: Get price from AMM
-  // - TODO: Get fee rate
-  // estimate gas for contract
-  // amountReceived = amountReceived.sub(gasFee)
+
+  // No gasfees status check required for routerContractAddress
+  if (!isRouterContract) {
+    const [senderBalance, receiverBalance] = await Promise.all([
+      txService.getBalance(sendingChainId, routerAddress),
+      txService.getBalance(receivingChainId, routerAddress),
+    ]);
+    logger.debug("Got balances", requestContext, methodContext, {
+      senderBalance: senderBalance.toString(),
+      receiverBalance: receiverBalance.toString(),
+    });
+
+    // Log if gas is low, but above min
+    const LOW_GAS = parseEther("0.1");
+    if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
+      logger.warn("Router has low gas", requestContext, methodContext, {
+        sendingChainId,
+        receivingChainId,
+        senderBalance: formatEther(senderBalance),
+        receiverBalance: formatEther(receiverBalance),
+      });
+    }
+
+    if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
+      throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
+        methodContext,
+        requestContext,
+      });
+    }
+  }
+  logger.info("Auction validation complete, generating bid", requestContext, methodContext);
 
   // - Create bid object
 
   const bid: AuctionBid = {
     user,
-    router: wallet.address,
+    router: routerAddress,
+    initiator,
     sendingChainId,
     sendingAssetId,
     amount,
@@ -245,9 +319,18 @@ export const newAuction = async (
     receivingChainTxManagerAddress: receivingConfig.transactionManagerAddress,
     bidExpiry,
   };
-  logger.info({ methodId, method, requestContext, bid }, "Generated bid");
+  logger.info("Generated bid", requestContext, methodContext, { bid });
 
   const bidSignature = await signAuctionBid(bid, wallet);
-  logger.info({ methodId, method, requestContext, bidSignature }, "Method complete");
-  return { bid, bidSignature: dryRun ? undefined : bidSignature };
+  logger.info("Method complete", requestContext, methodContext, { bidSignature });
+
+  AUCTION_REQUEST_MAP.set(
+    `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
+    currentTime * 1000,
+  );
+  return {
+    bid,
+    bidSignature: dryRun ? undefined : bidSignature,
+    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
+  };
 };

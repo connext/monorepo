@@ -10,8 +10,8 @@ import {
 } from "@connext/nxtp-utils";
 import { restore, reset, SinonStub, stub } from "sinon";
 import * as operations from "../../../src/lib/operations";
-import { AuctionExpired } from "../../../src/lib/errors";
-import { metaTxRequestBinding } from "../../../src/bindings/messaging/metaTxRequest";
+import { AuctionExpired, NoTransactionId } from "../../../src/lib/errors";
+import { handlingTracker, metaTxRequestBinding } from "../../../src/bindings/messaging/metaTxRequest";
 import { configMock } from "../../utils";
 import { messagingMock } from "../../globalTestHook";
 
@@ -23,11 +23,10 @@ const from = mkAddress("0xfff");
 
 const requestContext = createRequestContext("metaTxRequestBinding");
 
-let fulfillStub: SinonStub;
+let sendMetaTxStub: SinonStub;
 
 const data: MetaTxPayload<typeof MetaTxTypes.Fulfill> = {
   type: MetaTxTypes.Fulfill,
-  relayerFee: "1",
   to: configMock.chainConfig[txDataMock.receivingChainId].transactionManagerAddress,
   chainId: txDataMock.receivingChainId,
   data: {
@@ -40,99 +39,80 @@ const data: MetaTxPayload<typeof MetaTxTypes.Fulfill> = {
 
 describe("metaTxRequestBinding", () => {
   beforeEach(async () => {
-    fulfillStub = stub().resolves(txReceiptMock);
+    sendMetaTxStub = stub().resolves(txReceiptMock);
 
     stub(operations, "getOperations").returns({
-      fulfill: fulfillStub,
+      sendMetaTx: sendMetaTxStub,
     } as any);
   });
 
-  afterEach(() => {
-    restore();
-    reset();
+  it("should error if there's no tx id", async () => {
+    const oldTxId = data.data.txData.transactionId;
+    data.data.txData.transactionId = undefined;
+    await expect(metaTxRequestBinding(from, inbox, data, undefined, requestContext)).to.be.rejectedWith(
+      NoTransactionId,
+    );
+    data.data.txData.transactionId = oldTxId;
+  });
+
+  it("should do nothing if already handling", async () => {
+    handlingTracker.set(data.data.txData.transactionId, "Fulfill");
+    await metaTxRequestBinding(from, inbox, data, undefined, requestContext);
+    expect(sendMetaTxStub.called).to.be.false;
+    handlingTracker.clear();
   });
 
   it("should work", async () => {
     await metaTxRequestBinding(from, inbox, data, undefined, requestContext);
 
-    const { amount, expiry, preparedBlockNumber, ...invariant } = txDataMock;
+    expect(sendMetaTxStub.callCount).to.be.eq(1);
+    expect(sendMetaTxStub).to.be.calledOnceWith(data, {
+      ...requestContext,
+      transactionId: data.data.txData.transactionId,
+    });
 
-    expect(fulfillStub.callCount).to.be.eq(1);
-    expect(
-      fulfillStub.calledOnceWithExactly(
-        invariant,
-        {
-          amount,
-          expiry,
-          preparedBlockNumber,
-          signature: data.data.signature,
-          relayerFee: data.data.relayerFee,
-          callData: data.data.callData,
-          side: "receiver",
-        },
-        requestContext,
-      ),
-    ).to.be.true;
-    expect(
-      messagingMock.publishMetaTxResponse.calledOnceWithExactly(from, inbox, {
-        chainId: data.chainId,
-        transactionHash: txReceiptMock.transactionHash,
-      }),
-    ).to.be.true;
+    expect(messagingMock.publishMetaTxResponse).calledOnceWith(from, inbox, {
+      chainId: data.chainId,
+      transactionHash: txReceiptMock.transactionHash,
+    });
   });
 
   it("shouldnt publish if there is no tx response", async () => {
-    fulfillStub.resolves(undefined);
+    sendMetaTxStub.resolves(undefined);
 
     await metaTxRequestBinding(from, inbox, data, undefined, requestContext);
 
     const { amount, expiry, preparedBlockNumber, ...invariant } = txDataMock;
 
-    expect(fulfillStub.callCount).to.be.eq(1);
-    expect(
-      fulfillStub.calledOnceWithExactly(
-        invariant,
-        {
-          amount,
-          expiry,
-          preparedBlockNumber,
-          signature: data.data.signature,
-          relayerFee: data.data.relayerFee,
-          callData: data.data.callData,
-          side: "receiver",
-        },
-        requestContext,
-      ),
-    ).to.be.true;
+    expect(sendMetaTxStub.callCount).to.be.eq(1);
+    expect(sendMetaTxStub).to.be.calledOnceWith(data, {
+      ...requestContext,
+      transactionId: data.data.txData.transactionId,
+    });
     expect(messagingMock.publishMetaTxResponse.callCount).to.be.eq(0);
   });
 
   it("should do nothing if there is an error", async () => {
     await metaTxRequestBinding(from, inbox, data, err, requestContext);
 
-    expect(fulfillStub.callCount).to.be.eq(0);
+    expect(sendMetaTxStub.callCount).to.be.eq(0);
   });
 
   it("should do nothing if there is no data", async () => {
     await metaTxRequestBinding(from, inbox, undefined, err, requestContext);
 
-    expect(fulfillStub.callCount).to.be.eq(0);
+    expect(sendMetaTxStub.callCount).to.be.eq(0);
   });
 
   it.skip("should do nothing if there is no chain config", async () => {});
 
-  it("should do nothing if it is not a fulfill request", async () => {
-    await metaTxRequestBinding(from, inbox, { ...data, type: "fail" });
-    expect(fulfillStub.callCount).to.be.eq(0);
-  });
-
   it("should do nothing if it is not fulfilling on the receiving chain", async () => {
     await metaTxRequestBinding(from, inbox, { ...data, chainId: 123457 });
-    expect(fulfillStub.callCount).to.be.eq(0);
+    expect(sendMetaTxStub.callCount).to.be.eq(0);
   });
 
   it("should fail if fulfill fails", async () => {
-    fulfillStub.rejects(new Error("fail"));
+    sendMetaTxStub.rejects(new Error("fail"));
     await expect(metaTxRequestBinding(from, inbox, data)).to.be.rejectedWith("fail");
   });
 });

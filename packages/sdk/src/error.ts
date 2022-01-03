@@ -3,10 +3,11 @@ import {
   AuctionPayload,
   AuctionResponse,
   jsonifyError,
-  MetaTxPayload,
   NxtpError,
   NxtpErrorJson,
 } from "@connext/nxtp-utils";
+
+import { SubgraphSyncRecord } from "./types";
 
 /**
  * @classdesc Represents errors having to do with config issues
@@ -51,14 +52,33 @@ export abstract class SubgraphError extends NxtpError {
 }
 
 /**
+ * @classdesc Abstract error class during fulfill.
+ */
+export abstract class FulfillError extends NxtpError {
+  static readonly type = FulfillError.name;
+}
+
+/**
  * @classdesc Thrown if no tx manager addr for chain
  */
 export class NoTransactionManager extends ConfigError {
-  static getMessage(chainId: number) {
-    return `No transaction manager found for ${chainId}, please provide override`;
+  static getMessage() {
+    return `No transaction manager found, please provide override`;
   }
   constructor(public readonly chainId: number, public readonly context: any = {}) {
-    super(NoTransactionManager.getMessage(chainId), { chainId, ...context }, ConfigError.type);
+    super(NoTransactionManager.getMessage(), { chainId, ...context }, ConfigError.type);
+  }
+}
+
+/**
+ * @classdesc Thrown if no price oracle addr for chain
+ */
+export class NoPriceOracle extends ConfigError {
+  static getMessage() {
+    return `No price oracle found, please provide override`;
+  }
+  constructor(public readonly chainId: number, public readonly context: any = {}) {
+    super(NoPriceOracle.getMessage(), { chainId, ...context }, ConfigError.type);
   }
 }
 
@@ -66,11 +86,11 @@ export class NoTransactionManager extends ConfigError {
  * @classdesc Thrown if no subgraph addr for chain
  */
 export class NoSubgraph extends ConfigError {
-  static getMessage(chainId: number) {
-    return `No subgraph uri found for ${chainId}, please provide override`;
+  static getMessage() {
+    return `No subgraph uri found, please provide override`;
   }
   constructor(public readonly chainId: number, public readonly context: any = {}) {
-    super(NoSubgraph.getMessage(chainId), { chainId, ...context }, ConfigError.type);
+    super(NoSubgraph.getMessage(), { chainId, ...context }, ConfigError.type);
   }
 }
 
@@ -78,11 +98,23 @@ export class NoSubgraph extends ConfigError {
  * @classdesc Thrown if chain not found in config
  */
 export class ChainNotConfigured extends ConfigError {
-  static getMessage(chainId: number, supported: string[]) {
-    return `No chain config found for ${chainId}, please check config. Configured: ${supported.join(",")}`;
+  static getMessage() {
+    return `No chain config found, please check config`;
   }
   constructor(public readonly chainId: number, public readonly supported: string[], public readonly context: any = {}) {
-    super(ChainNotConfigured.getMessage(chainId, supported), { chainId, supported, ...context }, ConfigError.type);
+    super(ChainNotConfigured.getMessage(), { chainId, supported, ...context }, ConfigError.type);
+  }
+}
+
+/**
+ * @classdesc Thrown if price oracle not configured
+ */
+export class PriceOracleNotConfigured extends ConfigError {
+  static getMessage() {
+    return `Price oracle not configured, please check config`;
+  }
+  constructor(public readonly chainId: number, public readonly assetId: string, public readonly context: any = {}) {
+    super(PriceOracleNotConfigured.getMessage(), { chainId, assetId, ...context }, ConfigError.type);
   }
 }
 
@@ -90,8 +122,8 @@ export class ChainNotConfigured extends ConfigError {
  * @classdesc Thrown if ajv validation on external params fails
  */
 export class InvalidParamStructure extends ParamsError {
-  static getMessage(method: string, typename: string) {
-    return `Invalid "${method}" params. Should use "${typename}" type`;
+  static getMessage() {
+    return `Invalid Params`;
   }
   constructor(
     method: string,
@@ -100,7 +132,7 @@ export class InvalidParamStructure extends ParamsError {
     public readonly invalidParams: any,
     public readonly context: any = {},
   ) {
-    super(InvalidParamStructure.getMessage(method, typename), { error, invalidParams, ...context }, ParamsError.type);
+    super(InvalidParamStructure.getMessage(), { error, invalidParams, ...context }, ParamsError.type);
   }
 }
 
@@ -108,8 +140,8 @@ export class InvalidParamStructure extends ParamsError {
  * @classdesc Thrown if slippage is out of bounds
  */
 export class InvalidSlippage extends ParamsError {
-  static getMessage(slippage: string, min: string, max: string) {
-    return `Invalid slippage: ${slippage}. Must be between ${min} and ${max}`;
+  static getMessage() {
+    return `Invalid slippage`;
   }
   constructor(
     public readonly slippage: string,
@@ -117,11 +149,7 @@ export class InvalidSlippage extends ParamsError {
     public readonly maxSlippage: string,
     public readonly context: any = {},
   ) {
-    super(
-      InvalidSlippage.getMessage(slippage, minSlippage, maxSlippage),
-      { slippage, min: minSlippage, max: maxSlippage, ...context },
-      ParamsError.type,
-    );
+    super(InvalidSlippage.getMessage(), { slippage, min: minSlippage, max: maxSlippage, ...context }, ParamsError.type);
   }
 }
 
@@ -129,8 +157,8 @@ export class InvalidSlippage extends ParamsError {
  * @classdesc Thrown if expiry is out of bounds
  */
 export class InvalidExpiry extends ParamsError {
-  static getMessage(expiry: number, minExpiry: number, maxExpiry: number) {
-    return `Invalid expiry: ${expiry}. Must be between ${minExpiry} and ${maxExpiry} from now`;
+  static getMessage() {
+    return `Invalid expiry`;
   }
   constructor(
     public readonly expiry: number,
@@ -140,7 +168,7 @@ export class InvalidExpiry extends ParamsError {
     public readonly context: any = {},
   ) {
     super(
-      InvalidExpiry.getMessage(expiry, minExpiryBuffer, maxExpiryBuffer),
+      InvalidExpiry.getMessage(),
       { expiry, minBuffer: minExpiryBuffer, maxBuffer: maxExpiryBuffer, timestamp, ...context },
       ParamsError.type,
     );
@@ -151,8 +179,8 @@ export class InvalidExpiry extends ParamsError {
  * @classdesc Thrown if there is insufficient balance for transfer of that amount
  */
 export class InvalidAmount extends ParamsError {
-  static getMessage(addr: string, balance: string, amount: string, assetId: string, chainId: number) {
-    return `${addr} has insufficient funds of ${assetId} on ${chainId}. Has ${balance}, needs ${amount}`;
+  static getMessage() {
+    return `Insufficient Funds`;
   }
 
   constructor(
@@ -165,7 +193,7 @@ export class InvalidAmount extends ParamsError {
     public readonly context: any = {},
   ) {
     super(
-      InvalidAmount.getMessage(address, balance, amount, assetId, chainId),
+      InvalidAmount.getMessage(),
       {
         address,
         transactionId,
@@ -181,13 +209,36 @@ export class InvalidAmount extends ParamsError {
 }
 
 /**
+ * @classdesc Thrown if there callTo is not a Contract
+ */
+export class InvalidCallTo extends ParamsError {
+  static getMessage() {
+    return `Invalid CallTo`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly callTo: string,
+    public readonly context: any = {},
+  ) {
+    super(
+      InvalidCallTo.getMessage(),
+      {
+        transactionId,
+        callTo,
+        ...context,
+      },
+      InvalidCallTo.type,
+    );
+  }
+}
+
+/**
  * @classdesc Thrown when bid signature undefined
  */
 export class InvalidBidSignature extends ParamsError {
-  static getMessage(router: string, recovered?: string, signature?: string) {
-    return !signature
-      ? `No bid signature provided`
-      : `Bid signature recovery failed, got ${recovered} and expected ${router}`;
+  static getMessage() {
+    return `bid signature invalid`;
   }
 
   constructor(
@@ -198,7 +249,7 @@ export class InvalidBidSignature extends ParamsError {
     public readonly signature?: string,
     public readonly context: any = {},
   ) {
-    super(InvalidBidSignature.getMessage(router, recovered, signature), {
+    super(InvalidBidSignature.getMessage(), {
       transactionId,
       router,
       recovered,
@@ -215,16 +266,31 @@ export class InvalidBidSignature extends ParamsError {
 export class EncryptionError extends NxtpError {
   static readonly type = EncryptionError.name;
 
-  static getMessage(details: string) {
-    return `Failed to encrypt calldata before auction: ${details}`;
+  static getMessage() {
+    return `Failed to encrypt calldata before auction`;
   }
 
   constructor(
     public readonly details: string,
-    public readonly error: NxtpErrorJson,
+    public readonly error?: NxtpErrorJson,
     public readonly context: any = {},
   ) {
-    super(EncryptionError.getMessage(details), { encryptionError: error, ...context }, EncryptionError.type);
+    super(EncryptionError.getMessage(), { encryptionError: error, ...context }, EncryptionError.type);
+  }
+}
+
+/**
+ * @classdesc Thrown if receiver amount is less than total fee
+ */
+export class NotEnoughAmount extends NxtpError {
+  static readonly type = NotEnoughAmount.name;
+
+  static getMessage() {
+    return `Not enough amount for swap`;
+  }
+
+  constructor(public readonly context: any = {}) {
+    super(NotEnoughAmount.getMessage(), { ...context }, NotEnoughAmount.type);
   }
 }
 
@@ -233,7 +299,7 @@ export class EncryptionError extends NxtpError {
  */
 export class NoBids extends AuctionError {
   static getMessage(timeout: number, transactionId: string) {
-    return `No bids received within ${timeout}ms for ${transactionId}`;
+    return `No bids received within ${timeout}ms, txId ${transactionId}`;
   }
 
   constructor(
@@ -242,7 +308,11 @@ export class NoBids extends AuctionError {
     public readonly auction: AuctionPayload,
     public readonly context: any = {},
   ) {
-    super(NoBids.getMessage(timeout, transactionId), { transactionId, auction, ...context }, AuctionError.type);
+    super(
+      NoBids.getMessage(timeout, transactionId),
+      { transactionId, timeout, auction, ...context },
+      AuctionError.type,
+    );
   }
 }
 
@@ -250,19 +320,19 @@ export class NoBids extends AuctionError {
  * @classdesc Thrown if no acceptable bids received in given timeout
  */
 export class NoValidBids extends AuctionError {
-  static getMessage(transactionId: string) {
-    return `No valid bids received for ${transactionId}`;
+  static getMessage() {
+    return `No valid bids received`;
   }
 
   constructor(
     public readonly transactionId: string,
     public readonly auction: AuctionPayload,
     public readonly reasons: string,
-    public readonly auctionResponses: AuctionResponse[],
+    public readonly auctionResponses: (AuctionResponse | string)[],
     public readonly context: any = {},
   ) {
     super(
-      NoValidBids.getMessage(transactionId),
+      NoValidBids.getMessage(),
       { transactionId, auction, invalidReasons: reasons, bids: auctionResponses, ...context },
       AuctionError.type,
     );
@@ -273,8 +343,8 @@ export class NoValidBids extends AuctionError {
  * @classdesc Thrown when auction fails in unknown way
  */
 export class UnknownAuctionError extends AuctionError {
-  static getMessage(transactionId: string) {
-    return `Error validating or retrieving bids for ${transactionId}`;
+  static getMessage() {
+    return `Error validating or retrieving bids`;
   }
 
   constructor(
@@ -284,36 +354,9 @@ export class UnknownAuctionError extends AuctionError {
     public readonly context: any = {},
   ) {
     super(
-      UnknownAuctionError.getMessage(transactionId),
+      UnknownAuctionError.getMessage(),
       { transactionId, auction, auctionError: error, ...context },
       AuctionError.type,
-    );
-  }
-}
-
-/**
- * @classdesc Thrown when no responses to meta tx request in some timeframe
- */
-export class MetaTxTimeout extends RelayerError {
-  static getMessage(timeout: number) {
-    return `No relayer responses within ${timeout}ms`;
-  }
-
-  constructor(
-    public readonly transactionId: string,
-    public readonly timeout: number,
-    public readonly request: MetaTxPayload<any>,
-    public readonly context: any = {},
-  ) {
-    super(
-      MetaTxTimeout.getMessage(timeout),
-      {
-        transactionId,
-        timeout,
-        request,
-        ...context,
-      },
-      RelayerError.type,
     );
   }
 }
@@ -322,8 +365,8 @@ export class MetaTxTimeout extends RelayerError {
  * @classdesc Defines the error thrown by the `TransactionManager` class when a transaction fails to be submitted.
  */
 export class SubmitError extends TransactionManagerError {
-  static getMessage(sender: string, method: string, to: string, chainId: number) {
-    return `${sender} failed to submit ${method} transaction to ${to} on chain ${chainId}`;
+  static getMessage() {
+    return `failed to submit transaction`;
   }
 
   constructor(
@@ -337,7 +380,7 @@ export class SubmitError extends TransactionManagerError {
     public readonly context: any = {},
   ) {
     super(
-      SubmitError.getMessage(sender, method, to, chainId),
+      SubmitError.getMessage(),
       {
         transactionId,
         chainId,
@@ -357,8 +400,8 @@ export class SubmitError extends TransactionManagerError {
  * @classdesc Thrown when invalid status
  */
 export class InvalidTxStatus extends SubgraphError {
-  static getMessage(status: string, transactionId: string) {
-    return `Invalid tx status (${status}) found for ${transactionId}, check subgraph`;
+  static getMessage() {
+    return `Invalid tx status, check subgraph`;
   }
 
   constructor(
@@ -368,7 +411,7 @@ export class InvalidTxStatus extends SubgraphError {
     public readonly context: any = {},
   ) {
     super(
-      InvalidTxStatus.getMessage(status, transactionId),
+      InvalidTxStatus.getMessage(),
       {
         transactionId,
         status,
@@ -376,6 +419,146 @@ export class InvalidTxStatus extends SubgraphError {
         ...context,
       },
       SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when subgraphs are not synced
+ */
+export class SendingChainSubgraphsNotSynced extends SubgraphError {
+  static getMessage() {
+    return `Sending Chain Subgraph not synced`;
+  }
+
+  constructor(
+    public readonly sendingSyncStatus: SubgraphSyncRecord,
+    public readonly receivingSyncStatus: SubgraphSyncRecord,
+    public readonly context: any = {},
+  ) {
+    super(
+      SendingChainSubgraphsNotSynced.getMessage(),
+      {
+        sendingSyncStatus,
+        receivingSyncStatus,
+        ...context,
+      },
+      SubgraphError.type,
+    );
+  }
+}
+
+export class ReceivingChainSubgraphsNotSynced extends SubgraphError {
+  static getMessage() {
+    return `Subgraph not synced`;
+  }
+
+  constructor(
+    public readonly sendingSyncStatus: SubgraphSyncRecord,
+    public readonly receivingSyncStatus: SubgraphSyncRecord,
+    public readonly context: any = {},
+  ) {
+    super(
+      ReceivingChainSubgraphsNotSynced.getMessage(),
+      {
+        sendingSyncStatus,
+        receivingSyncStatus,
+        ...context,
+      },
+      SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when polling is not active
+ */
+export class PollingNotActive extends SubgraphError {
+  static getMessage() {
+    return `Subgraph polling not active`;
+  }
+
+  constructor(public readonly context: any = {}) {
+    super(
+      PollingNotActive.getMessage(),
+      {
+        ...context,
+      },
+      SubgraphError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when subgraphs are not synced
+ */
+export class RelayFailed extends FulfillError {
+  static getMessage() {
+    return `Relay failed!`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      RelayFailed.getMessage(),
+      {
+        ...context,
+      },
+      FulfillError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when no responses to meta tx request in some timeframe
+ */
+export class FulfillTimeout extends FulfillError {
+  static getMessage() {
+    return `No fulfill response`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly timeout: number,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      FulfillTimeout.getMessage(),
+      {
+        transactionId,
+        timeout,
+        ...context,
+      },
+      FulfillError.type,
+    );
+  }
+}
+
+/**
+ * @classdesc Thrown when no responses to meta tx request in some timeframe
+ */
+export class InvalidRelayerFee extends FulfillError {
+  static getMessage(transactionId: string, chainId: number) {
+    return `Relayer fee cannot be zero when using relayers for ${transactionId} on chain ${chainId}`;
+  }
+
+  constructor(
+    public readonly transactionId: string,
+    public readonly chainId: number,
+    public readonly context: any = {},
+  ) {
+    super(
+      InvalidRelayerFee.getMessage(transactionId, chainId),
+      {
+        transactionId,
+        chainId,
+        ...context,
+      },
+      InvalidRelayerFee.type,
     );
   }
 }
