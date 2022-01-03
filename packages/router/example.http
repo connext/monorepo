@@ -1,10 +1,10 @@
-@routerUrl = http://localhost:8000
+@routerUrl = http://localhost:8080
 
 @chainId = 4
-@assetId = 0x9ac2c46d7acc21c881154d57c0dc1c55a3139198
+@assetId = 0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198
 
 # 1 ETH
-@amount = 27506903307558379434029545
+@amount = 1
 
 ### CONFIG
 GET {{routerUrl}}/config

@@ -2,6 +2,24 @@
 
 ## Next Release
 
+## 0.1.8
+
+- [router] Properly check low gas on router contracts
+
+## 0.1.7
+
+- [router][sdk] - Fix gas estimation issue
+
+## 0.1.6
+
+- [router] Fix relaying signature
+
+## 0.1.5
+
+- [sdk][router] more unit test
+- [sdk][router][txservice] fee cleanup
+- [sdk] Resort to using router network if gelato fails; set default useRelayers = false
+- [txservice] Check that transaction exists when mine timeout occurs.
 - [sdk] Make auction selection tests deterministic
 
 ## 0.1.4

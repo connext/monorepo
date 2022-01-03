@@ -12,6 +12,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import "./src/tasks/addRouter";
 import "./src/tasks/addAsset";
 import "./src/tasks/createRouter";
+import "./src/tasks/removeRelayerFee";
 import "./src/tasks/addLiquidity";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";

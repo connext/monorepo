@@ -6,6 +6,7 @@ import * as entities from "../../../src/lib/entities/metrics";
 import { contractReaderMock, ctxMock, txServiceMock } from "../../globalTestHook";
 import { chainDataMock, configMock } from "../../utils";
 import { parseEther } from "@ethersproject/units";
+import * as ConfigFns from "../../../src/config";
 
 describe("getAssetName", () => {
   it("should work", () => {
@@ -44,6 +45,11 @@ describe("getAssetName", () => {
 });
 
 describe("collectOnchainLiquidity", () => {
+  let priceOracleStub: SinonStub;
+  beforeEach(() => {
+    priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
+    priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+  });
   it("should work with varying decimals", async () => {
     ctxMock.chainData = await getChainData();
     // constants
@@ -97,6 +103,11 @@ describe("collectOnchainLiquidity", () => {
 });
 
 describe("collectExpressiveLiquidity", () => {
+  let priceOracleStub: SinonStub;
+  beforeEach(() => {
+    priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
+    priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+  });
   it("should work with varying decimals", async () => {
     // constants
     const amt = "10";

@@ -102,7 +102,11 @@ export const cancel = async (
         {
           requestContext,
           methodContext,
-          preparedBlock,
+          preparedBlock: {
+            exists: !!preparedBlock,
+            timestamp: preparedBlock?.timestamp,
+            blockNumber: receipt.blockNumber,
+          },
           currentTime,
         },
       );

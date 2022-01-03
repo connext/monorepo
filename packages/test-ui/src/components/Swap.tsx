@@ -87,15 +87,8 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         activeTxs.map(async (tx) => {
           let gasAmount = "0";
           if (tx.status === NxtpSdkEvents.ReceiverTransactionPrepared) {
-            const { invariant } = tx.crosschainTx;
             try {
-              const gasAmountInBigNum = await _sdk?.estimateMetaTxFeeInReceivingToken(
-                invariant.sendingChainId,
-                invariant.sendingAssetId,
-                invariant.receivingChainId,
-                invariant.receivingAssetId,
-              );
-              gasAmount = utils.formatEther(gasAmountInBigNum);
+              gasAmount = "0";
             } catch (e) {
               console.log(e);
             }
@@ -802,29 +795,6 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
                         swapConfig[form.getFieldValue("asset")]?.assets[form.getFieldValue("receivingChain")];
                       if (!sendingAssetId || !receivingAssetId) {
                         throw new Error("Configuration doesn't support selected swap");
-                      }
-                      const sendingChainId = parseInt(form.getFieldValue("sendingChain"));
-                      const receivingChainId = parseInt(form.getFieldValue("receivingChain"));
-
-                      const transferFeeInSendingToken = await sdk?.estimateFeeForRouterTransferInSendingToken(
-                        sendingChainId,
-                        sendingAssetId,
-                        receivingChainId,
-                        receivingAssetId,
-                      );
-
-                      const metaTxFeeInSendingToken = await sdk?.estimateMetaTxFeeInSendingToken(
-                        sendingChainId,
-                        sendingAssetId,
-                        receivingChainId,
-                        receivingAssetId,
-                      );
-
-                      if (transferFeeInSendingToken && metaTxFeeInSendingToken) {
-                        form.setFieldsValue({
-                          transferFeeInSDK: utils.formatEther(transferFeeInSendingToken),
-                          metaTxFeeInSDK: utils.formatEther(metaTxFeeInSendingToken),
-                        });
                       }
                     }}
                   >

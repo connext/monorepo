@@ -305,6 +305,7 @@ export const encodeRouterPrepareData = (
 export const encodeRouterFulfillData = (
   txData: TransactionData,
   fulfillSignature: string,
+  fulfillRelayerFee: string,
   callData: string,
   encodedMeta: string,
   routerRelayerFeeAsset: string,
@@ -317,7 +318,7 @@ export const encodeRouterFulfillData = (
       {
         args: {
           txData,
-          relayerFee: "0",
+          relayerFee: fulfillRelayerFee,
           signature: fulfillSignature,
           callData,
           encodedMeta,
