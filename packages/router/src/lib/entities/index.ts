@@ -23,6 +23,5 @@ export {
   RemoveOutstandingLiquidityParams,
 } from "./cache";
 
-export { ContractWriter } from "./contractWriter";
 export { MetaTxInput, MetaTxInputSchema } from "./metaTx";
 export * from "./metrics";

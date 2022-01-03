@@ -10,16 +10,16 @@ import {
 import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { getSubgraphContractReader } from "./adapters/subgraph";
-import { getContractWriter } from "./adapters/contract";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
-import { Cache, ContractReader, ContractWriter } from "./lib/entities";
+import { Cache } from "./lib/entities";
 import { getCache } from "./adapters/redisCache";
 import { bindMetrics } from "./bindings/metrics";
 import { Web3Signer } from "./adapters/web3signer";
 import { bindPrices } from "./bindings/prices";
+import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
+import { ContractWriter, contractWriter } from "./adapters/contract";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -91,8 +91,8 @@ export const makeRouter = async () => {
 
     // adapters
     context.cache = await getCache();
-    context.contractReader = await getSubgraphContractReader();
-    context.contractWriter = await getContractWriter();
+    context.contractReader = subgraphContractReader();
+    context.contractWriter = contractWriter();
 
     // bindings
     if (!context.config.diagnosticMode) {

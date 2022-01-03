@@ -12,8 +12,9 @@ import {
   chainDataMock,
 } from "./utils";
 import { Context } from "../src/router";
-import { Cache, ContractReader, ContractWriter } from "../src/lib/entities";
+import { Cache, ContractWriter } from "../src/lib/entities";
 import * as RouterFns from "../src/router";
+import { ContractReader } from "../src/adapters/subgraph";
 
 export let txServiceMock: SinonStubbedInstance<TransactionService>;
 export let messagingMock: SinonStubbedInstance<RouterNxtpNatsMessagingService>;

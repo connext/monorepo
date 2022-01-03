@@ -1,4 +1,4 @@
-import { CrosschainTransaction, TransactionData } from "@connext/nxtp-utils";
+import { CrosschainTransaction, SubgraphSyncRecord, TransactionData } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { TransactionStatus as SdkTransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
