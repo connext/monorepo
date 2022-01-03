@@ -323,9 +323,7 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
         console.error("Unsupported receiving chain for calldata generation");
       }
       // Get calldata
-      const counter = new Interface([
-        "function incrementAndSend(address assetId, address recipient, uint256 amount) public payable",
-      ]);
+      const counter = new Interface(["function increment() public"]);
       const address = await signer!.getAddress();
       callData = counter.encodeFunctionData("incrementAndSend", [receivingAssetId, address, "1"]);
       console.log("callData: ", callData);
