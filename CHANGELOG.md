@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.8
+
 - [router] Properly check low gas on router contracts
 
 ## 0.1.7
