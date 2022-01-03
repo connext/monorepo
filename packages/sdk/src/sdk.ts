@@ -212,6 +212,8 @@ export class NxtpSdk {
     sendingAssetId: string;
     receivingChainId: number;
     receivingAssetId: string;
+    callData: string;
+    callTo: string;
   }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
     return this.sdkBase.getEstimateReceiverAmount(params);
   }
@@ -236,18 +238,27 @@ export class NxtpSdk {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: Omit<CrossChainParams, "encryptedCallData">): Promise<GetTransferQuote> {
+  public async getTransferQuote(
+    params: Omit<CrossChainParams, "encryptedCallData"> & { passCalldataUnencrypted?: boolean },
+  ): Promise<GetTransferQuote> {
     const user = await this.config.signer.getAddress();
+
+    // WARNING: default true for now to work with all wallets. eventually fix this to properly encrypt
+    const passCalldataUnencrypted = params.passCalldataUnencrypted ?? true;
 
     const callData = params.callData ?? "0x";
     let encryptedCallData = "0x";
-    if (callData !== "0x") {
+    if (callData !== "0x" && !passCalldataUnencrypted) {
       try {
         const encryptionPublicKey = await ethereumRequest("eth_getEncryptionPublicKey", [user]);
         encryptedCallData = await encrypt(callData, encryptionPublicKey);
       } catch (e) {
         throw new EncryptionError("public key encryption failed", jsonifyError(e));
       }
+    }
+
+    if (passCalldataUnencrypted) {
+      encryptedCallData = callData;
     }
 
     return this.sdkBase.getTransferQuote({ ...params, encryptedCallData });
@@ -408,6 +419,17 @@ export class NxtpSdk {
     // if (isNode()) {
     //   connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
     // }
+    let callData = "0x";
+    if (txData.callDataHash === utils.keccak256(encryptedCallData)) {
+      // Call data was passed unencrypted
+      callData = encryptedCallData;
+    } else if (txData.callDataHash !== utils.keccak256(callData)) {
+      try {
+        callData = await ethereumRequest("eth_decrypt", [encryptedCallData, txData.user]);
+      } catch (e) {
+        throw new EncryptionError("decryption failed", jsonifyError(e));
+      }
+    }
 
     let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
@@ -415,6 +437,8 @@ export class NxtpSdk {
       const gasNeeded = await this.sdkBase.calculateGasFeeInReceivingTokenForFulfill(
         txData.receivingChainId,
         txData.receivingAssetId,
+        callData,
+        txData.callTo,
       );
       this.logger.info(
         `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
@@ -437,14 +461,6 @@ export class NxtpSdk {
     this.logger.info("Generated signature", requestContext, methodContext, { signature });
     this.evts.ReceiverPrepareSigned.post({ signature, transactionId: txData.transactionId, signer: signerAddress });
     this.logger.info("Preparing fulfill tx", requestContext, methodContext, { calculateRelayerFee });
-    let callData = "0x";
-    if (txData.callDataHash !== utils.keccak256(callData)) {
-      try {
-        callData = await ethereumRequest("eth_decrypt", [encryptedCallData, txData.user]);
-      } catch (e) {
-        throw new EncryptionError("decryption failed", jsonifyError(e));
-      }
-    }
     const response = await this.sdkBase.fulfillTransfer(params, signature, callData, calculateRelayerFee, useRelayers);
 
     if (useRelayers) {

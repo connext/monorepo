@@ -313,7 +313,15 @@ export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactEleme
     let callData;
     if (generateCalldata) {
       console.log("Generating calldata");
-      callTo = "0x180eb9C86bAFf427B8B91D4e6d61Fb0dD86f1e45";
+
+      // TODO: make this better
+      if (receivingChainId === 4) {
+        callTo = "0xfAFbdbD6358345bcDB606588b695e1B97f28021e";
+      } else if (receivingChainId === 5) {
+        callTo = "0x180eb9C86bAFf427B8B91D4e6d61Fb0dD86f1e45";
+      } else {
+        console.error("Unsupported receiving chain for calldata generation");
+      }
       // Get calldata
       const counter = new Interface([
         "function incrementAndSend(address assetId, address recipient, uint256 amount) public payable",
