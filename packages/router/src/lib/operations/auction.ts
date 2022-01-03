@@ -7,9 +7,10 @@ import {
   signAuctionBid,
   createLoggingContext,
   AuctionResponse,
+  isChainSupportedByGelato,
 } from "@connext/nxtp-utils";
 import { formatEther, getAddress, parseEther } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getContext } from "../../router";
 import {
@@ -42,8 +43,7 @@ export const newAuction = async (
     receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
-  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, isRouterContract } =
-    getContext();
+  const { logger, config, contractReader, txService, wallet, chainData, routerAddress } = getContext();
   logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
@@ -234,34 +234,40 @@ export const newAuction = async (
     });
   }
 
-  // No gasfees status check required for routerContractAddress
-  if (!isRouterContract) {
-    const [senderBalance, receiverBalance] = await Promise.all([
-      txService.getBalance(sendingChainId, routerAddress),
-      txService.getBalance(receivingChainId, routerAddress),
-    ]);
-    logger.debug("Got balances", requestContext, methodContext, {
-      senderBalance: senderBalance.toString(),
-      receiverBalance: receiverBalance.toString(),
+  // Check for minimum gas on both chains
+  // TODO: check for proper values for different assets
+  const LOW_GAS = parseEther("0.1");
+  const checkSender =
+    !config.chainConfig[sendingChainId].routerContractRelayerAsset ||
+    config.chainConfig[sendingChainId].routerContractRelayerAsset === constants.AddressZero;
+  const checkReceiver =
+    !config.chainConfig[receivingChainId].routerContractRelayerAsset ||
+    config.chainConfig[receivingChainId].routerContractRelayerAsset === constants.AddressZero;
+
+  const [senderBalance, receiverBalance] = await Promise.all([
+    checkSender ? txService.getBalance(sendingChainId, routerAddress) : BigNumber.from(LOW_GAS),
+    checkReceiver ? txService.getBalance(receivingChainId, routerAddress) : BigNumber.from(LOW_GAS),
+  ]);
+  logger.debug("Got balances", requestContext, methodContext, {
+    senderBalance: senderBalance.toString(),
+    receiverBalance: receiverBalance.toString(),
+  });
+
+  // Log if gas is low, but above min
+  if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
+    logger.warn("Router has low gas", requestContext, methodContext, {
+      sendingChainId,
+      receivingChainId,
+      senderBalance: formatEther(senderBalance),
+      receiverBalance: formatEther(receiverBalance),
     });
+  }
 
-    // Log if gas is low, but above min
-    const LOW_GAS = parseEther("0.1");
-    if (senderBalance.lt(LOW_GAS) || receiverBalance.lt(LOW_GAS)) {
-      logger.warn("Router has low gas", requestContext, methodContext, {
-        sendingChainId,
-        receivingChainId,
-        senderBalance: formatEther(senderBalance),
-        receiverBalance: formatEther(receiverBalance),
-      });
-    }
-
-    if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
-      throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
-        methodContext,
-        requestContext,
-      });
-    }
+  if (senderBalance.lt(sendingConfig.minGas) || receiverBalance.lt(receivingConfig.minGas)) {
+    throw new NotEnoughGas(sendingChainId, senderBalance, receivingChainId, receiverBalance, {
+      methodContext,
+      requestContext,
+    });
   }
   logger.info("Auction validation complete, generating bid", requestContext, methodContext);
 
