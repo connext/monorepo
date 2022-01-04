@@ -20,7 +20,7 @@ export type Tracker = {
 };
 
 export type ActiveTransactionsTracker = {
-  status: TCrosschainTransactionStatus | "Processing";
+  status: string;
   transactionsId: string;
   sendingChainId: number;
   receivingChainId: number;
