@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [sdk] Start polling when a transaction is prepared, and stop when final active transaction is completed
+- [integration] Test with ERC20 and with `skipPolling = true`
+
 ## 0.1.9
 
 - [router] Use correct chain for gas fee calc for cancel
