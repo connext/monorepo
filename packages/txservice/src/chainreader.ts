@@ -64,11 +64,12 @@ export class ChainReader {
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
    * @param tx.data - Calldata to send
+   * @param blockTag - (optional) Block tag to query, defaults to latest
    *
    * @returns Encoded hexdata representing result of the read from the chain.
    */
-  public async readTx(tx: ReadTransaction): Promise<string> {
-    return await this.getProvider(tx.chainId).readContract(tx);
+  public async readTx(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
+    return await this.getProvider(tx.chainId).readContract(tx, blockTag);
   }
 
   /**
@@ -188,10 +189,15 @@ export class ChainReader {
    * @param chainId - The network identifier.
    * @param assetId - The asset address to get price for.
    */
-  public async getTokenPrice(chainId: number, assetId: string, _requestContext?: RequestContext): Promise<BigNumber> {
+  public async getTokenPrice(
+    chainId: number,
+    assetId: string,
+    blockTag: providers.BlockTag = "latest",
+    _requestContext?: RequestContext,
+  ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
 
-    const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
+    const cachedPriceKey = chainId.toString().concat("-").concat(assetId).concat(blockTag.toString());
     const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
     const curTimeInSecs = await getNtpTimeSeconds();
 
@@ -200,7 +206,7 @@ export class ChainReader {
       return cachedTokenPrice.price;
     }
 
-    const tokenPrice = await this.getTokenPriceFromOnChain(chainId, assetId, requestContext);
+    const tokenPrice = await this.getTokenPriceFromOnChain(chainId, assetId, blockTag, requestContext);
     cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
     return tokenPrice;
   }
@@ -214,6 +220,7 @@ export class ChainReader {
   public async getTokenPriceFromOnChain(
     chainId: number,
     assetId: string,
+    blockTag: providers.BlockTag = "latest",
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
@@ -222,11 +229,14 @@ export class ChainReader {
       throw new ChainNotSupported(chainId.toString(), requestContext);
     }
     const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
-    const tokenPrice = await this.readTx({
-      chainId,
-      to: priceOracleContract.address,
-      data: encodedTokenPriceData,
-    });
+    const tokenPrice = await this.readTx(
+      {
+        chainId,
+        to: priceOracleContract.address,
+        data: encodedTokenPriceData,
+      },
+      blockTag,
+    );
     const tokenPriceInBigNum = BigNumber.from(tokenPrice);
     return tokenPriceInBigNum;
   }
