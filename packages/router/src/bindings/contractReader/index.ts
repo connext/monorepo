@@ -65,7 +65,7 @@ export const bindContractReader = async () => {
         });
 
         logger.info("all prepared transactions", requestContext, methodContext, {
-          allSenderPreparedLength: allSenderPreparedTracker,
+          allSenderPreparedLength: allSenderPreparedTracker.length,
           allSenderPreparedTracker: allSenderPreparedTracker,
         });
         logger.info("active transactions tracker", requestContext, methodContext, {
