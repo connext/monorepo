@@ -1,6 +1,18 @@
 import axios from "axios";
 
-const SUBGRAPH_HEALTH_URL = "https://api.thegraph.com/index-node/graphql";
+// TODO get from chainData
+const GET_SUBGRAPH_HEALTH_URL = (name: string): string | undefined => {
+  if (name.includes("connext.bwarelabs.com/subgraphs/name/connext")) {
+    return "https://connext.bwarelabs.com/bsc/index-node/graphql";
+  } else if (name.includes("api.thegraph.com/subgraphs/name/connext")) {
+    return "https://api.thegraph.com/index-node/graphql";
+  } else if (name.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-bsc")) {
+    return "https://subgraphs.connext.p2p.org/nxtp-bsc-health-check";
+  } else if (name.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-matic")) {
+    return "https://subgraphs.connext.p2p.org/nxtp-matic-health-check";
+  }
+  return undefined;
+};
 
 // TODO: Make an actual error type for this?
 type SubgraphHealthError = {
@@ -39,8 +51,12 @@ type SubgraphHealth = {
  * - synced: whether the subgraph is synced to the network
  */
 export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphHealth | undefined> => {
+  const healthUrl = GET_SUBGRAPH_HEALTH_URL(subgraphName);
+  if (!healthUrl) {
+    return undefined;
+  }
   const res = await axios({
-    url: SUBGRAPH_HEALTH_URL,
+    url: healthUrl,
     method: "post",
     data: {
       query: `{
