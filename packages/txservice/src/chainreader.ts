@@ -428,20 +428,27 @@ export class ChainReader {
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
 
-    this.logger.info(
-      `Calculated gas fee on chain ${chainIdForTokenPrice} for ${method}`,
-      requestContext,
-      methodContext,
-      {
-        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPrice: ethPrice.toString(),
-        tokenPrice: tokenPrice.toString(),
-        gasPrice: gasPrice.toString(),
-        assetIdOnMainnet,
-        nativeAssetIdOnMainnet,
+    this.logger.info("Calculated gas fee.", requestContext, methodContext, {
+      method,
+      isRouterContract,
+      asset: {
+        chainIdForTokenPrice,
+        token: assetId,
+        price: tokenPrice.toString(),
+        assetIdOnMainnet: assetIdOnMainnet ?? "N/A",
+        decimals,
       },
-    );
+      gas: {
+        chainIdForGasPrice,
+        price: gasPrice.toString(),
+        limit: gasLimit.toString(),
+        ethPriceUsd: ethPrice.toString(),
+        l1GasInUsd: l1GasInUsd.toString(),
+        nativeAssetIdOnMainnet: nativeAssetIdOnMainnet ?? "N/A",
+      },
+      gasAmountInUsd,
+      finalTokenAmountForGasFee: tokenAmountForGasFee.toString(),
+    });
 
     return tokenAmountForGasFee;
   }
