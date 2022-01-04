@@ -1,14 +1,14 @@
 import axios from "axios";
 
 // TODO get from chainData
-const GET_SUBGRAPH_HEALTH_URL = (name: string): string | undefined => {
-  if (name.includes("connext.bwarelabs.com/subgraphs/name/connext")) {
+const GET_SUBGRAPH_HEALTH_URL = (url: string): string | undefined => {
+  if (url.includes("connext.bwarelabs.com/subgraphs/name/connext")) {
     return "https://connext.bwarelabs.com/bsc/index-node/graphql";
-  } else if (name.includes("api.thegraph.com/subgraphs/name/connext")) {
+  } else if (url.includes("api.thegraph.com/subgraphs/name/connext")) {
     return "https://api.thegraph.com/index-node/graphql";
-  } else if (name.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-bsc")) {
+  } else if (url.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-bsc")) {
     return "https://subgraphs.connext.p2p.org/nxtp-bsc-health-check";
-  } else if (name.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-matic")) {
+  } else if (url.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-matic")) {
     return "https://subgraphs.connext.p2p.org/nxtp-matic-health-check";
   }
   return undefined;
@@ -52,16 +52,10 @@ type SubgraphHealth = {
  * - synced: whether the subgraph is synced to the network
  */
 
-const cache: { [url: string]: { record: SubgraphHealth; timestamp: number } } = {};
 export const getSubgraphHealth = async (subgraphName: string, url: string): Promise<SubgraphHealth | undefined> => {
   const healthUrl = GET_SUBGRAPH_HEALTH_URL(url);
   if (!healthUrl) {
     return undefined;
-  }
-
-  // Use cache value if exist and within timeout
-  if (cache[url]?.record && Date.now() - cache[url].timestamp < 5_000) {
-    return cache[url].record;
   }
 
   const res = await axios({
@@ -129,7 +123,6 @@ export const getSubgraphHealth = async (subgraphName: string, url: string): Prom
       health: status.health,
       synced: status.synced,
     };
-    cache[url] = { timestamp: Date.now(), record };
     return record;
   }
   return undefined;
