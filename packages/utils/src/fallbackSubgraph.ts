@@ -36,6 +36,9 @@ type Subgraph<T extends SubgraphSdk> = {
   };
 };
 
+// TODO: Would be cool if we could pass in like, 1/4 * maxLag * blockLengthMs (and get the blockLengthMs from chain reader, which determines that value on init)
+const SYNC_CACHE_TTL = 5_000;
+
 /**
  * @classdesc A class that manages the sync status of multiple subgraphs as well as their corresponding SDKs.
  */
@@ -88,13 +91,14 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       return split[split.length - 1];
     };
     this.subgraphs = sdks.map(({ client, url }) => {
+      const hostname = getHostnameFromRegex(url);
       return {
         url,
         client,
         record: {
           // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
           // which ones are most in sync.
-          uri: getHostnameFromRegex(url) ? getHostnameFromRegex(url)!.split(".").slice(0, -1).join(".") : url,
+          uri: hostname ? hostname.split(".").slice(0, -1).join(".") : url,
           name: getSubgraphName(url),
           synced: true,
           latestBlock: -1,
@@ -185,7 +189,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    */
   public async sync(_latestBlock?: number): Promise<SubgraphSyncRecord[]> {
     // If the latest sync was within 5s, do not requery
-    if (Date.now() - this.latestSync < 5_000) {
+    if (Date.now() - this.latestSync < SYNC_CACHE_TTL) {
       return this.records;
     }
     // When accessing the graph, ENOTFOUND errors are known to occur due to too many requests in a
@@ -194,7 +198,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       for (let i = 0; i < 5; i++) {
         try {
           return await method();
-        } catch (e) {
+        } catch (e: any) {
           if (e.errno !== "ENOTFOUND") {
             throw e;
           }
