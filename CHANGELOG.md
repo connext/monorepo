@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [utils] Use the correct url for the subgraph health
+- [utils] Cache the sync records in subgraph health and fallback subgraph
+
 ## 0.1.9
 
 - [router] Use correct chain for gas fee calc for cancel
