@@ -39,6 +39,7 @@ import { ContractReaderNotAvailableForChain } from "../../lib/errors";
 import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
 import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
 import { getFeesInSendingAsset } from "../../lib/helpers/shared";
+import { allSenderPreparedTracker } from "../../adapters/subgraph/subgraph";
 
 const LOOP_INTERVAL = 15_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
@@ -63,6 +64,10 @@ export const bindContractReader = async () => {
           };
         });
 
+        logger.info("all prepared transactions", requestContext, methodContext, {
+          allSenderPreparedLength: allSenderPreparedTracker,
+          allSenderPreparedTracker: allSenderPreparedTracker,
+        });
         logger.info("active transactions tracker", requestContext, methodContext, {
           activeTransactionsLength: transactions.length,
           activeTransactionsTracker: activeTransactionsTracker,
