@@ -933,6 +933,8 @@ export class NxtpSdkBase {
       expiry,
     };
     const tx = await this.transactionManager.prepare(sendingChainId, params, requestContext);
+    // Assume that the transaction will be sent and begin polling
+    this.subgraph.startPolling();
     return tx;
   }
 
@@ -991,6 +993,7 @@ export class NxtpSdkBase {
       return data.txData.transactionId === params.txData.transactionId;
     });
 
+    let ret;
     if (useRelayers) {
       if (isChainSupportedByGelato(txData.receivingChainId)) {
         this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
@@ -1015,13 +1018,13 @@ export class NxtpSdkBase {
 
             try {
               const response = await fulfillTxProm;
-              const ret = {
+              const transactionResponse = {
                 transactionHash: response.transactionHash,
                 chainId: response.txData.receivingChainId,
               };
-              this.logger.info("Method complete", requestContext, methodContext, ret);
-              return { transactionResponse: ret };
-            } catch (e) {
+              this.logger.info("Method complete", requestContext, methodContext, transactionResponse);
+              ret = { transactionResponse };
+            } catch (e: any) {
               throw e.message.includes("Evt timeout")
                 ? new FulfillTimeout(txData.transactionId, FULFILL_TIMEOUT, params.txData.receivingChainId, {
                     requestContext,
@@ -1029,7 +1032,7 @@ export class NxtpSdkBase {
                   })
                 : e;
             }
-          } catch (err) {
+          } catch (err: any) {
             this.logger.error("Error using Gelato Relayer", requestContext, methodContext, jsonifyError(err), {
               attemptNum: i + 1,
             });
@@ -1063,13 +1066,13 @@ export class NxtpSdkBase {
 
       try {
         const response = await fulfillTxProm;
-        const ret = {
+        const transactionResponse = {
           transactionHash: response.transactionHash,
           chainId: response.txData.receivingChainId,
         };
-        this.logger.info("Method complete", requestContext, methodContext, ret);
-        return { transactionResponse: ret };
-      } catch (e) {
+        this.logger.info("Method complete", requestContext, methodContext, transactionResponse);
+        ret = { transactionResponse };
+      } catch (e: any) {
         throw e.message.includes("Evt timeout")
           ? new FulfillTimeout(txData.transactionId, FULFILL_TIMEOUT, params.txData.receivingChainId, {
               requestContext,
@@ -1091,8 +1094,18 @@ export class NxtpSdkBase {
       );
 
       this.logger.info("Method complete", requestContext, methodContext, { fulfillRequest });
-      return { transactionRequest: fulfillRequest };
+      ret = { transactionRequest: fulfillRequest };
     }
+
+    // stop polling if no continued active transactions && skipPolling
+    // (assume transaction will be sent soon)
+    if (this.config.skipPolling ?? false) {
+      const active = this.subgraph.getActiveTransactionIds();
+      if (active.length === 1 && active[0] === txData.transactionId) {
+        this.subgraph.stopPolling();
+      }
+    }
+    return ret;
   }
 
   /**
@@ -1133,6 +1146,15 @@ export class NxtpSdkBase {
 
     const cancelRequest = await this.transactionManager.cancel(chainId, cancelParams, requestContext);
     this.logger.info("Method complete", requestContext, methodContext, { cancelRequest });
+
+    // stop polling if no continued active transactions && skipPolling
+    // (assume transaction will be sent soon)
+    if (this.config.skipPolling ?? false) {
+      const active = this.subgraph.getActiveTransactionIds();
+      if (active.length === 1 && active[0] === cancelParams.txData.transactionId) {
+        this.subgraph.stopPolling();
+      }
+    }
     return cancelRequest;
   }
 
