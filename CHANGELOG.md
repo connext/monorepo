@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.10
+
 - [utils] Use the correct url for the subgraph health
 - [utils] Cache the sync records in subgraph health and fallback subgraph
 - [router] Update polling time
