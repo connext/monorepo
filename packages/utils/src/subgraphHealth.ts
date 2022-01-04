@@ -52,11 +52,18 @@ type SubgraphHealth = {
  * - synced: whether the subgraph is synced to the network
  */
 
+const cache: { [url: string]: { record: SubgraphHealth; timestamp: number } } = {};
 export const getSubgraphHealth = async (subgraphName: string, url: string): Promise<SubgraphHealth | undefined> => {
   const healthUrl = GET_SUBGRAPH_HEALTH_URL(url);
   if (!healthUrl) {
     return undefined;
   }
+
+  // Use cache value if exist and within timeout
+  if (cache[url]?.record && Date.now() - cache[url].timestamp < 5_000) {
+    return cache[url].record;
+  }
+
   const res = await axios({
     url: healthUrl,
     method: "post",
@@ -113,7 +120,7 @@ export const getSubgraphHealth = async (subgraphName: string, url: string): Prom
   if (res && res.data && res.data.data && res.data.data.indexingStatusForCurrentVersion) {
     const status = res.data.data.indexingStatusForCurrentVersion;
     const networkInfo = status.chains[0];
-    return {
+    const record = {
       chainHeadBlock: parseInt(networkInfo.chainHeadBlock.number),
       latestBlock: parseInt(networkInfo.latestBlock.number),
       lastHealthyBlock: parseInt(networkInfo.lastHealthyBlock.number),
@@ -122,6 +129,8 @@ export const getSubgraphHealth = async (subgraphName: string, url: string): Prom
       health: status.health,
       synced: status.synced,
     };
+    cache[url] = { timestamp: Date.now(), record };
+    return record;
   }
   return undefined;
 };
