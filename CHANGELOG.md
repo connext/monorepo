@@ -4,6 +4,8 @@
 
 - [sdk] Start polling when a transaction is prepared, and stop when final active transaction is completed
 - [integration] Test with ERC20 and with `skipPolling = true`
+- [utils] Use the correct url for the subgraph health
+- [utils] Cache the sync records in subgraph health and fallback subgraph
 
 ## 0.1.9
 

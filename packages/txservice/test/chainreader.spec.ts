@@ -287,7 +287,7 @@ describe("ChainReader", () => {
       const assetId = mkAddress("0xc3");
       const currentTimestamp = Math.floor(Date.now() / 1000);
       const tokenPrice = BigNumber.from("5812471953821");
-      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId);
+      const cachedPriceKey = TEST_SENDER_CHAIN_ID.toString().concat("-").concat(assetId).concat("latest");
 
       cachedPriceMap.set(cachedPriceKey, {
         timestamp: currentTimestamp - 61,

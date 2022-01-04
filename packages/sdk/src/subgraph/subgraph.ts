@@ -124,7 +124,9 @@ export class Subgraph {
     Object.entries(_chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
       const cId = parseInt(chainId);
       const urls = typeof subgraph === "string" ? [subgraph] : subgraph;
-      const sdksWithClients = urls.map((url) => ({ client: getSdk(new GraphQLClient(url)), url }));
+      const sdksWithClients = urls.map((url) => {
+        return { client: getSdk(new GraphQLClient(url)), url };
+      });
       const fallbackSubgraph = new FallbackSubgraph<Sdk>(
         cId,
         sdksWithClients,

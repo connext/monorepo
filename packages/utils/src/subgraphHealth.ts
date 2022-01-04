@@ -1,6 +1,18 @@
 import axios from "axios";
 
-const SUBGRAPH_HEALTH_URL = "https://api.thegraph.com/index-node/graphql";
+// TODO get from chainData
+const GET_SUBGRAPH_HEALTH_URL = (url: string): string | undefined => {
+  if (url.includes("connext.bwarelabs.com/subgraphs/name/connext")) {
+    return "https://connext.bwarelabs.com/bsc/index-node/graphql";
+  } else if (url.includes("api.thegraph.com/subgraphs/name/connext")) {
+    return "https://api.thegraph.com/index-node/graphql";
+  } else if (url.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-bsc")) {
+    return "https://subgraphs.connext.p2p.org/nxtp-bsc-health-check";
+  } else if (url.includes("subgraphs.connext.p2p.org/subgraphs/name/connext/nxtp-matic")) {
+    return "https://subgraphs.connext.p2p.org/nxtp-matic-health-check";
+  }
+  return undefined;
+};
 
 // TODO: Make an actual error type for this?
 type SubgraphHealthError = {
@@ -25,6 +37,7 @@ type SubgraphHealth = {
 /**
  *
  * @param subgraphName - name of the subgraph, e.g. "nxtp-bsc-v1-runtime"
+ * @param url - url of the subgraph, e.g. "nxtp-bsc-v1-runtime"
  *
  * @returns SubgraphHealth object with the following fields:
  * - chainHeadBlock: the latest block number of the chain head
@@ -38,9 +51,15 @@ type SubgraphHealth = {
  *   - "failed": subgraph halted due to errors
  * - synced: whether the subgraph is synced to the network
  */
-export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphHealth | undefined> => {
+
+export const getSubgraphHealth = async (subgraphName: string, url: string): Promise<SubgraphHealth | undefined> => {
+  const healthUrl = GET_SUBGRAPH_HEALTH_URL(url);
+  if (!healthUrl) {
+    return undefined;
+  }
+
   const res = await axios({
-    url: SUBGRAPH_HEALTH_URL,
+    url: healthUrl,
     method: "post",
     data: {
       query: `{
@@ -95,7 +114,7 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphH
   if (res && res.data && res.data.data && res.data.data.indexingStatusForCurrentVersion) {
     const status = res.data.data.indexingStatusForCurrentVersion;
     const networkInfo = status.chains[0];
-    return {
+    const record = {
       chainHeadBlock: parseInt(networkInfo.chainHeadBlock.number),
       latestBlock: parseInt(networkInfo.latestBlock.number),
       lastHealthyBlock: parseInt(networkInfo.lastHealthyBlock.number),
@@ -104,6 +123,7 @@ export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphH
       health: status.health,
       synced: status.synced,
     };
+    return record;
   }
   return undefined;
 };
