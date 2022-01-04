@@ -555,7 +555,7 @@ describe("NxtpSdkBase", () => {
           callData: "0x11",
           encryptedCallData: "0x",
         }),
-      ).to.eventually.be.rejectedWith(EncryptionError.getMessage());
+      ).to.eventually.be.rejectedWith(EncryptionError);
     });
 
     it("should not include improperly signed bids", async () => {

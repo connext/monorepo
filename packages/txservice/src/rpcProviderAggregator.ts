@@ -596,6 +596,12 @@ export class RpcProviderAggregator {
     });
   }
 
+  public async getGasEstimate(tx: ReadTransaction): Promise<BigNumber> {
+    return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
+      return await provider.estimateGas(tx);
+    });
+  }
+
   /**
    * Gets the current transaction count.
    *
