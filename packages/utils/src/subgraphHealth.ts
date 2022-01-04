@@ -37,6 +37,7 @@ type SubgraphHealth = {
 /**
  *
  * @param subgraphName - name of the subgraph, e.g. "nxtp-bsc-v1-runtime"
+ * @param url - url of the subgraph, e.g. "nxtp-bsc-v1-runtime"
  *
  * @returns SubgraphHealth object with the following fields:
  * - chainHeadBlock: the latest block number of the chain head
@@ -50,8 +51,9 @@ type SubgraphHealth = {
  *   - "failed": subgraph halted due to errors
  * - synced: whether the subgraph is synced to the network
  */
-export const getSubgraphHealth = async (subgraphName: string): Promise<SubgraphHealth | undefined> => {
-  const healthUrl = GET_SUBGRAPH_HEALTH_URL(subgraphName);
+
+export const getSubgraphHealth = async (subgraphName: string, url: string): Promise<SubgraphHealth | undefined> => {
+  const healthUrl = GET_SUBGRAPH_HEALTH_URL(url);
   if (!healthUrl) {
     return undefined;
   }
