@@ -41,7 +41,7 @@ import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers
 import { getFeesInSendingAsset } from "../../lib/helpers/shared";
 import { allSenderPreparedTracker } from "../../adapters/subgraph/subgraph";
 
-const LOOP_INTERVAL = 15_000;
+const LOOP_INTERVAL = 30_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const handlingTracker: Map<string, Tracker> = new Map();
