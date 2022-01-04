@@ -300,7 +300,7 @@ describe("Integration", () => {
     await test(sendingAssetId, receivingAssetId);
   });
 
-  it("should send Native tokens", async function () {
+  it.skip("should send Native tokens", async function () {
     this.timeout(120_000);
 
     const sendingAssetId = AddressZero;
