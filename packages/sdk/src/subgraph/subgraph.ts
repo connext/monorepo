@@ -146,6 +146,10 @@ export class Subgraph {
     }
   }
 
+  public getActiveTransactionIds(): string[] {
+    return [...this.activeTxs.keys()];
+  }
+
   public stopPolling(): void {
     if (this.pollingLoop != null) {
       clearInterval(this.pollingLoop);
@@ -159,7 +163,7 @@ export class Subgraph {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
         try {
           await this.getActiveTransactions();
-        } catch (err) {
+        } catch (err: any) {
           this.logger.error("Error in subgraph loop", requestContext, methodContext, err);
         }
       }, this.pollInterval);
@@ -513,7 +517,7 @@ export class Subgraph {
 
           const activeFlattened = activeTxs.flat().filter((x) => !!x) as ActiveTransaction[];
           return activeFlattened;
-        } catch (e) {
+        } catch (e: any) {
           errors.set(chainId, e);
           this.logger.error("Error getting active transactions", requestContext, methodContext, jsonifyError(e), {
             chainId,
