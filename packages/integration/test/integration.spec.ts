@@ -81,7 +81,22 @@ describe("Integration", () => {
 
   const tokenReceiving = new Contract(erc20Address, TestTokenABI, sugarDaddy.connect(receivingChainProvider));
 
-  const setupTest = async (sendingTokenAddress: string, receivingTokenAddress: string): Promise<void> => {
+  const setupTest = async (
+    sendingTokenAddress: string,
+    receivingTokenAddress: string,
+    skipPolling = false,
+  ): Promise<void> => {
+    if (skipPolling) {
+      // reset user sdk
+      userSdk = new NxtpSdk({
+        chainConfig,
+        signer: userWallet.connect(sendingChainProvider),
+        logger: new Logger({ name: "IntegrationTest", level: process.env.LOG_LEVEL ?? "silent" }),
+        network: "local",
+        skipPolling,
+      });
+    }
+
     const tokenAddressSending = sendingTokenAddress;
     const tokenAddressReceiving = receivingTokenAddress;
 
@@ -274,7 +289,7 @@ describe("Integration", () => {
     });
   });
 
-  it.only("should send ERC20 tokens", async function () {
+  it("should send ERC20 tokens", async function () {
     this.timeout(120_000);
 
     const sendingAssetId = erc20Address;
@@ -292,6 +307,17 @@ describe("Integration", () => {
     const receivingAssetId = AddressZero;
 
     await setupTest(sendingAssetId, receivingAssetId);
+
+    await test(sendingAssetId, receivingAssetId);
+  });
+
+  it("should work when user sdk isnt polling", async function () {
+    this.timeout(120_000);
+
+    const sendingAssetId = erc20Address;
+    const receivingAssetId = erc20Address;
+
+    await setupTest(sendingAssetId, receivingAssetId, true);
 
     await test(sendingAssetId, receivingAssetId);
   });
