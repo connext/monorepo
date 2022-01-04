@@ -188,7 +188,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * @returns Subgraph sync records for each subgraph.
    */
   public async sync(_latestBlock?: number): Promise<SubgraphSyncRecord[]> {
-    // If the latest sync was within 5s, do not requery
+    // If the latest sync was within SYNC_CACHE_TTL, do not requery
     if (Date.now() - this.latestSync < SYNC_CACHE_TTL) {
       return this.records;
     }
