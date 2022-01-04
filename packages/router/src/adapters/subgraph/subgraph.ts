@@ -18,6 +18,7 @@ import {
   SingleChainTransaction,
   CrosschainTransactionStatus,
   ExpressiveAssetBalance,
+  ActiveTransactionsTracker,
 } from "../../lib/entities";
 import { handlingTracker } from "../../bindings/contractReader";
 
@@ -33,6 +34,7 @@ import {
 import { GetExpressiveAssetBalancesQuery } from "./analytics/graphqlsdk";
 
 import { getAnalyticsSdks, getSdks } from "./index";
+export let allSenderPreparedTracker: ActiveTransactionsTracker[] = [];
 
 export const getSyncRecords = async (
   chainId: number,
@@ -116,6 +118,7 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
   // get local context
   const sdks = getSdks();
   const errors: Map<string, Error> = new Map();
+  allSenderPreparedTracker = [];
   const allChains = await Promise.all(
     Object.entries(sdks).map(async ([cId, sdk]) => {
       try {
@@ -168,6 +171,14 @@ export const getActiveTransactions = async (_requestContext?: RequestContext): P
             );
             toCancel.push(senderTx);
           }
+
+          allSenderPreparedTracker.push({
+            status: senderTx.status,
+            transactionsId: senderTx.transactionId,
+            sendingChainId: senderTx.sendingChainId,
+            receivingChainId: senderTx.receivingChainId,
+          });
+
           if (receivingChains[senderTx.receivingChainId]) {
             receivingChains[senderTx.receivingChainId].push(senderTx.transactionId);
           } else {
