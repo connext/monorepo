@@ -18,6 +18,7 @@ import { bindFastify } from "./bindings/fastify";
 import { bindMetrics } from "./bindings/metrics";
 import { Web3Signer } from "./adapters/web3signer";
 import { bindPrices } from "./bindings/prices";
+import { AuctionCache } from "./lib/entities/auctionCache";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -31,6 +32,7 @@ export type Context = {
   contractReader: ContractReader;
   contractWriter: ContractWriter;
   chainData: Map<string, ChainData>;
+  auctionCache: AuctionCache;
 };
 
 const context: Context = {} as any;
@@ -85,6 +87,8 @@ export const makeRouter = async () => {
       context.config.chainConfig as any,
       context.wallet,
     );
+
+    context.auctionCache = new AuctionCache();
 
     // adapters
     context.contractReader = subgraphContractReader();

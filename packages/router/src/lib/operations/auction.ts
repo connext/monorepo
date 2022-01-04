@@ -23,10 +23,20 @@ import {
   NotEnoughAmount,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, LiquidityUnavailable, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import { getAssetName } from "../helpers/metrics";
+
+// Percentage number reflects the quotient of our total liquidity we are willing to overbid by
+// on receiving chain. In other words, if we're willing to bid more funds on receiving chain than
+// we actually have, this number will be >100. A value of 150, for example, means we are willing to
+// "promise" up to 150% of our liquidity on receiving chain to
+// This is similar in concept to airlines overbooking their seats, ISPs oversubscribing, or short
+// positions on GME; except in our case, we must also take into account that our bids compete
+// with many other routers on the network. Theoretically, most of our bids should expire without
+// being selected (unless this router somehow has >=50% share of the network).
+const MAX_OUTSTANDING_LIQUIDITY_PERC = 150;
 
 export const newAuction = async (
   data: AuctionPayload,
@@ -42,7 +52,7 @@ export const newAuction = async (
     receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
-  const { logger, config, contractReader, txService, wallet, chainData, routerAddress } = getContext();
+  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, auctionCache } = getContext();
   logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
@@ -224,6 +234,7 @@ export const newAuction = async (
 
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
+  // Get router's current liquidity balance for receiving asset on receiving chain.
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(amountReceived)) {
@@ -231,6 +242,29 @@ export const newAuction = async (
       methodContext,
       requestContext,
     });
+  }
+
+  // Get the outstanding liquidity the router has already "promised" for recent bids, as well as maximum
+  // based on current balance.
+  const currentOutstanding = auctionCache.getOutstandingLiquidity(receivingChainId, receivingAssetId);
+  const maximumOutstanding = balance.mul(MAX_OUTSTANDING_LIQUIDITY_PERC).div(100);
+  // Total available liquidity is the maximum outstanding minus the current outstanding.
+  // NOTE: This value can be negative, if the balance has just dipped below the current outstanding. In which
+  // case we'll naturally throw the error below.
+  const availableLiquidity = maximumOutstanding.sub(currentOutstanding);
+  if (availableLiquidity.lt(amountReceived)) {
+    throw new LiquidityUnavailable(
+      receivingChainId,
+      receivingAssetId,
+      balance.toString(),
+      amountReceived,
+      currentOutstanding.toString(),
+      maximumOutstanding.toString(),
+      {
+        methodContext,
+        requestContext,
+      },
+    );
   }
 
   // Check for minimum gas on both chains
@@ -301,6 +335,19 @@ export const newAuction = async (
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
     currentTime * 1000,
   );
+
+  // Bid generation was successful, add this bid to the auction cache.
+  // TODO: Due to this process being async, this should really be done immediately after we've
+  // determined there's enough available liquidity above, to prevent a mutex race where we end up bidding
+  // over the maximum.
+  auctionCache.addBid({
+    chainId: receivingChainId,
+    assetId: receivingAssetId,
+    amountReceived: amountReceivedInBigNum,
+    expiry,
+    transactionId,
+  });
+
   return {
     bid,
     bidSignature: dryRun ? undefined : bidSignature,
