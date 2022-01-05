@@ -31,7 +31,7 @@ const auctionPayload: AuctionPayload = {
 
 let getReceiverAmountStub: SinonStub;
 
-describe.only("Auction Operation", () => {
+describe("Auction Operation", () => {
   const { newAuction } = getOperations();
   describe("#newAuction", () => {
     beforeEach(() => {
