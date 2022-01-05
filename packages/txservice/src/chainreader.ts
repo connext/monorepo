@@ -64,11 +64,12 @@ export class ChainReader {
    * @param tx.chainId - Chain to read transaction on
    * @param tx.to - Address to execute read on
    * @param tx.data - Calldata to send
+   * @param blockTag - (optional) Block tag to query, defaults to latest
    *
    * @returns Encoded hexdata representing result of the read from the chain.
    */
-  public async readTx(tx: ReadTransaction): Promise<string> {
-    return await this.getProvider(tx.chainId).readContract(tx);
+  public async readTx(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
+    return await this.getProvider(tx.chainId).readContract(tx, blockTag);
   }
 
   /**
@@ -169,6 +170,18 @@ export class ChainReader {
     return await this.getProvider(chainId).getCode(address);
   }
 
+  /**
+   * Returns a hexcode string representation of the contract code at the given
+   * address. If there is no contract deployed at the given address, returns "0x".
+   *
+   * @param address - contract address.
+   *
+   * @returns Hexcode string representation of contract code.
+   */
+  public async getGasEstimate(chainId: number, tx: ReadTransaction): Promise<BigNumber> {
+    return await this.getProvider(chainId).getGasEstimate(tx);
+  }
+
   /// CONTRACT READ METHODS
   /**
    * Gets token price in usd from cache or price oracle
@@ -176,10 +189,15 @@ export class ChainReader {
    * @param chainId - The network identifier.
    * @param assetId - The asset address to get price for.
    */
-  public async getTokenPrice(chainId: number, assetId: string, _requestContext?: RequestContext): Promise<BigNumber> {
+  public async getTokenPrice(
+    chainId: number,
+    assetId: string,
+    blockTag: providers.BlockTag = "latest",
+    _requestContext?: RequestContext,
+  ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPrice.name, _requestContext);
 
-    const cachedPriceKey = chainId.toString().concat("-").concat(assetId);
+    const cachedPriceKey = chainId.toString().concat("-").concat(assetId).concat(blockTag.toString());
     const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
     const curTimeInSecs = await getNtpTimeSeconds();
 
@@ -188,7 +206,7 @@ export class ChainReader {
       return cachedTokenPrice.price;
     }
 
-    const tokenPrice = await this.getTokenPriceFromOnChain(chainId, assetId, requestContext);
+    const tokenPrice = await this.getTokenPriceFromOnChain(chainId, assetId, blockTag, requestContext);
     cachedPriceMap.set(cachedPriceKey, { timestamp: curTimeInSecs, price: tokenPrice });
     return tokenPrice;
   }
@@ -202,6 +220,7 @@ export class ChainReader {
   public async getTokenPriceFromOnChain(
     chainId: number,
     assetId: string,
+    blockTag: providers.BlockTag = "latest",
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
     const { requestContext } = createLoggingContext(this.getTokenPriceFromOnChain.name, _requestContext);
@@ -210,11 +229,14 @@ export class ChainReader {
       throw new ChainNotSupported(chainId.toString(), requestContext);
     }
     const encodedTokenPriceData = getPriceOracleInterface().encodeFunctionData("getTokenPrice", [assetId]);
-    const tokenPrice = await this.readTx({
-      chainId,
-      to: priceOracleContract.address,
-      data: encodedTokenPriceData,
-    });
+    const tokenPrice = await this.readTx(
+      {
+        chainId,
+        to: priceOracleContract.address,
+        data: encodedTokenPriceData,
+      },
+      blockTag,
+    );
     const tokenPriceInBigNum = BigNumber.from(tokenPrice);
     return tokenPriceInBigNum;
   }
@@ -291,6 +313,8 @@ export class ChainReader {
     receivingChainId: number,
     receivingAssetId: string,
     outputDecimals: number,
+    callData?: string,
+    callTo?: string,
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
@@ -312,6 +336,8 @@ export class ChainReader {
       false,
       chainData,
       requestContext,
+      callData,
+      callTo,
     );
   }
 
@@ -334,10 +360,12 @@ export class ChainReader {
     chainId: number,
     assetId: string,
     decimals: number,
-    method: "prepare" | "fulfill" | "cancel",
+    method: "prepare" | "fulfill" | "cancel" | "removeLiquidity",
     isRouterContract: boolean,
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
+    callData = "0x",
+    callTo = constants.AddressZero,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateGasFee.name, _requestContext);
 
@@ -380,8 +408,10 @@ export class ChainReader {
         gasEstimate = DEFAULT_GAS_ESTIMATES.prepareL1;
       } else if (method === "fulfill") {
         gasEstimate = DEFAULT_GAS_ESTIMATES.fulfillL1;
-      } else {
+      } else if (method === "cancel") {
         gasEstimate = DEFAULT_GAS_ESTIMATES.cancelL1;
+      } else {
+        gasEstimate = DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
       }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
@@ -392,26 +422,43 @@ export class ChainReader {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
-    } else {
+      if (callData !== "0x" && callTo !== constants.AddressZero) {
+        const callGas = await this.getGasEstimate(chainId, { to: callTo, data: callData, chainId });
+        console.log("extra callGas: ", callGas.toString());
+        gasLimit = gasLimit.add(callGas);
+      }
+    } else if (method === "cancel") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.cancelRouterContract : gasLimits.cancel);
+    } else {
+      gasLimit = BigNumber.from(isRouterContract ? gasLimits.removeLiquidityRouterContract : gasLimits.removeLiquidity);
     }
+
     const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
 
-    this.logger.info(
-      `Calculated gas fee on chain ${chainIdForTokenPrice} for ${method}`,
-      requestContext,
-      methodContext,
-      {
-        tokenAmountForGasFee: tokenAmountForGasFee.toString(),
-        l1GasInUsd: l1GasInUsd.toString(),
-        ethPrice: ethPrice.toString(),
-        tokenPrice: tokenPrice.toString(),
-        gasPrice: gasPrice.toString(),
+    this.logger.info("Calculated gas fee.", requestContext, methodContext, {
+      method,
+      isRouterContract,
+      asset: {
+        chainIdForTokenPrice,
+        token: assetId,
+        price: tokenPrice.toString(),
+        assetIdOnMainnet: assetIdOnMainnet ?? "N/A",
+        decimals,
       },
-    );
+      gas: {
+        chainIdForGasPrice,
+        price: gasPrice.toString(),
+        limit: gasLimit.toString(),
+        ethPriceUsd: ethPrice.toString(),
+        l1GasInUsd: l1GasInUsd.toString(),
+        nativeAssetIdOnMainnet: nativeAssetIdOnMainnet ?? "N/A",
+      },
+      gasAmountInUsd,
+      finalTokenAmountForGasFee: tokenAmountForGasFee.toString(),
+    });
 
     return tokenAmountForGasFee;
   }

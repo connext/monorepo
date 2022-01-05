@@ -34,13 +34,20 @@ const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 dotenvConfig();
 
 /**
+ * Helper to allow easy mocking
+ */
+export const getContractDeployments: any = () => {
+  return contractDeployments;
+};
+
+/**
  * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
  *
  * @param chainId - The chain you want the address on
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[chainId.toString()] ?? {};
+  const record = getContractDeployments()[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -56,7 +63,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[chainId.toString()] ?? {};
+  const record = getContractDeployments()[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -71,9 +78,10 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
  */
 export const getDeployedChainIdsForGasFee = (): number[] => {
   const chainIdsForGasFee: number[] = [];
+  const contractDeployments = getContractDeployments();
   const chainIds = Object.keys(contractDeployments);
   chainIds.forEach((chainId) => {
-    const record = (contractDeployments as any)[chainId.toString()];
+    const record = contractDeployments[chainId.toString()];
     const chainName = Object.keys(record)[0];
     if (chainName) {
       const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
@@ -92,7 +100,7 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = (contractDeployments as any)[chainId.toString()] ?? {};
+  const record = getContractDeployments()[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;

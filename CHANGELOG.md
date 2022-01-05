@@ -2,6 +2,24 @@
 
 ## Next Release
 
+## 0.1.10
+
+- [utils] Use the correct url for the subgraph health
+- [utils] Cache the sync records in subgraph health and fallback subgraph
+- [router] Update polling time
+
+## 0.1.9
+
+- [router] Use correct chain for gas fee calc for cancel
+
+## 0.1.8
+
+- [router] Properly check low gas on router contracts
+
+## 0.1.7
+
+- [router][sdk] - Fix gas estimation issue
+
 ## 0.1.6
 
 - [router] Fix relaying signature

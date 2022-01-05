@@ -7,7 +7,7 @@ import { TIntegerString, TAddress, TChainId } from "./basic";
 import { isNode } from "./env";
 import { safeJsonStringify } from "./json";
 import { NxtpError, NxtpErrorJson, Values } from "./error";
-import { CancelParams, FulfillParams, PrepareParams } from "./transactionManager";
+import { CancelParams, FulfillParams, PrepareParams, RemoveLiquidityParams } from "./transactionManager";
 import { createLoggingContext, createRequestContext, getUuid, RequestContext } from "./request";
 import { Logger } from "./logger";
 
@@ -399,6 +399,7 @@ export const MetaTxTypes = {
   RouterContractPrepare: "RouterContractPrepare",
   RouterContractFulfill: "RouterContractFulfill",
   RouterContractCancel: "RouterContractCancel",
+  RouterContractRemoveLiquidity: "RouterContractRemoveLiquidity",
 } as const;
 export type MetaTxType = typeof MetaTxTypes[keyof typeof MetaTxTypes];
 
@@ -407,6 +408,7 @@ export type MetaTxPayloads = {
   [MetaTxTypes.RouterContractPrepare]: MetaTxRouterContractPreparePayload;
   [MetaTxTypes.RouterContractFulfill]: MetaTxRouterContractFulfillPayload;
   [MetaTxTypes.RouterContractCancel]: MetaTxRouterContractCancelPayload;
+  [MetaTxTypes.RouterContractRemoveLiquidity]: MetaTxRouterContractRemoveLiquidityPayload;
 };
 
 export type MetaTxFulfillPayload = FulfillParams;
@@ -426,6 +428,13 @@ export type MetaTxRouterContractCancelPayload = {
 
 export type MetaTxRouterContractFulfillPayload = {
   params: FulfillParams;
+  relayerFee: string;
+  relayerFeeAsset: string;
+  signature: string;
+};
+
+export type MetaTxRouterContractRemoveLiquidityPayload = {
+  params: RemoveLiquidityParams;
   relayerFee: string;
   relayerFeeAsset: string;
   signature: string;

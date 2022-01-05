@@ -10,6 +10,7 @@ import {
   Call,
   ERC20Abi,
   ChainData,
+  signRouterRemoveLiquidityTransactionPayload as _signRouterRemoveLiquidityTransactionPayload,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants } from "ethers";
@@ -98,7 +99,7 @@ export const getTokenPriceFromOnChain = async (
   requestContext?: RequestContext,
 ): Promise<BigNumber> => {
   const { txService } = getContext();
-  return txService.getTokenPriceFromOnChain(chainId, assetId, requestContext);
+  return txService.getTokenPriceFromOnChain(chainId, assetId, undefined, requestContext);
 };
 
 export const sanitationCheck = async (
@@ -269,3 +270,5 @@ export const isRouterWhitelisted = async (routerAddress: string, chainId: number
 
   return result;
 };
+
+export const signRouterRemoveLiquidityTransactionPayload = _signRouterRemoveLiquidityTransactionPayload;

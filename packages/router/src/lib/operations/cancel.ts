@@ -102,7 +102,11 @@ export const cancel = async (
         {
           requestContext,
           methodContext,
-          preparedBlock,
+          preparedBlock: {
+            exists: !!preparedBlock,
+            timestamp: preparedBlock?.timestamp,
+            blockNumber: receipt.blockNumber,
+          },
           currentTime,
         },
       );
@@ -117,7 +121,7 @@ export const cancel = async (
     routerRelayerFeeAsset = utils.getAddress(config.chainConfig[cancelChain].routerContractRelayerAsset || AddressZero);
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(cancelChain, routerRelayerFeeAsset);
     routerRelayerFee = await txService.calculateGasFee(
-      invariantData.receivingChainId,
+      cancelChain,
       routerRelayerFeeAsset,
       relayerFeeAssetDecimal,
       "cancel",

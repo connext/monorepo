@@ -355,7 +355,9 @@ describe("NxtpSdk", () => {
 
       ethereumRequestMock.throws(new Error("fails"));
 
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(EncryptionError.getMessage());
+      await expect(sdk.getTransferQuote({ ...crossChainParams, passCalldataUnencrypted: false })).to.be.rejectedWith(
+        EncryptionError,
+      );
     });
 
     it("should fail if encrypt fails", async () => {
@@ -364,7 +366,9 @@ describe("NxtpSdk", () => {
 
       encryptMock.throws(new Error("fails"));
 
-      await expect(sdk.getTransferQuote(crossChainParams)).to.be.rejectedWith(EncryptionError.getMessage());
+      await expect(sdk.getTransferQuote({ ...crossChainParams, passCalldataUnencrypted: false })).to.be.rejectedWith(
+        EncryptionError,
+      );
     });
 
     it("happy: should get a transfer quote ", async () => {
@@ -481,7 +485,7 @@ describe("NxtpSdk", () => {
           encodedBid: EmptyCallDataHash,
           bidSignature: EmptyCallDataHash,
         }),
-      ).to.eventually.be.rejectedWith(EncryptionError.getMessage());
+      ).to.eventually.be.rejectedWith(EncryptionError);
     });
 
     it("should error if finish transfer => useRelayers:true, metaTxResponse errors", async () => {

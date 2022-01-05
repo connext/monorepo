@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.1.6",
+  "version": "0.1.10",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",

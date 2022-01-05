@@ -312,6 +312,8 @@ export class NxtpSdkBase {
   public async calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId: number,
     receivingAssetId: string,
+    callData: string,
+    callTo: string,
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(
       this.calculateGasFeeInReceivingTokenForFulfill.name,
@@ -324,6 +326,8 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       outputDecimals,
+      callData,
+      callTo,
       this.chainData,
     );
   }
@@ -334,9 +338,11 @@ export class NxtpSdkBase {
     sendingAssetId: string;
     receivingChainId: number;
     receivingAssetId: string;
+    callData: string;
+    callTo: string;
   }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
     const { requestContext, methodContext } = createLoggingContext(this.getEstimateReceiverAmount.name, undefined);
-    const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId } = params;
+    const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId, callData, callTo } = params;
 
     this.logger.debug("Estimating receiver amount", requestContext, methodContext, {
       amount,
@@ -369,6 +375,8 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       outputDecimals,
+      callData,
+      callTo,
       this.chainData,
       requestContext,
     );
@@ -560,6 +568,8 @@ export class NxtpSdkBase {
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
+      callData,
+      callTo,
     });
 
     if (BigNumber.from(receiverAmount).lt(0)) {
