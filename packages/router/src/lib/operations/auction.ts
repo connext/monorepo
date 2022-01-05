@@ -227,6 +227,7 @@ export const newAuction = async (
   // Get router's current liquidity balance for receiving asset on receiving chain.
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
+  // Make sure we have enough liquidity to bid on this transaction.
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
       methodContext,
