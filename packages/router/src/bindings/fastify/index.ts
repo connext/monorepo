@@ -1,5 +1,5 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
-import { constants, utils } from "ethers/lib/ethers";
+import { constants, utils } from "ethers";
 import fastify from "fastify";
 import { register } from "prom-client";
 

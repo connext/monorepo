@@ -13,7 +13,7 @@ import {
 } from "@connext/nxtp-utils";
 import { constants, utils } from "ethers";
 import { Interface } from "ethers/lib/utils";
-import { BigNumber } from "ethers/lib/ethers";
+import { BigNumber } from "ethers";
 import { SinonStubbedInstance, createStubInstance, stub, SinonStub, restore, reset } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 

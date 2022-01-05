@@ -1,5 +1,5 @@
 import { SinonStub, stub } from "sinon";
-import { BigNumber, constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers";
 import {
   AuctionBid,
   expect,
