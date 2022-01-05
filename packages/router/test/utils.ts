@@ -145,9 +145,16 @@ export const singleChainTransactionMock: SingleChainTransaction = {
 
 export const chainDataMock = chainDataToMap([
   {
-    name: "Unit Test Chain",
+    name: "Unit Test Chain 1",
     chainId: 1337,
     confirmations: 1,
+    assetId: {},
+  },
+  {
+    name: "Unit Test Chain 2",
+    chainId: 1338,
+    confirmations: 1,
+    assetId: {},
   },
 ]);
 

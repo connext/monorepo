@@ -8,7 +8,7 @@ export {
   signRouterPrepareTransactionPayload,
 } from "./prepare";
 
-export { getBidExpiry, AUCTION_EXPIRY_BUFFER } from "./auction";
+export { getBidExpiry, AUCTION_EXPIRY_BUFFER, MAX_OUTSTANDING_LIQUIDITY_PERC } from "./auction";
 
 export * from "./shared";
 

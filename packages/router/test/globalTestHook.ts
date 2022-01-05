@@ -67,7 +67,7 @@ export const mochaHooks = {
     };
 
     const auctionsCacheMock = createStubInstance(AuctionCache);
-    auctionsCacheMock.getOutstandingLiquidity.resolves(BigNumber.from("0"));
+    auctionsCacheMock.getOutstandingLiquidity.returns(BigNumber.from("0"));
     auctionsCacheMock.addBid.resolves();
     cacheMock = {
       auctions: auctionsCacheMock as any,
