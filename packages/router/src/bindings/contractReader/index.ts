@@ -178,7 +178,7 @@ export const handleSingle = async (
     _requestContext,
     transaction.crosschainTx.invariant.transactionId,
   );
-  const { logger, txService, config } = getContext();
+  const { logger, txService, config, cache } = getContext();
   const { prepare, cancel, fulfill } = getOperations();
 
   let receipt: providers.TransactionReceipt | undefined;
@@ -214,6 +214,20 @@ export const handleSingle = async (
     const preparePayload: PreparePayload = _transaction.payload;
     try {
       logger.info("Preparing receiver", requestContext, methodContext);
+      const didConfirm = cache.auctions.confirmBid(
+        _transaction.crosschainTx.invariant.receivingChainId,
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.transactionId,
+      );
+      if (!didConfirm) {
+        logger.warn("Was unable to confirm bid to reserve liquidity", requestContext, methodContext, {
+          didConfirm,
+          receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
+          receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          transactionId: _transaction.crosschainTx.invariant.transactionId,
+          receivingAmount: _transaction.crosschainTx.receiving?.amount,
+        });
+      }
       receipt = await prepare(
         _transaction.crosschainTx.invariant,
         {
@@ -353,6 +367,15 @@ export const handleSingle = async (
           }
         }
       }
+    } finally {
+      // Regardless of whether the prepare executed successfully, we can free up the outstanding liquidity.
+      // If it was successful, the liquidity will go from being outstanding, to being locked up for the transaction,
+      // and current balance will reflect that.
+      cache.auctions.removeBid(
+        _transaction.crosschainTx.invariant.receivingChainId,
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.transactionId,
+      );
     }
   } else if (transaction.status === CrosschainTransactionStatus.ReceiverFulfilled) {
     const _transaction = transaction as ActiveTransaction<"ReceiverFulfilled">;

@@ -118,9 +118,11 @@ describe("AuctionCache", () => {
       };
       auctionCache.addBid(bid);
       const key = (auctionCache as any).getCachedBidCompositeKey(chainId, assetId);
-      const retrieved = (auctionCache as any).bids.get(key);
-      expect(retrieved.length).to.eq(1);
-      expect(retrieved[0]).to.deep.eq(bid);
+      const retrieved = (auctionCache as any).auctions.get(key).get(bid.transactionId);
+      expect(retrieved).to.deep.eq({
+        ...bid,
+        confirmed: false,
+      });
     });
   });
 });
