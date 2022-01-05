@@ -12,13 +12,13 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { getConfig, NxtpRouterConfig } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
 import { contractWriter, ContractWriter } from "./adapters/contract";
+import { createRouterCache, RouterCache } from "./adapters/cache";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
 import { bindMetrics } from "./bindings/metrics";
 import { Web3Signer } from "./adapters/web3signer";
 import { bindPrices } from "./bindings/prices";
-import { AuctionCache } from "./lib/entities/auctionCache";
 
 export type Context = {
   config: NxtpRouterConfig;
@@ -32,7 +32,7 @@ export type Context = {
   contractReader: ContractReader;
   contractWriter: ContractWriter;
   chainData: Map<string, ChainData>;
-  auctionCache: AuctionCache;
+  cache: RouterCache;
 };
 
 const context: Context = {} as any;
@@ -88,7 +88,7 @@ export const makeRouter = async () => {
       context.wallet,
     );
 
-    context.auctionCache = new AuctionCache();
+    context.cache = createRouterCache();
 
     // adapters
     context.contractReader = subgraphContractReader();

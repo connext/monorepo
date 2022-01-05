@@ -52,7 +52,7 @@ export const newAuction = async (
     receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
-  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, auctionCache } = getContext();
+  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, cache } = getContext();
   logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
@@ -246,7 +246,7 @@ export const newAuction = async (
 
   // Get the outstanding liquidity the router has already "promised" for recent bids, as well as maximum
   // based on current balance.
-  const currentOutstanding = auctionCache.getOutstandingLiquidity(receivingChainId, receivingAssetId);
+  const currentOutstanding = cache.auctions.getOutstandingLiquidity(receivingChainId, receivingAssetId);
   const maximumOutstanding = balance.mul(MAX_OUTSTANDING_LIQUIDITY_PERC).div(100);
   // Total available liquidity is the maximum outstanding minus the current outstanding.
   // NOTE: This value can be negative, if the balance has just dipped below the current outstanding. In which
@@ -340,7 +340,7 @@ export const newAuction = async (
   // TODO: Due to this process being async, this should really be done immediately after we've
   // determined there's enough available liquidity above, to prevent a mutex race where we end up bidding
   // over the maximum.
-  auctionCache.addBid({
+  cache.auctions.addBid({
     chainId: receivingChainId,
     assetId: receivingAssetId,
     amountReceived: amountReceivedInBigNum,
