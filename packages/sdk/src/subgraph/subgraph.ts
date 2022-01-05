@@ -148,6 +148,10 @@ export class Subgraph {
     }
   }
 
+  get isPolling(): boolean {
+    return !!this.pollingLoop;
+  }
+
   public stopPolling(): void {
     if (this.pollingLoop != null) {
       clearInterval(this.pollingLoop);
@@ -739,6 +743,9 @@ export class Subgraph {
     filter: (data: SubgraphEventPayloads[T]) => boolean = (_data: SubgraphEventPayloads[T]) => true,
     timeout?: number,
   ): void {
+    if (!this.pollingLoop) {
+      throw new PollingNotActive();
+    }
     const args = [timeout, callback].filter((x) => !!x);
     this.evts[event].pipe(filter).attach(...(args as [number, any]));
   }
@@ -758,6 +765,9 @@ export class Subgraph {
     filter: (data: SubgraphEventPayloads[T]) => boolean = (_data: SubgraphEventPayloads[T]) => true,
     timeout?: number,
   ): void {
+    if (!this.pollingLoop) {
+      throw new PollingNotActive();
+    }
     const args = [timeout, callback].filter((x) => !!x);
     this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
   }

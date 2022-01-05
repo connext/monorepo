@@ -987,11 +987,17 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    const fulfillTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, FULFILL_TIMEOUT, (data) => {
-      return data.txData.transactionId === params.txData.transactionId;
-    });
-
     if (useRelayers) {
+      let stopPollingAfter = false;
+      if (!this.subgraph.isPolling) {
+        stopPollingAfter = true;
+        this.subgraph.startPolling();
+      }
+
+      const fulfillTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, FULFILL_TIMEOUT, (data) => {
+        return data.txData.transactionId === params.txData.transactionId;
+      });
+
       if (isChainSupportedByGelato(txData.receivingChainId)) {
         this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
         const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
@@ -1070,6 +1076,10 @@ export class NxtpSdkBase {
         this.logger.info("Method complete", requestContext, methodContext, ret);
         return { transactionResponse: ret };
       } catch (e) {
+        if (stopPollingAfter) {
+          this.subgraph.stopPolling();
+        }
+
         throw e.message.includes("Evt timeout")
           ? new FulfillTimeout(txData.transactionId, FULFILL_TIMEOUT, params.txData.receivingChainId, {
               requestContext,
