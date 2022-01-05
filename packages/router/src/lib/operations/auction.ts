@@ -22,13 +22,7 @@ import {
   ParamsInvalid,
   NotEnoughAmount,
 } from "../errors";
-import {
-  getBidExpiry,
-  AUCTION_EXPIRY_BUFFER,
-  MAX_OUTSTANDING_LIQUIDITY_PERC,
-  getReceiverAmount,
-  getNtpTimeSeconds,
-} from "../helpers";
+import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
 import { AuctionRateExceeded, LiquidityUnavailable, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
@@ -243,7 +237,7 @@ export const newAuction = async (
   // Get the outstanding liquidity the router has already "promised" for recent bids, as well as maximum
   // based on current balance.
   const currentOutstanding = cache.auctions.getOutstandingLiquidity(receivingChainId, receivingAssetId);
-  const maximumOutstanding = balance.mul(MAX_OUTSTANDING_LIQUIDITY_PERC).div(100);
+  const maximumOutstanding = balance.mul(config.overbidAllowance).div(100);
   // Total available liquidity is the maximum outstanding minus the current outstanding.
   // NOTE: This value can be negative, if the balance has just dipped below the current outstanding. In which
   // case we'll naturally throw the error below.

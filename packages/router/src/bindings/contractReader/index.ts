@@ -214,13 +214,18 @@ export const handleSingle = async (
     const preparePayload: PreparePayload = _transaction.payload;
     try {
       logger.info("Preparing receiver", requestContext, methodContext);
+      // We need to confirm in the cache that this bid was accepted by the user and we are
+      // going through with our commitment to prepare on the receiving chain. The bid may expire in
+      // the time it takes to send the prepare transaction, but doing so ensures the cache extends
+      // the outstanding liquidity reservation for that time.
+      // See the `finally` block below for the `removeBid` operation that releases the outstanding liquidity.
       const didConfirm = cache.auctions.confirmBid(
         _transaction.crosschainTx.invariant.receivingChainId,
         _transaction.crosschainTx.invariant.receivingAssetId,
         _transaction.crosschainTx.invariant.transactionId,
       );
       if (!didConfirm) {
-        logger.warn("Was unable to confirm bid to reserve liquidity", requestContext, methodContext, {
+        logger.warn("Unable to confirm bid to extend liquidity reservation", requestContext, methodContext, {
           didConfirm,
           receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,

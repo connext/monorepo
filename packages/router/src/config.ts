@@ -162,6 +162,16 @@ export const NxtpRouterConfigSchema = Type.Object({
   cleanUpMode: Type.Boolean(),
   priceCacheMode: Type.Boolean(),
   diagnosticMode: Type.Boolean(),
+
+  // This percentage number reflects the quotient of our total liquidity we are willing to overbid by
+  // on receiving chain. In other words, if we're willing to bid more funds on receiving chain than
+  // we actually have, this number will be >100. A value of 150, for example, means we are willing to
+  // "promise" up to 150% of our liquidity on receiving chain to
+  // This is similar in concept to airlines overbooking their seats, ISPs oversubscribing, or short
+  // positions on GME; except in our case, we must also take into account that our bids compete
+  // with many other routers on the network. Theoretically, most of our bids should expire without
+  // being selected (unless this router somehow has >=50% share of the network).
+  overbidAllowance: Type.Integer({ minimum: 100, maximum: 200 }),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -250,6 +260,8 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     allowRelay: process.env.NXTP_ALLOW_RELAY || configJson.allowRelay || configFile.allowRelay || false,
+    overbidAllowance:
+      process.env.NXTP_OVERBID_ALLOWANCE || configJson.overbidAllowance || configFile.overbidAllowance || 150,
   };
 
   const overridechainRecommendedConfirmations =
