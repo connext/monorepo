@@ -73,6 +73,13 @@ describe("Web3Signer", () => {
     });
   });
 
+  describe("#prepareEthereumSignedMessage", () => {
+    it("happy if message is string", async () => {
+      const result = (Web3Signer as any).prepareEthereumSignedMessage("test");
+      expect(result).to.deep.eq((Web3Signer as any).prepareEthereumSignedMessage(utils.toUtf8Bytes("test")));
+    });
+  });
+
   describe("#signTransaction", () => {
     it("happy", async () => {
       // TODO: Can't seem to stub/overwrite ethers utils, so just going to emulate target functionality here.
