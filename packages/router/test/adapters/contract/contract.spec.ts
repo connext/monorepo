@@ -528,7 +528,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("fulfillRouterContract", async () => {
+  describe("#fulfillRouterContract", async () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });

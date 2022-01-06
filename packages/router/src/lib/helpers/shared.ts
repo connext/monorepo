@@ -9,7 +9,6 @@ import {
   getMainnetEquivalent as _getMainnetEquivalent,
   Call,
   ERC20Abi,
-  ChainData,
   signRouterRemoveLiquidityTransactionPayload as _signRouterRemoveLiquidityTransactionPayload,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
@@ -33,13 +32,9 @@ const { HashZero } = constants;
  * Helper to allow easy mocking
  */
 
-export const getMainnetEquivalent = async (chainId: number, assetId: string, chainData?: Map<string, ChainData>) => {
-  return await _getMainnetEquivalent(chainId, assetId, chainData);
-};
+export const getMainnetEquivalent = _getMainnetEquivalent;
 
-export const getNtpTimeSeconds = async () => {
-  return await _getNtpTimeSeconds();
-};
+export const getNtpTimeSeconds = _getNtpTimeSeconds;
 
 export const getContractAddress = (chainId: number): string => {
   const { config } = getContext();
@@ -99,7 +94,7 @@ export const getTokenPriceFromOnChain = async (
   requestContext?: RequestContext,
 ): Promise<BigNumber> => {
   const { txService } = getContext();
-  return txService.getTokenPriceFromOnChain(chainId, assetId, requestContext);
+  return txService.getTokenPriceFromOnChain(chainId, assetId, undefined, requestContext);
 };
 
 export const sanitationCheck = async (
@@ -192,6 +187,11 @@ export const sanitationCheck = async (
     }
 
     if (functionCall === "cancel" && chainId === transactionData.sendingChainId) {
+      const time = await getNtpTimeSeconds();
+      if (time > transactionData.expiry) {
+        // tx is expired, okay to cancel
+        return;
+      }
       const receivingChainNxtpContractAddress = getContractAddress(transactionData.receivingChainId);
 
       const receivingChainVariantTransactionDigest = await txService.readTx({

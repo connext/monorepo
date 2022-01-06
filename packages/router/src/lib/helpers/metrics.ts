@@ -33,7 +33,7 @@ export const convertToUsd = async (
 ): Promise<number> => {
   const { txService, logger } = getContext();
 
-  const price = await txService.getTokenPrice(chainId, assetId, requestContext);
+  const price = await txService.getTokenPrice(chainId, assetId, undefined, requestContext);
   if (price.isZero()) {
     // Do nothing
     return 0;

@@ -36,6 +36,9 @@ type Subgraph<T extends SubgraphSdk> = {
   };
 };
 
+// TODO: Would be cool if we could pass in like, 1/4 * maxLag * blockLengthMs (and get the blockLengthMs from chain reader, which determines that value on init)
+const SYNC_CACHE_TTL = 5_000;
+
 /**
  * @classdesc A class that manages the sync status of multiple subgraphs as well as their corresponding SDKs.
  */
@@ -47,6 +50,8 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
   private static readonly METRIC_WINDOW = 100;
 
   private readonly subgraphs: Subgraph<T>[];
+
+  private latestSync = 0;
 
   /**
    * Returns boolean representing whether at least one available subgraph is in sync.
@@ -85,28 +90,31 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
       const split = url.split("/");
       return split[split.length - 1];
     };
-    this.subgraphs = sdks.map(({ client, url }) => ({
-      url,
-      client,
-      record: {
-        // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
-        // which ones are most in sync.
-        uri: getHostnameFromRegex(url) ? getHostnameFromRegex(url)!.split(".").slice(0, -1).join(".") : url,
-        name: getSubgraphName(url),
-        synced: true,
-        latestBlock: -1,
-        syncedBlock: -1,
-        lag: 0,
-        errors: undefined,
-      },
-      priority: 0,
-      metrics: {
-        calls: [],
-        cps: 0,
-        reliability: 0,
-        avgExecTime: 0,
-      },
-    }));
+    this.subgraphs = sdks.map(({ client, url }) => {
+      const hostname = getHostnameFromRegex(url);
+      return {
+        url,
+        client,
+        record: {
+          // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
+          // which ones are most in sync.
+          uri: hostname ? hostname.split(".").slice(0, -1).join(".") : url,
+          name: getSubgraphName(url),
+          synced: true,
+          latestBlock: -1,
+          syncedBlock: -1,
+          lag: 0,
+          errors: undefined,
+        },
+        priority: 0,
+        metrics: {
+          calls: [],
+          cps: 0,
+          reliability: 0,
+          avgExecTime: 0,
+        },
+      };
+    });
   }
 
   /**
@@ -180,13 +188,17 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * @returns Subgraph sync records for each subgraph.
    */
   public async sync(_latestBlock?: number): Promise<SubgraphSyncRecord[]> {
+    // If the latest sync was within SYNC_CACHE_TTL, do not requery
+    if (Date.now() - this.latestSync < SYNC_CACHE_TTL) {
+      return this.records;
+    }
     // When accessing the graph, ENOTFOUND errors are known to occur due to too many requests in a
     // short timespan; thus there is a need for this helper.
     const withRetries = async (method: () => Promise<any | undefined>) => {
       for (let i = 0; i < 5; i++) {
         try {
           return await method();
-        } catch (e) {
+        } catch (e: any) {
           if (e.errno !== "ENOTFOUND") {
             throw e;
           }
@@ -202,7 +214,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
         let syncedBlock: number | undefined;
         // First, try to use the subgraph health API.
         try {
-          const health = await withRetries(async () => await getSubgraphHealth(subgraph.record.name));
+          const health = await withRetries(async () => await getSubgraphHealth(subgraph.record.name, subgraph.url));
           if (health && health.latestBlock && health.chainHeadBlock) {
             // Sanity check: make sure the values are valid numbers.
             latestBlock = typeof health.latestBlock === "number" ? health.latestBlock : latestBlock;
@@ -261,6 +273,8 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
         };
       }),
     );
+
+    this.latestSync = Date.now();
     return this.records;
   }
 

@@ -78,6 +78,8 @@ export const sendMetaTx = async <T extends MetaTxType>(
       txData.receivingChainId,
       txData.receivingAssetId,
       outputDecimals,
+      callData,
+      txData.callTo,
       chainData,
       requestContext,
     );
@@ -101,9 +103,9 @@ export const sendMetaTx = async <T extends MetaTxType>(
       chainId,
       {
         txData,
-        signature: signature,
-        relayerFee: relayerFee,
-        callData: callData,
+        signature,
+        relayerFee,
+        callData,
       },
       requestContext,
     );

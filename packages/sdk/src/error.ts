@@ -266,8 +266,8 @@ export class InvalidBidSignature extends ParamsError {
 export class EncryptionError extends NxtpError {
   static readonly type = EncryptionError.name;
 
-  static getMessage() {
-    return `Failed to encrypt calldata before auction`;
+  static getMessage(details: string) {
+    return `Failed calldata encryption: ${details}`;
   }
 
   constructor(
@@ -275,7 +275,7 @@ export class EncryptionError extends NxtpError {
     public readonly error?: NxtpErrorJson,
     public readonly context: any = {},
   ) {
-    super(EncryptionError.getMessage(), { encryptionError: error, ...context }, EncryptionError.type);
+    super(EncryptionError.getMessage(details), { encryptionError: error, ...context }, EncryptionError.type);
   }
 }
 

@@ -269,18 +269,19 @@ export class RpcProviderAggregator {
    * the target contract which we are reading from.
    *
    * @param tx - Minimal transaction data needed to read from chain.
+   * @param blockTag - Block number to look at, defaults to latest
    *
    * @returns A string of data read from chain.
    * @throws ChainError.reasons.ContractReadFailure in the event of a failure
    * to read from chain.
    */
-  public async readContract(tx: ReadTransaction): Promise<string> {
+  public async readContract(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       try {
         if (this.signer) {
-          return await this.signer.connect(provider).call(tx);
+          return await this.signer.connect(provider).call(tx, blockTag);
         } else {
-          return await provider.call(tx);
+          return await provider.call(tx, blockTag);
         }
       } catch (error) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
@@ -593,6 +594,12 @@ export class RpcProviderAggregator {
   public async getCode(address: string): Promise<string> {
     return this.execute<string>(false, async (provider: SyncProvider) => {
       return await provider.getCode(address);
+    });
+  }
+
+  public async getGasEstimate(tx: ReadTransaction): Promise<BigNumber> {
+    return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
+      return await provider.estimateGas(tx);
     });
   }
 

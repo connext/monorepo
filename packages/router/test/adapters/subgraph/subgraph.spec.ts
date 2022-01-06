@@ -14,6 +14,8 @@ import { TransactionStatus } from "../../../src/adapters/subgraph/runtime/graphq
 import {
   getActiveTransactions,
   getAssetBalance,
+  getAssetBalances,
+  getExpressiveAssetBalances,
   getSyncRecords,
   getTransactionForChain,
   sdkSenderTransactionToCrosschainTransaction,
@@ -30,6 +32,8 @@ type SdkMock = {
   GetTransactions: SinonStub;
   GetTransaction: SinonStub;
   GetAssetBalance: SinonStub;
+  GetAssetBalances: SinonStub;
+  GetExpressiveAssetBalances: SinonStub;
   GetBlockNumber: SinonStub;
   GetTransactionsWithRouter: SinonStub;
 };
@@ -39,6 +43,7 @@ let fallbackSubgraph: SinonStubbedInstance<FallbackSubgraph<SdkMock>>;
 let sdk: SdkMock;
 
 let getSdkStub: SinonStub;
+let getAnalyticsSdksStub: SinonStub;
 
 let mockSyncRecords: SubgraphSyncRecord[];
 let mockHasSynced = true;
@@ -62,6 +67,8 @@ describe("Subgraph Adapter", () => {
       GetTransactions: stub().resolves({ transactions: [] }),
       GetTransaction: stub().resolves(undefined),
       GetAssetBalance: stub().resolves(constants.Zero),
+      GetAssetBalances: stub().resolves([]),
+      GetExpressiveAssetBalances: stub().resolves([]),
       GetBlockNumber: stub().resolves({ _meta: { block: { number: 10000 } } }),
       GetTransactionsWithRouter: stub().resolves({ transactions: [] }),
     };
@@ -78,6 +85,7 @@ describe("Subgraph Adapter", () => {
         const synced = latestBlock - syncedBlock <= TEST_SUBGRAPH_MAX_LAG;
         mockSyncRecords = [
           {
+            name: "test",
             synced,
             latestBlock,
             syncedBlock,
@@ -99,6 +107,8 @@ describe("Subgraph Adapter", () => {
     };
 
     getSdkStub = stub(subgraphAdapter, "getSdks").returns(sdks as any);
+    getAnalyticsSdksStub = stub(subgraphAdapter, "getAnalyticsSdks").returns(sdks as any);
+
     config = {
       ...configMock,
     };
@@ -112,6 +122,7 @@ describe("Subgraph Adapter", () => {
       mockHasSynced = false;
       expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
         {
+          name: "test",
           synced: true,
           syncedBlock: 10,
           latestBlock: 10,
@@ -119,6 +130,21 @@ describe("Subgraph Adapter", () => {
           uri: "",
         },
       ]);
+    });
+
+    it("should error if invalid chain id", async () => {
+      const testChainId = 9876;
+      mockHasSynced = false;
+      const _sdks = {
+        [testChainId]: sdks[sendingChainId],
+      };
+      getSdkStub.returns(_sdks as any);
+      try {
+        await getSyncRecords(testChainId);
+      } catch (e) {
+        const expectedErrMessage = new NoChainConfig(testChainId).message;
+        expect(e.context.errors.get(testChainId.toString()).message).to.eq(expectedErrMessage);
+      }
     });
   });
 
@@ -156,7 +182,7 @@ describe("Subgraph Adapter", () => {
       txServiceMock.getBlockNumber.resolves(testLatestBlockNumber);
       expect(await getActiveTransactions()).to.be.deep.eq([]);
       expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
-        { synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" },
+        { name: "test", synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" },
       ]);
     });
 
@@ -441,6 +467,60 @@ describe("Subgraph Adapter", () => {
       getSdkStub.returns(sdks);
 
       await expect(getAssetBalance(assetId, sendingChainId)).to.be.rejectedWith(
+        (new ContractReaderNotAvailableForChain(sendingChainId) as any).message,
+      );
+    });
+  });
+
+  describe("#getAssetBalances", () => {
+    it("should work", async () => {
+      const assetId = mkAddress("0xa");
+      const amount = "1000";
+      sdk.GetAssetBalances.resolves({ assetBalances: [{ assetId, amount }] });
+      getSdkStub.returns(sdks);
+
+      const result = await getAssetBalances(sendingChainId);
+      expect(result[0].amount.eq(amount)).to.be.true;
+      expect(sdk.GetAssetBalances.calledOnceWithExactly({ routerId: `${routerAddrMock}` }));
+    });
+
+    it("should throw if there is no sdk", async () => {
+      sdks[sendingChainId] = undefined;
+      getSdkStub.returns(sdks);
+
+      await expect(getAssetBalances(sendingChainId)).to.be.rejectedWith(
+        (new ContractReaderNotAvailableForChain(sendingChainId) as any).message,
+      );
+    });
+  });
+
+  describe("#getExpressiveAssetBalances", () => {
+    it("should work", async () => {
+      const assetId = mkAddress("0xa");
+      const amount = "1000";
+      sdk.GetExpressiveAssetBalances.resolves({
+        assetBalances: [
+          {
+            assetId: assetId,
+            amount: amount,
+            supplied: "0",
+            locked: "0",
+            removed: "0",
+          },
+        ],
+      });
+      getAnalyticsSdksStub.returns(sdks);
+
+      const result = await getExpressiveAssetBalances(sendingChainId);
+      expect(result[0].amount.eq(amount)).to.be.true;
+      expect(sdk.GetExpressiveAssetBalances.calledOnceWithExactly({ routerId: `${routerAddrMock}` }));
+    });
+
+    it("should throw if there is no sdk", async () => {
+      sdks[sendingChainId] = undefined;
+      getAnalyticsSdksStub.returns(sdks);
+
+      await expect(getExpressiveAssetBalances(sendingChainId)).to.be.rejectedWith(
         (new ContractReaderNotAvailableForChain(sendingChainId) as any).message,
       );
     });
