@@ -9,7 +9,6 @@ import {
   createLoggingContext,
   encrypt,
   ChainData,
-  isNode,
   getChainData,
   StatusResponse,
 } from "@connext/nxtp-utils";
@@ -179,11 +178,11 @@ export class NxtpSdk {
   }
 
   /**
-   *
+   * Gets the current sync status of the subgraph(s) for the specified chain.
    * @param chainId
-   * @returns
+   * @returns SubgraphSyncRecord for the specified chain.
    */
-  getSubgraphSyncStatus(chainId: number): SubgraphSyncRecord {
+  public getSubgraphSyncStatus(chainId: number): SubgraphSyncRecord {
     return this.sdkBase.getSubgraphSyncStatus(chainId);
   }
 
@@ -309,10 +308,6 @@ export class NxtpSdk {
 
     const signerAddr = await this.config.signer.getAddress();
     const connectedSigner = this.config.signer;
-    // TODO: Safe to remove?
-    if (isNode()) {
-      // connectedSigner = this.config.signer.connect(this.config.chainConfig[sendingChainId].providers[0]);
-    }
 
     const approveTxReq = await this.sdkBase.approveForPrepare(
       { sendingAssetId, sendingChainId, amount, transactionId },
@@ -415,10 +410,6 @@ export class NxtpSdk {
 
     const signerAddress = await this.config.signer.getAddress();
     const connectedSigner = this.config.signer;
-    // TODO: Safe to remove?
-    // if (isNode()) {
-    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[txData.receivingChainId].provider);
-    // }
     let callData = "0x";
     if (txData.callDataHash === utils.keccak256(encryptedCallData)) {
       // Call data was passed unencrypted
@@ -475,7 +466,7 @@ export class NxtpSdk {
   }
 
   /**
-   * Cancels the given transaction
+   * Cancels the given transaction.
    *
    * @param cancelParams - Arguments to submit to chain
    * @param cancelParams.txData - TransactionData (invariant + variant) to be cancelled
@@ -497,32 +488,57 @@ export class NxtpSdk {
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
     const connectedSigner = this.config.signer;
-    // TODO: Safe to remove?
-    // if (isNode()) {
-    //   connectedSigner = this.config.signer.connect(this.config.chainConfig[chainId].provider);
-    // }
 
     const cancelResponse = await connectedSigner.sendTransaction(cancelReq);
     this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
     return cancelResponse;
   }
 
-  async getBalance(chainId: number, address: string, assetId?: string, abi?: string[]): Promise<BigNumber> {
+  /**
+   * Get the balance of the given address on the given chain,
+   *
+   * @param chainId - Chain that the address is on.
+   * @param address - Address whose balance we're getting.
+   * @param assetId (default: native token) - Asset to get the balance for.
+   * @param abi (default: ERC20) - ABI of the contract to get the balance from.
+   * @returns BigNumber value of the balance.
+   */
+  public async getBalance(chainId: number, address: string, assetId?: string, abi?: string[]): Promise<BigNumber> {
     return await this.sdkBase.chainReader.getBalance(chainId, address, assetId, abi);
   }
 
-  async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
+  /**
+   * Get the decimal places for the specified asset on the specified chain.
+   *
+   * @param chainId - Chain that the asset is on.
+   * @param assetId - Asset to get the decimal places for.
+   * @returns number of decimal places.
+   */
+  public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
     return await this.sdkBase.chainReader.getDecimalsForAsset(chainId, assetId);
   }
 
+  /**
+   * Query subgraph(s) on given chain with a given query string. This is a convenience method
+   * that enables SDK users to query directly if necessary - however, it is recommended to
+   * use this class's endpoints for things like subgraph health, active txs, historical
+   * txs, etc. as much as possible.
+   *
+   * Note that we'll be querying the most in-sync subgraph first and then resorting to less
+   * in-sync subgraphs if necessary.
+   *
+   * @param chainId - Chain that the subgraph(s) are on.
+   * @param query - Query string to send to the subgraph(s).
+   * @returns Query response from the (first) subgraph that responded.
+   */
   public async querySubgraph(chainId: number, query: string): Promise<any> {
-    this.sdkBase.querySubgraph(chainId, query);
+    return this.sdkBase.querySubgraph(chainId, query);
   }
 
   /**
-   * Changes the signer associated with the sdk
+   * Changes the injected signer associated with the SDK.
    *
-   * @param signer - Signer to change to
+   * @param signer - New injected signer for the SDK to use.
    */
   public changeInjectedSigner(signer: Signer) {
     this.config.signer = signer;
@@ -530,7 +546,7 @@ export class NxtpSdk {
   }
 
   /**
-   * Turns off all listeners and disconnects messaging from the sdk
+   * Turns off all listeners and disconnects messaging from the SDK.
    */
   public removeAllListeners(): void {
     this.detach();
