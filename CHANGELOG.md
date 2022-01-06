@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router][txservice] Move sanity check of oracle address to txservice
+
 ## 0.1.10
 
 - [utils] Use the correct url for the subgraph health
