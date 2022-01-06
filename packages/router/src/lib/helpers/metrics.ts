@@ -1,6 +1,5 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils } from "ethers";
-import { getDeployedPriceOracleContract } from "../../config";
 
 import { getContext } from "../../router";
 import {
