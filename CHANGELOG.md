@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [router] Track bids in memory to only bid 150% of available liquidity
 - [contracts] Add ability to one-off verify contracts via hardhat
 - [router] Sanity check for router contracts existing on chain
 - [utils] Correctly determine the Gelato-supported chains
