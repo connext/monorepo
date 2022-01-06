@@ -31,6 +31,7 @@ export type Context = {
   contractReader: ContractReader;
   contractWriter: ContractWriter;
   chainData: Map<string, ChainData>;
+  chainAssetSwapPoolMap: Map<number, string[]>;
 };
 
 const context: Context = {} as any;
@@ -89,6 +90,25 @@ export const makeRouter = async () => {
     // adapters
     context.contractReader = subgraphContractReader();
     context.contractWriter = contractWriter();
+
+    context.chainAssetSwapPoolMap = new Map();
+    // sanity check if router contract
+    context.config.swapPools.forEach((pool) => {
+      pool.assets.forEach(async ({ chainId, assetId }) => {
+        // setting up chainAssetSwapPoolMap
+        if (!context.chainAssetSwapPoolMap.has(chainId)) {
+          context.chainAssetSwapPoolMap.set(chainId, []);
+
+          if (context.isRouterContract) {
+            const code = await context.txService.getCode(chainId, context.routerAddress);
+            if (code === "0x") {
+              throw new Error(`Router Contract isn't deployed on ${chainId}`);
+            }
+          }
+        }
+        context.chainAssetSwapPoolMap.get(chainId)?.push(assetId);
+      });
+    });
 
     // bindings
     if (!context.config.diagnosticMode) {
