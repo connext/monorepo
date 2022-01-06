@@ -53,7 +53,7 @@ const gelatoFulfill = async (
 };
 
 const isChainSupportedByGelato = (chainId: number): boolean => {
-  return Object.values(CHAIN_ID).indexOf(chainId) !== -1;
+  return Object.keys(endpoints).indexOf(chainId.toString()) !== -1;
 };
 
 export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };
