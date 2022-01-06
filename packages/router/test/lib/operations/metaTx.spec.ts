@@ -1,14 +1,11 @@
+import { BigNumber, constants } from "ethers";
 import {
   expect,
-  invariantDataMock,
   txReceiptMock,
   createLoggingContext,
   mkBytes32,
-  getNtpTimeSeconds,
-  MetaTxPayload,
   MetaTxType,
   mkAddress,
-  MetaTxTypes,
   MetaTxFulfillPayload,
   txDataMock,
   sigMock,
@@ -18,17 +15,14 @@ import {
   prepareParamsMock,
   fulfillParamsMock,
   cancelParamsMock,
-  MetaTxPayloads,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
 
-import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { callDataMock, configMock, relayerFeeMock } from "../../utils";
 import { sendMetaTx } from "../../../src/lib/operations/metaTx";
 import { MetaTxInput } from "../../../src/lib/entities";
 import { NotAllowedFulfillRelay, NotEnoughRelayerFee } from "../../../src/lib/errors";
-import { SinonStub, stub } from "sinon";
 import { contractWriterMock, txServiceMock } from "../../globalTestHook";
+import { SinonStub } from "sinon";
 
 const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32("0xabc"));
 
@@ -81,6 +75,10 @@ const metaTxInputMock = <T extends MetaTxType>(type: T): MetaTxInput => {
 };
 
 describe("Meta Tx Operation", () => {
+  beforeEach(() => {
+    Object.values(contractWriterMock).forEach((method: any) => (method as SinonStub).resetHistory());
+  });
+
   it("should error if invalid data", async () => {
     const metaTxMock = metaTxInputMock("Fulfill");
     metaTxMock.chainId = undefined;
