@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Correctly determine the Gelato-supported chains
+
 ## 0.1.10
 
 - [utils] Use the correct url for the subgraph health
