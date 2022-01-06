@@ -14,6 +14,11 @@ export const getStatus = (_requestContext: RequestContext<string>): StatusRespon
 
   const supportedChains: number[] = Array.from(chainAssetSwapPoolMap.keys());
 
+  const swapPools: Record<number, string[]> = {};
+  [...chainAssetSwapPoolMap.entries()].forEach(([key, vals]) => {
+    swapPools[key] = vals;
+  });
+
   const _status: StatusResponse = {
     isRouterContract,
     routerVersion,
@@ -21,7 +26,7 @@ export const getStatus = (_requestContext: RequestContext<string>): StatusRespon
     signerAddress,
     trackerLength,
     activeTransactionsLength,
-    swapPools: chainAssetSwapPoolMap,
+    swapPools,
     supportedChains,
   };
 
