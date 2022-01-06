@@ -1740,7 +1740,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.0.2
     "@nomiclabs/hardhat-waffle": ^2.0.1
     "@openzeppelin/contracts": 4.2.0
-    "@sinclair/typebox": ^0.20.4
+    "@sinclair/typebox": ^0.23.1
     "@tenderly/hardhat-tenderly": ^1.0.12
     "@typechain/ethers-v5": ^7.0.1
     "@typechain/hardhat": ^2.3.0
@@ -1813,7 +1813,7 @@ __metadata:
     "@graphql-codegen/typescript": ^2.0.0
     "@graphql-codegen/typescript-graphql-request": ^4.0.0
     "@graphql-codegen/typescript-operations": ^2.0.1
-    "@sinclair/typebox": ^0.20.4
+    "@sinclair/typebox": ^0.23.1
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
@@ -1861,7 +1861,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@sinclair/typebox": ^0.20.4
+    "@sinclair/typebox": ^0.23.1
     "@types/node": ^16.11.4
     "@types/pino": ^6.3.11
     ethers: ^5.4.6
@@ -1884,7 +1884,7 @@ __metadata:
     "@graphql-codegen/typescript": ^2.0.0
     "@graphql-codegen/typescript-graphql-request": ^4.0.0
     "@graphql-codegen/typescript-operations": ^2.0.1
-    "@sinclair/typebox": ^0.20.4
+    "@sinclair/typebox": ^0.23.1
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
@@ -1963,7 +1963,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
-    "@sinclair/typebox": ^0.20.4
+    "@sinclair/typebox": ^0.23.1
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
@@ -1997,7 +1997,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-utils@workspace:packages/utils"
   dependencies:
-    "@sinclair/typebox": ^0.20.4
+    "@sinclair/typebox": ^0.23.1
     "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
@@ -3954,10 +3954,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinclair/typebox@npm:^0.20.4":
-  version: 0.20.5
-  resolution: "@sinclair/typebox@npm:0.20.5"
-  checksum: 029be30a78b42b8c6d458653f717f53814ee95ff3d8012d348fd3a54df74518408b90060256183f7b28429b7d40ce12ed0fbb4b235245dee8b00dbedfc178582
+"@sinclair/typebox@npm:^0.23.1":
+  version: 0.23.2
+  resolution: "@sinclair/typebox@npm:0.23.2"
+  checksum: 1fe732972167c1b8384444aa0906ab2a916673719aa8e96e9c20fe41614d8cc94430069c8efb4baef9a23531ed353a2f068262221601227c803af9345175e6a2
   languageName: node
   linkType: hard
 

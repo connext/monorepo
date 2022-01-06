@@ -12,6 +12,7 @@ import {
   chainDataMock,
 } from "./utils";
 import { Context } from "../src/router";
+import { Web3Signer } from "../src/adapters/web3signer";
 import { ContractReader } from "../src/adapters/subgraph";
 import { ContractWriter } from "../src/adapters/contract";
 import * as RouterFns from "../src/router";
@@ -24,6 +25,9 @@ export let ctxMock: Context;
 export let isRouterContractMock: SinonStub<any, boolean>;
 export const routerAddress = routerAddrMock;
 export const signerAddress = mkAddress("0x123");
+export const chainAssetSwapPoolMapMock = new Map();
+chainAssetSwapPoolMapMock.set(1337, [mkAddress("0xc")]);
+chainAssetSwapPoolMapMock.set(1338, [mkAddress("0xf")]);
 
 export const mochaHooks = {
   async beforeEach() {
@@ -31,6 +35,11 @@ export const mochaHooks = {
     (walletMock as any).address = routerAddrMock; // need to do this differently bc the function doesnt exist on the interface
     walletMock.getAddress.resolves(routerAddrMock);
     walletMock.signMessage.resolves(sigMock);
+
+    let web3SignerWallet: SinonStubbedInstance<Web3Signer>;
+    web3SignerWallet = createStubInstance(Web3Signer);
+    (web3SignerWallet as any).address = routerAddrMock; // need to do this differently bc the function doesnt exist on the interface
+    web3SignerWallet.getAddress.resolves(routerAddrMock);
 
     txServiceMock = createStubInstance(TransactionService);
     txServiceMock.getBalance.resolves(parseEther("1"));
@@ -86,6 +95,7 @@ export const mochaHooks = {
       isRouterContract: undefined,
       routerAddress,
       signerAddress,
+      chainAssetSwapPoolMap: chainAssetSwapPoolMapMock,
     };
 
     isRouterContractMock = stub(ctxMock, "isRouterContract").value(false);

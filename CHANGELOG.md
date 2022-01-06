@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [router] Sanity check for router contracts existing on chain
 - [utils] Correctly determine the Gelato-supported chains
 - [router][txservice] Move sanity check of oracle address to txservice
 
