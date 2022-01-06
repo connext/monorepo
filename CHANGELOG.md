@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [sdk] Fix `querySubgraph` function.
+
 ## 0.1.10
 
 - [utils] Use the correct url for the subgraph health
