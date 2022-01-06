@@ -225,6 +225,52 @@ describe("Subgraph", () => {
     });
   });
 
+  describe("startPolling", () => {
+    it("should work and stop if 0 active txs", async () => {
+      subgraph.startPolling();
+
+      const status1 = subgraph.isPolling;
+      expect(status1).to.be.true;
+
+      const activetx1 = (subgraph as any).activeTxs.size;
+      expect(activetx1).to.be.eq(0);
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval));
+
+      const activetx2 = (subgraph as any).activeTxs.size;
+      expect(activetx2).to.be.eq(0);
+
+      const status2 = subgraph.isPolling;
+      expect(status2).to.be.false;
+    });
+
+    it("should work and continue polling if 1 or more active txs", async () => {
+      const transactionId = getRandomBytes32();
+      (subgraph as any).activeTxs.set(
+        transactionId,
+        convertMockedToActiveTransaction(
+          NxtpSdkEvents.SenderTransactionPrepared,
+          getMockTransaction({ transactionId }),
+        ),
+      );
+      subgraph.startPolling();
+
+      const status1 = subgraph.isPolling;
+      expect(status1).to.be.true;
+
+      const activetx1 = (subgraph as any).activeTxs.size;
+      expect(activetx1).to.be.eq(1);
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval));
+
+      const activetx2 = (subgraph as any).activeTxs.size;
+      expect(activetx2).to.be.eq(1);
+
+      const status2 = subgraph.isPolling;
+      expect(status2).to.be.true;
+    });
+  });
+
   describe("createSubgraphEvts", () => {
     it("should work", () => {
       const created = createSubgraphEvts();
