@@ -91,24 +91,28 @@ export const makeRouter = async () => {
     context.contractReader = subgraphContractReader();
     context.contractWriter = contractWriter();
 
-    context.chainAssetSwapPoolMap = new Map();
+    context.chainAssetSwapPoolMap = new Map<number, string[]>();
     // sanity check if router contract
-    context.config.swapPools.forEach((pool) => {
-      pool.assets.forEach(async ({ chainId, assetId }) => {
-        // setting up chainAssetSwapPoolMap
-        if (!context.chainAssetSwapPoolMap.has(chainId)) {
-          context.chainAssetSwapPoolMap.set(chainId, []);
+    await Promise.all(
+      context.config.swapPools.map(async (pool) => {
+        await Promise.all(
+          pool.assets.map(async ({ chainId, assetId }) => {
+            // setting up chainAssetSwapPoolMap
+            if (!context.chainAssetSwapPoolMap.has(chainId)) {
+              context.chainAssetSwapPoolMap.set(chainId, []);
 
-          if (context.isRouterContract) {
-            const code = await context.txService.getCode(chainId, context.routerAddress);
-            if (code === "0x") {
-              throw new Error(`Router Contract isn't deployed on ${chainId}`);
+              if (context.isRouterContract) {
+                const code = await context.txService.getCode(chainId, context.routerAddress);
+                if (code === "0x") {
+                  throw new Error(`Router Contract isn't deployed on ${chainId}`);
+                }
+              }
             }
-          }
-        }
-        context.chainAssetSwapPoolMap.get(chainId)?.push(assetId);
-      });
-    });
+            context.chainAssetSwapPoolMap.get(chainId)!.push(assetId);
+          }),
+        );
+      }),
+    );
 
     // bindings
     if (!context.config.diagnosticMode) {
