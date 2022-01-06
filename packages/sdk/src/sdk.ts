@@ -528,7 +528,9 @@ export class NxtpSdk {
    * in-sync subgraphs if necessary.
    *
    * @param chainId - Chain that the subgraph(s) are on.
-   * @param query - Query string to send to the subgraph(s).
+   * @param query - GraphQL query string to send to the subgraph(s). (For more information
+   * on writing your own queries, see: https://graphql.org/learn/)
+   *
    * @returns Query response from the (first) subgraph that responded.
    */
   public async querySubgraph(chainId: number, query: string): Promise<any> {
