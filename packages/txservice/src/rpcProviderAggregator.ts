@@ -25,6 +25,7 @@ import {
   SyncProvider,
   OnchainTransaction,
   StallTimeout,
+  WriteTransaction,
 } from "./shared";
 
 const { FallbackProvider } = providers;
@@ -597,7 +598,16 @@ export class RpcProviderAggregator {
     });
   }
 
-  public async getGasEstimate(tx: ReadTransaction): Promise<BigNumber> {
+  /**
+   * Checks estimate for gas limit for given transaction on given chain.
+   *
+   * @param chainId - chain on which the transaction is intended to be executed.
+   * @param tx - transaction to check gas limit for.
+   *
+   * @returns BigNumber representing the estimated gas limit in gas units.
+   * @throws Error if the transaction is invalid, or would be reverted onchain.
+   */
+  public async getGasEstimate(tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
       return await provider.estimateGas(tx);
     });

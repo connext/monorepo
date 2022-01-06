@@ -19,6 +19,7 @@ import {
   CHAINS_WITH_PRICE_ORACLES,
   getDeployedPriceOracleContract,
   getPriceOracleInterface,
+  WriteTransaction,
 } from "./shared";
 import { RpcProviderAggregator } from "./rpcProviderAggregator";
 
@@ -171,14 +172,15 @@ export class ChainReader {
   }
 
   /**
-   * Returns a hexcode string representation of the contract code at the given
-   * address. If there is no contract deployed at the given address, returns "0x".
+   * Checks estimate for gas limit for given transaction on given chain.
    *
-   * @param address - contract address.
+   * @param chainId - chain on which the transaction is intended to be executed.
+   * @param tx - transaction to check gas limit for.
    *
-   * @returns Hexcode string representation of contract code.
+   * @returns BigNumber representing the estimated gas limit in gas units.
+   * @throws Error if the transaction is invalid, or would be reverted onchain.
    */
-  public async getGasEstimate(chainId: number, tx: ReadTransaction): Promise<BigNumber> {
+  public async getGasEstimate(chainId: number, tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
     return await this.getProvider(chainId).getGasEstimate(tx);
   }
 
