@@ -10,6 +10,8 @@ import {
   jsonifyError,
   MetaTxPayloads,
   RemoveLiquidityParams,
+  InvariantTransactionData,
+  TransactionData,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
 import { Evt } from "evt";
@@ -26,9 +28,23 @@ import {
   getRouterContractInterface,
 } from "../../lib/helpers";
 
-export const prepareEvt = new Evt<{ event: any; args: PrepareParams; chainId: number }>(); // TODO: fix types
-export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: number }>();
-export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
+type RouterContractPrepareEvent = {
+  invariantData: InvariantTransactionData;
+  routerRelayerFeeAsset: string;
+  routerRelayerFee: BigNumber;
+  caller: string;
+};
+type RouterContractFulfillEvent = {
+  txData: TransactionData;
+  routerRelayerFeeAsset: string;
+  routerRelayerFee: BigNumber;
+  caller: string;
+};
+type RouterContractCancelEvent = RouterContractFulfillEvent;
+
+export const prepareEvt = new Evt<{ event: RouterContractPrepareEvent; args: PrepareParams; chainId: number }>(); // TODO: fix types
+export const fulfillEvt = new Evt<{ event: RouterContractFulfillEvent; args: FulfillParams; chainId: number }>();
+export const cancelEvt = new Evt<{ event: RouterContractCancelEvent; args: CancelParams; chainId: number }>();
 export const removeLiquidityEvt = new Evt<{
   event: any;
   args: RemoveLiquidityParams;
@@ -54,29 +70,35 @@ export const startContractListeners = (): void => {
       ) as TTransactionManager;
       contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
         if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+          const invariantData: InvariantTransactionData = {
+            callDataHash: event.invariantData.callDataHash,
+            initiator: event.invariantData.initiator,
+            receivingAssetId: event.invariantData.receivingAssetId,
+            receivingChainId: event.invariantData.receivingChainId,
+            sendingChainId: event.invariantData.sendingChainId,
+            callTo: event.invariantData.callTo,
+            receivingAddress: event.invariantData.receivingAddress,
+            receivingChainTxManagerAddress: event.invariantData.receivingChainTxManagerAddress,
+            router: event.invariantData.router,
+            sendingAssetId: event.invariantData.sendingAssetId,
+            sendingChainFallback: event.invariantData.sendingChainFallback,
+            transactionId: event.invariantData.transactionId,
+            user: event.invariantData.user,
+          };
           prepareEvt.post({
-            event,
+            event: {
+              invariantData,
+              routerRelayerFeeAsset: event.routerRelayerFeeAsset,
+              routerRelayerFee: event.routerRelayerFee,
+              caller: event.caller,
+            },
             args: {
               amount: args.amount,
               bidSignature: args.bidSignature,
               encodedBid: args.encodedBid,
               encryptedCallData: args.encryptedCallData,
               expiry: args.expiry,
-              txData: {
-                callDataHash: args.invariantData.callDataHash,
-                initiator: args.invariantData.initiator,
-                receivingAssetId: args.invariantData.receivingAssetId,
-                receivingChainId: args.invariantData.receivingChainId,
-                sendingChainId: args.invariantData.sendingChainId,
-                callTo: args.invariantData.callTo,
-                receivingAddress: args.invariantData.receivingAddress,
-                receivingChainTxManagerAddress: args.invariantData.receivingChainTxManagerAddress,
-                router: args.invariantData.router,
-                sendingAssetId: args.invariantData.sendingAssetId,
-                sendingChainFallback: args.invariantData.sendingChainFallback,
-                transactionId: args.invariantData.transactionId,
-                user: args.invariantData.user,
-              },
+              txData: invariantData,
             },
             chainId,
           });
@@ -86,30 +108,36 @@ export const startContractListeners = (): void => {
         "TransactionFulfilled",
         (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
           if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+            const txData: TransactionData = {
+              callDataHash: event.txData.callDataHash,
+              initiator: event.txData.initiator,
+              receivingAssetId: event.txData.receivingAssetId,
+              receivingChainId: event.txData.receivingChainId,
+              sendingChainId: event.txData.sendingChainId,
+              callTo: event.txData.callTo,
+              receivingAddress: event.txData.receivingAddress,
+              receivingChainTxManagerAddress: event.txData.receivingChainTxManagerAddress,
+              router: event.txData.router,
+              sendingAssetId: event.txData.sendingAssetId,
+              sendingChainFallback: event.txData.sendingChainFallback,
+              transactionId: event.txData.transactionId,
+              user: event.txData.user,
+              amount: event.txData.amount,
+              expiry: event.txData.expiry,
+              preparedBlockNumber: event.txData.preparedBlockNumber,
+            };
             fulfillEvt.post({
-              event,
+              event: {
+                txData,
+                routerRelayerFeeAsset: event.routerRelayerFeeAsset,
+                routerRelayerFee: event.routerRelayerFee,
+                caller: event.caller,
+              },
               args: {
                 callData: args.callData,
                 signature: args.signature,
                 relayerFee: args.relayerFee,
-                txData: {
-                  callDataHash: args.txData.callDataHash,
-                  initiator: args.txData.initiator,
-                  receivingAssetId: args.txData.receivingAssetId,
-                  receivingChainId: args.txData.receivingChainId,
-                  sendingChainId: args.txData.sendingChainId,
-                  callTo: args.txData.callTo,
-                  receivingAddress: args.txData.receivingAddress,
-                  receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
-                  router: args.txData.router,
-                  sendingAssetId: args.txData.sendingAssetId,
-                  sendingChainFallback: args.txData.sendingChainFallback,
-                  transactionId: args.txData.transactionId,
-                  user: args.txData.user,
-                  amount: args.txData.amount,
-                  expiry: args.txData.expiry,
-                  preparedBlockNumber: args.txData.preparedBlockNumber,
-                },
+                txData,
               },
               chainId,
             });
@@ -118,28 +146,34 @@ export const startContractListeners = (): void => {
       );
       contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
         if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
+          const txData: TransactionData = {
+            callDataHash: event.txData.callDataHash,
+            initiator: event.txData.initiator,
+            receivingAssetId: event.txData.receivingAssetId,
+            receivingChainId: event.txData.receivingChainId,
+            sendingChainId: event.txData.sendingChainId,
+            callTo: event.txData.callTo,
+            receivingAddress: event.txData.receivingAddress,
+            receivingChainTxManagerAddress: event.txData.receivingChainTxManagerAddress,
+            router: event.txData.router,
+            sendingAssetId: event.txData.sendingAssetId,
+            sendingChainFallback: event.txData.sendingChainFallback,
+            transactionId: event.txData.transactionId,
+            user: event.txData.user,
+            amount: event.txData.amount,
+            expiry: event.txData.expiry,
+            preparedBlockNumber: event.txData.preparedBlockNumber,
+          };
           cancelEvt.post({
-            event,
+            event: {
+              txData,
+              routerRelayerFeeAsset: event.routerRelayerFeeAsset,
+              routerRelayerFee: event.routerRelayerFee,
+              caller: event.caller,
+            },
             args: {
               signature: args.signature,
-              txData: {
-                callDataHash: args.txData.callDataHash,
-                initiator: args.txData.initiator,
-                receivingAssetId: args.txData.receivingAssetId,
-                receivingChainId: args.txData.receivingChainId,
-                sendingChainId: args.txData.sendingChainId,
-                callTo: args.txData.callTo,
-                receivingAddress: args.txData.receivingAddress,
-                receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
-                router: args.txData.router,
-                sendingAssetId: args.txData.sendingAssetId,
-                sendingChainFallback: args.txData.sendingChainFallback,
-                transactionId: args.txData.transactionId,
-                user: args.txData.user,
-                amount: args.txData.amount,
-                expiry: args.txData.expiry,
-                preparedBlockNumber: args.txData.preparedBlockNumber,
-              },
+              txData,
             },
             chainId,
           });
