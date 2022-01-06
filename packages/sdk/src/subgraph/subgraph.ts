@@ -165,6 +165,12 @@ export class Subgraph {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
         try {
           await this.getActiveTransactions();
+
+          const activeTxsSize = this.activeTxs.size;
+          if (activeTxsSize == 0) {
+            clearInterval(this.pollingLoop!);
+            this.pollingLoop = undefined;
+          }
         } catch (err) {
           this.logger.error("Error in subgraph loop", requestContext, methodContext, err);
         }
