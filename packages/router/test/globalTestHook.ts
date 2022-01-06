@@ -24,6 +24,9 @@ export let ctxMock: Context;
 export let isRouterContractMock: SinonStub<any, boolean>;
 export const routerAddress = routerAddrMock;
 export const signerAddress = mkAddress("0x123");
+export const chainAssetSwapPoolMapMock = new Map();
+chainAssetSwapPoolMapMock.set(1337, [mkAddress("0xc")]);
+chainAssetSwapPoolMapMock.set(1338, [mkAddress("0xf")]);
 
 export const mochaHooks = {
   async beforeEach() {
@@ -86,6 +89,7 @@ export const mochaHooks = {
       isRouterContract: undefined,
       routerAddress,
       signerAddress,
+      chainAssetSwapPoolMap: chainAssetSwapPoolMapMock,
     };
 
     isRouterContractMock = stub(ctxMock, "isRouterContract").value(false);
