@@ -481,6 +481,15 @@ describe("NxtpSdkBase", () => {
       });
     });
 
+    describe("should work with empty list of preferredRouters", () => {
+      const { crossChainParams } = getMock({ preferredRouters: [] });
+      it.only("empty preferred routers", async () => {
+        console.log("crossChainParams", crossChainParams);
+        const ret = await sdk.getTransferQuote(crossChainParams);
+        console.log("ret", ret);
+      });
+    });
+
     describe("should error if invalid config", () => {
       it("unknown sendingChainId", async () => {
         const { crossChainParams } = getMock({ sendingChainId: 1400 });
