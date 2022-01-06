@@ -1113,7 +1113,7 @@ describe("NxtpSdkBase", () => {
       expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
     });
 
-    it.skip("finish transfer starts polling if not polling already, and stops after", async () => {
+    it("finish transfer starts polling if not polling already", async () => {
       const { transaction, record } = await getTransactionData();
       subgraph.stopPolling();
 
@@ -1143,7 +1143,7 @@ describe("NxtpSdkBase", () => {
       );
 
       expect(subgraph.startPolling).to.be.called;
-      expect(subgraph.stopPolling).callCount(2);
+      expect(subgraph.stopPolling).callCount(1);
     });
 
     it("should error if gelato relay and router backup fails", async () => {
