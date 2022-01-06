@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [router] Sanity check for router contracts existing on chain
 - [router][txservice] Move sanity check of oracle address to txservice
 
 ## 0.1.10
