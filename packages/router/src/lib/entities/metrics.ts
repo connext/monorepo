@@ -28,8 +28,6 @@ export type ExpressiveAssetBalance<T = BigNumber> = {
   supplied: T;
   locked: T;
   removed: T;
-  // volumeIn: T;
-  // volume: T;
 };
 
 //////////////////////////
