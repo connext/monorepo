@@ -73,6 +73,7 @@ export const configMock: NxtpRouterConfig = {
   requestLimit: 2000,
   cleanUpMode: false,
   diagnosticMode: false,
+  overbidAllowance: 150,
 };
 
 export const prepareInputMock: PrepareInput = {
