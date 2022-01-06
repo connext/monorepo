@@ -1,9 +1,6 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
-import Sinon, { stub, restore, reset, SinonStub, SinonStubbedInstance, createStubInstance } from "sinon";
+import { createStubInstance } from "sinon";
 import { TransactionService } from "@connext/nxtp-txservice";
-
-import * as ConfigFns from "../src/config";
-import { configMock, chainDataMock } from "./utils";
 
 import { getSwapPoolMap } from "../src/router";
 import { constants } from "ethers";
