@@ -547,7 +547,7 @@ describe("Contract Adapter", () => {
         false,
         requestContext,
       );
-      expect(routerInterfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
+      expect(routerInterfaceMock.encodeFunctionData).calledWith("fulfill", [
         {
           txData: fulfillParamsMock.txData,
           relayerFee: fulfillParamsMock.relayerFee,
