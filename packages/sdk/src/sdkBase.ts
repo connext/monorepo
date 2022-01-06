@@ -988,9 +988,7 @@ export class NxtpSdkBase {
     }
 
     if (useRelayers) {
-      let stopPollingAfter = false;
       if (!this.subgraph.isPolling) {
-        stopPollingAfter = true;
         this.subgraph.startPolling();
       }
 
@@ -1040,10 +1038,6 @@ export class NxtpSdkBase {
               attemptNum: i + 1,
             });
             await delay(DELAY_BETWEEN_RETRIES);
-          } finally {
-            if (stopPollingAfter) {
-              this.subgraph.stopPolling();
-            }
           }
         }
       }
@@ -1086,10 +1080,6 @@ export class NxtpSdkBase {
               methodContext,
             })
           : e;
-      } finally {
-        if (stopPollingAfter) {
-          this.subgraph.stopPolling();
-        }
       }
     } else {
       this.logger.info("Creating transaction request", requestContext, methodContext);
