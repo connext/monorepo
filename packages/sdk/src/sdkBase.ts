@@ -1073,7 +1073,7 @@ export class NxtpSdkBase {
         };
         this.logger.info("Method complete", requestContext, methodContext, ret);
         return { transactionResponse: ret };
-      } catch (e) {
+      } catch (e: any) {
         throw e.message.includes("Evt timeout")
           ? new FulfillTimeout(txData.transactionId, FULFILL_TIMEOUT, params.txData.receivingChainId, {
               requestContext,
