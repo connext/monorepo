@@ -7,14 +7,12 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  DEFAULT_GAS_ESTIMATES,
   requestContextMock,
-  calculateExchangeAmount,
   NATS_AUTH_URL_LOCAL,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { Wallet, constants, BigNumber } from "ethers";
-import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
 import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
@@ -44,7 +42,7 @@ import {
 } from "../../src/error";
 import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams } from "../../src";
-import { createSubgraphEvts, Subgraph } from "../../src/subgraph/subgraph";
+import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
@@ -81,9 +79,6 @@ describe("NxtpSdkBase", () => {
   let receivingChainId: number = 1338;
   let sendingChainTxManagerAddress: string = mkAddress("0xaaa");
   let receivingChainTxManagerAddress: string = mkAddress("0xbbb");
-
-  const sendingAssetId1 = mkAddress("0x111");
-  const receivingAssetId1 = mkAddress("0x222");
 
   const messageEvt = Evt.create<{ inbox: string; data?: any; err?: any }>();
 
@@ -1116,6 +1111,39 @@ describe("NxtpSdkBase", () => {
 
       expect(res.transactionResponse.transactionHash).to.be.eq(transactionHash);
       expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
+    });
+
+    it("finish transfer starts polling if not polling already, and stops after", async () => {
+      const { transaction, record } = await getTransactionData();
+      subgraph.stopPolling();
+
+      const transactionHash = mkHash("0xc");
+      subgraph.waitFor.resolves({
+        transactionHash,
+        txData: {
+          ...transaction,
+          ...record,
+          sendingChainId: receivingChainId,
+          receivingChainId: sendingChainId,
+        },
+      } as any);
+
+      await sdk.fulfillTransfer(
+        {
+          txData: { ...transaction, ...record },
+
+          encryptedCallData: EmptyCallDataHash,
+          encodedBid: EmptyCallDataHash,
+          bidSignature: EmptyCallDataHash,
+        },
+        "0x",
+        "0x",
+        "1",
+        true,
+      );
+
+      expect(subgraph.startPolling).to.be.called;
+      expect(subgraph.stopPolling).callCount(2);
     });
 
     it("should error if gelato relay and router backup fails", async () => {

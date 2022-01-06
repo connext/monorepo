@@ -1040,6 +1040,10 @@ export class NxtpSdkBase {
               attemptNum: i + 1,
             });
             await delay(DELAY_BETWEEN_RETRIES);
+          } finally {
+            if (stopPollingAfter) {
+              this.subgraph.stopPolling();
+            }
           }
         }
       }
@@ -1076,16 +1080,16 @@ export class NxtpSdkBase {
         this.logger.info("Method complete", requestContext, methodContext, ret);
         return { transactionResponse: ret };
       } catch (e) {
-        if (stopPollingAfter) {
-          this.subgraph.stopPolling();
-        }
-
         throw e.message.includes("Evt timeout")
           ? new FulfillTimeout(txData.transactionId, FULFILL_TIMEOUT, params.txData.receivingChainId, {
               requestContext,
               methodContext,
             })
           : e;
+      } finally {
+        if (stopPollingAfter) {
+          this.subgraph.stopPolling();
+        }
       }
     } else {
       this.logger.info("Creating transaction request", requestContext, methodContext);
