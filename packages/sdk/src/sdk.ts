@@ -516,7 +516,7 @@ export class NxtpSdk {
   }
 
   public async querySubgraph(chainId: number, query: string): Promise<any> {
-    this.sdkBase.querySubgraph(chainId, query);
+    return this.sdkBase.querySubgraph(chainId, query);
   }
 
   /**
