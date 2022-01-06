@@ -3,6 +3,8 @@
 ## Next Release
 
 - [sdk] Fix `querySubgraph` function.
+- [router][txservice] Move sanity check of oracle address to txservice
+
 
 ## 0.1.10
 
