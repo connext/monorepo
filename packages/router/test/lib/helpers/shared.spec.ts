@@ -19,15 +19,12 @@ import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/T
 
 import { getNtpTimeSeconds, getMainnetEquivalent } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
-import { ctxMock, txServiceMock, contractReaderMock } from "../../globalTestHook";
+import { txServiceMock, contractReaderMock } from "../../globalTestHook";
 import { getDeployedPriceOracleContract } from "@connext/nxtp-txservice";
 import { SanitationCheckFailed } from "../../../src/lib/errors";
-import { getContext } from "../../../src/router";
 import { SingleChainTransaction } from "../../../src/lib/entities";
 import { TransactionStatus } from "../../../src/adapters/subgraph/runtime/graphqlsdk";
 const { HashZero } = constants;
-
-const { requestContext, methodContext } = createLoggingContext("auctionRequestBinding", undefined, mkBytes32());
 
 const encodedDataMock = "0xabcde";
 let interfaceMock: SinonStubbedInstance<Interface>;
@@ -160,6 +157,35 @@ describe("#sanitationCheck", () => {
       .resolves(HashZero);
 
     txServiceMock.readTx.resolves(getVariantTransactionDigest(txDataMockToCancel));
+
+    await shared.sanitationCheck(txDataMock.sendingChainId, txDataMock, "cancel");
+    expect(interfaceMock.encodeFunctionData.firstCall.args).to.be.deep.eq([
+      "variantTransactionData",
+      [invariantDigest],
+    ]);
+    expect(interfaceMock.encodeFunctionData.callCount).to.be.eq(1);
+  });
+
+  it("should error for cancel if sender is not expired", async () => {
+    stub(shared, "getNtpTimeSeconds").resolves(txDataMock.expiry - 1);
+    const invariantDigest = getInvariantTransactionDigest(txDataMock);
+    interfaceMock.encodeFunctionData.returns(invariantDigest);
+
+    const receivingChainNxtpContractAddress = mkAddress("0xd");
+    stub(shared, "getContractAddress").withArgs(txDataMock.receivingChainId).returns(receivingChainNxtpContractAddress);
+
+    await expect(shared.sanitationCheck(txDataMock.sendingChainId, txDataMock, "cancel")).to.be.rejectedWith(
+      new SanitationCheckFailed("cancel", txDataMock.transactionId, txDataMock.sendingChainId).message,
+    );
+  });
+
+  it("should work for cancel if sender is expired", async () => {
+    stub(shared, "getNtpTimeSeconds").resolves(txDataMock.expiry + 1);
+    const invariantDigest = getInvariantTransactionDigest(txDataMock);
+    interfaceMock.encodeFunctionData.returns(invariantDigest);
+
+    const receivingChainNxtpContractAddress = mkAddress("0xd");
+    stub(shared, "getContractAddress").withArgs(txDataMock.receivingChainId).returns(receivingChainNxtpContractAddress);
 
     await shared.sanitationCheck(txDataMock.sendingChainId, txDataMock, "cancel");
     expect(interfaceMock.encodeFunctionData.firstCall.args).to.be.deep.eq([

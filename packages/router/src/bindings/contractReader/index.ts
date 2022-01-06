@@ -40,7 +40,7 @@ import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
 import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
 import { getFeesInSendingAsset } from "../../lib/helpers/shared";
 
-const LOOP_INTERVAL = 15_000;
+const LOOP_INTERVAL = 30_000;
 export const getLoopInterval = () => LOOP_INTERVAL;
 
 export const handlingTracker: Map<string, Tracker> = new Map();

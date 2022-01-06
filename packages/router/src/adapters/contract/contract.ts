@@ -392,6 +392,26 @@ export const fulfillRouterContract = async (
 
   await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "fulfill");
 
+  const routerEncoded = await txService.readTx({
+    to: txData.router,
+    data: getRouterContractInterface().encodeFunctionData("routerSigner"),
+    chainId,
+  });
+  const [router] = getRouterContractInterface().decodeFunctionResult("routerSigner", routerEncoded);
+
+  logger.info("Generating encoded data", requestContext, methodContext, {
+    function: "fulfill",
+    txData,
+    relayerFee,
+    fulfillSignature,
+    callData,
+    encodedMeta: "0x",
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+    signature,
+    routerSigner: router,
+  });
+
   const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
     { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },
     routerRelayerFeeAsset,

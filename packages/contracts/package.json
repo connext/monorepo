@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "",
   "scripts": {
     "test": "hardhat test",
@@ -31,10 +31,11 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@nomiclabs/hardhat-etherscan": "^2.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "4.2.0",
-    "@sinclair/typebox": "^0.20.4",
+    "@sinclair/typebox": "^0.23.1",
     "@tenderly/hardhat-tenderly": "^1.0.12",
     "@typechain/ethers-v5": "^7.0.1",
     "@typechain/hardhat": "^2.3.0",
@@ -44,7 +45,7 @@
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.6",
-    "hardhat": "^2.6.8",
+    "hardhat": "^2.8.0",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
     "sinon": "^11.1.2",

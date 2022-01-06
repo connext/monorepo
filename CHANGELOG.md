@@ -2,6 +2,17 @@
 
 ## Next Release
 
+- [contracts] Add ability to one-off verify contracts via hardhat
+- [router] Sanity check for router contracts existing on chain
+- [utils] Correctly determine the Gelato-supported chains
+- [router][txservice] Move sanity check of oracle address to txservice
+
+## 0.1.10
+
+- [utils] Use the correct url for the subgraph health
+- [utils] Cache the sync records in subgraph health and fallback subgraph
+- [router] Update polling time
+
 ## 0.1.9
 
 - [router] Use correct chain for gas fee calc for cancel
