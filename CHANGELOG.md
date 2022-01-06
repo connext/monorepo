@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [contracts] Add ability to one-off verify contracts via hardhat
+
 ## 0.1.10
 
 - [utils] Use the correct url for the subgraph health
