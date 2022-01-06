@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Run an estimate gas check before calling relayers for tx execution
+
 ## 0.1.11
 
 - [contracts] Add ability to one-off verify contracts via hardhat
