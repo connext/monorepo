@@ -6,27 +6,13 @@ import { handlingTracker, activeTransactionsTracker } from "../../bindings/contr
 import { version } from "../../../package.json";
 
 export const getStatus = (_requestContext: RequestContext<string>): StatusResponse => {
-  const { config, isRouterContract, signerAddress, routerAddress } = getContext();
+  const { isRouterContract, signerAddress, routerAddress, chainAssetSwapPoolMap } = getContext();
 
   const routerVersion = version;
   const trackerLength = handlingTracker.size;
   const activeTransactionsLength = activeTransactionsTracker.length;
 
-  const chainAssetMap: Map<number, string[]> = new Map();
-  config.swapPools.forEach((pool) => {
-    pool.assets.forEach((asset) => {
-      if (!chainAssetMap.get(asset.chainId)) {
-        chainAssetMap.set(asset.chainId, []);
-      }
-      chainAssetMap.get(asset.chainId)?.push(asset.assetId);
-    });
-  });
-
-  const supportedChains: number[] = [];
-  Object.entries(config.chainConfig).forEach(([chainId]) => {
-    const chainIdNumber = parseInt(chainId);
-    supportedChains.push(chainIdNumber);
-  });
+  const supportedChains: number[] = Array.from(chainAssetSwapPoolMap.keys());
 
   const _status: StatusResponse = {
     isRouterContract,
@@ -35,7 +21,7 @@ export const getStatus = (_requestContext: RequestContext<string>): StatusRespon
     signerAddress,
     trackerLength,
     activeTransactionsLength,
-    swapPools: chainAssetMap,
+    swapPools: chainAssetSwapPoolMap,
     supportedChains,
   };
 
