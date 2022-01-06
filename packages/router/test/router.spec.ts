@@ -1,31 +1,34 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import Sinon, { stub, restore, reset, SinonStub, SinonStubbedInstance, createStubInstance } from "sinon";
+import { TransactionService } from "@connext/nxtp-txservice";
 
 import * as ConfigFns from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
-import { makeRouter } from "../src/router";
+import { getSwapPoolMap } from "../src/router";
+import { constants } from "ethers";
 
 describe("Config", () => {
-  beforeEach(() => {});
-
-  afterEach(() => {
-    restore();
-    reset();
-  });
-
-  describe.only("#makeRouter", () => {
-    beforeEach(() => {
-      Sinon.stub(ConfigFns, "getConfig").returns({
-        ...configMock,
-        mnemonic: undefined,
-        web3SignerUrl: "localhostsigner",
-      });
-    });
-
-    it("happy func", async () => {
-      const res = await makeRouter();
-      expect(res).to.be.ok;
+  describe("#getSwapPoolMap", () => {
+    it("should error if router contract not present for a chain", async () => {
+      const txService = createStubInstance(TransactionService);
+      txService.getCode.onSecondCall().resolves("0x");
+      await expect(
+        getSwapPoolMap({
+          routerAddress: mkAddress(),
+          swapPools: [
+            {
+              name: "TEST",
+              assets: [
+                { chainId: 1, assetId: constants.AddressZero },
+                { chainId: 2, assetId: constants.AddressZero },
+              ],
+            },
+          ],
+          isRouterContract: true,
+          txService: txService as any,
+        }),
+      ).to.be.rejectedWith("Router Contract isn't deployed");
     });
   });
 });
