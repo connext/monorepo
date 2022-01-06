@@ -3,6 +3,7 @@
 ## Next Release
 
 - [utils] Correctly determine the Gelato-supported chains
+- [router][txservice] Move sanity check of oracle address to txservice
 
 ## 0.1.10
 
