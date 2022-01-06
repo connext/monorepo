@@ -1113,7 +1113,7 @@ describe("NxtpSdkBase", () => {
       expect(res.transactionResponse.chainId).to.be.eq(sendingChainId);
     });
 
-    it("finish transfer starts polling if not polling already, and stops after", async () => {
+    it.skip("finish transfer starts polling if not polling already, and stops after", async () => {
       const { transaction, record } = await getTransactionData();
       subgraph.stopPolling();
 
