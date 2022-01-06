@@ -1,5 +1,5 @@
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
-import { constants, BigNumber, utils } from "ethers";
+import { constants, BigNumber, utils, providers } from "ethers";
 
 import { getContext } from "../../router";
 import {
@@ -301,23 +301,35 @@ export const incrementFees = async (
 
 export const incrementGasConsumed = async (
   chainId: number,
-  gas: BigNumber,
+  receipt: providers.TransactionReceipt | undefined,
   reason: TransactionReason,
   _requestContext: RequestContext,
 ) => {
-  const { logger } = getContext();
+  if (!receipt) {
+    return;
+  }
+  const { logger, txService } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(incrementGasConsumed.name, _requestContext);
+  const { cumulativeGasUsed, effectiveGasPrice } = receipt;
+  const price = effectiveGasPrice ?? (await txService.getGasPrice(chainId, requestContext));
   logger.debug("Method start", requestContext, methodContext, {
     chainId,
-    gas: gas.toString(),
+    gas: cumulativeGasUsed.toString(),
+    price: price.toString(),
   });
 
-  const usd = await convertToUsd(constants.AddressZero, chainId, gas.toString(), requestContext);
+  const usd = await convertToUsd(
+    constants.AddressZero,
+    chainId,
+    cumulativeGasUsed.mul(price).toString(),
+    requestContext,
+  );
 
   logger.debug("Got gas fees in usd", requestContext, methodContext, {
     chainId,
-    gas: gas.toString(),
+    gas: cumulativeGasUsed.toString(),
+    price: price.toString(),
     usd: usd.toString(),
   });
 

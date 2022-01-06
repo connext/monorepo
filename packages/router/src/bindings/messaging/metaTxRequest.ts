@@ -70,7 +70,7 @@ export const metaTxRequestBinding = async (
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
       // Increment collected fees + gas used on relayer fee
       incrementFees(txData.receivingAssetId, txData.receivingChainId, BigNumber.from(relayerFee), requestContext);
-      incrementGasConsumed(txData.receivingChainId, tx.gasUsed, TransactionReasons.Relay, requestContext);
+      incrementGasConsumed(txData.receivingChainId, tx, TransactionReasons.Relay, requestContext);
     }
     logger.info("Handled fulfill request", requestContext, methodContext);
   } finally {

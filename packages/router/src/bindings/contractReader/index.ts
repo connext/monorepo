@@ -266,7 +266,7 @@ export const handleSingle = async (
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.receivingChainId,
-        receipt!.gasUsed,
+        receipt,
         TransactionReasons.PrepareReceiver,
         requestContext,
       );
@@ -327,7 +327,7 @@ export const handleSingle = async (
           );
           incrementGasConsumed(
             _transaction.crosschainTx.invariant.sendingChainId,
-            cancelRes!.gasUsed,
+            cancelRes,
             TransactionReasons.CancelSender,
             requestContext,
           );
@@ -470,7 +470,7 @@ export const handleSingle = async (
 
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
+        receipt,
         TransactionReasons.FulfillSender,
         requestContext,
       );
@@ -536,7 +536,7 @@ export const handleSingle = async (
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.receivingChainId,
-        receipt!.gasUsed,
+        receipt,
         TransactionReasons.CancelReceiver,
         requestContext,
       );
@@ -600,7 +600,7 @@ export const handleSingle = async (
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
+        receipt,
         TransactionReasons.CancelSender,
         requestContext,
       );
@@ -655,7 +655,7 @@ export const handleSingle = async (
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
+        receipt,
         TransactionReasons.CancelSender,
         requestContext,
       );
@@ -715,7 +715,7 @@ export const handleSingle = async (
       });
       incrementGasConsumed(
         _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
+        receipt,
         TransactionReasons.CancelSender,
         requestContext,
       );
