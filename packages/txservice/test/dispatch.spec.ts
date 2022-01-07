@@ -589,9 +589,11 @@ describe("TransactionDispatch", () => {
 
     it("should rewind the local nonce if the transaction has an error but was never mined", async () => {
       const expectedNonce = 100;
-      (txDispatch as any).nonce = 123456789;
-      getTransactionCountStub.resolves(expectedNonce);
+      (txDispatch as any).nonce = expectedNonce;
+      determineNonceStub.resolves({ nonce: expectedNonce, backfill: false, transactionCount: expectedNonce });
       submitStub.callsFake(async (transaction: OnchainTransaction) => {
+        // Now we set the local nonce to a bunk value in order to make sure it gets replaced (with expectedNonce) later.
+        (txDispatch as any).nonce = 123456789;
         stub(transaction, "didSubmit").get(() => mockTransactionState.didSubmit);
         // Transaction was not mined or confirmed.
         stub(transaction, "didMine").get(() => false);
