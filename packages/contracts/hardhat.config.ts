@@ -5,6 +5,7 @@ import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
 import "@tenderly/hardhat-tenderly";
+import "./hardhat-godwoken-plugin";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
@@ -56,6 +57,11 @@ const config: HardhatUserConfig = {
     rando: { default: 3 },
   },
   networks: {
+    "godwoken-testnet": {
+      accounts: ["0xd9066ff9f753a1898709b568119055660a77d9aae4d7a4ad677b8fb3d2a571e5"],
+      chainId: 71393,
+      url: urlOverride || "https://godwoken-testnet-web3-rpc.ckbapp.dev"
+    },
     localhost: {
       accounts: {
         accountsBalance: "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
