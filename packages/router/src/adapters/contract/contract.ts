@@ -26,19 +26,23 @@ import {
   sanitationCheck,
   isRouterWhitelisted,
   getRouterContractInterface,
+  incrementGasConsumed,
 } from "../../lib/helpers";
+import { TransactionReasons } from "../../lib/entities";
 
 type RouterContractPrepareEvent = {
   invariantData: InvariantTransactionData;
   routerRelayerFeeAsset: string;
   routerRelayerFee: BigNumber;
   caller: string;
+  transactionHash: string;
 };
 type RouterContractFulfillEvent = {
   txData: TransactionData;
   routerRelayerFeeAsset: string;
   routerRelayerFee: BigNumber;
   caller: string;
+  transactionHash: string;
 };
 type RouterContractCancelEvent = RouterContractFulfillEvent;
 
@@ -91,6 +95,7 @@ export const startContractListeners = (): void => {
               routerRelayerFeeAsset: event.routerRelayerFeeAsset,
               routerRelayerFee: event.routerRelayerFee,
               caller: event.caller,
+              transactionHash: event.transactionHash,
             },
             args: {
               amount: args.amount,
@@ -132,6 +137,7 @@ export const startContractListeners = (): void => {
                 routerRelayerFeeAsset: event.routerRelayerFeeAsset,
                 routerRelayerFee: event.routerRelayerFee,
                 caller: event.caller,
+                transactionHash: event.transactionHash,
               },
               args: {
                 callData: args.callData,
@@ -170,6 +176,7 @@ export const startContractListeners = (): void => {
               routerRelayerFeeAsset: event.routerRelayerFeeAsset,
               routerRelayerFee: event.routerRelayerFee,
               caller: event.caller,
+              transactionHash: event.transactionHash,
             },
             args: {
               signature: args.signature,
@@ -238,16 +245,27 @@ export const prepareTransactionManager = async (
     },
   ]);
 
-  return await txService.sendTx(
+  const addr = wallet.address ?? (await wallet.getAddress());
+  const receipt = await txService.sendTx(
     {
       to: nxtpContractAddress,
       data: encodedData,
       value: constants.Zero,
       chainId,
-      from: wallet.address,
+      from: addr,
     },
     requestContext,
   );
+
+  // increment fees sent (no need to await)
+  incrementGasConsumed(
+    chainId,
+    receipt,
+    txData.router.toLowerCase() === addr.toLowerCase() ? TransactionReasons.PrepareReceiver : TransactionReasons.Relay,
+    requestContext,
+  );
+
+  return receipt;
 };
 
 export const prepareRouterContract = async (
@@ -359,7 +377,8 @@ export const prepareRouterContract = async (
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
   logger.info("Router contract prepare: sending using txservice", requestContext, methodContext, { prepareParams });
-  return await txService.sendTx(
+
+  const receipt = await txService.sendTx(
     {
       to: routerContractAddress,
       data: encodedData,
@@ -369,6 +388,11 @@ export const prepareRouterContract = async (
     },
     requestContext,
   );
+
+  // increment fees sent (no need to await)
+  incrementGasConsumed(chainId, receipt, TransactionReasons.PrepareReceiver, requestContext);
+
+  return receipt;
 };
 
 export const fulfillTransactionManager = async (
@@ -391,16 +415,27 @@ export const fulfillTransactionManager = async (
     { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },
   ]);
 
-  return await txService.sendTx(
+  const addr = wallet.address ?? (await wallet.getAddress());
+  const receipt = await txService.sendTx(
     {
       to: nxtpContractAddress,
       data: encodedData,
       value: constants.Zero,
       chainId,
-      from: wallet.address,
+      from: addr,
     },
     requestContext,
   );
+
+  // increment fees sent (no need to await)
+  incrementGasConsumed(
+    chainId,
+    receipt,
+    txData.router.toLowerCase() === addr.toLowerCase() ? TransactionReasons.FulfillSender : TransactionReasons.Relay,
+    requestContext,
+  );
+
+  return receipt;
 };
 
 export const fulfillRouterContract = async (
@@ -526,7 +561,7 @@ export const fulfillRouterContract = async (
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
   logger.info("Router contract fulfill: sending using txservice", requestContext, methodContext, { fulfillParams });
-  return await txService.sendTx(
+  const receipt = await txService.sendTx(
     {
       to: routerContractAddress,
       data: encodedData,
@@ -536,6 +571,10 @@ export const fulfillRouterContract = async (
     },
     requestContext,
   );
+
+  incrementGasConsumed(chainId, receipt, TransactionReasons.FulfillSender, requestContext);
+
+  return receipt;
 };
 
 export const cancelTransactionManager = async (
@@ -557,16 +596,30 @@ export const cancelTransactionManager = async (
     { txData, signature: cancelSignature, encodedMeta: "0x" },
   ]);
 
-  return await txService.sendTx(
+  const addr = wallet.address ?? (await wallet.getAddress());
+  const receipt = await txService.sendTx(
     {
       to: nxtpContractAddress,
       data: encodedData,
       value: constants.Zero,
       chainId,
-      from: wallet.address,
+      from: addr,
     },
     requestContext,
   );
+
+  incrementGasConsumed(
+    chainId,
+    receipt,
+    addr.toLowerCase() !== txData.router.toLowerCase()
+      ? TransactionReasons.Relay
+      : chainId === txData.sendingChainId
+      ? TransactionReasons.CancelSender
+      : TransactionReasons.CancelReceiver,
+    requestContext,
+  );
+
+  return receipt;
 };
 
 export const cancelRouterContract = async (
@@ -663,7 +716,7 @@ export const cancelRouterContract = async (
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
       // (see waitFor) is the error we actually caught in this block.
       logger.warn("Router contract cancel: router network failed", requestContext, methodContext, {
@@ -673,7 +726,7 @@ export const cancelRouterContract = async (
   }
 
   logger.info("Router contract cancel: sending using txservice", requestContext, methodContext, { cancelParams });
-  return await txService.sendTx(
+  const receipt = await txService.sendTx(
     {
       to: routerContractAddress,
       data: encodedData,
@@ -683,6 +736,15 @@ export const cancelRouterContract = async (
     },
     requestContext,
   );
+
+  incrementGasConsumed(
+    chainId,
+    receipt,
+    txData.sendingChainId === chainId ? TransactionReasons.CancelSender : TransactionReasons.CancelReceiver,
+    requestContext,
+  );
+
+  return receipt;
 };
 
 /**
@@ -821,7 +883,7 @@ export const removeLiquidityRouterContract = async (
       // listen for event on contract
       const { event } = await removeLiquidityEvt.waitFor(300_000);
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
-    } catch (err) {
+    } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
       // (see waitFor) is the error we actually caught in this block.
       logger.warn("Router contract removeLiquidity: router network failed", requestContext, methodContext, {

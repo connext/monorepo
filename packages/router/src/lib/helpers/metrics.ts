@@ -299,6 +299,18 @@ export const incrementFees = async (
   );
 };
 
+/**
+ * Increments gas consumed by the router signer each time it sends a transaction
+ *
+ * @notice This function should only be called through the `adapters/contract/contract.ts` functions. This is because
+ * costs paid for the transaction will be different if it is via a relayer or the txservice, and only those
+ * functions will have proper context into that.
+ * @param chainId - Chain transaction was sent on
+ * @param receipt - Receipt to calculate gas for
+ * @param reason - Why transaction was sent
+ * @param _requestContext - Request context for top-level method
+ * @returns void
+ */
 export const incrementGasConsumed = async (
   chainId: number,
   receipt: providers.TransactionReceipt | undefined,
