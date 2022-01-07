@@ -37,6 +37,15 @@ import { ERC20Interface } from "@connext/nxtp-contracts/typechain/ERC20";
 
 const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
+const chainIdMock = txDataMock.sendingChainId;
+const onchainTxMock = {
+  to: routerContractAddressMock,
+  data: encodedDataMock,
+  value: constants.Zero,
+  chainId: chainIdMock,
+  from: mkAddress("0xa"),
+};
+const routerRelayerFeeAssetMock = mkAddress("0x1a2b3c");
 
 let interfaceMock: SinonStubbedInstance<Interface>;
 let routerInterfaceMock: SinonStubbedInstance<Interface>;
@@ -396,7 +405,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("getRouterBalance", async () => {
+  describe("#getRouterBalance", async () => {
     it("should work", async () => {
       txServiceMock.readTx.resolves("10");
       const ret = await ContractFns.getRouterBalance(1337, routerAddrMock, mkAddress());
@@ -404,17 +413,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("prepareRouterContract", async () => {
-    const chainIdMock = txDataMock.sendingChainId;
-    const onchainTxMock = {
-      to: routerContractAddressMock,
-      data: encodedDataMock,
-      value: constants.Zero,
-      chainId: chainIdMock,
-      from: ctxMock.wallet.address ?? mkAddress("0xa"),
-    };
-    const routerRelayerFeeAssetMock = mkAddress("0x1a2b3c");
-
+  describe("#prepareRouterContract", async () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
       txServiceMock.sendTx.withArgs(onchainTxMock, requestContext).resolves(txReceiptMock);
@@ -527,18 +526,9 @@ describe("Contract Adapter", () => {
   });
 
   describe("#fulfillRouterContract", async () => {
-    const chainIdMock = txDataMock.sendingChainId;
-    const onchainTxMock = {
-      to: routerContractAddressMock,
-      data: encodedDataMock,
-      value: constants.Zero,
-      chainId: chainIdMock,
-      from: ctxMock.wallet.address ?? mkAddress("0xa"),
-    };
-    const routerRelayerFeeAssetMock = mkAddress("0x1a2b3c");
-
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+      txServiceMock.sendTx.withArgs(onchainTxMock, requestContext).resolves(txReceiptMock);
     });
 
     it("should work (without relayers)", async () => {
@@ -643,19 +633,10 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("cancelRouterContract", async () => {
-    const chainIdMock = txDataMock.sendingChainId;
-    const onchainTxMock = {
-      to: routerContractAddressMock,
-      data: encodedDataMock,
-      value: constants.Zero,
-      chainId: chainIdMock,
-      from: ctxMock.wallet.address ?? mkAddress("0xa"),
-    };
-    const routerRelayerFeeAssetMock = mkAddress("0x1a2b3c");
-
+  describe("#cancelRouterContract", async () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+      txServiceMock.sendTx.withArgs(onchainTxMock, requestContext).resolves(txReceiptMock);
     });
 
     it("should work (without relayers)", async () => {
