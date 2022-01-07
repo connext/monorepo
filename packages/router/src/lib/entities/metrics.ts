@@ -193,11 +193,19 @@ export const feesCollected = new Counter({
 });
 
 // Track gas consumed in USD -- incremented via `incrementGas` function that
-// handles conversion
+// handles conversion.
 export const gasConsumed = new Counter({
   name: "router_gas_consumed_usd",
   help: "router_gas_consumed_help",
   labelNames: ["reason", "chainId"] as const,
+});
+
+// Track fees paid to relayer in USD -- incremented via `incrementRelayerFeesPaid` function
+// that handles conversion
+export const relayerFeesPaid = new Counter({
+  name: "relayer_fees_paid_usd",
+  help: "relayer_fees_paid_help",
+  labelNames: ["reason", "chainId", "assetId"] as const,
 });
 
 // Track liquidity supplied (i.e. investment) in USD

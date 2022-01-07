@@ -6,6 +6,7 @@ import {
   ExpressiveAssetBalance,
   feesCollected,
   gasConsumed,
+  relayerFeesPaid,
   totalTransferredVolume,
   TransactionReason,
 } from "../entities";
@@ -348,6 +349,43 @@ export const incrementGasConsumed = async (
   // Update counter
   // TODO: reason type
   gasConsumed.inc({ chainId, reason }, usd);
+};
+
+/**
+ * Increments relayer fees paid by the router signer each time it sends a transaction via relayers.
+ *
+ * @notice This function should only be called through the `adapters/contract/contract.ts` functions. This is because
+ * costs paid for the transaction will be different if it is via a relayer or the txservice, and only those
+ * functions will have proper context into that.
+ * @param chainId - Chain transaction was sent on
+ * @param relayerFee - Amount sent to relayer
+ * @param assetId - Asset used to pay relayer
+ * @param reason - Why transaction was sent
+ * @param _requestContext - Request context for top-level method
+ * @returns void
+ */
+export const incrementRelayerFeesPaid = async (
+  chainId: number,
+  relayerFee: string,
+  assetId: string,
+  reason: TransactionReason,
+  _requestContext: RequestContext,
+) => {
+  const { logger } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(incrementTotalTransferredVolume.name, _requestContext);
+  logger.debug("Method start", requestContext, methodContext, {
+    chainId,
+    assetId,
+    relayerFee,
+    reason,
+  });
+
+  const usd = await convertToUsd(assetId, chainId, relayerFee, requestContext);
+
+  relayerFeesPaid.inc({ reason, chainId, assetId }, usd);
+
+  throw new Error(`Implement me`);
 };
 
 export const incrementTotalTransferredVolume = async (

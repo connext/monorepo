@@ -29,26 +29,11 @@ import {
   incrementGasConsumed,
 } from "../../lib/helpers";
 import { TransactionReasons } from "../../lib/entities";
+import { incrementRelayerFeesPaid } from "../../lib/helpers/metrics";
 
-type RouterContractPrepareEvent = {
-  invariantData: InvariantTransactionData;
-  routerRelayerFeeAsset: string;
-  routerRelayerFee: BigNumber;
-  caller: string;
-  transactionHash: string;
-};
-type RouterContractFulfillEvent = {
-  txData: TransactionData;
-  routerRelayerFeeAsset: string;
-  routerRelayerFee: BigNumber;
-  caller: string;
-  transactionHash: string;
-};
-type RouterContractCancelEvent = RouterContractFulfillEvent;
-
-export const prepareEvt = new Evt<{ event: RouterContractPrepareEvent; args: PrepareParams; chainId: number }>(); // TODO: fix types
-export const fulfillEvt = new Evt<{ event: RouterContractFulfillEvent; args: FulfillParams; chainId: number }>();
-export const cancelEvt = new Evt<{ event: RouterContractCancelEvent; args: CancelParams; chainId: number }>();
+export const prepareEvt = new Evt<{ event: any; args: PrepareParams; chainId: number }>(); // TODO: fix types
+export const fulfillEvt = new Evt<{ event: any; args: FulfillParams; chainId: number }>();
+export const cancelEvt = new Evt<{ event: any; args: CancelParams; chainId: number }>();
 export const removeLiquidityEvt = new Evt<{
   event: any;
   args: RemoveLiquidityParams;
@@ -75,28 +60,22 @@ export const startContractListeners = (): void => {
       contract.on("TransactionPrepared", (_user, _router, _transactionId, _txData, _caller, args, event) => {
         if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
           const invariantData: InvariantTransactionData = {
-            callDataHash: event.invariantData.callDataHash,
-            initiator: event.invariantData.initiator,
-            receivingAssetId: event.invariantData.receivingAssetId,
-            receivingChainId: event.invariantData.receivingChainId,
-            sendingChainId: event.invariantData.sendingChainId,
-            callTo: event.invariantData.callTo,
-            receivingAddress: event.invariantData.receivingAddress,
-            receivingChainTxManagerAddress: event.invariantData.receivingChainTxManagerAddress,
-            router: event.invariantData.router,
-            sendingAssetId: event.invariantData.sendingAssetId,
-            sendingChainFallback: event.invariantData.sendingChainFallback,
-            transactionId: event.invariantData.transactionId,
-            user: event.invariantData.user,
+            callDataHash: args.invariantData.callDataHash,
+            initiator: args.invariantData.initiator,
+            receivingAssetId: args.invariantData.receivingAssetId,
+            receivingChainId: args.invariantData.receivingChainId,
+            sendingChainId: args.invariantData.sendingChainId,
+            callTo: args.invariantData.callTo,
+            receivingAddress: args.invariantData.receivingAddress,
+            receivingChainTxManagerAddress: args.invariantData.receivingChainTxManagerAddress,
+            router: args.invariantData.router,
+            sendingAssetId: args.invariantData.sendingAssetId,
+            sendingChainFallback: args.invariantData.sendingChainFallback,
+            transactionId: args.invariantData.transactionId,
+            user: args.invariantData.user,
           };
           prepareEvt.post({
-            event: {
-              invariantData,
-              routerRelayerFeeAsset: event.routerRelayerFeeAsset,
-              routerRelayerFee: event.routerRelayerFee,
-              caller: event.caller,
-              transactionHash: event.transactionHash,
-            },
+            event,
             args: {
               amount: args.amount,
               bidSignature: args.bidSignature,
@@ -114,31 +93,25 @@ export const startContractListeners = (): void => {
         (_user, _router, _transactionId, args, _success, _isContract, _returnData, _caller, event) => {
           if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
             const txData: TransactionData = {
-              callDataHash: event.txData.callDataHash,
-              initiator: event.txData.initiator,
-              receivingAssetId: event.txData.receivingAssetId,
-              receivingChainId: event.txData.receivingChainId,
-              sendingChainId: event.txData.sendingChainId,
-              callTo: event.txData.callTo,
-              receivingAddress: event.txData.receivingAddress,
-              receivingChainTxManagerAddress: event.txData.receivingChainTxManagerAddress,
-              router: event.txData.router,
-              sendingAssetId: event.txData.sendingAssetId,
-              sendingChainFallback: event.txData.sendingChainFallback,
-              transactionId: event.txData.transactionId,
-              user: event.txData.user,
-              amount: event.txData.amount,
-              expiry: event.txData.expiry,
-              preparedBlockNumber: event.txData.preparedBlockNumber,
+              callDataHash: args.txData.callDataHash,
+              initiator: args.txData.initiator,
+              receivingAssetId: args.txData.receivingAssetId,
+              receivingChainId: args.txData.receivingChainId,
+              sendingChainId: args.txData.sendingChainId,
+              callTo: args.txData.callTo,
+              receivingAddress: args.txData.receivingAddress,
+              receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+              router: args.txData.router,
+              sendingAssetId: args.txData.sendingAssetId,
+              sendingChainFallback: args.txData.sendingChainFallback,
+              transactionId: args.txData.transactionId,
+              user: args.txData.user,
+              amount: args.txData.amount,
+              expiry: args.txData.expiry,
+              preparedBlockNumber: args.txData.preparedBlockNumber,
             };
             fulfillEvt.post({
-              event: {
-                txData,
-                routerRelayerFeeAsset: event.routerRelayerFeeAsset,
-                routerRelayerFee: event.routerRelayerFee,
-                caller: event.caller,
-                transactionHash: event.transactionHash,
-              },
+              event,
               args: {
                 callData: args.callData,
                 signature: args.signature,
@@ -153,31 +126,25 @@ export const startContractListeners = (): void => {
       contract.on("TransactionCancelled", (_user, _router, _transactionId, args, _caller, event) => {
         if (utils.getAddress(config.routerContractAddress!) === utils.getAddress(_router)) {
           const txData: TransactionData = {
-            callDataHash: event.txData.callDataHash,
-            initiator: event.txData.initiator,
-            receivingAssetId: event.txData.receivingAssetId,
-            receivingChainId: event.txData.receivingChainId,
-            sendingChainId: event.txData.sendingChainId,
-            callTo: event.txData.callTo,
-            receivingAddress: event.txData.receivingAddress,
-            receivingChainTxManagerAddress: event.txData.receivingChainTxManagerAddress,
-            router: event.txData.router,
-            sendingAssetId: event.txData.sendingAssetId,
-            sendingChainFallback: event.txData.sendingChainFallback,
-            transactionId: event.txData.transactionId,
-            user: event.txData.user,
-            amount: event.txData.amount,
-            expiry: event.txData.expiry,
-            preparedBlockNumber: event.txData.preparedBlockNumber,
+            callDataHash: args.txData.callDataHash,
+            initiator: args.txData.initiator,
+            receivingAssetId: args.txData.receivingAssetId,
+            receivingChainId: args.txData.receivingChainId,
+            sendingChainId: args.txData.sendingChainId,
+            callTo: args.txData.callTo,
+            receivingAddress: args.txData.receivingAddress,
+            receivingChainTxManagerAddress: args.txData.receivingChainTxManagerAddress,
+            router: args.txData.router,
+            sendingAssetId: args.txData.sendingAssetId,
+            sendingChainFallback: args.txData.sendingChainFallback,
+            transactionId: args.txData.transactionId,
+            user: args.txData.user,
+            amount: args.txData.amount,
+            expiry: args.txData.expiry,
+            preparedBlockNumber: args.txData.preparedBlockNumber,
           };
           cancelEvt.post({
-            event: {
-              txData,
-              routerRelayerFeeAsset: event.routerRelayerFeeAsset,
-              routerRelayerFee: event.routerRelayerFee,
-              caller: event.caller,
-              transactionHash: event.transactionHash,
-            },
+            event,
             args: {
               signature: args.signature,
               txData,
@@ -331,6 +298,16 @@ export const prepareRouterContract = async (
       const { event } = await prepareEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
+
+      // increment router fees
+      incrementRelayerFeesPaid(
+        chainId,
+        routerRelayerFee,
+        routerRelayerFeeAsset,
+        TransactionReasons.PrepareReceiver,
+        requestContext,
+      );
+
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       logger.warn("Router contract prepare: Gelato send failed", requestContext, methodContext, {
@@ -365,6 +342,16 @@ export const prepareRouterContract = async (
       const { event } = await prepareEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
+
+      // increment router fees
+      incrementRelayerFeesPaid(
+        chainId,
+        routerRelayerFee,
+        routerRelayerFeeAsset,
+        TransactionReasons.PrepareReceiver,
+        requestContext,
+      );
+
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
@@ -515,6 +502,15 @@ export const fulfillRouterContract = async (
       const { event } = await fulfillEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
+
+      // increment router fees
+      incrementRelayerFeesPaid(
+        chainId,
+        routerRelayerFee,
+        routerRelayerFeeAsset,
+        TransactionReasons.FulfillSender,
+        requestContext,
+      );
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       logger.warn("Router contract fulfill: Gelato send failed", requestContext, methodContext, {
@@ -549,6 +545,16 @@ export const fulfillRouterContract = async (
       const { event } = await fulfillEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
+
+      // increment router fees
+      incrementRelayerFeesPaid(
+        chainId,
+        routerRelayerFee,
+        routerRelayerFeeAsset,
+        TransactionReasons.FulfillSender,
+        requestContext,
+      );
+
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
@@ -681,6 +687,16 @@ export const cancelRouterContract = async (
       const { event } = await cancelEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
+
+      // increment router fees
+      incrementRelayerFeesPaid(
+        chainId,
+        routerRelayerFee,
+        routerRelayerFeeAsset,
+        chainId === txData.sendingChainId ? TransactionReasons.CancelSender : TransactionReasons.PrepareReceiver,
+        requestContext,
+      );
+
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       logger.warn("Router contract cancel: Gelato send failed", requestContext, methodContext, {
@@ -715,6 +731,16 @@ export const cancelRouterContract = async (
       const { event } = await cancelEvt
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
+
+      // increment router fees
+      incrementRelayerFeesPaid(
+        chainId,
+        routerRelayerFee,
+        routerRelayerFeeAsset,
+        chainId === txData.sendingChainId ? TransactionReasons.CancelSender : TransactionReasons.PrepareReceiver,
+        requestContext,
+      );
+
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       // NOTE: It is possible that the actual error was in the subscriber, and the above event's timeout
