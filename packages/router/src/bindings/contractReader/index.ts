@@ -19,7 +19,6 @@ import {
   attemptedTransfer,
   completedTransfer,
   successfulAuction,
-  TransactionReasons,
   senderFailedCancel,
   receiverFailedPrepare,
   senderFailedFulfill,
@@ -36,7 +35,7 @@ import {
 } from "../../lib/entities";
 import { getOperations } from "../../lib/operations";
 import { ContractReaderNotAvailableForChain } from "../../lib/errors";
-import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
+import { incrementFees } from "../../lib/helpers";
 import { getAssetName, incrementTotalTransferredVolume } from "../../lib/helpers/metrics";
 import { getFeesInSendingAsset } from "../../lib/helpers/shared";
 
@@ -283,12 +282,6 @@ export const handleSingle = async (
         sendingAssetName,
         receivingAssetName,
       });
-      incrementGasConsumed(
-        _transaction.crosschainTx.invariant.receivingChainId,
-        receipt!.gasUsed,
-        TransactionReasons.PrepareReceiver,
-        requestContext,
-      );
     } catch (err: any) {
       const sendingAssetName = getAssetName(
         _transaction.crosschainTx.invariant.sendingAssetId,
@@ -343,12 +336,6 @@ export const handleSingle = async (
               receivingAssetName: receivingAssetName,
             },
             1,
-          );
-          incrementGasConsumed(
-            _transaction.crosschainTx.invariant.sendingChainId,
-            cancelRes!.gasUsed,
-            TransactionReasons.CancelSender,
-            requestContext,
           );
         } catch (cancelErr: any) {
           senderFailedCancel.inc({
@@ -495,13 +482,6 @@ export const handleSingle = async (
         );
       };
       incrementFeesPromise();
-
-      incrementGasConsumed(
-        _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
-        TransactionReasons.FulfillSender,
-        requestContext,
-      );
     } catch (err: any) {
       senderFailedFulfill.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
@@ -562,12 +542,6 @@ export const handleSingle = async (
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: receivingAssetName,
       });
-      incrementGasConsumed(
-        _transaction.crosschainTx.invariant.receivingChainId,
-        receipt!.gasUsed,
-        TransactionReasons.CancelReceiver,
-        requestContext,
-      );
     } catch (err: any) {
       receiverFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -626,12 +600,6 @@ export const handleSingle = async (
         chainId: _transaction.crosschainTx.invariant.sendingChainId,
         assetName: sendingAssetName,
       });
-      incrementGasConsumed(
-        _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
-        TransactionReasons.CancelSender,
-        requestContext,
-      );
     } catch (err: any) {
       const errJson = jsonifyError(err);
       if (safeJsonStringify(errJson).includes("#C:019")) {
@@ -681,12 +649,6 @@ export const handleSingle = async (
         chainId: transaction.crosschainTx.invariant.sendingChainId,
         assetName: sendingAssetName,
       });
-      incrementGasConsumed(
-        _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
-        TransactionReasons.CancelSender,
-        requestContext,
-      );
     } catch (err: any) {
       senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
@@ -741,12 +703,6 @@ export const handleSingle = async (
         chainId: transaction.crosschainTx.invariant.sendingChainId,
         assetName: sendingAssetName,
       });
-      incrementGasConsumed(
-        _transaction.crosschainTx.invariant.sendingChainId,
-        receipt!.gasUsed,
-        TransactionReasons.CancelSender,
-        requestContext,
-      );
     } catch (err: any) {
       senderFailedCancel.inc({
         assetId: _transaction.crosschainTx.invariant.sendingAssetId,
