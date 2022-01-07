@@ -13,6 +13,7 @@ import { Static } from "@sinclair/typebox";
 import { getConfig, NxtpRouterConfig, TSwapPool } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
 import { contractWriter, ContractWriter } from "./adapters/contract";
+import { createRouterCache, RouterCache } from "./adapters/cache";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
@@ -32,6 +33,7 @@ export type Context = {
   contractReader: ContractReader;
   contractWriter: ContractWriter;
   chainData: Map<string, ChainData>;
+  cache: RouterCache;
   chainAssetSwapPoolMap: Map<number, string[]>;
 };
 
@@ -129,6 +131,8 @@ export const makeRouter = async () => {
       context.config.chainConfig as any,
       context.wallet,
     );
+
+    context.cache = createRouterCache();
 
     // adapters
     context.contractReader = subgraphContractReader();
