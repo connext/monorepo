@@ -31,7 +31,7 @@ import { createStubInstance, SinonStubbedInstance, stub, SinonStub, restore, res
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 import { RouterInterface } from "@connext/nxtp-contracts/typechain/Router";
 import { routerAddrMock, routerContractAddressMock } from "../../utils";
-import { ctxMock, messagingMock, signerAddress, txServiceMock } from "../../globalTestHook";
+import { routerAddress, messagingMock, signerAddress, txServiceMock } from "../../globalTestHook";
 import { SanitationCheckFailed } from "../../../src/lib/errors";
 import { ERC20Interface } from "@connext/nxtp-contracts/typechain/ERC20";
 
@@ -43,7 +43,7 @@ const onchainTxMock = {
   data: encodedDataMock,
   value: constants.Zero,
   chainId: chainIdMock,
-  from: mkAddress("0xa"),
+  from: routerAddress,
 };
 const routerRelayerFeeAssetMock = mkAddress("0x1a2b3c");
 
@@ -97,7 +97,7 @@ describe("Contract Adapter", () => {
       txServiceMock.readTx.resolves(constants.HashZero);
 
       await SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare");
-      expect(interfaceMock.encodeFunctionData).to.be.calledOnceWithExactly("variantTransactionData", [digest]);
+      expect(interfaceMock.encodeFunctionData).to.have.been.calledOnceWithExactly("variantTransactionData", [digest]);
     });
 
     it("should throw an error if the hash is not empty && function is prepare", async () => {
@@ -448,7 +448,7 @@ describe("Contract Adapter", () => {
       // Preflight estimate gas check should *not* be called if we aren't using relayers.
       expect(txServiceMock.getGasEstimate.callCount).to.be.eq(0);
       // Should have used txservice to send the tx.
-      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock, requestContext);
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
@@ -476,7 +476,7 @@ describe("Contract Adapter", () => {
       expect(res).to.deep.eq(txReceiptMock);
 
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.be.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
@@ -504,7 +504,7 @@ describe("Contract Adapter", () => {
       expect(res).to.deep.eq(txReceiptMock);
 
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.be.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should throw if txService estimateGas preflight check throws an error", async () => {
@@ -559,7 +559,7 @@ describe("Contract Adapter", () => {
       // Preflight estimate gas check should *not* be called if we aren't using relayers.
       expect(txServiceMock.getGasEstimate.callCount).to.be.eq(0);
       // Should have used txservice to send the tx.
-      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock, requestContext);
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
@@ -585,7 +585,7 @@ describe("Contract Adapter", () => {
       );
       expect(res).to.deep.eq(txReceiptMock);
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.be.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
@@ -612,7 +612,7 @@ describe("Contract Adapter", () => {
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.be.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should throw if txService estimateGas preflight check throws an error", async () => {
@@ -664,7 +664,7 @@ describe("Contract Adapter", () => {
       // Preflight estimate gas check should *not* be called if we aren't using relayers.
       expect(txServiceMock.getGasEstimate.callCount).to.be.eq(0);
       // Should have used txservice to send the tx.
-      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock, requestContext);
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
@@ -690,7 +690,7 @@ describe("Contract Adapter", () => {
       );
       expect(res).to.deep.eq(txReceiptMock);
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.be.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
@@ -717,7 +717,7 @@ describe("Contract Adapter", () => {
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.be.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should throw if txService estimateGas preflight check throws an error", async () => {
