@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.11
+
 - [contracts] Add ability to one-off verify contracts via hardhat
 - [router] Sanity check for router contracts existing on chain
 - [utils] Correctly determine the Gelato-supported chains
