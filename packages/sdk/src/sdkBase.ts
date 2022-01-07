@@ -987,11 +987,11 @@ export class NxtpSdkBase {
       throw new ChainNotConfigured(txData.receivingChainId, Object.keys(this.config.chainConfig));
     }
 
-    const fulfillTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, FULFILL_TIMEOUT, (data) => {
-      return data.txData.transactionId === params.txData.transactionId;
-    });
-
     if (useRelayers) {
+      const fulfillTxProm = this.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, FULFILL_TIMEOUT, (data) => {
+        return data.txData.transactionId === params.txData.transactionId;
+      });
+
       if (isChainSupportedByGelato(txData.receivingChainId)) {
         this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
         const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
