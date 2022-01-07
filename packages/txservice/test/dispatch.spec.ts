@@ -588,6 +588,9 @@ describe("TransactionDispatch", () => {
     });
 
     it("should rewind the local nonce if the transaction has an error but was never mined", async () => {
+      const expectedNonce = 100;
+      (txDispatch as any).nonce = 123456789;
+      getTransactionCountStub.resolves(expectedNonce);
       submitStub.callsFake(async (transaction: OnchainTransaction) => {
         stub(transaction, "didSubmit").get(() => mockTransactionState.didSubmit);
         // Transaction was not mined or confirmed.
@@ -599,6 +602,7 @@ describe("TransactionDispatch", () => {
         transaction.error = new TransactionReverted("fail");
       });
       await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
+      expect((txDispatch as any).nonce).to.eq(expectedNonce);
     });
   });
 
