@@ -3,6 +3,7 @@
 ## Next Release
 
 - [router] Run an estimate gas check before calling relayers for tx execution
+- [router] Track bids in memory to only bid 150% of available liquidity
 
 ## 0.1.11
 

@@ -10,11 +10,30 @@ export class NotEnoughAmount extends NxtpError {
 
 export class NotEnoughLiquidity extends NxtpError {
   cancellable = true;
-  constructor(chainId: number, assetId: string, balance: string, required: string, context: any = {}) {
+  constructor(chainId: number, assetId: string, balance: string, amountRequested: string, context: any = {}) {
     super(
-      `Not enough liquidity for chainId ${chainId}, assetId: ${assetId}, balance: ${balance}, ${required}`,
-      context,
+      "Not enough liquidity for bid.",
+      { ...context, chainId, assetId, balance, amountRequested },
       "NotEnoughLiquidity",
+    );
+  }
+}
+
+export class LiquidityUnavailable extends NxtpError {
+  cancellable = true;
+  constructor(
+    chainId: number,
+    assetId: string,
+    balance: string,
+    amountRequested: string,
+    currentOutstanding: string,
+    maximumOutstanding: string,
+    context: any = {},
+  ) {
+    super(
+      "Bid's received amount would exceed maximum outstanding liquidity.",
+      { ...context, chainId, assetId, balance, amountRequested, currentOutstanding, maximumOutstanding },
+      "LiquidityUnavailable",
     );
   }
 }

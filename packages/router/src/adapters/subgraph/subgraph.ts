@@ -9,7 +9,7 @@ import {
   SubgraphSyncRecord,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";

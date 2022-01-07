@@ -11,7 +11,7 @@ import {
   MetaTxPayloads,
   RemoveLiquidityParams,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { Evt } from "evt";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
