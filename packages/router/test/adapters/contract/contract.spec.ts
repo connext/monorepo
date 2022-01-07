@@ -476,7 +476,7 @@ describe("Contract Adapter", () => {
       expect(res).to.deep.eq(txReceiptMock);
 
       // Preflight estimate gas check should be called if we use relayers.
-      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(onchainTxMock);
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
