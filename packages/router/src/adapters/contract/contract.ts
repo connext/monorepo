@@ -254,6 +254,20 @@ export const prepareRouterContract = async (
     signature,
   ]);
 
+  const onchainTx = {
+    to: routerContractAddress,
+    data: encodedData,
+    value: constants.Zero,
+    chainId,
+    from: wallet.address,
+  };
+  if (useRelayer) {
+    // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
+    // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
+    // if the transaction would fail on chain.
+    await txService.getGasEstimate(chainId, onchainTx);
+  }
+
   // 1. Prepare tx using relayer if chain is supported by gelato.
   if (useRelayer && isChainSupportedByGelato(chainId)) {
     logger.info("Router contract prepare: sending using Gelato relayer", requestContext, methodContext, {
@@ -325,16 +339,7 @@ export const prepareRouterContract = async (
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
   logger.info("Router contract prepare: sending using txservice", requestContext, methodContext, { prepareParams });
-  return await txService.sendTx(
-    {
-      to: routerContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return await txService.sendTx(onchainTx, requestContext);
 };
 
 export const fulfillTransactionManager = async (
@@ -419,6 +424,22 @@ export const fulfillRouterContract = async (
     signature,
   ]);
 
+  const onchainTx = {
+    to: routerContractAddress,
+    data: encodedData,
+    value: constants.Zero,
+    chainId,
+    from: wallet.address,
+  };
+  if (useRelayer) {
+    // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
+    // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
+    // if the transaction would fail on chain.
+    // TODO: Would be nice to recycle the gasLimit we get back from this call in the event that we end up
+    // using txservice.
+    await txService.getGasEstimate(chainId, onchainTx);
+  }
+
   // 1. Prepare tx using relayer if chain is supported by gelato.
   if (useRelayer && isChainSupportedByGelato(chainId)) {
     logger.info("Router contract fulfill: sending using Gelato relayer", requestContext, methodContext, {
@@ -492,16 +513,7 @@ export const fulfillRouterContract = async (
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
   logger.info("Router contract fulfill: sending using txservice", requestContext, methodContext, { fulfillParams });
-  return await txService.sendTx(
-    {
-      to: routerContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return await txService.sendTx(onchainTx, requestContext);
 };
 
 export const cancelTransactionManager = async (
@@ -564,6 +576,20 @@ export const cancelRouterContract = async (
     routerRelayerFee,
     signature,
   ]);
+
+  const onchainTx = {
+    to: routerContractAddress,
+    data: encodedData,
+    value: constants.Zero,
+    chainId,
+    from: wallet.address,
+  };
+  if (useRelayer) {
+    // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
+    // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
+    // if the transaction would fail on chain.
+    await txService.getGasEstimate(chainId, onchainTx);
+  }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
   if (useRelayer && isChainSupportedByGelato(chainId)) {
@@ -639,16 +665,7 @@ export const cancelRouterContract = async (
   }
 
   logger.info("Router contract cancel: sending using txservice", requestContext, methodContext, { cancelParams });
-  return await txService.sendTx(
-    {
-      to: routerContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return await txService.sendTx(onchainTx, requestContext);
 };
 
 /**
@@ -724,6 +741,20 @@ export const removeLiquidityRouterContract = async (
     routerRelayerFee,
     signature,
   ]);
+
+  const onchainTx = {
+    to: routerContractAddress,
+    data: encodedData,
+    value: constants.Zero,
+    chainId,
+    from: wallet.address,
+  };
+  if (useRelayer) {
+    // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
+    // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
+    // if the transaction would fail on chain.
+    await txService.getGasEstimate(chainId, onchainTx);
+  }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
   if (useRelayer && isChainSupportedByGelato(chainId)) {
@@ -801,16 +832,7 @@ export const removeLiquidityRouterContract = async (
     amount,
     assetId,
   });
-  return await txService.sendTx(
-    {
-      to: routerContractAddress,
-      data: encodedData,
-      value: constants.Zero,
-      chainId,
-      from: wallet.address,
-    },
-    requestContext,
-  );
+  return await txService.sendTx(onchainTx, requestContext);
 };
 
 export const addLiquidityForTransactionManager = async (

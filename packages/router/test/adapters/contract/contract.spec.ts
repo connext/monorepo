@@ -31,12 +31,21 @@ import { createStubInstance, SinonStubbedInstance, stub, SinonStub, restore, res
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 import { RouterInterface } from "@connext/nxtp-contracts/typechain/Router";
 import { routerAddrMock, routerContractAddressMock } from "../../utils";
-import { messagingMock, signerAddress, txServiceMock } from "../../globalTestHook";
+import { routerAddress, messagingMock, signerAddress, txServiceMock } from "../../globalTestHook";
 import { SanitationCheckFailed } from "../../../src/lib/errors";
 import { ERC20Interface } from "@connext/nxtp-contracts/typechain/ERC20";
 
 const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
+const chainIdMock = txDataMock.sendingChainId;
+const onchainTxMock = {
+  to: routerContractAddressMock,
+  data: encodedDataMock,
+  value: constants.Zero,
+  chainId: chainIdMock,
+  from: routerAddress,
+};
+const routerRelayerFeeAssetMock = mkAddress("0x1a2b3c");
 
 let interfaceMock: SinonStubbedInstance<Interface>;
 let routerInterfaceMock: SinonStubbedInstance<Interface>;
@@ -88,7 +97,7 @@ describe("Contract Adapter", () => {
       txServiceMock.readTx.resolves(constants.HashZero);
 
       await SharedFns.sanitationCheck(txDataMock.sendingChainId, txDataMock, "prepare");
-      expect(interfaceMock.encodeFunctionData).to.be.calledOnceWithExactly("variantTransactionData", [digest]);
+      expect(interfaceMock.encodeFunctionData).to.have.been.calledOnceWithExactly("variantTransactionData", [digest]);
     });
 
     it("should throw an error if the hash is not empty && function is prepare", async () => {
@@ -396,7 +405,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("getRouterBalance", async () => {
+  describe("#getRouterBalance", async () => {
     it("should work", async () => {
       txServiceMock.readTx.resolves("10");
       const ret = await ContractFns.getRouterBalance(1337, routerAddrMock, mkAddress());
@@ -404,21 +413,19 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("prepareRouterContract", async () => {
+  describe("#prepareRouterContract", async () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+      txServiceMock.sendTx.withArgs(onchainTxMock, requestContext).resolves(txReceiptMock);
     });
 
-    it("should work", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
+    it("should work (without relayers)", async () => {
       const res = await ContractFns.prepareRouterContract(
-        chainId,
+        chainIdMock,
         prepareParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         false,
         requestContext,
@@ -433,120 +440,109 @@ describe("Contract Adapter", () => {
           bidSignature: prepareParamsMock.bidSignature,
           encodedMeta: "0x",
         },
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         sigMock,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should *not* be called if we aren't using relayers.
+      expect(txServiceMock.getGasEstimate.callCount).to.be.eq(0);
+      // Should have used txservice to send the tx.
+      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock, requestContext);
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
       isChainSupportedByGelatoStub.returns(true);
       gelatoSendStub.resolves({
         taskId: "task",
       });
-      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+      txServiceMock.getTransactionReceipt.withArgs(chainIdMock, txReceiptMock.transactionHash).resolves(txReceiptMock);
 
       setTimeout(() => {
-        ContractFns.prepareEvt.post({ event: "prepare", args: prepareParamsMock, chainId: chainId });
+        ContractFns.prepareEvt.post({ event: "prepare", args: prepareParamsMock, chainId: chainIdMock });
       }, 200);
 
       const res = await ContractFns.prepareRouterContract(
-        chainId,
+        chainIdMock,
         prepareParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         true,
         requestContext,
       );
 
       expect(res).to.deep.eq(txReceiptMock);
+
+      // Preflight estimate gas check should be called if we use relayers.
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
       isChainSupportedByGelatoStub.returns(true);
       gelatoSendStub.resolves({
         taskId: undefined,
       });
-      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+      txServiceMock.getTransactionReceipt.withArgs(chainIdMock, txReceiptMock.transactionHash).resolves(txReceiptMock);
 
       setTimeout(() => {
-        ContractFns.prepareEvt.post({ event: "prepare", args: prepareParamsMock, chainId: chainId });
+        ContractFns.prepareEvt.post({ event: "prepare", args: prepareParamsMock, chainId: chainIdMock });
       }, 200);
 
       const res = await ContractFns.prepareRouterContract(
-        chainId,
+        chainIdMock,
         prepareParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         true,
         requestContext,
       );
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
+
+      // Preflight estimate gas check should be called if we use relayers.
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
-    it("should work if not use relayer", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
-      isChainSupportedByGelatoStub.returns(false);
-      txServiceMock.sendTx
-        .withArgs(
-          {
-            to: routerContractAddressMock,
-            data: encodedDataMock,
-            value: "0x0",
-            chainId,
-            from: mkAddress("0xa"),
-          },
+    it("should throw if txService estimateGas preflight check throws an error", async () => {
+      const testError = new Error("test");
+      txServiceMock.getGasEstimate.rejects(testError);
+      await expect(
+        ContractFns.prepareRouterContract(
+          chainIdMock,
+          prepareParamsMock,
+          routerContractAddressMock,
+          sigMock,
+          routerRelayerFeeAssetMock,
+          "1",
+          true,
           requestContext,
-        )
-        .resolves(txReceiptMock);
-
-      const res = await ContractFns.prepareRouterContract(
-        chainId,
-        prepareParamsMock,
-        routerContractAddressMock,
-        sigMock,
-        routerRelayerFeeAsset,
-        "1",
-        false,
-        requestContext,
-      );
-      expect(res).to.deep.eq(txReceiptMock);
+        ),
+      ).to.be.rejectedWith(testError);
     });
   });
 
   describe("#fulfillRouterContract", async () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+      txServiceMock.sendTx.withArgs(onchainTxMock, requestContext).resolves(txReceiptMock);
     });
 
-    it("should work", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
+    it("should work (without relayers)", async () => {
       const res = await ContractFns.fulfillRouterContract(
-        chainId,
+        chainIdMock,
         fulfillParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         false,
         requestContext,
       );
+
       expect(routerInterfaceMock.encodeFunctionData).calledWith("fulfill", [
         {
           txData: fulfillParamsMock.txData,
@@ -555,116 +551,101 @@ describe("Contract Adapter", () => {
           callData: fulfillParamsMock.callData,
           encodedMeta: "0x",
         },
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         sigMock,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should *not* be called if we aren't using relayers.
+      expect(txServiceMock.getGasEstimate.callCount).to.be.eq(0);
+      // Should have used txservice to send the tx.
+      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock, requestContext);
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
       isChainSupportedByGelatoStub.returns(true);
       gelatoSendStub.resolves({
         taskId: "task",
       });
-      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+      txServiceMock.getTransactionReceipt.withArgs(chainIdMock, txReceiptMock.transactionHash).resolves(txReceiptMock);
 
       setTimeout(() => {
-        ContractFns.fulfillEvt.post({ event: "fulfill", args: fulfillParamsMock, chainId: chainId });
+        ContractFns.fulfillEvt.post({ event: "fulfill", args: fulfillParamsMock, chainId: chainIdMock });
       }, 200);
 
       const res = await ContractFns.fulfillRouterContract(
-        chainId,
+        chainIdMock,
         fulfillParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         true,
         requestContext,
       );
-
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should be called if we use relayers.
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
       isChainSupportedByGelatoStub.returns(true);
       gelatoSendStub.resolves({
         taskId: undefined,
       });
-      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+      txServiceMock.getTransactionReceipt.withArgs(chainIdMock, txReceiptMock.transactionHash).resolves(txReceiptMock);
 
       setTimeout(() => {
-        ContractFns.fulfillEvt.post({ event: "fulfill", args: fulfillParamsMock, chainId: chainId });
+        ContractFns.fulfillEvt.post({ event: "fulfill", args: fulfillParamsMock, chainId: chainIdMock });
       }, 200);
 
       const res = await ContractFns.fulfillRouterContract(
-        chainId,
+        chainIdMock,
         fulfillParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         true,
         requestContext,
       );
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should be called if we use relayers.
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
-    it("should work if not use relayer", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
-      isChainSupportedByGelatoStub.returns(false);
-      txServiceMock.sendTx
-        .withArgs(
-          {
-            to: routerContractAddressMock,
-            data: encodedDataMock,
-            value: "0x0",
-            chainId,
-            from: mkAddress("0xa"),
-          },
+    it("should throw if txService estimateGas preflight check throws an error", async () => {
+      const testError = new Error("test");
+      txServiceMock.getGasEstimate.rejects(testError);
+      await expect(
+        ContractFns.fulfillRouterContract(
+          chainIdMock,
+          fulfillParamsMock,
+          routerContractAddressMock,
+          sigMock,
+          routerRelayerFeeAssetMock,
+          "1",
+          true,
           requestContext,
-        )
-        .resolves(txReceiptMock);
-
-      const res = await ContractFns.fulfillRouterContract(
-        chainId,
-        fulfillParamsMock,
-        routerContractAddressMock,
-        sigMock,
-        routerRelayerFeeAsset,
-        "1",
-        false,
-        requestContext,
-      );
-      expect(res).to.deep.eq(txReceiptMock);
+        ),
+      ).to.be.rejectedWith(testError);
     });
   });
 
-  describe("cancelRouterContract", async () => {
+  describe("#cancelRouterContract", async () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
+      txServiceMock.sendTx.withArgs(onchainTxMock, requestContext).resolves(txReceiptMock);
     });
 
-    it("should work", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
+    it("should work (without relayers)", async () => {
       const res = await ContractFns.cancelRouterContract(
-        chainId,
+        chainIdMock,
         cancelParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         false,
         requestContext,
@@ -675,98 +656,85 @@ describe("Contract Adapter", () => {
           signature: cancelParamsMock.signature,
           encodedMeta: "0x",
         },
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         sigMock,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should *not* be called if we aren't using relayers.
+      expect(txServiceMock.getGasEstimate.callCount).to.be.eq(0);
+      // Should have used txservice to send the tx.
+      expect(txServiceMock.sendTx).to.have.been.calledOnceWithExactly(onchainTxMock, requestContext);
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
       isChainSupportedByGelatoStub.returns(true);
       gelatoSendStub.resolves({
         taskId: "task",
       });
-      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+      txServiceMock.getTransactionReceipt.withArgs(chainIdMock, txReceiptMock.transactionHash).resolves(txReceiptMock);
 
       setTimeout(() => {
-        ContractFns.cancelEvt.post({ event: "cancel", args: cancelParamsMock, chainId: chainId });
+        ContractFns.cancelEvt.post({ event: "cancel", args: cancelParamsMock, chainId: chainIdMock });
       }, 200);
 
       const res = await ContractFns.cancelRouterContract(
-        chainId,
+        chainIdMock,
         cancelParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         true,
         requestContext,
       );
-
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should be called if we use relayers.
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
       isChainSupportedByGelatoStub.returns(true);
       gelatoSendStub.resolves({
         taskId: undefined,
       });
-      txServiceMock.getTransactionReceipt.withArgs(chainId, txReceiptMock.transactionHash).resolves(txReceiptMock);
+      txServiceMock.getTransactionReceipt.withArgs(chainIdMock, txReceiptMock.transactionHash).resolves(txReceiptMock);
 
       setTimeout(() => {
-        ContractFns.cancelEvt.post({ event: "fulfill", args: cancelParamsMock, chainId: chainId });
+        ContractFns.cancelEvt.post({ event: "fulfill", args: cancelParamsMock, chainId: chainIdMock });
       }, 200);
 
       const res = await ContractFns.cancelRouterContract(
-        chainId,
+        chainIdMock,
         cancelParamsMock,
         routerContractAddressMock,
         sigMock,
-        routerRelayerFeeAsset,
+        routerRelayerFeeAssetMock,
         "1",
         true,
         requestContext,
       );
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
+      // Preflight estimate gas check should be called if we use relayers.
+      expect(txServiceMock.getGasEstimate).to.have.been.calledOnceWithExactly(chainIdMock, onchainTxMock);
     });
 
-    it("should work if not use relayer", async () => {
-      const chainId = txDataMock.sendingChainId;
-      const routerRelayerFeeAsset = mkAddress("0x00");
-
-      isChainSupportedByGelatoStub.returns(false);
-      txServiceMock.sendTx
-        .withArgs(
-          {
-            to: routerContractAddressMock,
-            data: encodedDataMock,
-            value: "0x0",
-            chainId,
-            from: mkAddress("0xa"),
-          },
+    it("should throw if txService estimateGas preflight check throws an error", async () => {
+      const testError = new Error("test");
+      txServiceMock.getGasEstimate.rejects(testError);
+      await expect(
+        ContractFns.cancelRouterContract(
+          chainIdMock,
+          cancelParamsMock,
+          routerContractAddressMock,
+          sigMock,
+          routerRelayerFeeAssetMock,
+          "1",
+          true,
           requestContext,
-        )
-        .resolves(txReceiptMock);
-
-      const res = await ContractFns.cancelRouterContract(
-        chainId,
-        cancelParamsMock,
-        routerContractAddressMock,
-        sigMock,
-        routerRelayerFeeAsset,
-        "1",
-        false,
-        requestContext,
-      );
-      expect(res).to.deep.eq(txReceiptMock);
+        ),
+      ).to.be.rejectedWith(testError);
     });
   });
 });
