@@ -29,7 +29,7 @@ import {
   ChainNotConfigured,
   FulfillTimeout,
 } from "../../src/error";
-import { CrossChainParams, NxtpSdkEvent, NxtpSdkEventPayloads, NxtpSdkEvents } from "../../src";
+import { CrossChainParams, NxtpSdkEvents } from "../../src";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
 import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
@@ -589,9 +589,12 @@ describe("NxtpSdk", () => {
   });
 
   describe("#querySubgraph", () => {
-    it("happy querySubgraph", async () => {
-      await sdk.querySubgraph(sendingChainId, "");
-      expect(sdkBase.querySubgraph).to.be.calledOnceWithExactly(sendingChainId, "");
+    it("happy", async () => {
+      const testQueryResult = "test-123";
+      sdkBase.querySubgraph.resolves(testQueryResult);
+      const res = await sdk.querySubgraph(sendingChainId, "test");
+      expect(sdkBase.querySubgraph).to.have.been.calledOnceWithExactly(sendingChainId, "test");
+      expect(res).to.eq(testQueryResult);
     });
   });
 
