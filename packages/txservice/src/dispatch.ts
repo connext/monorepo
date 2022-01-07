@@ -205,7 +205,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
                * to respond to a refill for the gas money for this signer.
                */
               this.logger.error(
-                "SIGNER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION.",
+                "SIGNER HAS INSUFFICIENT FUNDS TO SUBMIT TRANSACTION (FOR GAS BUMP).",
                 requestContext,
                 methodContext,
                 jsonifyError(error),
@@ -483,6 +483,20 @@ export class TransactionDispatch extends RpcProviderAggregator {
     }
 
     if (transaction.error) {
+      // If a transaction fails and it didn't get mined, we may need to backfill its nonce.
+      if (!transaction.didMine) {
+        this.logger.warn(
+          "Transaction failed, and was never mined. Rewinding local nonce to this transaction's nonce for backfill.",
+          requestContext,
+          methodContext,
+          {
+            chainId: this.chainId,
+            transaction: transaction.loggable,
+            txsId,
+          },
+        );
+        this.nonce = transaction.nonce;
+      }
       throw transaction.error;
     }
 

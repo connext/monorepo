@@ -1365,8 +1365,11 @@ describe("NxtpSdkBase", () => {
 
   describe("#querySubgraph", () => {
     it("happy", async () => {
-      sdk.querySubgraph(sendingChainId, "test");
+      const testQueryResult = "test-123";
+      subgraph.query.resolves(testQueryResult);
+      const res = await sdk.querySubgraph(sendingChainId, "test");
       expect(subgraph.query).to.be.calledOnceWithExactly(sendingChainId, "test");
+      expect(res).to.eq(testQueryResult);
     });
   });
 
