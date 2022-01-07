@@ -17,6 +17,7 @@ export const TransactionReasons = {
   FulfillSender: "FulfillSender",
   CancelSender: "CancelSender",
   CancelReceiver: "CancelReceiver",
+  RemoveLiquidity: "RemoveLiquidity",
   Relay: "Relay",
 } as const;
 
