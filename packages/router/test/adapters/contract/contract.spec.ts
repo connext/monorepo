@@ -17,6 +17,7 @@ import { Interface } from "ethers/lib/utils";
 import { BigNumber, constants } from "ethers/lib/ethers";
 
 import * as SharedFns from "../../../src/lib/helpers/shared";
+import * as MetricsFns from "../../../src/lib/helpers/metrics";
 import * as ContractFns from "../../../src/adapters/contract/contract";
 import {
   prepareTransactionManager,
@@ -34,6 +35,7 @@ import { routerAddrMock, routerContractAddressMock } from "../../utils";
 import { messagingMock, signerAddress, txServiceMock } from "../../globalTestHook";
 import { SanitationCheckFailed } from "../../../src/lib/errors";
 import { ERC20Interface } from "@connext/nxtp-contracts/typechain/ERC20";
+import { TransactionReasons } from "../../../src/lib/entities";
 
 const requestContext = createRequestContext("TEST");
 const encodedDataMock = "0xabcde";
@@ -47,6 +49,8 @@ describe("Contract Adapter", () => {
   let isRouterWhitelistedStub: SinonStub;
   let isChainSupportedByGelatoStub: SinonStub;
   let gelatoSendStub: SinonStub;
+  let gasConsumedStub: SinonStub;
+  let relayerFeesPaidStub: SinonStub;
 
   beforeEach(() => {
     interfaceMock = createStubInstance(Interface);
@@ -67,6 +71,9 @@ describe("Contract Adapter", () => {
     isRouterWhitelistedStub = stub(SharedFns, "isRouterWhitelisted");
     isChainSupportedByGelatoStub = stub(ContractFns, "isChainSupportedByGelato").returns(true);
     gelatoSendStub = stub(ContractFns, "gelatoSend");
+
+    gasConsumedStub = stub(MetricsFns, "incrementGasConsumed");
+    relayerFeesPaidStub = stub(MetricsFns, "incrementRelayerFeesPaid");
   });
 
   afterEach(() => {
@@ -140,7 +147,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("#prepare", () => {
+  describe("#prepareTransactionManager", () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });
@@ -161,6 +168,8 @@ describe("Contract Adapter", () => {
         },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(relayerFeesPaidStub.callCount).to.be.eq(0);
+      expect(gasConsumedStub.calledOnceWithExactly(chainId, txReceiptMock, TransactionReasons.PrepareReceiver));
     });
 
     it("should fail if encoding fails", async () => {
@@ -171,7 +180,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("#fulfill", () => {
+  describe("#fulfillTransactionManager", () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });
@@ -190,6 +199,8 @@ describe("Contract Adapter", () => {
         },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(relayerFeesPaidStub.callCount).to.be.eq(0);
+      expect(gasConsumedStub.calledOnceWithExactly(chainId, txReceiptMock, TransactionReasons.FulfillSender));
     });
 
     it("should fail if sanitation check fails", async () => {
@@ -207,7 +218,7 @@ describe("Contract Adapter", () => {
     });
   });
 
-  describe("#cancel", () => {
+  describe("#cancelTransactionManager", () => {
     beforeEach(() => {
       sanitationStub = stub(SharedFns, "sanitationCheck").resolves();
     });
@@ -224,6 +235,8 @@ describe("Contract Adapter", () => {
         },
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(relayerFeesPaidStub.callCount).to.be.eq(0);
+      expect(gasConsumedStub.calledOnceWithExactly(chainId, txReceiptMock, TransactionReasons.CancelSender));
     });
 
     it("should fail if sanitation check fails", async () => {
@@ -438,6 +451,8 @@ describe("Contract Adapter", () => {
         sigMock,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(relayerFeesPaidStub.callCount).to.be.eq(0);
+      expect(gasConsumedStub.calledOnceWithExactly(chainId, txReceiptMock, TransactionReasons.PrepareReceiver));
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
@@ -466,6 +481,15 @@ describe("Contract Adapter", () => {
       );
 
       expect(res).to.deep.eq(txReceiptMock);
+      expect(gasConsumedStub.callCount).to.be.eq(0);
+      expect(
+        relayerFeesPaidStub.calledOnceWithExactly(
+          chainId,
+          "1",
+          routerRelayerFeeAsset,
+          TransactionReasons.PrepareReceiver,
+        ),
+      );
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
@@ -494,6 +518,15 @@ describe("Contract Adapter", () => {
       );
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(gasConsumedStub.callCount).to.be.eq(0);
+      expect(
+        relayerFeesPaidStub.calledOnceWithExactly(
+          chainId,
+          "1",
+          routerRelayerFeeAsset,
+          TransactionReasons.PrepareReceiver,
+        ),
+      );
     });
 
     it("should work if not use relayer", async () => {
@@ -588,6 +621,15 @@ describe("Contract Adapter", () => {
       );
 
       expect(res).to.deep.eq(txReceiptMock);
+      expect(gasConsumedStub.callCount).to.be.eq(0);
+      expect(
+        relayerFeesPaidStub.calledOnceWithExactly(
+          chainId,
+          "1",
+          routerRelayerFeeAsset,
+          TransactionReasons.FulfillSender,
+        ),
+      );
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
@@ -616,6 +658,15 @@ describe("Contract Adapter", () => {
       );
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(gasConsumedStub.callCount).to.be.eq(0);
+      expect(
+        relayerFeesPaidStub.calledOnceWithExactly(
+          chainId,
+          "1",
+          routerRelayerFeeAsset,
+          TransactionReasons.FulfillSender,
+        ),
+      );
     });
 
     it("should work if not use relayer", async () => {
@@ -680,6 +731,8 @@ describe("Contract Adapter", () => {
         sigMock,
       ]);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(relayerFeesPaidStub.callCount).to.be.eq(0);
+      expect(gasConsumedStub.calledOnceWithExactly(chainId, txReceiptMock, TransactionReasons.CancelSender));
     });
 
     it("should work if useRelayer && chain is supported by gelato", async () => {
@@ -708,6 +761,11 @@ describe("Contract Adapter", () => {
       );
 
       expect(res).to.deep.eq(txReceiptMock);
+
+      expect(gasConsumedStub.callCount).to.be.eq(0);
+      expect(
+        relayerFeesPaidStub.calledOnceWithExactly(chainId, "1", routerRelayerFeeAsset, TransactionReasons.CancelSender),
+      );
     });
 
     it("should work if useRelayer && chain is supported by gelato && gelato send failed", async () => {
@@ -736,6 +794,10 @@ describe("Contract Adapter", () => {
       );
       expect(messagingMock.publishMetaTxRequest.callCount).to.be.eq(1);
       expect(res).to.deep.eq(txReceiptMock);
+      expect(gasConsumedStub.callCount).to.be.eq(0);
+      expect(
+        relayerFeesPaidStub.calledOnceWithExactly(chainId, "1", routerRelayerFeeAsset, TransactionReasons.CancelSender),
+      );
     });
 
     it("should work if not use relayer", async () => {
