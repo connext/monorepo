@@ -86,17 +86,20 @@ const waitForRelayer = async (
  * Helper to execute a router contract transaction, first trying relayers (if applicable) and then
  * resorting to using the router signer with txservice to send if relayers are unavailable.
  *
- * @param chainId - Chain ID of the transaction.
- * @param routerContractAddress - Address of the router contract.
- * @param encodedData - Encoded data belonging to the transaction.
- * @param params - Params for the transaction's metatx payload.
- * @param signature - Router's signature to relay.
- * @param relayerFee - Relayer fee amount.
- * @param relayerFeeAsset - Relayer fee asset ID.
- * @param reason - Reason for the transaction (i.e. transaction type).
- * @param methodContext
- * @param requestContext
- * @returns
+ * @param args.chainId - Chain ID of the transaction.
+ * @param args.routerContractAddress - Address of the router contract.
+ * @param args.encodedData - Encoded data belonging to the transaction.
+ * @param args.params - Params for the transaction's metatx payload.
+ * @param args.signature - Router's signature to relay.
+ * @param args.relayerFee (optional) - Relayer fee info. If undefined, we assume relayers will not be used.
+ * @param args.relayerFee.amount - Relayer fee amount to be paid.
+ * @param args.relayerFee.asset - Relayer fee asset ID.
+ * @param args.reason - Reason for the transaction (i.e. transaction type).
+ * @param methodContext - Method context used for logging.
+ * @param requestContext - Request context used for logging.
+ *
+ * @returns TransactionReceipt of the transaction (if it's successful).
+ * @throws Errors if the trasnsaction failed to execute with relayer network and txservice (our last resort).
  */
 const sendRouterContractTx = async (
   args: {
