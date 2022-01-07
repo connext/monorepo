@@ -7,6 +7,6 @@ export const AUCTION_EXPIRY_BUFFER = 5 * 60;
  *
  * @returns Expiry time of a given bid in s
  */
-export const getBidExpiry = (currentTime: number) => currentTime + 60 * 5;
+export const getBidExpiry = (currentTime: number) => currentTime + AUCTION_EXPIRY_BUFFER;
 
 export const AUCTION_REQUEST_MAP = new Map();

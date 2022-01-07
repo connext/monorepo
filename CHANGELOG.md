@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Track bids in memory to only bid 150% of available liquidity
+
 ## 0.1.11
 
 - [contracts] Add ability to one-off verify contracts via hardhat

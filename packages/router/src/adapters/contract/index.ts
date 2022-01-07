@@ -1,5 +1,5 @@
 import { CancelParams, FulfillParams, PrepareParams, RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, providers } from "ethers/lib/ethers";
+import { BigNumber, providers } from "ethers";
 
 import {
   prepareTransactionManager,

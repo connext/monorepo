@@ -1,5 +1,5 @@
 import { FallbackSubgraph, RequestContext, SubgraphSyncRecord } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers/lib/ethers";
+import { BigNumber } from "ethers";
 import { GraphQLClient } from "graphql-request";
 
 import { ActiveTransaction, ExpressiveAssetBalance, SingleChainTransaction } from "../../lib/entities";
