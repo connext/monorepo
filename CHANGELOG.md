@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Update gas consumed, relayer fees tracking
+
 ## 0.1.11
 
 - [contracts] Add ability to one-off verify contracts via hardhat
