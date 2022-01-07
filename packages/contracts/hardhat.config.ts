@@ -5,6 +5,7 @@ import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
 import "@tenderly/hardhat-tenderly";
+import "@nomiclabs/hardhat-etherscan";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
@@ -200,6 +201,9 @@ const config: HardhatUserConfig = {
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
     },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
 

@@ -11,7 +11,7 @@ import {
   MetaTxPayloads,
   RemoveLiquidityParams,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants, Contract, providers, utils } from "ethers/lib/ethers";
+import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { Evt } from "evt";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain";
@@ -391,6 +391,26 @@ export const fulfillRouterContract = async (
   const { txData, relayerFee, signature: fulfillSignature, callData } = fulfillParams;
 
   await sanitationCheck(chainId, { ...txData, amount: "0", expiry: 0, preparedBlockNumber: 0 }, "fulfill");
+
+  const routerEncoded = await txService.readTx({
+    to: txData.router,
+    data: getRouterContractInterface().encodeFunctionData("routerSigner"),
+    chainId,
+  });
+  const [router] = getRouterContractInterface().decodeFunctionResult("routerSigner", routerEncoded);
+
+  logger.info("Generating encoded data", requestContext, methodContext, {
+    function: "fulfill",
+    txData,
+    relayerFee,
+    fulfillSignature,
+    callData,
+    encodedMeta: "0x",
+    routerRelayerFeeAsset,
+    routerRelayerFee,
+    signature,
+    routerSigner: router,
+  });
 
   const encodedData = getRouterContractInterface().encodeFunctionData("fulfill", [
     { txData, relayerFee, signature: fulfillSignature, callData, encodedMeta: "0x" },

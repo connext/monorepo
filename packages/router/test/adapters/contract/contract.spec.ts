@@ -14,7 +14,7 @@ import {
   sigMock,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
-import { BigNumber, constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers";
 
 import * as SharedFns from "../../../src/lib/helpers/shared";
 import * as ContractFns from "../../../src/adapters/contract/contract";
@@ -547,7 +547,7 @@ describe("Contract Adapter", () => {
         false,
         requestContext,
       );
-      expect(routerInterfaceMock.encodeFunctionData).calledOnceWith("fulfill", [
+      expect(routerInterfaceMock.encodeFunctionData).calledWith("fulfill", [
         {
           txData: fulfillParamsMock.txData,
           relayerFee: fulfillParamsMock.relayerFee,

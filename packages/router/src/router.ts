@@ -1,4 +1,4 @@
-import { logger, Wallet } from "ethers";
+import { logger, Signer, Wallet } from "ethers";
 import {
   ChainData,
   createMethodContext,
@@ -8,10 +8,12 @@ import {
   RouterNxtpNatsMessagingService,
 } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
+import { Static } from "@sinclair/typebox";
 
-import { getConfig, NxtpRouterConfig } from "./config";
+import { getConfig, NxtpRouterConfig, TSwapPool } from "./config";
 import { ContractReader, subgraphContractReader } from "./adapters/subgraph";
 import { contractWriter, ContractWriter } from "./adapters/contract";
+import { createRouterCache, RouterCache } from "./adapters/cache";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
 import { bindFastify } from "./bindings/fastify";
@@ -31,6 +33,8 @@ export type Context = {
   contractReader: ContractReader;
   contractWriter: ContractWriter;
   chainData: Map<string, ChainData>;
+  cache: RouterCache;
+  chainAssetSwapPoolMap: Map<number, string[]>;
 };
 
 const context: Context = {} as any;
@@ -39,6 +43,49 @@ export const getContext = (): Context => {
     throw new Error("Context not created");
   }
   return context;
+};
+
+export const initMessaging = async (params: { signer: Signer; authUrl: string; natsUrl: string; logger: Logger }) => {
+  const messaging = new RouterNxtpNatsMessagingService({
+    signer: params.signer,
+    authUrl: params.authUrl,
+    natsUrl: params.natsUrl,
+    logger: params.logger,
+  });
+  await messaging.connect();
+  return messaging;
+};
+
+export const getSwapPoolMap = async (params: {
+  swapPools: Static<typeof TSwapPool>[];
+  isRouterContract: boolean;
+  txService: TransactionService;
+  routerAddress: string;
+}) => {
+  const { routerAddress, swapPools, isRouterContract, txService } = params;
+  const chainAssetSwapPoolMap = new Map<number, string[]>();
+  // sanity check if router contract
+  await Promise.all(
+    swapPools.map(async (pool) => {
+      await Promise.all(
+        pool.assets.map(async ({ chainId, assetId }) => {
+          // setting up chainAssetSwapPoolMap
+          if (!chainAssetSwapPoolMap.has(chainId)) {
+            chainAssetSwapPoolMap.set(chainId, []);
+
+            if (isRouterContract) {
+              const code = await txService.getCode(chainId, routerAddress);
+              if (code === "0x") {
+                throw new Error(`Router Contract isn't deployed on ${chainId}`);
+              }
+            }
+          }
+          chainAssetSwapPoolMap.get(chainId)!.push(assetId);
+        }),
+      );
+    }),
+  );
+  return chainAssetSwapPoolMap;
 };
 
 export const makeRouter = async () => {
@@ -71,13 +118,12 @@ export const makeRouter = async () => {
     context.logger.info("Config generated", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
-    context.messaging = new RouterNxtpNatsMessagingService({
+    context.messaging = await initMessaging({
       signer: context.wallet,
       authUrl: context.config.authUrl,
       natsUrl: context.config.natsUrl,
       logger: context.logger,
     });
-    await context.messaging.connect();
 
     // TODO: txserviceconfig log level
     context.txService = new TransactionService(
@@ -86,9 +132,18 @@ export const makeRouter = async () => {
       context.wallet,
     );
 
+    context.cache = createRouterCache();
+
     // adapters
     context.contractReader = subgraphContractReader();
     context.contractWriter = contractWriter();
+
+    context.chainAssetSwapPoolMap = await getSwapPoolMap({
+      txService: context.txService,
+      isRouterContract: context.isRouterContract,
+      swapPools: context.config.swapPools,
+      routerAddress: context.routerAddress,
+    });
 
     // bindings
     if (!context.config.diagnosticMode) {

@@ -7,7 +7,7 @@ import * as AuctionHelperFns from "../../../src/lib/helpers/auction";
 import * as SharedHelperFns from "../../../src/lib/helpers/shared";
 import { BID_EXPIRY, configMock, MUTATED_AMOUNT, MUTATED_BUFFER, routerAddrMock } from "../../utils";
 import { contractReaderMock, txServiceMock } from "../../globalTestHook";
-import { BigNumber, constants } from "ethers/lib/ethers";
+import { BigNumber, constants } from "ethers";
 import { AuctionExpired, SubgraphNotSynced, ZeroValueBid } from "../../../src/lib/errors";
 
 const requestContext = createRequestContext("TEST", mkBytes32());

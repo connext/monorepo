@@ -440,7 +440,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(2480000000000000);
+      expect(result.toNumber()).to.be.eq(5155432857142857);
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
@@ -453,7 +453,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(2790000000000000);
+      expect(result.toNumber()).to.be.eq(5524908571428571);
     });
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
@@ -481,7 +481,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(2863071428571428);
+      expect(result.toNumber()).to.be.eq(5612085000000000);
     });
 
     it("special case for chainId 10 fulfill", async () => {
@@ -496,7 +496,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(3051285714285714);
+      expect(result.toNumber()).to.be.eq(5834133571428571);
     });
 
     it("special case for chainId 10 cancel", async () => {
@@ -511,7 +511,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(3051285714285714);
+      expect(result.toNumber()).to.be.eq(4832368571428571);
     });
   });
 

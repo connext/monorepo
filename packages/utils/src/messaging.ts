@@ -390,7 +390,7 @@ export type StatusResponse = {
   signerAddress: string;
   trackerLength: number;
   activeTransactionsLength: number;
-  swapPools: Map<number, string[]>;
+  swapPools: Record<number, string[]>;
   supportedChains: number[];
 };
 
