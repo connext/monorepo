@@ -1,10 +1,15 @@
-import { BigNumber, constants } from "ethers";
+import { BigNumber } from "ethers";
 import { createLoggingContext, getNtpTimeSeconds, jsonifyError } from "@connext/nxtp-utils";
 import { cachedPriceMap } from "@connext/nxtp-txservice";
 
 import { getDeployedPriceOracleContract } from "../../config";
 import { getContext } from "../../router";
-import { getTokenPriceFromOnChain, multicall, getMainnetEquivalent } from "../../lib/helpers/shared";
+import {
+  getTokenPriceFromOnChain,
+  multicall,
+  getMainnetEquivalent,
+  getNativeAssetAddress,
+} from "../../lib/helpers/shared";
 
 const PRICE_LOOP_INTERVAL = 15_000;
 export const getPriceLoopInterval = () => PRICE_LOOP_INTERVAL;
@@ -27,19 +32,18 @@ export const bindPrices = async () => {
         chainAssetMap.get(cachingTokenChainId)!.push(cachingTokenAssetId);
       }
     }
-
     const curTimeInSecs = await getNtpTimeSeconds();
     let keys = chainAssetMap.keys();
 
     // check native tokens are already queued.
     for (const key of keys) {
       const chainId = key;
-
-      const cachingNativeAssetIdOnMainnet = await getMainnetEquivalent(chainId, constants.AddressZero, chainData);
+      const nativeAssetAddress = getNativeAssetAddress(chainId);
+      const cachingNativeAssetIdOnMainnet = await getMainnetEquivalent(chainId, nativeAssetAddress, chainData);
       const cachingNativeTokenChainId = cachingNativeAssetIdOnMainnet ? 1 : chainId;
       const cachingNativeTokenAssetId = cachingNativeAssetIdOnMainnet
         ? cachingNativeAssetIdOnMainnet
-        : constants.AddressZero;
+        : nativeAssetAddress;
 
       const assetIds = chainAssetMap.get(cachingNativeTokenChainId);
       if (assetIds) {

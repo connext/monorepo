@@ -38,3 +38,27 @@ export const PriceOracleAbi = [
   // Read-Only Functions
   "function getTokenPrice(address token) external view returns (uint256)",
 ];
+
+export const MulticallAbi = [
+  {
+    constant: true,
+    inputs: [
+      {
+        components: [
+          { name: "target", type: "address" },
+          { name: "callData", type: "bytes" },
+        ],
+        name: "calls",
+        type: "tuple[]",
+      },
+    ],
+    name: "aggregate",
+    outputs: [
+      { name: "blockNumber", type: "uint256" },
+      { name: "returnData", type: "bytes[]" },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+];

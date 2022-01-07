@@ -17,7 +17,7 @@ import { BigNumber } from "ethers";
 import { SinonStubbedInstance, createStubInstance, stub, SinonStub, restore, reset } from "sinon";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain/TransactionManager";
 
-import { getNtpTimeSeconds, getMainnetEquivalent } from "../../../src/lib/helpers";
+import { getNtpTimeSeconds, getMainnetEquivalent, getNativeAssetAddress } from "../../../src/lib/helpers";
 import * as shared from "../../../src/lib/helpers/shared";
 import { txServiceMock, contractReaderMock } from "../../globalTestHook";
 import { getDeployedPriceOracleContract } from "@connext/nxtp-txservice";
@@ -38,8 +38,19 @@ describe("getNtpTimeSeconds", () => {
 
 describe("getMainnetEquivalent", () => {
   it("should work", async () => {
-    const result = await getMainnetEquivalent(56, "0x0000000000000000000000000000000000000000");
-    expect(result).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52");
+    const result1 = await getMainnetEquivalent(56, "0x0000000000000000000000000000000000000000");
+    expect(result1).to.be.eq("0xB8c77482e45F1F44dE1745F52C74426C631bDD52");
+    const result2 = await getMainnetEquivalent(137, "0x0000000000000000000000000000000000001010");
+    expect(result2).to.be.eq("0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0");
+  });
+});
+
+describe("getNativeAssetAddress", () => {
+  it("should work", async () => {
+    const result1 = getNativeAssetAddress(1);
+    expect(result1).to.be.eq("0x0000000000000000000000000000000000000000");
+    const result2 = getNativeAssetAddress(137);
+    expect(result2).to.be.eq("0x0000000000000000000000000000000000001010");
   });
 });
 

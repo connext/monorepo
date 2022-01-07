@@ -7,6 +7,7 @@ import * as SharedFns from "../../../src/lib/helpers/shared";
 import * as ConfigFns from "../../../src/config";
 
 import { configMock } from "../../utils";
+import { constants } from "ethers";
 
 const MOCK_ETHER_PRICE = "3000"; // 3000 usd
 const MOCK_TOKEN_PRICE1 = "150"; // 150 usd
@@ -28,6 +29,7 @@ describe("Fetching Price Binding", () => {
       priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
       multicallStub = stub(SharedFns, "multicall");
       stub(SharedFns, "getMainnetEquivalent").resolves(null);
+      stub(SharedFns, "getNativeAssetAddress").returns(constants.AddressZero);
       getTokenPriceFromOnChainStub = stub(SharedFns, "getTokenPriceFromOnChain");
     });
 

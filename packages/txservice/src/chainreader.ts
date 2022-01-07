@@ -8,6 +8,7 @@ import {
   ChainData,
   getMainnetEquivalent,
   getHardcodedGasLimits,
+  getNativeAssetAddress,
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
@@ -382,9 +383,10 @@ export class ChainReader {
     const chainIdForGasPrice = chainId;
     const assetIdForTokenPrice = assetIdOnMainnet ? assetIdOnMainnet : assetId;
 
-    const nativeAssetIdOnMainnet = await getMainnetEquivalent(chainId, constants.AddressZero, chainData);
+    const nativeAssetAddress = getNativeAssetAddress(chainId);
+    const nativeAssetIdOnMainnet = await getMainnetEquivalent(chainId, nativeAssetAddress, chainData);
     const nativeChainIdForTokenPrice = nativeAssetIdOnMainnet ? 1 : chainId;
-    const nativeAssetIdForTokenPrice = nativeAssetIdOnMainnet || constants.AddressZero;
+    const nativeAssetIdForTokenPrice = nativeAssetIdOnMainnet || nativeAssetAddress;
 
     if (
       !CHAINS_WITH_PRICE_ORACLES.includes(chainIdForTokenPrice) ||

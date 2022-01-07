@@ -3,6 +3,13 @@ import { providers, BigNumber, Contract, constants, utils } from "ethers";
 import { ERC20Abi } from "./basic";
 import { ChainData, getChainData } from "./chainData";
 
+export const getNativeAssetAddress = (chainId: number): string => {
+  if (chainId === 137) {
+    return "0x0000000000000000000000000000000000001010"; // https://polygonscan.com/address/0x0000000000000000000000000000000000001010
+  }
+  return constants.AddressZero;
+};
+
 export const getOnchainBalance = async (
   assetId: string,
   address: string,

@@ -7,6 +7,7 @@ import {
   TransactionData,
   multicall as _multicall,
   getMainnetEquivalent as _getMainnetEquivalent,
+  getNativeAssetAddress as _getNativeAssetAddress,
   Call,
   ERC20Abi,
   signRouterRemoveLiquidityTransactionPayload as _signRouterRemoveLiquidityTransactionPayload,
@@ -33,6 +34,8 @@ const { HashZero } = constants;
  */
 
 export const getMainnetEquivalent = _getMainnetEquivalent;
+
+export const getNativeAssetAddress = _getNativeAssetAddress;
 
 export const getNtpTimeSeconds = _getNtpTimeSeconds;
 
