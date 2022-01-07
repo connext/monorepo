@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [sdk] Return subgraph query in generic query method
 - [router] Track bids in memory to only bid 150% of available liquidity
 
 ## 0.1.11

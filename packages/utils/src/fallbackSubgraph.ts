@@ -125,9 +125,9 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * @returns any, whatever the expected GraphQL response is.
    */
   public async query(query: string): Promise<any> {
-    this.request((_, url) => {
+    return this.request((_, url) => {
       return request(url, query);
-    });
+    }, false);
   }
 
   /**
