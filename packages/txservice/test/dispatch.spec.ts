@@ -1,4 +1,4 @@
-import { BigNumber, providers, utils, Wallet } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { getRandomBytes32, Logger, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils";
@@ -527,7 +527,7 @@ describe("TransactionDispatch", () => {
       expect(submitStub.callCount).to.eq(1);
     });
 
-    it("should throw if getGas fails", async () => {
+    it("should throw if getGasPrice fails", async () => {
       getGasPriceStub.rejects(new RpcError("fail"));
       await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
     });
@@ -574,9 +574,38 @@ describe("TransactionDispatch", () => {
 
     it.skip("should wait until transaction is mined/confirmed", async () => {});
 
-    it.skip("should throw if the transaction has an error after mine/confirm", async () => {});
+    it("should throw if the transaction has an error after mine or confirm", async () => {
+      submitStub.callsFake(async (transaction: OnchainTransaction) => {
+        stub(transaction, "didSubmit").get(() => mockTransactionState.didSubmit);
+        // Transaction never went to confirmation step, so it's not considered finished.
+        stub(transaction, "didFinish").get(() => false);
+        transaction.responses = [TEST_TX_RESPONSE];
+        transaction.receipt = TEST_TX_RECEIPT;
+        // Added an error here.
+        transaction.error = new TransactionReverted("fail");
+      });
+      await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
+    });
 
-    it.skip("should throw if the transaction has no receipt after mine/confirm", async () => {});
+    it("should rewind the local nonce if the transaction has an error but was never mined", async () => {
+      const expectedNonce = 100;
+      (txDispatch as any).nonce = expectedNonce;
+      determineNonceStub.resolves({ nonce: expectedNonce, backfill: false, transactionCount: expectedNonce });
+      submitStub.callsFake(async (transaction: OnchainTransaction) => {
+        // Now we set the local nonce to a bunk value in order to make sure it gets replaced (with expectedNonce) later.
+        (txDispatch as any).nonce = 123456789;
+        stub(transaction, "didSubmit").get(() => mockTransactionState.didSubmit);
+        // Transaction was not mined or confirmed.
+        stub(transaction, "didMine").get(() => false);
+        stub(transaction, "didFinish").get(() => false);
+        transaction.responses = [TEST_TX_RESPONSE];
+        transaction.receipt = TEST_TX_RECEIPT;
+        // Added an error here.
+        transaction.error = new TransactionReverted("fail");
+      });
+      await expect(txDispatch.send(TEST_TX, context)).to.be.rejectedWith("fail");
+      expect((txDispatch as any).nonce).to.eq(expectedNonce);
+    });
   });
 
   describe("#submit", () => {

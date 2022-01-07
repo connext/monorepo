@@ -23,7 +23,7 @@ import {
   NotEnoughAmount,
 } from "../errors";
 import { getBidExpiry, AUCTION_EXPIRY_BUFFER, getReceiverAmount, getNtpTimeSeconds } from "../helpers";
-import { AuctionRateExceeded, SubgraphNotSynced } from "../errors/auction";
+import { AuctionRateExceeded, LiquidityUnavailable, SubgraphNotSynced } from "../errors/auction";
 import { receivedAuction } from "../../lib/entities/metrics";
 import { AUCTION_REQUEST_MAP } from "../helpers/auction";
 import { getAssetName } from "../helpers/metrics";
@@ -42,7 +42,7 @@ export const newAuction = async (
     receivingAssetName: getAssetName(data.receivingAssetId, data.receivingChainId),
   });
 
-  const { logger, config, contractReader, txService, wallet, chainData, routerAddress } = getContext();
+  const { logger, config, contractReader, txService, wallet, chainData, routerAddress, cache } = getContext();
   logger.debug("Method started", requestContext, methodContext, { data });
 
   // Validate params
@@ -224,13 +224,38 @@ export const newAuction = async (
 
   amountReceived = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
 
+  // Get router's current liquidity balance for receiving asset on receiving chain.
   const balance = await contractReader.getAssetBalance(receivingAssetId, receivingChainId);
   logger.debug("Got asset balance", requestContext, methodContext, { balance: balance.toString() });
+  // Make sure we have enough liquidity to bid on this transaction.
   if (balance.lt(amountReceived)) {
     throw new NotEnoughLiquidity(receivingChainId, receivingAssetId, balance.toString(), amountReceived, {
       methodContext,
       requestContext,
     });
+  }
+
+  // Get the outstanding liquidity the router has already "promised" for recent bids, as well as maximum
+  // based on current balance.
+  const currentOutstanding = cache.auctions.getOutstandingLiquidity(receivingChainId, receivingAssetId);
+  const maximumOutstanding = balance.mul(config.overbidAllowance).div(100);
+  // Total available liquidity is the maximum outstanding minus the current outstanding.
+  // NOTE: This value can be negative, if the balance has just dipped below the current outstanding. In which
+  // case we'll naturally throw the error below.
+  const availableLiquidity = maximumOutstanding.sub(currentOutstanding);
+  if (availableLiquidity.lt(amountReceived)) {
+    throw new LiquidityUnavailable(
+      receivingChainId,
+      receivingAssetId,
+      balance.toString(),
+      amountReceived,
+      currentOutstanding.toString(),
+      maximumOutstanding.toString(),
+      {
+        methodContext,
+        requestContext,
+      },
+    );
   }
 
   // Check for minimum gas on both chains
@@ -301,6 +326,19 @@ export const newAuction = async (
     `${user}-${sendingAssetId}-${sendingChainId}-${receivingAssetId}-${receivingChainId}`,
     currentTime * 1000,
   );
+
+  // Bid generation was successful, add this bid to the auction cache.
+  // TODO: Due to this process being async, this should really be done immediately after we've
+  // determined there's enough available liquidity above, to prevent a mutex race where we end up bidding
+  // over the maximum.
+  cache.auctions.addBid({
+    chainId: receivingChainId,
+    assetId: receivingAssetId,
+    amountReceived: amountReceivedInBigNum,
+    expiry,
+    transactionId,
+  });
+
   return {
     bid,
     bidSignature: dryRun ? undefined : bidSignature,

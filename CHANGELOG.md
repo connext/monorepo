@@ -4,6 +4,14 @@
 
 - [router] Update gas consumed, relayer fees tracking
 
+## 0.1.12
+
+- [router] Fix metrics error
+- [txservice] Rewind nonce if transaction fails and was never mined
+- [router] Run an estimate gas check before calling relayers for tx execution
+- [sdk] Return subgraph query in generic query method
+- [router] Track bids in memory to only bid 150% of available liquidity
+
 ## 0.1.11
 
 - [contracts] Add ability to one-off verify contracts via hardhat

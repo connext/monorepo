@@ -7,14 +7,12 @@ import {
   VariantTransactionData,
   AuctionBid,
   Logger,
-  DEFAULT_GAS_ESTIMATES,
   requestContextMock,
-  calculateExchangeAmount,
   NATS_AUTH_URL_LOCAL,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { Wallet, constants, BigNumber } from "ethers";
-import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
 import { MAX_SLIPPAGE_TOLERANCE, MIN_SLIPPAGE_TOLERANCE } from "../../src/sdk";
 import * as TransactionManagerHelperFns from "../../src/transactionManager/transactionManager";
@@ -44,7 +42,7 @@ import {
 } from "../../src/error";
 import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
 import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams } from "../../src";
-import { createSubgraphEvts, Subgraph } from "../../src/subgraph/subgraph";
+import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
 import { NxtpSdkBase } from "../../src/sdkBase";
@@ -1337,8 +1335,11 @@ describe("NxtpSdkBase", () => {
 
   describe("#querySubgraph", () => {
     it("happy", async () => {
-      sdk.querySubgraph(sendingChainId, "test");
+      const testQueryResult = "test-123";
+      subgraph.query.resolves(testQueryResult);
+      const res = await sdk.querySubgraph(sendingChainId, "test");
       expect(subgraph.query).to.be.calledOnceWithExactly(sendingChainId, "test");
+      expect(res).to.eq(testQueryResult);
     });
   });
 

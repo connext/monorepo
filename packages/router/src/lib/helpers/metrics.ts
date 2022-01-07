@@ -165,7 +165,16 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
     const assetBalances: Record<number, { assetId: string; amount: BigNumber }[]> = {};
     await Promise.all(
       chainIds.map(async (chainId) => {
-        assetBalances[chainId] = await contractReader.getAssetBalances(chainId);
+        try {
+          assetBalances[chainId] = await contractReader.getAssetBalances(chainId);
+        } catch (e: any) {
+          logger.error(
+            `Failed to collect assetBalances for chain ${chainId}`,
+            requestContext,
+            methodContext,
+            jsonifyError(e),
+          );
+        }
       }),
     );
 
@@ -176,7 +185,17 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
         converted[chainId] = [];
         await Promise.all(
           assetValues.map(async (value) => {
-            const usd = await convertToUsd(value.assetId, parseInt(chainId), value.amount.toString(), requestContext);
+            let usd = 0;
+            try {
+              usd = await convertToUsd(value.assetId, parseInt(chainId), value.amount.toString(), requestContext);
+            } catch (e: any) {
+              logger.debug(
+                `Failed to convert ${value.assetId} to USD for chain ${chainId}`,
+                requestContext,
+                methodContext,
+                { err: jsonifyError(e), assetId: value.assetId, chainId },
+              );
+            }
             converted[chainId].push({ assetId: value.assetId, amount: usd });
           }),
         );

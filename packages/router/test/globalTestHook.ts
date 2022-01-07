@@ -16,7 +16,10 @@ import { Web3Signer } from "../src/adapters/web3signer";
 import { ContractReader } from "../src/adapters/subgraph";
 import { ContractWriter } from "../src/adapters/contract";
 import * as RouterFns from "../src/router";
+import { AuctionCache } from "../src/adapters/cache/auction";
+import { RouterCache } from "../src/adapters/cache";
 
+export let cacheMock: RouterCache;
 export let txServiceMock: SinonStubbedInstance<TransactionService>;
 export let messagingMock: SinonStubbedInstance<RouterNxtpNatsMessagingService>;
 export let contractReaderMock: ContractReader;
@@ -51,6 +54,7 @@ export const mochaHooks = {
     txServiceMock.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
     txServiceMock.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
     txServiceMock.getTokenPrice.resolves(BigNumber.from(1));
+    txServiceMock.getGasEstimate.resolves(BigNumber.from(24001));
 
     messagingMock = createStubInstance(RouterNxtpNatsMessagingService);
 
@@ -70,6 +74,13 @@ export const mochaHooks = {
           locked: BigNumber.from(0),
         },
       ]),
+    };
+
+    const auctionsCacheMock = createStubInstance(AuctionCache);
+    auctionsCacheMock.getOutstandingLiquidity.returns(BigNumber.from("0"));
+    auctionsCacheMock.addBid.resolves();
+    cacheMock = {
+      auctions: auctionsCacheMock as any,
     };
 
     contractWriterMock = {
@@ -95,6 +106,7 @@ export const mochaHooks = {
       isRouterContract: undefined,
       routerAddress,
       signerAddress,
+      cache: cacheMock,
       chainAssetSwapPoolMap: chainAssetSwapPoolMapMock,
     };
 
