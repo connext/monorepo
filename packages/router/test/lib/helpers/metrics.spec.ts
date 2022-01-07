@@ -1,4 +1,4 @@
-import { expect, mkAddress, getChainData, ChainData } from "@connext/nxtp-utils";
+import { expect, mkAddress, getChainData, ChainData, txReceiptMock } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
@@ -243,7 +243,7 @@ describe("collectSubgraphHeads", () => {
   });
 });
 
-describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume", () => {
+describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume / incrementRelayerFeesPaid", () => {
   const assetName = "TEST";
   const chainId = 1337;
   const tests = [
@@ -256,15 +256,22 @@ describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume
     },
     {
       method: "incrementGasConsumed",
-      args: [chainId, parseEther("0.0001"), entities.TransactionReasons.Relay],
+      args: [chainId, txReceiptMock, entities.TransactionReasons.Relay],
       labels: { reason: entities.TransactionReasons.Relay, chainId },
       value: 10,
       entity: "gasConsumed",
     },
     {
+      method: "incrementRelayerFeesPaid",
+      args: [chainId, parseEther("0.0001"), mkAddress(), entities.TransactionReasons.CancelReceiver],
+      labels: { assetId: mkAddress(), reason: entities.TransactionReasons.CancelReceiver, chainId },
+      value: 10,
+      entity: "relayerFeesPaid",
+    },
+    {
       method: "incrementTotalTransferredVolume",
       args: [mkAddress(), chainId, parseEther("0.0001")],
-      labels: { assetId: mkAddress(), amount: parseEther("0.0001"), chainId },
+      labels: { assetId: mkAddress(), chainId },
       value: 10,
       entity: "totalTransferredVolume",
     },

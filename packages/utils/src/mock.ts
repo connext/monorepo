@@ -1,4 +1,4 @@
-import { providers, constants } from "ethers";
+import { providers, constants, BigNumber } from "ethers";
 
 import {
   mkAddress,
@@ -26,6 +26,7 @@ export const txReceiptMock = {
   cumulativeGasUsed: constants.One,
   from: mkAddress(),
   transactionHash: mkBytes32(),
+  effectiveGasPrice: BigNumber.from(10),
   gasUsed: constants.One,
   to: mkAddress(),
   logs: [],
