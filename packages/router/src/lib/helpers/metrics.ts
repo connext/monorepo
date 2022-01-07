@@ -384,8 +384,6 @@ export const incrementRelayerFeesPaid = async (
   const usd = await convertToUsd(assetId, chainId, relayerFee, requestContext);
 
   relayerFeesPaid.inc({ reason, chainId, assetId }, usd);
-
-  throw new Error(`Implement me`);
 };
 
 export const incrementTotalTransferredVolume = async (
