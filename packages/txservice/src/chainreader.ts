@@ -426,9 +426,8 @@ export class ChainReader {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
-      if (callData !== "0x" && callTo !== constants.AddressZero) {
+      if (callData !== "0x" && callTo !== nativeAssetAddress) {
         const callGas = await this.getGasEstimate(chainId, { to: callTo, data: callData, chainId });
-        console.log("extra callGas: ", callGas.toString());
         gasLimit = gasLimit.add(callGas);
       }
     } else if (method === "cancel") {
