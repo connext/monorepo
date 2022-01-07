@@ -2,6 +2,9 @@
 
 ## Next Release
 
+## 0.1.12
+
+- [router] Fix metrics error
 - [txservice] Rewind nonce if transaction fails and was never mined
 - [router] Run an estimate gas check before calling relayers for tx execution
 - [sdk] Return subgraph query in generic query method
