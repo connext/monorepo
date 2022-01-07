@@ -9,8 +9,7 @@ import {
 import { BigNumber } from "ethers";
 
 import { NoTransactionId } from "../../lib/errors";
-import { TransactionReasons } from "../../lib/entities";
-import { incrementFees, incrementGasConsumed } from "../../lib/helpers";
+import { incrementFees } from "../../lib/helpers";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
