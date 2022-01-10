@@ -1,4 +1,6 @@
 import { ChainData } from "./chainData";
+import axios, { AxiosResponse } from "axios";
+import { NxtpError } from "./error";
 
 /**
  * Gets hosted subgraph for applicable chains
@@ -139,4 +141,45 @@ export const getDeployedAnalyticsSubgraphUri = (chainId: number, chainData?: Map
     default:
       return [];
   }
+};
+
+export const buffer = 15_000;
+// chainId -> {subgraph, unix timestamp}
+export const subgraphTracker: Map<number, { subgraphUrl: string; timestamp: number }> = new Map();
+
+export const getMostSyncedSubgraph = async (chainId: number, _endPointUrl: string): Promise<any> => {
+  // logic to ping the subgraph hosted enpoint
+  const endPointUrl = _endPointUrl.concat(`?chainId=${chainId}`);
+
+  let response: AxiosResponse<string> = await axios.get(endPointUrl);
+  if (!response || !response.data || response.data.length === 0) {
+    throw new NxtpError("Received bad response; make sure your key file is configured correctly.", {
+      response,
+    });
+  }
+
+  return response.data;
+};
+
+export const getSubgraph = (chainId: number, _endPointUrl: string, subgraphBuffer?: number) => {
+  let data = subgraphTracker.get(chainId);
+
+  if (data) {
+    const now = Date.now();
+    const diff = now - data.timestamp;
+    if (diff > buffer) {
+      const mostSyncedSubgraphdata = getMostSyncedSubgraph(chainId, _endPointUrl);
+      const currentBuffer = mostSyncedSubgraphdata.latestBlock - mostSyncedSubgraphdata.syncedBlock;
+      if (subgraphBuffer && subgraphBuffer > currentBuffer) {
+        throw new NxtpError("Subgraph is behind", {
+          subgraphBuffer,
+          currentBuffer,
+        });
+      }
+      data = { subgraphUrl: mostSyncedSubgraphdata.url, timestamp: Date.now() };
+      subgraphTracker.set(chainId, data);
+    }
+  }
+
+  return data?.subgraphUrl;
 };
