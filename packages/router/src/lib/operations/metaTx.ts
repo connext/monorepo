@@ -65,7 +65,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
 
   // receiver fulfill, done directly on contract using user's sig broadcast
   if (type === MetaTxTypes.Fulfill) {
-    const { txData, signature, relayerFee, callData } = data as MetaTxFulfillPayload;
+    const { txData, signature, relayerFee, callData, callDataGas } = data as MetaTxFulfillPayload;
     // Send to tx service
     logger.info("Sending fulfill tx", requestContext, methodContext, { signature });
 
@@ -78,8 +78,7 @@ export const sendMetaTx = async <T extends MetaTxType>(
       txData.receivingChainId,
       txData.receivingAssetId,
       outputDecimals,
-      callData,
-      txData.callTo,
+      { callTo: txData.callTo, callDataGas, callData },
       chainData,
       requestContext,
     );

@@ -211,8 +211,8 @@ export class NxtpSdk {
     sendingAssetId: string;
     receivingChainId: number;
     receivingAssetId: string;
-    callData: string;
-    callTo: string;
+    callDataParams: { callData?: string; callTo?: string; callDataGas?: string };
+    relayerFee?: string; // if relayer fee has already been calculated, can be passed in as an override
   }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
     return this.sdkBase.getEstimateReceiverAmount(params);
   }
@@ -388,7 +388,7 @@ export class NxtpSdk {
    * @returns An object containing either the TransactionResponse from self-submitting the fulfill transaction, or the Meta-tx response (if you used meta transactions)
    */
   public async fulfillTransfer(
-    params: Omit<TransactionPreparedEvent, "caller">,
+    params: Omit<TransactionPreparedEvent, "caller"> & { relayerFee?: string },
     useRelayers = true,
   ): Promise<{ transactionHash: string }> {
     const { requestContext, methodContext } = createLoggingContext(
@@ -425,19 +425,24 @@ export class NxtpSdk {
     let calculateRelayerFee = "0";
     const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
     if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
-      const gasNeeded = await this.sdkBase.calculateGasFeeInReceivingTokenForFulfill(
-        txData.receivingChainId,
-        txData.receivingAssetId,
-        callData,
-        txData.callTo,
-      );
+      let relayerFee = params.relayerFee ? BigNumber.from(params.relayerFee) : undefined;
+      if (!relayerFee) {
+        relayerFee = await this.sdkBase.calculateGasFeeInReceivingTokenForFulfill(
+          txData.receivingChainId,
+          txData.receivingAssetId,
+          {
+            callData,
+            callTo: txData.callTo,
+          },
+        );
+      }
       this.logger.info(
-        `Calculating Gas Fee for fulfill tx. neededGas = ${gasNeeded.toString()}`,
+        `Calculating Gas Fee for fulfill tx. neededGas = ${relayerFee.toString()}`,
         requestContext,
         methodContext,
       );
 
-      calculateRelayerFee = gasNeeded.toString();
+      calculateRelayerFee = relayerFee.toString();
     }
 
     this.logger.info("Generating fulfill signature", requestContext, methodContext, { calculateRelayerFee });

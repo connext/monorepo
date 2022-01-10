@@ -100,6 +100,8 @@ export const CrossChainParamsSchema = Type.Object({
   initiator: Type.Optional(TAddress),
   auctionWaitTimeMs: Type.Optional(Type.Number()),
   numAuctionResponsesQuorum: Type.Optional(Type.Number()),
+  relayerFee: Type.Optional(TIntegerString),
+  callDataGas: Type.Optional(TIntegerString),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
