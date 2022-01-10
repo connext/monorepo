@@ -171,6 +171,11 @@ const config: HardhatUserConfig = {
       url: "https://rpc.moonriver.moonbeam.network",
       gasPrice: 5000000000,
     },
+    moonbeam: {
+      accounts: { mnemonic },
+      chainId: 1284,
+      url: "https://rpc.api.moonbase.moonbeam.network",
+    },
     mbase: {
       accounts: { mnemonic },
       chainId: 1287,
