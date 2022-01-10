@@ -377,8 +377,8 @@ export class NxtpSdkBase {
       requestContext,
     );
 
-    let relayerFee = _relayerFee ? BigNumber.from(_relayerFee) : undefined;
-    if (!relayerFee) {
+    let relayerFee = constants.Zero;
+    if (!_relayerFee) {
       relayerFee = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
         receivingChainId,
         receivingAssetId,
