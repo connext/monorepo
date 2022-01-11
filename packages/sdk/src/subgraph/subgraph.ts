@@ -123,13 +123,9 @@ export class Subgraph {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
       const cId = parseInt(chainId);
-      const urls = typeof subgraph === "string" ? [subgraph] : subgraph;
-      const sdksWithClients = urls.map((url) => {
-        return { client: getSdk(new GraphQLClient(url)), url };
-      });
       const fallbackSubgraph = new FallbackSubgraph<Sdk>(
         cId,
-        sdksWithClients,
+        (url: string) => getSdk(new GraphQLClient(url)),
         _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
       );
       this.sdks[cId] = fallbackSubgraph;
@@ -712,11 +708,10 @@ export class Subgraph {
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
         const subgraph = this.sdks[chainId];
-        const latestBlock = await this.chainReader.getBlockNumber(chainId);
-        const records = await subgraph.sync(latestBlock);
+        const records = await subgraph.sync();
         const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
         this.syncStatus[chainId] = {
-          latestBlock,
+          latestBlock: records[0]?.latestBlock,
           syncedBlock: mostSynced.syncedBlock,
           synced: mostSynced.synced,
         };
