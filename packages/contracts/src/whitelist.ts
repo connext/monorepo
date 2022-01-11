@@ -6,7 +6,8 @@ import { utils } from "ethers";
 const exec = util.promisify(_exec);
 
 const networks: string[] = [
-  "mainnet",
+  // "mainnet",
+  "moonbeam",
   "optimism",
   "bsc",
   "xdai",
@@ -18,7 +19,7 @@ const networks: string[] = [
   "avalanche",
 ];
 
-const routers: string[] = [];
+const routers: string[] = ["0xe439CA609B964Ab9422672Bf83B8e171E90aDaD1"];
 
 const run = async () => {
   if (routers.length === 0) {
@@ -28,8 +29,8 @@ const run = async () => {
 
   const routerAddresses = routers.map((r) => utils.getAddress(r));
 
-  for (const n of networks) {
-    for (const r of routerAddresses) {
+  networks.forEach((n) => {
+    routerAddresses.forEach(async (r) => {
       console.log("Running add router script for", n);
       const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${r}`);
 
@@ -39,7 +40,7 @@ const run = async () => {
       if (err) {
         console.error(`stderr: ${n} ${err}`);
       }
-    }
-  }
+    });
+  });
 };
 run();
