@@ -8,14 +8,14 @@ import { CHAIN_ID } from ".";
 const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
 
 const endpoints = {
-  [CHAIN_ID.MAINNET]: "https://relay.mainnet.fra.gelato.digital/relay",
-  [CHAIN_ID.RINKEBY]: "https://relay.rinkeby.fra.gelato.digital/relay",
-  [CHAIN_ID.GOERLI]: "https://relay.goerli.fra.gelato.digital/relay",
-  [CHAIN_ID.BSC]: "https://relay.bsc.fra.gelato.digital/relay",
-  [CHAIN_ID.MATIC]: "https://relay.matic.fra.gelato.digital/relay",
-  [CHAIN_ID.FANTOM]: "https://relay.fantom.fra.gelato.digital/relay",
-  [CHAIN_ID.ARBITRUM]: "https://relay.arbitrum.fra.gelato.digital/relay",
-  [CHAIN_ID.AVALANCHE]: "https://relay.avalanche.fra.gelato.digital/relay",
+  [CHAIN_ID.MAINNET]: "https://prod.relay.gelato.digital/mainnet/relay",
+  [CHAIN_ID.RINKEBY]: "https://staging.relay.gelato.digital/rinkeby/relay",
+  [CHAIN_ID.GOERLI]: "https://staging.relay.gelato.digital/goerli/relay",
+  [CHAIN_ID.BSC]: "https://prod.relay.gelato.digital/bsc/relay",
+  [CHAIN_ID.MATIC]: "https://prod.relay.gelato.digital/matic/relay",
+  [CHAIN_ID.FANTOM]: "https://prod.relay.gelato.digital/fantom/relay",
+  [CHAIN_ID.ARBITRUM]: "https://prod.relay.gelato.digital/arbitrum/relay",
+  [CHAIN_ID.AVALANCHE]: "https://prod.relay.gelato.digital/avalanche/relay",
 };
 
 const gelatoSend = async (
