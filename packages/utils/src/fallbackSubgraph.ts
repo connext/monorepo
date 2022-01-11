@@ -1,18 +1,17 @@
+import axios, { AxiosResponse } from "axios";
 import { request } from "graphql-request";
 
 import { NxtpError } from "./error";
-import { getSubgraphHealth } from "./subgraphHealth";
 
-import { getHostnameFromRegex } from ".";
+const SUBGRAPH_INFO_ENDPOINT = "https://subgraph-ts-worker.connext.workers.dev/";
 
 export type SubgraphSyncRecord = {
-  uri: string;
   name: string;
   synced: boolean;
   latestBlock: number;
   syncedBlock: number;
   lag: number;
-  errors?: any[];
+  error?: any;
 };
 
 type SubgraphSdk = { GetBlockNumber: () => Promise<any> };
@@ -36,6 +35,26 @@ type Subgraph<T extends SubgraphSdk> = {
   };
 };
 
+// Return types for subgraph health endpoint.
+type SubgraphHealthError = {
+  message: string;
+  block: number;
+  handler: any;
+};
+
+type SubgraphHealth = {
+  chainHeadBlock: number;
+  latestBlock: number;
+  lastHealthyBlock: number | undefined;
+  network: string;
+  fatalError: SubgraphHealthError | undefined;
+  health:
+    | "healthy" // Subgraph syncing normally
+    | "unhealthy" // Subgraph syncing but with errors
+    | "failed"; // Subgraph halted due to errors
+  synced: boolean;
+};
+
 // TODO: Would be cool if we could pass in like, 1/4 * maxLag * blockLengthMs (and get the blockLengthMs from chain reader, which determines that value on init)
 const SYNC_CACHE_TTL = 5_000;
 
@@ -49,7 +68,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
   // Target number of samples in the call metrics for each subgraph call.
   private static readonly METRIC_WINDOW = 100;
 
-  private readonly subgraphs: Subgraph<T>[];
+  private readonly subgraphs: Map<string, Subgraph<T>> = new Map();
 
   private latestSync = 0;
 
@@ -57,7 +76,7 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * Returns boolean representing whether at least one available subgraph is in sync.
    */
   public get inSync(): boolean {
-    return this.subgraphs.some((subgraph) => subgraph.record.synced);
+    return Object.values(this.subgraphs).some((subgraph) => subgraph.record.synced);
   }
 
   /**
@@ -65,7 +84,9 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    * whether the records are in fact representative).
    */
   public get hasSynced(): boolean {
-    return this.subgraphs.some((subgraph) => subgraph.record.syncedBlock !== -1 && subgraph.record.latestBlock !== -1);
+    return Object.values(this.subgraphs).some(
+      (subgraph) => subgraph.record.syncedBlock !== -1 && subgraph.record.latestBlock !== -1,
+    );
   }
 
   public get records(): SubgraphSyncRecord[] {
@@ -81,40 +102,11 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
    */
   constructor(
     private readonly chainId: number,
-    // We use the URIs in sync records for reference in logging.
-    sdks: { client: T; url: string }[],
+    private readonly generateClient: (url: string) => T,
     private readonly maxLag: number,
     private readonly stallTimeout = 10_000,
   ) {
-    const getSubgraphName = (url: string) => {
-      const split = url.split("/");
-      return split[split.length - 1];
-    };
-    this.subgraphs = sdks.map(({ client, url }) => {
-      const hostname = getHostnameFromRegex(url);
-      return {
-        url,
-        client,
-        record: {
-          // Typically used for logging, distinguishing between which subgraph is which, so we can monitor
-          // which ones are most in sync.
-          uri: hostname ? hostname.split(".").slice(0, -1).join(".") : url,
-          name: getSubgraphName(url),
-          synced: true,
-          latestBlock: -1,
-          syncedBlock: -1,
-          lag: 0,
-          errors: undefined,
-        },
-        priority: 0,
-        metrics: {
-          calls: [],
-          cps: 0,
-          reliability: 0,
-          avgExecTime: 0,
-        },
-      };
-    });
+    this.sync();
   }
 
   /**
@@ -178,101 +170,48 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
     throw new NxtpError("Unable to handle request", { errors });
   }
 
+  // TODO: Need a serialized thread lock for this activity so sync() is not called (and run) twice concurrently.
   /**
    * Check synchronized status of all subgraphs, and update metrics.
    *
-   * @param latestBlock (optional) - current latest block number according to RPC providers. If
-   * undefined, this method will rely entirely on the subgraph health query alone. Otherwise, this
-   * latestBlock is functionally a fallback value.
-   *
    * @returns Subgraph sync records for each subgraph.
    */
-  public async sync(_latestBlock?: number): Promise<SubgraphSyncRecord[]> {
+  public async sync(): Promise<SubgraphSyncRecord[]> {
     // If the latest sync was within SYNC_CACHE_TTL, do not requery
     if (Date.now() - this.latestSync < SYNC_CACHE_TTL) {
       return this.records;
     }
-    // When accessing the graph, ENOTFOUND errors are known to occur due to too many requests in a
-    // short timespan; thus there is a need for this helper.
-    const withRetries = async (method: () => Promise<any | undefined>) => {
-      for (let i = 0; i < 5; i++) {
-        try {
-          return await method();
-        } catch (e: any) {
-          if (e.errno !== "ENOTFOUND") {
-            throw e;
-          }
-        }
-      }
-    };
 
-    // Using a Promise.all here to ensure we do all queries/requests in parallel.
-    await Promise.all(
-      this.subgraphs.map(async (subgraph, index) => {
-        const errors: any[] = [];
-        let latestBlock = _latestBlock;
-        let syncedBlock: number | undefined;
-        // First, try to use the subgraph health API.
-        try {
-          const health = await withRetries(async () => await getSubgraphHealth(subgraph.record.name, subgraph.url));
-          if (health && health.latestBlock && health.chainHeadBlock) {
-            // Sanity check: make sure the values are valid numbers.
-            latestBlock = typeof health.latestBlock === "number" ? health.latestBlock : latestBlock;
-            syncedBlock = typeof health.chainHeadBlock === "number" ? health.chainHeadBlock : undefined;
-          } else if (health && health.fatalError) {
-            throw new NxtpError("Subgraph health query response had fatal error present.", {
-              health,
-            });
-          } else if (!health || !health.latestBlock || !health.chainHeadBlock) {
-            throw new NxtpError("Subgraph health query returned invalid value.", {
-              health,
-            });
-          }
-        } catch (e) {
-          errors.push(e);
-        }
+    // Target this chain's endpoint.
+    const endPointUrl = SUBGRAPH_INFO_ENDPOINT.concat(`?chainId=${this.chainId}`);
+    const response: AxiosResponse<string> = await axios.get(endPointUrl);
 
-        // Assuming we have the latestBlock passed in, and the above health query failed, we should
-        // use the typical GetBlockNumber next.
-        if (latestBlock && !syncedBlock) {
-          try {
-            const { _meta } = await withRetries(async () => await subgraph.client.GetBlockNumber());
-            syncedBlock = _meta && _meta.block && _meta.block.number ? _meta.block.number : 0;
-          } catch (e) {
-            errors.push(e);
-          }
-        }
+    if (!response || !response.data || response.data.length === 0) {
+      throw new NxtpError("Received bad response; make sure your key file is configured correctly.", {
+        response,
+      });
+    }
 
-        // If all of the above methods failed (or we were otherwise unable to do them), set the
-        // record to be out of sync.
-        if (!latestBlock || !syncedBlock) {
-          this.subgraphs[index].record = {
-            ...subgraph.record,
-            synced: false,
-            latestBlock: latestBlock ?? subgraph.record.latestBlock,
-            lag:
-              subgraph.record.syncedBlock > 0
-                ? (latestBlock ?? subgraph.record.latestBlock) - subgraph.record.syncedBlock
-                : subgraph.record.lag,
-            errors,
-          };
-          return;
-        }
-
-        // Update the record accordingly.
-        this.subgraphs[index].record = {
-          ...subgraph.record,
-          synced: latestBlock - syncedBlock <= this.maxLag,
-          latestBlock,
-          syncedBlock,
-          // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
-          // block vs synced block.
-          lag: Math.max(0, latestBlock - syncedBlock),
-          // Even though no errors may have occurred, we will tack them on the record anyway.
-          errors: errors.length > 0 ? errors : undefined,
-        };
-      }),
-    );
+    // Parse the response, handle each subgraph in the response.
+    const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
+    subgraphs.forEach((info: any) => {
+      // If we don't have this subgraph mapped, create a new one to work with.
+      const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraph(info.url);
+      const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
+      const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
+      // Update the record accordingly.
+      subgraph.record = {
+        ...subgraph.record,
+        synced,
+        latestBlock: info.latestBlock,
+        syncedBlock: info.syncedBlock ?? subgraph.record.syncedBlock,
+        // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
+        // block vs synced block.
+        lag: Math.max(0, lag ?? this.maxLag),
+        error: info.fatalError,
+      };
+      this.subgraphs.set(info.url, subgraph);
+    });
 
     this.latestSync = Date.now();
     return this.records;
@@ -313,10 +252,36 @@ export class FallbackSubgraph<T extends SubgraphSdk> {
     // Always start with the in sync subgraphs and then concat the out of sync subgraphs.
     // Metrics should only come in to play to sort subgraph call order within each group (i.e. we should never prioritize
     // an out-of-sync subgraph over a synced one).
-    return this.subgraphs
+    return Object.values(this.subgraphs)
       .filter((subgraph) => subgraph.record.synced)
       .sort((subgraphA, subgraphB) => subgraphA.priority - subgraphB.priority)
-      .concat(this.subgraphs.filter((subgraph) => !subgraph.record.synced))
+      .concat(Object.values(this.subgraphs).filter((subgraph) => !subgraph.record.synced))
       .sort((subgraphA, subgraphB) => subgraphA.priority - subgraphB.priority);
+  }
+
+  private createSubgraph(url: string): Subgraph<T> {
+    const getSubgraphName = (url: string) => {
+      const split = url.split("/");
+      return split[split.length - 1];
+    };
+    return {
+      url,
+      client: this.generateClient(url),
+      record: {
+        name: getSubgraphName(url),
+        synced: true,
+        latestBlock: -1,
+        syncedBlock: -1,
+        lag: 0,
+        error: undefined,
+      },
+      priority: 0,
+      metrics: {
+        calls: [],
+        cps: 0,
+        reliability: 0,
+        avgExecTime: 0,
+      },
+    };
   }
 }
