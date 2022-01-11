@@ -174,7 +174,7 @@ const config: HardhatUserConfig = {
     moonbeam: {
       accounts: { mnemonic },
       chainId: 1284,
-      url: "https://rpc.api.moonbase.moonbeam.network",
+      url: "https://rpc.api.moonbeam.network",
     },
     mbase: {
       accounts: { mnemonic },
