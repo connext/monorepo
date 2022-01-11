@@ -17,23 +17,19 @@ const networks: string[] = [
   "arbitrum-one",
   "avalanche",
 ];
+
+const routers: string[] = [];
+
 const run = async () => {
-  const cmdArg = process.argv.slice(2);
-
-  // first argument is router address
-  const _routerAddresses = cmdArg[0];
-
-  if (!_routerAddresses) {
-    console.log("please add router address, checkout readme for more");
+  if (routers.length === 0) {
+    console.log("please add router addresses to whitelist");
     return;
   }
 
-  let routerAddresses = _routerAddresses.split(",");
-
-  routerAddresses = routerAddresses.map((r) => utils.getAddress(r));
+  const routerAddresses = routers.map((r) => utils.getAddress(r));
 
   for (const n of networks) {
-    for (const r of _routerAddresses) {
+    for (const r of routerAddresses) {
       console.log("Running add router script for", n);
       const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${r}`);
 
