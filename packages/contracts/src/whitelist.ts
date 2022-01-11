@@ -21,24 +21,28 @@ const run = async () => {
   const cmdArg = process.argv.slice(2);
 
   // first argument is router address
-  const _routerAddress = cmdArg[0];
+  const _routerAddresses = cmdArg[0];
 
-  if (!_routerAddress) {
+  if (!_routerAddresses) {
     console.log("please add router address, checkout readme for more");
     return;
   }
 
-  const routerAddress = utils.getAddress(_routerAddress);
+  let routerAddresses = _routerAddresses.split(",");
+
+  routerAddresses = routerAddresses.map((r) => utils.getAddress(r));
 
   for (const n of networks) {
-    console.log("Running add router script for", n);
-    const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${routerAddress}`);
+    for (const r of _routerAddresses) {
+      console.log("Running add router script for", n);
+      const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${r}`);
 
-    if (out) {
-      console.log(`stdout: ${n} ${out}`);
-    }
-    if (err) {
-      console.error(`stderr: ${n} ${err}`);
+      if (out) {
+        console.log(`stdout: ${n} ${out}`);
+      }
+      if (err) {
+        console.error(`stderr: ${n} ${err}`);
+      }
     }
   }
 };
