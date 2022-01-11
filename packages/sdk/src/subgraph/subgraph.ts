@@ -10,7 +10,6 @@ import {
 } from "@connext/nxtp-utils";
 import { GraphQLClient } from "graphql-request";
 import { Evt } from "evt";
-import { ChainReader } from "@connext/nxtp-txservice";
 
 import { InvalidTxStatus, PollingNotActive } from "../error";
 import {
@@ -115,7 +114,6 @@ export class Subgraph {
   constructor(
     private readonly userAddress: Promise<string>,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
-    private readonly chainReader: ChainReader,
     private readonly logger: Logger,
     skipPolling = false,
     private readonly pollInterval = 10_000,

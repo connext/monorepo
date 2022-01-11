@@ -89,8 +89,6 @@ describe("Subgraph Adapter", () => {
       GetTransactionsWithRouter: stub().resolves({ transactions: [] }),
     };
 
-    txServiceMock.getBlockNumber.resolves(10000);
-
     fallbackSubgraph = createStubInstance(FallbackSubgraph);
     fallbackSubgraph.request.callsFake((method) => method(sdk, ""));
     fallbackSubgraph.sync.resolves([mockInSyncSubgraphRecord]);
