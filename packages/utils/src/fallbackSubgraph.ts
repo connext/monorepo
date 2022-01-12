@@ -189,7 +189,7 @@ export class FallbackSubgraph<T> {
     }
 
     const errors: Error[] = [];
-    // Try each SDK client in order of priority.
+    // Try each subgraph client in order of priority.
     for (const subgraph of orderedSubgraphs) {
       try {
         return await Promise.race([
@@ -227,7 +227,6 @@ export class FallbackSubgraph<T> {
     });
   }
 
-  // TODO: Need a serialized thread lock for this activity so sync() is not called (and run) twice concurrently.
   /**
    * Check synchronized status of all subgraphs, and update metrics.
    *
