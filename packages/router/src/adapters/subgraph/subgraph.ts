@@ -9,7 +9,7 @@ import {
   SubgraphSyncRecord,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, logger } from "ethers";
 
 import { getContext } from "../../router";
 import { ContractReaderNotAvailableForChain, NoChainConfig } from "../../lib/errors";
@@ -488,46 +488,48 @@ export const getTransactionForChain = async (
   if (!sdk) {
     throw new ContractReaderNotAvailableForChain(chainId, { method, methodId });
   }
-  const tx = await sdk.request<GetTransactionQuery>((client) =>
-    client.GetTransaction({
-      transactionId: `${transactionId.toLowerCase()}-${user.toLowerCase()}-${routerAddress.toLowerCase()}`,
-    }),
-  );
-
-  if (!tx.transaction) {
+  try {
+    const tx = await sdk.request<GetTransactionQuery>((client) =>
+      client.GetTransaction({
+        transactionId: `${transactionId.toLowerCase()}-${user.toLowerCase()}-${routerAddress.toLowerCase()}`,
+      }),
+    );
+    if (!tx.transaction) {
+      return undefined;
+    }
+    const transaction = tx.transaction;
+    return transaction
+      ? {
+          status: transaction.status,
+          txData: {
+            receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
+            user: transaction.user.id,
+            router: transaction.router.id,
+            initiator: transaction.initiator,
+            sendingAssetId: transaction.sendingAssetId,
+            receivingAssetId: transaction.receivingAssetId,
+            sendingChainFallback: transaction.sendingChainFallback,
+            callTo: transaction.callTo,
+            receivingAddress: transaction.receivingAddress,
+            callDataHash: transaction.callDataHash,
+            transactionId: transaction.transactionId,
+            sendingChainId: Number(transaction.sendingChainId),
+            receivingChainId: Number(transaction.receivingChainId),
+            amount: transaction.amount,
+            expiry: Number(transaction.expiry),
+            preparedBlockNumber: Number(transaction.preparedBlockNumber),
+          },
+          encryptedCallData: transaction.encryptedCallData,
+          encodedBid: transaction.encodedBid,
+          bidSignature: transaction.bidSignature,
+          signature: transaction.signature,
+          relayerFee: transaction.relayerFee,
+        }
+      : undefined;
+  } catch (e) {
+    logger.debug(`Problem getting transactions on chain ${chainId}\n Error ${e} `);
     return undefined;
   }
-
-  const transaction = tx.transaction;
-
-  return transaction
-    ? {
-        status: transaction.status,
-        txData: {
-          receivingChainTxManagerAddress: transaction.receivingChainTxManagerAddress,
-          user: transaction.user.id,
-          router: transaction.router.id,
-          initiator: transaction.initiator,
-          sendingAssetId: transaction.sendingAssetId,
-          receivingAssetId: transaction.receivingAssetId,
-          sendingChainFallback: transaction.sendingChainFallback,
-          callTo: transaction.callTo,
-          receivingAddress: transaction.receivingAddress,
-          callDataHash: transaction.callDataHash,
-          transactionId: transaction.transactionId,
-          sendingChainId: Number(transaction.sendingChainId),
-          receivingChainId: Number(transaction.receivingChainId),
-          amount: transaction.amount,
-          expiry: Number(transaction.expiry),
-          preparedBlockNumber: Number(transaction.preparedBlockNumber),
-        },
-        encryptedCallData: transaction.encryptedCallData,
-        encodedBid: transaction.encodedBid,
-        bidSignature: transaction.bidSignature,
-        signature: transaction.signature,
-        relayerFee: transaction.relayerFee,
-      }
-    : undefined;
 };
 
 export const getAssetBalance = async (assetId: string, chainId: number): Promise<BigNumber> => {
