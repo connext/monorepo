@@ -13,7 +13,6 @@ import {
   StatusResponse,
 } from "@connext/nxtp-utils";
 
-import { getDeployedChainIdsForGasFee } from "./transactionManager/transactionManager";
 import { SubmitError, ChainNotConfigured, EncryptionError } from "./error";
 import {
   NxtpSdkEvent,
