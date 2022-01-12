@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { request } from "graphql-request";
+import PriorityQueue from "p-queue";
 
 import { ChainData } from "./chainData";
 import { NxtpError } from "./error";
@@ -87,6 +88,9 @@ export class FallbackSubgraph<T> {
 
   private readonly subgraphs: Map<string, Subgraph<T>> = new Map();
 
+  // Syncing queue used to serialize sync calls and for awaiting initial sync to finish when requests
+  // are first made.
+  private readonly syncingQueue: PriorityQueue = new PriorityQueue({ concurrency: 1 });
   private latestSync = 0;
 
   /**
@@ -162,6 +166,11 @@ export class FallbackSubgraph<T> {
     if (syncRequired && !this.inSync) {
       throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
     }
+    // If we are currently syncing, we ought to wait until the sync is complete before proceeding to ensure
+    // we're operating on up-to-date information (and ensure that we have indeed synced at least once).
+    await this.syncingQueue.onIdle();
+
+    // Get the sdks in order of determined priority.
     const orderedSubgraphs = this.getOrderedSdks();
     const errors: Error[] = [];
     // Try each SDK client in order of priority.
@@ -202,49 +211,56 @@ export class FallbackSubgraph<T> {
    * @returns Subgraph sync records for each subgraph.
    */
   public async sync(): Promise<SubgraphSyncRecord[]> {
-    // If the latest sync was within SYNC_CACHE_TTL, do not requery
-    if (Date.now() - this.latestSync < SYNC_CACHE_TTL) {
-      return this.records;
-    }
-
     // Check to make sure this subgraph domain has an endpoint.
     const endpoint = DOMAIN_ADDRESS[this.domain];
     if (!endpoint) {
       // Cannot get subgraph health.
       return this.records;
     }
-    // Target this chain's endpoint.
-    const url = endpoint.concat(`?chainId=${this.chainId}`);
-    const response: AxiosResponse<string> = await axios.get(url);
 
-    if (!response || !response.data || response.data.length === 0) {
-      throw new NxtpError("Received bad response; make sure your key file is configured correctly.", {
-        response,
+    // Calling this bit within the serialized queue as a sort of thread-lock for syncing calls.
+    await this.syncingQueue.add(async (): Promise<void> => {
+      // If the latest sync was within SYNC_CACHE_TTL, do not requery. This, along with the
+      // serialized queue, enforce a minimum parity.
+      if (Date.now() - this.latestSync < SYNC_CACHE_TTL) {
+        return;
+      }
+
+      // Target this chain's endpoint.
+      const url = endpoint.concat(`?chainId=${this.chainId}`);
+      const response: AxiosResponse<string> = await axios.get(url);
+
+      if (!response || !response.data || response.data.length === 0) {
+        throw new NxtpError("Received bad response; make sure your key file is configured correctly.", {
+          response,
+        });
+      }
+
+      // Parse the response, handle each subgraph in the response.
+      const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
+      subgraphs.forEach((info: any) => {
+        // If we don't have this subgraph mapped, create a new one to work with.
+        const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
+        const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
+        const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
+        // Update the record accordingly.
+        subgraph.record = {
+          ...subgraph.record,
+          synced,
+          latestBlock: info.latestBlock,
+          syncedBlock: info.syncedBlock ?? subgraph.record.syncedBlock,
+          // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
+          // block vs synced block.
+          lag: Math.max(0, lag ?? this.maxLag),
+          error: info.fatalError,
+        };
+        this.subgraphs.set(info.url, subgraph);
       });
-    }
 
-    // Parse the response, handle each subgraph in the response.
-    const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
-    subgraphs.forEach((info: any) => {
-      // If we don't have this subgraph mapped, create a new one to work with.
-      const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
-      const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
-      const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
-      // Update the record accordingly.
-      subgraph.record = {
-        ...subgraph.record,
-        synced,
-        latestBlock: info.latestBlock,
-        syncedBlock: info.syncedBlock ?? subgraph.record.syncedBlock,
-        // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
-        // block vs synced block.
-        lag: Math.max(0, lag ?? this.maxLag),
-        error: info.fatalError,
-      };
-      this.subgraphs.set(info.url, subgraph);
+      // Set the latest sync to now.
+      this.latestSync = Date.now();
     });
 
-    this.latestSync = Date.now();
     return this.records;
   }
 
@@ -324,7 +340,7 @@ export class FallbackSubgraph<T> {
   }
 }
 
-// TODO: Remove, replace with endpoints/hosted data.
+// TODO: Remove, replace with API call / hosted data.
 export const getDeployedAnalyticsSubgraphUrls = (
   chainId: number,
   chainData?: Map<string, ChainData>,
