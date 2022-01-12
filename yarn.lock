@@ -1919,7 +1919,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-subgraph@workspace:packages/subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.25.1
+    "@graphprotocol/graph-cli": ^0.25.0
     "@graphprotocol/graph-ts": ^0.24.1
     "@types/js-yaml": ^4.0.5
     "@types/mustache": ^4.1.2
@@ -2951,7 +2951,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.25.1":
+"@graphprotocol/graph-cli@npm:^0.25.0":
   version: 0.25.2
   resolution: "@graphprotocol/graph-cli@npm:0.25.2"
   dependencies:
