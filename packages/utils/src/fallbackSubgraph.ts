@@ -164,7 +164,12 @@ export class FallbackSubgraph<T> {
   public async request<Q>(method: (client: T, url: string) => Promise<Q>, syncRequired = false): Promise<Q> {
     // If subgraph sync is requied, we'll check that all subgraphs are in sync before making the request.
     if (syncRequired && !this.inSync) {
-      throw new Error(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`);
+      throw new NxtpError(`All subgraphs out of sync on chain ${this.chainId}; unable to handle request.`, {
+        chainId: this.chainId,
+        syncRequired,
+        hasSynced: this.hasSynced,
+        inSync: this.inSync,
+      });
     }
     // If we are currently syncing, we ought to wait until the sync is complete before proceeding to ensure
     // we're operating on up-to-date information (and ensure that we have indeed synced at least once).
@@ -172,6 +177,17 @@ export class FallbackSubgraph<T> {
 
     // Get the sdks in order of determined priority.
     const orderedSubgraphs = this.getOrderedSdks();
+    if (orderedSubgraphs.length === 0) {
+      // Sanity check to throw a particular error.
+      throw new NxtpError(`No subgraphs available for chain ${this.chainId}; unable to handle request.`, {
+        chainId: this.chainId,
+        subgraphs: orderedSubgraphs,
+        syncRequired,
+        hasSynced: this.hasSynced,
+        inSync: this.inSync,
+      });
+    }
+
     const errors: Error[] = [];
     // Try each SDK client in order of priority.
     for (const subgraph of orderedSubgraphs) {
@@ -201,7 +217,14 @@ export class FallbackSubgraph<T> {
         errors.push(e);
       }
     }
-    throw new NxtpError("Unable to handle request", { errors });
+    throw new NxtpError("Unable to handle request", {
+      errors,
+      chainId: this.chainId,
+      subgraphs: orderedSubgraphs,
+      syncRequired,
+      hasSynced: this.hasSynced,
+      inSync: this.inSync,
+    });
   }
 
   // TODO: Need a serialized thread lock for this activity so sync() is not called (and run) twice concurrently.
