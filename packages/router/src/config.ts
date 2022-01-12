@@ -7,6 +7,7 @@ import {
   ajv,
   ChainData,
   getChainData,
+  getDeployedAnalyticsSubgraphUrls,
   isNode,
   NATS_AUTH_URL,
   NATS_AUTH_URL_LOCAL,
@@ -110,6 +111,8 @@ export const getDeployedMulticallContract = (chainId: number): { address: string
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Number({ minimum: 1 }),
+  subgraph: Type.Array(Type.String()),
+  analyticsSubgraph: Type.Array(Type.String()),
   transactionManagerAddress: Type.String(),
   priceOracleAddress: Type.Optional(Type.String()),
   multicallAddress: Type.Optional(Type.String()),
@@ -361,6 +364,24 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
     if (chainConfig.allowRelay === undefined || chainConfig.allowRelay === null) {
       nxtpConfig.chainConfig[chainId].allowRelay = false;
+    }
+
+    if (!chainConfig.subgraph) {
+      nxtpConfig.chainConfig[chainId].subgraph = [];
+    } else if (typeof chainConfig.subgraph === "string") {
+      // Backwards compatibility for subgraph param - support for singular uri string.
+      chainConfig.subgraph = [chainConfig.subgraph];
+    }
+
+    if (!chainConfig.analyticsSubgraph) {
+      const defaultAnalyticsSubgUrls = getDeployedAnalyticsSubgraphUrls(Number(chainId), crossChainData);
+      if (!defaultAnalyticsSubgUrls) {
+        throw new Error(`No analytics subgraph available for chain ${chainId}`);
+      }
+      nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultAnalyticsSubgUrls;
+    }
+    if (typeof chainConfig.analyticsSubgraph === "string") {
+      chainConfig.analyticsSubgraph = [chainConfig.analyticsSubgraph];
     }
 
     if (!chainConfig.confirmations) {

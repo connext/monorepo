@@ -1,12 +1,28 @@
 import axios, { AxiosResponse } from "axios";
 import { request } from "graphql-request";
 
+import { ChainData } from "./chainData";
 import { NxtpError } from "./error";
 
+// TODO: This is a great starting point for moving implementations of graphqlsdk-generated
+// code based on use-case:
+/**
+ * Domain of the subgraph determines which endpoint we should consult for getting
+ * up-to-date info/metadata/URLs, including subgraph health. It represents the
+ * subgraph application/use-case.
+ *
+ * Used as constructor param, and to get the address below.
+ */
 export enum SubgraphDomain {
-  COMMON = "https://subgraph-ts-worker.connext.workers.dev/",
-  ANALYTICS = "https://subgraph-ts-worker.connext.workers.dev/analytics/",
+  COMMON,
+  ANALYTICS,
 }
+
+const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
+  [SubgraphDomain.COMMON]: "https://subgraph-ts-worker.connext.workers.dev/",
+  // TODO: Analytics health endpoint needs to be implemented.
+  [SubgraphDomain.ANALYTICS]: undefined,
+};
 
 export type SubgraphSyncRecord = {
   name: string;
@@ -108,8 +124,13 @@ export class FallbackSubgraph<T> {
     private readonly generateClient: (url: string) => T,
     private readonly maxLag: number,
     private readonly domain: SubgraphDomain = SubgraphDomain.COMMON,
+    customSubgraphUrls: string[] = [],
     private readonly stallTimeout = 10_000,
   ) {
+    // Add in any configured subgraph urls we want to use.
+    customSubgraphUrls.forEach((url) => {
+      this.subgraphs.set(url, this.createSubgraphRecord(url));
+    });
     this.sync();
   }
 
@@ -186,9 +207,15 @@ export class FallbackSubgraph<T> {
       return this.records;
     }
 
+    // Check to make sure this subgraph domain has an endpoint.
+    const endpoint = DOMAIN_ADDRESS[this.domain];
+    if (!endpoint) {
+      // Cannot get subgraph health.
+      return this.records;
+    }
     // Target this chain's endpoint.
-    const endPointUrl = this.domain.concat(`?chainId=${this.chainId}`);
-    const response: AxiosResponse<string> = await axios.get(endPointUrl);
+    const url = endpoint.concat(`?chainId=${this.chainId}`);
+    const response: AxiosResponse<string> = await axios.get(url);
 
     if (!response || !response.data || response.data.length === 0) {
       throw new NxtpError("Received bad response; make sure your key file is configured correctly.", {
@@ -200,7 +227,7 @@ export class FallbackSubgraph<T> {
     const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
     subgraphs.forEach((info: any) => {
       // If we don't have this subgraph mapped, create a new one to work with.
-      const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraph(info.url);
+      const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
       const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
       const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
       // Update the record accordingly.
@@ -263,7 +290,14 @@ export class FallbackSubgraph<T> {
       .sort((subgraphA, subgraphB) => subgraphA.priority - subgraphB.priority);
   }
 
-  private createSubgraph(url: string): Subgraph<T> {
+  /**
+   * Utility for creating a subgraph record and filling it out with the default values.
+   * Does not add it to this.subgraphs.
+   *
+   * @param url - The url of the subgraph.
+   * @returns Subgraph<T> where the generic type T represents the client SDK type.
+   */
+  private createSubgraphRecord(url: string): Subgraph<T> {
     const getSubgraphName = (url: string) => {
       const split = url.split("/");
       return split[split.length - 1];
@@ -290,56 +324,59 @@ export class FallbackSubgraph<T> {
   }
 }
 
-// TODO: Remove, replace with endpoints
-// export const getDeployedAnalyticsSubgraphUri = (chainId: number, chainData?: Map<string, ChainData>) => {
-//   if (chainData) {
-//     const subgraph = chainData?.get(chainId.toString())?.analyticsSubgraph;
-//     if (subgraph) {
-//       return subgraph;
-//     }
-//   }
+// TODO: Remove, replace with endpoints/hosted data.
+export const getDeployedAnalyticsSubgraphUrls = (
+  chainId: number,
+  chainData?: Map<string, ChainData>,
+): string[] | undefined => {
+  if (chainData) {
+    const subgraph = chainData.get(chainId.toString())?.analyticsSubgraph;
+    if (subgraph) {
+      return subgraph;
+    }
+  }
 
-//   switch (chainId) {
-//     // testnets
-//     case 3:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten-v1-analytics"];
-//     case 4:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-v1-analytics"];
-//     case 5:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-v1-analytics"];
-//     case 42:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan-v1-analytics"];
-//     case 69:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan-v1-analytics"];
-//     case 97:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel-v1-analytics"];
-//     case 80001:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai-v1-analytics"];
-//     case 421611:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby-v1-analytics"];
+  switch (chainId) {
+    // testnets
+    case 3:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten-v1-analytics"];
+    case 4:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-v1-analytics"];
+    case 5:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-v1-analytics"];
+    case 42:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan-v1-analytics"];
+    case 69:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan-v1-analytics"];
+    case 97:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel-v1-analytics"];
+    case 80001:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai-v1-analytics"];
+    case 421611:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby-v1-analytics"];
 
-//     // mainnets
-//     case 1:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet-v1-analytics"];
-//     case 10:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-v1-analytics"];
-//     case 56:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-v1-analytics"];
-//     case 100:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-analytics"];
-//     case 122:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fuse-v1-analytics"];
-//     case 137:
-//       return ["https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-analytics"];
-//     case 250:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-v1-analytics"];
-//     case 1285:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-moonriver-v1-analytics"];
-//     case 42161:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-analytics"];
-//     case 43114:
-//       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche-v1-analytics"];
-//     default:
-//       return [];
-//   }
-// };
+    // mainnets
+    case 1:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet-v1-analytics"];
+    case 10:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-v1-analytics"];
+    case 56:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-v1-analytics"];
+    case 100:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-analytics"];
+    case 122:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fuse-v1-analytics"];
+    case 137:
+      return ["https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-analytics"];
+    case 250:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-v1-analytics"];
+    case 1285:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-moonriver-v1-analytics"];
+    case 42161:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-analytics"];
+    case 43114:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche-v1-analytics"];
+    default:
+      return undefined;
+  }
+};
