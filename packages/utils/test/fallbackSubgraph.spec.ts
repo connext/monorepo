@@ -26,20 +26,22 @@ describe("FallbackSubgraph", () => {
   });
 
   describe("request-wrapped methods", () => {
-    let mockRequestMethod: SinonStub;
+    const mockRequestMethod: SinonStub = stub(fallbackSubgraph, "request").callsFake(
+      async (method: (client: any, url: string) => Promise<any>, _: boolean) => {
+        return await method({ mockSubgraphSdkMethod }, "");
+      },
+    );
     beforeEach(() => {
-      mockRequestMethod = stub(fallbackSubgraph, "request").callsFake(
-        async (method: (client: any, url: string) => Promise<any>, _: boolean) => {
-          return await method({ mockSubgraphSdkMethod }, "");
-        },
-      );
+      mockRequestMethod.resetHistory();
     });
 
     describe("#query", () => {
       const mockGenericQueryResponse = "test";
-      let mockGraphQueryMethod: SinonStub;
+      const mockGraphQueryMethod: SinonStub = stub(fallbackSubgraphIndex, "graphQuery").resolves(
+        mockGenericQueryResponse,
+      );
       beforeEach(() => {
-        mockGraphQueryMethod = stub(fallbackSubgraphIndex, "graphQuery").resolves(mockGenericQueryResponse);
+        mockGraphQueryMethod.resetHistory();
       });
 
       it("happy: should passthrough query message to graphql request", async () => {
