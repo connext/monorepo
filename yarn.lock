@@ -2023,6 +2023,7 @@ __metadata:
     hyperid: ^2.3.1
     mocha: ^9.0.3
     nyc: ^15.1.0
+    p-queue: 6.6.2
     pino: ^6.13.0
     rimraf: ^3.0.2
     secp256k1: ^4.0.2
