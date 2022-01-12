@@ -8,7 +8,7 @@ import { Wallet } from "ethers";
 export const SdkServerChainConfigSchema = Type.Record(
   TChainId,
   Type.Object({
-    provider: Type.Array(Type.String()),
+    providers: Type.Array(Type.String()),
     transactionManagerAddress: Type.Optional(Type.String()),
     priceOracleAddress: Type.Optional(Type.String()),
     subgraph: Type.Optional(Type.String()),
@@ -72,7 +72,7 @@ export const getConfig = (): SdkBaseConfigParams => {
   const chainConfig: SdkBaseChainConfigParams = {};
   Object.entries(serverConfig.chainConfig).forEach(([chainId, config]) => {
     chainConfig[parseInt(chainId)] = {
-      providers: config.provider,
+      providers: config.providers,
       transactionManagerAddress: config.transactionManagerAddress,
       priceOracleAddress: config.priceOracleAddress,
       subgraph: config.subgraph,

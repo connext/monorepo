@@ -42,6 +42,12 @@
     "startBlock": 19835794
   },
   {
+    "subgraphName": "connext/nxtp-moonbeam-v1-runtime",
+    "network": "moonbeam",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 171247
+  },
+  {
     "subgraphName": "connext/nxtp-moonriver-v1-runtime",
     "network": "moonriver",
     "address": "0x373ba9aa0f48b27A977F73423039E6dE341a0C7C",
@@ -112,5 +118,11 @@
     "network": "fuji",
     "address": "0xcE5E0D6870594F4923322D1771CF9606C2f1dB7e",
     "startBlock": 1908755
+  },
+  {
+    "subgraphName": "connext/nxtp-mbase-v1-runtime",
+    "network": "mbase",
+    "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
+    "startBlock": 1507901
   }
 ]
