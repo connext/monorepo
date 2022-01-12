@@ -725,7 +725,6 @@ describe("Subgraph", () => {
       try {
         await subgraph.getActiveTransactions();
       } catch (e) {
-        console.log(e.context);
         const expectedErrMessage = testError.message;
         const sendingChainError = e.context.errors.get(sendingChainId);
         expect(sendingChainError.message.includes(expectedErrMessage)).to.be.true;
