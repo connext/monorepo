@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { request } from "graphql-request";
+import { request as graphQLRequest } from "graphql-request";
 import PriorityQueue from "p-queue";
 
 import { ChainData } from "./chainData";
@@ -17,13 +17,8 @@ import { NxtpError } from "./error";
 export enum SubgraphDomain {
   COMMON,
   ANALYTICS,
+  TEST,
 }
-
-const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
-  [SubgraphDomain.COMMON]: "https://subgraph-ts-worker.connext.workers.dev/",
-  // TODO: Analytics health endpoint needs to be implemented.
-  [SubgraphDomain.ANALYTICS]: undefined,
-};
 
 export type SubgraphSyncRecord = {
   name: string;
@@ -76,6 +71,18 @@ type SubgraphHealth = {
 // TODO: Would be cool if we could pass in like, 1/4 * maxLag * blockLengthMs (and get the blockLengthMs from chain reader, which determines that value on init)
 const SYNC_CACHE_TTL = 5_000;
 
+const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
+  [SubgraphDomain.COMMON]: "https://subgraph-ts-worker.connext.workers.dev/",
+  // TODO: Analytics health endpoint needs to be implemented.
+  [SubgraphDomain.ANALYTICS]: undefined,
+  // Used for unit testing.
+  [SubgraphDomain.TEST]: undefined,
+};
+
+export const graphQuery = async (url: string, query: string): Promise<any> => {
+  return await graphQLRequest(url, query);
+};
+
 /**
  * @classdesc A class that manages the sync status of multiple subgraphs as well as their corresponding SDKs.
  */
@@ -111,7 +118,7 @@ export class FallbackSubgraph<T> {
   }
 
   public get records(): SubgraphSyncRecord[] {
-    return this.getOrderedSdks().map((sdk) => sdk.record);
+    return this.getOrderedSubgraphs().map((sdk) => sdk.record);
   }
 
   /**
@@ -147,7 +154,7 @@ export class FallbackSubgraph<T> {
    */
   public async query(query: string): Promise<any> {
     return this.request((_, url) => {
-      return request(url, query);
+      return graphQuery(url, query);
     }, false);
   }
 
@@ -176,7 +183,7 @@ export class FallbackSubgraph<T> {
     await this.syncingQueue.onIdle();
 
     // Get the sdks in order of determined priority.
-    const orderedSubgraphs = this.getOrderedSdks();
+    const orderedSubgraphs = this.getOrderedSubgraphs();
     if (orderedSubgraphs.length === 0) {
       // Sanity check to throw a particular error.
       throw new NxtpError(`No subgraphs available for chain ${this.chainId}; unable to handle request.`, {
@@ -286,7 +293,7 @@ export class FallbackSubgraph<T> {
     return this.records;
   }
 
-  private getOrderedSdks(): Subgraph<T>[] {
+  private getOrderedSubgraphs(): Subgraph<T>[] {
     // Order the subgraphs based on these metrics:
     // 1. Lag, which is the difference between the latest block and the subgraph's latest block.
     // 2. CPS, which is the number of calls per second the subgraph has been making (averaged over last N calls).
