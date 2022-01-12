@@ -315,8 +315,7 @@ export class ChainReader {
     receivingChainId: number,
     receivingAssetId: string,
     outputDecimals: number,
-    callData?: string,
-    callTo?: string,
+    callDataParams: { callData?: string; callTo?: string; callDataGas?: string },
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
   ): Promise<BigNumber> {
@@ -338,8 +337,7 @@ export class ChainReader {
       false,
       chainData,
       requestContext,
-      callData,
-      callTo,
+      callDataParams,
     );
   }
 
@@ -366,8 +364,7 @@ export class ChainReader {
     isRouterContract: boolean,
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
-    callData = "0x",
-    callTo = constants.AddressZero,
+    callDataParams: { callData?: string; callTo?: string; callDataGas?: string } = {},
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateGasFee.name, _requestContext);
 
@@ -424,10 +421,22 @@ export class ChainReader {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
-      if (callData !== "0x" && callTo !== constants.AddressZero) {
-        const callGas = await this.getGasEstimate(chainId, { to: callTo, data: callData, chainId });
-        console.log("extra callGas: ", callGas.toString());
-        gasLimit = gasLimit.add(callGas);
+      const { callData, callTo, callDataGas } = callDataParams;
+      if (callDataGas) {
+        gasLimit = gasLimit.add(callDataGas);
+        this.logger.info("callDataGas hardcoded", requestContext, methodContext, {
+          callDataGas,
+          gasLimit: gasLimit.toString(),
+        });
+      } else {
+        if (callData && callData !== "0x" && callTo && callTo !== constants.AddressZero) {
+          const callGas = await this.getGasEstimate(chainId, { to: callTo, data: callData, chainId });
+          this.logger.info("Gas limit from calldata estimated", requestContext, methodContext, {
+            callGas: callGas.toString(),
+            gasLimit: gasLimit.toString(),
+          });
+          gasLimit = gasLimit.add(callGas);
+        }
       }
     } else if (method === "cancel") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.cancelRouterContract : gasLimits.cancel);

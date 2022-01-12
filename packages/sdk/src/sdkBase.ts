@@ -312,8 +312,7 @@ export class NxtpSdkBase {
   public async calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId: number,
     receivingAssetId: string,
-    callData: string,
-    callTo: string,
+    callDataParams: { callData?: string; callTo?: string; callDataGas?: string },
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(
       this.calculateGasFeeInReceivingTokenForFulfill.name,
@@ -326,8 +325,7 @@ export class NxtpSdkBase {
       receivingChainId,
       receivingAssetId,
       outputDecimals,
-      callData,
-      callTo,
+      callDataParams,
       this.chainData,
     );
   }
@@ -338,11 +336,19 @@ export class NxtpSdkBase {
     sendingAssetId: string;
     receivingChainId: number;
     receivingAssetId: string;
-    callData: string;
-    callTo: string;
+    callDataParams: { callData?: string; callTo?: string; callDataGas?: string };
+    relayerFee?: string; // if relayer fee has already been calculated, can be passed in as an override
   }): Promise<{ receiverAmount: string; totalFee: string; routerFee: string; gasFee: string; relayerFee: string }> {
     const { requestContext, methodContext } = createLoggingContext(this.getEstimateReceiverAmount.name, undefined);
-    const { amount, sendingChainId, receivingChainId, sendingAssetId, receivingAssetId, callData, callTo } = params;
+    const {
+      amount,
+      sendingChainId,
+      receivingChainId,
+      sendingAssetId,
+      receivingAssetId,
+      callDataParams,
+      relayerFee: _relayerFee,
+    } = params;
 
     this.logger.debug("Estimating receiver amount", requestContext, methodContext, {
       amount,
@@ -359,8 +365,8 @@ export class NxtpSdkBase {
 
     // calculate router fee
     const { receivingAmount: swapAmount, routerFee } = await getReceiverAmount(amount, inputDecimals, outputDecimals);
-    // calculate gas fee
 
+    // calculate gas fee
     const gasFee = await this.chainReader.calculateGasFeeInReceivingToken(
       sendingChainId,
       sendingAssetId,
@@ -371,15 +377,17 @@ export class NxtpSdkBase {
       requestContext,
     );
 
-    const relayerFee = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
-      receivingChainId,
-      receivingAssetId,
-      outputDecimals,
-      callData,
-      callTo,
-      this.chainData,
-      requestContext,
-    );
+    let relayerFee = constants.Zero;
+    if (!_relayerFee) {
+      relayerFee = await this.chainReader.calculateGasFeeInReceivingTokenForFulfill(
+        receivingChainId,
+        receivingAssetId,
+        outputDecimals,
+        callDataParams,
+        this.chainData,
+        requestContext,
+      );
+    }
 
     const totalGasFee = gasFee.add(relayerFee);
     const receiverAmount = BigNumber.from(swapAmount).sub(totalGasFee);
@@ -498,6 +506,8 @@ export class NxtpSdkBase {
       initiator,
       auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
       numAuctionResponsesQuorum,
+      relayerFee,
+      callDataGas,
     } = params;
 
     const sendingChainProvider = this.config.chainConfig[sendingChainId]?.providers;
@@ -568,8 +578,8 @@ export class NxtpSdkBase {
       sendingAssetId,
       receivingChainId,
       receivingAssetId,
-      callData,
-      callTo,
+      callDataParams: { callData, callTo, callDataGas },
+      relayerFee,
     });
 
     if (BigNumber.from(receiverAmount).lt(0)) {
