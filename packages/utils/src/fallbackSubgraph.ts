@@ -341,10 +341,7 @@ export class FallbackSubgraph<T> {
 }
 
 // TODO: Remove, replace with API call / hosted data.
-export const getDeployedAnalyticsSubgraphUrls = (
-  chainId: number,
-  chainData?: Map<string, ChainData>,
-): string[] | undefined => {
+export const getDeployedAnalyticsSubgraphUrls = (chainId: number, chainData?: Map<string, ChainData>): string[] => {
   if (chainData) {
     const subgraph = chainData.get(chainId.toString())?.analyticsSubgraph;
     if (subgraph) {
@@ -393,6 +390,6 @@ export const getDeployedAnalyticsSubgraphUrls = (
     case 43114:
       return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche-v1-analytics"];
     default:
-      return undefined;
+      return [];
   }
 };

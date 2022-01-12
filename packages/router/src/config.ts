@@ -375,9 +375,6 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
     if (!chainConfig.analyticsSubgraph) {
       const defaultAnalyticsSubgUrls = getDeployedAnalyticsSubgraphUrls(Number(chainId), crossChainData);
-      if (!defaultAnalyticsSubgUrls) {
-        throw new Error(`No analytics subgraph available for chain ${chainId}`);
-      }
       nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultAnalyticsSubgUrls;
     }
     if (typeof chainConfig.analyticsSubgraph === "string") {
