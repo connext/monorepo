@@ -1919,7 +1919,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-subgraph@workspace:packages/subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.25.0
+    "@graphprotocol/graph-cli": ^0.25.2
     "@graphprotocol/graph-ts": ^0.24.1
     "@types/js-yaml": ^4.0.5
     "@types/mustache": ^4.1.2
@@ -2951,9 +2951,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.25.0":
-  version: 0.25.0
-  resolution: "@graphprotocol/graph-cli@npm:0.25.0"
+"@graphprotocol/graph-cli@npm:^0.25.2":
+  version: 0.25.2
+  resolution: "@graphprotocol/graph-cli@npm:0.25.2"
   dependencies:
     assemblyscript: 0.19.10
     binary-install-raw: 0.0.13
@@ -2964,7 +2964,7 @@ __metadata:
     dockerode: ^2.5.8
     fs-extra: ^9.0.0
     glob: ^7.1.2
-    gluegun: ^4.3.1
+    gluegun: "git+https://github.com/edgeandnode/gluegun.git#v4.3.1-pin-colors-dep"
     graphql: ^15.5.0
     immutable: ^3.8.2
     ipfs-http-client: ^34.0.0
@@ -2980,7 +2980,7 @@ __metadata:
     yaml: ^1.5.1
   bin:
     graph: bin/graph
-  checksum: 1e3f3bc2bdb9984cb324449bd3dab7b6949087b2f6d4ba0d831bd92cb33a09f49323ed1579736163b77d53642a07f8ed8c7d8e18bea447f7bc0cf0f2235efe4b
+  checksum: a073d457892435e29ed97ffa59fdbc367973a36ddac36c965c925ec4e878524a7ae2b8a9ba24cc017236e64797d9781d70baf582ea05de7cd9bd3666cf15692c
   languageName: node
   linkType: hard
 
@@ -6007,13 +6007,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apisauce@npm:^2.0.1":
-  version: 2.1.1
-  resolution: "apisauce@npm:2.1.1"
+"apisauce@npm:^1.0.1":
+  version: 1.1.2
+  resolution: "apisauce@npm:1.1.2"
   dependencies:
-    axios: ^0.21.1
+    axios: ^0.19.0
     ramda: ^0.25.0
-  checksum: ac7e9dd14905b9459659f8e2d237d5fa3f435bbe8da436fe1b46c4f766922e2ccb35fa021b852792ad996f8e829b5c434da79e7c5934829becf1cb5f6b2ccb1e
+  checksum: 24f8e3a4781b9fd63c5c731ede6fbc29e44db32969f1639bcb7a3067dd4b9cad2bf6f478a8077e269721d5d9e153d0cbf903fdb5f897f57a4f6cca83ff415bc6
   languageName: node
   linkType: hard
 
@@ -6495,6 +6495,15 @@ __metadata:
   version: 4.3.3
   resolution: "axe-core@npm:4.3.3"
   checksum: 1e5a87a86502e0525821d4217d52ff4d8aa44bb720a2e31d8dcc777cc47928072ed36fc6685eb0f508356ad52a87163e5986152ea6567b302c79e69bf6e45bf4
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.19.0":
+  version: 0.19.2
+  resolution: "axios@npm:0.19.2"
+  dependencies:
+    follow-redirects: 1.5.10
+  checksum: bad346deea24050f9953ce09bb8015f85a99a7b8f016806adccfab0b8981827d1fbee9c77c0ef7c70cc48392c1af6bbc65e07c3e88221d17282d2d5fd0a191f6
   languageName: node
   linkType: hard
 
@@ -8915,7 +8924,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colors@npm:^1.1.2, colors@npm:^1.3.3":
+"colors@npm:1.3.3":
+  version: 1.3.3
+  resolution: "colors@npm:1.3.3"
+  checksum: b24612249344b2179a1c242ac430ca760802ef9d0b127fdfc6db5a12beafd76882285031537856dfe3bd7c8d755eb1b4c31fffd3da40d150091919b876602fd6
+  languageName: node
+  linkType: hard
+
+"colors@npm:^1.1.2":
   version: 1.4.0
   resolution: "colors@npm:1.4.0"
   checksum: a0f266ac041a9774d92cc9624a984707678d2eeec125d54e8d8231075ce36c24c5352fb5d0f90c6ee420d0f63e354417cec716386ad341309334aad18e32b933
@@ -9932,6 +9948,15 @@ __metadata:
     supports-color:
       optional: true
   checksum: 0d41ba5177510e8b388dfd7df143ab0f9312e4abdaba312595461511dac88e9ef8101939d33b4e6d37e10341af6a5301082e4d7d6f3deb4d57bc05fc7d296fad
+  languageName: node
+  linkType: hard
+
+"debug@npm:=3.1.0":
+  version: 3.1.0
+  resolution: "debug@npm:3.1.0"
+  dependencies:
+    ms: 2.0.0
+  checksum: 1295acd5e0531761255661d325cd0a80ac8c5f6de8942a53bb23c2197ccb97526972de662ed0e5d9393be83f3428a298a6e7185ecb02f0da6282019cd2ffb4a8
   languageName: node
   linkType: hard
 
@@ -12903,6 +12928,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:1.5.10":
+  version: 1.5.10
+  resolution: "follow-redirects@npm:1.5.10"
+  dependencies:
+    debug: =3.1.0
+  checksum: 6e58e02c31337b6b41ffc3d5f3d49920b7db428eddcf374537da00ef121fe473983e12d8557f4304287604168d3efcc288d1f009abaf4c9d61e5db0c0cee3c4a
+  languageName: node
+  linkType: hard
+
 "follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.10.0, follow-redirects@npm:^1.12.1":
   version: 1.14.2
   resolution: "follow-redirects@npm:1.14.2"
@@ -13640,14 +13674,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"gluegun@npm:^4.3.1":
-  version: 4.6.1
-  resolution: "gluegun@npm:4.6.1"
+"gluegun@git+https://github.com/edgeandnode/gluegun.git#v4.3.1-pin-colors-dep":
+  version: 4.3.1
+  resolution: "gluegun@https://github.com/edgeandnode/gluegun.git#commit=b34b9003d7bf556836da41b57ef36eb21570620a"
   dependencies:
-    apisauce: ^2.0.1
+    apisauce: ^1.0.1
     app-module-path: ^2.2.0
     cli-table3: ~0.5.0
-    colors: ^1.3.3
+    colors: 1.3.3
     cosmiconfig: 6.0.0
     cross-spawn: ^7.0.0
     ejs: ^2.6.1
@@ -13677,7 +13711,7 @@ fsevents@~2.1.1:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: aa2e5b09471786ebf466d799fbf1d6e3fd09341605cf0e8f5773ea9ee6758359ed52a1d0b069bbadabeea0f2789fe24127293708b949f259e7894fd4821cbb0c
+  checksum: d727a79afc083ce47983754ff2a128209046eb47873e3ea5ba1b7e73a9be6ea93837c916999d1810cbb31c0a1708a50eb450450a5bf393795bfb1a72510a0ac1
   languageName: node
   linkType: hard
 

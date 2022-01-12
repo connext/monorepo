@@ -423,8 +423,7 @@ export class NxtpSdk {
     }
 
     let calculateRelayerFee = "0";
-    const chainIdsForPriceOracle = getDeployedChainIdsForGasFee();
-    if (useRelayers && chainIdsForPriceOracle.includes(txData.receivingChainId)) {
+    if (useRelayers) {
       let relayerFee = params.relayerFee ? BigNumber.from(params.relayerFee) : undefined;
       if (!relayerFee) {
         relayerFee = await this.sdkBase.calculateGasFeeInReceivingTokenForFulfill(
