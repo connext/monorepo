@@ -216,6 +216,9 @@ export const liquiditySupplied = new Gauge({
   labelNames: ["assetId", "chainId", "assetName"],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
+    if (!liquidity) {
+      return;
+    }
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, supplied }) => {
         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, supplied);
@@ -232,6 +235,9 @@ export const liquidityLocked = new Gauge({
   labelNames: ["assetId", "chainId", "assetName"],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
+    if (!liquidity) {
+      return;
+    }
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, locked }) => {
         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, locked);
@@ -248,6 +254,9 @@ export const liquidityRemoved = new Gauge({
   labelNames: ["assetId", "chainId", "assetName"],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
+    if (!liquidity) {
+      return;
+    }
     Object.entries(liquidity).map(([chainId, values]) => {
       values.map(({ assetId, removed }) => {
         this.set({ chainId, assetId, assetName: getAssetName(assetId, parseInt(chainId)) }, removed);

@@ -88,7 +88,9 @@ const collectExpressiveLiquidityCache: { retrieved: number; value?: Record<numbe
     retrieved: 0,
     value: undefined,
   };
-export const collectExpressiveLiquidity = async (): Promise<Record<number, ExpressiveAssetBalance<number>[]>> => {
+export const collectExpressiveLiquidity = async (): Promise<
+  Record<number, ExpressiveAssetBalance<number>[]> | undefined
+> => {
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
@@ -112,7 +114,7 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
         try {
           assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
         } catch (e: any) {
-          logger.warn("Failed to get expressive liquidity", requestContext, methodContext, {
+          logger.warn("Failed to get expressive liquidity from subgraph", requestContext, methodContext, {
             chainId,
             error: jsonifyError(e),
           });
@@ -127,14 +129,22 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
         converted[chainId] = [];
         await Promise.all(
           assetValues.map(async (value) => {
-            const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
-            const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
-            const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
-            const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
-            // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
-            // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
-            // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
-            converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
+            try {
+              const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
+              const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
+              const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
+              const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
+              // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
+              // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
+              // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
+              converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
+            } catch (e: any) {
+              logger.warn("Failed to convert expressive liquidity to USD", requestContext, methodContext, {
+                error: jsonifyError(e),
+                value,
+                chainId,
+              });
+            }
           }),
         );
       }),
@@ -146,7 +156,7 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
     return converted;
   } catch (e: any) {
     logger.error("Failed to collect expressive liquidity", requestContext, methodContext, jsonifyError(e));
-    throw e;
+    return undefined;
   }
 };
 
