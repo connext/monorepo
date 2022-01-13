@@ -341,17 +341,25 @@ export class FallbackSubgraph<T> {
           }),
         );
       } else {
-        throw new NxtpError(
-          `Health endpoint and chain reader unavailable for chain ${this.chainId}; unable to handle request to sync.`,
-          {
-            chainId: this.chainId,
-            hasSynced: this.hasSynced,
-            inSync: this.inSync,
-            healthEndpointSupported,
-            getBlockNumberSupported,
-            subgraphs: Array.from(this.subgraphs.values()),
-          },
-        );
+        // No syncing routes are available, so update all records to show this.
+        Array.from(this.subgraphs.values()).forEach((subgraph) => {
+          const error = new NxtpError(
+            `Health endpoint and chain reader unavailable for chain ${this.chainId}; unable to handle request to sync.`,
+            {
+              chainId: this.chainId,
+              hasSynced: this.hasSynced,
+              inSync: this.inSync,
+              healthEndpointSupported,
+              getBlockNumberSupported,
+              subgraphs: Array.from(this.subgraphs.values()),
+            },
+          );
+          subgraph.record = {
+            ...subgraph.record,
+            error,
+          };
+          this.subgraphs.set(subgraph.url, subgraph);
+        });
       }
 
       // Set the latest sync to now.
