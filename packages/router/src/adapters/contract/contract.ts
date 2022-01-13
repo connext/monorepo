@@ -284,7 +284,10 @@ export const prepareRouterContract = async (
     // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
     // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
     // if the transaction would fail on chain.
-    await txService.getGasEstimate(chainId, onchainTx);
+    await txService.getGasEstimate(chainId, {
+      ...onchainTx,
+      from: undefined,
+    });
   }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
@@ -379,10 +382,7 @@ export const prepareRouterContract = async (
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
   logger.info("Router contract prepare: sending using txservice", requestContext, methodContext, { prepareParams });
 
-  const receipt = await txService.sendTx(
-    onchainTx,
-    requestContext,
-  );
+  const receipt = await txService.sendTx(onchainTx, requestContext);
 
   // increment fees sent (no need to await)
   incrementGasConsumed(chainId, receipt, TransactionReasons.PrepareReceiver, requestContext);
@@ -496,7 +496,10 @@ export const fulfillRouterContract = async (
     // if the transaction would fail on chain.
     // TODO: Would be nice to recycle the gasLimit we get back from this call in the event that we end up
     // using txservice.
-    await txService.getGasEstimate(chainId, onchainTx);
+    await txService.getGasEstimate(chainId, {
+      ...onchainTx,
+      from: undefined,
+    });
   }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
@@ -591,10 +594,7 @@ export const fulfillRouterContract = async (
 
   // 3. If all of the above failed or was otherwise not supported, use txservice to send the transaction.
   logger.info("Router contract fulfill: sending using txservice", requestContext, methodContext, { fulfillParams });
-  const receipt = await txService.sendTx(
-    onchainTx,
-    requestContext,
-  );
+  const receipt = await txService.sendTx(onchainTx, requestContext);
 
   incrementGasConsumed(chainId, receipt, TransactionReasons.FulfillSender, requestContext);
 
@@ -687,7 +687,10 @@ export const cancelRouterContract = async (
     // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
     // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
     // if the transaction would fail on chain.
-    await txService.getGasEstimate(chainId, onchainTx);
+    await txService.getGasEstimate(chainId, {
+      ...onchainTx,
+      from: undefined,
+    });
   }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.
@@ -784,10 +787,7 @@ export const cancelRouterContract = async (
   }
 
   logger.info("Router contract cancel: sending using txservice", requestContext, methodContext, { cancelParams });
-  const receipt = await txService.sendTx(
-    onchainTx,
-    requestContext,
-  );
+  const receipt = await txService.sendTx(onchainTx, requestContext);
 
   incrementGasConsumed(
     chainId,
@@ -884,7 +884,10 @@ export const removeLiquidityRouterContract = async (
     // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
     // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
     // if the transaction would fail on chain.
-    await txService.getGasEstimate(chainId, onchainTx);
+    await txService.getGasEstimate(chainId, {
+      ...onchainTx,
+      from: undefined,
+    });
   }
 
   // 1. Prepare tx using relayer if chain is supported by gelato.

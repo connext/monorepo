@@ -609,10 +609,7 @@ export class RpcProviderAggregator {
    */
   public async getGasEstimate(tx: ReadTransaction | WriteTransaction): Promise<BigNumber> {
     return this.execute<BigNumber>(false, async (provider: SyncProvider) => {
-      return await provider.estimateGas({
-        ...tx,
-        gasPrice: "0",
-      });
+      return await provider.estimateGas(tx);
     });
   }
 
