@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] fix params for gas estimation before relayer use
+
 ## 0.1.14
 
 - [contracts] Added Moonbeam deployements
