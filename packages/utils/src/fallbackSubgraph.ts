@@ -266,7 +266,7 @@ export class FallbackSubgraph<T> {
       const healthEndpointSupported =
         response &&
         response.data &&
-        response.data.length === 0 &&
+        !(response.data.length === 0) &&
         !(typeof response.data === "string" && response.data.includes("No subgraph for"));
 
       if (healthEndpointSupported) {
