@@ -244,7 +244,13 @@ export class NxtpSdkBase {
       signerAddress,
       this.logger.child({ module: "TransactionManager" }, "debug"),
     );
-    this.subgraph = new Subgraph(signerAddress, subgraphConfig, this.logger.child({ module: "Subgraph" }), skipPolling);
+    this.subgraph = new Subgraph(
+      signerAddress,
+      subgraphConfig,
+      this.chainReader,
+      this.logger.child({ module: "Subgraph" }),
+      skipPolling,
+    );
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
