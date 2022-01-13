@@ -274,8 +274,8 @@ export class FallbackSubgraph<T> {
       // Check to make sure that the subgraphs do indeed have a GetBlockNumber method, if we need to
       // fall back to that.
       const getBlockNumberSupported =
-        getBlockNumber &&
-        Array.from(this.subgraphs.values()).every((subgraph) => (subgraph.client as any).GetBlockNumber);
+        !!getBlockNumber &&
+        Array.from(this.subgraphs.values()).every((subgraph) => !!(subgraph.client as any).GetBlockNumber);
 
       if (healthEndpointSupported) {
         // Parse the response, handle each subgraph in the response.
