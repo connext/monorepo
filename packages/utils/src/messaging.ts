@@ -411,7 +411,7 @@ export type MetaTxPayloads = {
   [MetaTxTypes.RouterContractRemoveLiquidity]: MetaTxRouterContractRemoveLiquidityPayload;
 };
 
-export type MetaTxFulfillPayload = FulfillParams;
+export type MetaTxFulfillPayload = FulfillParams & { callDataGas?: string };
 export type MetaTxRouterContractPreparePayload = {
   params: PrepareParams;
   relayerFee: string;

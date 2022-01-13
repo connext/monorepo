@@ -3,6 +3,11 @@
 ## Next Release
 
 - [utils] Implement health endpoint call in FallbackSubgraph
+- [router] fix params for gas estimation before relayer use
+
+## 0.1.14
+
+- [contracts] Added Moonbeam deployements
 - [router] Update gas consumed, relayer fees tracking
 
 ## 0.1.12

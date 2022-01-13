@@ -94,6 +94,7 @@ describe("NxtpSdkBase", () => {
     chainReader.getTokenPrice.resolves(BigNumber.from(10).pow(21));
     chainReader.isSupportedChain.resolves(true);
     chainReader.getCode.resolves("0x");
+    chainReader.calculateGasFeeInReceivingToken.resolves(BigNumber.from(12345));
 
     stub(sdkIndex, "setupChainReader").returns(chainReader as any);
 
@@ -1280,7 +1281,7 @@ describe("NxtpSdkBase", () => {
 
     it("should error for non-configured chain", async () => {
       await expect(sdk.getGasPrice(11111, requestContextMock)).eventually.be.rejectedWith(
-        ChainNotConfigured.getMessage(11111, supportedChains),
+        ChainNotConfigured.getMessage(),
       );
     });
   });
@@ -1357,6 +1358,36 @@ describe("NxtpSdkBase", () => {
   describe("#assertChainIsConfigured", () => {
     it("throw if invalid chain Id", async () => {
       expect(() => sdk.assertChainIsConfigured(1111)).to.throw(ChainNotConfigured.getMessage());
+    });
+  });
+
+  describe("#getEstimateReceiverAmount", () => {
+    it("should skip relayer fee calc if passed in", async () => {
+      await sdk.getEstimateReceiverAmount({
+        amount: "100",
+        sendingAssetId: mkAddress("0x1"),
+        sendingChainId: 1337,
+        receivingChainId: 1338,
+        receivingAssetId: mkAddress("0x2"),
+        relayerFee: "1",
+        callDataParams: {},
+      });
+      expect(chainReader.calculateGasFeeInReceivingTokenForFulfill).to.callCount(0);
+    });
+
+    it.skip("should do relayer fee calc if not", async () => {
+      await sdk.getEstimateReceiverAmount({
+        amount: "100",
+        sendingAssetId: mkAddress("0x1"),
+        sendingChainId,
+        receivingChainId,
+        receivingAssetId: mkAddress("0x2"),
+        callDataParams: {},
+      });
+      expect(chainReader.calculateGasFeeInReceivingTokenForFulfill).to.be.calledOnceWith({
+        receivingChainId,
+        receivingAssetId: mkAddress("0x2"),
+      });
     });
   });
 

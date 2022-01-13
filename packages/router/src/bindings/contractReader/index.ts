@@ -374,23 +374,24 @@ export const handleSingle = async (
     const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
     if (!chainConfig) {
       // this should not happen, this should get checked before this point
-      throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.sendingChainId, {});
+      throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.receivingChainId, {});
     }
-    if (!_transaction.payload.hashes?.receiving) {
+    if (!_transaction.payload.hashes?.receiving || !_transaction.payload.hashes?.receiving.fulfillHash) {
       logger.warn("No receiving hashes with ReceiverFulfilled status", requestContext, methodContext, {
         hashes: _transaction.payload.hashes,
       });
       return;
     }
-    const receiverPrepareReceipt = await txService.getTransactionReceipt(
+
+    const receiverFulfillReceipt = await txService.getTransactionReceipt(
       _transaction.crosschainTx.invariant.receivingChainId,
-      _transaction.payload.hashes.receiving.prepareHash,
+      _transaction.payload.hashes.receiving.fulfillHash,
     );
-    if ((receiverPrepareReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
+    if ((receiverFulfillReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
       logger.info("Waiting for safe confirmations", requestContext, methodContext, {
         chainId: _transaction.crosschainTx.invariant.receivingChainId,
-        txHash: _transaction.payload.hashes.receiving.prepareHash,
-        txConfirmations: receiverPrepareReceipt?.confirmations ?? 0,
+        txHash: _transaction.payload.hashes.receiving.fulfillHash,
+        txConfirmations: receiverFulfillReceipt?.confirmations ?? 0,
         configuredConfirmations: chainConfig.confirmations,
       });
       return;
