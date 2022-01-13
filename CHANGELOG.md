@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Use mainnet equivalent for `convertToUsd`
+
 ## 0.1.14
 
 - [contracts] Added Moonbeam deployements
