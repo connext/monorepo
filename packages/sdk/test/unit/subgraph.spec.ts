@@ -221,7 +221,7 @@ describe("Subgraph", () => {
     getSdkStub = stub(graphqlsdk, "getSdk");
     getSdkStub.returns(sdkStub);
 
-    subgraph = new Subgraph(signer.getAddress(), chainConfig as any, logger);
+    subgraph = new Subgraph(signer.getAddress(), chainConfig as any, chainReader as any, logger);
 
     fallbackSubgraph = createStubInstance(FallbackSubgraph);
     fallbackSubgraph.request.callsFake((method) => method(sdkStub, ""));
