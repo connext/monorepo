@@ -271,6 +271,11 @@ export class FallbackSubgraph<T> {
         response.data &&
         !(response.data.length === 0) &&
         !(typeof response.data === "string" && response.data.includes("No subgraph for"));
+      // Check to make sure that the subgraphs do indeed have a GetBlockNumber method, if we need to
+      // fall back to that.
+      const getBlockNumberSupported =
+        getBlockNumber &&
+        Array.from(this.subgraphs.values()).every((subgraph) => (subgraph.client as any).GetBlockNumber);
 
       if (healthEndpointSupported) {
         // Parse the response, handle each subgraph in the response.
@@ -293,11 +298,7 @@ export class FallbackSubgraph<T> {
           };
           this.subgraphs.set(info.url, subgraph);
         });
-      } else if (
-        getBlockNumber &&
-        // Check to make sure that the subgraphs do indeed have a GetBlockNumber method.
-        Array.from(this.subgraphs.values()).every((subgraph) => (subgraph.client as any).GetBlockNumber)
-      ) {
+      } else if (getBlockNumberSupported) {
         const withRetries = async (method: () => Promise<any | undefined>) => {
           for (let i = 0; i < 5; i++) {
             try {
@@ -309,7 +310,7 @@ export class FallbackSubgraph<T> {
             }
           }
         };
-        const _latestBlock = getBlockNumber();
+        const _latestBlock = getBlockNumber!();
         await Promise.all(
           Array.from(this.subgraphs.values()).map(async (subgraph) => {
             try {
@@ -346,6 +347,9 @@ export class FallbackSubgraph<T> {
             chainId: this.chainId,
             hasSynced: this.hasSynced,
             inSync: this.inSync,
+            healthEndpointSupported,
+            getBlockNumberSupported,
+            subgraphs: Array.from(this.subgraphs.values()),
           },
         );
       }
