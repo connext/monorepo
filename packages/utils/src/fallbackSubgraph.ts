@@ -258,7 +258,10 @@ export class FallbackSubgraph<T> {
 
       // Target this chain's endpoint.
       const url = endpoint.concat(`?chainId=${this.chainId}`);
-      const response: AxiosResponse<string> = await axios.get(url);
+      let response: AxiosResponse<string> | undefined = undefined;
+      try {
+        response = await axios.get(url);
+      } catch (e) {}
 
       // Check to make sure the health endpoint does support this chain. If it isn't supported, we
       // need to resort to getting the subgraph's synced block number directly and comparing it to
@@ -271,7 +274,7 @@ export class FallbackSubgraph<T> {
 
       if (healthEndpointSupported) {
         // Parse the response, handle each subgraph in the response.
-        const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
+        const subgraphs = JSON.parse(response!.data) as SubgraphHealth[];
         subgraphs.forEach((info: any) => {
           // If we don't have this subgraph mapped, create a new one to work with.
           const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
