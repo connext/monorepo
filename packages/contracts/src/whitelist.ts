@@ -19,7 +19,7 @@ const networks: string[] = [
   "avalanche",
 ];
 
-const routers: string[] = ["0xe439CA609B964Ab9422672Bf83B8e171E90aDaD1"];
+const routers: string[] = [];
 
 const run = async () => {
   if (routers.length === 0) {
