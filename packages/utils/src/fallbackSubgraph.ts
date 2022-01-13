@@ -237,9 +237,10 @@ export class FallbackSubgraph<T> {
   /**
    * Check synchronized status of all subgraphs, and update metrics.
    *
+   * @param getBlockNumber - callback method to get the chain's current block number.
    * @returns Subgraph sync records for each subgraph.
    */
-  public async sync(): Promise<SubgraphSyncRecord[]> {
+  public async sync(getBlockNumber?: () => Promise<number>): Promise<SubgraphSyncRecord[]> {
     // Check to make sure this subgraph domain has an endpoint.
     const endpoint = DOMAIN_ADDRESS[this.domain];
     if (!endpoint) {
@@ -259,32 +260,92 @@ export class FallbackSubgraph<T> {
       const url = endpoint.concat(`?chainId=${this.chainId}`);
       const response: AxiosResponse<string> = await axios.get(url);
 
-      if (!response || !response.data || response.data.length === 0) {
-        throw new NxtpError("Received bad response; make sure your key file is configured correctly.", {
-          response,
-        });
-      }
+      // Check to make sure the health endpoint does support this chain. If it isn't supported, we
+      // need to resort to getting the subgraph's synced block number directly and comparing it to
+      // the chain's block number instead.
+      const healthEndpointSupported =
+        response &&
+        response.data &&
+        response.data.length === 0 &&
+        !(typeof response.data === "string" && response.data.includes("No subgraph for"));
 
-      // Parse the response, handle each subgraph in the response.
-      const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
-      subgraphs.forEach((info: any) => {
-        // If we don't have this subgraph mapped, create a new one to work with.
-        const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
-        const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
-        const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
-        // Update the record accordingly.
-        subgraph.record = {
-          ...subgraph.record,
-          synced,
-          latestBlock: info.latestBlock,
-          syncedBlock: info.syncedBlock ?? subgraph.record.syncedBlock,
-          // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
-          // block vs synced block.
-          lag: Math.max(0, lag ?? this.maxLag),
-          error: info.fatalError,
-        };
-        this.subgraphs.set(info.url, subgraph);
-      });
+      if (healthEndpointSupported) {
+        // Parse the response, handle each subgraph in the response.
+        const subgraphs = JSON.parse(response.data) as SubgraphHealth[];
+        subgraphs.forEach((info: any) => {
+          // If we don't have this subgraph mapped, create a new one to work with.
+          const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
+          const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
+          const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
+          // Update the record accordingly.
+          subgraph.record = {
+            ...subgraph.record,
+            synced,
+            latestBlock: info.latestBlock,
+            syncedBlock: info.syncedBlock ?? subgraph.record.syncedBlock,
+            // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
+            // block vs synced block.
+            lag: Math.max(0, lag ?? this.maxLag),
+            error: info.fatalError,
+          };
+          this.subgraphs.set(info.url, subgraph);
+        });
+      } else if (
+        getBlockNumber &&
+        // Check to make sure that the subgraphs do indeed have a GetBlockNumber method.
+        Array.from(this.subgraphs.values()).every((subgraph) => (subgraph.client as any).GetBlockNumber)
+      ) {
+        const _latestBlock = getBlockNumber();
+        await Promise.all(
+          Array.from(this.subgraphs.values()).map(async (subgraph) => {
+            const latestBlock = await _latestBlock;
+            const withRetries = async (method: () => Promise<any | undefined>) => {
+              for (let i = 0; i < 5; i++) {
+                try {
+                  return await method();
+                } catch (e: any) {
+                  if (e.errno !== "ENOTFOUND") {
+                    throw e;
+                  }
+                }
+              }
+            };
+            try {
+              const { _meta } = await withRetries(async () => await (subgraph.client as any).GetBlockNumber());
+              const syncedBlock: number = _meta && _meta.block && _meta.block.number ? _meta.block.number : 0;
+              const lag = latestBlock && syncedBlock ? latestBlock - syncedBlock : undefined;
+              const synced: boolean = lag ? lag <= this.maxLag : false;
+              // Update the record accordingly.
+              subgraph.record = {
+                ...subgraph.record,
+                synced,
+                latestBlock: latestBlock,
+                syncedBlock: syncedBlock ?? subgraph.record.syncedBlock,
+                // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
+                // block vs synced block.
+                lag: Math.max(0, lag ?? this.maxLag),
+              };
+              this.subgraphs.set(url, subgraph);
+            } catch (e) {
+              // Update only the error field in the record.
+              subgraph.record = {
+                ...subgraph.record,
+                error: e,
+              };
+              this.subgraphs.set(url, subgraph);
+            }
+          }),
+        );
+      } else {
+        throw new NxtpError(
+          `Health endpoint and chain reader unavailable for chain ${this.chainId}; unable to handle request to sync.`,
+          {
+            chainId: this.chainId,
+            hasSynced: this.hasSynced,
+            inSync: this.inSync,
+          },
+        );
+      }
 
       // Set the latest sync to now.
       this.latestSync = Date.now();

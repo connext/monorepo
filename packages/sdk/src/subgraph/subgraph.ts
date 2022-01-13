@@ -1,3 +1,6 @@
+import { GraphQLClient } from "graphql-request";
+import { Evt } from "evt";
+import { ChainReader } from "@connext/nxtp-txservice";
 import {
   createLoggingContext,
   FallbackSubgraph,
@@ -8,8 +11,6 @@ import {
   TransactionData,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
-import { GraphQLClient } from "graphql-request";
-import { Evt } from "evt";
 
 import { InvalidTxStatus, PollingNotActive } from "../error";
 import {
@@ -114,6 +115,7 @@ export class Subgraph {
   constructor(
     private readonly userAddress: Promise<string>,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
+    private readonly chainReader: ChainReader,
     private readonly logger: Logger,
     skipPolling = false,
     private readonly pollInterval = 10_000,
@@ -706,7 +708,7 @@ export class Subgraph {
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
         const subgraph = this.sdks[chainId];
-        const records = await subgraph.sync();
+        const records = await subgraph.sync(() => this.chainReader.getBlockNumber(chainId));
         const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
         this.syncStatus[chainId] = {
           latestBlock: records[0]?.latestBlock,

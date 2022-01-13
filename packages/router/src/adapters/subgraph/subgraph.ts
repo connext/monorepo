@@ -47,7 +47,7 @@ export const getSyncRecords = async (
 
 const setSyncRecord = async (chainId: number, requestContext: RequestContext): Promise<SubgraphSyncRecord[]> => {
   // get global context
-  const { logger, config } = getContext();
+  const { logger, txService, config } = getContext();
 
   const { methodContext } = createLoggingContext(setSyncRecord.name, requestContext);
   let records: SubgraphSyncRecord[] = [];
@@ -60,7 +60,7 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
       throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
     }
 
-    records = await sdk.sync();
+    records = await sdk.sync(() => txService.getBlockNumber(chainId));
     logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
       chainId,
       latestBlock: records[0]?.latestBlock,
