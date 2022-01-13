@@ -119,7 +119,12 @@ export const collectExpressiveLiquidity = async (): Promise<
     await Promise.all(
       chainIds.map(async (chainId) => {
         try {
-          assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
+          const expressive = await contractReader.getExpressiveAssetBalances(chainId);
+          logger.debug("Got expressive balances from subgraph", requestContext, methodContext, {
+            chainId,
+            expressive,
+          });
+          assetBalances[chainId] = expressive;
         } catch (e: any) {
           logger.warn("Failed to get expressive liquidity from subgraph", requestContext, methodContext, {
             chainId,
@@ -144,7 +149,12 @@ export const collectExpressiveLiquidity = async (): Promise<
               // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
               // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
               // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
-              converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
+              const val = { assetId: value.assetId, amount, supplied, locked, removed };
+              logger.debug("Converted expressive balances to usd", requestContext, methodContext, {
+                converted: val,
+                chainId,
+              });
+              converted[chainId].push(val);
             } catch (e: any) {
               logger.warn("Failed to convert expressive liquidity to USD", requestContext, methodContext, {
                 error: jsonifyError(e),
