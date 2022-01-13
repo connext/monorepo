@@ -1,4 +1,12 @@
-import { expect, mkAddress, getChainData, ChainData, txReceiptMock } from "@connext/nxtp-utils";
+import {
+  expect,
+  mkAddress,
+  getChainData,
+  ChainData,
+  txReceiptMock,
+  createRequestContext,
+  mkBytes32,
+} from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
@@ -7,7 +15,37 @@ import { contractReaderMock, ctxMock, txServiceMock } from "../../globalTestHook
 import { chainDataMock, configMock } from "../../utils";
 import { parseEther } from "@ethersproject/units";
 import * as ConfigFns from "../../../src/config";
+import * as SharedFns from "../../../src/lib/helpers/shared";
 
+const requestContext = createRequestContext("TEST", mkBytes32());
+
+describe("convertToUsd", () => {
+  let priceOracleStub: SinonStub;
+  beforeEach(() => {
+    priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
+    priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+  });
+
+  it("should return zero if no price oracle deployed", async () => {
+    const amount = 100;
+    expect(
+      await metrics.convertToUsd(mkAddress("0xaaaaa"), 1337, BigNumber.from(amount).toString(), requestContext),
+    ).to.be.eq(0);
+  });
+
+  it("should return zero if token isn't configured on price oracle", async () => {
+    txServiceMock.getTokenPrice.resolves(BigNumber.from(0));
+    const amount = parseEther("100");
+    expect(await metrics.convertToUsd(mkAddress("0xaaaaa"), 1, amount.toString(), requestContext)).to.be.eq(0);
+  });
+
+  it("should return price", async () => {
+    const amount = parseEther("100");
+    const price = 1;
+    txServiceMock.getTokenPrice.resolves(parseEther(price.toString()));
+    expect(await metrics.convertToUsd(mkAddress("0xaaaaa"), 1, amount.toString(), requestContext)).to.be.eq(100);
+  });
+});
 describe("getAssetName", () => {
   it("should work", () => {
     const { assetId, chainId } = configMock.swapPools[0].assets[0];
@@ -49,6 +87,7 @@ describe("collectOnchainLiquidity", () => {
   beforeEach(() => {
     priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+    stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");
   });
   it("should work with varying decimals", async () => {
     ctxMock.chainData = await getChainData();
@@ -107,6 +146,7 @@ describe("collectExpressiveLiquidity", () => {
   beforeEach(() => {
     priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+    stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");
   });
   it("should work with varying decimals", async () => {
     // constants
