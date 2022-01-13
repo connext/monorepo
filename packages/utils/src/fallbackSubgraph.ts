@@ -257,10 +257,10 @@ export class FallbackSubgraph<T> {
       }
 
       // Target this chain's endpoint.
-      const url = endpoint.concat(`?chainId=${this.chainId}`);
+      const endpointUrl = endpoint.concat(`?chainId=${this.chainId}`);
       let response: AxiosResponse<string> | undefined = undefined;
       try {
-        response = await axios.get(url);
+        response = await axios.get(endpointUrl);
       } catch (e) {}
 
       // Check to make sure the health endpoint does support this chain. If it isn't supported, we
@@ -298,24 +298,24 @@ export class FallbackSubgraph<T> {
         // Check to make sure that the subgraphs do indeed have a GetBlockNumber method.
         Array.from(this.subgraphs.values()).every((subgraph) => (subgraph.client as any).GetBlockNumber)
       ) {
+        const withRetries = async (method: () => Promise<any | undefined>) => {
+          for (let i = 0; i < 5; i++) {
+            try {
+              return await method();
+            } catch (e: any) {
+              if (e.errno !== "ENOTFOUND") {
+                throw e;
+              }
+            }
+          }
+        };
         const _latestBlock = getBlockNumber();
         await Promise.all(
           Array.from(this.subgraphs.values()).map(async (subgraph) => {
-            const latestBlock = await _latestBlock;
-            const withRetries = async (method: () => Promise<any | undefined>) => {
-              for (let i = 0; i < 5; i++) {
-                try {
-                  return await method();
-                } catch (e: any) {
-                  if (e.errno !== "ENOTFOUND") {
-                    throw e;
-                  }
-                }
-              }
-            };
             try {
               const { _meta } = await withRetries(async () => await (subgraph.client as any).GetBlockNumber());
               const syncedBlock: number = _meta && _meta.block && _meta.block.number ? _meta.block.number : 0;
+              const latestBlock = await _latestBlock;
               const lag = latestBlock && syncedBlock ? latestBlock - syncedBlock : undefined;
               const synced: boolean = lag ? lag <= this.maxLag : false;
               // Update the record accordingly.
@@ -328,14 +328,14 @@ export class FallbackSubgraph<T> {
                 // block vs synced block.
                 lag: Math.max(0, lag ?? this.maxLag),
               };
-              this.subgraphs.set(url, subgraph);
+              this.subgraphs.set(subgraph.url, subgraph);
             } catch (e) {
               // Update only the error field in the record.
               subgraph.record = {
                 ...subgraph.record,
                 error: e,
               };
-              this.subgraphs.set(url, subgraph);
+              this.subgraphs.set(subgraph.url, subgraph);
             }
           }),
         );
