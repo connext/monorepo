@@ -494,8 +494,6 @@ export const fulfillRouterContract = async (
     // If we are will be using relayers below, check to make sure the transaction is valid first (before relaying it)
     // by running an estimateGas check. This method will throw a TransactionReverted error (with the contract error code)
     // if the transaction would fail on chain.
-    // TODO: Would be nice to recycle the gasLimit we get back from this call in the event that we end up
-    // using txservice.
     await txService.getGasEstimate(chainId, {
       ...onchainTx,
       from: undefined,
