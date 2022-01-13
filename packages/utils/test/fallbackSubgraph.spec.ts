@@ -26,13 +26,16 @@ describe("FallbackSubgraph", () => {
   });
 
   describe("request-wrapped methods", () => {
-    const mockRequestMethod: SinonStub = stub(fallbackSubgraph, "request").callsFake(
-      async (method: (client: any, url: string) => Promise<any>, _: boolean) => {
-        return await method({ mockSubgraphSdkMethod }, "");
-      },
-    );
+    let mockRequestMethod: SinonStub;
     beforeEach(() => {
-      mockRequestMethod.resetHistory();
+      try {
+        (fallbackSubgraph.request as SinonStub).restore();
+      } catch (_) {}
+      mockRequestMethod = stub(fallbackSubgraph, "request").callsFake(
+        async (method: (client: any, url: string) => Promise<any>, _: boolean) => {
+          return await method({ mockSubgraphSdkMethod }, "");
+        },
+      );
     });
 
     describe("#query", () => {
