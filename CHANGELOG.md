@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [utils] Implement health endpoint call in FallbackSubgraph
 - [router] Update gas consumed, relayer fees tracking
 
 ## 0.1.12
