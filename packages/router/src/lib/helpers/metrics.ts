@@ -1,5 +1,7 @@
+import { CHAINS_WITH_PRICE_ORACLES as _CHAINS_WITH_PRICE_ORACLES } from "@connext/nxtp-txservice";
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils, providers } from "ethers";
+import { getMainnetEquivalent } from ".";
 
 import { getContext } from "../../router";
 import {
@@ -10,6 +12,8 @@ import {
   totalTransferredVolume,
   TransactionReason,
 } from "../entities";
+
+export const CHAINS_WITH_PRICE_ORACLES = _CHAINS_WITH_PRICE_ORACLES;
 
 export const getDecimals = async (assetId: string, chainId: number): Promise<number> => {
   const { chainData, txService } = getContext();
@@ -31,9 +35,13 @@ export const convertToUsd = async (
   amount: string,
   requestContext: RequestContext,
 ): Promise<number> => {
-  const { txService, logger } = getContext();
-
-  const price = await txService.getTokenPrice(chainId, assetId, undefined, requestContext);
+  const { txService, logger, chainData } = getContext();
+  const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
+  const chainIdForTokenPrice = assetIdOnMainnet ? 1 : chainId;
+  const assetIdForTokenPrice = assetIdOnMainnet ? assetIdOnMainnet : assetId;
+  console.log(CHAINS_WITH_PRICE_ORACLES);
+  if (!CHAINS_WITH_PRICE_ORACLES.includes(chainIdForTokenPrice)) return 0;
+  const price = await txService.getTokenPrice(chainIdForTokenPrice, assetIdForTokenPrice, undefined, requestContext);
   if (price.isZero()) {
     // Do nothing
     return 0;
@@ -49,7 +57,6 @@ export const convertToUsd = async (
     amount,
     usdWei,
   });
-
   // Convert to correct decimals
   return +utils.formatUnits(usdWei, decimals);
 };
