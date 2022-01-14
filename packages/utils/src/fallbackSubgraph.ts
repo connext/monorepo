@@ -143,7 +143,7 @@ export class FallbackSubgraph<T> {
     urls.forEach((url) => {
       this.subgraphs.set(url, this.createSubgraphRecord(url));
     });
-    this.sync();
+    this.sync(undefined, true, true);
   }
 
   /**
@@ -241,7 +241,11 @@ export class FallbackSubgraph<T> {
    * @param getBlockNumber - callback method to get the chain's current block number.
    * @returns Subgraph sync records for each subgraph.
    */
-  public async sync(getBlockNumber?: () => Promise<number>): Promise<SubgraphSyncRecord[]> {
+  public async sync(
+    getBlockNumber?: () => Promise<number>,
+    healthEndpointOnly = false,
+    ignoreFail = false,
+  ): Promise<SubgraphSyncRecord[]> {
     // Check to make sure this subgraph domain has an endpoint.
     const endpoint = DOMAIN_ADDRESS[this.domain];
     if (!endpoint) {
@@ -275,6 +279,7 @@ export class FallbackSubgraph<T> {
       // Check to make sure that the subgraphs do indeed have a GetBlockNumber method, if we need to
       // fall back to that.
       const getBlockNumberSupported =
+        !healthEndpointOnly &&
         !!getBlockNumber &&
         Array.from(this.subgraphs.values()).every((subgraph) => !!(subgraph.client as any).GetBlockNumber);
 
@@ -341,7 +346,7 @@ export class FallbackSubgraph<T> {
             }
           }),
         );
-      } else {
+      } else if (!ignoreFail) {
         // No syncing routes are available, so update all records to show this.
         Array.from(this.subgraphs.values()).forEach((subgraph) => {
           const error = new NxtpError(
