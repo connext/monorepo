@@ -502,6 +502,7 @@ export class NxtpSdk {
     this.sdkBase.changeInjectedSigner(signer);
   }
 
+  /// Event methods
   /**
    * Turns off all listeners and disconnects messaging from the SDK.
    */
@@ -510,7 +511,6 @@ export class NxtpSdk {
     this.sdkBase.removeAllListeners();
   }
 
-  // Listener methods
   /**
    * Attaches a callback to the emitted event
    *
