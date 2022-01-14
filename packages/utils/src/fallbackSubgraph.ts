@@ -259,7 +259,7 @@ export class FallbackSubgraph<T> {
 
       // Target this chain's endpoint.
       const endpointUrl = endpoint.concat(`?chainId=${this.chainId}`);
-      let response: AxiosResponse<string> | undefined = undefined;
+      let response: AxiosResponse<SubgraphHealth[]> | undefined = undefined;
       try {
         response = await axios.get(endpointUrl);
       } catch (e) {}
@@ -271,7 +271,7 @@ export class FallbackSubgraph<T> {
         response &&
         response.data &&
         !(response.data.length === 0) &&
-        !(typeof response.data === "string" && response.data.includes("No subgraph for"));
+        !(typeof response.data === "string" && (response.data as string).includes("No subgraph for"));
       // Check to make sure that the subgraphs do indeed have a GetBlockNumber method, if we need to
       // fall back to that.
       const getBlockNumberSupported =
@@ -280,8 +280,7 @@ export class FallbackSubgraph<T> {
 
       if (healthEndpointSupported) {
         // Parse the response, handle each subgraph in the response.
-        const subgraphs = JSON.parse(response!.data) as SubgraphHealth[];
-        subgraphs.forEach((info: any) => {
+        response!.data.forEach((info: any) => {
           // If we don't have this subgraph mapped, create a new one to work with.
           const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
           const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
