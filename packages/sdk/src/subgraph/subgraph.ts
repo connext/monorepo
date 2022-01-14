@@ -8,6 +8,7 @@ import {
   Logger,
   NxtpError,
   RequestContext,
+  SubgraphDomain,
   TransactionData,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
@@ -127,6 +128,8 @@ export class Subgraph {
         cId,
         (url: string) => getSdk(new GraphQLClient(url)),
         _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+        SubgraphDomain.COMMON,
+        typeof subgraph === "string" ? [subgraph] : subgraph,
       );
       this.sdks[cId] = fallbackSubgraph;
       this.syncStatus[cId] = {
