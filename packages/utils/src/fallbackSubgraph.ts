@@ -72,7 +72,7 @@ type SubgraphHealth = {
 const SYNC_CACHE_TTL = 5_000;
 
 const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
-  [SubgraphDomain.COMMON]: "https://subgraph-ts-worker.connext.workers.dev/",
+  [SubgraphDomain.COMMON]: "https://subgraph-ts-worker.connext.workers.dev/subgraph_health",
   // TODO: Analytics health endpoint needs to be implemented.
   [SubgraphDomain.ANALYTICS]: undefined,
   // Used for unit testing.
