@@ -149,6 +149,8 @@ export class NxtpSdkBase {
     this.config.skipPolling = skipPolling ?? false;
     this.chainData = chainData;
 
+    this.logger.info("SDK RECEIVED CHAIN CONFIG:", undefined, undefined, { chainConfig });
+
     if (messaging) {
       this.messaging = messaging;
     } else {
@@ -232,6 +234,11 @@ export class NxtpSdkBase {
           : typeof _subgraph === "string"
           ? _subgraph.replace("]", "").replace("[", "").split(",")
           : [];
+        this.logger.info("Configuring subgraph:", undefined, undefined, {
+          chainId,
+          subgraph,
+          _subgraph,
+        });
         subgraphConfig[chainId] = {
           subgraph,
           subgraphSyncBuffer,

@@ -124,6 +124,12 @@ export class Subgraph {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
       const cId = parseInt(chainId);
+      this.logger.info("CONFIGURING FALLBACK SUBGRAPH", undefined, undefined, {
+        chainId: cId,
+        subgraph,
+        subgraphSyncBuffer: _subgraphSyncBuffer === undefined ? "undefined" : _subgraphSyncBuffer,
+        parsedSubgraph: typeof subgraph === "string" ? [subgraph] : subgraph,
+      });
       const fallbackSubgraph = new FallbackSubgraph<Sdk>(
         cId,
         (url: string) => getSdk(new GraphQLClient(url)),
@@ -131,6 +137,10 @@ export class Subgraph {
         SubgraphDomain.COMMON,
         typeof subgraph === "string" ? [subgraph] : subgraph,
       );
+      this.logger.info("FALLBACK SUBGRAPH CREATED", undefined, undefined, {
+        chainId: cId,
+        subgraphValues: (fallbackSubgraph as any).subgraphs.values(),
+      });
       this.sdks[cId] = fallbackSubgraph;
       this.syncStatus[cId] = {
         latestBlock: 0,
