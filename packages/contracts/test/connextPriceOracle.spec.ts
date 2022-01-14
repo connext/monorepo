@@ -15,19 +15,23 @@ describe("ConnextPriceOracle.sol", () => {
   const [wallet, other] = waffle.provider.getWallets() as Wallet[];
 
   let connextPriceOracle: ConnextPriceOracle;
+  let v1PriceOracle: ConnextPriceOracle;
   let stableToken: TestERC20;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
+  let tokenC: TestERC20;
   let wrappedToken: string = mkAddress("0xA");
   let aggregatorMock: TestAggregator;
 
   const fixture = async () => {
     connextPriceOracle = await deployContract<ConnextPriceOracle>("ConnextPriceOracle", wrappedToken);
+    v1PriceOracle = await deployContract<ConnextPriceOracle>("ConnextPriceOracle", wrappedToken);
     stableToken = await deployContract<TestERC20>("TestERC20");
     tokenA = await deployContract<TestERC20>("TestERC20");
     tokenB = await deployContract<TestERC20>("TestERC20");
+    tokenC = await deployContract<TestERC20>("TestERC20");
     aggregatorMock = await deployContract<TestAggregator>("TestAggregator");
-    return { connextPriceOracle, stableToken, tokenA, tokenB, aggregatorMock };
+    return { connextPriceOracle, v1PriceOracle, stableToken, tokenA, tokenB, tokenC, aggregatorMock };
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -130,6 +134,24 @@ describe("ConnextPriceOracle.sol", () => {
       const lpAddress2 = mkAddress("0xaaabbb");
       tx = await connextPriceOracle.connect(wallet).setDexPriceInfo(tokenAddress2, tokenAddress, lpAddress2, true);
       expect(await tx.wait()).to.be.ok;
+    });
+  });
+
+  describe("setV1PriceOracle", () => {
+    it("should revert if msg.sender is not admin", async () => {
+      const v1PriceOracleAddress = mkAddress("0xaaa");
+      await expect(connextPriceOracle.connect(other).setV1PriceOracle(v1PriceOracleAddress)).to.be.revertedWith(
+        "only admin can set v1PriceOracle address",
+      );
+    });
+
+    it("should success if msg.sender is admin", async () => {
+      const v1PriceOracleAddress = mkAddress("0xaaa");
+      const tx = await connextPriceOracle.connect(wallet).setV1PriceOracle(v1PriceOracleAddress);
+      await tx.wait();
+      expect((await connextPriceOracle.v1PriceOracle()).toString().toLowerCase()).to.be.eq(
+        v1PriceOracleAddress.toLowerCase(),
+      );
     });
   });
 
@@ -243,9 +265,22 @@ describe("ConnextPriceOracle.sol", () => {
         .setDexPriceInfo(tokenA.address, stableToken.address, lpTokenAddress, true);
 
       const dexPrice = await connextPriceOracle.getPriceFromDex(tokenA.address);
-      const tokenPrice = await connextPriceOracle.getPriceFromDex(tokenA.address);
+      const tokenPrice = await connextPriceOracle.getTokenPrice(tokenA.address);
 
       expect(tokenPrice.toString()).to.be.eq(dexPrice.toString());
+    });
+
+    it("should get price from v1PriceOracle", async () => {
+      let tx = await v1PriceOracle.connect(wallet).setDirectPrice(tokenC.address, parseEther("5").toString());
+      await tx.wait();
+
+      tx = await connextPriceOracle.connect(wallet).setV1PriceOracle(v1PriceOracle.address);
+      await tx.wait();
+
+      const tokenPrice = await connextPriceOracle.getTokenPrice(tokenC.address);
+      const v1TokenPrice = await v1PriceOracle.getTokenPrice(tokenC.address);
+
+      expect(tokenPrice.toString()).to.be.eq(v1TokenPrice.toString());
     });
   });
 });

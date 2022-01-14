@@ -5,6 +5,7 @@ import "./PriceOracle.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IERC20Extended.sol";
+import "./interfaces/IPriceOracle.sol";
 
 interface AggregatorV3Interface {
     function decimals() external view returns (uint8);
@@ -34,9 +35,10 @@ interface AggregatorV3Interface {
 contract ConnextPriceOracle is PriceOracle {
     using SafeMath for uint256;
     using SafeERC20 for IERC20Extended;
-    address public admin;
 
+    address public admin;
     address public wrapped;
+    address public v1PriceOracle;
 
     /// @notice Chainlink Aggregators
     mapping(address => AggregatorV3Interface) public aggregators;    
@@ -55,6 +57,7 @@ contract ConnextPriceOracle is PriceOracle {
     event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
     event DirectPriceUpdated(address token, uint256 oldPrice, uint256 newPrice);
     event AggregatorUpdated(address tokenAddress, address source);
+    event V1PriceOracleUpdated(address oldAddress, address newAddress);
 
     constructor(address _wrapped) {
         wrapped = _wrapped;
@@ -73,6 +76,9 @@ contract ConnextPriceOracle is PriceOracle {
         if (tokenPrice == 0) {
             tokenPrice = getPriceFromDex(tokenAddress);
         } 
+        if (tokenPrice == 0 && v1PriceOracle != address(0)) {
+            tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
+        }
         return tokenPrice;
     }
 
@@ -85,7 +91,7 @@ contract ConnextPriceOracle is PriceOracle {
             uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
             uint256 baseTokenDecimalDelta = 18-uint256(IERC20Extended(priceInfo.baseToken).decimals());
             uint256 baseTokenAmount = rawBaseTokenAmount.mul(10**baseTokenDecimalDelta);
-            uint256 baseTokenPrice = getPriceFromOracle(priceInfo.baseToken);
+            uint256 baseTokenPrice = getTokenPrice(priceInfo.baseToken);
             uint256 tokenPrice = baseTokenPrice.mul(baseTokenAmount).div(tokenAmount);
 
             return tokenPrice;
@@ -121,7 +127,7 @@ contract ConnextPriceOracle is PriceOracle {
     function setDexPriceInfo(address _token, address _baseToken, address _lpToken, bool _active) external {
         require(msg.sender == admin, "only admin can set DEX price");
         PriceInfo storage priceInfo = priceRecords[_token];
-        uint256 baseTokenPrice = getPriceFromOracle(_baseToken);
+        uint256 baseTokenPrice = getTokenPrice(_baseToken);
         require(baseTokenPrice > 0, "invalid base token");
         priceInfo.token = _token;
         priceInfo.baseToken = _baseToken;
@@ -135,6 +141,12 @@ contract ConnextPriceOracle is PriceOracle {
         emit DirectPriceUpdated(_token, assetPrices[_token], _price);
         assetPrices[_token] = _price;
     }
+
+    function setV1PriceOracle(address _v1PriceOracle) external {
+        require(msg.sender == admin, "only admin can set v1PriceOracle address");
+        emit V1PriceOracleUpdated(v1PriceOracle, _v1PriceOracle);
+        v1PriceOracle = _v1PriceOracle;
+    }    
 
     function setAdmin(address newAdmin) external {
         require(msg.sender == admin, "only admin can set new admin");
