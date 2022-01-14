@@ -1,4 +1,5 @@
 /* eslint-disable require-jsdoc */
+import { NxtpSdk } from "@connext/nxtp-sdk";
 import { ChainData, getChainData } from "@connext/nxtp-utils";
 import { Button, Col, Row, Tabs, Typography } from "antd";
 import { providers, Signer } from "ethers";
@@ -12,6 +13,7 @@ function App(): ReactElement | null {
   const [web3Provider, setProvider] = useState<providers.Web3Provider>();
   const [signer, setSigner] = useState<Signer>();
   const [chainData, setChainData] = useState<Map<string, ChainData>>();
+  const [sdk, setSdk] = useState<NxtpSdk>();
 
   const connectMetamask = async () => {
     const ethereum = (window as any).ethereum;
@@ -62,10 +64,10 @@ function App(): ReactElement | null {
       </Row>
       <Tabs defaultActiveKey="1">
         <Tabs.TabPane tab="Swap" key="1">
-          <Swap web3Provider={web3Provider} signer={signer} chainData={chainData} />
+          <Swap web3Provider={web3Provider} signer={signer} chainData={chainData} sdk={sdk} setSdk={setSdk} />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Router" key="2">
-          <Router web3Provider={web3Provider} signer={signer} chainData={chainData} />
+          <Router web3Provider={web3Provider} signer={signer} chainData={chainData} sdk={sdk} />
         </Tabs.TabPane>
       </Tabs>
     </div>
