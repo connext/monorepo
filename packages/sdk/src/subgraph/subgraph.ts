@@ -171,7 +171,7 @@ export class Subgraph {
     const { requestContext, methodContext } = createLoggingContext(this.getSyncStatus.name);
     const records = this.sdks[chainId].records;
     this.logger.debug(
-      `Getting sync status for chain ${chainId} with ${records.length} records`,
+      `Subgraph sync status for chain ${chainId} (${records.length} records)`,
       requestContext,
       methodContext,
       {
