@@ -1,6 +1,9 @@
 {
   "adminToken": "blahblah",
   "chainConfig": {
+    "1": {
+      "providers": ["https://mainnet.infura.io/v3/"]
+    },
     "4": {
       "providers": ["https://rinkeby.infura.io/v3/"]
     },
