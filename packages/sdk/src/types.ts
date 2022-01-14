@@ -80,8 +80,13 @@ type CoreSdkConfigParams = {
   skipPolling?: boolean;
   chainData?: Map<string, ChainData>;
 };
+
 export type SdkConfigParams = {
   chainConfig: SdkChainConfig;
+} & CoreSdkConfigParams;
+export type SdkBaseConfigParams = Omit<SdkConfigParams, "signer"> & {
+  signer?: Signer;
+  signerAddress: Promise<string>;
 } & CoreSdkConfigParams;
 export type InputSdkConfigParams = {
   chainConfig: InputSdkChainConfig;

@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { ajv, Logger, parseProviders, TChainId } from "@connext/nxtp-utils";
-import { NetworkSchema, LogLevelScehma, SdkConfigParams, SdkChainConfig } from "@connext/nxtp-sdk";
+import { NetworkSchema, LogLevelScehma, SdkChainConfig, SdkBaseConfigParams } from "@connext/nxtp-sdk";
 import { Wallet } from "ethers";
 
 export const SdkServerChainConfigSchema = Type.Record(
@@ -29,7 +29,7 @@ export const NxtpSdkServerConfigSchema = Type.Object({
 
 export type NxtpSdkServerConfig = Static<typeof NxtpSdkServerConfigSchema>;
 
-export const getConfig = (): SdkConfigParams => {
+export const getConfig = (): SdkBaseConfigParams => {
   let configFile: any = {};
 
   try {
@@ -84,9 +84,10 @@ export const getConfig = (): SdkConfigParams => {
   //   provider:
   // };
 
-  const config: SdkConfigParams = {
+  const config: SdkBaseConfigParams = {
     chainConfig: chainConfig,
     signer,
+    signerAddress: signer.getAddress(),
     messagingSigner,
     logger: new Logger({ name: "sdk-server", level: serverConfig.logLevel }),
     network: serverConfig.network,
