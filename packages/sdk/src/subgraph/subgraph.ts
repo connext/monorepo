@@ -167,7 +167,7 @@ export class Subgraph {
     }
   }
 
-  getSyncStatus(chainId: number): SubgraphSyncRecord {
+  getSyncStatus(chainId: number): SubgraphSyncRecord | undefined {
     const { requestContext, methodContext } = createLoggingContext(this.getSyncStatus.name);
     const records = this.sdks[chainId].records;
     this.logger.debug(
@@ -179,13 +179,7 @@ export class Subgraph {
         records,
       },
     );
-    return (
-      records[0] ?? {
-        synced: false,
-        syncedBlock: 0,
-        latestBlock: 0,
-      }
-    );
+    return records[0];
   }
 
   /**

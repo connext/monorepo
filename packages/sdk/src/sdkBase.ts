@@ -288,7 +288,7 @@ export class NxtpSdkBase {
     const record = this.subgraph.getSyncStatus(chainId);
     return (
       record ?? {
-        synced: false,
+        synced: true,
         syncedBlock: 0,
         latestBlock: 0,
       }

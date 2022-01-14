@@ -285,7 +285,7 @@ export class FallbackSubgraph<T> {
           // If we don't have this subgraph mapped, create a new one to work with.
           const subgraph: Subgraph<T> = this.subgraphs.get(info.url) ?? this.createSubgraphRecord(info.url);
           const lag = info.latestBlock && info.syncedBlock ? info.latestBlock - info.syncedBlock : undefined;
-          const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : false;
+          const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : true;
           // Update the record accordingly.
           subgraph.record = {
             ...subgraph.record,
@@ -319,7 +319,7 @@ export class FallbackSubgraph<T> {
               const syncedBlock: number = _meta && _meta.block && _meta.block.number ? _meta.block.number : 0;
               const latestBlock = await _latestBlock;
               const lag = latestBlock && syncedBlock ? latestBlock - syncedBlock : undefined;
-              const synced: boolean = lag ? lag <= this.maxLag : false;
+              const synced: boolean = lag ? lag <= this.maxLag : true;
               // Update the record accordingly.
               subgraph.record = {
                 ...subgraph.record,
