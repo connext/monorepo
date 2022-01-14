@@ -87,7 +87,7 @@ export type SdkConfigParams = {
 export type SdkBaseConfigParams = Omit<SdkConfigParams, "signer"> & {
   signer?: Signer;
   signerAddress: Promise<string>;
-} & CoreSdkConfigParams;
+};
 export type InputSdkConfigParams = {
   chainConfig: InputSdkChainConfig;
   sdkBase?: NxtpSdkBase;

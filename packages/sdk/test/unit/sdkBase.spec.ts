@@ -9,6 +9,8 @@ import {
   Logger,
   requestContextMock,
   NATS_AUTH_URL_LOCAL,
+  parseProvidersInChainConfig,
+  parseProviders,
 } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { Wallet, constants, BigNumber } from "ethers";
@@ -41,7 +43,7 @@ import {
   NoBids,
 } from "../../src/error";
 import { getAddress, keccak256, parseEther } from "ethers/lib/utils";
-import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams } from "../../src";
+import { CrossChainParams, NxtpSdkEvents, HistoricalTransactionStatus, ApproveParams, SdkChainConfig } from "../../src";
 import { Subgraph } from "../../src/subgraph/subgraph";
 import { getMinExpiryBuffer, getMaxExpiryBuffer } from "../../src/utils";
 import { TransactionManager } from "../../src/transactionManager/transactionManager";
@@ -141,12 +143,13 @@ describe("NxtpSdkBase", () => {
     signer.getAddress.resolves(user);
 
     sdk = new NxtpSdkBase({
-      chainConfig,
+      chainConfig: parseProvidersInChainConfig<SdkChainConfig>(chainConfig),
       natsUrl: "http://example.com",
       authUrl: "http://example.com",
       messaging: undefined,
       logger,
       signerAddress: Promise.resolve(user),
+      signer: undefined,
     });
 
     (sdk as any).transactionManager = transactionManager;
@@ -274,7 +277,7 @@ describe("NxtpSdkBase", () => {
     it("should error if transaction manager doesn't exist for chainId", async () => {
       const _chainConfig = {
         [sendingChainId]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
       };
@@ -296,7 +299,7 @@ describe("NxtpSdkBase", () => {
       getDeployedChainIdsForGasFeeStub.returns([sendingChainId, receivingChainId]);
       const _chainConfig = {
         [sendingChainId]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           transactionManagerAddress: sendingChainTxManagerAddress,
         },
       };
@@ -317,11 +320,11 @@ describe("NxtpSdkBase", () => {
     it("happy: constructor, get transactionManager address", async () => {
       const chainConfig = {
         [4]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
         [5]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
       };
@@ -342,11 +345,11 @@ describe("NxtpSdkBase", () => {
     it("happy: constructor, init messaging for each network", async () => {
       const chainConfig = {
         [4]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
         [5]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
       };
@@ -365,11 +368,11 @@ describe("NxtpSdkBase", () => {
     it("happy: constructor, use custom messaging", async () => {
       const chainConfig = {
         [4]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
         [5]: {
-          providers: ["http://----------------------"],
+          providers: parseProviders(["http://----------------------"]),
           subgraph: "http://example.com",
         },
       };

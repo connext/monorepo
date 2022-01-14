@@ -7,7 +7,7 @@ import {
   Logger,
   sigMock,
   mkBytes32,
-  chainDataMock,
+  chainDataToMap,
 } from "@connext/nxtp-utils";
 
 import { expect } from "chai";
@@ -42,6 +42,21 @@ const ApproveReq = TxRequest;
 const PrepareReq = { ...TxRequest, data: "0xaaabbb" };
 const FulfillReq = { ...TxRequest, data: "0xaaabbbccc" };
 const CancelReq = { ...TxRequest, data: "0xaaabbbcccddd" };
+
+const chainDataMock = chainDataToMap([
+  {
+    name: "Unit Test Chain 1",
+    chainId: 1337,
+    confirmations: 1,
+    assetId: {},
+  },
+  {
+    name: "Unit Test Chain 2",
+    chainId: 1338,
+    confirmations: 1,
+    assetId: {},
+  },
+]);
 
 describe("NxtpSdk", () => {
   let sdk: NxtpSdk;
@@ -120,7 +135,7 @@ describe("NxtpSdk", () => {
 
     signer.getAddress.resolves(user);
 
-    sdk = new NxtpSdk({
+    sdk = await NxtpSdk.create({
       chainConfig,
       signer,
       sdkBase: sdkBase as any,
@@ -234,7 +249,7 @@ describe("NxtpSdk", () => {
       };
       let error;
       try {
-        const instance = new NxtpSdk({
+        const instance = await NxtpSdk.create({
           chainConfig: _chainConfig,
           signer,
           natsUrl: "http://example.com",
@@ -262,7 +277,7 @@ describe("NxtpSdk", () => {
 
       let error;
       try {
-        const instance = new NxtpSdk({
+        const instance = await NxtpSdk.create({
           chainConfig: _chainConfig,
           signer,
           natsUrl: "http://example.com",
@@ -291,7 +306,7 @@ describe("NxtpSdk", () => {
           priceOracleAddress: priceOracleAddress,
         },
       };
-      const instance = new NxtpSdk({
+      const instance = NxtpSdk.create({
         chainConfig,
         signer,
         natsUrl: "http://example.com",

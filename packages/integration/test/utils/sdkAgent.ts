@@ -153,7 +153,7 @@ export class SdkAgent {
     });
 
     // Create sdk
-    const sdk = new NxtpSdk({
+    const sdk = await NxtpSdk.create({
       chainConfig,
       signer: connected,
       natsUrl,
