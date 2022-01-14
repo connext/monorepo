@@ -67,7 +67,7 @@ function App(): ReactElement | null {
           <Swap web3Provider={web3Provider} signer={signer} chainData={chainData} sdk={sdk} setSdk={setSdk} />
         </Tabs.TabPane>
         <Tabs.TabPane tab="Router" key="2">
-          <Router web3Provider={web3Provider} signer={signer} chainData={chainData} sdk={sdk} />
+          <Router web3Provider={web3Provider} signer={signer} chainData={chainData} />
         </Tabs.TabPane>
       </Tabs>
     </div>
