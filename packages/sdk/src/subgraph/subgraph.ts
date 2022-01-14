@@ -713,6 +713,11 @@ export class Subgraph {
         const subgraph = this.sdks[chainId];
         const records = await subgraph.sync(() => this.chainReader.getBlockNumber(chainId));
         const mostSynced = records.length > 0 ? records.sort((r) => r.latestBlock - r.syncedBlock)[0] : undefined;
+        this.logger.info("Got most synced.", undefined, undefined, {
+          subgraph,
+          records,
+          mostSynced: typeof mostSynced === "undefined" ? "undefined" : mostSynced,
+        });
         this.syncStatus[chainId] = {
           latestBlock: records[0]?.latestBlock,
           syncedBlock: mostSynced?.syncedBlock ?? -1,
