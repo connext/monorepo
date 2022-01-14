@@ -709,11 +709,11 @@ export class Subgraph {
         const chainId = parseInt(_chainId);
         const subgraph = this.sdks[chainId];
         const records = await subgraph.sync(() => this.chainReader.getBlockNumber(chainId));
-        const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
+        const mostSynced = records.length > 0 ? records.sort((r) => r.latestBlock - r.syncedBlock)[0] : undefined;
         this.syncStatus[chainId] = {
           latestBlock: records[0]?.latestBlock,
-          syncedBlock: mostSynced.syncedBlock,
-          synced: mostSynced.synced,
+          syncedBlock: mostSynced?.syncedBlock ?? -1,
+          synced: mostSynced?.synced ?? true,
         };
       }),
     );
