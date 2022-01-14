@@ -126,8 +126,9 @@ export class FallbackSubgraph<T> {
    * @param chainId - Chain ID of the subgraphs.
    * @param sdks - SDK clients along with corresponding URIs used for each subgraph.
    * @param maxLag - Maximum lag value a subgraph can have before it's considered out of sync.
-   * @param stallTimeout - the ms we wait until considering a subgraph RPC call to be a timeout.
    * @param domain (default: COMMON) - type of subgraph we are using, whether its the common
+   * @param urls - Preset urls; FallbackSubgraph creates a new empty record for each.
+   * @param stallTimeout - the ms we wait until considering a subgraph RPC call to be a timeout.
    * domain (used for transactions) or the analytics domain.
    */
   constructor(
@@ -135,11 +136,11 @@ export class FallbackSubgraph<T> {
     private readonly generateClient: (url: string) => T,
     private readonly maxLag: number,
     private readonly domain: SubgraphDomain = SubgraphDomain.COMMON,
-    customSubgraphUrls: string[] = [],
+    urls: string[] = [],
     private readonly stallTimeout = 10_000,
   ) {
     // Add in any configured subgraph urls we want to use.
-    customSubgraphUrls.forEach((url) => {
+    urls.forEach((url) => {
       this.subgraphs.set(url, this.createSubgraphRecord(url));
     });
     this.sync();
@@ -375,7 +376,8 @@ export class FallbackSubgraph<T> {
     // 2. CPS, which is the number of calls per second the subgraph has been making (averaged over last N calls).
     // 3. Reliability, which is how often RPC calls to that subgraph are successful / total calls out of last N calls.
     // 4. Average execution time, which is the average execution time of the last N calls.
-    this.subgraphs.forEach((subgraph) => {
+    const subgraphs = Array.from(this.subgraphs.values());
+    subgraphs.forEach((subgraph) => {
       // Get the last N calls (we will replace the calls property with the return value below).
       const calls = subgraph.metrics.calls.slice(-FallbackSubgraph.METRIC_WINDOW);
       // Average calls per second over the window.
@@ -404,10 +406,10 @@ export class FallbackSubgraph<T> {
     // Always start with the in sync subgraphs and then concat the out of sync subgraphs.
     // Metrics should only come in to play to sort subgraph call order within each group (i.e. we should never prioritize
     // an out-of-sync subgraph over a synced one).
-    return Object.values(this.subgraphs)
+    return subgraphs
       .filter((subgraph) => subgraph.record.synced)
       .sort((subgraphA, subgraphB) => subgraphA.priority - subgraphB.priority)
-      .concat(Object.values(this.subgraphs).filter((subgraph) => !subgraph.record.synced))
+      .concat(subgraphs.filter((subgraph) => !subgraph.record.synced))
       .sort((subgraphA, subgraphB) => subgraphA.priority - subgraphB.priority);
   }
 
