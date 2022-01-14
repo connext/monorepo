@@ -101,6 +101,7 @@ export class NxtpSdk {
       new NxtpSdkBase({
         ...this.config,
         logger: this.logger.child({ name: "NxtpSdkBase" }),
+        signerAddress: this.config.signer.getAddress(),
       });
     this.chainData = this.sdkBase.chainData;
   }
@@ -273,7 +274,7 @@ export class NxtpSdk {
     );
     const gasLimit = getGasLimit(receivingChainId)?.toString();
     if (approveTxReq) {
-      const approveTx = await this.sdkBase.sendTransaction(sendingChainId, { ...approveTxReq, gasLimit });
+      const approveTx = await this.sendTransaction(sendingChainId, { ...approveTxReq, gasLimit });
       this.evts.SenderTokenApprovalSubmitted.post({
         assetId: sendingAssetId,
         chainId: sendingChainId,
@@ -309,7 +310,7 @@ export class NxtpSdk {
     // Prepare sender side tx
     const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
     this.logger.warn("Generated prepareReq", requestContext, methodContext, { prepareReq });
-    const prepareResponse = await this.sdkBase.sendTransaction(sendingChainId, { ...prepareReq, gasLimit });
+    const prepareResponse = await this.sendTransaction(sendingChainId, { ...prepareReq, gasLimit });
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: {
         txData: {
@@ -415,7 +416,7 @@ export class NxtpSdk {
       return { transactionHash: response.transactionResponse!.transactionHash };
     } else {
       this.logger.info("Fulfilling with user's signer", requestContext, methodContext);
-      const fulfillResponse = await this.sdkBase.sendTransaction(txData.receivingChainId, response.transactionRequest!);
+      const fulfillResponse = await this.sendTransaction(txData.receivingChainId, response.transactionRequest!);
 
       this.logger.info("Method complete", requestContext, methodContext, { txHash: fulfillResponse.hash });
       return { transactionHash: fulfillResponse.hash };
@@ -444,7 +445,7 @@ export class NxtpSdk {
 
     const cancelReq = await this.sdkBase.cancel(cancelParams, chainId);
 
-    const cancelResponse = await this.sdkBase.sendTransaction(chainId, cancelReq);
+    const cancelResponse = await this.sendTransaction(chainId, cancelReq);
     this.logger.info("Method complete", requestContext, methodContext, { txHash: cancelResponse.hash });
     return cancelResponse;
   }
@@ -500,6 +501,32 @@ export class NxtpSdk {
   public changeInjectedSigner(signer: Signer) {
     this.config.signer = signer;
     this.sdkBase.changeInjectedSigner(signer);
+  }
+
+  /**
+   * Connects the SDK's injected signer to the correct chain's configured providers and
+   * sends the specified transaction.
+   * @param chainId - The chain to send the transaction on.
+   * @param transaction - The transaction to send.
+   * @returns A promise that resolves with the transaction response.
+   */
+  public async sendTransaction(
+    chainId: number,
+    transaction: providers.TransactionRequest,
+  ): Promise<providers.TransactionResponse> {
+    this.sdkBase.assertChainIsConfigured(chainId);
+    const configProviders = this.config.chainConfig[chainId].providers;
+    const connectedSigner = this.config.signer?.connect(
+      // TODO: Inefficient. Not only redundant with ChainReader's instantiations of ethers providers, but also
+      // there's no need to instantiate every time we send a transaction. Better to do it all at once in constructor...
+      // Better yet to use same resources as ChainReader (i.e. use a multiton?).
+      new providers.FallbackProvider(
+        configProviders.map((p) => ({
+          provider: new providers.StaticJsonRpcProvider(p, chainId),
+        })),
+      ),
+    );
+    return await connectedSigner.sendTransaction(transaction);
   }
 
   /// Event methods

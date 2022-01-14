@@ -132,9 +132,24 @@ export class NxtpSdkBase {
   private readonly auctionResponseEvt = createMessagingEvt<AuctionResponse>();
   private readonly statusResponseEvt = createMessagingEvt<StatusResponse>();
 
-  constructor(private readonly config: SdkConfigParams) {
-    const { chainConfig, messagingSigner, messaging, natsUrl, authUrl, logger, network, skipPolling, chainData } =
-      this.config;
+  constructor(
+    private readonly config: Omit<SdkConfigParams, "signer"> & {
+      signer?: Signer;
+      signerAddress: Promise<string>;
+    },
+  ) {
+    const {
+      chainConfig,
+      messagingSigner,
+      messaging,
+      natsUrl,
+      authUrl,
+      logger,
+      network,
+      skipPolling,
+      chainData,
+      signerAddress,
+    } = this.config;
 
     this.logger = logger ?? new Logger({ name: "NxtpSdk", level: "info" });
     this.config.network = network ?? "testnet";
@@ -233,7 +248,7 @@ export class NxtpSdkBase {
         };
       },
     );
-    const signerAddress = this.config.signer.getAddress();
+
     this.transactionManager = new TransactionManager(
       txManagerConfig,
       this.chainReader,
@@ -455,7 +470,7 @@ export class NxtpSdkBase {
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const user = await this.config.signer.getAddress();
+    const user = (await this.config.signer?.getAddress()) ?? (await this.config.signerAddress);
     const transactionId =
       params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
 
@@ -1167,32 +1182,6 @@ export class NxtpSdkBase {
    */
   public changeInjectedSigner(signer: Signer) {
     this.config.signer = signer;
-  }
-
-  /**
-   * Connects the SDK's injected signer to the correct chain's configured providers and
-   * sends the specified transaction.
-   * @param chainId - The chain to send the transaction on.
-   * @param transaction - The transaction to send.
-   * @returns A promise that resolves with the transaction response.
-   */
-  public async sendTransaction(
-    chainId: number,
-    transaction: providers.TransactionRequest,
-  ): Promise<providers.TransactionResponse> {
-    this.assertChainIsConfigured(chainId);
-    const configProviders = this.config.chainConfig[chainId].providers;
-    const connectedSigner = this.config.signer?.connect(
-      // TODO: Inefficient. Not only redundant with ChainReader's instantiations of ethers providers, but also
-      // there's no need to instantiate every time we send a transaction. Better to do it all at once in constructor...
-      // Better yet to use same resources as ChainReader (i.e. use a multiton?).
-      new providers.FallbackProvider(
-        configProviders.map((p) => ({
-          provider: new providers.StaticJsonRpcProvider(p, chainId),
-        })),
-      ),
-    );
-    return await connectedSigner.sendTransaction(transaction);
   }
 
   /**
