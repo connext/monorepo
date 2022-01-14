@@ -15,6 +15,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { providers, Signer } from "ethers";
+
 import { NxtpSdkBase } from "./sdkBase";
 
 export const SdkBaseChainConfigSchema = Type.Record(
