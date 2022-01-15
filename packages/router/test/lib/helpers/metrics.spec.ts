@@ -8,7 +8,7 @@ import {
   mkBytes32,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
-import Sinon, { SinonStub, stub } from "sinon";
+import { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
 import * as entities from "../../../src/lib/entities/metrics";
 import { contractReaderMock, ctxMock, txServiceMock } from "../../globalTestHook";
@@ -46,6 +46,7 @@ describe("convertToUsd", () => {
     expect(await metrics.convertToUsd(mkAddress("0xaaaaa"), 1, amount.toString(), requestContext)).to.be.eq(100);
   });
 });
+
 describe("getAssetName", () => {
   it("should work", () => {
     const { assetId, chainId } = configMock.swapPools[0].assets[0];
@@ -144,6 +145,7 @@ describe("collectOnchainLiquidity", () => {
 describe("collectExpressiveLiquidity", () => {
   let priceOracleStub: SinonStub;
   beforeEach(() => {
+    stub(metrics, "getLiquidityCacheExpiry").returns(0);
     priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
     stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");

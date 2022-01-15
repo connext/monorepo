@@ -10,7 +10,7 @@ import { constants, BigNumber } from "ethers";
 import { SinonStub, stub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
-import { contractWriterMock, isRouterContractMock, txServiceMock } from "../../globalTestHook";
+import { contractWriterMock, ctxMock, isRouterContractMock, txServiceMock } from "../../globalTestHook";
 import * as SharedFns from "../../../src/lib/helpers/shared";
 import { fulfillInputMock, routerAddrMock } from "../../utils";
 
@@ -74,6 +74,7 @@ describe("Fulfill Receiver Operation", () => {
     });
 
     it("happy: should fulfill on sender chain", async () => {
+      ctxMock.isRouterContract = false;
       const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
 
       expect(receipt).to.deep.eq(txReceiptMock);

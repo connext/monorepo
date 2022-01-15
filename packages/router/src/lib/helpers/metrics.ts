@@ -90,6 +90,8 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
   return entry?.symbol;
 };
 
+const EXPRESSIVE_LIQUIDITY_CACHE_EXPIRY = 5_000;
+export const getLiquidityCacheExpiry = () => EXPRESSIVE_LIQUIDITY_CACHE_EXPIRY; // For testing
 const collectExpressiveLiquidityCache: { retrieved: number; value?: Record<number, ExpressiveAssetBalance<number>[]> } =
   {
     retrieved: 0,
@@ -107,7 +109,7 @@ export const collectExpressiveLiquidity = async (): Promise<
     logger.debug("Method start", requestContext, methodContext);
 
     const elapsed = Date.now() - collectExpressiveLiquidityCache.retrieved;
-    if (elapsed < 5_000 && collectExpressiveLiquidityCache.value) {
+    if (elapsed < getLiquidityCacheExpiry() && collectExpressiveLiquidityCache.value) {
       return collectExpressiveLiquidityCache.value;
     }
 
