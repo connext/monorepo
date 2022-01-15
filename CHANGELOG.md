@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Use mainnet equivalent for `convertToUsd`
+
 ## 0.1.15
 
 - [router] fix params for gas estimation before relayer use
