@@ -28,14 +28,14 @@ export type GasEstimates = {
 
 export const GAS_LIMIT_MAP: Record<number, GasEstimates> = {
   [CHAIN_ID.ARBITRUM]: {
-    prepare: "600000", // https://arbiscan.io/tx/0x381ec9af326241282a2d651799e7794dadfa21acd0bcec8c0898f829beb6508c
-    fulfill: "500000", // https://arbiscan.io/tx/0x8d1dcf58d84aedce3d71d14697aefbf2173270c0e3ee7f6aacabc19a50127c29
-    cancel: "500000",
-    removeLiquidity: "170000",
-    prepareRouterContract: "600000",
-    fulfillRouterContract: "500000",
-    cancelRouterContract: "500000",
-    removeLiquidityRouterContract: "170000",
+    prepare: "1200000", // https://arbiscan.io/tx/0x381ec9af326241282a2d651799e7794dadfa21acd0bcec8c0898f829beb6508c
+    fulfill: "1000000", // https://arbiscan.io/tx/0x8d1dcf58d84aedce3d71d14697aefbf2173270c0e3ee7f6aacabc19a50127c29
+    cancel: "1000000",
+    removeLiquidity: "340000",
+    prepareRouterContract: "1200000",
+    fulfillRouterContract: "1000000",
+    cancelRouterContract: "1000000",
+    removeLiquidityRouterContract: "340000",
   },
 };
 
