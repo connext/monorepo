@@ -595,7 +595,7 @@ export const getCancelledFulfilledTransactions = async (routerAddress: string, c
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getCancelledFulfilledTransactions.name);
 
-  logger.info("method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     chainId,
     routerAddress,
   });
