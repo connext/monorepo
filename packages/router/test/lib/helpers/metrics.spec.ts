@@ -8,7 +8,7 @@ import {
   mkBytes32,
 } from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
-import { SinonStub, stub } from "sinon";
+import Sinon, { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
 import * as entities from "../../../src/lib/entities/metrics";
 import { contractReaderMock, ctxMock, txServiceMock } from "../../globalTestHook";
@@ -148,6 +148,26 @@ describe("collectExpressiveLiquidity", () => {
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
     stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");
   });
+
+  it("should return undefined if all assets fail", async () => {
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).rejects(new Error("Fail"));
+    const ret = await metrics.collectExpressiveLiquidity();
+    expect(ret).to.be.undefined;
+    expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
+      Object.keys(configMock.chainConfig).length,
+    );
+  });
+
+  it("should work for all other assets if theres one error", async () => {
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(0).rejects(new Error("Fail"));
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(1).resolves([]);
+    const ret = await metrics.collectExpressiveLiquidity();
+    expect(ret).to.be.deep.eq({ [Object.keys(configMock.chainConfig)[1]]: [] });
+    expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
+      Object.keys(configMock.chainConfig).length,
+    );
+  });
+
   it("should work with varying decimals", async () => {
     // constants
     const amt = "10";

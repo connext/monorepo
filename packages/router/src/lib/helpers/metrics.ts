@@ -12,6 +12,7 @@ import {
   totalTransferredVolume,
   TransactionReason,
 } from "../entities";
+import { FailedToGetExpressiveAssetBalances } from "../errors/metrics";
 
 export const CHAINS_WITH_PRICE_ORACLES = _CHAINS_WITH_PRICE_ORACLES;
 
@@ -39,7 +40,6 @@ export const convertToUsd = async (
   const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
   const chainIdForTokenPrice = assetIdOnMainnet ? 1 : chainId;
   const assetIdForTokenPrice = assetIdOnMainnet ? assetIdOnMainnet : assetId;
-  console.log(CHAINS_WITH_PRICE_ORACLES);
   if (!CHAINS_WITH_PRICE_ORACLES.includes(chainIdForTokenPrice)) return 0;
   const price = await txService.getTokenPrice(chainIdForTokenPrice, assetIdForTokenPrice, undefined, requestContext);
   if (price.isZero()) {
@@ -133,6 +133,9 @@ export const collectExpressiveLiquidity = async (): Promise<
         }
       }),
     );
+    if (Object.values(assetBalances).length === 0) {
+      throw new FailedToGetExpressiveAssetBalances(chainIds);
+    }
 
     // Convert all balances to USD
     const converted: Record<string, ExpressiveAssetBalance<number>[]> = {};
