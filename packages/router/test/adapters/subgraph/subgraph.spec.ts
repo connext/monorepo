@@ -482,7 +482,23 @@ describe("Subgraph Adapter", () => {
 
       const result = await getExpressiveAssetBalances(sendingChainId);
       expect(result[0].amount.eq(amount)).to.be.true;
-      expect(sdk.GetExpressiveAssetBalances.calledOnceWithExactly({ routerId: `${routerAddrMock}` }));
+      expect(
+        sdk.GetExpressiveAssetBalances.calledOnceWithExactly({
+          routerId: `${routerAddrMock.toLowerCase()}`,
+        }),
+      );
+    });
+
+    it("should lower case router address", async () => {
+      ctxMock.routerAddress = routerAddrMock.toUpperCase();
+      sdk.GetExpressiveAssetBalances.resolves({ assetBalances: [] });
+      const ret = await getExpressiveAssetBalances(sendingChainId);
+      expect(ret).to.be.deep.eq(ret);
+      expect(
+        sdk.GetExpressiveAssetBalances.calledOnceWithExactly({
+          routerId: `${routerAddrMock.toLowerCase()}`,
+        }),
+      );
     });
 
     it("should throw if there is no sdk", async () => {

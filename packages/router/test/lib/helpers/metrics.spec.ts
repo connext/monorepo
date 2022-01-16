@@ -46,6 +46,7 @@ describe("convertToUsd", () => {
     expect(await metrics.convertToUsd(mkAddress("0xaaaaa"), 1, amount.toString(), requestContext)).to.be.eq(100);
   });
 });
+
 describe("getAssetName", () => {
   it("should work", () => {
     const { assetId, chainId } = configMock.swapPools[0].assets[0];
@@ -144,10 +145,31 @@ describe("collectOnchainLiquidity", () => {
 describe("collectExpressiveLiquidity", () => {
   let priceOracleStub: SinonStub;
   beforeEach(() => {
+    stub(metrics, "getLiquidityCacheExpiry").returns(0);
     priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
     stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");
   });
+
+  it("should return undefined if all assets fail", async () => {
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).rejects(new Error("Fail"));
+    const ret = await metrics.collectExpressiveLiquidity();
+    expect(ret).to.be.undefined;
+    expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
+      Object.keys(configMock.chainConfig).length,
+    );
+  });
+
+  it("should work for all other assets if theres one error", async () => {
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(0).rejects(new Error("Fail"));
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(1).resolves([]);
+    const ret = await metrics.collectExpressiveLiquidity();
+    expect(ret).to.be.deep.eq({ [Object.keys(configMock.chainConfig)[1]]: [] });
+    expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
+      Object.keys(configMock.chainConfig).length,
+    );
+  });
+
   it("should work with varying decimals", async () => {
     // constants
     const amt = "10";
