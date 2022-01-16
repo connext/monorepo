@@ -2,8 +2,6 @@
 
 ## Next Release
 
-## 0.1.16
-
 - [router] Use mainnet equivalent for `convertToUsd`
 - [router] Improve metrics error handling
 
