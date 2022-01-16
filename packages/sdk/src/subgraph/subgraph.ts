@@ -170,15 +170,12 @@ export class Subgraph {
   getSyncStatus(chainId: number): SubgraphSyncRecord | undefined {
     const { requestContext, methodContext } = createLoggingContext(this.getSyncStatus.name);
     const records = this.sdks[chainId].records;
-    this.logger.debug(
-      `Subgraph sync status for chain ${chainId} (${records.length} records)`,
-      requestContext,
-      methodContext,
-      {
-        chainId,
-        records,
-      },
-    );
+    this.logger.debug("Retrieved subgraph sync status.", requestContext, methodContext, {
+      chainId,
+      records,
+      // For easy searching of "no records found" in logs.
+      recordsFounds: records.length > 0,
+    });
     return records[0];
   }
 

@@ -260,9 +260,12 @@ export class FallbackSubgraph<T> {
       // Target this chain's endpoint.
       const endpointUrl = endpoint.concat(`?chainId=${this.chainId}`);
       let response: AxiosResponse<SubgraphHealth[]> | undefined = undefined;
+      let endpointError: any = undefined;
       try {
         response = await axios.get(endpointUrl);
-      } catch (e) {}
+      } catch (e: any) {
+        endpointError = e;
+      }
 
       // Check to make sure the health endpoint does support this chain. If it isn't supported, we
       // need to resort to getting the subgraph's synced block number directly and comparing it to
@@ -344,7 +347,7 @@ export class FallbackSubgraph<T> {
         // No syncing routes are available, so update all records to show this.
         Array.from(this.subgraphs.values()).forEach((subgraph) => {
           const error = new NxtpError(
-            `Health endpoint and chain reader unavailable for chain ${this.chainId}; unable to handle request to sync.`,
+            "Health endpoint and chain reader unavailable for chain; unable to handle request to sync.",
             {
               chainId: this.chainId,
               hasSynced: this.hasSynced,
@@ -352,6 +355,7 @@ export class FallbackSubgraph<T> {
               healthEndpointSupported,
               getBlockNumberSupported,
               subgraphs: Array.from(this.subgraphs.values()),
+              endpointError,
             },
           );
           subgraph.record = {
