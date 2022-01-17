@@ -62,13 +62,14 @@ export const bindContractReader = async () => {
           };
         });
 
-        logger.info("active transactions tracker", requestContext, methodContext, {
+        logger.info("Trackers overview", requestContext, methodContext, {
           activeTransactionsLength: transactions.length,
-          activeTransactionsTracker: activeTransactionsTracker,
+          handlingTrackerLength: handlingTracker.size,
         });
-        logger.info("handling tracker", requestContext, methodContext, {
+        logger.debug("Trackers detailed", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
+          activeTransactionsTracker,
         });
       }
     } catch (err: any) {
