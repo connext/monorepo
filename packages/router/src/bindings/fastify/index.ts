@@ -1,9 +1,8 @@
 import { createRequestContext, jsonifyError } from "@connext/nxtp-utils";
-import { constants, utils } from "ethers";
+import { constants } from "ethers";
 import fastify from "fastify";
 import { register } from "prom-client";
 
-import { signRouterRemoveLiquidityTransactionPayload } from "../../lib/helpers";
 import { getContext } from "../../router";
 import { handleActiveTransactions } from "../contractReader";
 
@@ -26,17 +25,7 @@ import {
 
 export const bindFastify = () =>
   new Promise<void>((res) => {
-    const {
-      wallet,
-      contractWriter,
-      config,
-      logger,
-      contractReader,
-      isRouterContract,
-      txService,
-      chainData,
-      routerAddress,
-    } = getContext();
+    const { wallet, contractWriter, config, logger, contractReader, isRouterContract, routerAddress } = getContext();
 
     const server = fastify();
 
