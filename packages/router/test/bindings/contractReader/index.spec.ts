@@ -318,6 +318,26 @@ describe("Contract Reader Binding", () => {
       });
     });
 
+    it("should wait for safe confirmations on ReceiverCancelled", async () => {
+      const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
+        ...activeTransactionFulfillMock,
+        crosschainTx: {
+          ...activeTransactionFulfillMock.crosschainTx,
+          receiving: undefined,
+        },
+        payload: {
+          hashes: {
+            ...activeTransactionFulfillMock.payload.hashes,
+          },
+        },
+        status: CrosschainTransactionStatus.ReceiverCancelled,
+      };
+      txServiceMock.getTransactionReceipt.resolves({ ...txReceiptMock, confirmations: 1 });
+      await binding.handleSingle(senderExpiredNoReceiver, context);
+
+      expect(cancelMock.callCount).to.be.eq(0);
+    });
+
     it("should handle ReceiverCancelled with already canceled error", async () => {
       cancelMock.rejects(new Error("#C:019"));
       const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
