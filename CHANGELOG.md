@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Disable removeLiquidity through relayers
+
 ## 0.1.16
 
 - [router] Use mainnet equivalent for `convertToUsd`
