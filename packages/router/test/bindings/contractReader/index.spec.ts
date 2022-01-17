@@ -6,6 +6,7 @@ import {
   delay,
   getRandomBytes32,
   RequestContextWithTransactionId,
+  mkHash,
 } from "@connext/nxtp-utils";
 import { reset, restore, SinonStub, stub } from "sinon";
 import { providers } from "ethers";
@@ -294,53 +295,60 @@ describe("Contract Reader Binding", () => {
     });
 
     it("should handle ReceiverCancelled", async () => {
-      const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
+      const receiverCancelled: ActiveTransaction<"ReceiverCancelled"> = {
         ...activeTransactionFulfillMock,
         crosschainTx: {
           ...activeTransactionFulfillMock.crosschainTx,
-          receiving: undefined,
         },
         payload: {
           hashes: {
             ...activeTransactionFulfillMock.payload.hashes,
+            receiving: {
+              prepareHash: mkHash("0xppp"),
+              cancelHash: mkHash("0xccc"),
+            },
           },
         },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      await binding.handleSingle(senderExpiredNoReceiver, context);
+      txServiceMock.getTransactionReceipt.resolves({ ...txReceiptMock, confirmations: 100 });
+      await binding.handleSingle(receiverCancelled, context);
 
-      expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
-        amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
-        expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
-        preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
-        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
+      expect(cancelMock).to.be.calledOnceWith(receiverCancelled.crosschainTx.invariant, {
+        amount: receiverCancelled.crosschainTx.sending.amount,
+        expiry: receiverCancelled.crosschainTx.sending.expiry,
+        preparedBlockNumber: receiverCancelled.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: receiverCancelled.payload.hashes.sending.prepareHash,
         side: "sender",
       });
     });
 
     it("should wait for safe confirmations on ReceiverCancelled", async () => {
-      const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
+      const receiverCancelled: ActiveTransaction<"ReceiverCancelled"> = {
         ...activeTransactionFulfillMock,
         crosschainTx: {
           ...activeTransactionFulfillMock.crosschainTx,
-          receiving: undefined,
         },
         payload: {
           hashes: {
             ...activeTransactionFulfillMock.payload.hashes,
+            receiving: {
+              prepareHash: mkHash("0xppp"),
+              cancelHash: mkHash("0xccc"),
+            },
           },
         },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      txServiceMock.getTransactionReceipt.resolves({ ...txReceiptMock, confirmations: 1 });
-      await binding.handleSingle(senderExpiredNoReceiver, context);
+      txServiceMock.getTransactionReceipt.resolves({ ...txReceiptMock, confirmations: 0 });
+      await binding.handleSingle(receiverCancelled, context);
 
       expect(cancelMock.callCount).to.be.eq(0);
     });
 
     it("should handle ReceiverCancelled with already canceled error", async () => {
       cancelMock.rejects(new Error("#C:019"));
-      const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
+      const receiverCancelled: ActiveTransaction<"ReceiverCancelled"> = {
         ...activeTransactionFulfillMock,
         crosschainTx: {
           ...activeTransactionFulfillMock.crosschainTx,
@@ -349,21 +357,26 @@ describe("Contract Reader Binding", () => {
         payload: {
           hashes: {
             ...activeTransactionFulfillMock.payload.hashes,
+            receiving: {
+              prepareHash: mkHash("0xppp"),
+              cancelHash: mkHash("0xccc"),
+            },
           },
         },
         status: CrosschainTransactionStatus.ReceiverCancelled,
       };
-      await binding.handleSingle(senderExpiredNoReceiver, context);
+      txServiceMock.getTransactionReceipt.resolves({ ...txReceiptMock, confirmations: 100 });
+      await binding.handleSingle(receiverCancelled, context);
 
-      expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
-        amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
-        expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
-        preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
-        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
+      expect(cancelMock).to.be.calledOnceWith(receiverCancelled.crosschainTx.invariant, {
+        amount: receiverCancelled.crosschainTx.sending.amount,
+        expiry: receiverCancelled.crosschainTx.sending.expiry,
+        preparedBlockNumber: receiverCancelled.crosschainTx.sending.preparedBlockNumber,
+        preparedTransactionHash: receiverCancelled.payload.hashes.sending.prepareHash,
         side: "sender",
       });
 
-      expect(binding.handlingTracker.get(senderExpiredNoReceiver.crosschainTx.invariant.transactionId)).to.be.undefined;
+      expect(binding.handlingTracker.get(receiverCancelled.crosschainTx.invariant.transactionId)).to.be.undefined;
     });
 
     it("should handle ReceiverCancelled with error", async () => {
@@ -377,34 +390,10 @@ describe("Contract Reader Binding", () => {
         payload: {
           hashes: {
             ...activeTransactionFulfillMock.payload.hashes,
-          },
-        },
-        status: CrosschainTransactionStatus.ReceiverCancelled,
-      };
-      await binding.handleSingle(senderExpiredNoReceiver, context);
-
-      expect(cancelMock).to.be.calledOnceWith(senderExpiredNoReceiver.crosschainTx.invariant, {
-        amount: senderExpiredNoReceiver.crosschainTx.sending.amount,
-        expiry: senderExpiredNoReceiver.crosschainTx.sending.expiry,
-        preparedBlockNumber: senderExpiredNoReceiver.crosschainTx.sending.preparedBlockNumber,
-        preparedTransactionHash: senderExpiredNoReceiver.payload.hashes.sending.prepareHash,
-        side: "sender",
-      });
-
-      expect(binding.handlingTracker.get(senderExpiredNoReceiver.crosschainTx.invariant.transactionId)).to.be.undefined;
-    });
-
-    it("should handle ReceiverCancelled with error", async () => {
-      cancelMock.rejects(new Error("foo"));
-      const senderExpiredNoReceiver: ActiveTransaction<"ReceiverCancelled"> = {
-        ...activeTransactionFulfillMock,
-        crosschainTx: {
-          ...activeTransactionFulfillMock.crosschainTx,
-          receiving: undefined,
-        },
-        payload: {
-          hashes: {
-            ...activeTransactionFulfillMock.payload.hashes,
+            receiving: {
+              prepareHash: mkHash("0xppp"),
+              cancelHash: mkHash("0xccc"),
+            },
           },
         },
         status: CrosschainTransactionStatus.ReceiverCancelled,
