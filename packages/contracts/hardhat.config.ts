@@ -41,7 +41,7 @@ const mnemonic =
 const path = require("path");
 
 subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) => {
-  if (args.solcVersion === "0.8.4") {
+  if (args.solcVersion === "0.8.11") {
     const compilerPath = path.join(__dirname, "soljson.js");
 
     return {
@@ -50,7 +50,7 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) =
       version: args.solcVersion,
       // this is used as extra information in the build-info files, but other than
       // that is not important
-      longVersion: "0.8.4",
+      longVersion: "0.8.11",
     };
   }
 
@@ -60,7 +60,7 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) =
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.4",
+    version: "0.8.11",
     settings: {
       optimizer: {
         enabled: true,
