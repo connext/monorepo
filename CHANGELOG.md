@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.17
+
 - [router] Disable removeLiquidity through relayers
 
 ## 0.1.16
