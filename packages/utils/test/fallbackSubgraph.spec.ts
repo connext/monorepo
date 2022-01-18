@@ -192,16 +192,14 @@ describe("FallbackSubgraph", () => {
 
     const mockSubgraphHealth = {
       data: {
-        indexingStatusForCurrentVersion: {
-          chainHeadBlock: mockChainBlockNumber,
-          latestBlock: mockChainBlockNumber,
-          syncedBlock: mockChainBlockNumber,
-          lastHealthyBlock: undefined,
-          network: "test-123",
-          fatalError: undefined,
-          health: "healthy",
-          synced: true,
-        },
+        chainHeadBlock: mockChainBlockNumber,
+        latestBlock: mockChainBlockNumber,
+        syncedBlock: mockChainBlockNumber,
+        lastHealthyBlock: undefined,
+        network: "test-123",
+        fatalError: undefined,
+        health: "healthy",
+        synced: true,
       },
       url: generateRandomSubgraphUrl(),
     };
@@ -220,16 +218,14 @@ describe("FallbackSubgraph", () => {
 
       const records = await fallbackSubgraph.sync();
 
-      const syncedBlock =
-        mockSubgraphHealth.data.indexingStatusForCurrentVersion.syncedBlock ??
-        mockSubgraphHealth.data.indexingStatusForCurrentVersion.latestBlock;
+      const syncedBlock = mockSubgraphHealth.data.syncedBlock ?? mockSubgraphHealth.data.latestBlock;
       expect(records).to.deep.eq([
         {
           name: records[0].name,
           synced: true,
-          latestBlock: mockSubgraphHealth.data.indexingStatusForCurrentVersion.chainHeadBlock,
+          latestBlock: mockSubgraphHealth.data.chainHeadBlock,
           syncedBlock,
-          lag: mockSubgraphHealth.data.indexingStatusForCurrentVersion.chainHeadBlock - syncedBlock,
+          lag: mockSubgraphHealth.data.chainHeadBlock - syncedBlock,
           error: undefined,
         },
       ]);
@@ -275,24 +271,20 @@ describe("FallbackSubgraph", () => {
           // First subgraph is bad
           {
             data: {
-              indexingStatusForCurrentVersion: {
-                ...mockSubgraphHealth.data.indexingStatusForCurrentVersion,
-                syncedBlock: mockChainBlockNumber - mockOutOfSyncSubgraphLag,
-                latestBlock: mockChainBlockNumber - mockOutOfSyncSubgraphLag,
-                chainHeadBlock: mockChainBlockNumber,
-              },
+              ...mockSubgraphHealth.data,
+              syncedBlock: mockChainBlockNumber - mockOutOfSyncSubgraphLag,
+              latestBlock: mockChainBlockNumber - mockOutOfSyncSubgraphLag,
+              chainHeadBlock: mockChainBlockNumber,
             },
             url: generateRandomSubgraphUrl(),
           },
           // Second one is fine
           {
             data: {
-              indexingStatusForCurrentVersion: {
-                ...mockSubgraphHealth.data.indexingStatusForCurrentVersion,
-                syncedBlock: mockChainBlockNumber - mockLaggingSubgraphLag,
-                latestBlock: mockChainBlockNumber - mockLaggingSubgraphLag,
-                chainHeadBlock: mockChainBlockNumber,
-              },
+              ...mockSubgraphHealth.data,
+              syncedBlock: mockChainBlockNumber - mockLaggingSubgraphLag,
+              latestBlock: mockChainBlockNumber - mockLaggingSubgraphLag,
+              chainHeadBlock: mockChainBlockNumber,
             },
             url: generateRandomSubgraphUrl(),
           },

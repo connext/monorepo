@@ -57,21 +57,16 @@ type SubgraphHealthError = {
 
 type SubgraphHealth = {
   data: {
-    // TODO: Deprecate this unnecessary wrapping object.
-    indexingStatusForCurrentVersion: {
-      chainHeadBlock: number;
-      // TODO: "latestBlock" should be deprecated in favor of "syncedBlock":
-      latestBlock: number | undefined;
-      syncedBlock: number | undefined;
-      lastHealthyBlock: number | undefined;
-      network: string;
-      fatalError: SubgraphHealthError | undefined;
-      health:
-        | "healthy" // Subgraph syncing normally
-        | "unhealthy" // Subgraph syncing but with errors
-        | "failed"; // Subgraph halted due to errors
-      synced: boolean;
-    };
+    chainHeadBlock: number;
+    syncedBlock: number | undefined;
+    lastHealthyBlock: number | undefined;
+    network: string;
+    fatalError: SubgraphHealthError | undefined;
+    health:
+      | "healthy" // Subgraph syncing normally
+      | "unhealthy" // Subgraph syncing but with errors
+      | "failed"; // Subgraph halted due to errors
+    synced: boolean;
   };
   url: string;
 };
@@ -308,19 +303,18 @@ export class FallbackSubgraph<T> {
       if (healthEndpointSupported) {
         // Parse the response, handle each subgraph in the response.
         response!.data.forEach((item: any) => {
-          const info = item.data.indexingStatusForCurrentVersion;
+          const info = item.data;
           // If we don't have this subgraph mapped, create a new one to work with.
           const subgraph: Subgraph<T> = this.subgraphs.get(item.url) ?? this.createSubgraphRecord(item.url);
-          // TODO: "latestBlock" from endpoint should be deprecated in favor of "syncedBlock"
-          const syncedBlock: number | undefined = info.syncedBlock ?? info.latestBlock;
-          const latestBlock: number = info.chainHeadBlock;
+          const syncedBlock: number | undefined = info.syncedBlock;
+          const latestBlock: number | undefined = info.chainHeadBlock;
           const lag: number | undefined = syncedBlock && latestBlock ? latestBlock - syncedBlock : undefined;
           const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : true;
           // Update the record accordingly.
           subgraph.record = {
             ...subgraph.record,
             synced,
-            latestBlock,
+            latestBlock: latestBlock ?? subgraph.record.latestBlock,
             syncedBlock: syncedBlock ?? subgraph.record.syncedBlock,
             // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
             // block vs synced block.
