@@ -174,7 +174,7 @@ export class Subgraph {
       chainId,
       records,
       // For easy searching of "no records found" in logs.
-      recordsFounds: records.length > 0,
+      recordsFound: records.length,
     });
     return records[0];
   }
