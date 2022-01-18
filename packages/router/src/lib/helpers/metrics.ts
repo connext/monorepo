@@ -34,9 +34,10 @@ export const convertToUsd = async (
   assetId: string,
   chainId: number,
   amount: string,
-  requestContext: RequestContext,
+  _requestContext: RequestContext,
 ): Promise<number> => {
   const { txService, logger, chainData } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(convertToUsd.name, _requestContext);
   const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
   const chainIdForTokenPrice = assetIdOnMainnet ? 1 : chainId;
   const assetIdForTokenPrice = assetIdOnMainnet ? assetIdOnMainnet : assetId;
@@ -50,7 +51,7 @@ export const convertToUsd = async (
   // Convert to USD
   const decimals = await getDecimals(assetId, chainId);
   const usdWei = BigNumber.from(amount).mul(price).div(BigNumber.from(10).pow(18));
-  logger.debug("Got value in wei", requestContext, undefined, {
+  logger.debug("Got value in wei", requestContext, methodContext, {
     assetId,
     chainId,
     decimals,

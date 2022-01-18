@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Improve logging, add waiting for safe confirmations when handling receiver cancelled
+
 ## 0.1.17
 
 - [router] Disable removeLiquidity through relayers

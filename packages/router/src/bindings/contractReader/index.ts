@@ -62,13 +62,14 @@ export const bindContractReader = async () => {
           };
         });
 
-        logger.info("active transactions tracker", requestContext, methodContext, {
+        logger.info("Trackers overview", requestContext, methodContext, {
           activeTransactionsLength: transactions.length,
-          activeTransactionsTracker: activeTransactionsTracker,
+          handlingTrackerLength: handlingTracker.size,
         });
-        logger.info("handling tracker", requestContext, methodContext, {
+        logger.debug("Trackers detailed", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
+          activeTransactionsTracker,
         });
       }
     } catch (err: any) {
@@ -212,7 +213,13 @@ export const handleSingle = async (
     }
     const preparePayload: PreparePayload = _transaction.payload;
     try {
-      logger.info("Preparing receiver", requestContext, methodContext);
+      logger.info("Preparing receiver", requestContext, methodContext, {
+        senderPrepareTransaction: {
+          transactionHash: senderPrepareReceipt.transactionHash,
+          block: senderPrepareReceipt.blockNumber,
+          confirmations: senderPrepareReceipt.confirmations,
+        },
+      });
       // We need to confirm in the cache that this bid was accepted by the user and we are
       // going through with our commitment to prepare on the receiving chain. The bid may expire in
       // the time it takes to send the prepare transaction, but doing so ensures the cache extends
@@ -399,7 +406,13 @@ export const handleSingle = async (
 
     const fulfillPayload: FulfillPayload = _transaction.payload;
     try {
-      logger.info("Fulfilling sender", requestContext, methodContext);
+      logger.info("Fulfilling sender", requestContext, methodContext, {
+        receiverFulfillTransaction: {
+          transactionHash: receiverFulfillReceipt.transactionHash,
+          block: receiverFulfillReceipt.blockNumber,
+          confirmations: receiverFulfillReceipt.confirmations,
+        },
+      });
       receipt = await fulfill(
         _transaction.crosschainTx.invariant,
         {
@@ -627,8 +640,42 @@ export const handleSingle = async (
       });
       return;
     }
+    if (!_transaction.payload.hashes.receiving?.cancelHash) {
+      logger.warn("No cancel hash for receiving chain", requestContext, methodContext, {
+        hashes: _transaction.payload.hashes,
+      });
+      return;
+    }
+    const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
+    if (!chainConfig) {
+      // this should not happen, this should get checked before this point
+      throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.receivingChainId, {
+        methodContext,
+        requestContext,
+      });
+    }
+    const receiverCancelledReceipt = await txService.getTransactionReceipt(
+      _transaction.crosschainTx.invariant.receivingChainId,
+      _transaction.payload.hashes.receiving.cancelHash,
+    );
+    if ((receiverCancelledReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
+      logger.info("Waiting for safe confirmations", requestContext, methodContext, {
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        txHash: _transaction.payload.hashes.receiving.cancelHash,
+        txConfirmations: receiverCancelledReceipt?.confirmations ?? 0,
+        configuredConfirmations: chainConfig.confirmations,
+      });
+      return;
+    }
+
     try {
-      logger.info("Cancelling sender after receiver cancelled", requestContext, methodContext);
+      logger.info("Cancelling sender after receiver cancelled", requestContext, methodContext, {
+        receiverCancelTransaction: {
+          transactionHash: receiverCancelledReceipt.transactionHash,
+          block: receiverCancelledReceipt.blockNumber,
+          confirmations: receiverCancelledReceipt.confirmations,
+        },
+      });
       receipt = await cancel(
         _transaction.crosschainTx.invariant,
         {
