@@ -66,11 +66,23 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
+
+    const deployedPriceOracleAddress = (await hre.deployments.get("ConnextPriceOracle")).address;
     await hre.deployments.deploy("ConnextPriceOracle", {
       from: deployer,
       args: [WRAPPED_ETH_MAP.get(chainId)],
       log: true,
     });
+
+    const priceOracleDeployment = await hre.deployments.get("ConnextPriceOracle");
+    const newPriceOracleAddress = priceOracleDeployment.address;
+    if (deployedPriceOracleAddress && deployedPriceOracleAddress != newPriceOracleAddress) {
+      console.log("Setting v1PriceOracle, v1PriceOracle: ", deployedPriceOracleAddress);
+      const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
+      const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
+      console.log("setV1PriceOracle tx: ", tx);
+      await tx.wait();
+    }
   }
 
   console.log("Deploying multicall to configured chain");
