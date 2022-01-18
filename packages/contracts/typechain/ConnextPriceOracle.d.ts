@@ -24,6 +24,8 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
     "admin()": FunctionFragment;
     "aggregators(address)": FunctionFragment;
     "assetPrices(address)": FunctionFragment;
+    "c_0x71fbecd4(bytes32)": FunctionFragment;
+    "c_0x838baacb(bytes32)": FunctionFragment;
     "getPriceFromChainlink(address)": FunctionFragment;
     "getPriceFromDex(address)": FunctionFragment;
     "getPriceFromOracle(address)": FunctionFragment;
@@ -42,6 +44,14 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(functionFragment: "aggregators", values: [string]): string;
   encodeFunctionData(functionFragment: "assetPrices", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "c_0x71fbecd4",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "c_0x838baacb",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "getPriceFromChainlink",
     values: [string]
@@ -96,6 +106,14 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "assetPrices",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x71fbecd4",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0x838baacb",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -210,6 +228,16 @@ export class ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    c_0x71fbecd4(
+      c__0x71fbecd4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    c_0x838baacb(
+      c__0x838baacb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     getPriceFromChainlink(
       _tokenAddress: string,
       overrides?: CallOverrides
@@ -285,6 +313,16 @@ export class ConnextPriceOracle extends BaseContract {
 
   assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  c_0x71fbecd4(
+    c__0x71fbecd4: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  c_0x838baacb(
+    c__0x838baacb: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   getPriceFromChainlink(
     _tokenAddress: string,
     overrides?: CallOverrides
@@ -359,6 +397,16 @@ export class ConnextPriceOracle extends BaseContract {
     aggregators(arg0: string, overrides?: CallOverrides): Promise<string>;
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    c_0x71fbecd4(
+      c__0x71fbecd4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    c_0x838baacb(
+      c__0x838baacb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     getPriceFromChainlink(
       _tokenAddress: string,
@@ -478,6 +526,16 @@ export class ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    c_0x71fbecd4(
+      c__0x71fbecd4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    c_0x838baacb(
+      c__0x838baacb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getPriceFromChainlink(
       _tokenAddress: string,
       overrides?: CallOverrides
@@ -547,6 +605,16 @@ export class ConnextPriceOracle extends BaseContract {
 
     assetPrices(
       arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0x71fbecd4(
+      c__0x71fbecd4: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0x838baacb(
+      c__0x838baacb: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

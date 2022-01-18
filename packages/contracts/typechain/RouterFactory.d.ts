@@ -21,6 +21,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RouterFactoryInterface extends ethers.utils.Interface {
   functions: {
+    "c_0x3d61ffbb(bytes32)": FunctionFragment;
     "createRouter(address,address)": FunctionFragment;
     "getRouterAddress(address)": FunctionFragment;
     "init(address)": FunctionFragment;
@@ -31,6 +32,10 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "c_0x3d61ffbb",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "createRouter",
     values: [string, string]
@@ -58,6 +63,10 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "c_0x3d61ffbb",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "createRouter",
     data: BytesLike
@@ -138,6 +147,11 @@ export class RouterFactory extends BaseContract {
   interface: RouterFactoryInterface;
 
   functions: {
+    c_0x3d61ffbb(
+      c__0x3d61ffbb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     createRouter(
       routerSigner: string,
       recipient: string,
@@ -169,6 +183,11 @@ export class RouterFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  c_0x3d61ffbb(
+    c__0x3d61ffbb: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   createRouter(
     routerSigner: string,
@@ -202,6 +221,11 @@ export class RouterFactory extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    c_0x3d61ffbb(
+      c__0x3d61ffbb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     createRouter(
       routerSigner: string,
       recipient: string,
@@ -255,6 +279,11 @@ export class RouterFactory extends BaseContract {
   };
 
   estimateGas: {
+    c_0x3d61ffbb(
+      c__0x3d61ffbb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     createRouter(
       routerSigner: string,
       recipient: string,
@@ -291,6 +320,11 @@ export class RouterFactory extends BaseContract {
   };
 
   populateTransaction: {
+    c_0x3d61ffbb(
+      c__0x3d61ffbb: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     createRouter(
       routerSigner: string,
       recipient: string,
