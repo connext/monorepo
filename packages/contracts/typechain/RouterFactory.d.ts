@@ -21,7 +21,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RouterFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x3d61ffbb(bytes32)": FunctionFragment;
+    "c_0x1e74665b(bytes32)": FunctionFragment;
     "createRouter(address,address)": FunctionFragment;
     "getRouterAddress(address)": FunctionFragment;
     "init(address)": FunctionFragment;
@@ -33,7 +33,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
-    functionFragment: "c_0x3d61ffbb",
+    functionFragment: "c_0x1e74665b",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -64,7 +64,7 @@ interface RouterFactoryInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x3d61ffbb",
+    functionFragment: "c_0x1e74665b",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -147,8 +147,8 @@ export class RouterFactory extends BaseContract {
   interface: RouterFactoryInterface;
 
   functions: {
-    c_0x3d61ffbb(
-      c__0x3d61ffbb: BytesLike,
+    c_0x1e74665b(
+      c__0x1e74665b: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
@@ -184,8 +184,8 @@ export class RouterFactory extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  c_0x3d61ffbb(
-    c__0x3d61ffbb: BytesLike,
+  c_0x1e74665b(
+    c__0x1e74665b: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -221,8 +221,8 @@ export class RouterFactory extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    c_0x3d61ffbb(
-      c__0x3d61ffbb: BytesLike,
+    c_0x1e74665b(
+      c__0x1e74665b: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -279,8 +279,8 @@ export class RouterFactory extends BaseContract {
   };
 
   estimateGas: {
-    c_0x3d61ffbb(
-      c__0x3d61ffbb: BytesLike,
+    c_0x1e74665b(
+      c__0x1e74665b: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -320,8 +320,8 @@ export class RouterFactory extends BaseContract {
   };
 
   populateTransaction: {
-    c_0x3d61ffbb(
-      c__0x3d61ffbb: BytesLike,
+    c_0x1e74665b(
+      c__0x1e74665b: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

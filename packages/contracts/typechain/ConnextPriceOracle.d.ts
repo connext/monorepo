@@ -24,8 +24,8 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
     "admin()": FunctionFragment;
     "aggregators(address)": FunctionFragment;
     "assetPrices(address)": FunctionFragment;
-    "c_0x71fbecd4(bytes32)": FunctionFragment;
-    "c_0x838baacb(bytes32)": FunctionFragment;
+    "c_0x67fc35c5(bytes32)": FunctionFragment;
+    "c_0x6dfde447(bytes32)": FunctionFragment;
     "getPriceFromChainlink(address)": FunctionFragment;
     "getPriceFromDex(address)": FunctionFragment;
     "getPriceFromOracle(address)": FunctionFragment;
@@ -45,11 +45,11 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "aggregators", values: [string]): string;
   encodeFunctionData(functionFragment: "assetPrices", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "c_0x71fbecd4",
+    functionFragment: "c_0x67fc35c5",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "c_0x838baacb",
+    functionFragment: "c_0x6dfde447",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -109,11 +109,11 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "c_0x71fbecd4",
+    functionFragment: "c_0x67fc35c5",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "c_0x838baacb",
+    functionFragment: "c_0x6dfde447",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -228,13 +228,13 @@ export class ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x67fc35c5(
+      c__0x67fc35c5: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
-    c_0x838baacb(
-      c__0x838baacb: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
@@ -313,13 +313,13 @@ export class ConnextPriceOracle extends BaseContract {
 
   assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  c_0x71fbecd4(
-    c__0x71fbecd4: BytesLike,
+  c_0x67fc35c5(
+    c__0x67fc35c5: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
-  c_0x838baacb(
-    c__0x838baacb: BytesLike,
+  c_0x6dfde447(
+    c__0x6dfde447: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -398,13 +398,13 @@ export class ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x67fc35c5(
+      c__0x67fc35c5: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    c_0x838baacb(
-      c__0x838baacb: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -526,13 +526,13 @@ export class ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x67fc35c5(
+      c__0x67fc35c5: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    c_0x838baacb(
-      c__0x838baacb: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -608,13 +608,13 @@ export class ConnextPriceOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x67fc35c5(
+      c__0x67fc35c5: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    c_0x838baacb(
-      c__0x838baacb: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

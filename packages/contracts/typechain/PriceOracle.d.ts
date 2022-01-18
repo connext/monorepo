@@ -20,13 +20,13 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface PriceOracleInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x71fbecd4(bytes32)": FunctionFragment;
+    "c_0x6dfde447(bytes32)": FunctionFragment;
     "getTokenPrice(address)": FunctionFragment;
     "isPriceOracle()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "c_0x71fbecd4",
+    functionFragment: "c_0x6dfde447",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -39,7 +39,7 @@ interface PriceOracleInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x71fbecd4",
+    functionFragment: "c_0x6dfde447",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -98,8 +98,8 @@ export class PriceOracle extends BaseContract {
   interface: PriceOracleInterface;
 
   functions: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
@@ -111,8 +111,8 @@ export class PriceOracle extends BaseContract {
     isPriceOracle(overrides?: CallOverrides): Promise<[boolean]>;
   };
 
-  c_0x71fbecd4(
-    c__0x71fbecd4: BytesLike,
+  c_0x6dfde447(
+    c__0x6dfde447: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -121,8 +121,8 @@ export class PriceOracle extends BaseContract {
   isPriceOracle(overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -134,8 +134,8 @@ export class PriceOracle extends BaseContract {
   filters: {};
 
   estimateGas: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -145,8 +145,8 @@ export class PriceOracle extends BaseContract {
   };
 
   populateTransaction: {
-    c_0x71fbecd4(
-      c__0x71fbecd4: BytesLike,
+    c_0x6dfde447(
+      c__0x6dfde447: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

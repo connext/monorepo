@@ -163,10 +163,4 @@ contract ConnextPriceOracle is PriceOracle {
             emit AggregatorUpdated(tokenAddresses[i], sources[i]);
         }
     } 
-
-    function compareStrings(string memory a, string memory b) internal pure returns (bool) {
-        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
-    }    
-
-
 }

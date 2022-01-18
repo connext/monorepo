@@ -22,7 +22,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface MulticallInterface extends ethers.utils.Interface {
   functions: {
     "aggregate(tuple[])": FunctionFragment;
-    "c_0x9a9c1643(bytes32)": FunctionFragment;
+    "c_0x6951f120(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -30,13 +30,13 @@ interface MulticallInterface extends ethers.utils.Interface {
     values: [{ target: string; callData: BytesLike }[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "c_0x9a9c1643",
+    functionFragment: "c_0x6951f120",
     values: [BytesLike]
   ): string;
 
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "c_0x9a9c1643",
+    functionFragment: "c_0x6951f120",
     data: BytesLike
   ): Result;
 
@@ -92,8 +92,8 @@ export class Multicall extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    c_0x9a9c1643(
-      c__0x9a9c1643: BytesLike,
+    c_0x6951f120(
+      c__0x6951f120: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
   };
@@ -103,8 +103,8 @@ export class Multicall extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  c_0x9a9c1643(
-    c__0x9a9c1643: BytesLike,
+  c_0x6951f120(
+    c__0x6951f120: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -116,8 +116,8 @@ export class Multicall extends BaseContract {
       [BigNumber, string[]] & { blockNumber: BigNumber; returnData: string[] }
     >;
 
-    c_0x9a9c1643(
-      c__0x9a9c1643: BytesLike,
+    c_0x6951f120(
+      c__0x6951f120: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -130,8 +130,8 @@ export class Multicall extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    c_0x9a9c1643(
-      c__0x9a9c1643: BytesLike,
+    c_0x6951f120(
+      c__0x6951f120: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -142,8 +142,8 @@ export class Multicall extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    c_0x9a9c1643(
-      c__0x9a9c1643: BytesLike,
+    c_0x6951f120(
+      c__0x6951f120: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

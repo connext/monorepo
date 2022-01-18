@@ -23,7 +23,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RouterInterface extends ethers.utils.Interface {
   functions: {
     "addRelayerFee(uint256,address)": FunctionFragment;
-    "c_0xcf0c287c(bytes32)": FunctionFragment;
+    "c_0x8853d325(bytes32)": FunctionFragment;
     "cancel(tuple,address,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,address,uint256,bytes)": FunctionFragment;
     "init(address,uint256,address,address,address)": FunctionFragment;
@@ -46,7 +46,7 @@ interface RouterInterface extends ethers.utils.Interface {
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "c_0xcf0c287c",
+    functionFragment: "c_0x8853d325",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -187,7 +187,7 @@ interface RouterInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "c_0xcf0c287c",
+    functionFragment: "c_0x8853d325",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
@@ -299,8 +299,8 @@ export class Router extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    c_0xcf0c287c(
-      c__0xcf0c287c: BytesLike,
+    c_0x8853d325(
+      c__0x8853d325: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
@@ -454,8 +454,8 @@ export class Router extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  c_0xcf0c287c(
-    c__0xcf0c287c: BytesLike,
+  c_0x8853d325(
+    c__0x8853d325: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -609,8 +609,8 @@ export class Router extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    c_0xcf0c287c(
-      c__0xcf0c287c: BytesLike,
+    c_0x8853d325(
+      c__0x8853d325: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1162,8 +1162,8 @@ export class Router extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    c_0xcf0c287c(
-      c__0xcf0c287c: BytesLike,
+    c_0x8853d325(
+      c__0x8853d325: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1318,8 +1318,8 @@ export class Router extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    c_0xcf0c287c(
-      c__0xcf0c287c: BytesLike,
+    c_0x8853d325(
+      c__0x8853d325: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

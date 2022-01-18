@@ -21,13 +21,13 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface FulfillInterpreterInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x96d668da(bytes32)": FunctionFragment;
+    "c_0x0fd34407(bytes32)": FunctionFragment;
     "execute(bytes32,address,address,address,uint256,bytes)": FunctionFragment;
     "getTransactionManager()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "c_0x96d668da",
+    functionFragment: "c_0x0fd34407",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -40,7 +40,7 @@ interface FulfillInterpreterInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x96d668da",
+    functionFragment: "c_0x0fd34407",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -100,8 +100,8 @@ export class FulfillInterpreter extends BaseContract {
   interface: FulfillInterpreterInterface;
 
   functions: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x0fd34407(
+      c__0x0fd34407: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
@@ -118,8 +118,8 @@ export class FulfillInterpreter extends BaseContract {
     getTransactionManager(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  c_0x96d668da(
-    c__0x96d668da: BytesLike,
+  c_0x0fd34407(
+    c__0x0fd34407: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -136,8 +136,8 @@ export class FulfillInterpreter extends BaseContract {
   getTransactionManager(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x0fd34407(
+      c__0x0fd34407: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -192,8 +192,8 @@ export class FulfillInterpreter extends BaseContract {
   };
 
   estimateGas: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x0fd34407(
+      c__0x0fd34407: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -211,8 +211,8 @@ export class FulfillInterpreter extends BaseContract {
   };
 
   populateTransaction: {
-    c_0x96d668da(
-      c__0x96d668da: BytesLike,
+    c_0x0fd34407(
+      c__0x0fd34407: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

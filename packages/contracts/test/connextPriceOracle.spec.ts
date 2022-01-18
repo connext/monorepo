@@ -162,9 +162,22 @@ describe("ConnextPriceOracle.sol", () => {
       expect(tokenPrice.toString()).to.be.eq(parseEther("0").toString());
     });
 
+    it("should return 0 if aggregator answers with 0", async () => {
+      const tokenAddress = mkAddress("0xaaa");
+      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("0"));
+      await tx.wait();
+      tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
+      await tx.wait();
+
+      const tokenPrice = await connextPriceOracle.getPriceFromChainlink(tokenAddress);
+      expect(tokenPrice.toString()).to.be.eq(parseEther("0").toString());
+    });
+
     it("should return if aggregator is configured", async () => {
       const tokenAddress = mkAddress("0xaaa");
-      let tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
+      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("1"));
+      await tx.wait();
+      tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
       await tx.wait();
 
       const tokenPrice = await connextPriceOracle.getPriceFromChainlink(tokenAddress);

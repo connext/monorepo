@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,16 +21,18 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface TestAggregatorInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x61bc0205(bytes32)": FunctionFragment;
+    "c_0x38b08d8f(bytes32)": FunctionFragment;
     "decimals()": FunctionFragment;
     "description()": FunctionFragment;
     "getRoundData(uint80)": FunctionFragment;
     "latestRoundData()": FunctionFragment;
+    "mockAnswer()": FunctionFragment;
+    "updateMockAnswer(int256)": FunctionFragment;
     "version()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "c_0x61bc0205",
+    functionFragment: "c_0x38b08d8f",
     values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
@@ -45,10 +48,18 @@ interface TestAggregatorInterface extends ethers.utils.Interface {
     functionFragment: "latestRoundData",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "mockAnswer",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateMockAnswer",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(
-    functionFragment: "c_0x61bc0205",
+    functionFragment: "c_0x38b08d8f",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
@@ -62,6 +73,11 @@ interface TestAggregatorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "latestRoundData",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "mockAnswer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateMockAnswer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
@@ -113,8 +129,8 @@ export class TestAggregator extends BaseContract {
   interface: TestAggregatorInterface;
 
   functions: {
-    c_0x61bc0205(
-      c__0x61bc0205: BytesLike,
+    c_0x38b08d8f(
+      c__0x38b08d8f: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
@@ -147,11 +163,18 @@ export class TestAggregator extends BaseContract {
       }
     >;
 
+    mockAnswer(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  c_0x61bc0205(
-    c__0x61bc0205: BytesLike,
+  c_0x38b08d8f(
+    c__0x38b08d8f: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
 
@@ -184,11 +207,18 @@ export class TestAggregator extends BaseContract {
     }
   >;
 
+  mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+  updateMockAnswer(
+    _answer: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   version(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    c_0x61bc0205(
-      c__0x61bc0205: BytesLike,
+    c_0x38b08d8f(
+      c__0x38b08d8f: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -221,14 +251,21 @@ export class TestAggregator extends BaseContract {
       }
     >;
 
+    mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    c_0x61bc0205(
-      c__0x61bc0205: BytesLike,
+    c_0x38b08d8f(
+      c__0x38b08d8f: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -243,12 +280,19 @@ export class TestAggregator extends BaseContract {
 
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
 
+    mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    c_0x61bc0205(
-      c__0x61bc0205: BytesLike,
+    c_0x38b08d8f(
+      c__0x38b08d8f: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -262,6 +306,13 @@ export class TestAggregator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mockAnswer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

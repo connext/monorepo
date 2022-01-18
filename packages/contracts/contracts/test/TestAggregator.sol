@@ -12,6 +12,8 @@ contract TestAggregator {
 
     uint256 public version = 1;
 
+    int256 public mockAnswer = 1e18;
+
     // getRoundData and latestRoundData should both raise "No data present"
     // if they do not have data to report, instead of returning unset values
     // which could be misinterpreted as actual reported values.
@@ -22,7 +24,7 @@ contract TestAggregator {
         uint256 updatedAt,
         uint80 answeredInRound
     ){
-        return (_roundId, 1e18, 0, block.timestamp, 1e18);
+        return (_roundId, mockAnswer, 0, block.timestamp, 1e18);
     }
 
     function latestRoundData() external view returns (
@@ -32,6 +34,10 @@ contract TestAggregator {
         uint256 updatedAt,
         uint80 answeredInRound
     ) {
-      return (1, 1e18, 0, block.timestamp, 1e18);
+      return (1, mockAnswer, 0, block.timestamp, 1e18);
+    }
+
+    function updateMockAnswer(int256 _answer) public {
+        mockAnswer = _answer;
     }
 }
