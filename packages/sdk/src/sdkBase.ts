@@ -20,7 +20,6 @@ import {
   NATS_WS_URL_LOCAL,
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
-  getDeployedSubgraphUri,
   delay,
   MetaTxTypes,
   Logger,
@@ -38,7 +37,6 @@ import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
   NoTransactionManager,
-  NoSubgraph,
   InvalidSlippage,
   InvalidExpiry,
   InvalidCallTo,
@@ -228,15 +226,12 @@ export class NxtpSdkBase {
           priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
 
-        let subgraph = _subgraph;
-        if (!subgraph) {
-          subgraph = getDeployedSubgraphUri(chainId, chainData);
-        }
-        if (!subgraph || subgraph.length === 0) {
-          throw new NoSubgraph(chainId);
-        }
         // Ensure subgraph is configured properly; may be a CSV env string or an array of subgraph urls.
-        subgraph = typeof subgraph === "string" ? subgraph.replace("]", "").replace("[", "").split(",") : subgraph;
+        const subgraph = Array.isArray(_subgraph)
+          ? _subgraph
+          : typeof _subgraph === "string"
+          ? _subgraph.replace("]", "").replace("[", "").split(",")
+          : [];
         subgraphConfig[chainId] = {
           subgraph,
           subgraphSyncBuffer,
@@ -293,7 +288,7 @@ export class NxtpSdkBase {
     const record = this.subgraph.getSyncStatus(chainId);
     return (
       record ?? {
-        synced: false,
+        synced: true,
         syncedBlock: 0,
         latestBlock: 0,
       }

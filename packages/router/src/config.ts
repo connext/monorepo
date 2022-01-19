@@ -7,8 +7,7 @@ import {
   ajv,
   ChainData,
   getChainData,
-  getDeployedSubgraphUri,
-  getDeployedAnalyticsSubgraphUri,
+  getDeployedAnalyticsSubgraphUrls,
   isNode,
   NATS_AUTH_URL,
   NATS_AUTH_URL_LOCAL,
@@ -368,22 +367,15 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     }
 
     if (!chainConfig.subgraph) {
-      const defaultSubgraphUri = getDeployedSubgraphUri(Number(chainId), crossChainData);
-      if (!defaultSubgraphUri) {
-        throw new Error(`No subgraph for chain ${chainId}`);
-      }
-      nxtpConfig.chainConfig[chainId].subgraph = defaultSubgraphUri;
+      nxtpConfig.chainConfig[chainId].subgraph = [];
     } else if (typeof chainConfig.subgraph === "string") {
       // Backwards compatibility for subgraph param - support for singular uri string.
       chainConfig.subgraph = [chainConfig.subgraph];
     }
 
     if (!chainConfig.analyticsSubgraph) {
-      const defaultSubgraphUri = getDeployedAnalyticsSubgraphUri(Number(chainId), crossChainData);
-      if (!defaultSubgraphUri) {
-        throw new Error(`No subgraph for chain ${chainId}`);
-      }
-      nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultSubgraphUri;
+      const defaultAnalyticsSubgUrls = getDeployedAnalyticsSubgraphUrls(Number(chainId), crossChainData);
+      nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultAnalyticsSubgUrls;
     }
     if (typeof chainConfig.analyticsSubgraph === "string") {
       chainConfig.analyticsSubgraph = [chainConfig.analyticsSubgraph];

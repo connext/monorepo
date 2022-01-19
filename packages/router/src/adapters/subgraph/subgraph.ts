@@ -60,18 +60,16 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
       throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
     }
 
-    const latestBlock = await txService.getBlockNumber(chainId);
-    records = await sdk.sync(latestBlock);
+    records = await sdk.sync(() => txService.getBlockNumber(chainId));
     logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
       chainId,
-      latestBlock,
+      latestBlock: records[0]?.latestBlock,
       records: records.map((r) => ({
         synced: r.synced,
         lag: r.lag,
         syncedBlock: r.syncedBlock,
-        uri: r.uri,
         name: r.name,
-        errors: r.errors,
+        error: r.error,
       })),
     });
   } catch (e: any) {

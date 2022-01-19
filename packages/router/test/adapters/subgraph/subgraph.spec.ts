@@ -1,3 +1,6 @@
+import { constants } from "ethers";
+import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+
 import {
   expect,
   FallbackSubgraph,
@@ -7,8 +10,7 @@ import {
   transactionSubgraphMock,
   txDataMock,
 } from "@connext/nxtp-utils";
-import { constants } from "ethers";
-import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+
 import * as subgraphAdapter from "../../../src/adapters/subgraph";
 import { TransactionStatus } from "../../../src/adapters/subgraph/runtime/graphqlsdk";
 import {
@@ -45,15 +47,29 @@ let sdk: SdkMock;
 let getSdkStub: SinonStub;
 let getAnalyticsSdksStub: SinonStub;
 
-let mockSyncRecords: SubgraphSyncRecord[];
-let mockHasSynced = true;
-
 const GET_ACTIVE_TX_FAILED = "Failed to get active transactions for all chains";
 const TEST_SUBGRAPH_MAX_LAG = 10;
 
 describe("Subgraph Adapter", () => {
   const sendingChainId = txDataMock.sendingChainId;
   const receivingChainId = txDataMock.receivingChainId;
+  const mockInSyncSubgraphRecord = {
+    name: "test",
+    synced: true,
+    latestBlock: 100,
+    syncedBlock: 100,
+    lag: 0,
+  };
+  const mockOutOfSyncRecord: SubgraphSyncRecord = {
+    name: "test",
+    synced: false,
+    syncedBlock: 73,
+    latestBlock: 100,
+    lag: 27,
+  };
+  let mockSyncRecords: SubgraphSyncRecord[];
+  let mockHasSynced = true;
+
   let config;
   afterEach(() => {
     restore();
@@ -73,33 +89,13 @@ describe("Subgraph Adapter", () => {
       GetTransactionsWithRouter: stub().resolves({ transactions: [] }),
     };
 
-    txServiceMock.getBlockNumber.resolves(10000);
-
-    fallbackSubgraph = createStubInstance(FallbackSubgraph, {
-      request: stub<[method: (client: any) => Promise<any>]>().callsFake((method) => method(sdk)),
-      sync: stub<[latestBlock: number]>().callsFake(async (latestBlock: number): Promise<SubgraphSyncRecord[]> => {
-        // The GetBlockNumber call is normally nested in the fallback subgraph in this case - we reimplement here to avoid using
-        // actual fallback subgraph, but to emulate the same behavior.
-        const { _meta } = await sdk.GetBlockNumber();
-        const syncedBlock = _meta?.block.number ?? 0;
-        const synced = latestBlock - syncedBlock <= TEST_SUBGRAPH_MAX_LAG;
-        mockSyncRecords = [
-          {
-            name: "test",
-            synced,
-            latestBlock,
-            syncedBlock,
-            lag: latestBlock - syncedBlock,
-            uri: "",
-          },
-        ];
-        return mockSyncRecords;
-      }),
-    });
+    fallbackSubgraph = createStubInstance(FallbackSubgraph);
+    fallbackSubgraph.request.callsFake((method) => method(sdk, ""));
+    fallbackSubgraph.sync.resolves([mockInSyncSubgraphRecord]);
     Sinon.stub(fallbackSubgraph, "inSync").get(() => true);
     mockHasSynced = true;
     Sinon.stub(fallbackSubgraph, "hasSynced").get(() => mockHasSynced);
-    mockSyncRecords = undefined;
+    mockSyncRecords = [mockInSyncSubgraphRecord];
     Sinon.stub(fallbackSubgraph, "records").get(() => mockSyncRecords);
 
     sdks = {
@@ -117,19 +113,8 @@ describe("Subgraph Adapter", () => {
 
   describe("#getSyncRecords", () => {
     it("should work", async () => {
-      sdk.GetBlockNumber.resolves({ _meta: { block: { number: 10 } } });
-      txServiceMock.getBlockNumber.resolves(10);
       mockHasSynced = false;
-      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
-        {
-          name: "test",
-          synced: true,
-          syncedBlock: 10,
-          latestBlock: 10,
-          lag: 0,
-          uri: "",
-        },
-      ]);
+      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq(mockSyncRecords);
     });
 
     it("should error if invalid chain id", async () => {
@@ -175,25 +160,9 @@ describe("Subgraph Adapter", () => {
     });
 
     it("should return an empty array if the chain is unsynced", async () => {
-      const testLatestBlockNumber = 10000;
-      const testSyncedBlockNumber = 1;
-      const testLag = testLatestBlockNumber - testSyncedBlockNumber;
-      sdk.GetBlockNumber.resolves({ _meta: { block: { number: testSyncedBlockNumber } } });
-      txServiceMock.getBlockNumber.resolves(testLatestBlockNumber);
+      mockSyncRecords = [mockOutOfSyncRecord];
       expect(await getActiveTransactions()).to.be.deep.eq([]);
-      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([
-        { name: "test", synced: false, syncedBlock: 1, latestBlock: testLatestBlockNumber, lag: testLag, uri: "" },
-      ]);
-    });
-
-    it("should return an empty array if GetBlockNumber fails", async () => {
-      sdk.GetBlockNumber.rejects("fail");
-      expect(await getActiveTransactions()).to.be.deep.eq([]);
-    });
-
-    it("should return an empty array if txService.getBlockNumber fails", async () => {
-      txServiceMock.getBlockNumber.rejects("fail");
-      expect(await getActiveTransactions()).to.be.deep.eq([]);
+      expect(await getSyncRecords(sendingChainId)).to.be.deep.eq([mockOutOfSyncRecord]);
     });
 
     it("should fail if GetSenderTransactions fails", async () => {
