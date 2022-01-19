@@ -46,28 +46,33 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const txManagerDeployment = await hre.deployments.get("TransactionManager");
   const txManagerAddress = txManagerDeployment.address;
 
-  // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
-  await hre.deployments.deploy("RouterFactory", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-  const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
-  const routerFactoryAddress = routerFactoryDeployment.address;
-  console.log("routerFactoryAddress: ", routerFactoryAddress);
-  const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
-  const exists = await routerFactory.transactionManager();
-  if (exists === hre.ethers.constants.AddressZero) {
-    console.log("Initing router factory");
-    const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
-    console.log("initTx: ", initTx);
-    await initTx.wait();
-  }
+  // // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
+  // await hre.deployments.deploy("RouterFactory", {
+  //   from: deployer,
+  //   args: [deployer],
+  //   log: true,
+  // });
+  // const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
+  // const routerFactoryAddress = routerFactoryDeployment.address;
+  // console.log("routerFactoryAddress: ", routerFactoryAddress);
+  // const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
+  // const exists = await routerFactory.transactionManager();
+  // if (exists === hre.ethers.constants.AddressZero) {
+  //   console.log("Initing router factory");
+  //   const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
+  //   console.log("initTx: ", initTx);
+  //   await initTx.wait();
+  // }
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
 
-    const deployedPriceOracleAddress = (await hre.deployments.get("ConnextPriceOracle")).address;
+    let deployedPriceOracleAddress;
+    try {
+      deployedPriceOracleAddress = (await hre.deployments.get("ConnextPriceOracle")).address;
+    } catch (e) {
+      console.log("ConnextPriceOracle not deployed yet");
+    }
     await hre.deployments.deploy("ConnextPriceOracle", {
       from: deployer,
       args: [WRAPPED_ETH_MAP.get(chainId)],
@@ -76,10 +81,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     const priceOracleDeployment = await hre.deployments.get("ConnextPriceOracle");
     const newPriceOracleAddress = priceOracleDeployment.address;
+    const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
+    const tx = await priceOracleContract.setV1PriceOracle("0x92a36570CaBe5a3b4C7831874BE8a95ccAE87435", {
+      from: deployer,
+    });
+    console.log("setV1PriceOracle tx: ", tx);
+    await tx.wait();
     if (deployedPriceOracleAddress && deployedPriceOracleAddress != newPriceOracleAddress) {
       console.log("Setting v1PriceOracle, v1PriceOracle: ", deployedPriceOracleAddress);
       const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
-      const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
+      const tx = await priceOracleContract.setV1PriceOracle("0x373ba9aa0f48b27A977F73423039E6dE341a0C7C", {
+        from: deployer,
+      });
       console.log("setV1PriceOracle tx: ", tx);
       await tx.wait();
     }

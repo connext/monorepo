@@ -23,7 +23,6 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RouterInterface extends ethers.utils.Interface {
   functions: {
     "addRelayerFee(uint256,address)": FunctionFragment;
-    "c_0x8853d325(bytes32)": FunctionFragment;
     "cancel(tuple,address,uint256,bytes)": FunctionFragment;
     "fulfill(tuple,address,uint256,bytes)": FunctionFragment;
     "init(address,uint256,address,address,address)": FunctionFragment;
@@ -44,10 +43,6 @@ interface RouterInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "addRelayerFee",
     values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "c_0x8853d325",
-    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "cancel",
@@ -186,10 +181,6 @@ interface RouterInterface extends ethers.utils.Interface {
     functionFragment: "addRelayerFee",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0x8853d325",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
@@ -298,11 +289,6 @@ export class Router extends BaseContract {
       assetId: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    c_0x8853d325(
-      c__0x8853d325: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
 
     cancel(
       args: {
@@ -454,11 +440,6 @@ export class Router extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  c_0x8853d325(
-    c__0x8853d325: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   cancel(
     args: {
       txData: {
@@ -606,11 +587,6 @@ export class Router extends BaseContract {
     addRelayerFee(
       amount: BigNumberish,
       assetId: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    c_0x8853d325(
-      c__0x8853d325: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1162,11 +1138,6 @@ export class Router extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    c_0x8853d325(
-      c__0x8853d325: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     cancel(
       args: {
         txData: {
@@ -1316,11 +1287,6 @@ export class Router extends BaseContract {
       amount: BigNumberish,
       assetId: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    c_0x8853d325(
-      c__0x8853d325: BytesLike,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     cancel(
