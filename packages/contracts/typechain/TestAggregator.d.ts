@@ -21,7 +21,6 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface TestAggregatorInterface extends ethers.utils.Interface {
   functions: {
-    "c_0x38b08d8f(bytes32)": FunctionFragment;
     "decimals()": FunctionFragment;
     "description()": FunctionFragment;
     "getRoundData(uint80)": FunctionFragment;
@@ -31,10 +30,6 @@ interface TestAggregatorInterface extends ethers.utils.Interface {
     "version()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "c_0x38b08d8f",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "description",
@@ -58,10 +53,6 @@ interface TestAggregatorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "c_0x38b08d8f",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "description",
@@ -129,11 +120,6 @@ export class TestAggregator extends BaseContract {
   interface: TestAggregatorInterface;
 
   functions: {
-    c_0x38b08d8f(
-      c__0x38b08d8f: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     description(overrides?: CallOverrides): Promise<[string]>;
@@ -172,11 +158,6 @@ export class TestAggregator extends BaseContract {
 
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
-
-  c_0x38b08d8f(
-    c__0x38b08d8f: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -217,11 +198,6 @@ export class TestAggregator extends BaseContract {
   version(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    c_0x38b08d8f(
-      c__0x38b08d8f: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     decimals(overrides?: CallOverrides): Promise<number>;
 
     description(overrides?: CallOverrides): Promise<string>;
@@ -264,11 +240,6 @@ export class TestAggregator extends BaseContract {
   filters: {};
 
   estimateGas: {
-    c_0x38b08d8f(
-      c__0x38b08d8f: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     description(overrides?: CallOverrides): Promise<BigNumber>;
@@ -291,11 +262,6 @@ export class TestAggregator extends BaseContract {
   };
 
   populateTransaction: {
-    c_0x38b08d8f(
-      c__0x38b08d8f: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     description(overrides?: CallOverrides): Promise<PopulatedTransaction>;

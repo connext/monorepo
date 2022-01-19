@@ -4,6 +4,7 @@
 
 - [router] fix params for gas estimation before relayer use
 - [utils] Update hardcoded gasLimits for arbitrum network
+- [contracts] Add v1PriceOracle
 
 ## 0.1.14
 

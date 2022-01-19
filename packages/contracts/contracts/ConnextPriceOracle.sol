@@ -59,6 +59,11 @@ contract ConnextPriceOracle is PriceOracle {
     event AggregatorUpdated(address tokenAddress, address source);
     event V1PriceOracleUpdated(address oldAddress, address newAddress);
 
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "caller is not the admin");
+        _;
+    }
+
     constructor(address _wrapped) {
         wrapped = _wrapped;
         admin = msg.sender;
@@ -124,8 +129,7 @@ contract ConnextPriceOracle is PriceOracle {
         return 0;        
     }
 
-    function setDexPriceInfo(address _token, address _baseToken, address _lpToken, bool _active) external {
-        require(msg.sender == admin, "only admin can set DEX price");
+    function setDexPriceInfo(address _token, address _baseToken, address _lpToken, bool _active) external onlyAdmin {
         PriceInfo storage priceInfo = priceRecords[_token];
         uint256 baseTokenPrice = getTokenPrice(_baseToken);
         require(baseTokenPrice > 0, "invalid base token");
@@ -136,28 +140,24 @@ contract ConnextPriceOracle is PriceOracle {
         emit PriceRecordUpdated(_token, _baseToken, _lpToken, _active);
     }
 
-    function setDirectPrice(address _token, uint256 _price) external {
-        require(msg.sender == admin, "only admin can set direct price");
+    function setDirectPrice(address _token, uint256 _price) external onlyAdmin {
         emit DirectPriceUpdated(_token, assetPrices[_token], _price);
         assetPrices[_token] = _price;
     }
 
-    function setV1PriceOracle(address _v1PriceOracle) external {
-        require(msg.sender == admin, "only admin can set v1PriceOracle address");
+    function setV1PriceOracle(address _v1PriceOracle) external onlyAdmin {
         emit V1PriceOracleUpdated(v1PriceOracle, _v1PriceOracle);
         v1PriceOracle = _v1PriceOracle;
     }    
 
-    function setAdmin(address newAdmin) external {
-        require(msg.sender == admin, "only admin can set new admin");
+    function setAdmin(address newAdmin) external onlyAdmin {
         address oldAdmin = admin;
         admin = newAdmin;
 
         emit NewAdmin(oldAdmin, newAdmin);
     }
 
-    function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external {
-        require(msg.sender == admin, "only the admin may set the aggregators");
+    function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyAdmin {
         for (uint i = 0; i < tokenAddresses.length; i++) {
             aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);
             emit AggregatorUpdated(tokenAddresses[i], sources[i]);

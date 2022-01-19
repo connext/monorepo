@@ -61,6 +61,12 @@ describe("ConnextPriceOracle.sol", () => {
       admin = await connextPriceOracle.admin();
       expect(admin).to.be.eq(wallet.address);
     });
+
+    it("should revert if msg.sender is not admin", async () => {
+      await expect(connextPriceOracle.connect(other).setAdmin(other.address)).to.be.revertedWith(
+        "caller is not the admin",
+      );
+    });
   });
 
   describe("setAggregators", () => {
@@ -69,7 +75,7 @@ describe("ConnextPriceOracle.sol", () => {
       const aggregatorsAddresses = [mkAddress("0xbbb")];
       await expect(
         connextPriceOracle.connect(other).setAggregators(tokenAddresses, aggregatorsAddresses),
-      ).to.be.revertedWith("only the admin may set the aggregators");
+      ).to.be.revertedWith("caller is not the admin");
     });
 
     it("should success if msg.sender is admin", async () => {
@@ -87,7 +93,7 @@ describe("ConnextPriceOracle.sol", () => {
       const tokenAddress = mkAddress("0xaaa");
       const price = parseEther("100").toString();
       await expect(connextPriceOracle.connect(other).setDirectPrice(tokenAddress, price)).to.be.revertedWith(
-        "only admin can set direct price",
+        "caller is not the admin",
       );
     });
 
@@ -109,7 +115,7 @@ describe("ConnextPriceOracle.sol", () => {
 
       await expect(
         connextPriceOracle.connect(other).setDexPriceInfo(tokenAddress, baseTokenAddress, lpTokenAddress, true),
-      ).to.be.revertedWith("only admin can set DEX price");
+      ).to.be.revertedWith("caller is not the admin");
     });
 
     it("should revert if base token is invalid", async () => {
@@ -141,7 +147,7 @@ describe("ConnextPriceOracle.sol", () => {
     it("should revert if msg.sender is not admin", async () => {
       const v1PriceOracleAddress = mkAddress("0xaaa");
       await expect(connextPriceOracle.connect(other).setV1PriceOracle(v1PriceOracleAddress)).to.be.revertedWith(
-        "only admin can set v1PriceOracle address",
+        "caller is not the admin",
       );
     });
 
