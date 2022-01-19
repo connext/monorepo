@@ -348,7 +348,7 @@ export class NxtpSdk {
 
     // Prepare sender side tx
     const prepareReq = await this.sdkBase.prepareTransfer(transferParams);
-    this.logger.warn("Generated prepareReq", requestContext, methodContext, { prepareReq });
+    this.logger.info("Generated prepareReq", requestContext, methodContext, { prepareReq });
     const prepareResponse = await connectedSigner.sendTransaction({ ...prepareReq, gasLimit });
     this.evts.SenderTransactionPrepareSubmitted.post({
       prepareParams: {
