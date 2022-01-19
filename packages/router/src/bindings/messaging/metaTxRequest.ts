@@ -68,7 +68,13 @@ export const metaTxRequestBinding = async (
     if (tx) {
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
       // Increment collected fees + gas used on relayer fee
-      incrementFees(txData.receivingAssetId, txData.receivingChainId, BigNumber.from(relayerFee), requestContext);
+      incrementFees(
+        transactionId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
+        BigNumber.from(relayerFee),
+        requestContext,
+      );
     }
     logger.info("Handled fulfill request", requestContext, methodContext);
   } finally {

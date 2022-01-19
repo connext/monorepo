@@ -308,25 +308,26 @@ describe("collectSubgraphHeads", () => {
 describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume / incrementRelayerFeesPaid", () => {
   const assetName = "TEST";
   const chainId = 1337;
+  const transactionId = "TESTTX";
   const tests = [
     {
       method: "incrementFees",
-      args: [mkAddress(), chainId, parseEther("1")],
-      labels: { assetId: mkAddress(), chainId, assetName },
+      args: [transactionId, mkAddress(), chainId, parseEther("1")],
+      labels: { transactionId, assetId: mkAddress(), chainId, assetName },
       value: 10,
       entity: "feesCollected",
     },
     {
       method: "incrementGasConsumed",
-      args: [chainId, txReceiptMock, entities.TransactionReasons.Relay],
-      labels: { reason: entities.TransactionReasons.Relay, chainId },
+      args: [transactionId, chainId, txReceiptMock, entities.TransactionReasons.Relay],
+      labels: { transactionId, reason: entities.TransactionReasons.Relay, chainId },
       value: 10,
       entity: "gasConsumed",
     },
     {
       method: "incrementRelayerFeesPaid",
-      args: [chainId, parseEther("0.0001"), mkAddress(), entities.TransactionReasons.CancelReceiver],
-      labels: { assetId: mkAddress(), reason: entities.TransactionReasons.CancelReceiver, chainId },
+      args: [transactionId, chainId, parseEther("0.0001"), mkAddress(), entities.TransactionReasons.CancelReceiver],
+      labels: { transactionId, assetId: mkAddress(), reason: entities.TransactionReasons.CancelReceiver, chainId },
       value: 10,
       entity: "relayerFeesPaid",
     },

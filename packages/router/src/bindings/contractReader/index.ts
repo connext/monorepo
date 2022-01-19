@@ -460,6 +460,11 @@ export const handleSingle = async (
       );
       // Update total transferred volume (denominated in receiving asset)
       incrementTotalTransferredVolume(
+        _transaction.crosschainTx.invariant.transactionId,
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
         _transaction.crosschainTx.invariant.receivingAssetId,
         _transaction.crosschainTx.invariant.receivingChainId,
         _transaction.crosschainTx.receiving!.amount,
@@ -489,6 +494,7 @@ export const handleSingle = async (
 
         // Add difference between sending and receiving amount
         await incrementFees(
+          transaction.crosschainTx.invariant.transactionId,
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
           BigNumber.from(fees),

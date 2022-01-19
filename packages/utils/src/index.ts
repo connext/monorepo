@@ -27,3 +27,4 @@ export * from "./multicall";
 export * from "./abis";
 export * from "./providers";
 export * from "./subgraphHealth";
+export * from "./metrics";
