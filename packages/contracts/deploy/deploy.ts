@@ -81,18 +81,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     const priceOracleDeployment = await hre.deployments.get("ConnextPriceOracle");
     const newPriceOracleAddress = priceOracleDeployment.address;
-    const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
-    const tx = await priceOracleContract.setV1PriceOracle("0x92a36570CaBe5a3b4C7831874BE8a95ccAE87435", {
-      from: deployer,
-    });
-    console.log("setV1PriceOracle tx: ", tx);
-    await tx.wait();
     if (deployedPriceOracleAddress && deployedPriceOracleAddress != newPriceOracleAddress) {
       console.log("Setting v1PriceOracle, v1PriceOracle: ", deployedPriceOracleAddress);
       const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
-      const tx = await priceOracleContract.setV1PriceOracle("0x373ba9aa0f48b27A977F73423039E6dE341a0C7C", {
-        from: deployer,
-      });
+      const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
       console.log("setV1PriceOracle tx: ", tx);
       await tx.wait();
     }
