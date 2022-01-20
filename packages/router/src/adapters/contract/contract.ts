@@ -226,6 +226,11 @@ export const prepareTransactionManager = async (
 
   // increment fees sent (no need to await)
   incrementGasConsumed(
+    txData.transactionId,
+    txData.sendingAssetId,
+    txData.sendingChainId,
+    txData.receivingAssetId,
+    txData.receivingChainId,
     chainId,
     receipt,
     txData.router.toLowerCase() === addr.toLowerCase() ? TransactionReasons.PrepareReceiver : TransactionReasons.Relay,
@@ -318,6 +323,11 @@ export const prepareRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         chainId,
         routerRelayerFee,
         routerRelayerFeeAsset,
@@ -362,6 +372,11 @@ export const prepareRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         chainId,
         routerRelayerFee,
         routerRelayerFeeAsset,
@@ -385,7 +400,17 @@ export const prepareRouterContract = async (
   const receipt = await txService.sendTx(onchainTx, requestContext);
 
   // increment fees sent (no need to await)
-  incrementGasConsumed(chainId, receipt, TransactionReasons.PrepareReceiver, requestContext);
+  incrementGasConsumed(
+    txData.transactionId,
+    txData.sendingAssetId,
+    txData.sendingChainId,
+    txData.receivingAssetId,
+    txData.receivingChainId,
+    chainId,
+    receipt,
+    TransactionReasons.PrepareReceiver,
+    requestContext,
+  );
 
   return receipt;
 };
@@ -424,6 +449,11 @@ export const fulfillTransactionManager = async (
 
   // increment fees sent (no need to await)
   incrementGasConsumed(
+    txData.transactionId,
+    txData.sendingAssetId,
+    txData.sendingChainId,
+    txData.receivingAssetId,
+    txData.receivingChainId,
     chainId,
     receipt,
     txData.router.toLowerCase() === addr.toLowerCase() ? TransactionReasons.FulfillSender : TransactionReasons.Relay,
@@ -530,6 +560,11 @@ export const fulfillRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         chainId,
         routerRelayerFee,
         routerRelayerFeeAsset,
@@ -573,6 +608,11 @@ export const fulfillRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         chainId,
         routerRelayerFee,
         routerRelayerFeeAsset,
@@ -594,7 +634,17 @@ export const fulfillRouterContract = async (
   logger.info("Router contract fulfill: sending using txservice", requestContext, methodContext, { fulfillParams });
   const receipt = await txService.sendTx(onchainTx, requestContext);
 
-  incrementGasConsumed(chainId, receipt, TransactionReasons.FulfillSender, requestContext);
+  incrementGasConsumed(
+    txData.transactionId,
+    txData.sendingAssetId,
+    txData.sendingChainId,
+    txData.receivingAssetId,
+    txData.receivingChainId,
+    chainId,
+    receipt,
+    TransactionReasons.FulfillSender,
+    requestContext,
+  );
 
   return receipt;
 };
@@ -631,6 +681,11 @@ export const cancelTransactionManager = async (
   );
 
   incrementGasConsumed(
+    txData.transactionId,
+    txData.sendingAssetId,
+    txData.sendingChainId,
+    txData.receivingAssetId,
+    txData.receivingChainId,
     chainId,
     receipt,
     addr.toLowerCase() !== txData.router.toLowerCase()
@@ -723,6 +778,11 @@ export const cancelRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         chainId,
         routerRelayerFee,
         routerRelayerFeeAsset,
@@ -767,6 +827,11 @@ export const cancelRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         chainId,
         routerRelayerFee,
         routerRelayerFeeAsset,
@@ -788,6 +853,11 @@ export const cancelRouterContract = async (
   const receipt = await txService.sendTx(onchainTx, requestContext);
 
   incrementGasConsumed(
+    txData.transactionId,
+    txData.sendingAssetId,
+    txData.sendingChainId,
+    txData.receivingAssetId,
+    txData.receivingChainId,
     chainId,
     receipt,
     txData.sendingChainId === chainId ? TransactionReasons.CancelSender : TransactionReasons.CancelReceiver,
