@@ -27,11 +27,12 @@ type SwapProps = {
   web3Provider?: providers.Web3Provider;
   signer?: Signer;
   chainData?: Map<string, ChainData>;
+  sdk?: NxtpSdk;
+  setSdk: (sdk: NxtpSdk) => void;
 };
 
-export const Swap = ({ web3Provider, signer, chainData }: SwapProps): ReactElement => {
+export const Swap = ({ web3Provider, signer, chainData, sdk, setSdk }: SwapProps): ReactElement => {
   const [injectedProviderChainId, setInjectedProviderChainId] = useState<number>();
-  const [sdk, setSdk] = useState<NxtpSdk>();
   const [auctionResponse, setAuctionResponse] = useState<AuctionResponse>();
   const [activeTransferTableColumns, setActiveTransferTableColumns] = useState<ActiveTransaction[]>([]);
   const [activeTransferTableColumnsConverted, setActiveTransferTableColumnsConverted] = useState<any[]>([]);

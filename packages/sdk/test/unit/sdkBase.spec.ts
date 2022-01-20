@@ -292,28 +292,6 @@ describe("NxtpSdkBase", () => {
       ).to.throw(NoTransactionManager.getMessage());
     });
 
-    it("should error if subgraph doesn't exist for chainId", async () => {
-      getDeployedChainIdsForGasFeeStub.returns([sendingChainId, receivingChainId]);
-      const _chainConfig = {
-        [sendingChainId]: {
-          providers: ["http://----------------------"],
-          transactionManagerAddress: sendingChainTxManagerAddress,
-        },
-      };
-      expect(
-        () =>
-          new NxtpSdkBase({
-            chainConfig: _chainConfig,
-            signerAddress: Promise.resolve(user),
-            natsUrl: "http://example.com",
-            authUrl: "http://example.com",
-            messaging: undefined,
-            logger,
-            network: "mainnet",
-          }),
-      ).to.throw(NoSubgraph.getMessage());
-    });
-
     it("happy: constructor, get transactionManager address", async () => {
       const chainConfig = {
         [4]: {
