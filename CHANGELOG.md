@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [ops] Alpine version update
 - [utils] Implement health endpoint call in FallbackSubgraph
 - [router] Improve logging, add waiting for safe confirmations when handling receiver cancelled
 
