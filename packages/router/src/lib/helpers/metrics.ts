@@ -307,6 +307,10 @@ export const collectSubgraphHeads = async (): Promise<Record<number, number>> =>
 
 export const incrementFees = async (
   transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   assetId: string,
   chainId: number,
   amount: BigNumber,
@@ -320,6 +324,10 @@ export const incrementFees = async (
   const { requestContext, methodContext } = createLoggingContext(incrementFees.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
     transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     assetId,
     chainId,
     amount,
@@ -328,6 +336,10 @@ export const incrementFees = async (
   if (amount.isNegative()) {
     logger.warn("Got negative fees, doing nothing", requestContext, methodContext, {
       transactionId,
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
       assetId,
       chainId,
       amount,
@@ -339,6 +351,10 @@ export const incrementFees = async (
 
   logger.debug("Got fees in usd", requestContext, methodContext, {
     transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     assetId,
     chainId,
     amount,
@@ -349,6 +365,10 @@ export const incrementFees = async (
   feesCollected.inc(
     {
       transactionId,
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
       assetId,
       chainId,
       assetName: getAssetName(assetId, chainId),
@@ -371,6 +391,10 @@ export const incrementFees = async (
  */
 export const incrementGasConsumed = async (
   transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   chainId: number,
   receipt: providers.TransactionReceipt | undefined,
   reason: TransactionReason,
@@ -386,6 +410,10 @@ export const incrementGasConsumed = async (
   const price = effectiveGasPrice ?? (await txService.getGasPrice(chainId, requestContext));
   logger.debug("Method start", requestContext, methodContext, {
     transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     gas: cumulativeGasUsed.toString(),
     price: price.toString(),
@@ -400,6 +428,10 @@ export const incrementGasConsumed = async (
 
   logger.debug("Got gas fees in usd", requestContext, methodContext, {
     transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     gas: cumulativeGasUsed.toString(),
     price: price.toString(),
@@ -408,7 +440,10 @@ export const incrementGasConsumed = async (
 
   // Update counter
   // TODO: reason type
-  gasConsumed.inc({ transactionId, chainId, reason }, usd);
+  gasConsumed.inc(
+    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId },
+    usd,
+  );
 };
 
 /**
@@ -426,6 +461,10 @@ export const incrementGasConsumed = async (
  */
 export const incrementRelayerFeesPaid = async (
   transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   chainId: number,
   relayerFee: string,
   assetId: string,
@@ -437,6 +476,10 @@ export const incrementRelayerFeesPaid = async (
   const { requestContext, methodContext } = createLoggingContext(incrementTotalTransferredVolume.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
     transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     assetId,
     relayerFee,
@@ -445,7 +488,10 @@ export const incrementRelayerFeesPaid = async (
 
   const usd = await convertToUsd(assetId, chainId, relayerFee, requestContext);
 
-  relayerFeesPaid.inc({ transactionId, reason, chainId, assetId }, usd);
+  relayerFeesPaid.inc(
+    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId, assetId },
+    usd,
+  );
 };
 
 export const incrementTotalTransferredVolume = async (
@@ -487,5 +533,17 @@ export const incrementTotalTransferredVolume = async (
     usd: usd.toString(),
   });
 
-  totalTransferredVolume.inc({ assetId, chainId, assetName: getAssetName(assetId, chainId) }, usd);
+  totalTransferredVolume.inc(
+    {
+      transactionId,
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
+      assetId,
+      chainId,
+      assetName: getAssetName(assetId, chainId),
+    },
+    usd,
+  );
 };

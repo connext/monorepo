@@ -70,6 +70,10 @@ export const metaTxRequestBinding = async (
       // Increment collected fees + gas used on relayer fee
       incrementFees(
         transactionId,
+        txData.sendingAssetId,
+        txData.sendingChainId,
+        txData.receivingAssetId,
+        txData.receivingChainId,
         txData.receivingAssetId,
         txData.receivingChainId,
         BigNumber.from(relayerFee),

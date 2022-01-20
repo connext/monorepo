@@ -309,32 +309,88 @@ describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume
   const assetName = "TEST";
   const chainId = 1337;
   const transactionId = "TESTTX";
+  const sendingChainId = 1337;
+  const sendingAssetId = mkAddress();
+  const receivingChainId = 1338;
+  const receivingAssetId = mkAddress();
   const tests = [
     {
       method: "incrementFees",
-      args: [transactionId, mkAddress(), chainId, parseEther("1")],
-      labels: { transactionId, assetId: mkAddress(), chainId, assetName },
+      args: [
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        mkAddress(),
+        chainId,
+        parseEther("1"),
+      ],
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        assetId: mkAddress(),
+        chainId,
+        assetName,
+      },
       value: 10,
       entity: "feesCollected",
     },
     {
       method: "incrementGasConsumed",
-      args: [transactionId, chainId, txReceiptMock, entities.TransactionReasons.Relay],
-      labels: { transactionId, reason: entities.TransactionReasons.Relay, chainId },
+      args: [
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        chainId,
+        txReceiptMock,
+        entities.TransactionReasons.Relay,
+      ],
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        reason: entities.TransactionReasons.Relay,
+        chainId,
+      },
       value: 10,
       entity: "gasConsumed",
     },
     {
       method: "incrementRelayerFeesPaid",
       args: [transactionId, chainId, parseEther("0.0001"), mkAddress(), entities.TransactionReasons.CancelReceiver],
-      labels: { transactionId, assetId: mkAddress(), reason: entities.TransactionReasons.CancelReceiver, chainId },
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        assetId: mkAddress(),
+        reason: entities.TransactionReasons.CancelReceiver,
+        chainId,
+      },
       value: 10,
       entity: "relayerFeesPaid",
     },
     {
       method: "incrementTotalTransferredVolume",
       args: [mkAddress(), chainId, parseEther("0.0001")],
-      labels: { assetId: mkAddress(), chainId },
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        assetId: mkAddress(),
+        chainId,
+      },
       value: 10,
       entity: "totalTransferredVolume",
     },

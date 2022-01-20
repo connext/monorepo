@@ -209,6 +209,8 @@ export const feesCollected = new Counter({
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
     METRICS.ReceivingChainId,
+    METRICS.AssetId,
+    METRICS.ChainId,
     METRICS.AssetName,
   ] as const,
 });
@@ -241,6 +243,8 @@ export const relayerFeesPaid = new Counter({
     METRICS.ReceivingAssetId,
     METRICS.ReceivingChainId,
     METRICS.Reason,
+    METRICS.ChainId,
+    METRICS.AssetId,
   ] as const,
 });
 
