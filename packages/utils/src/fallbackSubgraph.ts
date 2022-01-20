@@ -278,7 +278,7 @@ export class FallbackSubgraph<T> {
       }
 
       // Target this chain's endpoint.
-      const endpointUrl = endpoint.concat(`?chainId=${this.chainId}`);
+      const endpointUrl = endpoint.concat(`/?chainId=${this.chainId}`);
       let response: AxiosResponse<SubgraphHealth[]> | undefined = undefined;
       let endpointError: any = undefined;
       try {
