@@ -5,7 +5,6 @@ import "../interfaces/IFulfillInterpreter.sol";
 import "../lib/LibAsset.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
   * @title FulfillInterpreter
@@ -14,7 +13,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
   *         an associated TransactionManager contract. This is used to execute
   *         arbitrary calldata on a receiving chain.
   */
-contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
+contract FulfillInterpreter is IFulfillInterpreter {
   address private immutable _transactionManager;
 
   constructor(address transactionManager) {
@@ -65,15 +64,16 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
     // funds transferred directly to them (i.e. Uniswap)
+    // Increase Allowance only in case callTo is contract.
     bool isNative = LibAsset.isNativeAsset(assetId);
-    if (!isNative) {
+    bool isContract = Address.isContract(callTo);
+    if (!isNative && isContract) {
       LibAsset.increaseERC20Allowance(assetId, callTo, amount);
     }
 
     // Check if the callTo is a contract
     bool success;
     bytes memory returnData;
-    bool isContract = Address.isContract(callTo);
     if (isContract) {
       // Try to execute the callData
       // the low level call will return `false` if its execution reverts
@@ -82,12 +82,12 @@ contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
 
     // Handle failure cases
     if (!success) {
-      // If it fails, transfer to fallback
-      LibAsset.transferAsset(assetId, fallbackAddress, amount);
-      // Decrease allowance
-      if (!isNative) {
+      // Decrease allowance first if callTo is contract.
+      if (!isNative && isContract) {
         LibAsset.decreaseERC20Allowance(assetId, callTo, amount);
       }
+      // If it fails, transfer to fallback
+      LibAsset.transferAsset(assetId, fallbackAddress, amount);
     }
 
     // Emit event
