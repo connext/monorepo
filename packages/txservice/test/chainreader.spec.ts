@@ -422,7 +422,7 @@ describe("ChainReader", () => {
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
-      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1]);
+      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1, 10, 1337]);
       tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
       gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
       tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
@@ -458,7 +458,7 @@ describe("ChainReader", () => {
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
       const result = await chainReader.calculateGasFee(
-        TEST_SENDER_CHAIN_ID,
+        TEST_RECEIVER_CHAIN_ID,
         mkAddress("0x0"),
         18,
         "prepare",
@@ -512,6 +512,19 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4832368571428571);
+    });
+
+    it("happy: should calculate for prepare with default data", async () => {
+      const result = await chainReader.calculateGasFee(
+        1337,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        false,
+        undefined,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(4207142857142857);
     });
   });
 
