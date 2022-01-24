@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.19
+
+- [router] Fix metrics bug
+
 ## 0.1.18
 
 - [ops] Alpine version update
