@@ -1,7 +1,7 @@
 export const METRICS = {
   TransactionId: "transactionId",
   ChainId: "chainId",
-  AssetId: "assetID",
+  AssetId: "assetId",
   AssetName: "assetName",
   Amount: "amount",
   SendingAssetId: "sendingAssetId",
