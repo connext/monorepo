@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Estimate gas updates
+
 ## 0.1.19
 
 - [router] Fix metrics bug
