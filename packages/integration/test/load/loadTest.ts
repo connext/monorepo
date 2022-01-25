@@ -1,16 +1,34 @@
-import { NxtpSdk } from "@connext/nxtp-sdk";
+import { NxtpSdk, NxtpSdkEvent, NxtpSdkEventPayloads, NxtpSdkEvents, ReceiverPrepareSignedPayload, ReceiverTransactionCancelledPayload, ReceiverTransactionFulfilledPayload, ReceiverTransactionPreparedPayload, SenderTokenApprovalMinedPayload, SenderTokenApprovalSubmittedPayload, SenderTransactionCancelledPayload, SenderTransactionFulfilledPayload, SenderTransactionPreparedPayload, SenderTransactionPrepareSubmittedPayload } from "@connext/nxtp-sdk";
 import { ChainConfig } from "@connext/nxtp-txservice";
+import { AuctionResponse, jsonifyError, Logger, NxtpError, NxtpErrorJson, TransactionPreparedEvent } from "@connext/nxtp-utils";
 import { ethers, Signer } from "ethers";
 
 import { Config, getConfig } from "../utils/config";
+import { spawn } from "child_process";
+import { Evt } from "evt";
+import { timeStamp } from "console";
 
 const compose = require("docker-compose");
 
 const path_to_yml = "./ops/";
 
 async function initDocker(){
-  const state = await compose.upAll({cwd:path_to_yml, config:"router.docker-compose.yml"});
-  return state;
+  let router;
+  const msg = await compose.upAll({cwd:path_to_yml, config:"messaging.docker-compose.yml"});
+  const chains = await compose.upAll({cwd:path_to_yml, config: "chains.docker-compose.yml"});
+  
+  const child =  spawn('../../setup-integration-test.sh');
+  child.stdout.on('data', (chunk)=>{
+    console.log(`\n\n${chunk}`);
+  });
+
+
+  child.on('close', async(code)=>{
+    console.log(`\n\n process exit: ${code}`);
+    router = await compose.upAll({cwd:path_to_yml, config: "router.docker-compose.yml"});
+  });
+    
+  return [msg, chains, router];
 }
 
 type LoadTestConfig = {
@@ -55,7 +73,7 @@ class LoadTestEnvironment{
    constructor(testParams:LoadTestConfig){
     this.config = getConfig();
     if(testParams.spawnContainters){
-      this.spawnRouterStack().then((r)=>console.log(`spawning router ${r.out}`));
+      this.spawnRouterStack().then((r)=>console.log(`spawning router ${r}`));
     }else{
       //override
       this.containersUp = true;
@@ -66,9 +84,9 @@ class LoadTestEnvironment{
   }
   async spawnRouterStack(){
     //docker api stuff in here
-    const res = await initDocker();
+    // const res = await initDocker();
     this.containersUp = true;
-    return res;
+    // return res;
   }
 
   getConfig():Config{
@@ -92,52 +110,65 @@ interface LoadTestBehavior{
   report():void;
 }
 
-class PingPong implements LoadTestBehavior{
-  
-  private targets!: TestTargets;
-  private agents: SdkTestAgent [] = [];
+type AddressField = { address: string };
 
-  private ping!:NxtpSdk;
-  private pong!:NxtpSdk;
+class TransactionCancelled extends NxtpError {
+  static readonly type = TransactionCancelled.name;
 
-  constructor(targets: TestTargets, agents: SdkTestAgent []){
-    this.agents = agents;
-    this.targets = targets;
+  static getMessage(wasRouter: boolean) {
+    return wasRouter ? `Router cancelled transfer` : `Transfer was cancelled`;
   }
 
-  setupAgents(){
-    //specific logic for setting up the agents for ping pong
-    for(const agent of this.agents){
-        // switch(agent.kind){
-        //   case(AgentTypes.User):{
-             
-        //   }break;
-        //   case(AgentTypes.Router):{
-        //     console.log(`setup router`);
-        //   }break;
-        // }      
-        this.ping = agent.getSdk(targets.chainIds[0]);
-        this.pong = agent.getSdk(targets.chainIds[1]);
-      }
-
+  constructor(
+    public readonly wasRouter: boolean,
+    public readonly transactionId: string,
+    public readonly context: any = {},
+  ) {
+    super(TransactionCancelled.getMessage(wasRouter), { transactionId, ...context }, TransactionCancelled.type);
   }
-  startTransfer(){
-
-
-  }
-  start(){
-    this.setupAgents();
-
-    this.startTransfer();
-  }
-  end(): number {
-      return 1;
-  }
-  report(): void {
-      console.log(`Some behavior running`);
-  }
- 
 }
+
+export const SdkAgentEvents = {
+  ...NxtpSdkEvents,
+  InitiateFailed: "InitiateFailed",
+  UserCompletionFailed: "UserCompletionFailed",
+  RouterCompletionFailed: "RouterCompletionFailed",
+  TransactionCompleted: "TransactionCompleted",
+} as const;
+export type SdkAgentEvent = typeof SdkAgentEvents[keyof typeof SdkAgentEvents];
+
+// Undefined if failed on bid
+type InitiateFailedPayload = { params?: AuctionResponse; error: string };
+type UserCompletionFailedPayload = { params: TransactionPreparedEvent; error: NxtpErrorJson; fulfilling: boolean };
+type RouterCompletionFailedPayload = NxtpSdkEventPayloads[typeof SdkAgentEvents.SenderTransactionCancelled];
+type TransactionCompletedPayload = { transactionId: string; timestamp: number; error?: NxtpErrorJson };
+export interface SdkAgentEventPayloads extends NxtpSdkEventPayloads {
+  [SdkAgentEvents.InitiateFailed]: InitiateFailedPayload;
+  [SdkAgentEvents.UserCompletionFailed]: UserCompletionFailedPayload;
+  [SdkAgentEvents.RouterCompletionFailed]: RouterCompletionFailedPayload;
+  [SdkAgentEvents.TransactionCompleted]: TransactionCompletedPayload;
+}
+
+const createEvts = (): { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } => {
+  return {
+    [SdkAgentEvents.SenderTokenApprovalSubmitted]: Evt.create<SenderTokenApprovalSubmittedPayload & AddressField>(),
+    [SdkAgentEvents.SenderTokenApprovalMined]: Evt.create<SenderTokenApprovalMinedPayload & AddressField>(),
+    [SdkAgentEvents.SenderTransactionPrepareSubmitted]: Evt.create<
+      SenderTransactionPrepareSubmittedPayload & AddressField
+    >(),
+    [SdkAgentEvents.SenderTransactionPrepared]: Evt.create<SenderTransactionPreparedPayload & AddressField>(),
+    [SdkAgentEvents.SenderTransactionFulfilled]: Evt.create<SenderTransactionFulfilledPayload & AddressField>(),
+    [SdkAgentEvents.SenderTransactionCancelled]: Evt.create<SenderTransactionCancelledPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverPrepareSigned]: Evt.create<ReceiverPrepareSignedPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverTransactionPrepared]: Evt.create<ReceiverTransactionPreparedPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverTransactionFulfilled]: Evt.create<ReceiverTransactionFulfilledPayload & AddressField>(),
+    [SdkAgentEvents.ReceiverTransactionCancelled]: Evt.create<ReceiverTransactionCancelledPayload & AddressField>(),
+    [SdkAgentEvents.InitiateFailed]: Evt.create<InitiateFailedPayload & AddressField>(),
+    [SdkAgentEvents.UserCompletionFailed]: Evt.create<UserCompletionFailedPayload & AddressField>(),
+    [SdkAgentEvents.RouterCompletionFailed]: Evt.create<RouterCompletionFailedPayload & AddressField>(),
+    [SdkAgentEvents.TransactionCompleted]: Evt.create<TransactionCompletedPayload & AddressField>(),
+  };
+};
 
 //not complete
 class SdkAgent implements SdkTestAgent{
@@ -145,28 +176,103 @@ class SdkAgent implements SdkTestAgent{
   private signer:Signer
   private readonly sdks:NxtpSdk[] = [];
   private readonly targets: TestTargets;
-  private readonly env: LoadTestEnvironment;
+  private readonly evts: { [K in SdkAgentEvent]: Evt<SdkAgentEventPayloads[K] & AddressField> } = createEvts();
+  private readonly logger: Logger = new Logger({name:"sdkAgent", level:"debug"});
+
 
   public kind = AgentTypes.User;
 
-  constructor(pk:string, targets:TestTargets, env: LoadTestEnvironment){
+  constructor(pk:string, targets:TestTargets){
     this.signer = new ethers.Wallet(pk);
     this.targets = targets;
-    this.env = env;
+    console.log(this.targets.chainConfig);
 
-    // for(const chainId in targets.chainIds){
-    //   const newSigner = this.signer.connect(new ethers.providers.JsonRpcProvider(targets.chainConfig.providers[0]));
-    //   const sdk = new NxtpSdk({
-    //     targets.chainConfig,
-    //     signer: newSigner, 
-    //     ///...       
+    for(const chainId of targets.chainIds){
 
-    //   })
-    //   this.sdks[chainId] = sdk;
-    // }
+      console.log(`chainId ${chainId}`);
+
+      const chainConfig: { [chainId: number]: { providers: { url: string; user?: string; password?: string }[] } } = {};
+
+      const chainProviders = env.getConfig().chainConfig;
+      const c = env.getConfig();
+
+      Object.keys(chainProviders).map((_chainId) => {
+        const chainId = parseInt(_chainId);
+        chainConfig[chainId] = {
+          providers: chainProviders[chainId].providerUrls.map((url) => ({ url })),
+        };
+      });
+      const newSigner = this.signer.connect(new ethers.providers.JsonRpcProvider(chainConfig[this.targets.chainIds[0]].providers[0].url));
+
+      const sdk = new NxtpSdk({
+        chainConfig,
+        signer: newSigner,
+        natsUrl: c.natsUrl,
+        authUrl: c.authUrl,
+        network: "local",
+        logger: new Logger({level: c.logLevel?? "debug"}),  
+      });
+      sdk.connectMessaging();
+      this.sdks[chainId] = sdk;
+    }
   }
 
-  
+  setupListeners(sdk:NxtpSdk) {
+    // Parrot all sdk events
+    Object.keys(NxtpSdkEvents).map((_event) => {
+      const event = _event as NxtpSdkEvent;
+      sdk.attach(event, (_data) => {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const data = _data as any;
+        this.evts[event].post({ ...data, address: this.getAddress() });
+      });
+    });
+
+    // Setup autofulfill of transfers + post to evt if it failed
+    sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
+      let error: NxtpErrorJson | undefined;
+      try {
+        await sdk.fulfillTransfer(data);
+      } catch (e) {
+        error = jsonifyError(e);
+        this.logger.error("Fulfilling failed", undefined, undefined, error, {
+          transactionId: data.txData.transactionId,
+          error,
+        });
+        this.evts[SdkAgentEvents.UserCompletionFailed].post({
+          error,
+          params: data,
+          fulfilling: true,
+          address: this.getAddress(),
+        });
+        // process.exit(1);
+      }
+      this.evts.TransactionCompleted.post({
+        transactionId: data.txData.transactionId,
+        address: this.getAddress(),
+        timestamp: Date.now(),
+        error,
+      });
+    });
+
+    // On sender cancellation, post that it was completed
+    sdk.attach(NxtpSdkEvents.SenderTransactionCancelled, async (data) => {
+      this.evts.RouterCompletionFailed.post({
+        ...data,
+        address: this.getAddress(),
+      });
+      this.evts.TransactionCompleted.post({
+        transactionId: data.txData.transactionId,
+        address: this.getAddress(),
+        timestamp: Date.now(),
+        error: jsonifyError(
+          new TransactionCancelled(data.caller === data.txData.router, data.txData.transactionId, { ...data }),
+        ),
+      });
+    });
+  }
+
+
   getAddress(): string {
       //todo:needs asyncing
       // return await this.signer.getAddress();
@@ -192,14 +298,64 @@ class SdkAgent implements SdkTestAgent{
 //   }
   
 // }
+class PingPong implements LoadTestBehavior{
+  
+  private targets!: TestTargets;
+  private agents: SdkAgent [] = [];
 
+  private ping!:NxtpSdk;
+  private pong!:NxtpSdk;
+
+  constructor(targets: TestTargets, agents: SdkAgent []){
+    this.agents = agents;
+    this.targets = targets;
+  }
+
+  setupAgents(){
+    //specific logic for setting up the agents for ping pong
+    for(const agent of this.agents){
+        // switch(agent.kind){
+        //   case(AgentTypes.User):{
+             
+        //   }break;
+        //   case(AgentTypes.Router):{
+        //     console.log(`setup router`);
+        //   }break;
+        // }      
+        this.ping = agent.getSdk(targets.chainIds[0]);
+        this.pong = agent.getSdk(targets.chainIds[1]);
+        agent.setupListeners(this.ping);
+        agent.setupListeners(this.pong);
+      
+    }
+
+  }
+  startTransfer(){
+    this.ping.getTransferQuote();
+
+  }
+  start(){
+    this.setupAgents();
+
+    this.startTransfer();
+  }
+  end(): number {
+      return 1;
+  }
+  report(): void {
+      console.log(`Some behavior running`);
+  }
+ 
+}
 const loadTestParams:LoadTestConfig = {chainIds: [4,5], iterations: 1, spawnContainters: true};
 
 const env = new LoadTestEnvironment(loadTestParams);
 
 const targets = env.getTargets();
 
-const sdkAgent = new SdkAgent("0xb2e2562db2e9d856dec22c25571a2ff6b276b1789d15fdfc13835533ab2a33f8", targets, env);
+const randomPk = ethers.Wallet.createRandom()._signingKey().privateKey;
+
+const sdkAgent = new SdkAgent(randomPk, targets);
 
 
 const ppTest = new PingPong(targets, [sdkAgent]);
