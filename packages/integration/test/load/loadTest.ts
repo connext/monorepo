@@ -1,10 +1,17 @@
 import { NxtpSdk } from "@connext/nxtp-sdk";
 import { ChainConfig } from "@connext/nxtp-txservice";
-import { transactionSubgraphMock } from "@connext/nxtp-utils";
 import { ethers, Signer } from "ethers";
+
 import { Config, getConfig } from "../utils/config";
 
+const compose = require("docker-compose");
 
+const path_to_yml = "./ops/";
+
+async function initDocker(){
+  const state = await compose.upAll({cwd:path_to_yml, config:"router.docker-compose.yml"});
+  return state;
+}
 
 type LoadTestConfig = {
   //chainIds taken in order by the behavior
@@ -35,9 +42,9 @@ type TestAgent = {
 interface SdkTestAgent extends TestAgent {
   getSdk(chainId:number):NxtpSdk;
 }
-interface RouterTestAgent extends TestAgent{
-  restartRouterStack():void;
-}
+// interface RouterTestAgent extends TestAgent{
+//   restartRouterStack():void;
+// }
 
 
 
@@ -45,18 +52,23 @@ class LoadTestEnvironment{
   private config:Config;
   private containersUp!:boolean;
 
-  constructor(testParams:LoadTestConfig){
+   constructor(testParams:LoadTestConfig){
     this.config = getConfig();
     if(testParams.spawnContainters){
-      this.spawnRouterStack();
+      this.spawnRouterStack().then((r)=>console.log(`spawning router ${r.out}`));
     }else{
       //override
-      this.containersUp = true
+      this.containersUp = true;
     }
   }
-  spawnRouterStack(){
+  fundAgents(){
+
+  }
+  async spawnRouterStack(){
     //docker api stuff in here
+    const res = await initDocker();
     this.containersUp = true;
+    return res;
   }
 
   getConfig():Config{
@@ -121,6 +133,9 @@ class PingPong implements LoadTestBehavior{
   end(): number {
       return 1;
   }
+  report(): void {
+      console.log(`Some behavior running`);
+  }
  
 }
 
@@ -130,26 +145,32 @@ class SdkAgent implements SdkTestAgent{
   private signer:Signer
   private readonly sdks:NxtpSdk[] = [];
   private readonly targets: TestTargets;
-  private kind = AgentTypes.User;
+  private readonly env: LoadTestEnvironment;
+
+  public kind = AgentTypes.User;
 
   constructor(pk:string, targets:TestTargets, env: LoadTestEnvironment){
     this.signer = new ethers.Wallet(pk);
     this.targets = targets;
-    for(const chainId in targets.chainIds){
-      const newSigner = this.signer.connect(new ethers.providers.JsonRpcProvider(targets.chainConfig.providers[0]));
-      const sdk = new NxtpSdk({
-        targets.chainConfig,
-        signer: newSigner, 
-        ///...       
+    this.env = env;
 
-      })
-      this.sdks[chainId] = sdk;
-    }
+    // for(const chainId in targets.chainIds){
+    //   const newSigner = this.signer.connect(new ethers.providers.JsonRpcProvider(targets.chainConfig.providers[0]));
+    //   const sdk = new NxtpSdk({
+    //     targets.chainConfig,
+    //     signer: newSigner, 
+    //     ///...       
+
+    //   })
+    //   this.sdks[chainId] = sdk;
+    // }
   }
 
   
   getAddress(): string {
-      return await this.signer.getAddress();
+      //todo:needs asyncing
+      // return await this.signer.getAddress();
+      return "0xdeadbeef";
   }
   getSdk(chainId: number): NxtpSdk {
       return this.sdks[chainId];
@@ -178,7 +199,13 @@ const env = new LoadTestEnvironment(loadTestParams);
 
 const targets = env.getTargets();
 
-const sdkAgent = new SdkAgent("privatekey", targets, env);
+const sdkAgent = new SdkAgent("0xb2e2562db2e9d856dec22c25571a2ff6b276b1789d15fdfc13835533ab2a33f8", targets, env);
+
+
+const ppTest = new PingPong(targets, [sdkAgent]);
+
+
+ppTest.start();
 
 //create test
 

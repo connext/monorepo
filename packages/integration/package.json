@@ -28,7 +28,8 @@
     "docker:all:down": "docker-compose -f ops/chains.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/web3signer.docker-compose.yml -f ops/router.docker-compose.yml down",
     "concurrency:router": "ts-node ./test/load/routerConcurrency.ts",
     "cyclical:router": "ts-node ./test/load/routerCyclical.ts | tee packages/integration/logs.json",
-    "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts"
+    "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts",
+    "loadtest": "ts-node ./test/load/loadTest.ts"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -56,6 +57,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
+    "docker-compose": "^0.23.17",
     "eslint": "^7.32.0",
     "mocha": "^9.0.3",
     "nyc": "^15.1.0",

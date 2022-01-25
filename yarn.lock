@@ -1786,6 +1786,7 @@ __metadata:
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
     chai-subset: ^1.6.0
+    docker-compose: ^0.23.17
     eslint: ^7.32.0
     ethers: ^5.4.6
     evt: ^1.10.1
@@ -10350,6 +10351,15 @@ __metadata:
   dependencies:
     buffer-indexof: ^1.0.0
   checksum: 62d4b87b09421f813dd03eb17866cb307e278555475b25752396d3e5c7e63b9f0f64ab5b41edeb755cb52d722600a89977d36c64a94d02ed92c32e44a8b849f2
+  languageName: node
+  linkType: hard
+
+"docker-compose@npm:^0.23.17":
+  version: 0.23.17
+  resolution: "docker-compose@npm:0.23.17"
+  dependencies:
+    yaml: ^1.10.2
+  checksum: e62e16980ab816288eb2ebb811a31a19a940a4bde769c41067e983d5e224d98d8e0c0d9c43682612691941702523f3299779f12a7bb09d1428f6511b4a1831a4
   languageName: node
   linkType: hard
 
