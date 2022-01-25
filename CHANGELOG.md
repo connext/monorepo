@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.20
+
 - [utils] Estimate gas updates
 
 ## 0.1.19
