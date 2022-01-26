@@ -4,6 +4,7 @@
 
 ## 0.1.20
 
+- [txservice] Retry with direct provider call if signer-based contract reads fail
 - [utils] Estimate gas updates
 
 ## 0.1.19
