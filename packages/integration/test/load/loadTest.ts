@@ -1,4 +1,4 @@
-import { NxtpSdk, NxtpSdkEvent, NxtpSdkEventPayloads, NxtpSdkEvents, ReceiverPrepareSignedPayload, ReceiverTransactionCancelledPayload, ReceiverTransactionFulfilledPayload, ReceiverTransactionPreparedPayload, SenderTokenApprovalMinedPayload, SenderTokenApprovalSubmittedPayload, SenderTransactionCancelledPayload, SenderTransactionFulfilledPayload, SenderTransactionPreparedPayload, SenderTransactionPrepareSubmittedPayload } from "@connext/nxtp-sdk";
+import { getMinExpiryBuffer, NxtpSdk, NxtpSdkEvent, NxtpSdkEventPayloads, NxtpSdkEvents, ReceiverPrepareSignedPayload, ReceiverTransactionCancelledPayload, ReceiverTransactionFulfilledPayload, ReceiverTransactionPreparedPayload, SenderTokenApprovalMinedPayload, SenderTokenApprovalSubmittedPayload, SenderTransactionCancelledPayload, SenderTransactionFulfilledPayload, SenderTransactionPreparedPayload, SenderTransactionPrepareSubmittedPayload } from "@connext/nxtp-sdk";
 import { ChainConfig } from "@connext/nxtp-txservice";
 import { AuctionResponse, getRandomBytes32, jsonifyError, Logger, NxtpError, NxtpErrorJson, TransactionPreparedEvent } from "@connext/nxtp-utils";
 import { ethers, Signer } from "ethers";
@@ -61,12 +61,10 @@ class LoadTestEnvironment{
   }
   async spawnRouterStack(){
     //docker api stuff in here
-    // const res = await initDocker();
     await startContainers();
-    // await setupChainIntegration();
+    await setupChainIntegration();
 
     this.containersUp = true;
-    // return res;
   }
 
   getConfig():Config{
@@ -312,16 +310,45 @@ class PingPong implements LoadTestBehavior{
     }
 
   }
-  startTransfer(){
+  async startTransfer(){
     const txid = getRandomBytes32();
-    
-    this.ping.getTransferQuote();
+    const minExpiry = getMinExpiryBuffer(); // 36h in seconds
+    const buffer = 5 * 60; 
+
+    const amount = "3.0";
+    const sendingChainId = targets.chainIds[0];
+    const receivingChainId = targets.chainIds[1];
+
+    const swap = getConfig().swapPools.find((swap) => {
+      // Must have sending and receiving chain
+      const chains = swap.assets.map((a) => a.chainId);
+      return chains.includes(sendingChainId) && chains.includes(receivingChainId);
+    });
+    if (!swap) {
+      throw new Error(`Could not find matching swap in config: ${getConfig().swapPools}`);
+    }
+    const  sendingAssetId  = swap.assets.find((a) => a.chainId === sendingChainId)!;
+    const  receivingAssetId  = swap.assets.find((a) => a.chainId === receivingChainId)!;
+
+    const bid = {receivingAddress: this.agents[0].getAddress(),
+                 expiry: Math.floor(Date.now() / 1000) + minExpiry + buffer,
+                 transactionId: txid, 
+                 amount:amount,
+                 sendingChainId:sendingChainId,
+                 receivingChainId:receivingChainId,
+                 sendingAssetId:sendingAssetId.assetId,
+                 receivingAssetId: receivingAssetId.assetId,
+                 };
+
+    const auction = await this.ping.getTransferQuote(bid);
+
+    console.log(`auction res ${auction}`);
 
   }
   start(){
     this.setupAgents();
 
-    this.startTransfer();
+    this.startTransfer().then(()=>console.log("started txfr"));
   }
   end(): number {
       return 1;
