@@ -451,7 +451,9 @@ export class RpcProviderAggregator {
     // If it's greater than (or equal to) the absolute maximum, set it to that maximum (and log).
     const min = BigNumber.from(gasPriceMinimum);
     const max = BigNumber.from(gasPriceMaximum);
-    if (gasPrice.lt(min)) {
+    // TODO: Could use a more sustainable method of separating out gas price abs min for certain
+    // chains (such as arbitrum here) in particular:
+    if (gasPrice.lt(min) && this.chainId !== 42161) {
       gasPrice = min;
     } else if (gasPrice.gte(max)) {
       this.logger.warn("Hit the gas price absolute maximum.", requestContext, methodContext, {
