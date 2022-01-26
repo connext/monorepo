@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.21
+
+- [utils] Estimate gas updates for Arbitrum
+
 ## 0.1.20
 
 - [utils] Estimate gas updates
