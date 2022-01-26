@@ -278,14 +278,20 @@ export class RpcProviderAggregator {
    */
   public async readContract(tx: ReadTransaction, blockTag: providers.BlockTag = "latest"): Promise<string> {
     return this.execute<string>(false, async (provider: SyncProvider) => {
+      let signerError: any = undefined;
       try {
         if (this.signer) {
-          return await this.signer.connect(provider).call(tx, blockTag);
-        } else {
-          return await provider.call(tx, blockTag);
+          // If we have a signer we can use for this contract read, try that first.
+          // If it doesn't work, we'll want to resort to calling with the sync provider directly.
+          try {
+            return await this.signer.connect(provider).call(tx, blockTag);
+          } catch (error) {
+            signerError = error;
+          }
         }
+        return await provider.call(tx, blockTag);
       } catch (error) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error, signerError });
       }
     });
   }
