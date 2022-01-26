@@ -1,35 +1,12 @@
 import { NxtpSdk, NxtpSdkEvent, NxtpSdkEventPayloads, NxtpSdkEvents, ReceiverPrepareSignedPayload, ReceiverTransactionCancelledPayload, ReceiverTransactionFulfilledPayload, ReceiverTransactionPreparedPayload, SenderTokenApprovalMinedPayload, SenderTokenApprovalSubmittedPayload, SenderTransactionCancelledPayload, SenderTransactionFulfilledPayload, SenderTransactionPreparedPayload, SenderTransactionPrepareSubmittedPayload } from "@connext/nxtp-sdk";
 import { ChainConfig } from "@connext/nxtp-txservice";
-import { AuctionResponse, jsonifyError, Logger, NxtpError, NxtpErrorJson, TransactionPreparedEvent } from "@connext/nxtp-utils";
+import { AuctionResponse, getRandomBytes32, jsonifyError, Logger, NxtpError, NxtpErrorJson, TransactionPreparedEvent } from "@connext/nxtp-utils";
 import { ethers, Signer } from "ethers";
 
 import { Config, getConfig } from "../utils/config";
-import { spawn } from "child_process";
 import { Evt } from "evt";
-import { timeStamp } from "console";
+import { setupChainIntegration, startContainers } from "../utils/containerManager";
 
-const compose = require("docker-compose");
-
-const path_to_yml = "./ops/";
-
-async function initDocker(){
-  let router;
-  const msg = await compose.upAll({cwd:path_to_yml, config:"messaging.docker-compose.yml"});
-  const chains = await compose.upAll({cwd:path_to_yml, config: "chains.docker-compose.yml"});
-  
-  const child =  spawn('../../setup-integration-test.sh');
-  child.stdout.on('data', (chunk)=>{
-    console.log(`\n\n${chunk}`);
-  });
-
-
-  child.on('close', async(code)=>{
-    console.log(`\n\n process exit: ${code}`);
-    router = await compose.upAll({cwd:path_to_yml, config: "router.docker-compose.yml"});
-  });
-    
-  return [msg, chains, router];
-}
 
 type LoadTestConfig = {
   //chainIds taken in order by the behavior
@@ -85,6 +62,9 @@ class LoadTestEnvironment{
   async spawnRouterStack(){
     //docker api stuff in here
     // const res = await initDocker();
+    await startContainers();
+    // await setupChainIntegration();
+
     this.containersUp = true;
     // return res;
   }
@@ -210,7 +190,7 @@ class SdkAgent implements SdkTestAgent{
         natsUrl: c.natsUrl,
         authUrl: c.authUrl,
         network: "local",
-        logger: new Logger({level: c.logLevel?? "debug"}),  
+        logger: new Logger({level: c.logLevel?? "warn"}),  
       });
       sdk.connectMessaging();
       this.sdks[chainId] = sdk;
@@ -322,6 +302,8 @@ class PingPong implements LoadTestBehavior{
         //     console.log(`setup router`);
         //   }break;
         // }      
+
+
         this.ping = agent.getSdk(targets.chainIds[0]);
         this.pong = agent.getSdk(targets.chainIds[1]);
         agent.setupListeners(this.ping);
@@ -331,6 +313,8 @@ class PingPong implements LoadTestBehavior{
 
   }
   startTransfer(){
+    const txid = getRandomBytes32();
+    
     this.ping.getTransferQuote();
 
   }
