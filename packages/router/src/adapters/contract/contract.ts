@@ -558,19 +558,22 @@ export const fulfillRouterContract = async (
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
 
-      // increment router fees
-      incrementRelayerFeesPaid(
-        txData.transactionId,
-        txData.sendingAssetId,
-        txData.sendingChainId,
-        txData.receivingAssetId,
-        txData.receivingChainId,
-        chainId,
-        routerRelayerFee,
-        routerRelayerFeeAsset,
-        TransactionReasons.FulfillSender,
-        requestContext,
-      );
+      if (chainId === txData.sendingChainId) {
+        // increment router fees when sending on sending chain. it doesn't take fee from router for ReceiverFulfill transactions.
+        incrementRelayerFeesPaid(
+          txData.transactionId,
+          txData.sendingAssetId,
+          txData.sendingChainId,
+          txData.receivingAssetId,
+          txData.receivingChainId,
+          chainId,
+          routerRelayerFee,
+          routerRelayerFeeAsset,
+          TransactionReasons.FulfillSender,
+          requestContext,
+        );
+      }
+
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
       logger.warn("Router contract fulfill: Gelato send failed", requestContext, methodContext, {
@@ -606,19 +609,21 @@ export const fulfillRouterContract = async (
         .pipe(({ args }) => args.txData.transactionId === txData.transactionId)
         .waitFor(300_000);
 
-      // increment router fees
-      incrementRelayerFeesPaid(
-        txData.transactionId,
-        txData.sendingAssetId,
-        txData.sendingChainId,
-        txData.receivingAssetId,
-        txData.receivingChainId,
-        chainId,
-        routerRelayerFee,
-        routerRelayerFeeAsset,
-        TransactionReasons.FulfillSender,
-        requestContext,
-      );
+      if (chainId === txData.sendingChainId) {
+        // increment router fees when sending on sending chain. it doesn't take fee from router for ReceiverFulfill transactions.
+        incrementRelayerFeesPaid(
+          txData.transactionId,
+          txData.sendingAssetId,
+          txData.sendingChainId,
+          txData.receivingAssetId,
+          txData.receivingChainId,
+          chainId,
+          routerRelayerFee,
+          routerRelayerFeeAsset,
+          TransactionReasons.FulfillSender,
+          requestContext,
+        );
+      }
 
       return await txService.getTransactionReceipt(chainId, event.transactionHash);
     } catch (err: any) {
