@@ -5,6 +5,7 @@ import "hardhat-gas-reporter";
 import "hardhat-deploy";
 import "solidity-coverage";
 import "@tenderly/hardhat-tenderly";
+import "./hardhat-godwoken-plugin";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
