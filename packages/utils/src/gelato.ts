@@ -16,6 +16,7 @@ const endpoints = {
   [CHAIN_ID.FANTOM]: "https://prod.relay.gelato.digital/fantom/relay",
   [CHAIN_ID.ARBITRUM]: "https://prod.relay.gelato.digital/arbitrum/relay",
   [CHAIN_ID.AVALANCHE]: "https://prod.relay.gelato.digital/avalanche/relay",
+  [CHAIN_ID.OPTIMISM]: "https://prod.relay.gelato.digital/optimism/relay",
 };
 
 const gelatoSend = async (
