@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Remove relayerFeesPaid stuff when fulfilling on receiving side
+
 ## 0.1.21
 
 - [utils] Estimate gas updates for Arbitrum
