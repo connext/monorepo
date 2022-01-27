@@ -1752,7 +1752,6 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.0.2
     "@nomiclabs/hardhat-waffle": ^2.0.1
     "@openzeppelin/contracts": 4.2.0
-    "@polyjuice-provider/ethers": 0.1.3
     "@rumblefishdev/hardhat-polyjuice-plugin": ^1.0.2
     "@sinclair/typebox": ^0.20.4
     "@tenderly/hardhat-tenderly": ^1.0.12
@@ -4198,7 +4197,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polyjuice-provider/ethers@npm:0.1.3, @polyjuice-provider/ethers@npm:^0.1.3":
+"@polyjuice-provider/ethers@npm:^0.1.3":
   version: 0.1.3
   resolution: "@polyjuice-provider/ethers@npm:0.1.3"
   dependencies:
