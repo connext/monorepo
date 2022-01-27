@@ -682,6 +682,7 @@ export class RpcProviderAggregator {
         }
       }
     }
+    console.log(`SHUFFLEDBOIS \n\n\n ${JSON.stringify(shuffledProviders)}`);
     throw new RpcError(RpcError.reasons.FailedToSend, { errors });
   }
 

@@ -187,7 +187,6 @@ export class NxtpSdkBase {
       number,
       Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }
     > = {};
-
     // create configs for subclasses based on passed-in config
     Object.entries(chainConfig).forEach(
       ([
@@ -201,6 +200,7 @@ export class NxtpSdkBase {
       ]) => {
         const chainId = parseInt(_chainId);
         let transactionManagerAddress = _transactionManagerAddress;
+        
         if (!transactionManagerAddress) {
           const res = getDeployedTransactionManagerContract(chainId);
           if (!res || !res.address) {
@@ -209,6 +209,7 @@ export class NxtpSdkBase {
           transactionManagerAddress = res.address;
         }
         this.config.chainConfig[chainId].transactionManagerAddress = transactionManagerAddress;
+
 
         let priceOracleAddress = _priceOracleAddress;
         const chainIdsForGasFee = getDeployedChainIdsForGasFee();

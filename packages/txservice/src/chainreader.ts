@@ -113,6 +113,7 @@ export class ChainReader {
    * @returns number representing the decimals of the asset
    */
   public async getDecimalsForAsset(chainId: number, assetId: string): Promise<number> {
+    console.log(`Provider\n\n\n ${JSON.stringify(this.getProvider(chainId))}`);
     return await this.getProvider(chainId).getDecimalsForAsset(assetId);
   }
 
