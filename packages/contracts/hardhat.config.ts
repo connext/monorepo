@@ -3,9 +3,9 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-gas-reporter";
 import "hardhat-deploy";
+import "@rumblefishdev/hardhat-polyjuice-plugin";
 import "solidity-coverage";
 import "@tenderly/hardhat-tenderly";
-import "./hardhat-godwoken-plugin";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
@@ -57,11 +57,6 @@ const config: HardhatUserConfig = {
     rando: { default: 3 },
   },
   networks: {
-    "godwoken-testnet": {
-      accounts: ["0xd9066ff9f753a1898709b568119055660a77d9aae4d7a4ad677b8fb3d2a571e5"],
-      chainId: 71393,
-      url: urlOverride || "https://godwoken-testnet-web3-rpc.ckbapp.dev"
-    },
     localhost: {
       accounts: {
         accountsBalance: "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -176,6 +171,14 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
+    },
+    "godwoken-testnet": {
+      url: "http://godwoken-testnet-web3-rpc.ckbapp.dev",
+      godwokenConfig: {
+        privateKey: "0xd9066ff9f753a1898709b568119055660a77d9aae4d7a4ad677b8fb3d2a571e5",
+        rollupTypeHash: "0x4cc2e6526204ae6a2e8fcf12f7ad472f41a1606d5b9624beebd215d780809f6a",
+        ethAccountLockCodeHash: "0xdeec13a7b8e100579541384ccaf4b5223733e4a5483c3aec95ddc4c1d5ea5b22",
+      },
     },
   },
 };

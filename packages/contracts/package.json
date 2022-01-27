@@ -14,8 +14,7 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "hardhat": "hardhat",
-    "deploy:nervos": "ts-node deploy/deploy-nervos.ts"
+    "hardhat": "hardhat"
   },
   "main": "dist/index.js",
   "types": "typechain/index.ts",
@@ -33,6 +32,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "4.2.0",
+    "@rumblefishdev/hardhat-polyjuice-plugin": "^1.0.2",
     "@sinclair/typebox": "^0.20.4",
     "@tenderly/hardhat-tenderly": "^1.0.12",
     "@typechain/ethers-v5": "^7.0.1",
