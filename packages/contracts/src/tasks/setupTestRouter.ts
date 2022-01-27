@@ -30,7 +30,7 @@ export default task("setup-test-router", "Add router and test assets")
 
       let amount = _amount;
       if (!amount) {
-        amount = "2500000000000000000000000";
+        amount = "25000000000000000000000";
       }
 
       const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
