@@ -42,7 +42,7 @@
     "@types/node": "^14.17.5",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
-    "ethers": "5.4.1",
+    "ethers": "^5.4.6",
     "hardhat": "^2.6.8",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
