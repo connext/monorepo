@@ -71,6 +71,20 @@ export class PingPong implements LoadTestBehavior{
 
       const prepare = await this.ping.prepareTransfer(auction, true);
       console.log(`prepare log: ${JSON.stringify(prepare)}`);
+      //better way to get the prepare
+      if(prepare.prepareResponse.hash.includes('0x')){
+        
+        console.log('ping finished start pong');
+        try{
+        const pongBid = { ...bid, transactionId: getRandomBytes32(), sendingChainId:receivingChainId, receivingChainId:sendingChainId};
+        const pongAuction = await this.pong.getTransferQuote(pongBid);
+        console.log(`\n\n\n\npong auction res ${JSON.stringify(pongAuction), JSON.stringify(pongBid)}`);
+        const pongPrepare = await this.pong.prepareTransfer(pongAuction, true);
+        console.log(`pong prepare log: ${JSON.stringify(pongPrepare)}`);
+        }catch(e){
+          console.log(`catch pong ${e}`);
+        }
+      }
     
     }catch(e){
       console.log(e);

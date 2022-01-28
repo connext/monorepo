@@ -100,7 +100,7 @@ export class SdkAgent implements SdkTestAgent{
           ...chainProviders[chainId],
         };
       });
-      const newSigner = this.signer.connect(new ethers.providers.JsonRpcProvider(chainConfig[this.targets.chainIds[0]].providers[0].url));
+      const newSigner = this.signer.connect(new ethers.providers.JsonRpcProvider(chainConfig[chainId].providers[0].url));
 
       const sdk = new NxtpSdk({
         chainConfig,

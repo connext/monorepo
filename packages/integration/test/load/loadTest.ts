@@ -60,7 +60,7 @@ class LoadTestEnvironment{
   
 // }
 
-const loadTestParams:LoadTestConfig = {chainIds: [1337,1338], iterations: 1, spawnContainters: true};
+const loadTestParams: LoadTestConfig = {chainIds: [1337,1338], iterations: 1, spawnContainters: false};
 
 const env = new LoadTestEnvironment(loadTestParams);
 
