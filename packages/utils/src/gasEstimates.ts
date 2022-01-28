@@ -38,22 +38,22 @@ export const getHardcodedGasLimits = async (
   const chainInfo = chaindata?.get(chainId.toString()) ?? chainData?.get("0");
   if (!chainInfo) return DEFAULT_GAS_ESTIMATES;
 
-  const prepare = chainInfo.gasEstimates.prepare ?? DEFAULT_GAS_ESTIMATES.prepare;
-  const fulfill = chainInfo.gasEstimates.fulfill ?? DEFAULT_GAS_ESTIMATES.fulfill;
-  const cancel = chainInfo.gasEstimates.cancel ?? DEFAULT_GAS_ESTIMATES.cancel;
-  const removeLiquidity = chainInfo.gasEstimates.removeLiquidity ?? DEFAULT_GAS_ESTIMATES.removeLiquidity;
+  const prepare = chainInfo.gasEstimates?.prepare ?? DEFAULT_GAS_ESTIMATES.prepare;
+  const fulfill = chainInfo.gasEstimates?.fulfill ?? DEFAULT_GAS_ESTIMATES.fulfill;
+  const cancel = chainInfo.gasEstimates?.cancel ?? DEFAULT_GAS_ESTIMATES.cancel;
+  const removeLiquidity = chainInfo.gasEstimates?.removeLiquidity ?? DEFAULT_GAS_ESTIMATES.removeLiquidity;
   const prepareRouterContract =
-    chainInfo.gasEstimates.prepareRouterContract ?? DEFAULT_GAS_ESTIMATES.prepareRouterContract;
+    chainInfo.gasEstimates?.prepareRouterContract ?? DEFAULT_GAS_ESTIMATES.prepareRouterContract;
   const fulfillRouterContract =
-    chainInfo.gasEstimates.fulfillRouterContract ?? DEFAULT_GAS_ESTIMATES.fulfillRouterContract;
+    chainInfo.gasEstimates?.fulfillRouterContract ?? DEFAULT_GAS_ESTIMATES.fulfillRouterContract;
   const cancelRouterContract =
-    chainInfo.gasEstimates.cancelRouterContract ?? DEFAULT_GAS_ESTIMATES.cancelRouterContract;
+    chainInfo.gasEstimates?.cancelRouterContract ?? DEFAULT_GAS_ESTIMATES.cancelRouterContract;
   const removeLiquidityRouterContract =
-    chainInfo.gasEstimates.removeLiquidityRouterContract ?? DEFAULT_GAS_ESTIMATES.removeLiquidityRouterContract;
-  const prepareL1 = chainInfo.gasEstimates.prepareL1 ?? DEFAULT_GAS_ESTIMATES.prepareL1;
-  const fulfillL1 = chainInfo.gasEstimates.fulfillL1 ?? DEFAULT_GAS_ESTIMATES.fulfillL1;
-  const cancelL1 = chainInfo.gasEstimates.cancelL1 ?? DEFAULT_GAS_ESTIMATES.cancelL1;
-  const removeLiquidityL1 = chainInfo.gasEstimates.removeLiquidityL1 ?? DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
+    chainInfo.gasEstimates?.removeLiquidityRouterContract ?? DEFAULT_GAS_ESTIMATES.removeLiquidityRouterContract;
+  const prepareL1 = chainInfo.gasEstimates?.prepareL1 ?? DEFAULT_GAS_ESTIMATES.prepareL1;
+  const fulfillL1 = chainInfo.gasEstimates?.fulfillL1 ?? DEFAULT_GAS_ESTIMATES.fulfillL1;
+  const cancelL1 = chainInfo.gasEstimates?.cancelL1 ?? DEFAULT_GAS_ESTIMATES.cancelL1;
+  const removeLiquidityL1 = chainInfo.gasEstimates?.removeLiquidityL1 ?? DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
   const res = {
     prepare,
     fulfill,
