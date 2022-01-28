@@ -1,5 +1,6 @@
-import { getMinExpiryBuffer, NxtpSdk, NxtpSdkEvents } from "@connext/nxtp-sdk";
+import { getMinExpiryBuffer, NxtpSdk } from "@connext/nxtp-sdk";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
+
 import { SdkAgent } from "./loadTestSdkAgent";
 import { LoadTestBehavior, TestTargets } from "./loadTestTypes";
 
@@ -7,12 +8,19 @@ export class PingPong implements LoadTestBehavior {
   private targets!: TestTargets;
   private agents: SdkAgent[] = [];
 
+  private pingChainId: number;
+  private pongChainId: number;
+
   private ping!: NxtpSdk;
   private pong!: NxtpSdk;
 
   constructor(targets: TestTargets, agents: SdkAgent[]) {
     this.agents = agents;
     this.targets = targets;
+    //set ping and pong chainIds
+    this.pingChainId = this.targets.chainIds[0];
+    this.pongChainId = this.targets.chainIds[1];
+
   }
 
   setupAgents() {
@@ -26,20 +34,19 @@ export class PingPong implements LoadTestBehavior {
       //     console.log(`setup router`);
       //   }break;
       // }
-      this.ping = agent.getSdk(this.targets.chainIds[0]);
-      this.pong = agent.getSdk(this.targets.chainIds[1]);
+      this.ping = agent.getSdk(this.pingChainId);
+      this.pong = agent.getSdk(this.pongChainId);
       agent.setupListeners(this.ping);
       agent.setupListeners(this.pong);
     }
   }
-  async startTransfer() {
+  async startTransfer(amount = "10") {
     const txid = getRandomBytes32();
     const minExpiry = getMinExpiryBuffer(); // 36h in seconds
     const buffer = 5 * 60;
 
-    const amount = "10";
-    const sendingChainId = this.targets.chainIds[0];
-    const receivingChainId = this.targets.chainIds[1];
+    const sendingChainId = this.pingChainId;
+    const receivingChainId = this.pongChainId;
 
 
     // const swap = getConfig().swapPools.find((swap) => {
