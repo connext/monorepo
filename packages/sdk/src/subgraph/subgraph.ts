@@ -112,6 +112,7 @@ export class Subgraph {
   private pollingLoop: NodeJS.Timer | undefined;
   private syncStatus: Record<number, SubgraphSyncRecord> = {};
   private chainConfig: Record<number, SubgraphChainConfig>;
+  public pollingStopperBlock: Record<number, number> = {};
 
   constructor(
     private readonly userAddress: Promise<string>,
@@ -154,12 +155,40 @@ export class Subgraph {
     }
   }
 
-  public startPolling(): void {
+  public updatePollingStoperBlock(chainId: number, blockNumber: number): void {
+    this.pollingStopperBlock[chainId] = blockNumber;
+  }
+
+  async startPolling(): Promise<void> {
+    await this.updateSyncStatus();
+    await Promise.all(
+      Object.keys(this.sdks).map(async (_chainId) => {
+        const chainId = parseInt(_chainId);
+        this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
+      }),
+    );
     if (this.pollingLoop == null) {
       this.pollingLoop = setInterval(async () => {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
         try {
           await this.getActiveTransactions();
+          if (this.activeTxs.size < 1) {
+            let flag = 0;
+            await Promise.all(
+              Object.keys(this.sdks).map(async (_chainId) => {
+                const chainId = parseInt(_chainId);
+                if (this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock) {
+                  flag = 0;
+                  return;
+                } else {
+                  flag = 1;
+                }
+              }),
+            );
+            if (flag === 1) {
+              clearInterval(this.pollingLoop!);
+            }
+          }
         } catch (err) {
           this.logger.error("Error in subgraph loop", requestContext, methodContext, err);
         }
