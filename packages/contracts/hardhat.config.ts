@@ -103,7 +103,7 @@ const config: HardhatUserConfig = {
     mainnet: {
       accounts: { mnemonic },
       chainId: 1,
-      url: urlOverride || process.env.ETH_PROVIDER_URL || "https://cloudflare-eth.com",
+      url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://cloudflare-eth.com",
     },
     ropsten: {
       accounts: { mnemonic },
