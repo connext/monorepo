@@ -4,9 +4,6 @@ import {
   FulfillParams,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
-  MetaTxPayload,
-  MetaTxPayloads,
-  MetaTxTypes,
   RequestContext,
 } from "@connext/nxtp-utils";
 import { providers, constants, utils } from "ethers";
@@ -96,28 +93,12 @@ export const fulfill = async (
       wallet,
     );
 
-    // Request sender Fulfill request to watchtower!
     const fulfillParams: FulfillParams = {
       txData: { ...invariantData, amount, expiry, preparedBlockNumber },
       signature: fulfillSignature,
       relayerFee,
       callData,
     };
-
-    const payload = {
-      chainId: invariantData.sendingChainId,
-      to: routerAddress,
-      type: MetaTxTypes.RouterContractFulfill,
-      data: {
-        params: fulfillParams,
-        signature,
-        relayerFee,
-        relayerFeeAsset: routerRelayerFeeAsset,
-      } as MetaTxPayloads[typeof MetaTxTypes.RouterContractFulfill],
-    };
-
-    await messaging.publishWatchtowerFulfillRequest(payload);
-    logger.debug("Publishing Watch tower fulfill request", requestContext, methodContext, payload);
 
     receipt = await contractWriter.fulfillRouterContract(
       invariantData.sendingChainId,
