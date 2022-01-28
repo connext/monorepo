@@ -126,6 +126,7 @@ export class SdkAgent implements SdkTestAgent{
       });
     });
 
+
     // Setup autofulfill of transfers + post to evt if it failed
     sdk.attach(NxtpSdkEvents.ReceiverTransactionPrepared, async (data) => {
       let error: NxtpErrorJson | undefined;
@@ -145,6 +146,7 @@ export class SdkAgent implements SdkTestAgent{
         });
         // process.exit(1);
       }
+      
       this.evts.TransactionCompleted.post({
         transactionId: data.txData.transactionId,
         address: await this.getAddress(),
@@ -170,6 +172,18 @@ export class SdkAgent implements SdkTestAgent{
     });
   }
 
+  public attachOnce<T extends SdkAgentEvent>(
+    event: T,
+    callback: (data: SdkAgentEventPayloads[T]) => void,
+    filter: (data: SdkAgentEventPayloads[T]) => boolean = (_data: SdkAgentEventPayloads[T]) => true,
+    timeout?: number,
+  ): void {
+    const args = [timeout, callback].filter((x) => !!x);
+    this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
+  }
+  public getEventFilters(){
+    return this.evts;
+  }
 
   async getAddress(): Promise<string> {
       //todo:needs asyncing
