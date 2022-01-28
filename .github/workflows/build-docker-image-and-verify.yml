@@ -82,9 +82,6 @@ jobs:
           docker pull ghcr.io/connext/nxtp-router:latest
           docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
 
-      - name: Test Integration
-        run: yarn test:integration
-
       - name: Test PingPong Loadtest
         run: yarn test:loadtest
 
