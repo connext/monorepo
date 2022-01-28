@@ -1,8 +1,12 @@
 import {
   ajv,
   createLoggingContext,
+  FulfillParams,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
+  MetaTxPayload,
+  MetaTxPayloads,
+  MetaTxTypes,
   RequestContext,
 } from "@connext/nxtp-utils";
 import { providers, constants, utils } from "ethers";
@@ -22,7 +26,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress, chainData } =
+  const { messaging, logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress, chainData } =
     getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
@@ -92,14 +96,32 @@ export const fulfill = async (
       wallet,
     );
 
+    // Request sender Fulfill request to watchtower!
+    const fulfillParams: FulfillParams = {
+      txData: { ...invariantData, amount, expiry, preparedBlockNumber },
+      signature: fulfillSignature,
+      relayerFee,
+      callData,
+    };
+
+    const payload = {
+      chainId: invariantData.sendingChainId,
+      to: routerAddress,
+      type: MetaTxTypes.RouterContractFulfill,
+      data: {
+        params: fulfillParams,
+        signature,
+        relayerFee,
+        relayerFeeAsset: routerRelayerFeeAsset,
+      } as MetaTxPayloads[typeof MetaTxTypes.RouterContractFulfill],
+    };
+
+    await messaging.publishWatchtowerFulfillRequest(payload);
+    logger.debug("Publishing Watch tower fulfill request", requestContext, methodContext, payload);
+
     receipt = await contractWriter.fulfillRouterContract(
       invariantData.sendingChainId,
-      {
-        txData: { ...invariantData, amount, expiry, preparedBlockNumber },
-        signature: fulfillSignature,
-        relayerFee,
-        callData,
-      },
+      fulfillParams,
       routerAddress,
       signature,
       routerRelayerFeeAsset,

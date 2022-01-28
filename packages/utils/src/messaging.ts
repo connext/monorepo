@@ -467,6 +467,8 @@ export const METATX_REQUEST_SUBJECT = "metatx.request";
 export const METATX_RESPONSE_SUBJECT = "metatx.response";
 export const STATUS_REQUEST_SUBJECT = "status.request";
 export const STATUS_RESPONSE_SUBJECT = "status.response";
+export const WATCHTOWER_FULFILL_REQUEST_SUBJECT = "watchtower.fulfill.request";
+export const WATCHTOWER_FULFILL_RESPONSE_SUBJECT = "watchtower.fulfill.response";
 
 /**
  * @classdesc Contains the logic for handling all the NATS messaging specific to the nxtp protocol (asserts messaging versions and structure)
@@ -719,6 +721,48 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
       data,
       publishInbox,
       err,
+      requestContext,
+    );
+  }
+
+  /**
+   * Subscribes to the watchtower fulfill transaction requests for relayer
+   *
+   * @param handler - Callback that attempts to submit the transaction on behalf of the requester
+   */
+  async subscribeToWatchtowerFulfillRequest(
+    handler: (from: string, inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => void,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToMetaTxRequest.name);
+    await this.subscribeToNxtpMessageWithInbox(
+      `*.${WATCHTOWER_FULFILL_REQUEST_SUBJECT}`,
+      (from: string, inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => {
+        return handler(from, inbox, data, err);
+      },
+      requestContext,
+    );
+  }
+
+  /**
+   * Publishes a request for a watchtower to submit a senderfulfill transaction on behalf of the router
+   *
+   * @param data - The meta transaction information
+   * @param inbox - (optional) The inbox for relayers to send responses to. If not provided, one will be generated
+   * @returns The inbox that will receive responses
+   */
+  async publishWatchtowerFulfillRequest<T extends MetaTxType>(
+    data: MetaTxPayload<T>,
+    inbox?: string,
+    _requestContext?: RequestContext,
+  ): Promise<void> {
+    const requestContext = _requestContext ?? createRequestContext(this.publishStatusResponse.name);
+    const signerAddress = await this.signer.getAddress();
+    await this.publishNxtpMessage(
+      `${signerAddress}.${WATCHTOWER_FULFILL_REQUEST_SUBJECT}`,
+      data,
+      inbox,
+      undefined, // error
       requestContext,
     );
   }
