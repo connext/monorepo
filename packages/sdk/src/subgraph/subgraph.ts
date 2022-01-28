@@ -155,7 +155,7 @@ export class Subgraph {
     }
   }
 
-  public updatePollingStoperBlock(chainId: number, blockNumber: number): void {
+  public updatePollingStopperBlock(chainId: number, blockNumber: number): void {
     this.pollingStopperBlock[chainId] = blockNumber;
   }
 
