@@ -12,7 +12,7 @@ export { getBidExpiry, AUCTION_EXPIRY_BUFFER } from "./auction";
 
 export * from "./shared";
 
-export { signRouterFulfillTransactionPayload, WATCH_TOWER_BUFFER } from "./fulfill";
+export { signRouterFulfillTransactionPayload, WATCHTOWER_CALL_TIMEOUT } from "./fulfill";
 
 export { signRouterCancelTransactionPayload } from "./cancel";
 

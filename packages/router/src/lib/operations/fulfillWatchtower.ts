@@ -13,7 +13,7 @@ import { constants, utils } from "ethers";
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid } from "../errors";
-import { signRouterFulfillTransactionPayload, getNtpTimeSeconds, WATCH_TOWER_BUFFER } from "../helpers";
+import { signRouterFulfillTransactionPayload, getNtpTimeSeconds, WATCHTOWER_CALL_TIMEOUT } from "../helpers";
 
 const { AddressZero, Zero } = constants;
 
@@ -59,7 +59,7 @@ export const fulfillWatchtower = async (
 
   // first check if watch tower can handle this fulfill
   const currentTime = await getNtpTimeSeconds();
-  if (expiry - currentTime < WATCH_TOWER_BUFFER) {
+  if (expiry - currentTime < WATCHTOWER_CALL_TIMEOUT) {
     logger.info("cancelled sending to watch tower due to expiry", requestContext, methodContext);
     return false;
   }

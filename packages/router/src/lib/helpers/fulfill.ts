@@ -2,4 +2,4 @@ import { signRouterFulfillTransactionPayload as _signRouterFulfillTransactionPay
 
 export const signRouterFulfillTransactionPayload = _signRouterFulfillTransactionPayload;
 
-export const WATCH_TOWER_BUFFER = 2 * 3600; // time buffer if watchtower can handle fulfill
+export const WATCHTOWER_CALL_TIMEOUT = 2 * 3600; // time buffer if watchtower can handle fulfill
