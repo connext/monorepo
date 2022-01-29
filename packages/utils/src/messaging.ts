@@ -734,9 +734,9 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
     handler: (from: string, inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => void,
     _requestContext?: RequestContext,
   ): Promise<void> {
-    const requestContext = _requestContext ?? createRequestContext(this.subscribeToMetaTxRequest.name);
+    const requestContext = _requestContext ?? createRequestContext(this.subscribeToWatchtowerFulfillRequest.name);
     await this.subscribeToNxtpMessageWithInbox(
-      `*.${WATCHTOWER_FULFILL_REQUEST_SUBJECT}`,
+      `*.*.${WATCHTOWER_FULFILL_REQUEST_SUBJECT}`,
       (from: string, inbox: string, data?: MetaTxPayload<any>, err?: NxtpErrorJson) => {
         return handler(from, inbox, data, err);
       },
@@ -756,10 +756,10 @@ export class RouterNxtpNatsMessagingService extends NatsNxtpMessagingService {
     inbox?: string,
     _requestContext?: RequestContext,
   ): Promise<void> {
-    const requestContext = _requestContext ?? createRequestContext(this.publishStatusResponse.name);
+    const requestContext = _requestContext ?? createRequestContext(this.publishWatchtowerFulfillRequest.name);
     const signerAddress = await this.signer.getAddress();
     await this.publishNxtpMessage(
-      `${signerAddress}.${WATCHTOWER_FULFILL_REQUEST_SUBJECT}`,
+      `${signerAddress}.${signerAddress}.${WATCHTOWER_FULFILL_REQUEST_SUBJECT}`,
       data,
       inbox,
       undefined, // error
