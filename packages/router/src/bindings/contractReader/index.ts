@@ -179,7 +179,7 @@ export const handleSingle = async (
     transaction.crosschainTx.invariant.transactionId,
   );
   const { logger, txService, config, cache } = getContext();
-  const { prepare, cancel, fulfill } = getOperations();
+  const { prepare, cancel, fulfill, fulfillWatchtower } = getOperations();
 
   let receipt: providers.TransactionReceipt | undefined;
   if (transaction.status === CrosschainTransactionStatus.SenderPrepared) {
@@ -431,7 +431,7 @@ export const handleSingle = async (
           confirmations: receiverFulfillReceipt.confirmations,
         },
       });
-      receipt = await fulfill(
+      const sentWatchTower = await fulfillWatchtower(
         _transaction.crosschainTx.invariant,
         {
           amount: _transaction.crosschainTx.sending.amount,
@@ -443,7 +443,25 @@ export const handleSingle = async (
         },
         requestContext,
       );
-      logger.info("Fulfilled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+
+      logger.info("sent fulfill to watchtower?", requestContext, methodContext, { sentWatchTower });
+
+      if (!sentWatchTower) {
+        receipt = await fulfill(
+          _transaction.crosschainTx.invariant,
+          {
+            amount: _transaction.crosschainTx.sending.amount,
+            expiry: _transaction.crosschainTx.sending.expiry,
+            preparedBlockNumber: _transaction.crosschainTx.sending.preparedBlockNumber,
+            signature: fulfillPayload.signature,
+            callData: fulfillPayload.callData,
+            relayerFee: fulfillPayload.relayerFee,
+          },
+          requestContext,
+        );
+        logger.info("Fulfilled sender", requestContext, methodContext, { txHash: receipt?.transactionHash });
+      }
+
       const sendingAssetName = getAssetName(
         _transaction.crosschainTx.invariant.sendingAssetId,
         _transaction.crosschainTx.invariant.sendingChainId,
