@@ -23,7 +23,7 @@ export const fulfill = async (
 ): Promise<providers.TransactionReceipt | undefined> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name, _requestContext);
 
-  const { messaging, logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress, chainData } =
+  const { logger, contractWriter, config, txService, isRouterContract, wallet, routerAddress, chainData } =
     getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
 
