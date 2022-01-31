@@ -12,6 +12,7 @@ type TransactionStatusResponse = {
     chain: number;
   };
   batch: {
+    id: string;
     size: number; // Total number of transactions in the same batch.
 
     // These values will be defined IFF there is an automated job set up to send this batch.
