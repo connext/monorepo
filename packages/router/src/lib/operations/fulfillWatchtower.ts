@@ -65,6 +65,7 @@ export const senderFulfillWatchtower = async (
   // we won't risk sending the transaction to the Watchtower if it's within the safety buffer period.
   if (expiry < batchSendTimestamp - WATCHTOWER_CALL_BUFFER) {
     logger.info("Failed to delegate SenderFulfill to Watchtower: expiry too close", requestContext, methodContext, {
+      input,
       expiry,
       batchCreatedTimestamp: timestamp,
       batchSendTimestamp,
