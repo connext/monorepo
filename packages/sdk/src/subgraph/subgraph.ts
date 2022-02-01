@@ -173,19 +173,19 @@ export class Subgraph {
         try {
           const activeTxs = await this.getActiveTransactions();
           if (activeTxs.length < 1) {
-            let flag = 0;
+            let shouldStop = false;
             await Promise.all(
               Object.keys(this.sdks).map(async (_chainId) => {
                 const chainId = parseInt(_chainId);
                 if (this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock) {
-                  flag = 0;
+                  shouldStop = shouldStop || false;
                   return;
                 } else {
-                  flag = 1;
+                  shouldStop = shouldStop || true;
                 }
               }),
             );
-            if (flag === 1) {
+            if (shouldStop) {
               clearInterval(this.pollingLoop!);
             }
           }
