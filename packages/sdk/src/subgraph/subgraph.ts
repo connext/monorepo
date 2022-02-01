@@ -171,8 +171,8 @@ export class Subgraph {
       this.pollingLoop = setInterval(async () => {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
         try {
-          await this.getActiveTransactions();
-          if (this.activeTxs.size < 1) {
+          const activeTxs = await this.getActiveTransactions();
+          if (activeTxs.length < 1) {
             let flag = 0;
             await Promise.all(
               Object.keys(this.sdks).map(async (_chainId) => {
