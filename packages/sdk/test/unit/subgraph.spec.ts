@@ -426,6 +426,7 @@ describe("Subgraph", () => {
           transactions: [subgraphSending],
         });
 
+        await subgraph.startPolling();
         const [res, evt] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(SubgraphEvents.SenderTransactionCancelled, 2_000),
@@ -452,6 +453,7 @@ describe("Subgraph", () => {
           transactions: [subgraphSending],
         });
 
+        await subgraph.startPolling();
         const [res, evt] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, 2_000),
@@ -502,6 +504,7 @@ describe("Subgraph", () => {
           userId: senderPrepared.user.id.toLowerCase(),
         }).resolves({ transactions: [] });
 
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.SenderTransactionPrepared, 5_000),
@@ -536,6 +539,7 @@ describe("Subgraph", () => {
           userId: senderPrepared.user.id.toLowerCase(),
         }).resolves({ transactions: [receiverPrepared] });
 
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionPrepared, 5_000),
@@ -571,7 +575,7 @@ describe("Subgraph", () => {
           userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
-        // const res = await subgraph.getActiveTransactions();
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionFulfilled, 5_000),
@@ -604,6 +608,7 @@ describe("Subgraph", () => {
           userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionCancelled, 5_000),

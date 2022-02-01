@@ -178,10 +178,10 @@ export class Subgraph {
               Object.keys(this.sdks).map(async (_chainId) => {
                 const chainId = parseInt(_chainId);
                 if (this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock) {
-                  shouldStop = shouldStop || false;
+                  shouldStop = false;
                   return;
                 } else {
-                  shouldStop = shouldStop || true;
+                  shouldStop = true;
                 }
               }),
             );
