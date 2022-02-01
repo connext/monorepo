@@ -261,6 +261,36 @@ describe("Subgraph", () => {
     });
   });
 
+  describe.skip("startPolling", () => {
+    it("should work and stop if 0 active txs", async () => {
+      const transactionId = getRandomBytes32();
+      const activeTxMock = convertMockedToActiveTransaction(
+        NxtpSdkEvents.SenderTransactionPrepared,
+        getMockTransaction({ transactionId }),
+      );
+
+      (subgraph as any).pollInterval = 1_00;
+
+      chainReader.getBlockNumber.resolves(1);
+      // chainReader.getBlockNumber.onSecondCall().resolves(1);
+
+      (subgraph as any).syncStatus[sendingChainId].syncedBlock = 2;
+      (subgraph as any).syncStatus[receivingChainId].syncedBlock = 2;
+
+      stub(subgraph, "getActiveTransactions").resolves([]);
+      // stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
+      await subgraph.startPolling();
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
+
+      // const activetx1 = (subgraph as any).activeTxs.size;
+      // expect(activetx1).to.be.eq(0);
+      console.log((subgraph as any).pollingLoop, subgraph.pollingStopperBlock);
+    });
+
+    it.skip("should work and continue polling if 1 or more active txs", async () => {});
+  });
+
   describe("getActiveTransactions", async () => {
     describe("sender transactions where status is not Prepared", () => {
       it("should fail if GetTransactionsWithUser for sending chain fails", async () => {
