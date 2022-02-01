@@ -2,6 +2,7 @@ import {
   ajv,
   createLoggingContext,
   FulfillParams,
+  getBatchStatus,
   InvariantTransactionData,
   InvariantTransactionDataSchema,
   MetaTxPayloads,
@@ -13,17 +14,17 @@ import { constants, utils } from "ethers";
 import { getContext } from "../../router";
 import { FulfillInput, FulfillInputSchema } from "../entities";
 import { NoChainConfig, ParamsInvalid } from "../errors";
-import { signRouterFulfillTransactionPayload, getNtpTimeSeconds, WATCHTOWER_CALL_TIMEOUT } from "../helpers";
+import { signRouterFulfillTransactionPayload, getNtpTimeSeconds, WATCHTOWER_CALL_BUFFER } from "../helpers";
 
 const { AddressZero, Zero } = constants;
 
 // sender fulfill to watch tower
-export const fulfillWatchtower = async (
+export const senderFulfillWatchtower = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
   _requestContext: RequestContext<string>,
 ): Promise<boolean> => {
-  const { requestContext, methodContext } = createLoggingContext(fulfillWatchtower.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(senderFulfillWatchtower.name, _requestContext);
 
   const { messaging, logger, config, txService, isRouterContract, wallet, routerAddress, chainData } = getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
@@ -55,14 +56,19 @@ export const fulfillWatchtower = async (
 
   const { signature: fulfillSignature, callData, relayerFee, amount, expiry, preparedBlockNumber } = input;
 
-  logger.info("Sending sender fulfill to watchtower", requestContext, methodContext, input);
-
-  // first check if watch tower can handle this fulfill
+  // Check to make sure Watchtower can handle this fulfill before expiry.
   const currentTime = await getNtpTimeSeconds();
-  if (expiry - currentTime < WATCHTOWER_CALL_TIMEOUT) {
-    logger.info("cancelled sending to watch tower due to expiry", requestContext, methodContext);
+  const { ttl, timestamp } = await getBatchStatus(invariantData.sendingChainId);
+  // Get the timestamp that the batch will or would be sent at.
+  const batchSendTimestamp = (timestamp ?? currentTime) + ttl;
+  // We need to be sure that the transaction won't expire while it sits in the batch. Additionally,
+  // we won't risk sending the transaction to the Watchtower if it's within the safety buffer period.
+  if (expiry < batchSendTimestamp - WATCHTOWER_CALL_BUFFER) {
+    logger.info("Failed to delegate SenderFulfill to Watchtower: expiry too close", requestContext, methodContext);
     return false;
   }
+
+  logger.info("Delegating SenderFulfill to Watchtower", requestContext, methodContext, input);
 
   if (!config.chainConfig[invariantData.sendingChainId]) {
     throw new NoChainConfig(invariantData.sendingChainId, { methodContext, requestContext, invariantData, input });
@@ -123,7 +129,7 @@ export const fulfillWatchtower = async (
     };
 
     await messaging.publishWatchtowerFulfillRequest(payload);
-    logger.info("Publishing Watch tower fulfill request", requestContext, methodContext, payload);
+    logger.info("Publishing Watchtower fulfill request", requestContext, methodContext, payload);
 
     return true;
   } else {

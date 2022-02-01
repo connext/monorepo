@@ -2,4 +2,8 @@ import { signRouterFulfillTransactionPayload as _signRouterFulfillTransactionPay
 
 export const signRouterFulfillTransactionPayload = _signRouterFulfillTransactionPayload;
 
-export const WATCHTOWER_CALL_TIMEOUT = 2 * 3600; // time buffer if watchtower can handle fulfill
+// Safe buffer (distance from tx expiry) within which we are willing to delegate a
+// transaction to the Watchtower. Value is in seconds.
+// NOTE: This does not include the time it takes for the Watchtower to send the transaction
+// batch. Use the Watchtower batch status API to get the batch TTL separately.
+export const WATCHTOWER_CALL_BUFFER = 2 * 60 * 60; // 2 hours.
