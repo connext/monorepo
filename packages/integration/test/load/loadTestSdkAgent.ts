@@ -79,8 +79,9 @@ export class SdkAgent implements SdkTestAgent{
 
   public kind = AgentTypes.User;
 
-  constructor(pk:string, targets:TestTargets){
-    this.signer = new ethers.Wallet(pk);
+  constructor(pkOrSigner:string, targets:TestTargets){
+    
+    this.signer = new ethers.Wallet(pkOrSigner);
     this.targets = targets;
     console.log(this.targets.chainConfig);
 
@@ -181,15 +182,14 @@ export class SdkAgent implements SdkTestAgent{
     const args = [timeout, callback].filter((x) => !!x);
     this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
   }
+  
   public getEventFilters(){
     return this.evts;
   }
 
   async getAddress(): Promise<string> {
-      //todo:needs asyncing
       const address = await this.signer.getAddress();
       return address;
-      // return "0x5c23b39B030636B019B51e0fDe5C6F95aa4B9BCf";
   }
   getSdk(chainId: number): NxtpSdk {
       return this.sdks[chainId];
