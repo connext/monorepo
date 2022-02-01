@@ -75,7 +75,7 @@ export const senderFulfillWatchtower = async (
     return false;
   }
 
-  logger.info("Delegating SenderFulfill to Watchtower", requestContext, methodContext, input);
+  logger.info("Delegating SenderFulfill to Watchtower", requestContext, methodContext, { input });
 
   if (!config.chainConfig[invariantData.sendingChainId]) {
     throw new NoChainConfig(invariantData.sendingChainId, { methodContext, requestContext, invariantData, input });
