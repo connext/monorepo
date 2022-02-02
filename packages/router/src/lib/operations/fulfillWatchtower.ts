@@ -19,12 +19,12 @@ import { signRouterFulfillTransactionPayload, getNtpTimeSeconds, WATCHTOWER_CALL
 const { AddressZero, Zero } = constants;
 
 // sender fulfill to watch tower
-export const senderFulfillWatchtower = async (
+export const fulfillWatchtower = async (
   invariantData: InvariantTransactionData,
   input: FulfillInput,
   _requestContext: RequestContext<string>,
 ): Promise<boolean> => {
-  const { requestContext, methodContext } = createLoggingContext(senderFulfillWatchtower.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(fulfillWatchtower.name, _requestContext);
 
   const { messaging, logger, config, txService, isRouterContract, wallet, routerAddress, chainData } = getContext();
   logger.debug("Method start", requestContext, methodContext, { invariantData, input });
