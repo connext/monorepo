@@ -941,9 +941,7 @@ export class NxtpSdkBase {
       expiry,
     };
     const tx = await this.transactionManager.prepare(sendingChainId, params, requestContext);
-
-    const latestBlock = await this.chainReader.getBlockNumber(sendingChainId);
-    this.subgraph.updatePollingStopperBlock(sendingChainId, latestBlock + 50);
+    this.subgraph.startPolling();
     return tx;
   }
 
