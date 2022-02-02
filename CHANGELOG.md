@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.22
+
 - [sdk] type update for userAddress for sdkBase
 - [sdk] sdk polling only active txs
 - [utils] fix hardcoded gaslimit
