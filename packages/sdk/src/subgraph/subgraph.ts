@@ -119,7 +119,6 @@ export class Subgraph {
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly chainReader: ChainReader,
     private readonly logger: Logger,
-    skipPolling = false,
     private readonly pollInterval = 10_000,
   ) {
     this.chainConfig = {};
@@ -143,9 +142,6 @@ export class Subgraph {
         subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
       };
     });
-    if (!skipPolling) {
-      this.startPolling();
-    }
   }
 
   public stopPolling(): void {
@@ -186,7 +182,7 @@ export class Subgraph {
               }),
             );
             if (shouldStop) {
-              clearInterval(this.pollingLoop!);
+              this.stopPolling();
             }
           }
         } catch (err) {
@@ -726,7 +722,7 @@ export class Subgraph {
    * Update the sync statuses of subgraph providers for each chain.
    * This will enable FallbackSubgraph to use the most in-sync subgraph provider.
    */
-  private async updateSyncStatus(): Promise<void> {
+  async updateSyncStatus(): Promise<void> {
     await Promise.all(
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
