@@ -115,7 +115,7 @@ export class Subgraph {
   public pollingStopperBlock: Record<number, number> = {};
 
   constructor(
-    private readonly userAddress: Promise<string>,
+    private readonly userAddress: Promise<string> | string,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly chainReader: ChainReader,
     private readonly logger: Logger,
