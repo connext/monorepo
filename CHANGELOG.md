@@ -2,6 +2,9 @@
 
 ## Next Release
 
+- [sdk] type update for userAddress for sdkBase
+- [sdk] sdk polling only active txs
+- [utils] fix hardcoded gaslimit
 - [router] Remove relayerFeesPaid stuff when fulfilling on receiving side
 
 ## 0.1.21
