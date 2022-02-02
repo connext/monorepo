@@ -467,7 +467,7 @@ export class ChainReader {
         l1GasInUsd: l1GasInUsd.toString(),
         nativeAssetIdOnMainnet: nativeAssetIdOnMainnet ?? "N/A",
       },
-      gasAmountInUsd,
+      gasAmountInUsd: gasAmountInUsd.toString(),
       finalTokenAmountForGasFee: tokenAmountForGasFee.toString(),
     });
 
