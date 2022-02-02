@@ -249,8 +249,11 @@ export class NxtpSdkBase {
       subgraphConfig,
       this.chainReader,
       this.logger.child({ module: "Subgraph" }),
-      skipPolling,
     );
+
+    if (!skipPolling) {
+      this.subgraph.startPolling();
+    }
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
