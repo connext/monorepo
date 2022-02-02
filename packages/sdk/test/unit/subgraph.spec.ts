@@ -261,8 +261,53 @@ describe("Subgraph", () => {
     });
   });
 
-  describe.skip("startPolling", () => {
-    it("should work and stop if 0 active txs", async () => {
+  describe("startPolling", () => {
+    it("should work and stop if 0 active txs and synced block is greater the stopper block", async () => {
+      (subgraph as any).pollInterval = 1_00;
+
+      chainReader.getBlockNumber.resolves(1);
+      // chainReader.getBlockNumber.onSecondCall().resolves(1)
+
+      stub(subgraph, "updateSyncStatus").resolves();
+      stub(subgraph, "getActiveTransactions").resolves([]);
+
+      const mockSyncStatus: Record<number, SubgraphSyncRecord> = {
+        [sendingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+        [receivingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+      };
+      (subgraph as any).syncStatus = mockSyncStatus;
+      // stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
+      await subgraph.startPolling();
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
+
+      expect((subgraph as any).pollingLoop).to.be.undefined;
+      expect((subgraph as any).activeTxs.size).to.be.eq(0);
+    });
+
+    it("should work and continue polling if 0 active txs but synced block is lower than stopper block", async () => {
+      (subgraph as any).pollInterval = 1_00;
+
+      chainReader.getBlockNumber.resolves(10);
+      // chainReader.getBlockNumber.onSecondCall().resolves(1)
+
+      stub(subgraph, "updateSyncStatus").resolves();
+      stub(subgraph, "getActiveTransactions").resolves([]);
+
+      const mockSyncStatus: Record<number, SubgraphSyncRecord> = {
+        [sendingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+        [receivingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+      };
+      (subgraph as any).syncStatus = mockSyncStatus;
+      // stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
+      await subgraph.startPolling();
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
+
+      expect((subgraph as any).pollingLoop).to.be.not.undefined;
+    });
+
+    it("should work and continue polling if 1 or more active txs", async () => {
       const transactionId = getRandomBytes32();
       const activeTxMock = convertMockedToActiveTransaction(
         NxtpSdkEvents.SenderTransactionPrepared,
@@ -272,23 +317,16 @@ describe("Subgraph", () => {
       (subgraph as any).pollInterval = 1_00;
 
       chainReader.getBlockNumber.resolves(1);
-      // chainReader.getBlockNumber.onSecondCall().resolves(1);
 
-      (subgraph as any).syncStatus[sendingChainId].syncedBlock = 2;
-      (subgraph as any).syncStatus[receivingChainId].syncedBlock = 2;
+      stub(subgraph, "updateSyncStatus").resolves();
+      stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
 
-      stub(subgraph, "getActiveTransactions").resolves([]);
-      // stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
       await subgraph.startPolling();
 
       await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
 
-      // const activetx1 = (subgraph as any).activeTxs.size;
-      // expect(activetx1).to.be.eq(0);
-      console.log((subgraph as any).pollingLoop, subgraph.pollingStopperBlock);
+      expect((subgraph as any).pollingLoop).to.be.not.undefined;
     });
-
-    it.skip("should work and continue polling if 1 or more active txs", async () => {});
   });
 
   describe("getActiveTransactions", async () => {
