@@ -941,7 +941,7 @@ export class NxtpSdkBase {
       expiry,
     };
     const tx = await this.transactionManager.prepare(sendingChainId, params, requestContext);
-    this.subgraph.startPolling();
+    await this.subgraph.startPolling();
     return tx;
   }
 
