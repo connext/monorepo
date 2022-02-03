@@ -29,6 +29,7 @@ import {
   getReceiverAmount,
   ChainData,
   StatusResponse,
+  getChainData,
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -458,10 +459,27 @@ export class NxtpSdkBase {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: CrossChainParams, useWatchtower = false): Promise<GetTransferQuote> {
+  public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
     const injectedSignerAddress = await this.config.signerAddress;
-    const user = useWatchtower ? "0x8E76fD28191064a2384705b2d7c2E5a272f102A3" : injectedSignerAddress;
-    const initiator = useWatchtower ? injectedSignerAddress : params.initiator ?? user;
+
+    let user = injectedSignerAddress;
+    if (params.useWatchtower) {
+      if (params.watchtowerAddress) {
+        user = params.watchtowerAddress;
+      } else {
+        const chainData = await getChainData();
+        if (!chainData || !chainData.has("0")) {
+          throw new Error("Chain data not available");
+        }
+        const chain0 = chainData.get("0");
+        const useMainet =
+          chainData.get(params.sendingChainId.toString())?.type === "mainnet" &&
+          chainData.get(params.receivingChainId.toString())?.type;
+        user = (useMainet ? chain0?.watchtower.mainnet : chain0?.watchtower.testnet) ?? injectedSignerAddress;
+      }
+    }
+
+    const initiator = params.useWatchtower ? injectedSignerAddress : params.initiator ?? user;
 
     const transactionId =
       params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());

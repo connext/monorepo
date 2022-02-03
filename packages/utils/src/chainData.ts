@@ -20,6 +20,7 @@ export const CHAIN_ID = {
 export type ChainData = {
   name: string;
   chainId: number;
+  type: "mainnet" | "testnet" | "local";
   confirmations: number;
   shortName: string;
   chain: string;
@@ -63,6 +64,10 @@ export type ChainData = {
     fulfillL1?: string;
     cancelL1?: string;
     removeLiquidityL1?: string;
+  };
+  watchtower: {
+    testnet: string;
+    mainnet: string;
   };
 };
 

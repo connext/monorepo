@@ -102,6 +102,8 @@ export const CrossChainParamsSchema = Type.Object({
   numAuctionResponsesQuorum: Type.Optional(Type.Number()),
   relayerFee: Type.Optional(TIntegerString),
   callDataGas: Type.Optional(TIntegerString),
+  useWatchtower: Type.Boolean({ default: false }),
+  watchtowerAddress: Type.Optional(TAddress),
 });
 
 export type CrossChainParams = Static<typeof CrossChainParamsSchema>;
