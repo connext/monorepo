@@ -21,15 +21,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface MulticallInterface extends ethers.utils.Interface {
   functions: {
-    "aggregate(tuple[])": FunctionFragment;
+    "aggregateFulfill(tuple[])": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "aggregate",
-    values: [{ target: string; callData: BytesLike }[]]
+    functionFragment: "aggregateFulfill",
+    values: [
+      { target: string; fulfillData: BytesLike; callType: BigNumberish }[]
+    ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "aggregateFulfill",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -78,38 +83,128 @@ export class Multicall extends BaseContract {
   interface: MulticallInterface;
 
   functions: {
-    aggregate(
-      calls: { target: string; callData: BytesLike }[],
+    aggregateFulfill(
+      calls: {
+        target: string;
+        fulfillData: BytesLike;
+        callType: BigNumberish;
+      }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  aggregate(
-    calls: { target: string; callData: BytesLike }[],
+  aggregateFulfill(
+    calls: { target: string; fulfillData: BytesLike; callType: BigNumberish }[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    aggregate(
-      calls: { target: string; callData: BytesLike }[],
+    aggregateFulfill(
+      calls: {
+        target: string;
+        fulfillData: BytesLike;
+        callType: BigNumberish;
+      }[],
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, string[]] & { blockNumber: BigNumber; returnData: string[] }
+      [
+        BigNumber,
+        ([
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        })[]
+      ] & {
+        blockNumber: BigNumber;
+        returnData: ([
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber
+        ] & {
+          receivingChainTxManagerAddress: string;
+          user: string;
+          router: string;
+          initiator: string;
+          sendingAssetId: string;
+          receivingAssetId: string;
+          sendingChainFallback: string;
+          receivingAddress: string;
+          callTo: string;
+          callDataHash: string;
+          transactionId: string;
+          sendingChainId: BigNumber;
+          receivingChainId: BigNumber;
+          amount: BigNumber;
+          expiry: BigNumber;
+          preparedBlockNumber: BigNumber;
+        })[];
+      }
     >;
   };
 
   filters: {};
 
   estimateGas: {
-    aggregate(
-      calls: { target: string; callData: BytesLike }[],
+    aggregateFulfill(
+      calls: {
+        target: string;
+        fulfillData: BytesLike;
+        callType: BigNumberish;
+      }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    aggregate(
-      calls: { target: string; callData: BytesLike }[],
+    aggregateFulfill(
+      calls: {
+        target: string;
+        fulfillData: BytesLike;
+        callType: BigNumberish;
+      }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

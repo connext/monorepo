@@ -462,6 +462,8 @@ export class NxtpSdkBase {
   public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
     const injectedSignerAddress = await this.config.signerAddress;
 
+    let { requestContext, methodContext } = createLoggingContext(this.getTransferQuote.name);
+
     let user = injectedSignerAddress;
     if (params.useWatchtower) {
       if (params.watchtowerAddress) {
@@ -477,6 +479,7 @@ export class NxtpSdkBase {
           chainData.get(params.receivingChainId.toString())?.type;
         user = (useMainet ? chain0?.watchtower.mainnet : chain0?.watchtower.testnet) ?? injectedSignerAddress;
       }
+      this.logger.info("Using watchtower", requestContext, methodContext, { user });
     }
 
     const initiator = params.useWatchtower ? injectedSignerAddress : params.initiator ?? user;
@@ -484,11 +487,7 @@ export class NxtpSdkBase {
     const transactionId =
       params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
 
-    const { requestContext, methodContext } = createLoggingContext(
-      this.getTransferQuote.name,
-      undefined,
-      transactionId,
-    );
+    ({ requestContext, methodContext } = createLoggingContext(this.getTransferQuote.name, undefined, transactionId));
 
     this.logger.info("Method started", requestContext, methodContext, { params });
 

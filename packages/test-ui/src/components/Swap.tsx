@@ -339,24 +339,23 @@ export const Swap = ({ web3Provider, signer, chainData, sdk, setSdk }: SwapProps
 
     const sendingDecimals = await sdk.getDecimalsForAsset(sendingChainId, sendingAssetId);
     const receivingDecimals = await sdk.getDecimalsForAsset(receivingChainId, receivingAssetId);
-    const response = await sdk.getTransferQuote(
-      {
-        sendingChainId,
-        sendingAssetId,
-        receivingChainId,
-        receivingAssetId,
-        receivingAddress: form.getFieldValue("receivingAddress"),
-        amount: parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
-        preferredRouters: form.getFieldValue("preferredRouters")
-          ? form.getFieldValue("preferredRouters").split(",")
-          : undefined,
-        transactionId,
-        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
-        callData,
-        callTo,
-      },
-      true,
-    );
+    const response = await sdk.getTransferQuote({
+      useWatchtower: true,
+      watchtowerAddress: "0x8E76fD28191064a2384705b2d7c2E5a272f102A3",
+      sendingChainId,
+      sendingAssetId,
+      receivingChainId,
+      receivingAssetId,
+      receivingAddress: form.getFieldValue("receivingAddress"),
+      amount: parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
+      preferredRouters: form.getFieldValue("preferredRouters")
+        ? form.getFieldValue("preferredRouters").split(",")
+        : undefined,
+      transactionId,
+      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
+      callData,
+      callTo,
+    });
     form.setFieldsValue({
       receivedAmount: utils.formatUnits(response?.bid.amountReceived ?? constants.Zero, receivingDecimals),
       gasFeeAmount: utils.formatUnits(response?.gasFeeInReceivingToken ?? constants.Zero, receivingDecimals),
