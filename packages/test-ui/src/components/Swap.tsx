@@ -59,12 +59,6 @@ export const Swap = ({ web3Provider, signer, chainData, sdk, setSdk }: SwapProps
 
       const address = await signer.getAddress();
 
-      const _balance = await getUserBalance(
-        typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain),
-        signer,
-      );
-      console.log("_balance: ", _balance);
-      setUserBalance(_balance);
       form.setFieldsValue({ receivingAddress: address });
 
       const _sdk = await NxtpSdk.create({
@@ -230,6 +224,20 @@ export const Swap = ({ web3Provider, signer, chainData, sdk, setSdk }: SwapProps
     init();
   }, [web3Provider, signer]);
 
+  useEffect(() => {
+    if (!signer || !web3Provider) {
+      return;
+    }
+    const sendingChain = form.getFieldValue("sendingChain");
+    console.log('form.getFieldValue("sendingChain"): ', form.getFieldsValue(true));
+    console.log("sendingChain: ", sendingChain);
+
+    getUserBalance(typeof sendingChain === "number" ? sendingChain : parseInt(sendingChain), signer).then((balance) => {
+      console.log("balance: ", balance);
+      setUserBalance(balance);
+    });
+  }, [sdk]);
+
   const getUserBalance = async (_chainId: number, _signer: Signer) => {
     if (_chainId === 0 || !sdk) {
       return BigNumber.from(0);
@@ -331,21 +339,24 @@ export const Swap = ({ web3Provider, signer, chainData, sdk, setSdk }: SwapProps
 
     const sendingDecimals = await sdk.getDecimalsForAsset(sendingChainId, sendingAssetId);
     const receivingDecimals = await sdk.getDecimalsForAsset(receivingChainId, receivingAssetId);
-    const response = await sdk.getTransferQuote({
-      sendingChainId,
-      sendingAssetId,
-      receivingChainId,
-      receivingAssetId,
-      receivingAddress: form.getFieldValue("receivingAddress"),
-      amount: parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
-      preferredRouters: form.getFieldValue("preferredRouters")
-        ? form.getFieldValue("preferredRouters").split(",")
-        : undefined,
-      transactionId,
-      expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
-      callData,
-      callTo,
-    });
+    const response = await sdk.getTransferQuote(
+      {
+        sendingChainId,
+        sendingAssetId,
+        receivingChainId,
+        receivingAssetId,
+        receivingAddress: form.getFieldValue("receivingAddress"),
+        amount: parseUnits(form.getFieldValue("amount"), sendingDecimals).toString(),
+        preferredRouters: form.getFieldValue("preferredRouters")
+          ? form.getFieldValue("preferredRouters").split(",")
+          : undefined,
+        transactionId,
+        expiry: Math.floor(Date.now() / 1000) + 3600 * 24 * 3, // 3 days
+        callData,
+        callTo,
+      },
+      true,
+    );
     form.setFieldsValue({
       receivedAmount: utils.formatUnits(response?.bid.amountReceived ?? constants.Zero, receivingDecimals),
       gasFeeAmount: utils.formatUnits(response?.gasFeeInReceivingToken ?? constants.Zero, receivingDecimals),

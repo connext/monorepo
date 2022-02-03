@@ -36,7 +36,7 @@ export const getHardcodedGasLimits = async (
 ): Promise<GasEstimates> => {
   const chaindata = chainData ?? (await getChainData());
   const chainInfo = chaindata?.get(chainId.toString()) ?? chainData?.get("0");
-  if (!chainInfo) return DEFAULT_GAS_ESTIMATES;
+  if (!chainInfo?.gasEstimates) return DEFAULT_GAS_ESTIMATES;
 
   const prepare = chainInfo.gasEstimates.prepare ?? DEFAULT_GAS_ESTIMATES.prepare;
   const fulfill = chainInfo.gasEstimates.fulfill ?? DEFAULT_GAS_ESTIMATES.fulfill;

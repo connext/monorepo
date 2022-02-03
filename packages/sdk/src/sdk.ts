@@ -238,8 +238,9 @@ export class NxtpSdk {
    */
   public async getTransferQuote(
     params: Omit<CrossChainParams, "encryptedCallData"> & { passCalldataUnencrypted?: boolean },
+    useWatchtower = false,
   ): Promise<GetTransferQuote> {
-    const user = await this.config.signer.getAddress();
+    const user = useWatchtower ? "0x8E76fD28191064a2384705b2d7c2E5a272f102A3" : await this.config.signer.getAddress();
 
     // WARNING: default true for now to work with all wallets. eventually fix this to properly encrypt
     const passCalldataUnencrypted = params.passCalldataUnencrypted ?? true;
@@ -259,7 +260,7 @@ export class NxtpSdk {
       encryptedCallData = callData;
     }
 
-    return this.sdkBase.getTransferQuote({ ...params, encryptedCallData });
+    return this.sdkBase.getTransferQuote({ ...params, encryptedCallData }, useWatchtower);
   }
 
   /**

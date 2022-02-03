@@ -458,8 +458,11 @@ export class NxtpSdkBase {
    * @remarks
    * The user chooses the transactionId, and they are incentivized to keep the transactionId unique otherwise their signature could e replayed and they would lose funds.
    */
-  public async getTransferQuote(params: CrossChainParams): Promise<GetTransferQuote> {
-    const user = await this.config.signerAddress;
+  public async getTransferQuote(params: CrossChainParams, useWatchtower = false): Promise<GetTransferQuote> {
+    const injectedSignerAddress = await this.config.signerAddress;
+    const user = useWatchtower ? "0x8E76fD28191064a2384705b2d7c2E5a272f102A3" : injectedSignerAddress;
+    const initiator = useWatchtower ? injectedSignerAddress : params.initiator ?? user;
+
     const transactionId =
       params.transactionId || getTransactionId(params.sendingChainId.toString(), user, getRandomBytes32());
 
@@ -498,7 +501,6 @@ export class NxtpSdkBase {
       expiry: _expiry,
       dryRun,
       preferredRouters: _preferredRouters,
-      initiator,
       auctionWaitTimeMs = DEFAULT_AUCTION_TIMEOUT,
       numAuctionResponsesQuorum,
       relayerFee,
@@ -649,7 +651,7 @@ export class NxtpSdkBase {
 
     const payload = {
       user,
-      initiator: initiator ?? user,
+      initiator,
       sendingChainId,
       sendingAssetId,
       amount,
