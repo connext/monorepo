@@ -1752,7 +1752,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.0.2
     "@nomiclabs/hardhat-waffle": ^2.0.1
     "@openzeppelin/contracts": 4.2.0
-    "@rumblefishdev/hardhat-polyjuice-plugin": ^1.0.2
+    "@rumblefishdev/hardhat-polyjuice-plugin": 1.1.0
     "@sinclair/typebox": ^0.20.4
     "@tenderly/hardhat-tenderly": ^1.0.12
     "@typechain/ethers-v5": ^7.0.1
@@ -4313,16 +4313,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rumblefishdev/hardhat-polyjuice-plugin@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@rumblefishdev/hardhat-polyjuice-plugin@npm:1.0.2"
+"@rumblefishdev/hardhat-polyjuice-plugin@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@rumblefishdev/hardhat-polyjuice-plugin@npm:1.1.0"
   dependencies:
     "@polyjuice-provider/ethers": ^0.1.3
   peerDependencies:
     hardhat: ^2.6.0
     hardhat-deploy: ^0.9.28
     lodash: "*"
-  checksum: 0a75821e5775713a2d1b0c4208517aa83c38d0902fa8e92d77b897868dc617f285f5578d1f7a8c9025a691e0076c51734361fc315d6d015c78b830afc444a4b9
+  checksum: f0d47cfaaeef5d975437dff0247cab6381c504a31eb445a91b0eb9131b927984c7f03a681d3b95a24bd1a4866bfe590067fa36d3b39507e6781a394216cc823c
   languageName: node
   linkType: hard
 
