@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.23
+
+- [sdk] hotfix for sdk subgraph polling
+
 ## 0.1.22
 
 - [sdk] type update for userAddress for sdkBase
