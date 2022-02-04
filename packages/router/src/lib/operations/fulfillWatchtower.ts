@@ -86,7 +86,7 @@ export const fulfillWatchtower = async (
     let routerRelayerFee = Zero;
 
     routerRelayerFeeAsset = utils.getAddress(
-      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+      config.chainConfig[invariantData.sendingChainId].routerContractRelayerAsset || AddressZero,
     );
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
       invariantData.sendingChainId,
@@ -130,7 +130,7 @@ export const fulfillWatchtower = async (
       data: {
         params: fulfillParams,
         signature,
-        relayerFee,
+        relayerFee: routerRelayerFee.toString(),
         relayerFeeAsset: routerRelayerFeeAsset,
       } as MetaTxPayloads[typeof MetaTxTypes.RouterContractFulfill],
     };
