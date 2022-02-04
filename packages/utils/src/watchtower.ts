@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // TODO: add url
-const WATCHTOWER_URL = "placeholder";
+const WATCHTOWER_URL = "http://localhost:8082";
 
 export type BatchStatusResponse = {
   id: string;

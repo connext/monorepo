@@ -86,7 +86,7 @@ export const fulfillWatchtower = async (
     let routerRelayerFee = Zero;
 
     routerRelayerFeeAsset = utils.getAddress(
-      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset || AddressZero,
+      config.chainConfig[invariantData.sendingChainId].routerContractRelayerAsset || AddressZero,
     );
     const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
       invariantData.sendingChainId,
