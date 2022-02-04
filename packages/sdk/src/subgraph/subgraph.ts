@@ -156,7 +156,6 @@ export class Subgraph {
   }
 
   async startPolling(): Promise<void> {
-    await this.updateSyncStatus();
     await Promise.all(
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
