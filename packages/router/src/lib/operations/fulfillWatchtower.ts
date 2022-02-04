@@ -130,7 +130,7 @@ export const fulfillWatchtower = async (
       data: {
         params: fulfillParams,
         signature,
-        relayerFee,
+        relayerFee: routerRelayerFee.toString(),
         relayerFeeAsset: routerRelayerFeeAsset,
       } as MetaTxPayloads[typeof MetaTxTypes.RouterContractFulfill],
     };
