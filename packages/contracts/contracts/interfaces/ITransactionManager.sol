@@ -70,28 +70,28 @@ interface ITransactionManager {
   }
 
   /**
-    * Arguments for calling prepare()
-    * @param invariantData The data for a crosschain transaction that will
-    *                      not change between sending and receiving chains.
-    *                      The hash of this data is used as the key to store 
-    *                      the inforamtion that does change between chains 
-    *                      (amount,expiry,preparedBlock) for verification
-    * @param amount The amount of the transaction on this chain
-    * @param expiry The block.timestamp when the transaction will no longer be
-    *               fulfillable and is freely cancellable on this chain
-    * @param encryptedCallData The calldata to be executed when the tx is
-    *                          fulfilled. Used in the function to allow the user
-    *                          to reconstruct the tx from events. Hash is stored
-    *                          onchain to prevent shenanigans.
-    * @param encodedBid The encoded bid that was accepted by the user for this
-    *                   crosschain transfer. It is supplied as a param to the
-    *                   function but is only used in event emission
-    * @param bidSignature The signature of the bidder on the encoded bid for
-    *                     this transaction. Only used within the function for
-    *                     event emission. The validity of the bid and
-    *                     bidSignature are enforced offchain
-    * @param encodedMeta The meta for the function
-    */
+   * Arguments for calling prepare()
+   * @param invariantData The data for a crosschain transaction that will
+   *                      not change between sending and receiving chains.
+   *                      The hash of this data is used as the key to store
+   *                      the inforamtion that does change between chains
+   *                      (amount,expiry,preparedBlock) for verification
+   * @param amount The amount of the transaction on this chain
+   * @param expiry The block.timestamp when the transaction will no longer be
+   *               fulfillable and is freely cancellable on this chain
+   * @param encryptedCallData The calldata to be executed when the tx is
+   *                          fulfilled. Used in the function to allow the user
+   *                          to reconstruct the tx from events. Hash is stored
+   *                          onchain to prevent shenanigans.
+   * @param encodedBid The encoded bid that was accepted by the user for this
+   *                   crosschain transfer. It is supplied as a param to the
+   *                   function but is only used in event emission
+   * @param bidSignature The signature of the bidder on the encoded bid for
+   *                     this transaction. Only used within the function for
+   *                     event emission. The validity of the bid and
+   *                     bidSignature are enforced offchain
+   * @param encodedMeta The meta for the function
+   */
   struct PrepareArgs {
     InvariantTransactionData invariantData;
     uint256 amount;
@@ -103,18 +103,18 @@ interface ITransactionManager {
   }
 
   /**
-    * @param txData All of the data (invariant and variant) for a crosschain
-    *               transaction. The variant data provided is checked against
-    *               what was stored when the `prepare` function was called.
-    * @param relayerFee The fee that should go to the relayer when they are
-    *                   calling the function on the receiving chain for the user
-    * @param signature The users signature on the transaction id + fee that
-    *                  can be used by the router to unlock the transaction on 
-    *                  the sending chain
-    * @param callData The calldata to be sent to and executed by the 
-    *                 `FulfillHelper`
-    * @param encodedMeta The meta for the function
-    */
+   * @param txData All of the data (invariant and variant) for a crosschain
+   *               transaction. The variant data provided is checked against
+   *               what was stored when the `prepare` function was called.
+   * @param relayerFee The fee that should go to the relayer when they are
+   *                   calling the function on the receiving chain for the user
+   * @param signature The users signature on the transaction id + fee that
+   *                  can be used by the router to unlock the transaction on
+   *                  the sending chain
+   * @param callData The calldata to be sent to and executed by the
+   *                 `FulfillHelper`
+   * @param encodedMeta The meta for the function
+   */
   struct FulfillArgs {
     TransactionData txData;
     uint256 relayerFee;
@@ -124,14 +124,14 @@ interface ITransactionManager {
   }
 
   /**
-    * Arguments for calling cancel()
-    * @param txData All of the data (invariant and variant) for a crosschain
-    *               transaction. The variant data provided is checked against
-    *               what was stored when the `prepare` function was called.
-    * @param signature The user's signature that allows a transaction to be
-    *                  cancelled by a relayer
-    * @param encodedMeta The meta for the function
-    */
+   * Arguments for calling cancel()
+   * @param txData All of the data (invariant and variant) for a crosschain
+   *               transaction. The variant data provided is checked against
+   *               what was stored when the `prepare` function was called.
+   * @param signature The user's signature that allows a transaction to be
+   *                  cancelled by a relayer
+   * @param encodedMeta The meta for the function
+   */
   struct CancelArgs {
     TransactionData txData;
     bytes signature;
@@ -197,7 +197,11 @@ interface ITransactionManager {
   function removeAssetId(address assetId) external;
 
   // Router only methods
-  function addLiquidityFor(uint256 amount, address assetId, address router) external payable;
+  function addLiquidityFor(
+    uint256 amount,
+    address assetId,
+    address router
+  ) external payable;
 
   function addLiquidity(uint256 amount, address assetId) external payable;
 
@@ -213,13 +217,9 @@ interface ITransactionManager {
   // 2. prepare by router on receiving chain
   // 3. fulfill by user on receiving chain
   // 4. fulfill by router on sending chain
-  function prepare(
-    PrepareArgs calldata args
-  ) external payable returns (TransactionData memory);
+  function prepare(PrepareArgs calldata args) external payable returns (TransactionData memory);
 
-  function fulfill(
-    FulfillArgs calldata args
-  ) external returns (TransactionData memory);
+  function fulfill(FulfillArgs calldata args) external returns (TransactionData memory);
 
   function cancel(CancelArgs calldata args) external returns (TransactionData memory);
 }

@@ -1,6 +1,6 @@
 [default]
 out = 'artifacts'
 libs = ['node_modules']
-remappings = ['ds-test/=lib/ds-test/src/']
+remappings = ['ds-test/=lib/ds-test/src/', 'forge-std/=lib/forge-std/src/']
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config
