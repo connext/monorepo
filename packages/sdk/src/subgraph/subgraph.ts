@@ -156,11 +156,12 @@ export class Subgraph {
   }
 
   async startPolling(): Promise<void> {
-    Object.keys(this.sdks).map(async (_chainId) => {
-      const chainId = parseInt(_chainId);
-      this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
-    });
-
+    await Promise.all(
+      Object.keys(this.sdks).map(async (_chainId) => {
+        const chainId = parseInt(_chainId);
+        this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
+      }),
+    );
     if (this.pollingLoop == null) {
       this.pollingLoop = setInterval(async () => {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
@@ -171,10 +172,7 @@ export class Subgraph {
             await Promise.all(
               Object.keys(this.sdks).map(async (_chainId) => {
                 const chainId = parseInt(_chainId);
-                if (
-                  !this.pollingStopperBlock[chainId] ||
-                  this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock
-                ) {
+                if (this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock) {
                   shouldStop = false;
                   return;
                 } else {
