@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "test": "hardhat test",
+    "test:forge": "forge test --hh",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",
