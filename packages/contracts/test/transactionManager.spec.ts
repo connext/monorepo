@@ -303,7 +303,7 @@ describe.only("TransactionManager", () => {
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 
-  it("should work with native assets", async () => {
+  it("should work with sending native assets, receiving local representation", async () => {
     // Add router liquidity
     await local
       .connect(router)
