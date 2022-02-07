@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity >=0.6.11;
 
-import "@summa-tx/memview-sol/contracts/TypedMemView.sol";
+// import "@summa-tx/memview-sol/contracts/TypedMemView.sol";
+import "./TypedMemView.sol";
+
 
 library TypeCasts {
     using TypedMemView for bytes;

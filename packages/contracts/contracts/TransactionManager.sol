@@ -20,10 +20,10 @@ import "hardhat/console.sol";
 // - nomad contract packages not playing nicely
 // - make functions metatxable
 // - make upgradeable
-// - transaction progress tracking
-// - routing interface vs. always nomad
-// - wrapping contracts -- is the assetId assignment okay?
+// - routing interface vs. always nomad -- WAIT
+// - wrapping contracts -- nomad doesnt support native assets
 // - assert the router gas usage in reconcile
+// - allow multiple routers
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
@@ -57,6 +57,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     address router;
     uint256 gasUsed;
     uint256 gasPrice;
+    uint256 amount;
     bytes32 externalCallHash;
     TransactionStatus status;
   }
@@ -530,7 +531,8 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       gasPrice: tx.gasprice,
       gasUsed: 0,
       externalCallHash: _getExternalCallHash(_params.callTo, _params.callData),
-      status: TransactionStatus.Fulfilled
+      status: TransactionStatus.Fulfilled,
+      amount: _amount // will be of the mad asset, not adopted
     });
 
     // If this is a mad* asset, then swap on local AMM

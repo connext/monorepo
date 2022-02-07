@@ -1581,7 +1581,6 @@ __metadata:
     "@openzeppelin/contracts": ^4.4.0
     "@openzeppelin/contracts-upgradeable": ^4.4.0
     "@sinclair/typebox": ^0.18.1
-    "@summa-tx/memview-sol": ^2.0.0
     "@tenderly/hardhat-tenderly": ^1.0.13
     "@typechain/ethers-v5": ^9.0.0
     "@typechain/hardhat": ^4.0.0
@@ -3855,13 +3854,6 @@ __metadata:
   dependencies:
     antlr4ts: ^0.5.0-alpha.4
   checksum: 13f000a8f403f3345b1d587d00f873af627768e7a13037e953eccbf41ee99f4e65e3e058f378ee2dc110a790e8beadc18c954b7169c6ef8b4b999ec200cc24d2
-  languageName: node
-  linkType: hard
-
-"@summa-tx/memview-sol@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@summa-tx/memview-sol@npm:2.0.0"
-  checksum: fc0b6d04ae654bcd0644e32c50223b689b0cb9f4f4cc1959a1936f50284b91992bbec12caeaddf0bd7e50660e58b6c7d3a63da13da46097c49443444ba30a137
   languageName: node
   linkType: hard
 

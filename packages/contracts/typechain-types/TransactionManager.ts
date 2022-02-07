@@ -747,10 +747,11 @@ export interface TransactionManager extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber, string, number] & {
+      [string, BigNumber, BigNumber, BigNumber, string, number] & {
         router: string;
         gasUsed: BigNumber;
         gasPrice: BigNumber;
+        amount: BigNumber;
         externalCallHash: string;
         status: number;
       }
@@ -937,10 +938,11 @@ export interface TransactionManager extends BaseContract {
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, BigNumber, string, number] & {
+    [string, BigNumber, BigNumber, BigNumber, string, number] & {
       router: string;
       gasUsed: BigNumber;
       gasPrice: BigNumber;
+      amount: BigNumber;
       externalCallHash: string;
       status: number;
     }
@@ -1114,10 +1116,11 @@ export interface TransactionManager extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber, string, number] & {
+      [string, BigNumber, BigNumber, BigNumber, string, number] & {
         router: string;
         gasUsed: BigNumber;
         gasPrice: BigNumber;
+        amount: BigNumber;
         externalCallHash: string;
         status: number;
       }
