@@ -309,8 +309,6 @@ describe.only("TransactionManager", () => {
       .connect(router)
       .approve(destinationTm.address, parseEther("20"))
       .then((r) => r.wait());
-    console.log("approved", local.address, "for dest");
-    console.log("balance", formatEther(await local.balanceOf(router.address)));
     const addLiq = await destinationTm.connect(router).addLiquidity(parseEther("1"), local.address);
     await addLiq.wait();
 

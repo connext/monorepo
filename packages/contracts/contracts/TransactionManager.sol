@@ -13,8 +13,6 @@ import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "hardhat/console.sol";
-
 // TODO:
 // - decide on interface for the stable swap
 // - nomad contract packages not playing nicely
@@ -26,13 +24,16 @@ import "hardhat/console.sol";
 // - allow multiple routers
 // - identifier returned from nomad/bridge
 // - gas optimizations
+// - event finalization
+// - unit tests
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
   // ============= Enums =============
   enum TransactionStatus {
     Fulfilled,
-    Reconciled
+    Reconciled,
+    Processed
   }
 
   // ============ Structs ============
@@ -122,19 +123,50 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   );
 
   event Prepared(
-    bytes32 transactionId,
+    bytes32 indexed transactionId,
+    address indexed recipient,
     CallParams params,
-    address asset,
-    address local,
-    uint256 amount,
-    uint256 nonce
+    address transactingAsset,
+    address bridgedAsset,
+    uint256 initialAmount,
+    uint256 bridgedAmount,
+    uint256 nonce,
+    address caller
   );
 
-  event Reconciled();
+  event Reconciled(
+    bytes32 indexed transactionId,
+    address indexed recipient,
+    address indexed router,
+    address bridgedAsset,
+    uint256 bridgedAmount,
+    bytes32 externalHash,
+    FulfilledTransaction transaction,
+    address caller
+  );
 
-  event Fulfilled();
+  event Fulfilled(
+    bytes32 indexed transactionId,
+    address indexed recipient,
+    address indexed router,
+    CallParams params,
+    uint256 nonce,
+    address bridgedAsset,
+    address receivedAsset,
+    uint256 bridgedAmount,
+    uint256 receivedAmount,
+    address caller
+  );
 
-  event Processed();
+  event Processed(
+    bytes32 indexed transactionId,
+    address indexed recipient,
+    address receivedAsset,
+    uint256 receivedAmount,
+    address callTo,
+    bytes callData,
+    ProcessedTransaction processed
+  );
 
   // ============ Properties ============
 
@@ -398,7 +430,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    */
   function prepare(
     CallParams calldata _params,
-    address _asset, // Could be adopted, local, or wrapped
+    address _transactingAssetId, // Could be adopted, local, or wrapped
     uint256 _amount
   ) external payable {
     // Asset must be either adopted, canonical, or representation
@@ -409,38 +441,29 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     //   "!supported_asset"
     // );
 
-    // Wrap if needed
-    _asset = _wrapIfNeeded(_asset, _amount);
-
     require(
-      adoptedToCanonical[_asset].id != bytes32(0),
+      adoptedToCanonical[_transactingAssetId == address(0) ? address(wrapper) : _transactingAssetId].id != bytes32(0),
       "!supported_asset"
     );
 
-    // Transfer funds to the contract if not wrapped
-    if (_asset != address(wrapper)) {
-      _transferAssetToContract(_asset, _amount);
-    }
+    // Transfer funds to the contract
+    (_transactingAssetId, _amount) = _transferAssetToContract(_transactingAssetId, _amount);
 
     // Swap to the local asset from the adopted
-    (uint256 amount, address local) = _swapToLocalAssetIfNeeded(_asset, _amount);
+    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
     // Compute the transaction id
     uint256 usedNonce = nonce;
     bytes32 _transactionId = _getTransactionId(usedNonce, domain);
-
     // Update nonce
     nonce++;
-
-    // Approve the bridge router
-    SafeERC20.safeIncreaseAllowance(IERC20(local), address(bridgeRouter), amount);
 
     // Call `send` on the bridge router
     _sendMessage(
       _params.destinationDomain,
       _params.recipient,
-      local,
-      amount,
+      _bridged,
+      _bridgedAmt,
       _transactionId,
       _getExternalCallHash(_params.callTo, _params.callData)
     );
@@ -448,11 +471,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     // Emit event
     emit Prepared(
       _transactionId,
+      _params.recipient,
       _params,
-      _asset,
-      local,
-      amount,
-      usedNonce
+      _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
+      _bridged,
+      _amount,
+      _bridgedAmt,
+      usedNonce,
+      msg.sender
     );
   }
 
@@ -462,19 +488,22 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    */
   function reconcile(
     bytes32 _id,
-    address _local,
+    address _bridged,
     address _recipient,
     uint256 _amount,
     bytes32 _externalCallHash
   ) external onlyBridgeRouter payable {
     // Find the router to credit
     FulfilledTransaction memory transaction = routedTransactions[_id];
+
+    // Check the transaction has not been reconciled. Okay if it is not
+    // created, but must not be allowed to reconcile 2x
     require(transaction.status == TransactionStatus.Fulfilled, "!status");
 
     // Update the status record of transaction
     transaction.status = TransactionStatus.Reconciled;
 
-    // Save
+    // Save updated status
     routedTransactions[_id] = transaction;
 
     if (transaction.router == address(0)) {
@@ -482,7 +511,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       // by the user.
       unroutedTransactions[_id] = ProcessedTransaction({
         externalCallHash: _externalCallHash,
-        local: _local,
+        local: _bridged,
         amount: _amount,
         recipient: _recipient
       });
@@ -492,11 +521,20 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       require(transaction.externalCallHash == _externalCallHash, "!external");
 
       // Credit router
-      routerBalances[transaction.router][_local] += _amount;
+      routerBalances[transaction.router][_bridged] += _amount;
     }
 
     // Emit event
-    emit Reconciled();
+    emit Reconciled(
+      _id,
+      _recipient,
+      transaction.router,
+      _bridged,
+      _amount,
+      _externalCallHash,
+      transaction,
+      msg.sender
+    );
   }
 
   /**
@@ -506,7 +544,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   function fulfill(
     CallParams calldata _params,
     uint256 _nonce,
-    address _local,
+    address _bridged,
     uint256 _amount
   ) external payable {
     // Get the starting gas
@@ -516,11 +554,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     bytes32 _transactionId = _getTransactionId(_nonce, _params.originDomain);
 
     // Ensure there is sufficient liquidity
-    require(routerBalances[msg.sender][_local] >= _amount, "!liquidity");
+    require(routerBalances[msg.sender][_bridged] >= _amount, "!liquidity");
 
     // Decrement router liquidity
     unchecked {
-      routerBalances[msg.sender][_local] -= _amount; 
+      routerBalances[msg.sender][_bridged] -= _amount; 
     }
 
     // Save router to transaction (this information will *not* be passed
@@ -528,30 +566,25 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     routedTransactions[_transactionId] = FulfilledTransaction({
       router: msg.sender,
       gasPrice: tx.gasprice,
-      gasUsed: 0,
+      gasUsed: 0, // Fill this in at the end of the tx
       externalCallHash: _getExternalCallHash(_params.callTo, _params.callData),
       status: TransactionStatus.Fulfilled,
       amount: _amount // will be of the mad asset, not adopted
     });
 
     // If this is a mad* asset, then swap on local AMM
-    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_local, _amount);
-
-    // Unwrap if needed
-    address assetId = _unwrapIfNeeded(adopted, amount);
+    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_bridged, _amount);
 
     if (_params.callTo == address(0)) {
       // Send funds to the user
-      _transferAssetFromContract(assetId, payable(_params.recipient), amount);
-      // LibAsset.transferAsset(assetId, payable(_params.recipient), amount);
+      _transferAssetFromContract(adopted, _params.recipient, amount);
     } else {
       // Send funds to interprepter
-      _transferAssetFromContract(assetId, payable(address(interpreter)), amount);
-      // LibAsset.transferAsset(assetId, payable(address(interpreter)), amount);
+      _transferAssetFromContract(adopted, address(interpreter), amount);
       interpreter.execute(
         _transactionId,
         payable(_params.callTo),
-        assetId,
+        adopted,
         payable(_params.recipient),
         amount,
         _params.callData
@@ -564,7 +597,18 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     routedTransactions[_transactionId].gasUsed = consumed;
 
     // Emit event
-    emit Fulfilled();
+    emit Fulfilled(
+      _transactionId,
+      _params.recipient,
+      msg.sender,
+      _params,
+      nonce,
+      _bridged,
+      adopted,
+      _amount,
+      amount,
+      msg.sender
+    );
   }
   
   /**
@@ -576,8 +620,18 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     bytes calldata _callData
   ) external {
     // Get the transaction
+    FulfilledTransaction memory fulfilled = routedTransactions[_id];
+    require(fulfilled.status == TransactionStatus.Reconciled, "!status");
+
     ProcessedTransaction memory transaction = unroutedTransactions[_id];
     require(transaction.externalCallHash != bytes32(0), "!found");
+
+    // Remove the record for unroutedTransactions
+    delete unroutedTransactions[_id];
+
+    // Update the status + save
+    fulfilled.status = TransactionStatus.Processed;
+    routedTransactions[_id] = fulfilled;
 
     // Check the calldata is correct
     bytes32 calculated = _getExternalCallHash(_callTo, _callData);
@@ -586,31 +640,33 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     // Swap out of local asset if needed
     (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(transaction.local, transaction.amount);
 
-    // Unwrap if needed
-    address assetId = _unwrapIfNeeded(adopted, amount);
-
-    // Remove the record
-    delete unroutedTransactions[_id];
-
     // Process the transaction
     if (_callTo == address(0)) {
       // No external call, send funds
       // LibAsset.transferAsset(assetId, payable(transaction.recipient), amount);
-      _transferAssetFromContract(assetId, payable(transaction.recipient), amount);
+      _transferAssetFromContract(adopted, payable(transaction.recipient), amount);
     } else {
       // LibAsset.transferAsset(assetId, payable(address(interpreter)), amount);
-      _transferAssetFromContract(assetId, payable(address(interpreter)), amount);
+      _transferAssetFromContract(adopted, payable(address(interpreter)), amount);
       interpreter.execute(
         _id,
         payable(_callTo),
-        assetId,
+        adopted,
         payable(transaction.recipient),
         amount,
         _callData
       );
     }
 
-    emit Processed();
+    emit Processed(
+      _id,
+      transaction.recipient,
+      adopted,
+      amount,
+      _callTo,
+      _callData,
+      transaction
+    );
   }
 
   // ============ Private functions ============
@@ -698,41 +754,41 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
   /**
    * @notice Contains the logic to verify + increment a given routers liquidity
-   * @param amount The amount of liquidity to add for the router
-   * @param local The address of the nomad representation of the asset
-   * @param router The router you are adding liquidity on behalf of
+   * @param _amount The amount of liquidity to add for the router
+   * @param _local The address of the nomad representation of the asset
+   * @param _router The router you are adding liquidity on behalf of
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
    */
   function _addLiquidityForRouter(
-    uint256 amount,
-    address local,
-    address router
+    uint256 _amount,
+    address _local,
+    address _router
   ) internal {
     // Sanity check: router is sensible
-    require(router != address(0), "#AL:001");
+    require(_router != address(0), "#AL:001");
 
     // Sanity check: nonzero amounts
-    require(amount > 0, "#AL:002");
+    require(_amount > 0, "#AL:002");
 
     // Get the canonical asset id from the representation
-    (, bytes32 id) = tokenRegistry.getTokenId(local);
+    (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    require(isRouterOwnershipRenounced() || approvedRouters[router], "#AL:003");
+    require(isRouterOwnershipRenounced() || approvedRouters[_router], "#AL:003");
 
     // Asset is approved
     require(isAssetOwnershipRenounced() || approvedAssets[id], "#AL:004");
 
     // Transfer funds to contract
-    amount = _transferAssetToContract(local, amount);
+    (address _asset, uint256 _received) = _transferAssetToContract(_local, _amount);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
-    routerBalances[router][local] += amount;
+    routerBalances[_router][_asset] += _received;
 
     // Emit event
-    emit LiquidityAdded(router, local, id, amount, msg.sender);
+    emit LiquidityAdded(_router, _asset, id, _received, msg.sender);
   }
 
   /**
@@ -743,28 +799,39 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    *                        actual amount transferred (i.e. fee on transfer 
    *                        tokens)
    */
-  function _transferAssetToContract(address assetId, uint256 specifiedAmount) internal returns (uint256) {
+  function _transferAssetToContract(address assetId, uint256 specifiedAmount) internal returns (address, uint256) {
     uint256 trueAmount = specifiedAmount;
 
-    require(assetId != address(0), "!wrapped");
+    if (assetId == address(0)) {
+      // When transferring native asset to the contract, always make sure that the
+      // asset is properly wrapped
+      require(msg.value == specifiedAmount, "!amount");
+      wrapper.deposit{ value: specifiedAmount }();
+      assetId = address(wrapper);
 
-    // Validate correct amounts are transferred
-    // uint256 starting = LibAsset.getOwnBalance(assetId);
-    uint256 starting = IERC20(assetId).balanceOf(address(this));
-    require(msg.value == 0 || assetId == address(wrapper), "#TA:006");
-    // LibAsset.transferFromERC20(assetId, msg.sender, address(this), specifiedAmount);
-    SafeERC20.safeTransferFrom(IERC20(assetId), msg.sender, address(this), specifiedAmount);
-    // Calculate the *actual* amount that was sent here
-    // trueAmount = LibAsset.getOwnBalance(assetId) - starting;
-    trueAmount = IERC20(assetId).balanceOf(address(this)) - starting;
+    } else {
+      // Validate correct amounts are transferred
+      uint256 starting = IERC20(assetId).balanceOf(address(this));
+      require(msg.value == 0, "#TA:006");
+      SafeERC20.safeTransferFrom(IERC20(assetId), msg.sender, address(this), specifiedAmount);
+      // Calculate the *actual* amount that was sent here
+      trueAmount = IERC20(assetId).balanceOf(address(this)) - starting;
+    }
 
-    return trueAmount;
+    return (assetId, trueAmount);
   }
 
   function _transferAssetFromContract(address asset, address to, uint256 amount) internal {
-    if (asset == address(0)) {
+    // No native assets should ever be stored on this contract
+    require(asset != address(0), "!native");
+
+    if (asset == address(wrapper)) {
+      // If dealing with wrapped assets, make sure they are properly unwrapped
+      // before sending from contract
+      wrapper.withdraw(amount);
       Address.sendValue(payable(to), amount);
     } else {
+      // Transfer ERC20 asset
       SafeERC20.safeTransfer(IERC20(asset), to, amount);
     }
   }
@@ -811,36 +878,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     emit StableSwapAdded(canonical.id, canonical.domain, stableSwapPool, msg.sender);
   }
 
-  /**
-   * @dev Returns the address of the asset.
-   */
-  function _wrapIfNeeded(address assetId, uint256 amount) internal returns (address) {
-    // If the asset is not the native asset, return
-    if (assetId != address(0)) {
-      return assetId;
-    }
-
-    // If the native asset on this domain, must wrap
-    require(msg.value == amount, "!amount");
-    wrapper.deposit{ value: amount }();
-    return address(wrapper);
-  }
-
-  /**
-   * @dev Returns the address of the asset.
-   */
-  function _unwrapIfNeeded(address holding, uint256 amount) internal returns (address) {
-    // If the asset is not the native asset, return
-    if (holding != address(wrapper)) {
-      return holding;
-    }
-
-    // If the native asset on this domain, must wrap
-    wrapper.withdraw(amount);
-    return address(0);
-  }
-
-
   function _sendMessage(
     uint32 destination,
     address recipient,
@@ -849,6 +886,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     bytes32 id,
     bytes32 callHash
   ) internal {
+    // Approve the bridge router
+    SafeERC20.safeIncreaseAllowance(IERC20(local), address(bridgeRouter), amount);
+
     bridgeRouter.send(
       local,
       amount,

@@ -40,6 +40,50 @@ export declare namespace TransactionManager {
     originDomain: number;
     destinationDomain: number;
   };
+
+  export type ProcessedTransactionStruct = {
+    externalCallHash: BytesLike;
+    local: string;
+    amount: BigNumberish;
+    recipient: string;
+  };
+
+  export type ProcessedTransactionStructOutput = [
+    string,
+    string,
+    BigNumber,
+    string
+  ] & {
+    externalCallHash: string;
+    local: string;
+    amount: BigNumber;
+    recipient: string;
+  };
+
+  export type FulfilledTransactionStruct = {
+    router: string;
+    gasUsed: BigNumberish;
+    gasPrice: BigNumberish;
+    amount: BigNumberish;
+    externalCallHash: BytesLike;
+    status: BigNumberish;
+  };
+
+  export type FulfilledTransactionStructOutput = [
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string,
+    number
+  ] & {
+    router: string;
+    gasUsed: BigNumber;
+    gasPrice: BigNumber;
+    amount: BigNumber;
+    externalCallHash: string;
+    status: number;
+  };
 }
 
 export declare namespace BridgeMessage {
@@ -383,14 +427,14 @@ export interface TransactionManagerInterface extends utils.Interface {
     "AssetOwnershipRenounced(bool)": EventFragment;
     "AssetOwnershipRenunciationProposed(uint256)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
-    "Fulfilled()": EventFragment;
+    "Fulfilled(bytes32,address,address,tuple,uint256,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Prepared(bytes32,tuple,address,address,uint256,uint256)": EventFragment;
-    "Processed()": EventFragment;
-    "Reconciled()": EventFragment;
+    "Prepared(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
+    "Processed(bytes32,address,address,uint256,address,bytes,tuple)": EventFragment;
+    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterOwnershipRenounced(bool)": EventFragment;
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
@@ -457,7 +501,32 @@ export type AssetRemovedEvent = TypedEvent<
 
 export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
 
-export type FulfilledEvent = TypedEvent<[], {}>;
+export type FulfilledEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    TransactionManager.CallParamsStructOutput,
+    BigNumber,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ],
+  {
+    transactionId: string;
+    recipient: string;
+    router: string;
+    params: TransactionManager.CallParamsStructOutput;
+    nonce: BigNumber;
+    bridgedAsset: string;
+    receivedAsset: string;
+    bridgedAmount: BigNumber;
+    receivedAmount: BigNumber;
+    caller: string;
+  }
+>;
 
 export type FulfilledEventFilter = TypedEventFilter<FulfilledEvent>;
 
@@ -501,29 +570,75 @@ export type OwnershipTransferredEventFilter =
 export type PreparedEvent = TypedEvent<
   [
     string,
+    string,
     TransactionManager.CallParamsStructOutput,
     string,
     string,
     BigNumber,
-    BigNumber
+    BigNumber,
+    BigNumber,
+    string
   ],
   {
     transactionId: string;
+    recipient: string;
     params: TransactionManager.CallParamsStructOutput;
-    asset: string;
-    local: string;
-    amount: BigNumber;
+    transactingAsset: string;
+    bridgedAsset: string;
+    initialAmount: BigNumber;
+    bridgedAmount: BigNumber;
     nonce: BigNumber;
+    caller: string;
   }
 >;
 
 export type PreparedEventFilter = TypedEventFilter<PreparedEvent>;
 
-export type ProcessedEvent = TypedEvent<[], {}>;
+export type ProcessedEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    string,
+    TransactionManager.ProcessedTransactionStructOutput
+  ],
+  {
+    transactionId: string;
+    recipient: string;
+    receivedAsset: string;
+    receivedAmount: BigNumber;
+    callTo: string;
+    callData: string;
+    processed: TransactionManager.ProcessedTransactionStructOutput;
+  }
+>;
 
 export type ProcessedEventFilter = TypedEventFilter<ProcessedEvent>;
 
-export type ReconciledEvent = TypedEvent<[], {}>;
+export type ReconciledEvent = TypedEvent<
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    TransactionManager.FulfilledTransactionStructOutput,
+    string
+  ],
+  {
+    transactionId: string;
+    recipient: string;
+    router: string;
+    bridgedAsset: string;
+    bridgedAmount: BigNumber;
+    externalHash: string;
+    transaction: TransactionManager.FulfilledTransactionStructOutput;
+    caller: string;
+  }
+>;
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
@@ -656,7 +771,7 @@ export interface TransactionManager extends BaseContract {
     fulfill(
       _params: TransactionManager.CallParamsStruct,
       _nonce: BigNumberish,
-      _local: string,
+      _bridged: string,
       _amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -673,7 +788,7 @@ export interface TransactionManager extends BaseContract {
 
     prepare(
       _params: TransactionManager.CallParamsStruct,
-      _asset: string,
+      _transactingAssetId: string,
       _amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -704,7 +819,7 @@ export interface TransactionManager extends BaseContract {
 
     reconcile(
       _id: BytesLike,
-      _local: string,
+      _bridged: string,
       _recipient: string,
       _amount: BigNumberish,
       _externalCallHash: BytesLike,
@@ -847,7 +962,7 @@ export interface TransactionManager extends BaseContract {
   fulfill(
     _params: TransactionManager.CallParamsStruct,
     _nonce: BigNumberish,
-    _local: string,
+    _bridged: string,
     _amount: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -864,7 +979,7 @@ export interface TransactionManager extends BaseContract {
 
   prepare(
     _params: TransactionManager.CallParamsStruct,
-    _asset: string,
+    _transactingAssetId: string,
     _amount: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -895,7 +1010,7 @@ export interface TransactionManager extends BaseContract {
 
   reconcile(
     _id: BytesLike,
-    _local: string,
+    _bridged: string,
     _recipient: string,
     _amount: BigNumberish,
     _externalCallHash: BytesLike,
@@ -1036,7 +1151,7 @@ export interface TransactionManager extends BaseContract {
     fulfill(
       _params: TransactionManager.CallParamsStruct,
       _nonce: BigNumberish,
-      _local: string,
+      _bridged: string,
       _amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1053,7 +1168,7 @@ export interface TransactionManager extends BaseContract {
 
     prepare(
       _params: TransactionManager.CallParamsStruct,
-      _asset: string,
+      _transactingAssetId: string,
       _amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1082,7 +1197,7 @@ export interface TransactionManager extends BaseContract {
 
     reconcile(
       _id: BytesLike,
-      _local: string,
+      _bridged: string,
       _recipient: string,
       _amount: BigNumberish,
       _externalCallHash: BytesLike,
@@ -1194,8 +1309,30 @@ export interface TransactionManager extends BaseContract {
     ): AssetRemovedEventFilter;
     AssetRemoved(canonicalId?: null, caller?: null): AssetRemovedEventFilter;
 
-    "Fulfilled()"(): FulfilledEventFilter;
-    Fulfilled(): FulfilledEventFilter;
+    "Fulfilled(bytes32,address,address,tuple,uint256,address,address,uint256,uint256,address)"(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
+      router?: string | null,
+      params?: null,
+      nonce?: null,
+      bridgedAsset?: null,
+      receivedAsset?: null,
+      bridgedAmount?: null,
+      receivedAmount?: null,
+      caller?: null
+    ): FulfilledEventFilter;
+    Fulfilled(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
+      router?: string | null,
+      params?: null,
+      nonce?: null,
+      bridgedAsset?: null,
+      receivedAsset?: null,
+      bridgedAmount?: null,
+      receivedAmount?: null,
+      caller?: null
+    ): FulfilledEventFilter;
 
     "LiquidityAdded(address,address,bytes32,uint256,address)"(
       router?: null,
@@ -1241,28 +1378,68 @@ export interface TransactionManager extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "Prepared(bytes32,tuple,address,address,uint256,uint256)"(
-      transactionId?: null,
+    "Prepared(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)"(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
       params?: null,
-      asset?: null,
-      local?: null,
-      amount?: null,
-      nonce?: null
+      transactingAsset?: null,
+      bridgedAsset?: null,
+      initialAmount?: null,
+      bridgedAmount?: null,
+      nonce?: null,
+      caller?: null
     ): PreparedEventFilter;
     Prepared(
-      transactionId?: null,
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
       params?: null,
-      asset?: null,
-      local?: null,
-      amount?: null,
-      nonce?: null
+      transactingAsset?: null,
+      bridgedAsset?: null,
+      initialAmount?: null,
+      bridgedAmount?: null,
+      nonce?: null,
+      caller?: null
     ): PreparedEventFilter;
 
-    "Processed()"(): ProcessedEventFilter;
-    Processed(): ProcessedEventFilter;
+    "Processed(bytes32,address,address,uint256,address,bytes,tuple)"(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
+      receivedAsset?: null,
+      receivedAmount?: null,
+      callTo?: null,
+      callData?: null,
+      processed?: null
+    ): ProcessedEventFilter;
+    Processed(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
+      receivedAsset?: null,
+      receivedAmount?: null,
+      callTo?: null,
+      callData?: null,
+      processed?: null
+    ): ProcessedEventFilter;
 
-    "Reconciled()"(): ReconciledEventFilter;
-    Reconciled(): ReconciledEventFilter;
+    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)"(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
+      router?: string | null,
+      bridgedAsset?: null,
+      bridgedAmount?: null,
+      externalHash?: null,
+      transaction?: null,
+      caller?: null
+    ): ReconciledEventFilter;
+    Reconciled(
+      transactionId?: BytesLike | null,
+      recipient?: string | null,
+      router?: string | null,
+      bridgedAsset?: null,
+      bridgedAmount?: null,
+      externalHash?: null,
+      transaction?: null,
+      caller?: null
+    ): ReconciledEventFilter;
 
     "RouterAdded(address,address)"(
       router?: null,
@@ -1369,7 +1546,7 @@ export interface TransactionManager extends BaseContract {
     fulfill(
       _params: TransactionManager.CallParamsStruct,
       _nonce: BigNumberish,
-      _local: string,
+      _bridged: string,
       _amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1386,7 +1563,7 @@ export interface TransactionManager extends BaseContract {
 
     prepare(
       _params: TransactionManager.CallParamsStruct,
-      _asset: string,
+      _transactingAssetId: string,
       _amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1417,7 +1594,7 @@ export interface TransactionManager extends BaseContract {
 
     reconcile(
       _id: BytesLike,
-      _local: string,
+      _bridged: string,
       _recipient: string,
       _amount: BigNumberish,
       _externalCallHash: BytesLike,
@@ -1553,7 +1730,7 @@ export interface TransactionManager extends BaseContract {
     fulfill(
       _params: TransactionManager.CallParamsStruct,
       _nonce: BigNumberish,
-      _local: string,
+      _bridged: string,
       _amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1574,7 +1751,7 @@ export interface TransactionManager extends BaseContract {
 
     prepare(
       _params: TransactionManager.CallParamsStruct,
-      _asset: string,
+      _transactingAssetId: string,
       _amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1605,7 +1782,7 @@ export interface TransactionManager extends BaseContract {
 
     reconcile(
       _id: BytesLike,
-      _local: string,
+      _bridged: string,
       _recipient: string,
       _amount: BigNumberish,
       _externalCallHash: BytesLike,
