@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.24
+
+- [sdk] another hotfix for sdk subgraph polling
+
 ## 0.1.23
 
 - [sdk] hotfix for sdk subgraph polling
