@@ -24,6 +24,8 @@ import "hardhat/console.sol";
 // - wrapping contracts -- nomad doesnt support native assets
 // - assert the router gas usage in reconcile
 // - allow multiple routers
+// - identifier returned from nomad/bridge
+// - gas optimizations
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
@@ -196,7 +198,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    * @dev Mapping of allowed assetIds on same chain as contract
    */
   mapping(bytes32 => bool) public approvedAssets;
-  // TODO: may not want to key ^^ on canonical address
 
   /**
    * @notice Mapping of canonical to adopted assets on this domain
@@ -425,8 +426,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     (uint256 amount, address local) = _swapToLocalAssetIfNeeded(_asset, _amount);
 
     // Compute the transaction id
-    // TODO: can we delegate the id to nomad? otherwise will have to pass through
-    // via reconcile
     uint256 usedNonce = nonce;
     bytes32 _transactionId = _getTransactionId(usedNonce, domain);
 
@@ -492,13 +491,9 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       // Ensure the router submitted the correct calldata
       require(transaction.externalCallHash == _externalCallHash, "!external");
 
-      // TODO: Ensure the router charged reasonable fee
-
       // Credit router
       routerBalances[transaction.router][_local] += _amount;
     }
-
-    // NOTE: if the transaction id is wrong, then router does not get paid
 
     // Emit event
     emit Reconciled();
