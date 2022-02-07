@@ -3,7 +3,10 @@
   "version": "0.1.21",
   "description": "",
   "scripts": {
-    "test": "hardhat test",
+    "test": "test:hardhat && test:forge",
+    "test:hardhat": "hardhat test",
+    "test:forge": "yarn forge test --hh",
+    "forge": "forge",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",
