@@ -1,132 +1,245 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "./interfaces/IFulfillInterpreter.sol";
-import "./interfaces/ITransactionManager.sol";
-import "./interpreters/FulfillInterpreter.sol";
 import "./ProposedOwnable.sol";
-import "./lib/LibAsset.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
+import "./interfaces/IFulfillInterpreter.sol";
+import "./interfaces/IWrapped.sol";
+import "./interfaces/IStableSwap.sol";
+import "./interpreters/FulfillInterpreter.sol";
+
+import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
+import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
+// import "./nomad-core/libs/TypeCasts.sol";
+
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
+import "hardhat/console.sol";
 
-/**
-  *
-  * @title TransactionManager
-  * @author Connext <support@connext.network>
-  * @notice This contract holds the logic to facilitate crosschain transactions.
-  *         Transactions go through three phases in the happy case:
-  *
-  *         1. Route Auction (offchain): User broadcasts to our network 
-  *         signalling their desired route. Routers respond with sealed bids 
-  *         containing commitments to fulfilling the transaction within a 
-  *         certain time and price range.
-  *
-  *         2. Prepare: Once the auction is completed, the transaction can be 
-  *         prepared. The user submits a transaction to `TransactionManager` 
-  *         contract on sender-side chain containing router's signed bid. This 
-  *         transaction locks up the users funds on the sending chain. Upon 
-  *         detecting an event containing their signed bid from the chain, 
-  *         router submits the same transaction to `TransactionManager` on the 
-  *         receiver-side chain, and locks up a corresponding amount of 
-  *         liquidity. The amount locked on the receiving chain is `sending 
-  *         amount - auction fee` so the router is incentivized to complete the 
-  *         transaction.
-  *
-  *         3. Fulfill: Upon detecting the `TransactionPrepared` event on the 
-  *         receiver-side chain, the user signs a message and sends it to a 
-  *         relayer, who will earn a fee for submission. The relayer (which may 
-  *         be the router) then submits the message to the `TransactionManager` 
-  *         to complete their transaction on receiver-side chain and claim the 
-  *         funds locked by the router. A relayer is used here to allow users 
-  *         to submit transactions with arbitrary calldata on the receiving 
-  *         chain without needing gas to do so. The router then submits the 
-  *         same signed message and completes transaction on sender-side, 
-  *         unlocking the original `amount`.
-  *
-  *         If a transaction is not fulfilled within a fixed timeout, it 
-  *         reverts and can be reclaimed by the party that called `prepare` on 
-  *         each chain (initiator). Additionally, transactions can be cancelled 
-  *         unilaterally by the person owed funds on that chain (router for 
-  *         sending chain, user for receiving chain) prior to expiry.
-  */
-contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionManager {
+// TODO:
+// - decide on interface for the stable swap
+// - nomad contract packages not playing nicely
+// - make functions metatxable
+// - make upgradeable
+// - transaction progress tracking
+// - routing interface vs. always nomad
+// - wrapping contracts -- is the assetId assignment okay?
+// - assert the router gas usage in reconcile
+
+contract TransactionManager is ReentrancyGuard, ProposedOwnable {
+
+  // ============= Enums =============
+  enum TransactionStatus {
+    Fulfilled,
+    Reconciled
+  }
+
+  // ============ Structs ============
+
+  struct CallParams {
+    address recipient;
+    address callTo;
+    bytes callData;
+    uint32 originDomain; // must match nomad domain
+    uint32 destinationDomain; // must match nomad domain
+  }
+
+  struct NoncedParams {
+    uint256 nonce;
+    CallParams params;
+  }
+
+  struct ExternalCall {
+    address callTo;
+    bytes callData;
+  }
+
+  struct FulfilledTransaction {
+    address router;
+    uint256 gasUsed;
+    uint256 gasPrice;
+    bytes32 externalCallHash;
+    TransactionStatus status;
+  }
+
+  /**
+   * @dev All the information that comes through nomad so users can self-process
+   */
+  struct ProcessedTransaction {
+    bytes32 externalCallHash;
+    address local;
+    uint256 amount;
+    address recipient;
+  }
+
+  // ============ Events ============
+
+  event RouterAdded(
+    address router,
+    address caller
+  );
+
+  event RouterRemoved(
+    address router,
+    address caller
+  );
+
+  event StableSwapAdded(
+    bytes32 canonicalId,
+    uint32 domain,
+    address swapPool,
+    address caller
+  );
+
+  event AssetAdded(
+    bytes32 canonicalId,
+    uint32 domain,
+    address adoptedAsset,
+    address storedAsset,
+    address caller
+  );
+
+  event AssetRemoved(
+    bytes32 canonicalId,
+    address caller
+  );
+
+  event LiquidityRemoved(
+    address recipient,
+    address local,
+    uint256 amount,
+    address caller
+  );
+
+  event LiquidityAdded(
+    address router,
+    address local,
+    bytes32 canonicalId,
+    uint256 amount,
+    address caller
+  );
+
+  event Prepared(
+    bytes32 transactionId,
+    CallParams params,
+    address asset,
+    address local,
+    uint256 amount,
+    uint256 nonce
+  );
+
+  event Reconciled();
+
+  event Fulfilled();
+
+  event Processed();
+
+  // ============ Properties ============
+
+  BridgeRouter public bridgeRouter;
+
+  /**
+   * @dev Needed because the nomad only handles ERC20 assets
+   */
+  IWrapped public wrapper;
+
+  /**
+   * @dev Nonce for the contract, used to keep unique transaction ids.
+   * Assigned at first interaction (prepare on sending chain);
+   */
+  uint256 public nonce = 0;
+
+  /**
+   * @dev The external contract that will execute crosschain
+   *      calldata
+   */
+  IFulfillInterpreter public interpreter;
+
+  /**
+   * @dev Token registry
+   */
+  TokenRegistry public tokenRegistry;
+
+  /**
+   * @dev Swaps for an adopted asset <> mad asset (i.e. POS USDC <> madUSDC on polygon)
+   */
+  mapping(bytes32 => IStableSwap) public adoptedToLocalPools;
+
+  /**
+   * @dev Stores the transactionId => fulfilled info mapping
+   */
+  mapping(bytes32 => FulfilledTransaction) public routedTransactions;
+
+  /**
+   * @dev Stores all the information about non-fulfilled txs for users to self-process
+   */
+  mapping(bytes32 => ProcessedTransaction) public unroutedTransactions;
+
+  /**
+   * @dev The stored chain id of the contract, may be passed in to avoid any 
+   *      evm issues
+   */
+  uint256 public immutable domain;
+
   /**
    * @dev Mapping of router to balance specific to asset
    */
   mapping(address => mapping(address => uint256)) public routerBalances;
 
   /**
-    * @dev Mapping of allowed router addresses. Must be added to both
-    *      sending and receiving chains when forwarding a transfer.
-    */
+   * @dev Mapping of allowed router addresses. Must be added to both
+   *      sending and receiving chains when forwarding a transfer.
+   */
   mapping(address => bool) public approvedRouters;
 
   /**
-    * @dev Mapping of allowed assetIds on same chain as contract
-    */
-  mapping(address => bool) public approvedAssets;
+   * @dev Mapping of allowed assetIds on same chain as contract
+   */
+  mapping(bytes32 => bool) public approvedAssets;
+  // TODO: may not want to key ^^ on canonical address
 
   /**
-    * @dev Mapping of hash of `InvariantTransactionData` to the hash
-    *      of the `VariantTransactionData`
-    */
-  mapping(bytes32 => bytes32) public variantTransactionData;
+   * @notice Mapping of canonical to adopted assets on this domain
+   * @dev If the adopted asset is the native asset, the keyed address will
+   * be the wrapped asset address
+   */
+  mapping(address => BridgeMessage.TokenId) public adoptedToCanonical;
 
   /**
-  * @dev The stored chain id of the contract, may be passed in to avoid any 
-  *      evm issues
-  */
-  uint256 private immutable chainId;
+   * @notice Mapping of adopted to canonical on this domain to perform reverse
+   * lookups
+   * @dev If the adopted asset is the native asset, the value stored should
+   * be the wrapped version of that
+   */
+  mapping(bytes32 => address) public canonicalToAdopted;
 
-  /**
-    * @dev Minimum timeout (will be the lowest on the receiving chain)
-    */
-  uint256 public constant MIN_TIMEOUT = 1 days; // 24 hours
 
-  /**
-    * @dev Maximum timeout (will be the highest on the sending chain)
-    */
-  uint256 public constant MAX_TIMEOUT = 30 days; // 720 hours
+  // ============ Modifiers ============
 
-  /**
-    * @dev The external contract that will execute crosschain
-    *      calldata
-    */
-  IFulfillInterpreter public immutable interpreter;
+  modifier onlyBridgeRouter() {
+    require(msg.sender == address(bridgeRouter), "!bridge");
+    _;
+  }
 
-  constructor(uint256 _chainId) {
-    chainId = _chainId;
+  constructor(
+    uint256 _domain,
+    address payable _bridgeRouter,
+    address _tokenRegistry, // Nomad token registry
+    address _wrappedNative
+  ) {
+    domain = _domain;
+    bridgeRouter = BridgeRouter(_bridgeRouter);
     interpreter = new FulfillInterpreter(address(this));
+    tokenRegistry = TokenRegistry(_tokenRegistry);
+    wrapper = IWrapped(_wrappedNative);
   }
 
-  /** 
-   * @notice Gets the chainId for this contract. If not specified during init
-   *         will use the block.chainId
-   */
-  function getChainId() public view override returns (uint256 _chainId) {
-    // Hold in memory to reduce sload calls
-    uint256 chain = chainId;
-    if (chain == 0) {
-      // If not provided, pull from block
-      chain = block.chainid;
-    }
-    return chain;
-  }
+  // ============ Owner Functions ============
 
   /**
-   * @notice Allows us to get the chainId that this contract has stored
+   * @notice Used to add routers that can transact crosschain
+   * @param router Router address to add
    */
-  function getStoredChainId() external view override returns (uint256) {
-    return chainId;
-  }
-
-  /**
-    * @notice Used to add routers that can transact crosschain
-    * @param router Router address to add
-    */
-  function addRouter(address router) external override onlyOwner {
+  function addRouter(address router) external onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#AR:001");
 
@@ -141,10 +254,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   }
 
   /**
-    * @notice Used to remove routers that can transact crosschain
-    * @param router Router address to remove
-    */
-  function removeRouter(address router) external override onlyOwner {
+   * @notice Used to remove routers that can transact crosschain
+   * @param router Router address to remove
+   */
+  function removeRouter(address router) external onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#RR:001");
 
@@ -159,503 +272,440 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
   }
 
   /**
-    * @notice Used to add assets on same chain as contract that can
-    *         be transferred.
-    * @param assetId AssetId to add
-    */
-  function addAssetId(address assetId) external override onlyOwner {
-    // Sanity check: needs approval
-    require(approvedAssets[assetId] == false, "#AA:032");
-
-    // Update mapping
-    approvedAssets[assetId] = true;
-
-    // Emit event
-    emit AssetAdded(assetId, msg.sender);
+   * @notice Adds a stable swap pool for the representaional <> adopted asset.
+   */
+  function addStableSwapPool(
+    BridgeMessage.TokenId calldata canonical,
+    address stableSwapPool
+  ) external onlyOwner {
+    _addStableSwapPool(canonical, stableSwapPool);
   }
 
   /**
-    * @notice Used to remove assets on same chain as contract that can
-    *         be transferred.
-    * @param assetId AssetId to remove
-    */
-  function removeAssetId(address assetId) external override onlyOwner {
+   * @notice Used to add supported assets. This is an only owner function.
+   * @param canonical The canonical asset to add by id and domain. All representations
+   * will be whitelisted as well.
+   * @param adoptedAssetId The used asset id for this domain (i.e. PoS USDC for
+   * polygon)
+   * @param stableSwapPool Address of the pool to swap adopted:local asset
+   * @dev This means you would whitelist USDC, and madUSDC on all domains would be
+   * whitelisted as well. In the event you have a different adopted asset (i.e. using
+   * USDC on polygon), you should *not* whitelist the adopted asset. The stable swap pool
+   * address used should allow you to swap between the adopted asset <> representation.
+   */
+  function setupAsset(
+    BridgeMessage.TokenId calldata canonical,
+    address adoptedAssetId,
+    address stableSwapPool
+  ) external onlyOwner {
+    // Add the asset
+    _addAssetId(canonical, adoptedAssetId);
+
+    // Add the swap pool
+    _addStableSwapPool(canonical, stableSwapPool);
+  }
+
+  /**
+   * @notice Used to remove assets on same chain as contract that can
+   *         be transferred.
+   * @param canonicalId TokenId to remove
+   * @param adoptedAssetId Corresponding adopted asset to remove
+   */
+  function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external onlyOwner {
     // Sanity check: already approval
-    require(approvedAssets[assetId] == true, "#RA:033");
+    require(approvedAssets[canonicalId] == true, "#RA:033");
 
     // Update mapping
-    approvedAssets[assetId] = false;
+    delete approvedAssets[canonicalId];
+
+    // Update pools
+    delete adoptedToLocalPools[canonicalId];
+
+    // Update adopted mapping
+    delete adoptedToCanonical[adoptedAssetId == address(0) ? address(wrapper) : adoptedAssetId];
 
     // Emit event
-    emit AssetRemoved(assetId, msg.sender);
+    emit AssetRemoved(canonicalId, msg.sender);
   }
 
   /**
-    * @notice This is used by anyone to increase a router's available
-    *         liquidity for a given asset.
-    * @param amount The amount of liquidity to add for the router
-    * @param assetId The address (or `address(0)` if native asset) of the
-    *                asset you're adding liquidity for
-    * @param router The router you are adding liquidity on behalf of
-    */
-  function addLiquidityFor(uint256 amount, address assetId, address router) external payable override nonReentrant {
-    _addLiquidityForRouter(amount, assetId, router);
+   * @notice This is used by anyone to increase a router's available
+   *         liquidity for a given asset.
+   * @param amount The amount of liquidity to add for the router
+   * @param local The address (or `address(0)` if native asset) of the
+   *                asset you're adding liquidity for
+   * @param router The router you are adding liquidity on behalf of
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   */
+  function addLiquidityFor(uint256 amount, address local, address router) external payable nonReentrant {
+    _addLiquidityForRouter(amount, local, router);
   }
 
   /**
-    * @notice This is used by any router to increase their available
-    *         liquidity for a given asset.
-    * @param amount The amount of liquidity to add for the router
-    * @param assetId The address (or `address(0)` if native asset) of the
-    *                asset you're adding liquidity for
-    */
-  function addLiquidity(uint256 amount, address assetId) external payable override nonReentrant {
-    _addLiquidityForRouter(amount, assetId, msg.sender);
+   * @notice This is used by any router to increase their available
+   *         liquidity for a given asset.
+   * @param amount The amount of liquidity to add for the router
+   * @param local The address (or `address(0)` if native asset) of the
+   *                asset you're adding liquidity for.
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   */
+  function addLiquidity(uint256 amount, address local) external payable nonReentrant {
+    _addLiquidityForRouter(amount, local, msg.sender);
   }
 
   /**
-    * @notice This is used by any router to decrease their available
-    *         liquidity for a given asset.
-    * @param amount The amount of liquidity to remove for the router
-    * @param assetId The address (or `address(0)` if native asset) of the
-    *                asset you're removing liquidity for
-    * @param recipient The address that will receive the liquidity being removed
-    */
+   * @notice This is used by any router to decrease their available
+   *         liquidity for a given asset.
+   * @param amount The amount of liquidity to remove for the router
+   * @param local The address (or `address(0)` if native asset) of the
+   *                asset you're removing liquidity for. Should be the mad* asset.
+   * @param recipient The address that will receive the liquidity being removed
+   */
   function removeLiquidity(
     uint256 amount,
-    address assetId,
+    address local,
     address payable recipient
-  ) external override nonReentrant {
+  ) external  nonReentrant {
     // Sanity check: recipient is sensible
     require(recipient != address(0), "#RL:007");
 
     // Sanity check: nonzero amounts
     require(amount > 0, "#RL:002");
 
-    uint256 routerBalance = routerBalances[msg.sender][assetId];
+    uint256 routerBalance = routerBalances[msg.sender][local];
     // Sanity check: amount can be deducted for the router
     require(routerBalance >= amount, "#RL:008");
 
     // Update router balances
     unchecked {
-      routerBalances[msg.sender][assetId] = routerBalance - amount;
+      routerBalances[msg.sender][local] = routerBalance - amount;
     }
 
     // Transfer from contract to specified recipient
-    LibAsset.transferAsset(assetId, recipient, amount);
+    _transferAssetFromContract(local, recipient, amount);
+    // LibAsset.transferAsset(local, recipient, amount);
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, assetId, amount, recipient);
+    emit LiquidityRemoved(recipient, local, amount, msg.sender);
   }
 
   /**
-    * @notice This function creates a crosschain transaction. When called on
-    *         the sending chain, the user is expected to lock up funds. When
-    *         called on the receiving chain, the router deducts the transfer
-    *         amount from the available liquidity. The majority of the
-    *         information about a given transfer does not change between chains,
-    *         with three notable exceptions: `amount`, `expiry`, and 
-    *         `preparedBlock`. The `amount` and `expiry` are decremented
-    *         between sending and receiving chains to provide an incentive for 
-    *         the router to complete the transaction and time for the router to
-    *         fulfill the transaction on the sending chain after the unlocking
-    *         signature is revealed, respectively.
-    * @param args TODO
-    */
+   * @notice This function is called by a user who is looking to swap funds
+   */
   function prepare(
-    PrepareArgs calldata args
-  ) external payable override nonReentrant returns (TransactionData memory) {
-    // Sanity check: user is sensible
-    require(args.invariantData.user != address(0), "#P:009");
+    CallParams calldata _params,
+    address _asset, // Could be adopted, local, or wrapped
+    uint256 _amount
+  ) external payable {
+    _asset = _wrapIfNeeded(_asset, _amount);
 
-    // Sanity check: router is sensible
-    require(args.invariantData.router != address(0), "#P:001");
+    // Asset must be either adopted, canonical, or representation
+    // TODO: why is this breaking the build
+    // require(
+    //   adoptedToCanonical[_asset].id != bytes32(0) || 
+    //   tokenRegistry.getLocalAddress(domain, _asset) != address(0),
+    //   "!supported_asset"
+    // );
+    require(
+      adoptedToCanonical[_asset].id != bytes32(0),
+      "!supported_asset"
+    );
 
-    // Router is approved *on both chains*
-    require(isRouterOwnershipRenounced() || approvedRouters[args.invariantData.router], "#P:003");
+    // Transfer funds to the ccontract
+    _transferAssetToContract(_asset, _amount);
 
-    // Sanity check: sendingChainFallback is sensible
-    require(args.invariantData.sendingChainFallback != address(0), "#P:010");
+    // Swap to the local asset from the adopted
+    (uint256 amount, address local) = _swapToLocalAssetIfNeeded(_asset, _amount);
 
-    // Sanity check: valid fallback
-    require(args.invariantData.receivingAddress != address(0), "#P:026");
+    // Compute the transaction id
+    // TODO: can we delegate the id to nomad? otherwise will have to pass through
+    // via reconcile
+    uint256 usedNonce = nonce;
+    bytes32 _transactionId = _getTransactionId(usedNonce, domain);
 
-    // Make sure the chains are different
-    require(args.invariantData.sendingChainId != args.invariantData.receivingChainId, "#P:011");
+    // Update nonce
+    nonce++;
 
-    // Make sure the chains are relevant
-    uint256 _chainId = getChainId();
-    require(args.invariantData.sendingChainId == _chainId || args.invariantData.receivingChainId == _chainId, "#P:012");
+    // Approve the bridge router
+    SafeERC20.safeIncreaseAllowance(IERC20(local), address(bridgeRouter), amount);
 
-    { // Expiry scope
-      // Make sure the expiry is greater than min
-      uint256 buffer = args.expiry - block.timestamp;
-      require(buffer >= MIN_TIMEOUT, "#P:013");
-
-      // Make sure the expiry is lower than max
-      require(buffer <= MAX_TIMEOUT, "#P:014");
-    }
-
-    // Make sure the hash is not a duplicate
-    bytes32 digest = keccak256(abi.encode(args.invariantData));
-    require(variantTransactionData[digest] == bytes32(0), "#P:015");
-
-    // NOTE: the `encodedBid` and `bidSignature` are simply passed through
-    //       to the contract emitted event to ensure the availability of
-    //       this information. Their validity is asserted offchain, and
-    //       is out of scope of this contract. They are used as inputs so
-    //       in the event of a router or user crash, they may recover the
-    //       correct bid information without requiring an offchain store.
-
-    // Amount actually used (if fee-on-transfer will be different than
-    // supplied)
-    uint256 amount = args.amount;
-
-    // First determine if this is sender side or receiver side
-    if (args.invariantData.sendingChainId == _chainId) {
-      // Check the sender is correct
-      require(msg.sender == args.invariantData.initiator, "#P:039");
-
-      // Sanity check: amount is sensible
-      // Only check on sending chain to enforce router fees. Transactions could
-      // be 0-valued on receiving chain if it is just a value-less call to some
-      // `IFulfillHelper`
-      require(args.amount > 0, "#P:002");
-
-      // Assets are approved
-      // NOTE: Cannot check this on receiving chain because of differing
-      // chain contexts
-      require(isAssetOwnershipRenounced() || approvedAssets[args.invariantData.sendingAssetId], "#P:004");
-
-      // This is sender side prepare. The user is beginning the process of 
-      // submitting an onchain tx after accepting some bid. They should
-      // lock their funds in the contract for the router to claim after
-      // they have revealed their signature on the receiving chain via
-      // submitting a corresponding `fulfill` tx
-
-      // Validate correct amounts on msg and transfer from user to
-      // contract
-      amount = transferAssetToContract(
-        args.invariantData.sendingAssetId,
-        args.amount
-      );
-
-      // Store the transaction variants. This happens after transferring to
-      // account for fee on transfer tokens
-      variantTransactionData[digest] = hashVariantTransactionData(
-        amount,
-        args.expiry,
-        block.number
-      );
-    } else {
-      // This is receiver side prepare. The router has proposed a bid on the
-      // transfer which the user has accepted. They can now lock up their
-      // own liquidity on th receiving chain, which the user can unlock by
-      // calling `fulfill`. When creating the `amount` and `expiry` on the
-      // receiving chain, the router should have decremented both. The
-      // expiry should be decremented to ensure the router has time to
-      // complete the sender-side transaction after the user completes the
-      // receiver-side transactoin. The amount should be decremented to act as
-      // a fee to incentivize the router to complete the transaction properly.
-
-      // Check that the callTo is a contract
-      // NOTE: This cannot happen on the sending chain (different chain 
-      // contexts), so a user could mistakenly create a transfer that must be
-      // cancelled if this is incorrect
-      require(args.invariantData.callTo == address(0) || Address.isContract(args.invariantData.callTo), "#P:031");
-
-      // Check that the asset is approved
-      // NOTE: This cannot happen on both chains because of differing chain 
-      // contexts. May be possible for user to create transaction that is not
-      // prepare-able on the receiver chain.
-      require(isAssetOwnershipRenounced() || approvedAssets[args.invariantData.receivingAssetId], "#P:004");
-
-      // Check that the caller is the router
-      require(msg.sender == args.invariantData.router, "#P:016");
-
-      // Check that the router isnt accidentally locking funds in the contract
-      require(msg.value == 0, "#P:017");
-
-      // Check that router has liquidity
-      uint256 balance = routerBalances[args.invariantData.router][args.invariantData.receivingAssetId];
-      require(balance >= amount, "#P:018");
-
-      // Store the transaction variants
-      variantTransactionData[digest] = hashVariantTransactionData(
-        amount,
-        args.expiry,
-        block.number
-      );
-
-      // Decrement the router liquidity
-      // using unchecked because underflow protected against with require
-      unchecked {
-        routerBalances[args.invariantData.router][args.invariantData.receivingAssetId] = balance - amount;
-      }
-    }
+    // Call `send` on the bridge router
+    _sendMessage(
+      _params.destinationDomain,
+      _params.recipient,
+      local,
+      amount,
+      _transactionId,
+      _getExternalCallHash(_params.callTo, _params.callData)
+    );
 
     // Emit event
-    TransactionData memory txData = TransactionData({
-      receivingChainTxManagerAddress: args.invariantData.receivingChainTxManagerAddress,
-      user: args.invariantData.user,
-      router: args.invariantData.router,
-      initiator: args.invariantData.initiator,
-      sendingAssetId: args.invariantData.sendingAssetId,
-      receivingAssetId: args.invariantData.receivingAssetId,
-      sendingChainFallback: args.invariantData.sendingChainFallback,
-      callTo: args.invariantData.callTo,
-      receivingAddress: args.invariantData.receivingAddress,
-      callDataHash: args.invariantData.callDataHash,
-      transactionId: args.invariantData.transactionId,
-      sendingChainId: args.invariantData.sendingChainId,
-      receivingChainId: args.invariantData.receivingChainId,
-      amount: amount,
-      expiry: args.expiry,
-      preparedBlockNumber: block.number
+    emit Prepared(
+      _transactionId,
+      _params,
+      _asset,
+      local,
+      amount,
+      usedNonce
+    );
+  }
+
+  /**
+   * @notice This function is called by the bridge router to make the router
+   * who supplied liquidity whole.
+   */
+  function reconcile(
+    bytes32 _id,
+    address _local,
+    address _recipient,
+    uint256 _amount,
+    bytes32 _externalCallHash
+  ) external onlyBridgeRouter payable {
+    // Find the router to credit
+    FulfilledTransaction memory transaction = routedTransactions[_id];
+    require(transaction.status == TransactionStatus.Fulfilled, "!status");
+
+    // Update the status record of transaction
+    transaction.status = TransactionStatus.Reconciled;
+
+    // Save
+    routedTransactions[_id] = transaction;
+
+    if (transaction.router == address(0)) {
+      // Nomad bridge fulfilled faster than router, funds should become process-able
+      // by the user.
+      unroutedTransactions[_id] = ProcessedTransaction({
+        externalCallHash: _externalCallHash,
+        local: _local,
+        amount: _amount,
+        recipient: _recipient
+      });
+
+    } else {
+      // Ensure the router submitted the correct calldata
+      require(transaction.externalCallHash == _externalCallHash, "!external");
+
+      // TODO: Ensure the router charged reasonable fee
+
+      // Credit router
+      routerBalances[transaction.router][_local] += _amount;
+    }
+
+    // NOTE: if the transaction id is wrong, then router does not get paid
+
+    // Emit event
+    emit Reconciled();
+  }
+
+  /**
+   * @notice This function is called by the router to provide native asset
+   * liquidity to the user.
+   */
+  function fulfill(
+    CallParams calldata _params,
+    uint256 _nonce,
+    address _local,
+    uint256 _amount
+  ) external payable {
+    // Get the starting gas
+    uint256 start = gasleft();
+  
+    // Calculate the transaction id
+    bytes32 _transactionId = _getTransactionId(_nonce, _params.originDomain);
+
+    // Ensure there is sufficient liquidity
+    require(routerBalances[msg.sender][_local] >= _amount, "!liquidity");
+
+    // Decrement router liquidity
+    unchecked {
+      routerBalances[msg.sender][_local] -= _amount; 
+    }
+
+    // Save router to transaction (this information will *not* be passed
+    // through nomad)
+    routedTransactions[_transactionId] = FulfilledTransaction({
+      router: msg.sender,
+      gasPrice: tx.gasprice,
+      gasUsed: 0,
+      externalCallHash: _getExternalCallHash(_params.callTo, _params.callData),
+      status: TransactionStatus.Fulfilled
     });
 
-    emit TransactionPrepared(
-      txData.user,
-      txData.router,
-      txData.transactionId,
-      txData,
-      msg.sender,
-      args
-    );
+    // If this is a mad* asset, then swap on local AMM
+    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_local, _amount);
 
-    return txData;
-  }
+    // Unwrap if needed
+    address assetId = _unwrapIfNeeded(adopted, amount);
 
-
-
-    /**
-    * @notice This function completes a crosschain transaction. When called on
-    *         the receiving chain, the user reveals their signature on the
-    *         transactionId and is sent the amount corresponding to the number
-    *         of shares the router locked when calling `prepare`. The router 
-    *         then uses this signature to unlock the corresponding funds on the 
-    *         receiving chain, which are then added back to their available 
-    *         liquidity. The user includes a relayer fee since it is not 
-    *         assumed they will have gas on the receiving chain. This function 
-    *         *must* be called before the transaction expiry has elapsed.
-    * @param args TODO
-    */
-  function fulfill(
-    FulfillArgs calldata args
-  ) external override nonReentrant returns (TransactionData memory) {
-    // Get the hash of the invariant tx data. This hash is the same
-    // between sending and receiving chains. The variant data is stored
-    // in the contract when `prepare` is called within the mapping.
-
-    { // scope: validation and effects
-      bytes32 digest = hashInvariantTransactionData(args.txData);
-
-      // Make sure that the variant data matches what was stored
-      require(variantTransactionData[digest] == hashVariantTransactionData(
-        args.txData.amount,
-        args.txData.expiry,
-        args.txData.preparedBlockNumber
-      ), "#F:019");
-
-      // Make sure the expiry has not elapsed
-      require(args.txData.expiry >= block.timestamp, "#F:020");
-
-      // Make sure the transaction wasn't already completed
-      require(args.txData.preparedBlockNumber > 0, "#F:021");
-
-      // Check provided callData matches stored hash
-      require(keccak256(args.callData) == args.txData.callDataHash, "#F:024");
-
-      // To prevent `fulfill` / `cancel` from being called multiple times, the
-      // preparedBlockNumber is set to 0 before being hashed. The value of the
-      // mapping is explicitly *not* zeroed out so users who come online without
-      // a store can tell the difference between a transaction that has not been
-      // prepared, and a transaction that was already completed on the receiver
-      // chain.
-      variantTransactionData[digest] = hashVariantTransactionData(
-        args.txData.amount,
-        args.txData.expiry,
-        0
-      );
-    }
-
-    // Declare these variables for the event emission. Are only assigned
-    // IFF there is an external call on the receiving chain
-    bool success;
-    bool isContract;
-    bytes memory returnData;
-
-    uint256 _chainId = getChainId();
-
-    if (args.txData.sendingChainId == _chainId) {
-      // The router is completing the transaction, they should get the
-      // amount that the user deposited credited to their liquidity
-      // reserves.
-
-      // Make sure that the user is not accidentally fulfilling the transaction
-      // on the sending chain
-      require(msg.sender == args.txData.router, "#F:016");
-
-      // Validate the user has signed
-      require(
-        recoverFulfillSignature(
-          args.txData.transactionId,
-          args.relayerFee,
-          args.txData.receivingChainId,
-          args.txData.receivingChainTxManagerAddress,
-          args.signature
-        ) == args.txData.user, "#F:022"
-      );
-
-      // Complete tx to router for original sending amount
-      routerBalances[args.txData.router][args.txData.sendingAssetId] += args.txData.amount;
-
+    if (_params.callTo == address(0)) {
+      // Send funds to the user
+      _transferAssetFromContract(assetId, payable(_params.recipient), amount);
+      // LibAsset.transferAsset(assetId, payable(_params.recipient), amount);
     } else {
-      // Validate the user has signed, using domain of contract
-      require(
-        recoverFulfillSignature(
-          args.txData.transactionId,
-          args.relayerFee,
-          _chainId,
-          address(this),
-          args.signature
-        ) == args.txData.user, "#F:022"
-      );
-
-      // Sanity check: fee <= amount. Allow `=` in case of only 
-      // wanting to execute 0-value crosschain tx, so only providing 
-      // the fee amount
-      require(args.relayerFee <= args.txData.amount, "#F:023");
-
-      (success, isContract, returnData) = _receivingChainFulfill(
-        args.txData,
-        args.relayerFee,
-        args.callData
+      // Send funds to interprepter
+      _transferAssetFromContract(assetId, payable(address(interpreter)), amount);
+      // LibAsset.transferAsset(assetId, payable(address(interpreter)), amount);
+      interpreter.execute(
+        _transactionId,
+        payable(_params.callTo),
+        assetId,
+        payable(_params.recipient),
+        amount,
+        _params.callData
       );
     }
+
+    uint256 consumed = start - gasleft();
+
+    // Update gas used
+    routedTransactions[_transactionId].gasUsed = consumed;
 
     // Emit event
-    emit TransactionFulfilled(
-      args.txData.user,
-      args.txData.router,
-      args.txData.transactionId,
-      args,
-      success,
-      isContract,
-      returnData,
-      msg.sender
-    );
+    emit Fulfilled();
+  }
+  
+  /**
+   * @dev Can be called by anyone to process a transaction routers ignored
+   */
+  function process(
+    bytes32 _id,
+    address _callTo,
+    bytes calldata _callData
+  ) external {
+    // Get the transaction
+    ProcessedTransaction memory transaction = unroutedTransactions[_id];
+    require(transaction.externalCallHash != bytes32(0), "!found");
 
-    return args.txData;
+    // Check the calldata is correct
+    bytes32 calculated = _getExternalCallHash(_callTo, _callData);
+    require(calculated == transaction.externalCallHash, "!data");
+
+    // Swap out of local asset if needed
+    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(transaction.local, transaction.amount);
+
+    // Unwrap if needed
+    address assetId = _unwrapIfNeeded(adopted, amount);
+
+    // Remove the record
+    delete unroutedTransactions[_id];
+
+    // Process the transaction
+    if (_callTo == address(0)) {
+      // No external call, send funds
+      // LibAsset.transferAsset(assetId, payable(transaction.recipient), amount);
+      _transferAssetFromContract(assetId, payable(transaction.recipient), amount);
+    } else {
+      // LibAsset.transferAsset(assetId, payable(address(interpreter)), amount);
+      _transferAssetFromContract(assetId, payable(address(interpreter)), amount);
+      interpreter.execute(
+        _id,
+        payable(_callTo),
+        assetId,
+        payable(transaction.recipient),
+        amount,
+        _callData
+      );
+    }
+
+    emit Processed();
+  }
+
+  // ============ Private functions ============
+
+  /**
+   * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
+   */
+  function _swapToLocalAssetIfNeeded(address asset, uint256 amount) internal returns (uint256, address) {
+    // Check to see if the asset must be swapped because it is not the local asset
+    BridgeMessage.TokenId memory canonical = adoptedToCanonical[asset];
+    if (canonical.id == bytes32(0)) {
+      // This is *not* the adopted asset, meaning it must be the local asset
+      return (amount, asset);
+    }
+  
+    // Get the local token for this domain (may return canonical or representation)
+    address local = tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
+
+    // Check the case where the adopted asset *is* the local asset
+    if (local == asset) {
+      // No need to swap
+      return (amount, asset);
+    }
+
+    // Approve pool
+    IStableSwap pool = adoptedToLocalPools[canonical.id];
+    SafeERC20.safeApprove(IERC20(asset), address(pool), amount);
+
+    // Swap the asset to the proper local asset
+    return (
+      pool.swapExact(
+        amount,
+        asset,
+        local
+      ), 
+      local
+    );
   }
 
   /**
-    * @notice Any crosschain transaction can be cancelled after it has been
-    *         created to prevent indefinite lock up of funds. After the
-    *         transaction has expired, anyone can cancel it. Before the
-    *         expiry, only the recipient of the funds on the given chain is
-    *         able to cancel. On the sending chain, this means only the router
-    *         is able to cancel before the expiry, while only the user can
-    *         prematurely cancel on the receiving chain.
-    * @param args TODO
-    */
-  function cancel(CancelArgs calldata args)
-    external
-    override
-    nonReentrant
-    returns (TransactionData memory)
-  {
-    // Make sure params match against stored data
-    // Also checks that there is an active transfer here
-    // Also checks that sender or receiver chainID is this chainId (bc we checked it previously)
+   * @notice Swaps a canonical asset for a mad* asset using the stored
+   * stable swap
+   */
+  function _swapFromLocalAssetIfNeeded(address local, uint256 amount) internal returns (uint256, address) {
+    // Get the token id
+    (, bytes32 id) = tokenRegistry.getCanonicalTokenId(local);
 
-    // Get the hash of the invariant tx data. This hash is the same
-    // between sending and receiving chains. The variant data is stored
-    // in the contract when `prepare` is called within the mapping.
-    bytes32 digest = hashInvariantTransactionData(args.txData);
-
-    // Verify the variant data is correct
-    require(variantTransactionData[digest] == hashVariantTransactionData(args.txData.amount, args.txData.expiry, args.txData.preparedBlockNumber), "#C:019");
-
-    // Make sure the transaction wasn't already completed
-    require(args.txData.preparedBlockNumber > 0, "#C:021");
-
-    // To prevent `fulfill` / `cancel` from being called multiple times, the
-    // preparedBlockNumber is set to 0 before being hashed. The value of the
-    // mapping is explicitly *not* zeroed out so users who come online without
-    // a store can tell the difference between a transaction that has not been
-    // prepared, and a transaction that was already completed on the receiver
-    // chain.
-    variantTransactionData[digest] = hashVariantTransactionData(args.txData.amount, args.txData.expiry, 0);
-
-    // Get chainId for gas
-    uint256 _chainId = getChainId();
-
-    // Return the appropriate locked funds
-    if (args.txData.sendingChainId == _chainId) {
-      // Sender side, funds must be returned to the user
-      if (args.txData.expiry >= block.timestamp) {
-        // Timeout has not expired and tx may only be cancelled by router
-        // NOTE: no need to validate the signature here, since you are requiring
-        // the router must be the sender when the cancellation is during the
-        // fulfill-able window
-        require(msg.sender == args.txData.router, "#C:025");
-      }
-
-      // Return users locked funds
-      // NOTE: no need to check if amount > 0 because cant be prepared on
-      // sending chain with 0 value
-      LibAsset.transferAsset(
-        args.txData.sendingAssetId,
-        payable(args.txData.sendingChainFallback),
-        args.txData.amount
-      );
-
-    } else {
-      // Receiver side, router liquidity is returned
-      if (args.txData.expiry >= block.timestamp) {
-        // Timeout has not expired and tx may only be cancelled by user
-        // Validate signature
-        require(msg.sender == args.txData.user || recoverCancelSignature(args.txData.transactionId, _chainId, address(this), args.signature) == args.txData.user, "#C:022");
-
-        // NOTE: there is no incentive here for relayers to submit this on
-        // behalf of the user (i.e. fee not respected) because the user has not
-        // locked funds on this contract. However, if the user reveals their
-        // cancel signature to the router, they are incentivized to submit it
-        // to unlock their own funds
-      }
-
-      // Return liquidity to router
-      routerBalances[args.txData.router][args.txData.receivingAssetId] += args.txData.amount;
+    // If the adopted asset is the local asset, no need to swap
+    address adopted = canonicalToAdopted[id];
+    if (adopted == local) {
+      return (amount, local);
     }
 
-    // Emit event
-    emit TransactionCancelled(
-      args.txData.user,
-      args.txData.router,
-      args.txData.transactionId,
-      args,
-      msg.sender
-    );
+    // Approve pool
+    IStableSwap pool = adoptedToLocalPools[id];
+    SafeERC20.safeApprove(IERC20(local), address(pool), amount);
 
-    // Return
-    return args.txData;
+    // Otherwise, swap to adopted asset
+    return (
+      pool.swapExact(
+        amount,
+        local,
+        adopted
+      ), 
+      adopted
+    );
   }
 
-  //////////////////////////
-  /// Private functions ///
-  //////////////////////////
+  /**
+   * @notice Gets unique identifier from nonce + params
+   */
+  function _getTransactionId(uint256 _nonce, uint256 _domain) internal view returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _domain));
+  }
 
   /**
-    * @notice Contains the logic to verify + increment a given routers liquidity
-    * @param amount The amount of liquidity to add for the router
-    * @param assetId The address (or `address(0)` if native asset) of the
-    *                asset you're adding liquidity for
-    * @param router The router you are adding liquidity on behalf of
-    */
+   * @notice Hashes the executed calldata on fulfill
+   */
+  function _getExternalCallHash(address _callTo, bytes memory _callData) internal pure returns (bytes32) {
+    return keccak256(abi.encode(ExternalCall({
+      callTo: _callTo,
+      callData: _callData
+    })));
+  }
+
+  /**
+   * @notice Contains the logic to verify + increment a given routers liquidity
+   * @param amount The amount of liquidity to add for the router
+   * @param local The address of the nomad representation of the asset
+   * @param router The router you are adding liquidity on behalf of
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   */
   function _addLiquidityForRouter(
     uint256 amount,
-    address assetId,
+    address local,
     address router
   ) internal {
     // Sanity check: router is sensible
@@ -664,21 +714,25 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
     // Sanity check: nonzero amounts
     require(amount > 0, "#AL:002");
 
+    // Get the canonical asset id from the representation
+    (, bytes32 id) = tokenRegistry.getTokenId(local);
+
     // Router is approved
     require(isRouterOwnershipRenounced() || approvedRouters[router], "#AL:003");
 
     // Asset is approved
-    require(isAssetOwnershipRenounced() || approvedAssets[assetId], "#AL:004");
+    require(isAssetOwnershipRenounced() || approvedAssets[id], "#AL:004");
 
     // Transfer funds to contract
-    amount = transferAssetToContract(assetId, amount);
+    console.log("transferring asset to contract: %s", local);
+    amount = _transferAssetToContract(local, amount);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
-    routerBalances[router][assetId] += amount;
+    routerBalances[router][local] += amount;
 
     // Emit event
-    emit LiquidityAdded(router, assetId, amount, msg.sender);
+    emit LiquidityAdded(router, local, id, amount, msg.sender);
   }
 
   /**
@@ -689,189 +743,122 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, ITransactionMan
    *                        actual amount transferred (i.e. fee on transfer 
    *                        tokens)
    */
-  function transferAssetToContract(address assetId, uint256 specifiedAmount) internal returns (uint256) {
+  function _transferAssetToContract(address assetId, uint256 specifiedAmount) internal returns (uint256) {
     uint256 trueAmount = specifiedAmount;
 
     // Validate correct amounts are transferred
-    if (LibAsset.isNativeAsset(assetId)) {
+    // if (LibAsset.isNativeAsset(assetId)) {
+    if (assetId == address(0)) {
       require(msg.value == specifiedAmount, "#TA:005");
     } else {
-      uint256 starting = LibAsset.getOwnBalance(assetId);
-      require(msg.value == 0, "#TA:006");
-      LibAsset.transferFromERC20(assetId, msg.sender, address(this), specifiedAmount);
+      // uint256 starting = LibAsset.getOwnBalance(assetId);
+      uint256 starting = IERC20(assetId).balanceOf(address(this));
+      require(msg.value == 0 || assetId == address(wrapper), "#TA:006");
+      // LibAsset.transferFromERC20(assetId, msg.sender, address(this), specifiedAmount);
+      SafeERC20.safeTransferFrom(IERC20(assetId), msg.sender, address(this), specifiedAmount);
       // Calculate the *actual* amount that was sent here
-      trueAmount = LibAsset.getOwnBalance(assetId) - starting;
+      // trueAmount = LibAsset.getOwnBalance(assetId) - starting;
+      trueAmount = IERC20(assetId).balanceOf(address(this)) - starting;
     }
 
     return trueAmount;
   }
 
-  /// @notice Recovers the signer from the signature provided by the user
-  /// @param transactionId Transaction identifier of tx being recovered
-  /// @param signature The signature you are recovering the signer from
-  function recoverCancelSignature(
-    bytes32 transactionId,
-    uint256 receivingChainId,
-    address receivingChainTxManagerAddress,
-    bytes calldata signature
-  ) internal pure returns (address) {
-    // Create the signed payload
-    SignedCancelData memory payload = SignedCancelData({
-      transactionId: transactionId,
-      functionIdentifier: "cancel",
-      receivingChainId: receivingChainId,
-      receivingChainTxManagerAddress: receivingChainTxManagerAddress
-    });
-
-    // Recover
-    return recoverSignature(abi.encode(payload), signature);
-  }
-
-  /**
-    * @notice Recovers the signer from the signature provided by the user
-    * @param transactionId Transaction identifier of tx being recovered
-    * @param relayerFee The fee paid to the relayer for submitting the
-    *                   tx on behalf of the user.
-    * @param signature The signature you are recovering the signer from
-    */
-  function recoverFulfillSignature(
-    bytes32 transactionId,
-    uint256 relayerFee,
-    uint256 receivingChainId,
-    address receivingChainTxManagerAddress,
-    bytes calldata signature
-  ) internal pure returns (address) {
-    // Create the signed payload
-    SignedFulfillData memory payload = SignedFulfillData({
-      transactionId: transactionId,
-      relayerFee: relayerFee,
-      functionIdentifier: "fulfill",
-      receivingChainId: receivingChainId,
-      receivingChainTxManagerAddress: receivingChainTxManagerAddress
-    });
-
-    // Recover
-    return recoverSignature(abi.encode(payload), signature);
-  }
-
-  /**
-    * @notice Holds the logic to recover the signer from an encoded payload.
-    *         Will hash and convert to an eth signed message.
-    * @param encodedPayload The payload that was signed
-    * @param signature The signature you are recovering the signer from
-    */
-  function recoverSignature(bytes memory encodedPayload, bytes calldata  signature) internal pure returns (address) {
-    // Recover
-    return ECDSA.recover(
-      ECDSA.toEthSignedMessageHash(keccak256(encodedPayload)),
-      signature
-    );
-  }
-
-  /**
-    * @notice Returns the hash of only the invariant portions of a given
-    *         crosschain transaction
-    * @param txData TransactionData to hash
-    */
-  function hashInvariantTransactionData(TransactionData calldata txData) internal pure returns (bytes32) {
-    InvariantTransactionData memory invariant = InvariantTransactionData({
-      receivingChainTxManagerAddress: txData.receivingChainTxManagerAddress,
-      user: txData.user,
-      router: txData.router,
-      initiator: txData.initiator,
-      sendingAssetId: txData.sendingAssetId,
-      receivingAssetId: txData.receivingAssetId,
-      sendingChainFallback: txData.sendingChainFallback,
-      callTo: txData.callTo,
-      receivingAddress: txData.receivingAddress,
-      sendingChainId: txData.sendingChainId,
-      receivingChainId: txData.receivingChainId,
-      callDataHash: txData.callDataHash,
-      transactionId: txData.transactionId
-    });
-    return keccak256(abi.encode(invariant));
-  }
-
-  /**
-    * @notice Returns the hash of only the variant portions of a given
-    *         crosschain transaction
-    * @param amount amount to hash
-    * @param expiry expiry to hash
-    * @param preparedBlockNumber preparedBlockNumber to hash
-    * @return Hash of the variant data
-    *
-    */
-  function hashVariantTransactionData(uint256 amount, uint256 expiry, uint256 preparedBlockNumber) internal pure returns (bytes32) {
-    VariantTransactionData memory variant = VariantTransactionData({
-      amount: amount,
-      expiry: expiry,
-      preparedBlockNumber: preparedBlockNumber
-    });
-    return keccak256(abi.encode(variant));
-  }
-
-  /**
-   * @notice Handles the receiving-chain fulfillment. This function should
-   *         pay the relayer and either send funds to the specified address
-   *         or execute the calldata. Will return a tuple of boolean,bytes
-   *         indicating the success and return data of the external call.
-   * @dev Separated from fulfill function to avoid stack too deep errors
-   *
-   * @param txData The TransactionData that needs to be fulfilled
-   * @param relayerFee The fee to be paid to the relayer for submission
-   * @param callData The data to be executed on the receiving chain
-   *
-   * @return Tuple representing (success, returnData) of the external call
-   */
-  function _receivingChainFulfill(
-    TransactionData calldata txData,
-    uint256 relayerFee,
-    bytes calldata callData
-  ) internal returns (bool, bool, bytes memory) {
-    // The user is completing the transaction, they should get the
-    // amount that the router deposited less fees for relayer.
-
-    // Get the amount to send
-    uint256 toSend;
-    unchecked {
-      toSend = txData.amount - relayerFee;
-    }
-
-    // Send the relayer the fee
-    if (relayerFee > 0) {
-      LibAsset.transferAsset(txData.receivingAssetId, payable(msg.sender), relayerFee);
-    }
-
-    // Handle receiver chain external calls if needed
-    if (txData.callTo == address(0)) {
-      // No external calls, send directly to receiving address
-      if (toSend > 0) {
-        LibAsset.transferAsset(txData.receivingAssetId, payable(txData.receivingAddress), toSend);
-      }
-      return (false, false, new bytes(0));
+  function _transferAssetFromContract(address asset, address to, uint256 amount) internal {
+    if (asset == address(0)) {
+      Address.sendValue(payable(to), amount);
     } else {
-      // Handle external calls with a fallback to the receiving
-      // address in case the call fails so the funds dont remain
-      // locked.
-
-      bool isNativeAsset = LibAsset.isNativeAsset(txData.receivingAssetId);
-
-      // First, transfer the funds to the helper if needed
-      if (!isNativeAsset && toSend > 0) {
-        LibAsset.transferERC20(txData.receivingAssetId, address(interpreter), toSend);
-      }
-
-      // Next, call `execute` on the helper. Helpers should internally
-      // track funds to make sure no one user is able to take all funds
-      // for tx, and handle the case of reversions
-      return interpreter.execute{ value: isNativeAsset ? toSend : 0}(
-        txData.transactionId,
-        payable(txData.callTo),
-        txData.receivingAssetId,
-        payable(txData.receivingAddress),
-        toSend,
-        callData
-      );
+      SafeERC20.safeTransfer(IERC20(asset), to, amount);
     }
+  }
+
+  /**
+   * @notice Used to add assets on same chain as contract that can
+   *         be transferred.
+   * @param canonical The canonical TokenId to add (domain and id)
+   * @param adoptedAssetId The used asset id for this domain (i.e. PoS USDC for
+   * polygon)
+   * @dev This means you would whitelist USDC, and madUSDC on all domains would be
+   * whitelisted as well. In the event you have a different adopted asset (i.e. using
+   * USDC on polygon), you should *not* whitelist the adopted asset. The stable swap pool
+   * address used should allow you to swap between the adopted asset <> representation.
+   */
+  function _addAssetId(
+    BridgeMessage.TokenId calldata canonical,
+    address adoptedAssetId
+  ) internal {
+    // Sanity check: needs approval
+    require(approvedAssets[canonical.id] == false, "#AA:032");
+
+    // Update approved assets mapping
+    approvedAssets[canonical.id] = true;
+
+    // Update the adopted mapping
+    adoptedToCanonical[adoptedAssetId] = canonical;
+
+    // Update the canonical mapping
+    address stored = adoptedAssetId == address(0) ? address(wrapper) : adoptedAssetId;
+    canonicalToAdopted[canonical.id] = stored;
+
+    // Emit event
+    emit AssetAdded(canonical.id, canonical.domain, adoptedAssetId, stored, msg.sender);
+  }
+
+  function _addStableSwapPool(
+    BridgeMessage.TokenId calldata canonical,
+    address stableSwapPool
+  ) internal {
+    // Update the pool mapping
+    adoptedToLocalPools[canonical.id] = IStableSwap(stableSwapPool);
+
+    emit StableSwapAdded(canonical.id, canonical.domain, stableSwapPool, msg.sender);
+  }
+
+  /**
+   * @dev Returns the address of the asset.
+   */
+  function _wrapIfNeeded(address assetId, uint256 amount) internal returns (address) {
+    // If the asset is not the native asset, return
+    if (assetId != address(0)) {
+      return assetId;
+    }
+
+    // If the native asset on this domain, must wrap
+    wrapper.deposit{ value: amount }();
+    return address(wrapper);
+  }
+
+  /**
+   * @dev Returns the address of the asset.
+   */
+  function _unwrapIfNeeded(address holding, uint256 amount) internal returns (address) {
+    // If the asset is not the native asset, return
+    if (holding != address(wrapper)) {
+      return holding;
+    }
+
+    // If the native asset on this domain, must wrap
+    wrapper.withdraw(amount);
+    return address(0);
+  }
+
+
+  function _sendMessage(
+    uint32 destination,
+    address recipient,
+    address local,
+    uint256 amount,
+    bytes32 id,
+    bytes32 callHash
+  ) internal {
+    bridgeRouter.send(
+      local,
+      amount,
+      destination,
+      TypeCasts.addressToBytes32(recipient),
+      true,
+      id,
+      callHash
+    );
   }
 }

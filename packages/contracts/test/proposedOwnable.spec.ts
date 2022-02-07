@@ -5,7 +5,7 @@ use(solidity);
 
 import { constants, providers, Wallet } from "ethers";
 
-import { ProposedOwnable } from "../typechain";
+import { ProposedOwnable } from "../typechain-types";
 import {
   assertReceiptEvent,
   deployContract,

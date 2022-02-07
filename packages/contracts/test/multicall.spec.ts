@@ -5,7 +5,7 @@ use(solidity);
 
 import { Contract, Wallet } from "ethers";
 import { deployContract } from "./utils";
-import { Multicall, RevertableERC20 } from "../typechain";
+import { Multicall, RevertableERC20 } from "../typechain-types";
 import { Bytes, Interface, parseEther } from "ethers/lib/utils";
 import { MulticallAbi } from "@connext/nxtp-utils";
 

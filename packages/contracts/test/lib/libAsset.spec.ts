@@ -8,8 +8,8 @@ use(solidity);
 
 // import types
 import { getContractError } from "../../src/errors";
-import { LibAssetTest } from "../../typechain/LibAssetTest";
-import { TestERC20 } from "../../typechain/TestERC20";
+import { LibAssetTest } from "../../typechain-types/LibAssetTest";
+import { TestERC20 } from "../../typechain-types/TestERC20";
 import { BigNumber, constants } from "ethers";
 
 const { AddressZero } = constants;

@@ -80,7 +80,7 @@ library LibAsset {
     address from,
     address to,
     uint256 amount
-  ) internal {
+  ) external {
     SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
   }
 

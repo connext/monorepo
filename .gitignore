@@ -33,5 +33,3 @@ packages/integration/logs.json
 packages/integration/ops/config/load/config.json
 packages/integration/ops/config/router/*.yaml
 !packages/integration/ops/config/router/web3signer_keyFile_test.yaml
-packages/contracts/contracts/nomad-xapps
-packages/contracts/contracts/nomad-core

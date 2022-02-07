@@ -14,6 +14,8 @@ contract TestERC20 is ERC20 {
         _mint(msg.sender, 1000000 ether);
     }
 
+    fallback() external payable {}
+
     function mint(address account, uint256 amount) external {
         _mint(account, amount);
     }
