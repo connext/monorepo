@@ -444,7 +444,8 @@ export class ChainReader {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.removeLiquidityRouterContract : gasLimits.removeLiquidity);
     }
 
-    const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
+    const impactedGasPrice = gasPrice.mul(BigNumber.from(10).pow(18)).div(BigNumber.from(gasLimits.gasPriceFactor));
+    const gasAmountInUsd = impactedGasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
@@ -462,6 +463,7 @@ export class ChainReader {
       gas: {
         chainIdForGasPrice,
         price: gasPrice.toString(),
+        gasPriceFactor: gasLimits.gasPriceFactor,
         limit: gasLimit.toString(),
         ethPriceUsd: ethPrice.toString(),
         l1GasInUsd: l1GasInUsd.toString(),
