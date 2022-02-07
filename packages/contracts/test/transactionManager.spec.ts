@@ -303,7 +303,7 @@ describe.only("TransactionManager", () => {
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 
-  it.skip("should work with native assets", async () => {
+  it("should work with native assets", async () => {
     // Add router liquidity
     await local
       .connect(router)
@@ -336,7 +336,9 @@ describe.only("TransactionManager", () => {
 
     // Check balance of user + bridge
     const postPrepare = await Promise.all([user.getBalance(), weth.balanceOf(originBridge.address)]);
-    expect(postPrepare[0]).to.be.eq(prePrepare[0].sub(amount));
+    expect(postPrepare[0]).to.be.eq(
+      prePrepare[0].sub(amount).sub(prepareReceipt.cumulativeGasUsed.mul(prepareReceipt.effectiveGasPrice)),
+    );
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
     // Get the message + id from the events

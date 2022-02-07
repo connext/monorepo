@@ -400,8 +400,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     address _asset, // Could be adopted, local, or wrapped
     uint256 _amount
   ) external payable {
-    _asset = _wrapIfNeeded(_asset, _amount);
-
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
     // require(
@@ -409,13 +407,19 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     //   tokenRegistry.getLocalAddress(domain, _asset) != address(0),
     //   "!supported_asset"
     // );
+
+    // Wrap if needed
+    _asset = _wrapIfNeeded(_asset, _amount);
+
     require(
       adoptedToCanonical[_asset].id != bytes32(0),
       "!supported_asset"
     );
 
-    // Transfer funds to the ccontract
-    _transferAssetToContract(_asset, _amount);
+    // Transfer funds to the contract if not wrapped
+    if (_asset != address(wrapper)) {
+      _transferAssetToContract(_asset, _amount);
+    }
 
     // Swap to the local asset from the adopted
     (uint256 amount, address local) = _swapToLocalAssetIfNeeded(_asset, _amount);
@@ -726,7 +730,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     require(isAssetOwnershipRenounced() || approvedAssets[id], "#AL:004");
 
     // Transfer funds to contract
-    console.log("transferring asset to contract: %s", local);
     amount = _transferAssetToContract(local, amount);
 
     // Update the router balances. Happens after pulling funds to account for
@@ -748,20 +751,17 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   function _transferAssetToContract(address assetId, uint256 specifiedAmount) internal returns (uint256) {
     uint256 trueAmount = specifiedAmount;
 
+    require(assetId != address(0), "!wrapped");
+
     // Validate correct amounts are transferred
-    // if (LibAsset.isNativeAsset(assetId)) {
-    if (assetId == address(0)) {
-      require(msg.value == specifiedAmount, "#TA:005");
-    } else {
-      // uint256 starting = LibAsset.getOwnBalance(assetId);
-      uint256 starting = IERC20(assetId).balanceOf(address(this));
-      require(msg.value == 0 || assetId == address(wrapper), "#TA:006");
-      // LibAsset.transferFromERC20(assetId, msg.sender, address(this), specifiedAmount);
-      SafeERC20.safeTransferFrom(IERC20(assetId), msg.sender, address(this), specifiedAmount);
-      // Calculate the *actual* amount that was sent here
-      // trueAmount = LibAsset.getOwnBalance(assetId) - starting;
-      trueAmount = IERC20(assetId).balanceOf(address(this)) - starting;
-    }
+    // uint256 starting = LibAsset.getOwnBalance(assetId);
+    uint256 starting = IERC20(assetId).balanceOf(address(this));
+    require(msg.value == 0 || assetId == address(wrapper), "#TA:006");
+    // LibAsset.transferFromERC20(assetId, msg.sender, address(this), specifiedAmount);
+    SafeERC20.safeTransferFrom(IERC20(assetId), msg.sender, address(this), specifiedAmount);
+    // Calculate the *actual* amount that was sent here
+    // trueAmount = LibAsset.getOwnBalance(assetId) - starting;
+    trueAmount = IERC20(assetId).balanceOf(address(this)) - starting;
 
     return trueAmount;
   }
@@ -826,6 +826,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     }
 
     // If the native asset on this domain, must wrap
+    require(msg.value == amount, "!amount");
     wrapper.deposit{ value: amount }();
     return address(wrapper);
   }
