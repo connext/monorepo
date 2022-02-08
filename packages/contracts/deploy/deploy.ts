@@ -20,6 +20,7 @@ WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // a
 WRAPPED_ETH_MAP.set("43114", "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"); // avalanche WAVAX
 WRAPPED_ETH_MAP.set("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"); // xdai wxDAI
 WRAPPED_ETH_MAP.set("1285", "0x98878B06940aE243284CA214f92Bb71a2b032B8A"); // moonriver wMOVR
+WRAPPED_ETH_MAP.set("1284", "0xacc15dc74880c9944775448304b263d191c6077f"); // moonbeam wGLMR
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -42,26 +43,26 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
-  const txManagerDeployment = await hre.deployments.get("TransactionManager");
-  const txManagerAddress = txManagerDeployment.address;
+  // const txManagerDeployment = await hre.deployments.get("TransactionManager");
+  // const txManagerAddress = txManagerDeployment.address;
 
-  // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
-  await hre.deployments.deploy("RouterFactory", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-  const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
-  const routerFactoryAddress = routerFactoryDeployment.address;
-  console.log("routerFactoryAddress: ", routerFactoryAddress);
-  const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
-  const exists = await routerFactory.transactionManager();
-  if (exists === hre.ethers.constants.AddressZero) {
-    console.log("Initing router factory");
-    const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
-    console.log("initTx: ", initTx);
-    await initTx.wait();
-  }
+  // // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
+  // await hre.deployments.deploy("RouterFactory", {
+  //   from: deployer,
+  //   args: [deployer],
+  //   log: true,
+  // });
+  // const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
+  // const routerFactoryAddress = routerFactoryDeployment.address;
+  // console.log("routerFactoryAddress: ", routerFactoryAddress);
+  // const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
+  // const exists = await routerFactory.transactionManager();
+  // if (exists === hre.ethers.constants.AddressZero) {
+  //   console.log("Initing router factory");
+  //   const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
+  //   console.log("initTx: ", initTx);
+  //   await initTx.wait();
+  // }
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
