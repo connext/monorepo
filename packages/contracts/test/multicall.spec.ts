@@ -55,5 +55,22 @@ describe("Multicall.sol", () => {
       expect(decodedRes[1][0]).to.be.eq(false);
       expect(decodedRes[2][0]).to.be.eq(18);
     });
+
+    it("should revert", async () => {
+      const tx = await tokenA.connect(wallet).setShouldRevert(true);
+      await tx.wait();
+
+      const abiInterface = tokenA.interface as Interface;
+      const calls = [{ address: tokenA.address, name: "balanceOf", params: [wallet.address] }];
+
+      const calldata = calls.map((call) => {
+        return {
+          target: call.address.toLowerCase(),
+          callData: abiInterface.encodeFunctionData(call.name, call.params),
+        };
+      });
+
+      await expect(multicall.aggregate(calldata)).to.be.reverted;
+    });
   });
 });

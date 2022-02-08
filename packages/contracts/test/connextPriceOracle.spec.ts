@@ -15,19 +15,23 @@ describe("ConnextPriceOracle.sol", () => {
   const [wallet, other] = waffle.provider.getWallets() as Wallet[];
 
   let connextPriceOracle: ConnextPriceOracle;
+  let v1PriceOracle: ConnextPriceOracle;
   let stableToken: TestERC20;
   let tokenA: TestERC20;
   let tokenB: TestERC20;
+  let tokenC: TestERC20;
   let wrappedToken: string = mkAddress("0xA");
   let aggregatorMock: TestAggregator;
 
   const fixture = async () => {
     connextPriceOracle = await deployContract<ConnextPriceOracle>("ConnextPriceOracle", wrappedToken);
+    v1PriceOracle = await deployContract<ConnextPriceOracle>("ConnextPriceOracle", wrappedToken);
     stableToken = await deployContract<TestERC20>("TestERC20");
     tokenA = await deployContract<TestERC20>("TestERC20");
     tokenB = await deployContract<TestERC20>("TestERC20");
+    tokenC = await deployContract<TestERC20>("TestERC20");
     aggregatorMock = await deployContract<TestAggregator>("TestAggregator");
-    return { connextPriceOracle, stableToken, tokenA, tokenB, aggregatorMock };
+    return { connextPriceOracle, v1PriceOracle, stableToken, tokenA, tokenB, tokenC, aggregatorMock };
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -57,6 +61,12 @@ describe("ConnextPriceOracle.sol", () => {
       admin = await connextPriceOracle.admin();
       expect(admin).to.be.eq(wallet.address);
     });
+
+    it("should revert if msg.sender is not admin", async () => {
+      await expect(connextPriceOracle.connect(other).setAdmin(other.address)).to.be.revertedWith(
+        "caller is not the admin",
+      );
+    });
   });
 
   describe("setAggregators", () => {
@@ -65,7 +75,7 @@ describe("ConnextPriceOracle.sol", () => {
       const aggregatorsAddresses = [mkAddress("0xbbb")];
       await expect(
         connextPriceOracle.connect(other).setAggregators(tokenAddresses, aggregatorsAddresses),
-      ).to.be.revertedWith("only the admin may set the aggregators");
+      ).to.be.revertedWith("caller is not the admin");
     });
 
     it("should success if msg.sender is admin", async () => {
@@ -83,7 +93,7 @@ describe("ConnextPriceOracle.sol", () => {
       const tokenAddress = mkAddress("0xaaa");
       const price = parseEther("100").toString();
       await expect(connextPriceOracle.connect(other).setDirectPrice(tokenAddress, price)).to.be.revertedWith(
-        "only admin can set direct price",
+        "caller is not the admin",
       );
     });
 
@@ -105,7 +115,7 @@ describe("ConnextPriceOracle.sol", () => {
 
       await expect(
         connextPriceOracle.connect(other).setDexPriceInfo(tokenAddress, baseTokenAddress, lpTokenAddress, true),
-      ).to.be.revertedWith("only admin can set DEX price");
+      ).to.be.revertedWith("caller is not the admin");
     });
 
     it("should revert if base token is invalid", async () => {
@@ -133,6 +143,24 @@ describe("ConnextPriceOracle.sol", () => {
     });
   });
 
+  describe("setV1PriceOracle", () => {
+    it("should revert if msg.sender is not admin", async () => {
+      const v1PriceOracleAddress = mkAddress("0xaaa");
+      await expect(connextPriceOracle.connect(other).setV1PriceOracle(v1PriceOracleAddress)).to.be.revertedWith(
+        "caller is not the admin",
+      );
+    });
+
+    it("should success if msg.sender is admin", async () => {
+      const v1PriceOracleAddress = mkAddress("0xaaa");
+      const tx = await connextPriceOracle.connect(wallet).setV1PriceOracle(v1PriceOracleAddress);
+      await tx.wait();
+      expect((await connextPriceOracle.v1PriceOracle()).toString().toLowerCase()).to.be.eq(
+        v1PriceOracleAddress.toLowerCase(),
+      );
+    });
+  });
+
   describe("getPriceFromChainlink", () => {
     it("should return 0 if aggregator isn't configured", async () => {
       const tokenAddress = mkAddress("0xbbb");
@@ -140,9 +168,22 @@ describe("ConnextPriceOracle.sol", () => {
       expect(tokenPrice.toString()).to.be.eq(parseEther("0").toString());
     });
 
+    it("should return 0 if aggregator answers with 0", async () => {
+      const tokenAddress = mkAddress("0xaaa");
+      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("0"));
+      await tx.wait();
+      tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
+      await tx.wait();
+
+      const tokenPrice = await connextPriceOracle.getPriceFromChainlink(tokenAddress);
+      expect(tokenPrice.toString()).to.be.eq(parseEther("0").toString());
+    });
+
     it("should return if aggregator is configured", async () => {
       const tokenAddress = mkAddress("0xaaa");
-      let tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
+      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("1"));
+      await tx.wait();
+      tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
       await tx.wait();
 
       const tokenPrice = await connextPriceOracle.getPriceFromChainlink(tokenAddress);
@@ -243,9 +284,22 @@ describe("ConnextPriceOracle.sol", () => {
         .setDexPriceInfo(tokenA.address, stableToken.address, lpTokenAddress, true);
 
       const dexPrice = await connextPriceOracle.getPriceFromDex(tokenA.address);
-      const tokenPrice = await connextPriceOracle.getPriceFromDex(tokenA.address);
+      const tokenPrice = await connextPriceOracle.getTokenPrice(tokenA.address);
 
       expect(tokenPrice.toString()).to.be.eq(dexPrice.toString());
+    });
+
+    it("should get price from v1PriceOracle", async () => {
+      let tx = await v1PriceOracle.connect(wallet).setDirectPrice(tokenC.address, parseEther("5").toString());
+      await tx.wait();
+
+      tx = await connextPriceOracle.connect(wallet).setV1PriceOracle(v1PriceOracle.address);
+      await tx.wait();
+
+      const tokenPrice = await connextPriceOracle.getTokenPrice(tokenC.address);
+      const v1TokenPrice = await v1PriceOracle.getTokenPrice(tokenC.address);
+
+      expect(tokenPrice.toString()).to.be.eq(v1TokenPrice.toString());
     });
   });
 });
