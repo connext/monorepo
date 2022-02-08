@@ -18,23 +18,18 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // - nomad contract packages not playing nicely
 // - make functions metatxable
 // - make upgradeable
-// - routing interface vs. always nomad -- WAIT
-// - wrapping contracts -- nomad doesnt support native assets
 // - assert the router gas usage in reconcile
 // - allow multiple routers
+// - allow aave wormhole style collateral for routers
 // - identifier returned from nomad/bridge
 // - gas optimizations
 // - event finalization
 // - unit tests
+// - restricted router withdrawals
+// - fulfill interpreter improvements
+// - batching
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable {
-
-  // ============= Enums =============
-  enum TransactionStatus {
-    Fulfilled,
-    Reconciled,
-    Processed
-  }
 
   // ============ Structs ============
 
@@ -46,11 +41,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     uint32 destinationDomain; // must match nomad domain
   }
 
-  struct NoncedParams {
-    uint256 nonce;
-    CallParams params;
-  }
-
   struct ExternalCall {
     address callTo;
     bytes callData;
@@ -58,15 +48,17 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
   struct FulfilledTransaction {
     address router;
-    uint256 gasUsed;
-    uint256 gasPrice;
     uint256 amount;
     bytes32 externalCallHash;
-    TransactionStatus status;
+  }
+
+  struct GasInfo {
+    uint256 gasUsed;
+    uint256 gasPrice;
   }
 
   /**
-   * @dev All the information that comes through nomad so users can self-process
+   * @dev All the information that comes through the bridge
    */
   struct ProcessedTransaction {
     bytes32 externalCallHash;
@@ -158,16 +150,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     address caller
   );
 
-  event Processed(
-    bytes32 indexed transactionId,
-    address indexed recipient,
-    address receivedAsset,
-    uint256 receivedAmount,
-    address callTo,
-    bytes callData,
-    ProcessedTransaction processed
-  );
-
   // ============ Properties ============
 
   BridgeRouter public bridgeRouter;
@@ -200,14 +182,16 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   mapping(bytes32 => IStableSwap) public adoptedToLocalPools;
 
   /**
-   * @dev Stores the transactionId => fulfilled info mapping
+   * @dev Stores the transactionId => router address mapping
    */
   mapping(bytes32 => FulfilledTransaction) public routedTransactions;
 
+  mapping(bytes32 => GasInfo) public routedTransactionsGas;
+
   /**
-   * @dev Stores all the information about non-fulfilled txs for users to self-process
+   * @dev Stores hash of all the information passed through bridge
    */
-  mapping(bytes32 => ProcessedTransaction) public unroutedTransactions;
+  mapping(bytes32 => bytes32) public reconciledTransactions;
 
   /**
    * @dev The stored chain id of the contract, may be passed in to avoid any 
@@ -496,26 +480,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     // Find the router to credit
     FulfilledTransaction memory transaction = routedTransactions[_id];
 
-    // Check the transaction has not been reconciled. Okay if it is not
-    // created, but must not be allowed to reconcile 2x
-    require(transaction.status == TransactionStatus.Fulfilled, "!status");
-
-    // Update the status record of transaction
-    transaction.status = TransactionStatus.Reconciled;
-
-    // Save updated status
-    routedTransactions[_id] = transaction;
-
     if (transaction.router == address(0)) {
       // Nomad bridge fulfilled faster than router, funds should become process-able
       // by the user.
-      unroutedTransactions[_id] = ProcessedTransaction({
-        externalCallHash: _externalCallHash,
-        local: _bridged,
-        amount: _amount,
-        recipient: _recipient
-      });
-
+      reconciledTransactions[_id] = _getReconciledHash(_bridged, _recipient, _amount, _externalCallHash);
     } else {
       // Ensure the router submitted the correct calldata
       require(transaction.externalCallHash == _externalCallHash, "!external");
@@ -546,32 +514,40 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     uint256 _nonce,
     address _bridged,
     uint256 _amount
-  ) external payable {
+  ) external {
     // Get the starting gas
     uint256 start = gasleft();
-  
+
     // Calculate the transaction id
     bytes32 _transactionId = _getTransactionId(_nonce, _params.originDomain);
 
-    // Ensure there is sufficient liquidity
-    require(routerBalances[msg.sender][_bridged] >= _amount, "!liquidity");
+    // Determine if it is fast (i.e. happened before reconcile called, needs
+    // a router to front)
+    bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
 
-    // Decrement router liquidity
-    unchecked {
-      routerBalances[msg.sender][_bridged] -= _amount; 
+    if (_isFast) {
+      // Check the router has enough liquidity
+      require(routerBalances[msg.sender][_bridged] >= _amount, "!liquidity");
+
+      // Decrement router liquidity
+      unchecked {
+        routerBalances[msg.sender][_bridged] -= _amount; 
+      }
+
+      // Store the router
+      routedTransactions[_transactionId] = FulfilledTransaction({
+        router: msg.sender,
+        externalCallHash: _getExternalCallHash(_params.callTo, _params.callData),
+        amount: _amount // will be of the mad asset, not adopted
+      });
+    } else {
+      // Check the reconciled transactions to ensure it is the right data
+      bytes32 stored = reconciledTransactions[_transactionId];
+      require(stored != bytes32(0), "!found");
+      require(stored == _getReconciledHash(_bridged, _params.recipient, _amount, _getExternalCallHash(_params.callTo, _params.callData)), "!params");
     }
 
-    // Save router to transaction (this information will *not* be passed
-    // through nomad)
-    routedTransactions[_transactionId] = FulfilledTransaction({
-      router: msg.sender,
-      gasPrice: tx.gasprice,
-      gasUsed: 0, // Fill this in at the end of the tx
-      externalCallHash: _getExternalCallHash(_params.callTo, _params.callData),
-      status: TransactionStatus.Fulfilled,
-      amount: _amount // will be of the mad asset, not adopted
-    });
-
+    // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
     (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_bridged, _amount);
 
@@ -591,10 +567,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       );
     }
 
-    uint256 consumed = start - gasleft();
-
-    // Update gas used
-    routedTransactions[_transactionId].gasUsed = consumed;
+    // Save gas used
+    if (_isFast) {
+      routedTransactionsGas[_transactionId] = GasInfo({
+        gasPrice: tx.gasprice,
+        gasUsed: start - gasleft()
+        // TODO: account for gas used in storage
+      });
+    }
 
     // Emit event
     emit Fulfilled(
@@ -602,70 +582,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       _params.recipient,
       msg.sender,
       _params,
-      nonce,
+      _nonce,
       _bridged,
       adopted,
       _amount,
       amount,
       msg.sender
-    );
-  }
-  
-  /**
-   * @dev Can be called by anyone to process a transaction routers ignored
-   */
-  function process(
-    bytes32 _id,
-    address _callTo,
-    bytes calldata _callData
-  ) external {
-    // Get the transaction
-    FulfilledTransaction memory fulfilled = routedTransactions[_id];
-    require(fulfilled.status == TransactionStatus.Reconciled, "!status");
-
-    ProcessedTransaction memory transaction = unroutedTransactions[_id];
-    require(transaction.externalCallHash != bytes32(0), "!found");
-
-    // Remove the record for unroutedTransactions
-    delete unroutedTransactions[_id];
-
-    // Update the status + save
-    fulfilled.status = TransactionStatus.Processed;
-    routedTransactions[_id] = fulfilled;
-
-    // Check the calldata is correct
-    bytes32 calculated = _getExternalCallHash(_callTo, _callData);
-    require(calculated == transaction.externalCallHash, "!data");
-
-    // Swap out of local asset if needed
-    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(transaction.local, transaction.amount);
-
-    // Process the transaction
-    if (_callTo == address(0)) {
-      // No external call, send funds
-      // LibAsset.transferAsset(assetId, payable(transaction.recipient), amount);
-      _transferAssetFromContract(adopted, payable(transaction.recipient), amount);
-    } else {
-      // LibAsset.transferAsset(assetId, payable(address(interpreter)), amount);
-      _transferAssetFromContract(adopted, payable(address(interpreter)), amount);
-      interpreter.execute(
-        _id,
-        payable(_callTo),
-        adopted,
-        payable(transaction.recipient),
-        amount,
-        _callData
-      );
-    }
-
-    emit Processed(
-      _id,
-      transaction.recipient,
-      adopted,
-      amount,
-      _callTo,
-      _callData,
-      transaction
     );
   }
 
@@ -750,6 +672,25 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       callTo: _callTo,
       callData: _callData
     })));
+  }
+
+  /**
+   * @notice Gets the hash for information returned across the bridge
+   */
+  function _getReconciledHash(
+    address _bridged,
+    address _recipient,
+    uint256 _amount,
+    bytes32 _externalCallHash
+  ) internal pure returns (bytes32) {
+    ProcessedTransaction memory transaction = ProcessedTransaction({
+      externalCallHash: _externalCallHash,
+      local: _bridged,
+      amount: _amount,
+      recipient: _recipient
+    });
+
+    return keccak256(abi.encode(transaction));
   }
 
   /**
