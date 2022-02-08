@@ -25,7 +25,7 @@ import {
 } from "./utils";
 
 import { constants, Wallet } from "ethers";
-import { formatEther, hexZeroPad, parseEther } from "ethers/lib/utils";
+import { hexZeroPad, parseEther } from "ethers/lib/utils";
 import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
 
 const addressToBytes32 = (addr: string) => {
