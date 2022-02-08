@@ -1,17 +1,17 @@
-import { mkAddress, getRandomBytes32, TransactionData } from "@connext/nxtp-utils";
+import { mkAddress, getRandomBytes32, TransactionData, FallbackSubgraph } from "@connext/nxtp-utils";
 import { transactionSubgraphMock, txDataMock } from "@connext/nxtp-utils/src/mock";
 import { expect } from "@connext/nxtp-utils/src/expect";
 import { Wallet, BigNumber } from "ethers";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, spy, stub } from "sinon";
-import { Logger } from "@connext/nxtp-utils";
+import { Logger, SubgraphSyncRecord as FallbackSubgraphSyncRecord } from "@connext/nxtp-utils";
 
-import { ActiveTransaction, HistoricalTransactionStatus } from "../../src/types";
+import { ActiveTransaction, HistoricalTransactionStatus, SubgraphSyncRecord } from "../../src/types";
 import * as graphqlsdk from "../../src/subgraph/graphqlsdk";
 
 import { EmptyCallDataHash } from "../helper";
 import { NxtpSdkEvent, NxtpSdkEvents } from "../../src";
 import { convertTransactionToTxData, createSubgraphEvts, Subgraph, SubgraphEvents } from "../../src/subgraph/subgraph";
-import { ChainReader } from "../../../txservice/dist";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
 
@@ -135,16 +135,31 @@ describe("Subgraph", () => {
     GetTransactionsWithUser: SinonStub;
   };
   let getSdkStub: SinonStub;
+  let fallbackSubgraph: SinonStubbedInstance<FallbackSubgraph<any>>;
+  const mockInSyncSubgraphRecord = {
+    name: "test",
+    synced: true,
+    latestBlock: 100,
+    syncedBlock: 100,
+    lag: 0,
+  };
+  const mockOutOfSyncRecord: FallbackSubgraphSyncRecord = {
+    name: "test",
+    synced: false,
+    syncedBlock: 73,
+    latestBlock: 100,
+    lag: 27,
+  };
+  let mockSyncRecords: FallbackSubgraphSyncRecord[];
+  let mockHasSynced = true;
 
   const chainConfig = {
     [sendingChainId]: {
-      subgraph: ["http://example.com"],
       provider: {
         getBlockNumber: () => Promise.resolve(1),
       },
     },
     [receivingChainId]: {
-      subgraph: ["http://example.com"],
       provider: {
         getBlockNumber: () => Promise.resolve(1),
       },
@@ -207,6 +222,20 @@ describe("Subgraph", () => {
     getSdkStub.returns(sdkStub);
 
     subgraph = new Subgraph(signer.getAddress(), chainConfig as any, chainReader as any, logger);
+
+    fallbackSubgraph = createStubInstance(FallbackSubgraph);
+    fallbackSubgraph.request.callsFake((method) => method(sdkStub, ""));
+    fallbackSubgraph.sync.resolves([mockInSyncSubgraphRecord]);
+    stub(fallbackSubgraph, "inSync").get(() => true);
+    mockHasSynced = true;
+    stub(fallbackSubgraph, "hasSynced").get(() => mockHasSynced);
+    mockSyncRecords = [mockInSyncSubgraphRecord];
+    stub(fallbackSubgraph, "records").get(() => mockSyncRecords);
+    const mockSdks: Record<number, FallbackSubgraph<any>> = {
+      [sendingChainId]: fallbackSubgraph as unknown as FallbackSubgraph<any>,
+      [receivingChainId]: fallbackSubgraph as unknown as FallbackSubgraph<any>,
+    };
+    (subgraph as any).sdks = mockSdks;
   });
 
   afterEach(() => {
@@ -232,6 +261,74 @@ describe("Subgraph", () => {
     });
   });
 
+  describe("startPolling", () => {
+    it("should work and stop if 0 active txs and synced block is greater the stopper block", async () => {
+      (subgraph as any).pollInterval = 1_00;
+
+      chainReader.getBlockNumber.resolves(1);
+      // chainReader.getBlockNumber.onSecondCall().resolves(1)
+
+      stub(subgraph, "updateSyncStatus").resolves();
+      stub(subgraph, "getActiveTransactions").resolves([]);
+
+      const mockSyncStatus: Record<number, SubgraphSyncRecord> = {
+        [sendingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+        [receivingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+      };
+      (subgraph as any).syncStatus = mockSyncStatus;
+      // stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
+      await subgraph.startPolling();
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
+
+      expect((subgraph as any).pollingLoop).to.be.undefined;
+      expect((subgraph as any).activeTxs.size).to.be.eq(0);
+    });
+
+    it("should work and continue polling if 0 active txs but synced block is lower than stopper block", async () => {
+      (subgraph as any).pollInterval = 1_00;
+
+      chainReader.getBlockNumber.resolves(10);
+      // chainReader.getBlockNumber.onSecondCall().resolves(1)
+
+      stub(subgraph, "updateSyncStatus").resolves();
+      stub(subgraph, "getActiveTransactions").resolves([]);
+
+      const mockSyncStatus: Record<number, SubgraphSyncRecord> = {
+        [sendingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+        [receivingChainId]: { synced: true, syncedBlock: 1, latestBlock: 1 },
+      };
+      (subgraph as any).syncStatus = mockSyncStatus;
+      // stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
+      await subgraph.startPolling();
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
+
+      expect((subgraph as any).pollingLoop).to.be.not.undefined;
+    });
+
+    it("should work and continue polling if 1 or more active txs", async () => {
+      const transactionId = getRandomBytes32();
+      const activeTxMock = convertMockedToActiveTransaction(
+        NxtpSdkEvents.SenderTransactionPrepared,
+        getMockTransaction({ transactionId }),
+      );
+
+      (subgraph as any).pollInterval = 1_00;
+
+      chainReader.getBlockNumber.resolves(1);
+
+      stub(subgraph, "updateSyncStatus").resolves();
+      stub(subgraph, "getActiveTransactions").resolves([activeTxMock]);
+
+      await subgraph.startPolling();
+
+      await new Promise((resolve) => setTimeout(resolve, (subgraph as any).pollInterval * 5));
+
+      expect((subgraph as any).pollingLoop).to.be.not.undefined;
+    });
+  });
+
   describe("getActiveTransactions", async () => {
     describe("sender transactions where status is not Prepared", () => {
       it("should fail if GetTransactionsWithUser for sending chain fails", async () => {
@@ -246,12 +343,7 @@ describe("Subgraph", () => {
         const testError = new Error("test");
         sdkStub.GetTransactionsWithUser.onFirstCall().rejects(testError);
 
-        try {
-          await subgraph.getActiveTransactions();
-        } catch (e) {
-          const expectedErrMessage = testError.message;
-          expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
-        }
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(testError);
 
         expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
@@ -273,12 +365,7 @@ describe("Subgraph", () => {
         const testError = new Error("test");
         sdkStub.GetTransactionsWithUser.onSecondCall().rejects(testError);
 
-        try {
-          await subgraph.getActiveTransactions();
-        } catch (e) {
-          const expectedErrMessage = testError.message;
-          expect(e.context.errors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
-        }
+        await expect(subgraph.getActiveTransactions()).to.be.rejectedWith(testError);
 
         expect(sdkStub.GetTransactionsWithUser.firstCall.args[0]).to.be.deep.eq({
           transactionIds: [transactionId],
@@ -407,6 +494,7 @@ describe("Subgraph", () => {
           transactions: [subgraphSending],
         });
 
+        await subgraph.startPolling();
         const [res, evt] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(SubgraphEvents.SenderTransactionCancelled, 2_000),
@@ -433,6 +521,7 @@ describe("Subgraph", () => {
           transactions: [subgraphSending],
         });
 
+        await subgraph.startPolling();
         const [res, evt] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(SubgraphEvents.ReceiverTransactionFulfilled, 2_000),
@@ -483,6 +572,7 @@ describe("Subgraph", () => {
           userId: senderPrepared.user.id.toLowerCase(),
         }).resolves({ transactions: [] });
 
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.SenderTransactionPrepared, 5_000),
@@ -517,6 +607,7 @@ describe("Subgraph", () => {
           userId: senderPrepared.user.id.toLowerCase(),
         }).resolves({ transactions: [receiverPrepared] });
 
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionPrepared, 5_000),
@@ -552,7 +643,7 @@ describe("Subgraph", () => {
           userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
-        // const res = await subgraph.getActiveTransactions();
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionFulfilled, 5_000),
@@ -585,6 +676,7 @@ describe("Subgraph", () => {
           userId: sender.user.id.toLowerCase(),
         }).resolves({ transactions: [receiver] });
 
+        await subgraph.startPolling();
         const [res, event] = await Promise.all([
           subgraph.getActiveTransactions(),
           subgraph.waitFor(NxtpSdkEvents.ReceiverTransactionCancelled, 5_000),
@@ -701,13 +793,14 @@ describe("Subgraph", () => {
       const testError = new Error("test");
       sdkStub.GetSenderTransactions.rejects(testError);
 
+      // await expect(subgraph.getActiveTransactions()).rejectedWith(testError);
+
       try {
         await subgraph.getActiveTransactions();
       } catch (e) {
         const expectedErrMessage = testError.message;
-        const chainErrors = e.context.errors;
-        const sendingChainErrors = chainErrors.get(sendingChainId).context.errors;
-        expect(sendingChainErrors.map((err) => err.message).includes(expectedErrMessage)).to.be.true;
+        const sendingChainError = e.context.errors.get(sendingChainId);
+        expect(sendingChainError.message.includes(expectedErrMessage)).to.be.true;
       }
     });
 

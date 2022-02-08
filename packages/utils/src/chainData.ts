@@ -50,6 +50,21 @@ export type ChainData = {
     icon: string;
     standard: string;
   }[];
+  gasEstimates: {
+    prepare: string;
+    fulfill: string;
+    cancel: string;
+    removeLiquidity: string;
+    prepareRouterContract: string;
+    fulfillRouterContract: string;
+    cancelRouterContract: string;
+    removeLiquidityRouterContract: string;
+    prepareL1?: string;
+    fulfillL1?: string;
+    cancelL1?: string;
+    removeLiquidityL1?: string;
+    gasPriceFactor?: string;
+  };
 };
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.

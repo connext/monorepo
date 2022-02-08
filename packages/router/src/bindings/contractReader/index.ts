@@ -62,13 +62,14 @@ export const bindContractReader = async () => {
           };
         });
 
-        logger.info("active transactions tracker", requestContext, methodContext, {
+        logger.info("Trackers overview", requestContext, methodContext, {
           activeTransactionsLength: transactions.length,
-          activeTransactionsTracker: activeTransactionsTracker,
+          handlingTrackerLength: handlingTracker.size,
         });
-        logger.info("handling tracker", requestContext, methodContext, {
+        logger.debug("Trackers detailed", requestContext, methodContext, {
           handlingTrackerLength: handlingTracker.size,
           handlingTracker: [...handlingTracker],
+          activeTransactionsTracker,
         });
       }
     } catch (err: any) {
@@ -212,7 +213,13 @@ export const handleSingle = async (
     }
     const preparePayload: PreparePayload = _transaction.payload;
     try {
-      logger.info("Preparing receiver", requestContext, methodContext);
+      logger.info("Preparing receiver", requestContext, methodContext, {
+        senderPrepareTransaction: {
+          transactionHash: senderPrepareReceipt.transactionHash,
+          block: senderPrepareReceipt.blockNumber,
+          confirmations: senderPrepareReceipt.confirmations,
+        },
+      });
       // We need to confirm in the cache that this bid was accepted by the user and we are
       // going through with our commitment to prepare on the receiving chain. The bid may expire in
       // the time it takes to send the prepare transaction, but doing so ensures the cache extends
@@ -254,6 +261,7 @@ export const handleSingle = async (
       );
       successfulAuction.inc(
         {
+          transactionId: _transaction.crosschainTx.invariant.transactionId,
           sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -264,17 +272,24 @@ export const handleSingle = async (
         1,
       );
       senderPrepared.inc({
-        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: sendingAssetName,
       });
       receiverPrepared.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: receivingAssetName,
       });
       logger.info("Prepared receiver", requestContext, methodContext, { txHash: receipt?.transactionHash });
       attemptedTransfer.inc({
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -292,8 +307,11 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.receivingChainId,
       );
       receiverFailedPrepare.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: receivingAssetName,
       });
       const json = jsonifyError(err);
@@ -320,14 +338,18 @@ export const handleSingle = async (
             requestContext,
           );
           senderCancelled.inc({
-            assetId: transaction.crosschainTx.invariant.sendingAssetId,
-            chainId: transaction.crosschainTx.invariant.sendingChainId,
+            transactionId: transaction.crosschainTx.invariant.transactionId,
+            sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
+            sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
+            receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
+            receivingChainId: transaction.crosschainTx.invariant.receivingChainId,
             assetName: sendingAssetName,
           });
           logger.info("Cancelled transaction", requestContext, methodContext, { txHash: cancelRes?.transactionHash });
           // if successfully cancelled, was successful auction
           successfulAuction.inc(
             {
+              transactionId: _transaction.crosschainTx.invariant.transactionId,
               sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
               receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
               sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -339,8 +361,11 @@ export const handleSingle = async (
           );
         } catch (cancelErr: any) {
           senderFailedCancel.inc({
-            assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-            chainId: _transaction.crosschainTx.invariant.sendingChainId,
+            transactionId: _transaction.crosschainTx.invariant.transactionId,
+            sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+            receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+            sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+            receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
             assetName: getAssetName(
               _transaction.crosschainTx.invariant.sendingAssetId,
               _transaction.crosschainTx.invariant.sendingChainId,
@@ -399,7 +424,13 @@ export const handleSingle = async (
 
     const fulfillPayload: FulfillPayload = _transaction.payload;
     try {
-      logger.info("Fulfilling sender", requestContext, methodContext);
+      logger.info("Fulfilling sender", requestContext, methodContext, {
+        receiverFulfillTransaction: {
+          transactionHash: receiverFulfillReceipt.transactionHash,
+          block: receiverFulfillReceipt.blockNumber,
+          confirmations: receiverFulfillReceipt.confirmations,
+        },
+      });
       receipt = await fulfill(
         _transaction.crosschainTx.invariant,
         {
@@ -422,6 +453,7 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.receivingChainId,
       );
       completedTransfer.inc({
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -431,22 +463,33 @@ export const handleSingle = async (
       });
       receiverFulfilled.inc(
         {
-          assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-          chainId: _transaction.crosschainTx.invariant.receivingChainId,
+          transactionId: _transaction.crosschainTx.invariant.transactionId,
+          sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+          receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
           assetName: receivingAssetName,
         },
         1,
       );
       senderFulfilled.inc(
         {
-          assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-          chainId: _transaction.crosschainTx.invariant.sendingChainId,
+          transactionId: _transaction.crosschainTx.invariant.transactionId,
+          sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+          receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+          sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+          receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
           assetName: sendingAssetName,
         },
         1,
       );
       // Update total transferred volume (denominated in receiving asset)
       incrementTotalTransferredVolume(
+        _transaction.crosschainTx.invariant.transactionId,
+        _transaction.crosschainTx.invariant.sendingAssetId,
+        _transaction.crosschainTx.invariant.sendingChainId,
+        _transaction.crosschainTx.invariant.receivingAssetId,
+        _transaction.crosschainTx.invariant.receivingChainId,
         _transaction.crosschainTx.invariant.receivingAssetId,
         _transaction.crosschainTx.invariant.receivingChainId,
         _transaction.crosschainTx.receiving!.amount,
@@ -476,6 +519,11 @@ export const handleSingle = async (
 
         // Add difference between sending and receiving amount
         await incrementFees(
+          _transaction.crosschainTx.invariant.transactionId,
+          _transaction.crosschainTx.invariant.sendingAssetId,
+          _transaction.crosschainTx.invariant.sendingChainId,
+          _transaction.crosschainTx.invariant.receivingAssetId,
+          _transaction.crosschainTx.invariant.receivingChainId,
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
           BigNumber.from(fees),
@@ -485,8 +533,11 @@ export const handleSingle = async (
       incrementFeesPromise();
     } catch (err: any) {
       senderFailedFulfill.inc({
-        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: getAssetName(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
@@ -534,19 +585,28 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.receivingChainId,
       );
       receiverCancelled.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: receivingAssetName,
       });
       receiverExpired.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: receivingAssetName,
       });
     } catch (err: any) {
       receiverFailedCancel.inc({
-        assetId: _transaction.crosschainTx.invariant.receivingAssetId,
-        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: getAssetName(
           _transaction.crosschainTx.invariant.receivingAssetId,
           _transaction.crosschainTx.invariant.receivingChainId,
@@ -592,13 +652,19 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.sendingChainId,
       );
       senderCancelled.inc({
-        assetId: transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: transaction.crosschainTx.invariant.receivingChainId,
         assetName: sendingAssetName,
       });
       senderExpired.inc({
-        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: transaction.crosschainTx.invariant.receivingChainId,
         assetName: sendingAssetName,
       });
     } catch (err: any) {
@@ -627,8 +693,42 @@ export const handleSingle = async (
       });
       return;
     }
+    if (!_transaction.payload.hashes.receiving?.cancelHash) {
+      logger.warn("No cancel hash for receiving chain", requestContext, methodContext, {
+        hashes: _transaction.payload.hashes,
+      });
+      return;
+    }
+    const chainConfig = config.chainConfig[_transaction.crosschainTx.invariant.receivingChainId];
+    if (!chainConfig) {
+      // this should not happen, this should get checked before this point
+      throw new ContractReaderNotAvailableForChain(_transaction.crosschainTx.invariant.receivingChainId, {
+        methodContext,
+        requestContext,
+      });
+    }
+    const receiverCancelledReceipt = await txService.getTransactionReceipt(
+      _transaction.crosschainTx.invariant.receivingChainId,
+      _transaction.payload.hashes.receiving.cancelHash,
+    );
+    if ((receiverCancelledReceipt?.confirmations ?? 0) < chainConfig.confirmations) {
+      logger.info("Waiting for safe confirmations", requestContext, methodContext, {
+        chainId: _transaction.crosschainTx.invariant.receivingChainId,
+        txHash: _transaction.payload.hashes.receiving.cancelHash,
+        txConfirmations: receiverCancelledReceipt?.confirmations ?? 0,
+        configuredConfirmations: chainConfig.confirmations,
+      });
+      return;
+    }
+
     try {
-      logger.info("Cancelling sender after receiver cancelled", requestContext, methodContext);
+      logger.info("Cancelling sender after receiver cancelled", requestContext, methodContext, {
+        receiverCancelTransaction: {
+          transactionHash: receiverCancelledReceipt.transactionHash,
+          block: receiverCancelledReceipt.blockNumber,
+          confirmations: receiverCancelledReceipt.confirmations,
+        },
+      });
       receipt = await cancel(
         _transaction.crosschainTx.invariant,
         {
@@ -646,14 +746,20 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.sendingChainId,
       );
       senderCancelled.inc({
-        assetId: transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: transaction.crosschainTx.invariant.receivingChainId,
         assetName: sendingAssetName,
       });
     } catch (err: any) {
       senderFailedCancel.inc({
-        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: getAssetName(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
@@ -700,14 +806,20 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.sendingChainId,
       );
       senderCancelled.inc({
-        assetId: transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
+        sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
+        receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
+        receivingChainId: transaction.crosschainTx.invariant.receivingChainId,
         assetName: sendingAssetName,
       });
     } catch (err: any) {
       senderFailedCancel.inc({
-        assetId: _transaction.crosschainTx.invariant.sendingAssetId,
-        chainId: _transaction.crosschainTx.invariant.sendingChainId,
+        transactionId: _transaction.crosschainTx.invariant.transactionId,
+        sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
+        receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
+        sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
+        receivingChainId: _transaction.crosschainTx.invariant.receivingChainId,
         assetName: getAssetName(
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,

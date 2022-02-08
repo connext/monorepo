@@ -1,7 +1,6 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
 import {
   createLoggingContext,
-  DEFAULT_GAS_ESTIMATES,
   Logger,
   RequestContext,
   getNtpTimeSeconds,
@@ -398,25 +397,26 @@ export class ChainReader {
       this.getGasPrice(chainIdForGasPrice, requestContext),
     ]);
 
+    const gasLimits = await getHardcodedGasLimits(chainId, chainData);
+
     // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
     let l1GasInUsd = BigNumber.from(0);
     if (chainIdForGasPrice === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
       let gasEstimate = "0";
       if (method === "prepare") {
-        gasEstimate = DEFAULT_GAS_ESTIMATES.prepareL1;
+        gasEstimate = gasLimits.prepareL1 ?? "0";
       } else if (method === "fulfill") {
-        gasEstimate = DEFAULT_GAS_ESTIMATES.fulfillL1;
+        gasEstimate = gasLimits.fulfillL1 ?? "0";
       } else if (method === "cancel") {
-        gasEstimate = DEFAULT_GAS_ESTIMATES.cancelL1;
+        gasEstimate = gasLimits.cancelL1 ?? "0";
       } else {
-        gasEstimate = DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
+        gasEstimate = gasLimits.removeLiquidityL1 ?? "0";
       }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
 
     let gasLimit = BigNumber.from("0");
-    const gasLimits = getHardcodedGasLimits(chainId);
     if (method === "prepare") {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
     } else if (method === "fulfill") {
@@ -444,7 +444,8 @@ export class ChainReader {
       gasLimit = BigNumber.from(isRouterContract ? gasLimits.removeLiquidityRouterContract : gasLimits.removeLiquidity);
     }
 
-    const gasAmountInUsd = gasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
+    const impactedGasPrice = gasPrice.mul(BigNumber.from(10).pow(18)).div(BigNumber.from(gasLimits.gasPriceFactor));
+    const gasAmountInUsd = impactedGasPrice.mul(gasLimit).mul(ethPrice).add(l1GasInUsd);
     const tokenAmountForGasFee = tokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
@@ -462,12 +463,13 @@ export class ChainReader {
       gas: {
         chainIdForGasPrice,
         price: gasPrice.toString(),
+        gasPriceFactor: gasLimits.gasPriceFactor,
         limit: gasLimit.toString(),
         ethPriceUsd: ethPrice.toString(),
         l1GasInUsd: l1GasInUsd.toString(),
         nativeAssetIdOnMainnet: nativeAssetIdOnMainnet ?? "N/A",
       },
-      gasAmountInUsd,
+      gasAmountInUsd: gasAmountInUsd.toString(),
       finalTokenAmountForGasFee: tokenAmountForGasFee.toString(),
     });
 

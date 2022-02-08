@@ -1,18 +1,19 @@
-import { CHAIN_ID } from ".";
+import { ChainData, getChainData } from ".";
 
 export const DEFAULT_GAS_ESTIMATES = {
-  prepare: "232826", // https://etherscan.io/tx/0x8b8b53c5ce70e9cd05cbee150b332167a13b4c20fbe5c3d7a76306ad2829d531 example tx, add 20% buffer
-  fulfill: "249512", // https://etherscan.io/tx/0xdc9c46cae0c443d5ecc7de5fd27f1cdb93f27000b916f140839070a383489228 example tx, add 20% buffer
-  cancel: "204271", // https://ftmscan.com/tx/0xd1a4bdb36d188ee1764d3979e503c698b34947decebdb3bb787d4821042f9e50 example tx, add 20% buffer
+  prepare: "190000",
+  fulfill: "200000",
+  cancel: "204271",
   removeLiquidity: "45000",
-  prepareL1: "20623", // https://optimistic.etherscan.io/tx/0xd3ae8d8980aa464c4256ef6c734f7eb58211a02a6016201903e30fd35ec3bff8, add 20% buffer
-  fulfillL1: "13965", // https://optimistic.etherscan.io/tx/0x280a1e70c10095d748babb85fa56fdf8285cdcae3e3962eae3dc451045c0b220, add 20% buffer
+  prepareL1: "20623",
+  fulfillL1: "13965",
   cancelL1: "13965",
   removeLiquidityL1: "45000",
-  prepareRouterContract: "232826",
-  fulfillRouterContract: "249512",
+  prepareRouterContract: "190000",
+  fulfillRouterContract: "200000",
   cancelRouterContract: "204271",
   removeLiquidityRouterContract: "48000",
+  gasPriceFactor: "1000000000000000000",
 };
 
 export type GasEstimates = {
@@ -24,34 +25,52 @@ export type GasEstimates = {
   fulfillRouterContract: string;
   cancelRouterContract: string;
   removeLiquidityRouterContract: string;
+  prepareL1?: string;
+  fulfillL1?: string;
+  cancelL1?: string;
+  removeLiquidityL1?: string;
+  gasPriceFactor: string;
 };
 
-export const GAS_LIMIT_MAP: Record<number, GasEstimates> = {
-  [CHAIN_ID.ARBITRUM]: {
-    prepare: "1200000", // https://arbiscan.io/tx/0x381ec9af326241282a2d651799e7794dadfa21acd0bcec8c0898f829beb6508c
-    fulfill: "1000000", // https://arbiscan.io/tx/0x8d1dcf58d84aedce3d71d14697aefbf2173270c0e3ee7f6aacabc19a50127c29
-    cancel: "1000000",
-    removeLiquidity: "340000",
-    prepareRouterContract: "1200000",
-    fulfillRouterContract: "1000000",
-    cancelRouterContract: "1000000",
-    removeLiquidityRouterContract: "340000",
-  },
-};
+export const getHardcodedGasLimits = async (
+  chainId: number,
+  chainData?: Map<string, ChainData>,
+): Promise<GasEstimates> => {
+  const chaindata = chainData ?? (await getChainData());
+  const chainInfo = chaindata?.get(chainId.toString()) ?? chainData?.get("0");
+  if (!chainInfo) return DEFAULT_GAS_ESTIMATES;
 
-export const getHardcodedGasLimits = (chainId: number): GasEstimates => {
-  if (GAS_LIMIT_MAP[chainId]) {
-    return GAS_LIMIT_MAP[chainId];
-  } else {
-    return {
-      prepare: DEFAULT_GAS_ESTIMATES.prepare,
-      fulfill: DEFAULT_GAS_ESTIMATES.fulfill,
-      cancel: DEFAULT_GAS_ESTIMATES.cancel,
-      removeLiquidity: DEFAULT_GAS_ESTIMATES.removeLiquidity,
-      prepareRouterContract: DEFAULT_GAS_ESTIMATES.prepareRouterContract,
-      fulfillRouterContract: DEFAULT_GAS_ESTIMATES.fulfillRouterContract,
-      cancelRouterContract: DEFAULT_GAS_ESTIMATES.cancelRouterContract,
-      removeLiquidityRouterContract: DEFAULT_GAS_ESTIMATES.removeLiquidityRouterContract,
-    };
-  }
+  const prepare = chainInfo.gasEstimates?.prepare ?? DEFAULT_GAS_ESTIMATES.prepare;
+  const fulfill = chainInfo.gasEstimates?.fulfill ?? DEFAULT_GAS_ESTIMATES.fulfill;
+  const cancel = chainInfo.gasEstimates?.cancel ?? DEFAULT_GAS_ESTIMATES.cancel;
+  const removeLiquidity = chainInfo.gasEstimates?.removeLiquidity ?? DEFAULT_GAS_ESTIMATES.removeLiquidity;
+  const prepareRouterContract =
+    chainInfo.gasEstimates?.prepareRouterContract ?? DEFAULT_GAS_ESTIMATES.prepareRouterContract;
+  const fulfillRouterContract =
+    chainInfo.gasEstimates?.fulfillRouterContract ?? DEFAULT_GAS_ESTIMATES.fulfillRouterContract;
+  const cancelRouterContract =
+    chainInfo.gasEstimates?.cancelRouterContract ?? DEFAULT_GAS_ESTIMATES.cancelRouterContract;
+  const removeLiquidityRouterContract =
+    chainInfo.gasEstimates?.removeLiquidityRouterContract ?? DEFAULT_GAS_ESTIMATES.removeLiquidityRouterContract;
+  const prepareL1 = chainInfo.gasEstimates?.prepareL1 ?? DEFAULT_GAS_ESTIMATES.prepareL1;
+  const fulfillL1 = chainInfo.gasEstimates?.fulfillL1 ?? DEFAULT_GAS_ESTIMATES.fulfillL1;
+  const cancelL1 = chainInfo.gasEstimates?.cancelL1 ?? DEFAULT_GAS_ESTIMATES.cancelL1;
+  const removeLiquidityL1 = chainInfo.gasEstimates?.removeLiquidityL1 ?? DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
+  const gasPriceFactor = chainInfo.gasEstimates?.gasPriceFactor ?? DEFAULT_GAS_ESTIMATES.gasPriceFactor;
+  const res = {
+    prepare,
+    fulfill,
+    cancel,
+    removeLiquidity,
+    prepareRouterContract,
+    fulfillRouterContract,
+    cancelRouterContract,
+    removeLiquidityRouterContract,
+    prepareL1,
+    fulfillL1,
+    cancelL1,
+    removeLiquidityL1,
+    gasPriceFactor,
+  } as GasEstimates;
+  return res;
 };

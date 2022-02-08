@@ -251,33 +251,6 @@ describe("NxtpSdk", () => {
       expect(error.message).to.be.eq(NoTransactionManager.getMessage());
     });
 
-    it("should error if subgraph doesn't exist for chainId", async () => {
-      const _chainConfig = {
-        [sendingChainId]: {
-          providers: ["http://----------------------"],
-          transactionManagerAddress: sendingChainTxManagerAddress,
-          priceOracleAddress: priceOracleAddress,
-        },
-      };
-
-      let error;
-      try {
-        const instance = new NxtpSdk({
-          chainConfig: _chainConfig,
-          signer,
-          natsUrl: "http://example.com",
-          authUrl: "http://example.com",
-          messaging: undefined,
-          logger,
-          network: "local",
-        });
-      } catch (e) {
-        error = e;
-      }
-      expect(error).to.be.an("error");
-      expect(error.message).to.be.eq(NoSubgraph.getMessage());
-    });
-
     it("happy: constructor, get transactionManager address", async () => {
       const chainConfig = {
         [4]: {

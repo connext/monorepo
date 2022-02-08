@@ -422,7 +422,7 @@ describe("ChainReader", () => {
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
-      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1]);
+      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1, 10, 1337]);
       tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
       gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
       tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
@@ -440,7 +440,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(5155432857142857);
+      expect(result.toNumber()).to.be.eq(4207142857142857);
     });
 
     it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
@@ -453,12 +453,12 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(5524908571428571);
+      expect(result.toNumber()).to.be.eq(4428571428571428);
     });
 
     it("should return zero if price oracle isn't configured for that chain", async () => {
       const result = await chainReader.calculateGasFee(
-        TEST_SENDER_CHAIN_ID,
+        TEST_RECEIVER_CHAIN_ID,
         mkAddress("0x0"),
         18,
         "prepare",
@@ -481,7 +481,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(5612085000000000);
+      expect(result.toNumber()).to.be.eq(4885223571428571);
     });
 
     it("special case for chainId 10 fulfill", async () => {
@@ -496,7 +496,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(5834133571428571);
+      expect(result.toNumber()).to.be.eq(4073510714285714);
     });
 
     it("special case for chainId 10 cancel", async () => {
@@ -512,6 +512,19 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4832368571428571);
+    });
+
+    it("happy: should calculate for prepare with default data", async () => {
+      const result = await chainReader.calculateGasFee(
+        1337,
+        mkAddress("0x0"),
+        18,
+        "prepare",
+        false,
+        undefined,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(4207142857142857);
     });
   });
 

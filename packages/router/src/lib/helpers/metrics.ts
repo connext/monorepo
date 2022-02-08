@@ -1,5 +1,7 @@
+import { CHAINS_WITH_PRICE_ORACLES as _CHAINS_WITH_PRICE_ORACLES } from "@connext/nxtp-txservice";
 import { createLoggingContext, jsonifyError, RequestContext } from "@connext/nxtp-utils";
 import { constants, BigNumber, utils, providers } from "ethers";
+import { getMainnetEquivalent } from ".";
 
 import { getContext } from "../../router";
 import {
@@ -10,6 +12,9 @@ import {
   totalTransferredVolume,
   TransactionReason,
 } from "../entities";
+import { FailedToGetExpressiveAssetBalances } from "../errors/metrics";
+
+export const CHAINS_WITH_PRICE_ORACLES = _CHAINS_WITH_PRICE_ORACLES;
 
 export const getDecimals = async (assetId: string, chainId: number): Promise<number> => {
   const { chainData, txService } = getContext();
@@ -29,11 +34,15 @@ export const convertToUsd = async (
   assetId: string,
   chainId: number,
   amount: string,
-  requestContext: RequestContext,
+  _requestContext: RequestContext,
 ): Promise<number> => {
-  const { txService, logger } = getContext();
-
-  const price = await txService.getTokenPrice(chainId, assetId, undefined, requestContext);
+  const { txService, logger, chainData } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(convertToUsd.name, _requestContext);
+  const assetIdOnMainnet = await getMainnetEquivalent(chainId, assetId, chainData);
+  const chainIdForTokenPrice = assetIdOnMainnet ? 1 : chainId;
+  const assetIdForTokenPrice = assetIdOnMainnet ? assetIdOnMainnet : assetId;
+  if (!CHAINS_WITH_PRICE_ORACLES.includes(chainIdForTokenPrice)) return 0;
+  const price = await txService.getTokenPrice(chainIdForTokenPrice, assetIdForTokenPrice, undefined, requestContext);
   if (price.isZero()) {
     // Do nothing
     return 0;
@@ -42,14 +51,13 @@ export const convertToUsd = async (
   // Convert to USD
   const decimals = await getDecimals(assetId, chainId);
   const usdWei = BigNumber.from(amount).mul(price).div(BigNumber.from(10).pow(18));
-  logger.debug("Got value in wei", requestContext, undefined, {
+  logger.debug("Got value in wei", requestContext, methodContext, {
     assetId,
     chainId,
     decimals,
     amount,
     usdWei,
   });
-
   // Convert to correct decimals
   return +utils.formatUnits(usdWei, decimals);
 };
@@ -83,12 +91,16 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
   return entry?.symbol;
 };
 
+const EXPRESSIVE_LIQUIDITY_CACHE_EXPIRY = 5_000;
+export const getLiquidityCacheExpiry = () => EXPRESSIVE_LIQUIDITY_CACHE_EXPIRY; // For testing
 const collectExpressiveLiquidityCache: { retrieved: number; value?: Record<number, ExpressiveAssetBalance<number>[]> } =
   {
     retrieved: 0,
     value: undefined,
   };
-export const collectExpressiveLiquidity = async (): Promise<Record<number, ExpressiveAssetBalance<number>[]>> => {
+export const collectExpressiveLiquidity = async (): Promise<
+  Record<number, ExpressiveAssetBalance<number>[]> | undefined
+> => {
   // For each chain, get current router balances
   const { logger, contractReader, config } = getContext();
 
@@ -98,7 +110,7 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
     logger.debug("Method start", requestContext, methodContext);
 
     const elapsed = Date.now() - collectExpressiveLiquidityCache.retrieved;
-    if (elapsed < 5_000 && collectExpressiveLiquidityCache.value) {
+    if (elapsed < getLiquidityCacheExpiry() && collectExpressiveLiquidityCache.value) {
       return collectExpressiveLiquidityCache.value;
     }
 
@@ -110,15 +122,23 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
     await Promise.all(
       chainIds.map(async (chainId) => {
         try {
-          assetBalances[chainId] = await contractReader.getExpressiveAssetBalances(chainId);
+          const expressive = await contractReader.getExpressiveAssetBalances(chainId);
+          logger.debug("Got expressive balances from subgraph", requestContext, methodContext, {
+            chainId,
+            expressive,
+          });
+          assetBalances[chainId] = expressive;
         } catch (e: any) {
-          logger.warn("Failed to get expressive liquidity", requestContext, methodContext, {
+          logger.warn("Failed to get expressive liquidity from subgraph", requestContext, methodContext, {
             chainId,
             error: jsonifyError(e),
           });
         }
       }),
     );
+    if (Object.values(assetBalances).length === 0) {
+      throw new FailedToGetExpressiveAssetBalances(chainIds);
+    }
 
     // Convert all balances to USD
     const converted: Record<string, ExpressiveAssetBalance<number>[]> = {};
@@ -127,14 +147,27 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
         converted[chainId] = [];
         await Promise.all(
           assetValues.map(async (value) => {
-            const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
-            const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
-            const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
-            const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
-            // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
-            // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
-            // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
-            converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed });
+            try {
+              const amount = await convertToUsd(value.assetId, +chainId, value.amount.toString(), requestContext);
+              const supplied = await convertToUsd(value.assetId, +chainId, value.supplied.toString(), requestContext);
+              const locked = await convertToUsd(value.assetId, +chainId, value.locked.toString(), requestContext);
+              const removed = await convertToUsd(value.assetId, +chainId, value.removed.toString(), requestContext);
+              // const volume = await convertToUsd(value.assetId, +chainId, value.volume.toString(), requestContext);
+              // const volumeIn = await convertToUsd(value.assetId, +chainId, value.volumeIn.toString(), requestContext);
+              // converted[chainId].push({ assetId: value.assetId, amount, supplied, locked, removed, volume, volumeIn });
+              const val = { assetId: value.assetId, amount, supplied, locked, removed };
+              logger.debug("Converted expressive balances to usd", requestContext, methodContext, {
+                converted: val,
+                chainId,
+              });
+              converted[chainId].push(val);
+            } catch (e: any) {
+              logger.warn("Failed to convert expressive liquidity to USD", requestContext, methodContext, {
+                error: jsonifyError(e),
+                value,
+                chainId,
+              });
+            }
           }),
         );
       }),
@@ -146,7 +179,7 @@ export const collectExpressiveLiquidity = async (): Promise<Record<number, Expre
     return converted;
   } catch (e: any) {
     logger.error("Failed to collect expressive liquidity", requestContext, methodContext, jsonifyError(e));
-    throw e;
+    return undefined;
   }
 };
 
@@ -273,6 +306,11 @@ export const collectSubgraphHeads = async (): Promise<Record<number, number>> =>
 };
 
 export const incrementFees = async (
+  transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   assetId: string,
   chainId: number,
   amount: BigNumber,
@@ -285,6 +323,11 @@ export const incrementFees = async (
 
   const { requestContext, methodContext } = createLoggingContext(incrementFees.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     assetId,
     chainId,
     amount,
@@ -292,6 +335,11 @@ export const incrementFees = async (
 
   if (amount.isNegative()) {
     logger.warn("Got negative fees, doing nothing", requestContext, methodContext, {
+      transactionId,
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
       assetId,
       chainId,
       amount,
@@ -302,6 +350,11 @@ export const incrementFees = async (
   const fees = await convertToUsd(assetId, chainId, amount.toString(), requestContext);
 
   logger.debug("Got fees in usd", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     assetId,
     chainId,
     amount,
@@ -311,6 +364,11 @@ export const incrementFees = async (
   // Update counter
   feesCollected.inc(
     {
+      transactionId,
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
       assetId,
       chainId,
       assetName: getAssetName(assetId, chainId),
@@ -332,6 +390,11 @@ export const incrementFees = async (
  * @returns void
  */
 export const incrementGasConsumed = async (
+  transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   chainId: number,
   receipt: providers.TransactionReceipt | undefined,
   reason: TransactionReason,
@@ -346,6 +409,11 @@ export const incrementGasConsumed = async (
   const { cumulativeGasUsed, effectiveGasPrice } = receipt;
   const price = effectiveGasPrice ?? (await txService.getGasPrice(chainId, requestContext));
   logger.debug("Method start", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     gas: cumulativeGasUsed.toString(),
     price: price.toString(),
@@ -359,6 +427,11 @@ export const incrementGasConsumed = async (
   );
 
   logger.debug("Got gas fees in usd", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     gas: cumulativeGasUsed.toString(),
     price: price.toString(),
@@ -367,7 +440,10 @@ export const incrementGasConsumed = async (
 
   // Update counter
   // TODO: reason type
-  gasConsumed.inc({ chainId, reason }, usd);
+  gasConsumed.inc(
+    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId },
+    usd,
+  );
 };
 
 /**
@@ -384,6 +460,11 @@ export const incrementGasConsumed = async (
  * @returns void
  */
 export const incrementRelayerFeesPaid = async (
+  transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   chainId: number,
   relayerFee: string,
   assetId: string,
@@ -394,6 +475,11 @@ export const incrementRelayerFeesPaid = async (
 
   const { requestContext, methodContext } = createLoggingContext(incrementTotalTransferredVolume.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     assetId,
     relayerFee,
@@ -402,10 +488,18 @@ export const incrementRelayerFeesPaid = async (
 
   const usd = await convertToUsd(assetId, chainId, relayerFee, requestContext);
 
-  relayerFeesPaid.inc({ reason, chainId, assetId }, usd);
+  relayerFeesPaid.inc(
+    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId, assetId },
+    usd,
+  );
 };
 
 export const incrementTotalTransferredVolume = async (
+  transactionId: string,
+  sendingAssetId: string,
+  sendingChainId: number,
+  receivingAssetId: string,
+  receivingChainId: number,
   assetId: string,
   chainId: number,
   amount: string,
@@ -415,6 +509,11 @@ export const incrementTotalTransferredVolume = async (
 
   const { requestContext, methodContext } = createLoggingContext(incrementTotalTransferredVolume.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     chainId,
     assetId,
     amount,
@@ -423,11 +522,27 @@ export const incrementTotalTransferredVolume = async (
   const usd = await convertToUsd(assetId, chainId, amount, requestContext);
 
   logger.debug("Got transferred volume in usd", requestContext, methodContext, {
+    transactionId,
+    sendingAssetId,
+    sendingChainId,
+    receivingAssetId,
+    receivingChainId,
     assetId,
     chainId,
     amount,
     usd: usd.toString(),
   });
 
-  totalTransferredVolume.inc({ assetId, chainId, assetName: getAssetName(assetId, chainId) }, usd);
+  totalTransferredVolume.inc(
+    {
+      transactionId,
+      sendingAssetId,
+      sendingChainId,
+      receivingAssetId,
+      receivingChainId,
+      amount,
+      assetName: getAssetName(assetId, chainId),
+    },
+    usd,
+  );
 };

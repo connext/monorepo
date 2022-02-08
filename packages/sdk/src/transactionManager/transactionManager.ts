@@ -88,7 +88,7 @@ export class TransactionManager {
       [chainId: number]: TransactionManagerChainConfig;
     },
     private readonly chainReader: ChainReader,
-    private readonly signerAddress: Promise<string>,
+    private readonly signerAddress: Promise<string> | string,
     private readonly logger: Logger,
   ) {
     this.chainConfig = {};

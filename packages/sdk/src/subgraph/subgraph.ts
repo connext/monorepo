@@ -1,3 +1,6 @@
+import { GraphQLClient } from "graphql-request";
+import { Evt } from "evt";
+import { ChainReader } from "@connext/nxtp-txservice";
 import {
   createLoggingContext,
   FallbackSubgraph,
@@ -5,12 +8,10 @@ import {
   Logger,
   NxtpError,
   RequestContext,
+  SubgraphDomain,
   TransactionData,
   VariantTransactionData,
 } from "@connext/nxtp-utils";
-import { GraphQLClient } from "graphql-request";
-import { Evt } from "evt";
-import { ChainReader } from "@connext/nxtp-txservice";
 
 import { InvalidTxStatus, PollingNotActive } from "../error";
 import {
@@ -111,26 +112,24 @@ export class Subgraph {
   private pollingLoop: NodeJS.Timer | undefined;
   private syncStatus: Record<number, SubgraphSyncRecord> = {};
   private chainConfig: Record<number, SubgraphChainConfig>;
+  public pollingStopperBlock: Record<number, number> = {};
 
   constructor(
-    private readonly userAddress: Promise<string>,
+    private readonly userAddress: Promise<string> | string,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly chainReader: ChainReader,
     private readonly logger: Logger,
-    skipPolling = false,
     private readonly pollInterval = 10_000,
   ) {
     this.chainConfig = {};
     Object.entries(_chainConfig).forEach(([chainId, { subgraph, subgraphSyncBuffer: _subgraphSyncBuffer }]) => {
       const cId = parseInt(chainId);
-      const urls = typeof subgraph === "string" ? [subgraph] : subgraph;
-      const sdksWithClients = urls.map((url) => {
-        return { client: getSdk(new GraphQLClient(url)), url };
-      });
       const fallbackSubgraph = new FallbackSubgraph<Sdk>(
         cId,
-        sdksWithClients,
+        (url: string) => getSdk(new GraphQLClient(url)),
         _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
+        SubgraphDomain.COMMON,
+        typeof subgraph === "string" ? [subgraph] : subgraph,
       );
       this.sdks[cId] = fallbackSubgraph;
       this.syncStatus[cId] = {
@@ -143,9 +142,6 @@ export class Subgraph {
         subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
       };
     });
-    if (!skipPolling) {
-      this.startPolling();
-    }
   }
 
   public stopPolling(): void {
@@ -155,12 +151,41 @@ export class Subgraph {
     }
   }
 
-  public startPolling(): void {
+  public updatePollingStopperBlock(chainId: number, blockNumber: number): void {
+    this.pollingStopperBlock[chainId] = blockNumber;
+  }
+
+  async startPolling(): Promise<void> {
+    Object.keys(this.sdks).map(async (_chainId) => {
+      const chainId = parseInt(_chainId);
+      this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
+    });
+
     if (this.pollingLoop == null) {
       this.pollingLoop = setInterval(async () => {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
         try {
-          await this.getActiveTransactions();
+          const activeTxs = await this.getActiveTransactions();
+          if (activeTxs.length < 1) {
+            let shouldStop = false;
+            await Promise.all(
+              Object.keys(this.sdks).map(async (_chainId) => {
+                const chainId = parseInt(_chainId);
+                if (
+                  !this.pollingStopperBlock[chainId] ||
+                  this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock
+                ) {
+                  shouldStop = false;
+                  return;
+                } else {
+                  shouldStop = true;
+                }
+              }),
+            );
+            if (shouldStop) {
+              this.stopPolling();
+            }
+          }
         } catch (err) {
           this.logger.error("Error in subgraph loop", requestContext, methodContext, err);
         }
@@ -168,25 +193,16 @@ export class Subgraph {
     }
   }
 
-  getSyncStatus(chainId: number): SubgraphSyncRecord {
+  getSyncStatus(chainId: number): SubgraphSyncRecord | undefined {
     const { requestContext, methodContext } = createLoggingContext(this.getSyncStatus.name);
     const records = this.sdks[chainId].records;
-    this.logger.debug(
-      `Getting sync status for chain ${chainId} with ${records.length} records`,
-      requestContext,
-      methodContext,
-      {
-        chainId,
-        records,
-      },
-    );
-    return (
-      records[0] ?? {
-        synced: false,
-        syncedBlock: 0,
-        latestBlock: 0,
-      }
-    );
+    this.logger.debug("Retrieved subgraph sync status.", requestContext, methodContext, {
+      chainId,
+      records,
+      // For easy searching of "no records found" in logs.
+      recordsFound: records.length,
+    });
+    return records[0];
   }
 
   /**
@@ -526,7 +542,7 @@ export class Subgraph {
     );
 
     // Check to see if errors occurred for all chains (i.e. no active transactions were retrieved).
-    if (errors.size === Object.keys(this.sdks).length) {
+    if (errors.size > 0 && errors.size === Object.keys(this.sdks).length) {
       throw new NxtpError("Failed to get active transactions for all chains due to errors", { errors });
     }
 
@@ -707,18 +723,22 @@ export class Subgraph {
    * Update the sync statuses of subgraph providers for each chain.
    * This will enable FallbackSubgraph to use the most in-sync subgraph provider.
    */
-  private async updateSyncStatus(): Promise<void> {
+  async updateSyncStatus(): Promise<void> {
     await Promise.all(
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
         const subgraph = this.sdks[chainId];
-        const latestBlock = await this.chainReader.getBlockNumber(chainId);
-        const records = await subgraph.sync(latestBlock);
-        const mostSynced = records.sort((r) => r.latestBlock - r.syncedBlock)[0];
+        const records = await subgraph.sync(() => this.chainReader.getBlockNumber(chainId));
+        const mostSynced = records.length > 0 ? records.sort((r) => r.latestBlock - r.syncedBlock)[0] : undefined;
+        this.logger.info("Got most synced.", undefined, undefined, {
+          subgraph,
+          records,
+          mostSynced: typeof mostSynced === "undefined" ? "undefined" : mostSynced,
+        });
         this.syncStatus[chainId] = {
-          latestBlock,
-          syncedBlock: mostSynced.syncedBlock,
-          synced: mostSynced.synced,
+          latestBlock: records[0]?.latestBlock,
+          syncedBlock: mostSynced?.syncedBlock ?? -1,
+          synced: mostSynced?.synced ?? true,
         };
       }),
     );

@@ -1,4 +1,12 @@
-import { expect, mkAddress, getChainData, ChainData, txReceiptMock } from "@connext/nxtp-utils";
+import {
+  expect,
+  mkAddress,
+  getChainData,
+  ChainData,
+  txReceiptMock,
+  createRequestContext,
+  mkBytes32,
+} from "@connext/nxtp-utils";
 import { BigNumber, utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import * as metrics from "../../../src/lib/helpers/metrics";
@@ -7,6 +15,37 @@ import { contractReaderMock, ctxMock, txServiceMock } from "../../globalTestHook
 import { chainDataMock, configMock } from "../../utils";
 import { parseEther } from "@ethersproject/units";
 import * as ConfigFns from "../../../src/config";
+import * as SharedFns from "../../../src/lib/helpers/shared";
+
+const requestContext = createRequestContext("TEST", mkBytes32());
+
+describe("convertToUsd", () => {
+  let priceOracleStub: SinonStub;
+  beforeEach(() => {
+    priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
+    priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+  });
+
+  it("should return zero if no price oracle deployed", async () => {
+    const amount = 100;
+    expect(
+      await metrics.convertToUsd(mkAddress("0xaaaaa"), 1337, BigNumber.from(amount).toString(), requestContext),
+    ).to.be.eq(0);
+  });
+
+  it("should return zero if token isn't configured on price oracle", async () => {
+    txServiceMock.getTokenPrice.resolves(BigNumber.from(0));
+    const amount = parseEther("100");
+    expect(await metrics.convertToUsd(mkAddress("0xaaaaa"), 1, amount.toString(), requestContext)).to.be.eq(0);
+  });
+
+  it("should return price", async () => {
+    const amount = parseEther("100");
+    const price = 1;
+    txServiceMock.getTokenPrice.resolves(parseEther(price.toString()));
+    expect(await metrics.convertToUsd(mkAddress("0xaaaaa"), 1, amount.toString(), requestContext)).to.be.eq(100);
+  });
+});
 
 describe("getAssetName", () => {
   it("should work", () => {
@@ -49,6 +88,7 @@ describe("collectOnchainLiquidity", () => {
   beforeEach(() => {
     priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+    stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");
   });
   it("should work with varying decimals", async () => {
     ctxMock.chainData = await getChainData();
@@ -105,9 +145,31 @@ describe("collectOnchainLiquidity", () => {
 describe("collectExpressiveLiquidity", () => {
   let priceOracleStub: SinonStub;
   beforeEach(() => {
+    stub(metrics, "getLiquidityCacheExpiry").returns(0);
     priceOracleStub = stub(ConfigFns, "getDeployedPriceOracleContract");
     priceOracleStub.returns({ address: mkAddress("0xaaa"), abi: "xxx" });
+    stub(SharedFns, "getMainnetEquivalent").resolves("0xccc");
   });
+
+  it("should return undefined if all assets fail", async () => {
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).rejects(new Error("Fail"));
+    const ret = await metrics.collectExpressiveLiquidity();
+    expect(ret).to.be.undefined;
+    expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
+      Object.keys(configMock.chainConfig).length,
+    );
+  });
+
+  it("should work for all other assets if theres one error", async () => {
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(0).rejects(new Error("Fail"));
+    (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(1).resolves([]);
+    const ret = await metrics.collectExpressiveLiquidity();
+    expect(ret).to.be.deep.eq({ [Object.keys(configMock.chainConfig)[1]]: [] });
+    expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
+      Object.keys(configMock.chainConfig).length,
+    );
+  });
+
   it("should work with varying decimals", async () => {
     // constants
     const amt = "10";
@@ -246,32 +308,89 @@ describe("collectSubgraphHeads", () => {
 describe("incrementFees / incrementGasConsumed / incrementTotalTransferredVolume / incrementRelayerFeesPaid", () => {
   const assetName = "TEST";
   const chainId = 1337;
+  const transactionId = "TESTTX";
+  const sendingChainId = 1337;
+  const sendingAssetId = mkAddress();
+  const receivingChainId = 1338;
+  const receivingAssetId = mkAddress();
   const tests = [
     {
       method: "incrementFees",
-      args: [mkAddress(), chainId, parseEther("1")],
-      labels: { assetId: mkAddress(), chainId, assetName },
+      args: [
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        mkAddress(),
+        chainId,
+        parseEther("1"),
+      ],
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        assetId: mkAddress(),
+        chainId,
+        assetName,
+      },
       value: 10,
       entity: "feesCollected",
     },
     {
       method: "incrementGasConsumed",
-      args: [chainId, txReceiptMock, entities.TransactionReasons.Relay],
-      labels: { reason: entities.TransactionReasons.Relay, chainId },
+      args: [
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        chainId,
+        txReceiptMock,
+        entities.TransactionReasons.Relay,
+      ],
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        reason: entities.TransactionReasons.Relay,
+        chainId,
+      },
       value: 10,
       entity: "gasConsumed",
     },
     {
       method: "incrementRelayerFeesPaid",
-      args: [chainId, parseEther("0.0001"), mkAddress(), entities.TransactionReasons.CancelReceiver],
-      labels: { assetId: mkAddress(), reason: entities.TransactionReasons.CancelReceiver, chainId },
+      args: [transactionId, chainId, parseEther("0.0001"), mkAddress(), entities.TransactionReasons.CancelReceiver],
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        assetId: mkAddress(),
+        reason: entities.TransactionReasons.CancelReceiver,
+        chainId,
+      },
       value: 10,
       entity: "relayerFeesPaid",
     },
     {
       method: "incrementTotalTransferredVolume",
       args: [mkAddress(), chainId, parseEther("0.0001")],
-      labels: { assetId: mkAddress(), chainId },
+      labels: {
+        transactionId,
+        sendingAssetId,
+        sendingChainId,
+        receivingAssetId,
+        receivingChainId,
+        assetId: mkAddress(),
+        chainId,
+      },
       value: 10,
       entity: "totalTransferredVolume",
     },

@@ -20,7 +20,6 @@ import {
   NATS_WS_URL_LOCAL,
   NATS_CLUSTER_URL_TESTNET,
   NATS_WS_URL_TESTNET,
-  getDeployedSubgraphUri,
   delay,
   MetaTxTypes,
   Logger,
@@ -38,7 +37,6 @@ import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
   NoTransactionManager,
-  NoSubgraph,
   InvalidSlippage,
   InvalidExpiry,
   InvalidCallTo,
@@ -123,7 +121,7 @@ export class NxtpSdkBase {
   // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
   public readonly chainReader: ChainReader;
   private readonly messaging: UserNxtpNatsMessagingService;
-  private readonly subgraph: Subgraph;
+  private subgraph: Subgraph;
   private readonly logger: Logger;
   public readonly chainData?: Map<string, ChainData>;
 
@@ -228,15 +226,12 @@ export class NxtpSdkBase {
           priceOracleAddress: priceOracleAddress || constants.AddressZero,
         };
 
-        let subgraph = _subgraph;
-        if (!subgraph) {
-          subgraph = getDeployedSubgraphUri(chainId, chainData);
-        }
-        if (!subgraph || subgraph.length === 0) {
-          throw new NoSubgraph(chainId);
-        }
         // Ensure subgraph is configured properly; may be a CSV env string or an array of subgraph urls.
-        subgraph = typeof subgraph === "string" ? subgraph.replace("]", "").replace("[", "").split(",") : subgraph;
+        const subgraph = Array.isArray(_subgraph)
+          ? _subgraph
+          : typeof _subgraph === "string"
+          ? _subgraph.replace("]", "").replace("[", "").split(",")
+          : [];
         subgraphConfig[chainId] = {
           subgraph,
           subgraphSyncBuffer,
@@ -254,8 +249,11 @@ export class NxtpSdkBase {
       subgraphConfig,
       this.chainReader,
       this.logger.child({ module: "Subgraph" }),
-      skipPolling,
     );
+
+    if (!skipPolling) {
+      this.subgraph.startPolling();
+    }
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -293,7 +291,7 @@ export class NxtpSdkBase {
     const record = this.subgraph.getSyncStatus(chainId);
     return (
       record ?? {
-        synced: false,
+        synced: true,
         syncedBlock: 0,
         latestBlock: 0,
       }
@@ -943,6 +941,7 @@ export class NxtpSdkBase {
       expiry,
     };
     const tx = await this.transactionManager.prepare(sendingChainId, params, requestContext);
+    await this.subgraph.startPolling();
     return tx;
   }
 

@@ -2,6 +2,50 @@
 
 ## Next Release
 
+## 0.1.24
+
+- [sdk] another hotfix for sdk subgraph polling
+
+## 0.1.23
+
+- [sdk] hotfix for sdk subgraph polling
+
+## 0.1.22
+
+- [sdk] type update for userAddress for sdkBase
+- [sdk] sdk polling only active txs
+- [utils] fix hardcoded gaslimit
+- [router] Remove relayerFeesPaid stuff when fulfilling on receiving side
+
+## 0.1.21
+
+- [utils] Estimate gas updates for Arbitrum
+
+## 0.1.20
+
+- [utils] Estimate gas updates
+
+## 0.1.19
+
+- [router] Fix metrics bug
+
+## 0.1.18
+
+- [ops] Alpine version update
+- [utils] Implement health endpoint call in FallbackSubgraph
+- [router] Improve logging, add waiting for safe confirmations when handling receiver cancelled
+
+## 0.1.17
+
+- [router] Disable removeLiquidity through relayers
+
+## 0.1.16
+
+- [router] Use mainnet equivalent for `convertToUsd`
+- [router] Improve metrics error handling
+
+## 0.1.15
+
 - [router] fix params for gas estimation before relayer use
 - [utils] Update hardcoded gasLimits for arbitrum network
 - [contracts] Add v1PriceOracle

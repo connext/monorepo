@@ -60,18 +60,16 @@ const setSyncRecord = async (chainId: number, requestContext: RequestContext): P
       throw new NoChainConfig(chainId, { requestContext, methodContext, sdk: !!sdk });
     }
 
-    const latestBlock = await txService.getBlockNumber(chainId);
-    records = await sdk.sync(latestBlock);
+    records = await sdk.sync(() => txService.getBlockNumber(chainId));
     logger.debug(`Retrieved sync records for chain ${chainId}`, requestContext, methodContext, {
       chainId,
-      latestBlock,
+      latestBlock: records[0]?.latestBlock,
       records: records.map((r) => ({
         synced: r.synced,
         lag: r.lag,
         syncedBlock: r.syncedBlock,
-        uri: r.uri,
         name: r.name,
-        errors: r.errors,
+        error: r.error,
       })),
     });
   } catch (e: any) {
@@ -575,7 +573,7 @@ export const getExpressiveAssetBalances = async (chainId: number): Promise<Expre
   }
 
   const { assetBalances } = await sdk.request<GetExpressiveAssetBalancesQuery>((client) =>
-    client.GetExpressiveAssetBalances({ routerId: routerAddress }),
+    client.GetExpressiveAssetBalances({ routerId: routerAddress.toLowerCase() }),
   );
   return assetBalances.map((a) => {
     return {
@@ -595,7 +593,7 @@ export const getCancelledFulfilledTransactions = async (routerAddress: string, c
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getCancelledFulfilledTransactions.name);
 
-  logger.info("method start", requestContext, methodContext, {
+  logger.debug("Method start", requestContext, methodContext, {
     chainId,
     routerAddress,
   });

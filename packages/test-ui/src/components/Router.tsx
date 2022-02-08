@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Form, Input, Row, Typography, Table, Divider, Menu, Dropdown } from "antd";
 import { BigNumber, constants, Contract, providers, Signer, utils } from "ethers";
 import { ReactElement, useEffect, useState } from "react";
-import { ChainData, ERC20Abi, getChainData, getDeployedSubgraphUri, isValidAddress } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getChainData, isValidAddress } from "@connext/nxtp-utils";
 import { getDeployedTransactionManagerContract } from "@connext/nxtp-sdk";
 import { request, gql } from "graphql-request";
 
@@ -18,6 +18,94 @@ const decimals: Record<string, number> = {};
 const TESTNET_CHAINS = [421611, 97, 43113, 5, 42, 80001, 4, 3, 1287];
 
 const MAINNET_CHAINS = [1, 10, 56, 100, 137, 250, 1284, 1285, 42161, 43114];
+
+/**
+ * Gets hosted subgraph for applicable chains
+ *
+ * @param chainId - The chain you want the subgraph URI for
+ * @returns A string of the appropriate URI to access the hosted subgraph
+ *
+ * @remarks
+ * Currently only returns URIs for hosted subgraphs
+ */
+const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, ChainData>): string[] => {
+  if (chainData) {
+    const subgraph = chainData?.get(chainId.toString())?.subgraph;
+    if (subgraph) {
+      return subgraph;
+    }
+  }
+  switch (chainId) {
+    // testnets
+    case 3:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-ropsten-v1-runtime"];
+    case 4:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-rinkeby-v1-runtime"];
+    case 5:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-goerli-v1-runtime"];
+    case 42:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-kovan-v1-runtime"];
+    case 69:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-kovan-v1-runtime"];
+    case 97:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-chapel-v1-runtime"];
+    case 80001:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-mumbai-v1-runtime"];
+    case 421611:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-rinkeby-v1-runtime"];
+
+    // mainnets
+    case 1:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-mainnet-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-mainnet-v1-runtime",
+      ];
+    case 10:
+      return [
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-optimism-v1-runtime",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-optimism-v1-runtime",
+      ];
+    case 56:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-bsc-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-bsc-v1-runtime",
+      ];
+    case 100:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-xdai-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-xdai-v1-runtime",
+      ];
+    case 122:
+      return ["https://api.thegraph.com/subgraphs/name/connext/nxtp-fuse-v1-runtime"];
+    case 137:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-matic-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-matic-v1-runtime",
+      ];
+    case 250:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-fantom-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-fantom-v1-runtime",
+      ];
+    case 1285:
+      return [
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-moonriver-v1-runtime",
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-moonriver",
+      ];
+    case 42161:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-runtime",
+      ];
+    case 43114:
+      return [
+        "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche-v1-runtime",
+        "https://api.thegraph.com/subgraphs/name/connext/nxtp-avalanche-v1-runtime",
+      ];
+    default:
+      return [];
+  }
+};
 
 type BalanceEntry = {
   chain: string;
@@ -159,6 +247,7 @@ export const Router = ({ web3Provider, signer, chainData }: RouterProps): ReactE
 
     const entries = await Promise.all(
       (balancesOnNetwork === Networks.Mainnets ? MAINNET_CHAINS : TESTNET_CHAINS).map(async (chainId) => {
+        // TODO: use fallback subg?
         const uri = getDeployedSubgraphUri(chainId, _chainData);
         if (!uri || uri.length === 0) {
           console.error("Subgraph not available for chain: ", chainId);
