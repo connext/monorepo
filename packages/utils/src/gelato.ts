@@ -3,21 +3,7 @@ import { Interface } from "ethers/lib/utils";
 
 import { FulfillParams } from "./transactionManager";
 
-import { CHAIN_ID } from ".";
-
-const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
-
-const endpoints = {
-  [CHAIN_ID.MAINNET]: "https://prod.relay.gelato.digital/mainnet/relay",
-  [CHAIN_ID.RINKEBY]: "https://staging.relay.gelato.digital/rinkeby/relay",
-  [CHAIN_ID.GOERLI]: "https://staging.relay.gelato.digital/goerli/relay",
-  [CHAIN_ID.BSC]: "https://prod.relay.gelato.digital/bsc/relay",
-  [CHAIN_ID.MATIC]: "https://prod.relay.gelato.digital/matic/relay",
-  [CHAIN_ID.FANTOM]: "https://prod.relay.gelato.digital/fantom/relay",
-  [CHAIN_ID.ARBITRUM]: "https://prod.relay.gelato.digital/arbitrum/relay",
-  [CHAIN_ID.AVALANCHE]: "https://prod.relay.gelato.digital/avalanche/relay",
-  [CHAIN_ID.OPTIMISM]: "https://prod.relay.gelato.digital/optimism/relay",
-};
+const gelatoServer = "https://api-gateway.prod.fra.gelato.digital";
 
 const gelatoSend = async (
   chainId: number,
@@ -26,12 +12,11 @@ const gelatoSend = async (
   token: string,
   relayerFee: string,
 ): Promise<any> => {
-  const server = endpoints[chainId];
-  const params = { dest, data, token, relayerFee, access_token: ACCESS_TOKEN };
+  const params = { dest, data, token, relayerFee};
 
   let output;
   try {
-    const res = await axios.post(server, params);
+    const res = await axios.post(`${gelatoServer}/relays/${chainId}`, params);
     output = res.data;
   } catch (error) {
     console.error(error);
@@ -53,8 +38,22 @@ const gelatoFulfill = async (
   return ret;
 };
 
-const isChainSupportedByGelato = (chainId: number): boolean => {
-  return Object.keys(endpoints).indexOf(chainId.toString()) !== -1;
+const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
+  const chainsSupportedByGelato = await getGelatoRelayChains();
+  return chainsSupportedByGelato.includes(chainId.toString());
+};
+
+const getGelatoRelayChains = async (): Promise<string[]> => {
+  let result = [];
+  try {
+    const res = await axios.get(`${gelatoServer}/relays/`);
+    result = res.data.relays;
+  }
+  catch(error){
+    console.error(error);
+  }
+
+  return result;
 };
 
 export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };

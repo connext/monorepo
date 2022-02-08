@@ -1001,7 +1001,7 @@ export class NxtpSdkBase {
         return data.txData.transactionId === params.txData.transactionId;
       });
 
-      if (isChainSupportedByGelato(txData.receivingChainId)) {
+      if (await isChainSupportedByGelato(txData.receivingChainId)) {
         this.logger.info("Fulfilling using Gelato Relayer", requestContext, methodContext);
         const deployedContract = this.config.chainConfig[txData.receivingChainId].transactionManagerAddress!;
         for (let i = 0; i < 3; i++) {
