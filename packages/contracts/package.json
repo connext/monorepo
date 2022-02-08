@@ -5,7 +5,7 @@
   "scripts": {
     "test": "test:hardhat && test:forge",
     "test:hardhat": "hardhat test",
-    "test:forge": "yarn forge test --hh",
+    "test:forge": "yarn forge test",
     "forge": "forge",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
@@ -15,7 +15,7 @@
     "export": "hardhat export --export-all ./deployments.json",
     "dev": "yarn build --watch --preserveWatchOutput",
     "lint": "eslint ./src --ext .ts --env node",
-    "clean": "hardhat clean && rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts",
+    "clean": "hardhat clean && forge clean && rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
