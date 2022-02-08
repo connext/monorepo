@@ -46,23 +46,23 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const txManagerDeployment = await hre.deployments.get("TransactionManager");
   const txManagerAddress = txManagerDeployment.address;
 
-  // // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
-  // await hre.deployments.deploy("RouterFactory", {
-  //   from: deployer,
-  //   args: [deployer],
-  //   log: true,
-  // });
-  // const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
-  // const routerFactoryAddress = routerFactoryDeployment.address;
-  // console.log("routerFactoryAddress: ", routerFactoryAddress);
-  // const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
-  // const exists = await routerFactory.transactionManager();
-  // if (exists === hre.ethers.constants.AddressZero) {
-  //   console.log("Initing router factory");
-  //   const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
-  //   console.log("initTx: ", initTx);
-  //   await initTx.wait();
-  // }
+  // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
+  await hre.deployments.deploy("RouterFactory", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+  });
+  const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
+  const routerFactoryAddress = routerFactoryDeployment.address;
+  console.log("routerFactoryAddress: ", routerFactoryAddress);
+  const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
+  const exists = await routerFactory.transactionManager();
+  if (exists === hre.ethers.constants.AddressZero) {
+    console.log("Initing router factory");
+    const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
+    console.log("initTx: ", initTx);
+    await initTx.wait();
+  }
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
