@@ -349,7 +349,93 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         //emit RemoveLiquidityImbalance(msg.sender, amounts, fees, D1);
     }
 
-    
+    /* Admin functions */
+    function ramp_A(uint256 _future_A, uint256 _future_time) external onlyOwner {
+        require (block.timestamp >= initial_A_time + MIN_RAMP_TIME);
+        require (_future_time >= block.timestamp + MIN_RAMP_TIME);  // dev: insufficient time
+
+        uint256 _initial_A = _get_A();
+        require (_future_A > 0 && _future_A < MAX_A);
+        require (((_future_A >= _initial_A) && (_future_A <= _initial_A * MAX_A_CHANGE)) ||
+            ((_future_A < _initial_A) && (_future_A * MAX_A_CHANGE >= _initial_A)));
+
+        initial_A = _initial_A;
+        future_A = _future_A;
+        initial_A_time = block.timestamp;
+        future_A_time = _future_time;
+
+        //emit RampA(_initial_A, _future_A, block.timestamp, _future_time);
+    }
+
+    function stop_ramp_A() external onlyOwner {
+        uint256 current_A = _get_A();
+        initial_A = current_A;
+        future_A = current_A;
+        initial_A_time = block.timestamp;
+        future_A_time = block.timestamp;
+        // now (block.timestamp < t1) is always False, so we return saved A
+
+        //emit StopRampA(current_A, block.timestamp);
+    }
+
+    function commit_new_fee(uint256 new_fee) external onlyOwner {
+        require (admin_actions_deadline == 0); // dev: active action
+        require (new_fee <= MAX_FEE);  // dev: fee exceeds maximum
+        
+        uint256 _deadline = block.timestamp + ADMIN_ACTIONS_DELAY;
+        admin_actions_deadline = _deadline;
+        future_fee = new_fee;
+        
+        //emit CommitNewFee(_deadline, new_fee);
+    }
+
+    function apply_new_fee() external onlyOwner {
+        require (block.timestamp >= admin_actions_deadline);  // dev: insufficient time
+        require (admin_actions_deadline != 0);  // dev: no active action
+
+        admin_actions_deadline = 0;
+        uint256 _fee = future_fee;
+        fee = _fee;
+        
+        //emit NewFee(_fee);
+    }
+
+    function revert_new_parameters() external onlyOwner {
+        admin_actions_deadline = 0;
+    }
+
+    function commit_transfer_ownership(address _owner) external onlyOwner {
+        require (transfer_ownership_deadline == 0);  // dev: active transfer
+
+        uint256 _deadline = block.timestamp + ADMIN_ACTIONS_DELAY;
+        transfer_ownership_deadline = _deadline;
+        future_owner = _owner;
+
+        //emit CommitNewAdmin(_deadline, _owner);
+    }
+
+    function apply_transfer_ownership() external onlyOwner {
+        require (block.timestamp >= transfer_ownership_deadline);  // dev: insufficient time
+        require (transfer_ownership_deadline != 0);  // dev: no active transfer
+
+        transfer_ownership_deadline = 0;
+        owner = future_owner;
+
+        //emit NewAdmin(_owner);
+    }
+
+    function revert_transfer_ownership() external onlyOwner {
+        transfer_ownership_deadline = 0;
+    }
+
+    function stop() external onlyOwner {
+        require (kill_deadline > block.timestamp);  // dev: deadline has passed
+        is_stopped = true;
+    }
+
+    function start() external onlyOwner {
+        is_stopped = false;
+    }
     
     modifier onlyOwner() {
         require(address(msg.sender) == owner, "caller is not owner");
