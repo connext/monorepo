@@ -9,7 +9,6 @@ import "./interpreters/FulfillInterpreter.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
-// import "./nomad-core/libs/TypeCasts.sol";
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -412,6 +411,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   /**
    * @notice This function is called by a user who is looking to swap funds
    */
+  // TODO: add indicator if fast liquidity is allowed
   function prepare(
     CallParams calldata _params,
     address _transactingAssetId, // Could be adopted, local, or wrapped
