@@ -4,7 +4,7 @@ import { Interface } from "ethers/lib/utils";
 
 import { FulfillParams } from "./transactionManager";
 
-const gelatoServer = "https://api-gateway.prod.fra.gelato.digital";
+const gelatoServer = "https://relay.gelato.digital";
 
 const gelatoSend = async (
   chainId: number,
