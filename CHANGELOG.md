@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## 0.1.24
+
+- [sdk] another hotfix for sdk subgraph polling
+
+## 0.1.23
+
+- [sdk] hotfix for sdk subgraph polling
+
 ## 0.1.22
 
 - [sdk] type update for userAddress for sdkBase
@@ -40,6 +48,7 @@
 
 - [router] fix params for gas estimation before relayer use
 - [utils] Update hardcoded gasLimits for arbitrum network
+- [contracts] Add v1PriceOracle
 
 ## 0.1.14
 

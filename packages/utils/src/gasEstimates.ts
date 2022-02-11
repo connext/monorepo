@@ -13,6 +13,7 @@ export const DEFAULT_GAS_ESTIMATES = {
   fulfillRouterContract: "200000",
   cancelRouterContract: "204271",
   removeLiquidityRouterContract: "48000",
+  gasPriceFactor: "1000000000000000000",
 };
 
 export type GasEstimates = {
@@ -28,6 +29,7 @@ export type GasEstimates = {
   fulfillL1?: string;
   cancelL1?: string;
   removeLiquidityL1?: string;
+  gasPriceFactor: string;
 };
 
 export const getHardcodedGasLimits = async (
@@ -54,6 +56,7 @@ export const getHardcodedGasLimits = async (
   const fulfillL1 = chainInfo.gasEstimates?.fulfillL1 ?? DEFAULT_GAS_ESTIMATES.fulfillL1;
   const cancelL1 = chainInfo.gasEstimates?.cancelL1 ?? DEFAULT_GAS_ESTIMATES.cancelL1;
   const removeLiquidityL1 = chainInfo.gasEstimates?.removeLiquidityL1 ?? DEFAULT_GAS_ESTIMATES.removeLiquidityL1;
+  const gasPriceFactor = chainInfo.gasEstimates?.gasPriceFactor ?? DEFAULT_GAS_ESTIMATES.gasPriceFactor;
   const res = {
     prepare,
     fulfill,
@@ -67,6 +70,7 @@ export const getHardcodedGasLimits = async (
     fulfillL1,
     cancelL1,
     removeLiquidityL1,
+    gasPriceFactor,
   } as GasEstimates;
   return res;
 };

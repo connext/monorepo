@@ -34,6 +34,8 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
     "setAggregators(address[],address[])": FunctionFragment;
     "setDexPriceInfo(address,address,address,bool)": FunctionFragment;
     "setDirectPrice(address,uint256)": FunctionFragment;
+    "setV1PriceOracle(address)": FunctionFragment;
+    "v1PriceOracle()": FunctionFragment;
     "wrapped()": FunctionFragment;
   };
 
@@ -76,6 +78,14 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setDirectPrice",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setV1PriceOracle",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "v1PriceOracle",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "wrapped", values?: undefined): string;
 
@@ -125,6 +135,14 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
     functionFragment: "setDirectPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setV1PriceOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "v1PriceOracle",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "wrapped", data: BytesLike): Result;
 
   events: {
@@ -132,12 +150,14 @@ interface ConnextPriceOracleInterface extends ethers.utils.Interface {
     "DirectPriceUpdated(address,uint256,uint256)": EventFragment;
     "NewAdmin(address,address)": EventFragment;
     "PriceRecordUpdated(address,address,address,bool)": EventFragment;
+    "V1PriceOracleUpdated(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AggregatorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DirectPriceUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PriceRecordUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "V1PriceOracleUpdated"): EventFragment;
 }
 
 export class ConnextPriceOracle extends BaseContract {
@@ -249,6 +269,13 @@ export class ConnextPriceOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<[string]>;
+
     wrapped(overrides?: CallOverrides): Promise<[string]>;
   };
 
@@ -317,6 +344,13 @@ export class ConnextPriceOracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setV1PriceOracle(
+    _v1PriceOracle: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  v1PriceOracle(overrides?: CallOverrides): Promise<string>;
+
   wrapped(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
@@ -382,6 +416,13 @@ export class ConnextPriceOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<string>;
+
     wrapped(overrides?: CallOverrides): Promise<string>;
   };
 
@@ -419,6 +460,14 @@ export class ConnextPriceOracle extends BaseContract {
     ): TypedEventFilter<
       [string, string, string, boolean],
       { token: string; baseToken: string; lpToken: string; _active: boolean }
+    >;
+
+    V1PriceOracleUpdated(
+      oldAddress?: null,
+      newAddress?: null
+    ): TypedEventFilter<
+      [string, string],
+      { oldAddress: string; newAddress: string }
     >;
   };
 
@@ -477,6 +526,13 @@ export class ConnextPriceOracle extends BaseContract {
       _price: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     wrapped(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -545,6 +601,13 @@ export class ConnextPriceOracle extends BaseContract {
       _price: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     wrapped(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

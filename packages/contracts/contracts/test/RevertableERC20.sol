@@ -33,6 +33,11 @@ contract RevertableERC20 is ERC20 {
     return true;
   }
 
+  function balanceOf(address account) public view override returns (uint256) {
+    require(!shouldRevert, "balanceOf: SHOULD_REVERT");
+    return super.balanceOf(account);
+  }
+
   function setShouldRevert(bool _shouldRevert) external {
     shouldRevert = _shouldRevert;
   }
