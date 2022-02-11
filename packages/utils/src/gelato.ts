@@ -1,4 +1,5 @@
 import axios from "axios";
+import { BigNumber } from "ethers";
 import { Interface } from "ethers/lib/utils";
 
 import { FulfillParams } from "./transactionManager";
@@ -56,4 +57,56 @@ const getGelatoRelayChains = async (): Promise<string[]> => {
   return result;
 };
 
-export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };
+
+const getEstimatedFee = async (
+  chainId: number,
+  paymentToken: string,
+  gasLimit: number,
+  isHighPriority: boolean,
+): Promise<BigNumber> => {
+  const result = await _getEstimatedFee(chainId, paymentToken, gasLimit, isHighPriority);
+  return result;
+};
+
+const _getEstimatedFee = async (
+  chainId: number,
+  paymentToken: string,
+  gasLimit: number,
+  isHighPriority: boolean,
+): Promise<BigNumber> => {
+  const params = {paymentToken, gasLimit, isHighPriority};
+  let result: BigNumber;
+  try {
+    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, {params});
+    result = BigNumber.from(res.data.estimatedFee);
+  }
+  catch(error){
+    let message: string = (error as Error).message;
+    if (axios.isAxiosError(error) && error.response){
+      message = error.response?.data; 
+    }
+    throw new Error(message);
+  }
+  return result;
+};
+
+const isOracleActive = async (chainId: number): Promise<boolean> => {
+  const oracles = await getGelatoOracles();
+  return oracles.includes(chainId.toString());
+};
+
+const getGelatoOracles = async (): Promise<string[]> => {
+  let result = [];
+  try {
+    const res = await axios.get(`${gelatoServer}/oracles/`);
+    result = res.data.oracles;
+  }
+  catch(error){
+    console.error(error);
+  }
+
+  return result;
+};
+
+
+export { gelatoFulfill, isChainSupportedByGelato, gelatoSend, isOracleActive, getEstimatedFee };
