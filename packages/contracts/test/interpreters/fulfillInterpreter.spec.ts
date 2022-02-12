@@ -4,7 +4,7 @@ import { solidity } from "ethereum-waffle";
 use(solidity);
 
 import { constants, Wallet } from "ethers";
-import { Counter, FulfillInterpreter, RevertableERC20 } from "../../typechain";
+import { Counter, FulfillInterpreter, RevertableERC20 } from "../../typechain-types";
 import { getContractError } from "../../src";
 import { assertReceiptEvent, getOnchainBalance, deployContract, MAX_FEE_PER_GAS } from "../utils";
 import { getRandomBytes32 } from "@connext/nxtp-utils";

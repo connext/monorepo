@@ -89,10 +89,15 @@ describe("Transaction Manager", function () {
   };
 
   const fixture = async () => {
-    transactionManager = await deployContract<TransactionManagerTypechain>(TransactionManagerArtifact, sendingChainId);
+    transactionManager = await deployContract<TransactionManagerTypechain>(
+      TransactionManagerArtifact,
+      undefined,
+      sendingChainId,
+    );
 
     transactionManagerReceiverSide = await deployContract<TransactionManagerTypechain>(
       TransactionManagerArtifact,
+      undefined,
       receivingChainId,
     );
 

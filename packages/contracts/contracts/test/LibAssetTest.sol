@@ -43,6 +43,15 @@ contract LibAssetTest {
     LibAsset.transferERC20(assetId, recipient, amount);
   }
 
+  function transferFromERC20(
+    address assetId,
+    address from,
+    address to,
+    uint256 amount
+  ) external {
+    LibAsset.transferFromERC20(assetId, from, to, amount);
+  }
+
   // This function is a wrapper for transfers of Ether or ERC20 tokens,
   // both standard-compliant ones as well as tokens that exhibit the
   // missing-return-value bug.

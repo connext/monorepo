@@ -30,7 +30,7 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "^5.4.6",
+    "ethers": "^5.5.4",
     "js-yaml": "^4.1.0",
     "mustache": "^4.2.0",
     "ts-node": "^10.3.0",
@@ -42,6 +42,6 @@
     "@types/js-yaml": "^4.0.5",
     "@types/mustache": "^4.1.2",
     "@types/yaml": "^1.9.7",
-    "sinon": "^11.1.2"
+    "sinon": "^13.0.0"
   }
 }
