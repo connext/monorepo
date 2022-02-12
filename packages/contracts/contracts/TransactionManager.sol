@@ -20,15 +20,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // 5. Should we allow a "desiredAsset" to allow for users to specify that they *want* the
 //    local asset?
 
-// QUICK:
-// - Get her spun up on fees and system
-// - Get her to write some protocol documentation
-
-// LONGTERM:
-// - Understanding what exists currently and tradeoffs for cross chain comms
-// - ZK methods of validity proofs across chains
-// - Can you build rollup-to-rollup IBC
-
 // TODO:
 // - decide on interface for the stable swap
 // - nomad contract packages not playing nicely
