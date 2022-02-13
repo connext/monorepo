@@ -7,6 +7,16 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IStableSwap.sol";
 
+
+
+/**
+  *
+  * @title StableSwap
+  * @author Connext <support@connext.network>
+  * @notice This contract holds the logic to swap stable tokens on same chain.
+  *
+  */
+
 contract StableSwap is IStableSwap, ReentrancyGuard {
     uint public constant N_COINS = 2;
 
@@ -98,7 +108,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         uint256 _fee
     ) {
         for(uint i = 0; i < N_COINS; i++) {
-        require(_coins[i] != address(0));
+            require(_coins[i] != address(0));
         }
         coins = _coins;
         initial_A = _A;
@@ -108,8 +118,11 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         stop_deadline = block.timestamp + STOP_DEADLINE_DT;
     }
 
+
+    /**
+    * @notice  Handle ramping A up or down
+    */
     function _get_A() internal view returns(uint256) {
-        //Handle ramping A up or down
         uint256 t1 = future_A_time;
         uint256 A1 = future_A;
 
@@ -127,10 +140,16 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         }
     }
 
+    /**
+    * @notice  Get amplification parameter
+    */
     function get_A() external view override returns(uint256) {
         return _get_A();
     }
 
+    /**
+    * @notice  Calculate balances array from real token balances and RATES.
+    */
     function _xp() internal view returns(uint256[N_COINS] memory) {
         uint256[N_COINS] memory result = RATES;
         for (uint i = 0; i < N_COINS; i++) {
@@ -140,6 +159,9 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return result;    
     }
 
+    /**
+    * @notice  Calculate balances array from real token balances and RATES.
+    */
     function _xp_mem(uint256[N_COINS] memory _balances) internal view returns(uint256[N_COINS] memory) {
         uint256[N_COINS] memory result = RATES;
         for (uint i = 0; i < N_COINS; i++) {
@@ -149,7 +171,20 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return result;    
     }
 
+    /**
+    * @notice  Computes the invariant given the current balances, using the Newton-Raphson approximation.
+    *          The amplification parameter equals: A n^(n-1)
+    */
     function get_D(uint256[N_COINS] memory xp, uint256 amp) internal pure returns(uint256) {
+        /**********************************************************************************************
+        // invariant                                                                                 //
+        // D = invariant                                                  D^(n+1)                    //
+        // A = amplification coefficient      A  n^n S + D = A D n^n + -----------                   //
+        // S = sum of balances                                             n^n P                     //
+        // D_P = product of balances                                                                 //
+        // N_COINS = number of tokens                                                                //
+        **********************************************************************************************/
+
         uint256 S = 0;
         for (uint x_i = 0; x_i < N_COINS; x_i++) {
             S += xp[x_i];
@@ -192,16 +227,31 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return get_D(_xp_mem(_balances), amp);
     }
 
+
+    /**
+    * @notice  Computes how many tokens can be taken out of a pool if `x` are sent, given the current balances.
+    *          The amplification parameter equals: A n^(n-1)
+    * @param i The index of input token
+    * @param j The index of output token
+    * @param x The input token balance after updated. x in the input is converted to the same price/precision
+    * @param xp_ The array of normalized balances of pool
+    */
     function get_y(uint i, uint j, uint256 x, uint256[N_COINS] memory xp_) internal view returns(uint256) {
-        // x in the input is converted to the same price/precision
+        /**************************************************************************************************************
+        // calculate token x for y - polynomial equation to solve                                                   //
+        // y = token j balance from x                                                                               //
+        // D = invariant                                               D                     D^(n+1)                 //
+        // A = amplification coefficient               y^2 + ( S - ----------  - D) * y -  ------------- = 0         //
+        // N_COINS = number of tokens                              (A * n^n)               A * n^2n * P              //
+        // S = sum of final balances but y                                                                           //
+        // P = product of final balances but y                                                                       //
+        **************************************************************************************************************/
 
-        require(i != j);       // dev: same coin
-        require(j >= 0);       // dev: j below zero
-        require(j < N_COINS);  // dev: j above N_COINS
-
-        // should be unreachable, but good for safety
-        require(i >= 0);
-        require(i < N_COINS);
+        require(i != j, "#SS:001");       // same coin
+        require(j >= 0, "#SS:002");       // j below zero
+        require(j < N_COINS, "#SS:003");  // j above N_COINS
+        require(i >= 0, "#SS:004");
+        require(i < N_COINS, "#SS:005");
 
         uint256 amp = _get_A();
         uint256 D = get_D(xp_, amp);
@@ -249,6 +299,13 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return y;
     }
 
+    /**
+    * @notice  Computes how many tokens can be taken out of a pool if `dx` are sent, given the current balances.
+    *          The amplification parameter equals: A n^(n-1)
+    * @param i The index of input token
+    * @param j The index of output token
+    * @param dx The input token changes
+    */
     function get_dy(uint i, uint j, uint256 dx) external view override returns(uint256) {
         uint256[N_COINS] memory rates = RATES;
         uint256[N_COINS] memory xp = _xp();
@@ -260,13 +317,20 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return dy - _fee;
     }
 
+    /**
+    * @notice  Swap token i for token j
+    * @param i The index of input token
+    * @param j The index of output token
+    * @param dx The input token (i) changes
+    * @param min_dy The output token amount expected as min.
+    */
     function swap(uint i, uint j, uint256 dx, uint256 min_dy) internal {
         uint256[N_COINS] memory rates = RATES;
 
         uint256[N_COINS] memory old_balances = balances;
         uint256[N_COINS] memory xp = _xp_mem(old_balances);
 
-        // Handling an unexpected charge of a fee on transfer (USDT, PAXG)
+        // Handling an unexpected charge of a fee on transfer
         uint256 dx_w_fee = dx;
         IERC20 input_coin = IERC20(coins[i]);
 
@@ -282,7 +346,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         
         // Convert all to real units
         dy = (dy - dy_fee) * PRECISION / rates[j];
-        require(dy >= min_dy, "Exchange resulted in fewer coins than expected");
+        require(dy >= min_dy, "#SS:006"); //Exchange resulted in fewer coins than expected
 
         // Change balances exactly in same way as we change actual ERC20 coin amounts
         
@@ -294,6 +358,13 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         SafeERC20.safeTransfer(IERC20(coins[j]), address(msg.sender), dy);
     }
 
+
+    /**
+    * @notice  Swap assetIn for assetOut
+    * @param assetIn The address of input token
+    * @param assetout The address of output token
+    * @param amountIn The input token (assetIn) changes
+    */
     function swapExact(uint256 amountIn, address assetIn, address assetOut) external payable onlyNotStopped {
       uint i; uint j;
       for(uint k = 0; k < N_COINS; k++) {
@@ -308,6 +379,11 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
       swap(i, j, amountIn, 0);
     }
 
+
+    /**
+    * @notice  Add Liquidity
+    * @param amounts The array of amounts
+    */
     function addLiquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
         uint256[N_COINS] memory fees = [uint256(0), 0];
         uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
@@ -325,7 +401,8 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         for (uint i = 0 ; i < N_COINS; i++) {
             uint256 in_amount = amounts[i];
             if (!is_inited) {
-                require(in_amount > 0, "initial deposit requires all coins");
+                // if pool is not inited, initial deposit requires all coins
+                require(in_amount > 0, "#SS:007"); 
             }
                 
             IERC20 in_coin = IERC20(coins[i]);
@@ -341,7 +418,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
 
         // Invariant after change
         uint256 D1 = get_D_mem(new_balances, amp);
-        require(D1 > D0);
+        require(D1 > D0, "#SS:008");
 
         // We need to recalculate the invariant accounting for fees
         // to calculate fair user's share
@@ -372,8 +449,12 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         emit AddLiquidity(msg.sender, amounts, fees, D1);
     }
 
+    /**
+    * @notice  Remove Liquidity
+    * @param amounts The array of amounts
+    */
     function removeLiquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
-        require(is_inited);
+        require(is_inited, "#SS:009");
         
         uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
         uint256 amp = _get_A();
@@ -386,6 +467,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         }
         uint256 D1 = get_D_mem(new_balances, amp);
         uint256[N_COINS] memory fees = [uint256(0), 0];
+
         for (uint i = 0 ; i < N_COINS; i++) {
             uint256 ideal_balance = D1 * old_balances[i] / D0;
             uint256 difference = 0;
