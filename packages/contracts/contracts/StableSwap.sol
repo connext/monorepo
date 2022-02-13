@@ -41,9 +41,56 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     bool public is_inited;
 
     bool private is_stopped;
-    uint256 private kill_deadline;
-    uint256 public constant KILL_DEADLINE_DT = 2 * 30 * 86400;
+    uint256 private stop_deadline;
+    uint256 public constant STOP_DEADLINE_DT = 2 * 30 * 86400;
 
+
+    // Events
+    event AddLiquidity(
+      address indexed provider,
+      uint256[N_COINS] amounts,
+      uint256[N_COINS] fees,
+      uint256 invariant
+    );
+
+    event RemoveLiquidity(
+      address indexed provider,
+      uint256[N_COINS] amounts,
+      uint256[N_COINS] fees
+    );
+
+
+    event CommitNewAdmin(
+      uint256 indexed deadline,
+      address indexed admin
+    );
+
+    event NewAdmin(
+      address indexed admin
+    );
+
+    event CommitNewFee(
+      uint256 indexed deadline,
+      uint256 fee
+    );
+    
+    event NewFee(
+      uint256 fee
+    );
+    
+    event RampA(
+      uint256 old_A,
+      uint256 new_A,
+      uint256 initial_time,
+      uint256 future_time
+    );
+
+    event StopRampA(
+      uint256 A,
+      uint256 t
+    );
+        
+      
     constructor(
         address _owner,
         address[N_COINS] memory _coins,
@@ -58,7 +105,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         future_A = _A;
         fee = _fee;
         owner = _owner;
-        kill_deadline = block.timestamp + KILL_DEADLINE_DT;
+        stop_deadline = block.timestamp + STOP_DEADLINE_DT;
     }
 
     function _get_A() internal view returns(uint256) {
@@ -80,7 +127,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         }
     }
 
-    function get_A() external view returns(uint256) {
+    function get_A() external view override returns(uint256) {
         return _get_A();
     }
 
@@ -202,7 +249,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return y;
     }
 
-    function get_dy(uint i, uint j, uint256 dx) external view returns(uint256) {
+    function get_dy(uint i, uint j, uint256 dx) external view override returns(uint256) {
         uint256[N_COINS] memory rates = RATES;
         uint256[N_COINS] memory xp = _xp();
 
@@ -213,7 +260,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         return dy - _fee;
     }
 
-    function exchange(uint i, uint j, uint256 dx, uint256 min_dy) internal onlyNotStopped {
+    function swap(uint i, uint j, uint256 dx, uint256 min_dy) internal {
         uint256[N_COINS] memory rates = RATES;
 
         uint256[N_COINS] memory old_balances = balances;
@@ -247,7 +294,21 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         SafeERC20.safeTransfer(IERC20(coins[j]), address(msg.sender), dy);
     }
 
-    function add_liquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
+    function swapExact(uint256 amountIn, address assetIn, address assetOut) external payable onlyNotStopped {
+      uint i; uint j;
+      for(uint k = 0; k < N_COINS; k++) {
+        if(coins[k] == assetIn) {
+          i = k;
+        } 
+        if(coins[k] == assetOut) {
+          j = k;
+        }
+      }
+
+      swap(i, j, amountIn, 0);
+    }
+
+    function addLiquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
         uint256[N_COINS] memory fees = [uint256(0), 0];
         uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
         uint256 amp = _get_A();
@@ -308,10 +369,10 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
             
         is_inited = true;
 
-        //emit AddLiquidity(msg.sender, amounts, fees, D1);
+        emit AddLiquidity(msg.sender, amounts, fees, D1);
     }
 
-    function remove_liquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
+    function removeLiquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
         require(is_inited);
         
         uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
@@ -346,7 +407,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
             }
         }
 
-        //emit RemoveLiquidityImbalance(msg.sender, amounts, fees, D1);
+        emit RemoveLiquidityImbalance(msg.sender, amounts, fees, D1);
     }
 
     /* Admin functions */
@@ -364,7 +425,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         initial_A_time = block.timestamp;
         future_A_time = _future_time;
 
-        //emit RampA(_initial_A, _future_A, block.timestamp, _future_time);
+        emit RampA(_initial_A, _future_A, block.timestamp, _future_time);
     }
 
     function stop_ramp_A() external onlyOwner {
@@ -375,7 +436,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         future_A_time = block.timestamp;
         // now (block.timestamp < t1) is always False, so we return saved A
 
-        //emit StopRampA(current_A, block.timestamp);
+        emit StopRampA(current_A, block.timestamp);
     }
 
     function commit_new_fee(uint256 new_fee) external onlyOwner {
@@ -386,7 +447,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         admin_actions_deadline = _deadline;
         future_fee = new_fee;
         
-        //emit CommitNewFee(_deadline, new_fee);
+        emit CommitNewFee(_deadline, new_fee);
     }
 
     function apply_new_fee() external onlyOwner {
@@ -397,7 +458,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         uint256 _fee = future_fee;
         fee = _fee;
         
-        //emit NewFee(_fee);
+        emit NewFee(_fee);
     }
 
     function revert_new_parameters() external onlyOwner {
@@ -411,7 +472,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         transfer_ownership_deadline = _deadline;
         future_owner = _owner;
 
-        //emit CommitNewAdmin(_deadline, _owner);
+        emit CommitNewAdmin(_deadline, _owner);
     }
 
     function apply_transfer_ownership() external onlyOwner {
@@ -421,7 +482,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         transfer_ownership_deadline = 0;
         owner = future_owner;
 
-        //emit NewAdmin(_owner);
+        emit NewAdmin(_owner);
     }
 
     function revert_transfer_ownership() external onlyOwner {
@@ -429,7 +490,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     }
 
     function stop() external onlyOwner {
-        require (kill_deadline > block.timestamp);  // dev: deadline has passed
+        require (stop_deadline > block.timestamp);  // dev: deadline has passed
         is_stopped = true;
     }
 
