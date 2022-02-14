@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IStableSwap.sol";
 
-
-
 /**
   *
   * @title StableSwap
@@ -22,10 +20,11 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
 
     uint256 public constant  FEE_DENOMINATOR = 10 ** 10;
     uint256 public constant  PRECISION = 10 ** 18;  // The precision to convert to
-    uint256[N_COINS] public PRECISION_MUL = [1, 1];  // decimal 18 => 1, 6 = 10 ** 12
-    uint256[N_COINS] public RATES = [1000000000000000000, 1000000000000000000];   // 10 ** (36 - decimals)
+    uint256[N_COINS] public  PRECISION_MUL = [1, 1];  // decimal 18 => 1, 6 = 10 ** 12
+    uint256[N_COINS] public  RATES = [1000000000000000000, 1000000000000000000];   // 10 ** (36 - decimals)
     
     uint256 public constant  MAX_FEE = 5 * 10 ** 9;
+    uint256 public constant  MAX_ADMIN_FEE = 10 * 10 ** 9;
     uint256 public constant  MAX_A = 10 ** 6;
     uint256 public constant  MAX_A_CHANGE = 10;
 
@@ -37,6 +36,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
 
     address public owner;
     uint256 public fee;
+    uint256 public admin_fee;
 
     uint256 public  initial_A;
     uint256 public  future_A;
@@ -47,6 +47,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     uint256 public  transfer_ownership_deadline;
     address public  future_owner;
     uint256 public  future_fee;
+    uint256 public  future_admin_fee;
 
     bool public is_inited;
 
@@ -81,11 +82,13 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
 
     event CommitNewFee(
       uint256 indexed deadline,
-      uint256 fee
+      uint256 fee,
+      uint256 admin_fee
     );
     
     event NewFee(
-      uint256 fee
+      uint256 fee,
+      uint256 admin_fee
     );
     
     event RampA(
@@ -105,7 +108,8 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         address _owner,
         address[N_COINS] memory _coins,
         uint256 _A,
-        uint256 _fee
+        uint256 _fee,
+        uint256 _admin_fee
     ) {
         for(uint i = 0; i < N_COINS; i++) {
             require(_coins[i] != address(0));
@@ -114,6 +118,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         initial_A = _A;
         future_A = _A;
         fee = _fee;
+        admin_fee = _admin_fee;
         owner = _owner;
         stop_deadline = block.timestamp + STOP_DEADLINE_DT;
     }
@@ -238,8 +243,8 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     */
     function get_y(uint i, uint j, uint256 x, uint256[N_COINS] memory xp_) internal view returns(uint256) {
         /**************************************************************************************************************
-        // calculate token x for y - polynomial equation to solve                                                   //
-        // y = token j balance from x                                                                               //
+        // calculate token x for y - polynomial equation to solve                                                    //
+        // y = token j balance from x                                                                                //
         // D = invariant                                               D                     D^(n+1)                 //
         // A = amplification coefficient               y^2 + ( S - ----------  - D) * y -  ------------- = 0         //
         // N_COINS = number of tokens                              (A * n^n)               A * n^2n * P              //
@@ -348,11 +353,13 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         dy = (dy - dy_fee) * PRECISION / rates[j];
         require(dy >= min_dy, "#SS:006"); //Exchange resulted in fewer coins than expected
 
+        uint256 dy_admin_fee = dy_fee * admin_fee / FEE_DENOMINATOR;
+        dy_admin_fee = dy_admin_fee * PRECISION / rates[j];
+
         // Change balances exactly in same way as we change actual ERC20 coin amounts
-        
         balances[i] = old_balances[i] + dx_w_fee;
         // When rounding errors happen, we undercharge admin fee in favor of LP
-        balances[j] = old_balances[j] - dy;
+        balances[j] = old_balances[j] - dy - dy_admin_fee;
 
 
         SafeERC20.safeTransfer(IERC20(coins[j]), address(msg.sender), dy);
@@ -362,7 +369,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     /**
     * @notice  Swap assetIn for assetOut
     * @param assetIn The address of input token
-    * @param assetout The address of output token
+    * @param assetOut The address of output token
     * @param amountIn The input token (assetIn) changes
     */
     function swapExact(uint256 amountIn, address assetIn, address assetOut) external payable onlyNotStopped {
@@ -387,6 +394,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     function addLiquidity(uint256[N_COINS] calldata amounts) external onlyNotStopped {
         uint256[N_COINS] memory fees = [uint256(0), 0];
         uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
+        uint256 _admin_fee = admin_fee;
         uint256 amp = _get_A();
 
         // Initial invariant
@@ -434,7 +442,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
                     difference = new_balances[i] - ideal_balance;
                 }
                 fees[i] = _fee * difference / FEE_DENOMINATOR;
-                balances[i] = new_balances[i];
+                balances[i] = new_balances[i] - (fees[i] * _admin_fee / FEE_DENOMINATOR);
                 new_balances[i] -= fees[i];
             }
         
@@ -457,6 +465,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         require(is_inited, "#SS:009");
         
         uint256 _fee = fee * N_COINS / (4 * (N_COINS - 1));
+        uint256 _admin_fee = admin_fee;
         uint256 amp = _get_A();
 
         uint256[N_COINS] memory old_balances = balances;
@@ -479,7 +488,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
             }
 
             fees[i] = _fee * difference / FEE_DENOMINATOR;
-            balances[i] = new_balances[i];
+            balances[i] = new_balances[i] - (fees[i] * _admin_fee / FEE_DENOMINATOR);
             new_balances[i] -= fees[i];
         }
 
@@ -489,18 +498,18 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
             }
         }
 
-        emit RemoveLiquidityImbalance(msg.sender, amounts, fees, D1);
+        emit RemoveLiquidity(msg.sender, amounts, fees);
     }
 
     /* Admin functions */
     function ramp_A(uint256 _future_A, uint256 _future_time) external onlyOwner {
-        require (block.timestamp >= initial_A_time + MIN_RAMP_TIME);
-        require (_future_time >= block.timestamp + MIN_RAMP_TIME);  // dev: insufficient time
+        require (block.timestamp >= initial_A_time + MIN_RAMP_TIME, "#SS:010");
+        require (_future_time >= block.timestamp + MIN_RAMP_TIME, "#SS:011");  // dev: insufficient time
 
         uint256 _initial_A = _get_A();
-        require (_future_A > 0 && _future_A < MAX_A);
+        require (_future_A > 0 && _future_A < MAX_A, "#SS:012");
         require (((_future_A >= _initial_A) && (_future_A <= _initial_A * MAX_A_CHANGE)) ||
-            ((_future_A < _initial_A) && (_future_A * MAX_A_CHANGE >= _initial_A)));
+            ((_future_A < _initial_A) && (_future_A * MAX_A_CHANGE >= _initial_A)), "#SS:013");
 
         initial_A = _initial_A;
         future_A = _future_A;
@@ -521,26 +530,28 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
         emit StopRampA(current_A, block.timestamp);
     }
 
-    function commit_new_fee(uint256 new_fee) external onlyOwner {
-        require (admin_actions_deadline == 0); // dev: active action
-        require (new_fee <= MAX_FEE);  // dev: fee exceeds maximum
+    function commit_new_fee(uint256 new_fee, uint256 new_admin_fee) external onlyOwner {
+        require (admin_actions_deadline == 0, "#SS:014"); // active action
+        require (new_fee <= MAX_FEE, "#SS:015");  // fee exceeds maximum
+        require (new_admin_fee <= MAX_ADMIN_FEE, "#SS:016");  // admin fee exceeds maximum
         
         uint256 _deadline = block.timestamp + ADMIN_ACTIONS_DELAY;
         admin_actions_deadline = _deadline;
         future_fee = new_fee;
+        future_admin_fee = new_admin_fee;
         
-        emit CommitNewFee(_deadline, new_fee);
+        emit CommitNewFee(_deadline, new_fee, new_admin_fee);
     }
 
     function apply_new_fee() external onlyOwner {
-        require (block.timestamp >= admin_actions_deadline);  // dev: insufficient time
-        require (admin_actions_deadline != 0);  // dev: no active action
+        require (block.timestamp >= admin_actions_deadline, "#SS:017");  // insufficient time
+        require (admin_actions_deadline != 0, "#SS:018");  // no active action
 
         admin_actions_deadline = 0;
-        uint256 _fee = future_fee;
-        fee = _fee;
+        fee = future_fee;
+        admin_fee = future_admin_fee;
         
-        emit NewFee(_fee);
+        emit NewFee(fee, admin_fee);
     }
 
     function revert_new_parameters() external onlyOwner {
@@ -548,7 +559,7 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     }
 
     function commit_transfer_ownership(address _owner) external onlyOwner {
-        require (transfer_ownership_deadline == 0);  // dev: active transfer
+        require (transfer_ownership_deadline == 0, "#SS:019");  // active transfer
 
         uint256 _deadline = block.timestamp + ADMIN_ACTIONS_DELAY;
         transfer_ownership_deadline = _deadline;
@@ -558,13 +569,13 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
     }
 
     function apply_transfer_ownership() external onlyOwner {
-        require (block.timestamp >= transfer_ownership_deadline);  // dev: insufficient time
-        require (transfer_ownership_deadline != 0);  // dev: no active transfer
+        require (block.timestamp >= transfer_ownership_deadline, "#SS:020");  // insufficient time
+        require (transfer_ownership_deadline != 0, "#SS:021");  // no active transfer
 
         transfer_ownership_deadline = 0;
         owner = future_owner;
 
-        emit NewAdmin(_owner);
+        emit NewAdmin(owner);
     }
 
     function revert_transfer_ownership() external onlyOwner {
@@ -578,6 +589,16 @@ contract StableSwap is IStableSwap, ReentrancyGuard {
 
     function start() external onlyOwner {
         is_stopped = false;
+    }
+
+    function withdraw_admin_fees() external onlyOwner {
+        for(uint i = 0; i < N_COINS; i++) {
+            IERC20 token = IERC20(coins[i]);
+            uint256 value = token.balanceOf(address(this)) - balances[i];
+            if (value > 0) {
+                SafeERC20.safeTransfer(token, address(msg.sender), value);
+            }
+        }
     }
     
     modifier onlyOwner() {
