@@ -24,7 +24,7 @@ type SwapPool = {
   assets: Asset[];
 };
 
-type Config = {
+export type Config = {
   chainConfig: ChainConfig;
   mnemonic: string;
   routers: string[];
