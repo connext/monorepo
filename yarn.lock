@@ -1573,6 +1573,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/auctioneer@workspace:packages/auctioneer"
   dependencies:
+    "@connext/nxtp-contracts": "workspace:packages/contracts"
     "@connext/utils": ^7.3.17
     "@types/ioredis": ^4
     chai: ^4.3.6
