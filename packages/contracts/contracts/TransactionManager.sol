@@ -747,7 +747,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     bytes32 _transactionId = _getTransactionId(_args.nonce, _args.params.originDomain);
     bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
 
-    _handleLiquidity(_args.params, _transactionId, _args.local, _isFast, _args.amount);
+    _handleLiquidity(_args.params, _transactionId, _args.local, _args.router, _isFast, _args.amount);
 
     // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
@@ -1064,6 +1064,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     CallParams calldata _params,
     bytes32 _transactionId,
     address _local,
+    address _router,
     bool _isFast,
     uint256 _amount
   ) internal {
@@ -1072,11 +1073,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     bytes32 _externalHash = _getExternalHash(_params.recipient, _params.callTo, _params.callData);
 
     if (_isFast) {
-      routerBalances[msg.sender][_local] -= _amount; 
+      routerBalances[_router][_local] -= _amount; 
 
       // Store the router
       routedTransactions[_transactionId] = FulfilledTransaction({
-        router: msg.sender,
+        router: _router,
         externalHash: _externalHash,
         amount: _amount // will be of the mad asset, not adopted
       });
