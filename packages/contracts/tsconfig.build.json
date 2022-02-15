@@ -11,6 +11,7 @@
     "hardhat.config.ts",
     "./scripts",
     "./deploy",
+    "./deployHelpers",
     "./typechain",
     "src/**/*.ts",
     "./artifacts",
