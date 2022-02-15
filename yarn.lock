@@ -1570,6 +1570,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@connext/auctioneer@workspace:packages/auctioneer":
+  version: 0.0.0-use.local
+  resolution: "@connext/auctioneer@workspace:packages/auctioneer"
+  dependencies:
+    chai: ^4.3.6
+    chai-as-promised: ^7.1.1
+    chai-subset: ^1.6.0
+    eslint: ^7.32.0
+    fastify: ^3.27.1
+    hardhat: ^2.8.3
+    mocha: ^9.0.3
+    nyc: ^15.1.0
+    pino: ^7.8.0
+    rimraf: ^3.0.2
+    sinon: ^13.0.0
+    ts-mocha: ^8.0.0
+    tsc: ^2.0.4
+    tslib: ^2.3.1
+    typescript: 4.3.5
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-contracts@workspace:*, @connext/nxtp-contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-contracts@workspace:packages/contracts"
@@ -10333,6 +10355,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"duplexify@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "duplexify@npm:4.1.2"
+  dependencies:
+    end-of-stream: ^1.4.1
+    inherits: ^2.0.3
+    readable-stream: ^3.1.1
+    stream-shift: ^1.0.0
+  checksum: 2736c1d2ace4be57557845f4ad41310191469e2f6f0bd5afecf8cb04f0d4ef0377f014751f7bfd298cf371b4a3c89f551bbe138899a01157ab048c93fdf78d60
+  languageName: node
+  linkType: hard
+
 "ecc-jsbn@npm:~0.1.1":
   version: 0.1.2
   resolution: "ecc-jsbn@npm:0.1.2"
@@ -12199,7 +12233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:^3.20.2, fastify@npm:^3.22.1":
+"fastify@npm:^3.20.2, fastify@npm:^3.22.1, fastify@npm:^3.27.1":
   version: 3.27.1
   resolution: "fastify@npm:3.27.1"
   dependencies:
@@ -19635,6 +19669,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"on-exit-leak-free@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "on-exit-leak-free@npm:0.2.0"
+  checksum: 18212b9943e6473b7d55624c24c5b99541a34ac8bd70a8cd3edcb3047a2eeb6523f3f5f27db02218d4945dc6a74b4e7557c80e6f76432fb81464d669e5906bb6
+  languageName: node
+  linkType: hard
+
 "on-finished@npm:~2.3.0":
   version: 2.3.0
   resolution: "on-finished@npm:2.3.0"
@@ -20477,6 +20518,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"pino-abstract-transport@npm:v0.5.0":
+  version: 0.5.0
+  resolution: "pino-abstract-transport@npm:0.5.0"
+  dependencies:
+    duplexify: ^4.1.2
+    split2: ^4.0.0
+  checksum: cc7ed45d5dddfda9fe87c3c72ff143774a0ebc89a8f7d6b3fc71355b6e3e917a03ded9c9aa44c6b0fd63acdc9a1b05a1ee24dc144e35a02706d59ffcde1e233f
+  languageName: node
+  linkType: hard
+
 "pino-pretty@npm:^5.1.3":
   version: 5.1.3
   resolution: "pino-pretty@npm:5.1.3"
@@ -20506,6 +20557,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"pino-std-serializers@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "pino-std-serializers@npm:4.0.0"
+  checksum: 2b6de9ebaf8d4edd7fe05302ce6f2ef0c7ca5c2ad1e5e567d6dfcfa3b6ee9a8a6bdb3f0c2dd65742c9018527aea5f1dc3784cfc14901603ca24531fc4b969761
+  languageName: node
+  linkType: hard
+
 "pino@npm:^6.13.0":
   version: 6.13.4
   resolution: "pino@npm:6.13.4"
@@ -20520,6 +20578,26 @@ fsevents@~2.1.1:
   bin:
     pino: bin.js
   checksum: 166d364416415ba2daa6a562da207fb129daeaa945432f194b98a607b92c238d13322cd5336bf6bc015754b2ddb88a02f6ff221c1b7d4aa7233fa29ac72e5270
+  languageName: node
+  linkType: hard
+
+"pino@npm:^7.8.0":
+  version: 7.8.0
+  resolution: "pino@npm:7.8.0"
+  dependencies:
+    fast-redact: ^3.0.0
+    on-exit-leak-free: ^0.2.0
+    pino-abstract-transport: v0.5.0
+    pino-std-serializers: ^4.0.0
+    process-warning: ^1.0.0
+    quick-format-unescaped: ^4.0.3
+    real-require: ^0.1.0
+    safe-stable-stringify: ^2.1.0
+    sonic-boom: ^2.2.1
+    thread-stream: ^0.13.0
+  bin:
+    pino: bin.js
+  checksum: bb392b1e77fda466677262e92545c5e313ee0315a2467dbbd1dea573fe05b80280c524d74d14347aac41e6d86518aa6af7d818f324d3bc620bf335c9e404976c
   languageName: node
   linkType: hard
 
@@ -22889,6 +22967,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"real-require@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "real-require@npm:0.1.0"
+  checksum: 8393192b030618c959f1ed54ee27488df1e0ea48aa4f5e3dff8780227c5ae5686da10d9132ddbf6494b351c512dbf04a83ac7098aae49ea7cdc254755fd9acb3
+  languageName: node
+  linkType: hard
+
 "rechoir@npm:^0.6.2":
   version: 0.6.2
   resolution: "rechoir@npm:0.6.2"
@@ -23810,6 +23895,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"safe-stable-stringify@npm:^2.1.0":
+  version: 2.3.1
+  resolution: "safe-stable-stringify@npm:2.3.1"
+  checksum: 9e3f57b83ac2800122558009f2c327d80687d46dc2fa059b41dc04d9da7e94fc354da3dd02e155d4ad2d00c4f98cb2836fc331d4eb32b884880570d094333cff
+  languageName: node
+  linkType: hard
+
 "safer-buffer@npm:>= 2.1.2 < 3, safer-buffer@npm:>= 2.1.2 < 3.0.0, safer-buffer@npm:^2.0.2, safer-buffer@npm:^2.1.0, safer-buffer@npm:~2.1.0":
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
@@ -24713,7 +24805,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sonic-boom@npm:^2.1.0":
+"sonic-boom@npm:^2.1.0, sonic-boom@npm:^2.2.1":
   version: 2.6.0
   resolution: "sonic-boom@npm:2.6.0"
   dependencies:
@@ -24935,6 +25027,13 @@ resolve@^2.0.0-next.3:
   dependencies:
     readable-stream: ^3.0.0
   checksum: 04bf20af25bfe917edbb7f719cc9dbd2ca16633e4e6a5e343a8c834310aafd802c74b3aceb96acf3571545b0340d55d2d3273dbee8f9bc6a811371dcfbe0c8a7
+  languageName: node
+  linkType: hard
+
+"split2@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "split2@npm:4.1.0"
+  checksum: 104d0e72155fa35edd6a13181de221b1e6da12119f0f2d1d1c38b9b58c97cc042a907cb4ce23eb3a7dbaf6358577e05d53cbd5e8d5a36a039f935bd2861409e6
   languageName: node
   linkType: hard
 
@@ -25896,6 +25995,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"thread-stream@npm:^0.13.0":
+  version: 0.13.1
+  resolution: "thread-stream@npm:0.13.1"
+  dependencies:
+    real-require: ^0.1.0
+  checksum: 65f5095abc052e11cd87c860b454fe1264879cfcd991f5a69618c23f195405a0cf65d157508d882726b1283c9ea1c3774f74938c05e372af982249bd219793cb
+  languageName: node
+  linkType: hard
+
 "throat@npm:^5.0.0":
   version: 5.0.0
   resolution: "throat@npm:5.0.0"
@@ -26382,6 +26490,15 @@ resolve@^2.0.0-next.3:
     typescript:
       optional: true
   checksum: 78341a27939de565e2754ff65ebb689743c16e3295528089d143c08d91842cf9029c3d6b3c95a9a20854a114a7904329d02c710d63f7ce4dbf671b8a3e560ac1
+  languageName: node
+  linkType: hard
+
+"tsc@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "tsc@npm:2.0.4"
+  bin:
+    tsc: bin/tsc
+  checksum: b51825f9a362b9973bbef0a6e7e5a3ccd809f5439c4734cb173238ea86e144873f0cc860bb27151b2a0283a18a2fbe56378f3481e81f811f60c0c405fa338d74
   languageName: node
   linkType: hard
 
