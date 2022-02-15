@@ -1,5 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { getHexDomainFromString } from "../src/nomad";
+import { constants } from "ethers";
 
 const TEST_ROUTERS = [
   "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a", // live testnet router
@@ -12,6 +14,7 @@ const SKIP_SETUP = [1, 10, 56, 250, 137, 100, 122, 1285, 42161, 43114, 1284];
 const WRAPPED_ETH_MAP = new Map();
 WRAPPED_ETH_MAP.set("1", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"); // mainnet WETH
 WRAPPED_ETH_MAP.set("4", "0xc778417E063141139Fce010982780140Aa0cD5Ab"); // rinkeby WETH
+WRAPPED_ETH_MAP.set("42", "0xd0A1E359811322d97991E03f863a0C30C2cF029C"); // kovan WETH
 WRAPPED_ETH_MAP.set("10", "0x4200000000000000000000000000000000000006"); // optimism WETH
 WRAPPED_ETH_MAP.set("56", "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"); // Binance Smart Chain WBNB
 WRAPPED_ETH_MAP.set("137", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"); // polygon WMATIC
@@ -20,6 +23,37 @@ WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // a
 WRAPPED_ETH_MAP.set("43114", "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"); // avalanche WAVAX
 WRAPPED_ETH_MAP.set("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"); // xdai wxDAI
 WRAPPED_ETH_MAP.set("1285", "0x98878B06940aE243284CA214f92Bb71a2b032B8A"); // moonriver wMOVR
+
+const chainIdToNomad: Map<number, { name: string; bridgeRouter: string; tokenRegistry: string; wrappedEth: string }> =
+  new Map([
+    [
+      4,
+      {
+        name: "rin",
+        bridgeRouter: "0xeACafFb9fBCe3d4c4C5D07AF5DFa51CcF5a348b7",
+        tokenRegistry: "0x885A8bd4be130422AEB1Eb9Eeb9513a5D2102cad",
+        wrappedEth: WRAPPED_ETH_MAP.get("4"),
+      },
+    ],
+    [
+      42,
+      {
+        name: "kov",
+        bridgeRouter: "0xa50E2db92c48f1c20C42338e6091E6B73da376a4",
+        tokenRegistry: "0x7fe65Cd0b589B39E7744DE73ad225085F0FE7f39",
+        wrappedEth: WRAPPED_ETH_MAP.get("42"),
+      },
+    ],
+    [
+      1337,
+      {
+        name: "local",
+        bridgeRouter: constants.AddressZero,
+        tokenRegistry: constants.AddressZero,
+        wrappedEth: constants.AddressZero,
+      },
+    ],
+  ]);
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -36,32 +70,22 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
   console.log("deployer: ", deployer);
 
-  await hre.deployments.deploy("TransactionManager", {
+  const nomadConfig = chainIdToNomad.get(Number(chainId));
+  if (!nomadConfig) {
+    throw new Error(`No mapping exists for chain ${chainId}`);
+  }
+  console.log("nomadConfig: ", nomadConfig);
+  const domain = getHexDomainFromString(nomadConfig.name);
+
+  await hre.deployments.deterministic("TransactionManager", {
     from: deployer,
-    args: [chainId],
+    args: [domain, nomadConfig.bridgeRouter, nomadConfig.tokenRegistry, nomadConfig.wrappedEth],
     log: true,
   });
 
   const txManagerDeployment = await hre.deployments.get("TransactionManager");
   const txManagerAddress = txManagerDeployment.address;
-
-  // IMPORTANT: cannot be deployed deterministic on all chains so we need to use a dedicated deployer for all new chains
-  await hre.deployments.deploy("RouterFactory", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-  const routerFactoryDeployment = await hre.deployments.get("RouterFactory");
-  const routerFactoryAddress = routerFactoryDeployment.address;
-  console.log("routerFactoryAddress: ", routerFactoryAddress);
-  const routerFactory = await hre.ethers.getContractAt("RouterFactory", routerFactoryAddress);
-  const exists = await routerFactory.transactionManager();
-  if (exists === hre.ethers.constants.AddressZero) {
-    console.log("Initing router factory");
-    const initTx = await routerFactory.init(txManagerAddress, { from: deployer });
-    console.log("initTx: ", initTx);
-    await initTx.wait();
-  }
+  console.log("txManagerAddress: ", txManagerAddress);
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
@@ -92,9 +116,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     if (!process.env.SKIP_SETUP) {
       console.log("Setting up test routers on chain", chainId);
-      for (const router of TEST_ROUTERS) {
-        await hre.run("setup-test-router", { router });
-      }
+      // for (const router of TEST_ROUTERS) {
+      //   await hre.run("setup-test-router", { router });
+      // }
     }
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
