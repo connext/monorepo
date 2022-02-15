@@ -27,6 +27,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     "enrollCustom(uint32,bytes32,address)": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
+    "home()": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "liquidityProvider(bytes32)": FunctionFragment;
     "migrate(address)": FunctionFragment;
@@ -35,6 +36,9 @@ export interface BridgeRouterInterface extends utils.Interface {
     "remotes(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "send(address,uint256,uint32,bytes32,bool,bytes32,bytes32)": FunctionFragment;
+    "setHome(address)": FunctionFragment;
+    "setTokenRegistry(address)": FunctionFragment;
+    "setTransactionManager(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
     "transactionManager()": FunctionFragment;
@@ -67,6 +71,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     functionFragment: "handle",
     values: [BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [string, string]
@@ -100,6 +105,15 @@ export interface BridgeRouterInterface extends utils.Interface {
       BytesLike,
       BytesLike
     ]
+  ): string;
+  encodeFunctionData(functionFragment: "setHome", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "setTokenRegistry",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTransactionManager",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
@@ -144,6 +158,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "liquidityProvider",
@@ -158,6 +173,15 @@ export interface BridgeRouterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setHome", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenRegistry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTransactionManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
@@ -284,6 +308,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    home(overrides?: CallOverrides): Promise<[string]>;
+
     initialize(
       _tokenRegistry: string,
       _xAppConnectionManager: string,
@@ -323,6 +349,21 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setHome(
+      _home: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setTokenRegistry(
+      _tokenRegistry: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -372,6 +413,8 @@ export interface BridgeRouter extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  home(overrides?: CallOverrides): Promise<string>;
+
   initialize(
     _tokenRegistry: string,
     _xAppConnectionManager: string,
@@ -411,6 +454,21 @@ export interface BridgeRouter extends BaseContract {
     _enableFast: boolean,
     _externalId: BytesLike,
     _externalHash: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setHome(
+    _home: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setTokenRegistry(
+    _tokenRegistry: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setTransactionManager(
+    _transactionManager: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -460,6 +518,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    home(overrides?: CallOverrides): Promise<string>;
+
     initialize(
       _tokenRegistry: string,
       _xAppConnectionManager: string,
@@ -494,6 +554,18 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setHome(_home: string, overrides?: CallOverrides): Promise<void>;
+
+    setTokenRegistry(
+      _tokenRegistry: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -591,6 +663,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    home(overrides?: CallOverrides): Promise<BigNumber>;
+
     initialize(
       _tokenRegistry: string,
       _xAppConnectionManager: string,
@@ -630,6 +704,21 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setHome(
+      _home: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setTokenRegistry(
+      _tokenRegistry: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -684,6 +773,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     initialize(
       _tokenRegistry: string,
       _xAppConnectionManager: string,
@@ -726,6 +817,21 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setHome(
+      _home: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenRegistry(
+      _tokenRegistry: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
