@@ -35,6 +35,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // - restricted router withdrawals
 // - fulfill interpreter improvements
 // - batching
+// - native metatxs (with any asset)
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
@@ -382,6 +383,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   mapping(address => mapping(address => uint256)) public routerBalances;
 
   /**
+   * @notice Mapping of router to available relayer fee
+   * @dev Right now, routers only store native asset onchain.
+   * TODO: allow for approved relaying assets
+   */
+  mapping(address => uint256) public routerRelayerFees;
+
+  /**
    * @notice Mapping of whitelisted router addresses.
    */
   mapping(address => bool) public approvedRouters;
@@ -523,6 +531,26 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
     // Emit event
     emit AssetRemoved(canonicalId, msg.sender);
+  }
+
+  /**
+   * @notice Used to add relayer fees in the native asset
+   * @param router - The router to credit
+   */
+  function addRelayerFees(address router) external payable {
+    routerRelayerFees[router] += msg.value;
+  }
+
+  /**
+   * @notice Used to remove relayer fee in the native asset
+   * @dev Must be called by the router you are decrementing relayer fees for
+   * @param amount - The amount of relayer fee to remove
+   * @param recipient - Who to send funds to
+   */
+  function removeRelayerFees(uint256 amount, address payable recipient) external {
+    routerRelayerFees[msg.sender] -= amount;
+    
+    Address.sendValue(recipient, amount);
   }
 
   /**
