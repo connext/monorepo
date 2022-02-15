@@ -206,12 +206,14 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
+   * @param router - The router you are removing liquidity from
    * @param recipient - The address the funds were withdrawn to
    * @param local - The address of the token withdrawn
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
   event LiquidityRemoved(
+    address indexed router,
     address recipient,
     address local,
     uint256 amount,
@@ -579,7 +581,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     _transferAssetFromContract(local, recipient, amount);    
 
     // Emit event
-    emit LiquidityRemoved(recipient, local, amount, msg.sender);
+    emit LiquidityRemoved(msg.sender, recipient, local, amount, msg.sender);
   }
 
   /**
