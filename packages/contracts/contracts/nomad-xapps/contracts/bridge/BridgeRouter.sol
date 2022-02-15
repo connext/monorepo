@@ -16,8 +16,6 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title BridgeRouter
  */
@@ -44,8 +42,6 @@ contract BridgeRouter is Version0, Router {
     mapping(bytes32 => address) public liquidityProvider;
 
     ITransactionManager public transactionManager;
-
-    Home public home;
 
     // ============ Upgrade Gap ============
 
@@ -107,19 +103,6 @@ contract BridgeRouter is Version0, Router {
         __XAppConnectionClient_initialize(_xAppConnectionManager);
     }
 
-    // ======= Test stuff for nxtp =======
-    function setTransactionManager(address _transactionManager) public {
-        transactionManager = ITransactionManager(_transactionManager);
-    }
-
-    function setTokenRegistry(address _tokenRegistry) public {
-        tokenRegistry = ITokenRegistry(_tokenRegistry);
-    }
-
-    function setHome(address _home) public {
-        home = Home(_home);
-    }
-
     // ======== External: Handle =========
 
     /**
@@ -134,7 +117,7 @@ contract BridgeRouter is Version0, Router {
         uint32 _nonce,
         bytes32 _sender,
         bytes memory _message
-    ) external override {
+    ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
         // parse tokenId and action from message
         bytes29 _msg = _message.ref(0).mustBeMessage();
         bytes29 _tokenId = _msg.tokenId();
@@ -225,7 +208,7 @@ contract BridgeRouter is Version0, Router {
         (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
         bytes29 _tokenId = BridgeMessage.formatTokenId(_domain, _id);
         // send message to remote chain via Nomad
-        home.dispatch(
+        Home(xAppConnectionManager.home()).dispatch(
             _destination,
             _remote,
             BridgeMessage.formatMessage(_tokenId, _action)
