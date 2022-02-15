@@ -34,7 +34,7 @@ dataSources:
           handler: handleAssetRemoved
         - event: LiquidityAdded(address,address,bytes32,uint256,address)
           handler: handleLiquidityAdded
-        - event: LiquidityRemoved(address,address,uint256,address)
+        - event: LiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleLiquidityRemoved
         - event: Prepared(indexed bytes32,indexed address,(address,address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
           handler: handlePrepared
@@ -42,4 +42,4 @@ dataSources:
           handler: handleFulfilled
         - event: Reconciled(indexed bytes32,indexed address,indexed address,address,uint256,bytes32,(address,uint256,bytes32),address)
           handler: handleReconciled
-      file: ./src/v0/mapping.ts
+      file: ./src/amarok-v0/mapping.ts

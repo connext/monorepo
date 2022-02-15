@@ -1,8 +1,9 @@
-import yamlToJson from "js-yaml";
-import YAML from "yaml";
 import { readFileSync, writeFileSync } from "fs";
 import { exec as _exec } from "child_process";
 import util from "util";
+
+import YAML from "yaml";
+import yamlToJson from "js-yaml";
 
 const exec = util.promisify(_exec);
 

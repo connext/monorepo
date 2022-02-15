@@ -242,6 +242,12 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "address",
         "name": "recipient",

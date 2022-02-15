@@ -62,5 +62,8 @@ type Transaction @entity {
 
   # Reconciled
   externalCallHash: Bytes
-  externalCallSuccess: Boolean
+  reconciledTransactionHash: Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt!
+  reconciledGasLimit: BigInt!
 }

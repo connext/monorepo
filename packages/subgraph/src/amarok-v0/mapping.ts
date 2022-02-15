@@ -157,6 +157,12 @@ export function handleFulfilled(event: Fulfilled): void {
  */
 export function handleReconciled(event: Reconciled): void {
   let transaction = Transaction.load(event.params.transactionId.toHexString());
+
+  transaction!.externalCallHash = event.params.externalHash;
+  transaction!.reconciledTransactionHash = event.transaction.hash;
+  transaction!.reconciledTimestamp = event.block.timestamp;
+  transaction!.reconciledGasPrice = event.transaction.gasPrice;
+  transaction!.reconciledGasLimit = event.transaction.gasLimit;
 }
 
 function getChainId(): BigInt {
