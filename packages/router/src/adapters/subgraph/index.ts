@@ -1,105 +1,65 @@
-import { FallbackSubgraph, RequestContext, SubgraphDomain, SubgraphSyncRecord } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 import { GraphQLClient } from "graphql-request";
+import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
 
-import { ActiveTransaction, ExpressiveAssetBalance, SingleChainTransaction } from "../../lib/entities";
-import { ContractReaderNotAvailableForChain } from "../../lib/errors/contractReader";
-import { getContext } from "../../router";
+import { AppContext } from "../../context";
 
-import { getSdk, Sdk } from "./runtime/graphqlsdk";
-import { getSdk as getAnalyticsSdk, Sdk as AnalyticsSdk } from "./analytics/graphqlsdk";
-import {
-  getActiveTransactions,
-  getAssetBalance,
-  getTransactionForChain,
-  getSyncRecords,
-  getAssetBalances,
-  getExpressiveAssetBalances,
-} from "./subgraph";
+import { Sdk as AnalyticsSdk, getSdk as getAnalyticsSdk } from "./analytics/graphqlsdk";
+import { Sdk as RuntimeSdk, getSdk as getRuntimeSdk } from "./runtime/graphqlsdk";
 
-export type ContractReader = {
-  getActiveTransactions: () => Promise<ActiveTransaction<any>[]>;
-  getTransactionForChain: (
-    transactionId: string,
-    user: string,
-    chainId: number,
-  ) => Promise<SingleChainTransaction | undefined>;
-
-  /**
-   *
-   * Returns available liquidity for the given asset on the TransactionManager on the provided chain.
-   *
-   * @param assetId - The asset you want to determine router liquidity of
-   * @param chainId - The chain you want to determine liquidity on
-   * @returns The available balance
-   */
-  getAssetBalance: (assetId: string, chainId: number) => Promise<BigNumber>;
-
-  /**
-   * Returns available liquidity for any of the assets
-   *
-   * @param chainId - The chain you want to determine liquidity on
-   * @returns An array of asset ids and amounts of liquidity
-   */
-  getAssetBalances: (chainId: number) => Promise<{ assetId: string; amount: BigNumber }[]>;
-
-  /**
-   * Returns the detailed analytics view of router liquidity
-   *
-   * @param chainId - The chain you want to determine liquidity on
-   * @returns An array of asset ids and amounts of liquidity
-   */
-  getExpressiveAssetBalances: (chainId: number) => Promise<ExpressiveAssetBalance[]>;
-
-  getSyncRecords: (chainId: number, requestContext?: RequestContext) => Promise<SubgraphSyncRecord[]>;
+export type ChainSubgraphs = {
+  runtime: FallbackSubgraph<RuntimeSdk>;
+  analytics: FallbackSubgraph<AnalyticsSdk>;
 };
 
-const sdks: Record<number, FallbackSubgraph<Sdk>> = {};
+export class SubgraphReader {
+  private subgraphs: Map<number, ChainSubgraphs> = new Map();
 
-export const getSdks = (): Record<number, FallbackSubgraph<Sdk>> => {
-  if (Object.keys(sdks).length === 0) {
-    throw new ContractReaderNotAvailableForChain(0);
+  constructor(private readonly context: AppContext) {
+    if (this.context.adapters.subgraph) {
+      throw new Error("Instance already exists.");
+    }
+    for (const chain of Object.keys(context.config.chains)) {
+      const chainId = parseInt(chain);
+      const { maxLag, runtime: runtimeUrls, analytics: analyticsUrls } = context.config.chains[chain].subgraph;
+      this.subgraphs.set(chainId, {
+        runtime: new FallbackSubgraph<RuntimeSdk>(
+          chainId,
+          (url: string) => getRuntimeSdk(new GraphQLClient(url)),
+          maxLag,
+          SubgraphDomain.COMMON,
+          runtimeUrls,
+        ),
+        analytics: new FallbackSubgraph<AnalyticsSdk>(
+          chainId,
+          (url: string) => getAnalyticsSdk(new GraphQLClient(url)),
+          maxLag,
+          SubgraphDomain.ANALYTICS,
+          analyticsUrls,
+        ),
+      });
+    }
   }
-  return sdks;
-};
 
-const analyticsSdks: Record<number, FallbackSubgraph<AnalyticsSdk>> = {};
-
-export const getAnalyticsSdks = (): Record<number, FallbackSubgraph<AnalyticsSdk>> => {
-  if (Object.keys(analyticsSdks).length === 0) {
-    throw new ContractReaderNotAvailableForChain(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getLiquidity(chain: number, address: string) {
+    throw new Error("Not implemented");
   }
-  return analyticsSdks;
-};
 
-export const subgraphContractReader = (): ContractReader => {
-  const { config } = getContext();
-  Object.entries(config.chainConfig).forEach(([chainId, { subgraph, analyticsSubgraph, subgraphSyncBuffer }]) => {
-    const chainIdNumber = parseInt(chainId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async isRouterApproved(chain: number, address: string) {
+    throw new Error("Not implemented");
+  }
 
-    sdks[chainIdNumber] = new FallbackSubgraph<Sdk>(
-      chainIdNumber,
-      (url: string) => getSdk(new GraphQLClient(url)),
-      subgraphSyncBuffer,
-      SubgraphDomain.COMMON,
-      subgraph,
-    );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async isAssetApproved(chain: number, address: string) {
+    throw new Error("Not implemented");
+  }
 
-    analyticsSdks[chainIdNumber] = new FallbackSubgraph<AnalyticsSdk>(
-      chainIdNumber,
-      (url: string) => getAnalyticsSdk(new GraphQLClient(url)),
-      subgraphSyncBuffer,
-      SubgraphDomain.ANALYTICS,
-      analyticsSubgraph,
-    );
-  });
-
-  return {
-    getActiveTransactions,
-    getTransactionForChain,
-    getAssetBalance,
-    getSyncRecords,
-    getAssetBalances,
-    getExpressiveAssetBalances,
-  };
-};
+  // TODO: PrepareEntity type.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getOpenPrepares(chain: number, destinations: number[]): Promise<any> {
+    throw new Error("Not implemented");
+    // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
+    // is included in the respective array argument, `destinations`.
+  }
+}
