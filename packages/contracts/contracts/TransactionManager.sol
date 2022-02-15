@@ -610,7 +610,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     (address _transactingAssetId, uint256 _amount) = _transferAssetToContract(_args.transactingAssetId, _args.amount);
 
     // Swap to the local asset from the adopted
-    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_args.transactingAssetId, _args.amount);
+    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
     // Compute the transaction id
     bytes32 _transactionId = _getTransactionId(nonce, domain);
@@ -942,7 +942,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       require(msg.value == _specifiedAmount, "!amount");
       wrapper.deposit{ value: _specifiedAmount }();
       _assetId = address(wrapper);
-
     } else {
       // Validate correct amounts are transferred
       uint256 starting = IERC20(_assetId).balanceOf(address(this));

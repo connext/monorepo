@@ -257,7 +257,7 @@ describe.only("TransactionManager", () => {
     };
     const asset = adopted.address;
     const amount = 1000;
-    const prepare = await originTm.connect(user).prepare(params, asset, amount);
+    const prepare = await originTm.connect(user).prepare({ params, transactingAssetId: asset, amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -284,7 +284,9 @@ describe.only("TransactionManager", () => {
 
     // Fulfill with the router
     const routerAmount = amount - 500;
-    const fulfill = await destinationTm.connect(router).fulfill(params, tmNonce, local.address, routerAmount);
+    const fulfill = await destinationTm
+      .connect(router)
+      .fulfill({ params, nonce: tmNonce, local: local.address, amount: routerAmount });
     await fulfill.wait();
 
     // Check balance of user + bridge
@@ -329,7 +331,9 @@ describe.only("TransactionManager", () => {
     };
     const asset = constants.AddressZero;
     const amount = 1000;
-    const prepare = await originTm.connect(user).prepare(params, asset, amount, { value: amount });
+    const prepare = await originTm
+      .connect(user)
+      .prepare({ params, transactingAssetId: asset, amount }, { value: amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -358,7 +362,9 @@ describe.only("TransactionManager", () => {
 
     // Fulfill with the router
     const routerAmount = amount - 500;
-    const fulfill = await destinationTm.connect(router).fulfill(params, tmNonce, local.address, routerAmount);
+    const fulfill = await destinationTm
+      .connect(router)
+      .fulfill({ params, nonce: tmNonce, local: local.address, amount: routerAmount });
     await fulfill.wait();
 
     // Check balance of user + bridge
