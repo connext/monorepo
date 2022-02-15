@@ -2,14 +2,34 @@
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import {
-  TransactionManager,
   LiquidityAdded,
   LiquidityRemoved,
-  TransactionCancelled,
-  TransactionFulfilled,
-  TransactionPrepared,
+  Prepared,
+  Fulfilled,
+  Reconciled,
+  RouterAdded,
+  RouterRemoved,
+  StableSwapAdded,
+  AssetAdded,
+  AssetRemoved,
 } from "../../generated/TransactionManager/TransactionManager";
-import { AssetBalance, Router, DayMetric } from "../../generated/schema";
+import { AssetBalance, Router, Transaction } from "../../generated/schema";
+
+export function handleRouterAdded(event: RouterAdded): void {
+  let router = Router.load(event.params.router.toHex());
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
+}
+
+export function handleRouterRemoved(_event: RouterRemoved): void {}
+
+export function handleStableSwapAdded(_event: StableSwapAdded): void {}
+
+export function handleAssetAdded(_event: AssetAdded): void {}
+
+export function handleAssetRemoved(_event: AssetRemoved): void {}
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -23,39 +43,27 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     router.save();
   }
 
-  // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = getOrCreateAssetBalance(event.params.assetId, event.params.router);
+  // ID is of the format ROUTER_ADDRESS-LOCAL
+  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
-
-  // add supplied amount
-  assetBalance.supplied = assetBalance.supplied.plus(event.params.amount);
 
   // save
   assetBalance.save();
 }
 
 /**
- * Updates the subgraph records when LiquidityRemoved events are emitted. Will create a Router record if it does not exist
+ * Updates the subgraph records when LiquidityRemoved events are emitted.
  *
  * @param event - The contract event to update the subgraph record with
  */
 export function handleLiquidityRemoved(event: LiquidityRemoved): void {
-  let router = Router.load(event.params.router.toHex());
-  if (router == null) {
-    router = new Router(event.params.router.toHex());
-    router.save();
-  }
-
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = getOrCreateAssetBalance(event.params.assetId, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
-
-  // update removed
-  assetBalance.removed = assetBalance.removed.plus(event.params.amount);
 
   // save
   assetBalance.save();
@@ -66,148 +74,92 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
  *
  * @param event - The contract event used to create the subgraph record
  */
-export function handleTransactionPrepared(event: TransactionPrepared): void {
-  // load user and router
-  // router should have liquidity but it may not
-  let router = Router.load(event.params.txData.router.toHex());
-  if (router == null) {
-    router = new Router(event.params.txData.router.toHex());
-    router.save();
+export function handlePrepared(event: Prepared): void {
+  // contract checks ensure that this cannot exist at this point, so we can safely create new
+  // NOTE: the above case is not always true since malicious users can reuse IDs to try to break the
+  // subgraph. we can protect against this by overwriting if we are able to load a Transactioln
+  let transaction = Transaction.load(event.params.transactionId.toHexString());
+  if (transaction == null) {
+    transaction = new Transaction(event.params.transactionId.toHexString());
   }
-  const chainId = getChainId(event.address);
 
-  const routerAddress = event.params.router;
-  const sendingChainId = event.params.txData.sendingChainId;
-  const sendingAssetId = event.params.txData.sendingAssetId;
+  // Meta
+  transaction.originDomain = event.params.params.originDomain;
+  transaction.destinationDomain = event.params.params.destinationDomain;
+  transaction.chainId = getChainId();
+  transaction.status = "Prepared";
 
-  const receivingChainId = event.params.txData.receivingChainId;
-  const receivingAssetId = event.params.txData.receivingAssetId;
+  // Transfer Data
+  transaction.nonce = event.params.nonce;
+  transaction.transactionId = event.params.transactionId;
+  transaction.recipient = event.params.recipient;
+  transaction.transactingAsset = event.params.transactingAsset;
+  transaction.localAsset = event.params.localAsset;
 
-  const amount = event.params.txData.amount;
+  // Prepared
+  transaction.prepareCaller = event.params.caller;
+  transaction.prepareTransactingAmount = event.params.transactingAmount;
+  transaction.prepareLocalAmount = event.params.localAmount;
+  transaction.callTo = event.params.params.callTo;
+  transaction.callData = event.params.params.callData;
 
-  // Get receiving asset balance (update amount and locked)
-  // router is providing liquidity on receiver prepare
-  if (chainId == receivingChainId) {
-    const receivingAssetBalance = getOrCreateAssetBalance(receivingAssetId, routerAddress);
-    receivingAssetBalance.amount = receivingAssetBalance.amount.minus(amount);
-    receivingAssetBalance.locked = receivingAssetBalance.locked.plus(amount);
-    receivingAssetBalance.receivingPrepareTxCount = receivingAssetBalance.receivingPrepareTxCount.plus(
-      BigInt.fromI32(1),
-    );
-    receivingAssetBalance.save();
-  } else if (chainId == sendingChainId) {
-    const sendingAssetBalance = getOrCreateAssetBalance(sendingAssetId, routerAddress);
-    sendingAssetBalance.lockedIn = sendingAssetBalance.lockedIn.plus(amount);
-    sendingAssetBalance.sendingPrepareTxCount = sendingAssetBalance.sendingPrepareTxCount.plus(BigInt.fromI32(1));
-    sendingAssetBalance.save();
-  }
+  // TransactionPrepared
+  transaction.prepareTransactionHash = event.transaction.hash;
+  transaction.prepareGasPrice = event.transaction.gasPrice;
+  transaction.prepareGasLimit = event.transaction.gasLimit;
+
+  transaction.save();
 }
 
 /**
- * Updates subgraph records when TransactionFulfilled events are emitted
+ * Updates subgraph records when Fulfilled events are emitted
  *
  * @param event - The contract event used to update the subgraph
  */
-export function handleTransactionFulfilled(event: TransactionFulfilled): void {
-  const chainId = getChainId(event.address);
+export function handleFulfilled(event: Fulfilled): void {
+  let transaction = Transaction.load(event.params.transactionId.toHexString());
+  if (transaction == null) {
+    transaction = new Transaction(event.params.transactionId.toHexString());
 
-  const timestamp = event.block.timestamp;
-  const router = event.params.router;
-  const receivingChainId = event.params.args.txData.receivingChainId;
-  const sendingChainId = event.params.args.txData.sendingChainId;
+    // Meta
+    transaction.originDomain = event.params.params.originDomain;
+    transaction.destinationDomain = event.params.params.destinationDomain;
+    transaction.chainId = getChainId();
+    transaction.status = "Prepared";
 
-  const sendingAssetId = event.params.args.txData.sendingAssetId;
-  const receivingAssetId = event.params.args.txData.receivingAssetId;
-  const amount = event.params.args.txData.amount;
-  const relayerFee = event.params.args.relayerFee;
-
-  // receiving chain
-  if (chainId == receivingChainId) {
-    // Get asset balance
-    const receivingAssetBalance = getOrCreateAssetBalance(receivingAssetId, router);
-    // load metrics
-    const dayMetricReceiving = getOrCreateDayMetric(timestamp, receivingAssetId);
-
-    // router releases locked liquidity on receiver fulfill
-    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(amount);
-    receivingAssetBalance.volume = receivingAssetBalance.volume.plus(amount);
-    receivingAssetBalance.receivingFulfillTxCount = receivingAssetBalance.receivingFulfillTxCount.plus(
-      BigInt.fromI32(1),
-    );
-
-    // Update metrics
-    dayMetricReceiving.volume = dayMetricReceiving.volume.plus(amount);
-    dayMetricReceiving.receivingTxCount = dayMetricReceiving.receivingTxCount.plus(BigInt.fromI32(1));
-    dayMetricReceiving.relayerFee = dayMetricReceiving.relayerFee.plus(relayerFee);
-
-    // Save
-    receivingAssetBalance.save();
-    dayMetricReceiving.save();
-  } else if (chainId == sendingChainId) {
-    // Get asset balance
-    const sendingAssetBalance = getOrCreateAssetBalance(sendingAssetId, router);
-    // load metrics
-    const dayMetricsSending = getOrCreateDayMetric(timestamp, sendingAssetId);
-
-    // router receives liquidity back on sender fulfill
-    sendingAssetBalance.amount = sendingAssetBalance.amount.plus(amount);
-    sendingAssetBalance.lockedIn = sendingAssetBalance.lockedIn.minus(amount);
-    sendingAssetBalance.volumeIn = sendingAssetBalance.volumeIn.plus(amount);
-    sendingAssetBalance.sendingFulfillTxCount = sendingAssetBalance.sendingFulfillTxCount.plus(BigInt.fromI32(1));
-
-    dayMetricsSending.volumeIn = dayMetricsSending.volumeIn.plus(amount);
-    dayMetricsSending.sendingTxCount = dayMetricsSending.sendingTxCount.plus(BigInt.fromI32(1));
-
-    // Save
-    sendingAssetBalance.save();
-    dayMetricsSending.save();
+    // Transfer Data
+    transaction.nonce = event.params.nonce;
+    transaction.transactionId = event.params.transactionId;
+    transaction.recipient = event.params.recipient;
+    transaction.transactingAsset = event.params.transactingAsset;
+    transaction.localAsset = event.params.localAsset;
   }
+
+  // Fulfill
+  transaction.fulfillCaller = event.params.caller;
+  transaction.fulfillTransactingAmount = event.params.transactingAmount;
+  transaction.fulfillLocalAmount = event.params.localAmount;
+
+  // TransactionFulfilled
+  transaction.fulfillTransactionHash = event.transaction.hash;
+  transaction.fulfillTimestamp = event.block.timestamp;
+  transaction.fulfillGasPrice = event.transaction.gasPrice;
+  transaction.fulfillGasLimit = event.transaction.gasLimit;
+  transaction.status = "Reconciled";
+
+  transaction.save();
 }
 
 /**
- * Updates subgraph records when TransactionCancelled events are emitted
+ * Updates subgraph records when Reconciled events are emitted
  *
  * @param event - The contract event used to update the subgraph
  */
-export function handleTransactionCancelled(event: TransactionCancelled): void {
-  const chainId = getChainId(event.address);
-  const timestamp = event.block.timestamp;
-  const router = event.params.router;
-
-  const sendingChainId = event.params.args.txData.sendingChainId;
-  const sendingAssetId = event.params.args.txData.sendingAssetId;
-
-  const receivingChainId = event.params.args.txData.receivingChainId;
-  const receivingAssetId = event.params.args.txData.receivingAssetId;
-  const amount = event.params.args.txData.amount;
-
-  // router receives liquidity back on receiver cancel
-  if (chainId == receivingChainId) {
-    const receivingAssetBalance = getOrCreateAssetBalance(receivingAssetId, router);
-    const dayMetricReceiving = getOrCreateDayMetric(timestamp, receivingAssetId);
-
-    // preparation for the receiving chain
-    receivingAssetBalance.amount = receivingAssetBalance.amount.plus(amount);
-    receivingAssetBalance.locked = receivingAssetBalance.locked.minus(amount);
-    receivingAssetBalance.receivingCancelTxCount = receivingAssetBalance.receivingCancelTxCount.plus(BigInt.fromI32(1));
-
-    // update metrics
-    dayMetricReceiving.cancelTxCount = dayMetricReceiving.cancelTxCount.plus(BigInt.fromI32(1));
-
-    // save
-    receivingAssetBalance.save();
-    dayMetricReceiving.save();
-  } else if (chainId == sendingChainId) {
-    const sendingAssetBalance = getOrCreateAssetBalance(sendingAssetId, router);
-    sendingAssetBalance.lockedIn = sendingAssetBalance.lockedIn.minus(amount);
-    sendingAssetBalance.sendingCancelTxCount = sendingAssetBalance.sendingCancelTxCount.plus(BigInt.fromI32(1));
-
-    // save
-    sendingAssetBalance.save();
-  }
+export function handleReconciled(event: Reconciled): void {
+  let transaction = Transaction.load(event.params.transactionId.toHexString());
 }
 
-function getChainId(transactionManagerAddress: Address): BigInt {
+function getChainId(): BigInt {
   // try to get chainId from the mapping
   let network = dataSource.network();
   let chainId: BigInt;
@@ -244,46 +196,20 @@ function getChainId(transactionManagerAddress: Address): BigInt {
   } else if (network == "arbitrum-rinkeby") {
     chainId = BigInt.fromI32(421611);
   } else {
-    // instantiate contract to get the chainId as a fallback
-    chainId = TransactionManager.bind(transactionManagerAddress).getChainId();
+    throw new Error(`No chainName for network ${network}`);
   }
 
   return chainId;
 }
 
-function getOrCreateAssetBalance(assetId: Bytes, router: Address): AssetBalance {
-  let assetBalanceId = assetId.toHex() + "-" + router.toHex();
+function getOrCreateAssetBalance(local: Bytes, router: Address): AssetBalance {
+  let assetBalanceId = local.toHex() + "-" + router.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
   if (assetBalance == null) {
     assetBalance = new AssetBalance(assetBalanceId);
-    assetBalance.assetId = assetId;
+    assetBalance.assetId = local;
     assetBalance.router = router.toHex();
     assetBalance.amount = new BigInt(0);
-    assetBalance.supplied = new BigInt(0);
-    assetBalance.locked = new BigInt(0);
-    assetBalance.removed = new BigInt(0);
-    assetBalance.volume = new BigInt(0);
-    assetBalance.volumeIn = new BigInt(0);
   }
   return assetBalance;
-}
-
-function getOrCreateDayMetric(timestamp: BigInt, assetId: Bytes): DayMetric {
-  let day = timestamp.toI32() / 86400; // rounded
-  let dayStartTimestamp = day * 86400;
-
-  let dayIDPerAsset = day.toString() + "-" + assetId.toHex();
-
-  let dayMetric = DayMetric.load(dayIDPerAsset);
-  if (dayMetric === null) {
-    dayMetric = new DayMetric(dayIDPerAsset);
-    dayMetric.dayStartTimestamp = BigInt.fromI32(dayStartTimestamp);
-    dayMetric.assetId = assetId.toHex();
-    dayMetric.volume = BigInt.fromI32(0);
-    dayMetric.sendingTxCount = BigInt.fromI32(0);
-    dayMetric.receivingTxCount = BigInt.fromI32(0);
-    dayMetric.cancelTxCount = BigInt.fromI32(0);
-    dayMetric.volumeIn = BigInt.fromI32(0);
-  }
-  return dayMetric;
 }

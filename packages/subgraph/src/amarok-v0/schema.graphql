@@ -6,12 +6,6 @@ type AssetBalance @entity {
   canonicalId: Bytes!
 }
 
-# User entity keeps track of active user transactions
-type User @entity {
-  id: ID!
-  transactions: [Transaction!]! @derivedFrom(field: "user")
-}
-
 # Router represents a router and its associated liquidity
 type Router @entity {
   id: ID!
@@ -33,15 +27,13 @@ type Transaction @entity {
   destinationDomain: BigInt!
   chainId: BigInt!
   status: TransactionStatus!
-  preparedTimestamp: BigInt!
 
   # Transfer Data
   nonce: BigInt!
   transactionId: Bytes!
-  user: User!
   recipient: Bytes!
   router: Router
-  transactingAsset:
+  transactingAsset: Bytes!
   localAsset: Bytes!
 
   # Prepared
@@ -53,21 +45,19 @@ type Transaction @entity {
 
   # TransactionPrepared
   prepareTransactionHash: Bytes!
-  prepareTimestamp: BigInt
-  prepareGasFee: BigInt!
+  prepareTimestamp: BigInt!
+  prepareGasPrice: BigInt!
   prepareGasLimit: BigInt!
 
   # Fulfill
   fulfillCaller: Bytes!
   fulfillTransactingAmount: BigInt!
   fulfillLocalAmount: BigInt!
-  externalCallSuccess: Boolean
-  externalCallReturnData: Bytes
-  
+
   # TransactionFulfilled
   fulfillTransactionHash: Bytes
   fulfillTimestamp: BigInt
-  fulfillGasFee: BigInt!
+  fulfillGasPrice: BigInt!
   fulfillGasLimit: BigInt!
 
   # Reconciled

@@ -1757,6 +1757,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-subgraph@workspace:packages/subgraph"
   dependencies:
+    "@connext/nxtp-contracts": "workspace:*"
     "@graphprotocol/graph-cli": =0.25.0
     "@graphprotocol/graph-ts": ^0.24.1
     "@types/js-yaml": ^4.0.5

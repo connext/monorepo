@@ -49,7 +49,25 @@ const chainIdToNomad: Map<number, { name: string; bridgeRouter: string; tokenReg
     [
       31337,
       {
-        name: "local",
+        name: "local31337",
+        bridgeRouter: constants.AddressZero,
+        tokenRegistry: constants.AddressZero,
+        wrappedEth: constants.AddressZero,
+      },
+    ],
+    [
+      1337,
+      {
+        name: "local1337",
+        bridgeRouter: constants.AddressZero,
+        tokenRegistry: constants.AddressZero,
+        wrappedEth: constants.AddressZero,
+      },
+    ],
+    [
+      1338,
+      {
+        name: "local1338",
         bridgeRouter: constants.AddressZero,
         tokenRegistry: constants.AddressZero,
         wrappedEth: constants.AddressZero,
