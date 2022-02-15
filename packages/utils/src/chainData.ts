@@ -22,6 +22,7 @@ export type ChainData = {
   chainId: number;
   confirmations: number;
   shortName: string;
+  type: "mainnet" | "testnet" | "";
   chain: string;
   network: string;
   networkId: number;

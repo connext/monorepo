@@ -3,32 +3,13 @@ import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { utils } from "ethers";
-import {
-  ajv,
-  ChainData,
-  getChainData,
-  getDeployedAnalyticsSubgraphUrls,
-  isNode,
-  NATS_AUTH_URL,
-  NATS_AUTH_URL_LOCAL,
-  NATS_AUTH_URL_TESTNET,
-  NATS_CLUSTER_URL,
-  NATS_CLUSTER_URL_LOCAL,
-  NATS_CLUSTER_URL_TESTNET,
-  NATS_WS_URL,
-  NATS_WS_URL_LOCAL,
-  NATS_WS_URL_TESTNET,
-  TAddress,
-  TChainId,
-  TIntegerString,
-} from "@connext/nxtp-utils";
+import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
-const MIN_GAS = utils.parseEther("0.1");
-const DEFAULT_RELAYER_FEE_THRESHOLD = "10"; // relayerFee is in respective chain native asset unit
-const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
+const MIN_SUBGRAPH_MAX_LAG = 25;
+const DEFAULT_SUBGRAPH_MAX_LAG = 40;
 
 dotenvConfig();
 
@@ -37,22 +18,6 @@ dotenvConfig();
  */
 export const getContractDeployments: any = () => {
   return contractDeployments;
-};
-
-/**
- * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.TransactionManager;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**
@@ -92,52 +57,46 @@ export const getDeployedChainIdsForGasFee = (): number[] => {
   return chainIdsForGasFee;
 };
 
-/**
- * Returns the address of the `Multicall` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedMulticallContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.Multicall;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
-
-export const TChainConfig = Type.Object({
-  providers: Type.Array(Type.String()),
-  confirmations: Type.Number({ minimum: 1 }),
-  subgraph: Type.Array(Type.String()),
-  analyticsSubgraph: Type.Array(Type.String()),
-  transactionManagerAddress: Type.String(),
-  priceOracleAddress: Type.Optional(Type.String()),
-  multicallAddress: Type.Optional(Type.String()),
-  minGas: Type.String(),
-  gasStations: Type.Array(Type.String()),
-  allowRelay: Type.Boolean(),
-  relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
-  subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
-  routerContractRelayerAsset: Type.Optional(Type.String()),
-});
-
-export const TSwapPool = Type.Object({
+export const TAssetDescription = Type.Object({
   name: Type.String(),
-  assets: Type.Array(
-    Type.Object({
-      chainId: TChainId,
-      assetId: TAddress,
-    }),
-  ),
+  id: TAddress,
   mainnetEquivalent: Type.Optional(TAddress),
 });
 
-export const NxtpRouterConfigSchema = Type.Object({
+export type AssetDescription = Static<typeof TAssetDescription>;
+
+export const TChainConfig = Type.Object({
+  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
+  subgraph: Type.Object({
+    analytics: Type.Array(Type.String()), // Analytics subgraph uri(s).
+    runtime: Type.Array(Type.String()), // Runtime subgraph uri(s).
+    maxLag: Type.Integer({ minimum: MIN_SUBGRAPH_MAX_LAG }), // If subgraph is out of sync by this number, will not process actions.
+  }),
+  rpc: Type.Array(Type.String()),
+  gasStations: Type.Array(Type.String()),
+  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
+  deployments: Type.Object({
+    priceOracle: Type.Optional(TAddress),
+  }),
+});
+
+export type ChainConfig = Static<typeof TChainConfig>;
+
+export const TServerConfig = Type.Object({
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
+  requestLimit: Type.Integer(),
   adminToken: Type.String(),
-  chainConfig: Type.Record(TIntegerString, TChainConfig),
+});
+
+export const TModeConfig = Type.Object({
+  diagnostic: Type.Boolean(),
+  cleanup: Type.Boolean(),
+  priceCaching: Type.Boolean(),
+});
+
+export const NxtpRouterConfigSchema = Type.Object({
+  chains: Type.Record(TIntegerString, TChainConfig),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),
@@ -147,30 +106,12 @@ export const NxtpRouterConfigSchema = Type.Object({
     Type.Literal("trace"),
     Type.Literal("silent"),
   ]),
-  natsUrl: Type.String(),
-  authUrl: Type.String(),
   mnemonic: Type.Optional(Type.String()),
-  routerContractAddress: Type.Optional(Type.String()), // address of deployed Router.sol contract
   web3SignerUrl: Type.Optional(Type.String()),
-  swapPools: Type.Array(TSwapPool),
-  port: Type.Number({ minimum: 1, maximum: 65535 }),
-  host: Type.String({ format: "ipv4" }),
-  requestLimit: Type.Number(),
-  allowedTolerance: Type.Number({ minimum: 0, maximum: 100 }),
-  allowRelay: Type.Boolean(),
-  cleanUpMode: Type.Boolean(),
-  priceCacheMode: Type.Boolean(),
-  diagnosticMode: Type.Boolean(),
-
-  // This percentage number reflects the quotient of our total liquidity we are willing to overbid by
-  // on receiving chain. In other words, if we're willing to bid more funds on receiving chain than
-  // we actually have, this number will be >100. A value of 150, for example, means we are willing to
-  // "promise" up to 150% of our liquidity on receiving chain to
-  // This is similar in concept to airlines overbooking their seats, ISPs oversubscribing, or short
-  // positions on GME; except in our case, we must also take into account that our bids compete
-  // with many other routers on the network. Theoretically, most of our bids should expire without
-  // being selected (unless this router somehow has >=50% share of the network).
-  overbidAllowance: Type.Integer({ minimum: 100, maximum: 200 }),
+  server: TServerConfig,
+  maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
+  mode: TModeConfig,
+  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -180,7 +121,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (crossChainData: Map<string, any> | undefined): NxtpRouterConfig => {
+export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -206,215 +147,109 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     }
   }
 
-  const network: "testnet" | "mainnet" | "local" =
-    process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet";
-  let authUrl = process.env.NXTP_AUTH_URL || configJson.authUrl || configFile.authUrl;
-  let natsUrl = process.env.NXTP_NATS_URL || configJson.natsUrl || configFile.natsUrl;
-  switch (network) {
-    case "mainnet": {
-      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL : NATS_WS_URL);
-      authUrl = authUrl ?? NATS_AUTH_URL;
-      break;
-    }
-    case "testnet": {
-      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_TESTNET : NATS_WS_URL_TESTNET);
-      authUrl = authUrl ?? NATS_AUTH_URL_TESTNET;
-      break;
-    }
-    case "local": {
-      natsUrl = natsUrl ?? (isNode() ? NATS_CLUSTER_URL_LOCAL : NATS_WS_URL_LOCAL);
-      authUrl = authUrl ?? NATS_AUTH_URL_LOCAL;
-      break;
-    }
-  }
-
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
-    routerContractAddress:
-      process.env.NXTP_ROUTER_CONTRACT_ADDRESS || configJson.routerContractAddress || configFile.routerContractAddress,
-    authUrl,
-    natsUrl,
-    adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
-    chainConfig: process.env.NXTP_CHAIN_CONFIG
+    chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
-      : configJson.chainConfig
-      ? configJson.chainConfig
-      : configFile.chainConfig,
-    swapPools: process.env.NXTP_SWAP_POOLS
-      ? JSON.parse(process.env.NXTP_SWAP_POOLS)
-      : configJson.swapPools
-      ? configJson.swapPools
-      : configFile.swapPools,
+      : configJson.chains
+      ? configJson.chains
+      : configFile.chains,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
-    port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
-    host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
-    requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
-    cleanUpMode: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanUpMode || configFile.cleanUpMode || false,
-    priceCacheMode: process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCacheMode || configFile.priceCacheMode || true,
-    diagnosticMode: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnosticMode || configFile.diagnosticMode || false,
-    allowedTolerance:
+    network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
+    server: {
+      port: process.env.NXTP_PORT || configJson.server.port || configFile.server.port || 8080,
+      host: process.env.NXTP_HOST || configJson.server.host || configFile.server.host || "0.0.0.0",
+      requestLimit:
+        process.env.NXTP_REQUEST_LIMIT || configJson.server.requestLimit || configFile.server.requestLimit || 500,
+      adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.server.adminToken || configFile.server.adminToken,
+    },
+    mode: {
+      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode.cleanup || configFile.mode.cleanup || false,
+      priceCaching:
+        process.env.NXTP_PRICE_CACHE_MODE || configJson.mode.priceCaching || configFile.mode.priceCaching || true,
+      diagnostic: process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode.diagnostic || configFile.mode.diagnostic || false,
+    },
+    maxSlippage:
       process.env.NXTP_ALLOWED_TOLERANCE ||
       configJson.allowedTolerance ||
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
-    allowRelay: process.env.NXTP_ALLOW_RELAY || configJson.allowRelay || configFile.allowRelay || false,
-    overbidAllowance:
-      process.env.NXTP_OVERBID_ALLOWANCE || configJson.overbidAllowance || configFile.overbidAllowance || 150,
   };
-
-  const overridechainRecommendedConfirmations =
-    process.env.NXTP_OVERRIDE_CHAIN_RECOMMENDED_CONFIRMATIONS ||
-    configJson.overridechainRecommendedConfirmations ||
-    configFile.overridechainRecommendedConfirmations ||
-    false;
-  if (!crossChainData && crossChainData!.size == 0 && !overridechainRecommendedConfirmations) {
-    throw new Error(
-      "Router configuration failed: no chain data provided. (To override, see `overridechainRecommendedConfirmations` in config. Overriding this behavior is not recommended.)",
-    );
-  }
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
     throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
   }
 
-  // add name to swap pools using mainnet equivalent
-  nxtpConfig.swapPools.forEach((pool, idx) => {
-    if (pool.name) {
-      return;
-    }
-
-    // Try to get mainnet equivalent of assets in the pool
-    let name: string | undefined = undefined;
-    pool.assets.forEach(({ chainId, assetId }) => {
-      if (name) {
-        return;
-      }
-
-      if (!crossChainData || !crossChainData.has(chainId.toString()) || !crossChainData.has("1")) {
-        return;
-      }
-
-      const entry = crossChainData.get(chainId.toString()) as ChainData;
-
-      const mainnetEquivalent =
-        entry.assetId[utils.getAddress(assetId)]?.mainnetEquivalent ??
-        entry.assetId[assetId.toLowerCase()]?.mainnetEquivalent ??
-        entry.assetId[assetId.toUpperCase()]?.mainnetEquivalent;
-      if (!mainnetEquivalent) {
-        return;
-      }
-
-      // Get name from mainnet equivalent
-      const mainnetEntry = crossChainData.get("1") as ChainData;
-      name =
-        mainnetEntry.assetId[utils.getAddress(mainnetEquivalent)]?.symbol ??
-        mainnetEntry.assetId[mainnetEquivalent.toLowerCase()]?.symbol ??
-        mainnetEntry.assetId[mainnetEquivalent.toUpperCase()]?.symbol;
-    });
-
-    if (!name) {
+  const mainnetEntry = chainData.get("1") as ChainData;
+  // Get the chains supported for this network type (i.e. mainnet or testnet).
+  const supportedChains = Array.from(chainData.values()).filter(
+    (data) => data.type === nxtpConfig.network || data.chainId === 1,
+  );
+  const supportedChainIds = supportedChains.map((data) => data.chainId.toString());
+  // Make sure every chain in nxtpconfig is supported by chaindata.
+  for (const chain of Object.keys(nxtpConfig.chains)) {
+    if (!supportedChainIds.includes(chain)) {
       throw new Error(
-        `Could not find name for pool: ${JSON.stringify(pool)} at ${idx} in config. Please provide override.`,
+        `Chain ${chain} passed into config is not supported by chaindata for ${nxtpConfig.network}!` +
+          ` (Are you configured for the correct network?)` +
+          ` Supported Chains: ${supportedChainIds.join(",")}`,
       );
     }
-    nxtpConfig.swapPools[idx] = { ...pool, name };
-  });
+  }
 
-  const defaultConfirmations =
-    crossChainData && crossChainData.has("1") ? parseInt(crossChainData.get("1").confirmations) + 3 : 4;
-
-  // add contract deployments if they exist
-  Object.entries(nxtpConfig.chainConfig).forEach(([chainId, chainConfig]) => {
-    const chainRecommendedConfirmations =
-      crossChainData && crossChainData.has(chainId)
-        ? parseInt(crossChainData.get(chainId).confirmations)
-        : defaultConfirmations;
-    const chainRecommendedGasStations =
-      crossChainData && crossChainData.has(chainId) ? crossChainData.get(chainId).gasStations ?? [] : [];
-
-    // allow passed in address to override
-    // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    if (!chainConfig.transactionManagerAddress) {
-      const res = getDeployedTransactionManagerContract(parseInt(chainId));
-      if (!res) {
-        throw new Error(`No transactionManager address for chain ${chainId}`);
-      }
-      nxtpConfig.chainConfig[chainId].transactionManagerAddress = res.address;
-    }
-
-    // allow passed in address to override
-    if (!chainConfig.priceOracleAddress) {
-      const res = getDeployedPriceOracleContract(parseInt(chainId));
-      nxtpConfig.chainConfig[chainId].priceOracleAddress = res?.address;
-    }
-
-    if (!chainConfig.multicallAddress) {
-      const res = getDeployedMulticallContract(parseInt(chainId));
-      nxtpConfig.chainConfig[chainId].multicallAddress = res?.address;
-    }
-
-    if (!chainConfig.minGas) {
-      nxtpConfig.chainConfig[chainId].minGas = MIN_GAS.toString();
-    }
-
-    if (!chainConfig.relayerFeeThreshold) {
-      nxtpConfig.chainConfig[chainId].relayerFeeThreshold = +DEFAULT_RELAYER_FEE_THRESHOLD;
-    }
-
-    if (chainConfig.allowRelay === undefined || chainConfig.allowRelay === null) {
-      nxtpConfig.chainConfig[chainId].allowRelay = false;
-    }
-
-    if (!chainConfig.subgraph) {
-      nxtpConfig.chainConfig[chainId].subgraph = [];
-    } else if (typeof chainConfig.subgraph === "string") {
-      // Backwards compatibility for subgraph param - support for singular uri string.
-      chainConfig.subgraph = [chainConfig.subgraph];
-    }
-
-    if (!chainConfig.analyticsSubgraph) {
-      const defaultAnalyticsSubgUrls = getDeployedAnalyticsSubgraphUrls(Number(chainId), crossChainData);
-      nxtpConfig.chainConfig[chainId].analyticsSubgraph = defaultAnalyticsSubgUrls;
-    }
-    if (typeof chainConfig.analyticsSubgraph === "string") {
-      chainConfig.analyticsSubgraph = [chainConfig.analyticsSubgraph];
-    }
-
-    if (!chainConfig.confirmations) {
-      nxtpConfig.chainConfig[chainId].confirmations = chainRecommendedConfirmations;
-    }
-
-    const syncBuffer =
-      !chainConfig.subgraphSyncBuffer || chainConfig.subgraphSyncBuffer <= 0
-        ? (chainRecommendedConfirmations ?? 1) * 3
-        : chainConfig.subgraphSyncBuffer;
-    // 25 blocks minimum.
-    nxtpConfig.chainConfig[chainId].subgraphSyncBuffer = Math.max(syncBuffer, MIN_SUBGRAPH_SYNC_BUFFER);
-
-    const addedStations = nxtpConfig.chainConfig[chainId].gasStations ?? [];
-    nxtpConfig.chainConfig[chainId].gasStations = addedStations.concat(chainRecommendedGasStations);
-
-    // Validate that confirmations is above acceptable/recommended minimum.
-    const confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
-
-    // don't validate test chains confirmations
-    if (["1337", "1338"].includes(chainId)) {
-      return;
-    }
-
-    if (confirmations < chainRecommendedConfirmations) {
-      if (overridechainRecommendedConfirmations) {
-        console.warn(
-          `Overriding recommended confirmations required (${chainRecommendedConfirmations}) for chain ${chainId} with value ${confirmations}. Please note that this can cause issues with re-orgs and may result in a loss of funds. I hope you know what you're doing!`,
-        );
-      } else {
-        throw new Error(
-          `Value listed for required confirmations for chain ${chainId} is less than the recommended safe minimum. Minimum: ${chainRecommendedConfirmations}; Configured value: ${confirmations}.`,
-        );
+  // TODO: Re-add check for minimum recommended confirmations.
+  // Supplement chain config with chain data.
+  for (const data of supportedChains) {
+    const { chainId } = data;
+    const config: ChainConfig | undefined = nxtpConfig.chains[chainId.toString()];
+    const sanitizedAssets: AssetDescription[] = [];
+    if (config && config.assets) {
+      // Get mainnet equivalent if possible.
+      for (const asset of config.assets) {
+        let name = asset.name;
+        const mainnetEquivalent: string | undefined =
+          data.assetId[utils.getAddress(asset.id)]?.mainnetEquivalent ??
+          data.assetId[asset.id.toLowerCase()]?.mainnetEquivalent ??
+          data.assetId[asset.id.toUpperCase()]?.mainnetEquivalent;
+        if (mainnetEquivalent) {
+          // Get name from mainnet equivalent.
+          name =
+            mainnetEntry.assetId[utils.getAddress(mainnetEquivalent)]?.symbol ??
+            mainnetEntry.assetId[mainnetEquivalent.toLowerCase()]?.symbol ??
+            mainnetEntry.assetId[mainnetEquivalent.toUpperCase()]?.symbol;
+        }
+        if (!name) {
+          throw new Error(
+            `Could not find name for asset: ${JSON.stringify(
+              asset,
+            )} for chain ${chainId} in config. Please provide override.`,
+          );
+        }
+        sanitizedAssets.push({
+          ...asset,
+          name,
+          mainnetEquivalent,
+        });
       }
     }
-  });
+    nxtpConfig.chains[chainId.toString()] = {
+      ...(config ?? {}),
+      assets: sanitizedAssets,
+      rpc: config && Array.isArray(config.rpc) ? config.rpc.concat(data.rpc) : data.rpc ?? [],
+      subgraph: {
+        ...(config?.subgraph ?? {}),
+        runtime: (config?.subgraph?.runtime ?? []).concat(Array.isArray(data.subgraph) ? data.subgraph : []),
+        analytics: config?.subgraph?.analytics ?? data.analyticsSubgraph,
+        maxLag: config?.subgraph?.maxLag ?? DEFAULT_SUBGRAPH_MAX_LAG,
+      },
+      gasStations: config?.gasStations ?? data.gasStations,
+      confirmations: config?.confirmations ?? data.confirmations,
+      deployments: {
+        priceOracle: config?.deployments?.priceOracle ?? getDeployedPriceOracleContract(chainId)?.address,
+      },
+    };
+  }
 
   const validate = ajv.compile(NxtpRouterConfigSchema);
 
@@ -432,13 +267,10 @@ let nxtpConfig: NxtpRouterConfig | undefined;
 /**
  * Caches and returns the environment config
  *
- * @param chainDataOverride - overrides the set chain data; used for debugging, unit tests, etc.
- *
  * @returns The config
  */
-export const getConfig = async (chainDataOverride?: Map<string, ChainData>): Promise<NxtpRouterConfig> => {
+export const getConfig = async (chainData: Map<string, ChainData>): Promise<NxtpRouterConfig> => {
   if (!nxtpConfig) {
-    const chainData = chainDataOverride ?? (await getChainData());
     nxtpConfig = getEnvConfig(chainData);
   }
   return nxtpConfig;

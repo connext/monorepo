@@ -40,7 +40,6 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-contracts": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "^0.18.1",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
@@ -76,6 +75,7 @@
     "chai-subset": "^1.6.0",
     "concurrently": "^6.2.1",
     "eslint": "^7.32.0",
+    "interval-promise": "^1.4.0",
     "mocha": "^9.0.3",
     "nodemon": "^2.0.12",
     "nyc": "^15.1.0",

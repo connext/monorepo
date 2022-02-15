@@ -1,4 +1,4 @@
-import { TAddress, TChainId, TDecimalString, TBytes32 } from "@connext/nxtp-utils";
+import { TAddress, TChainId, TDecimalString } from "@connext/nxtp-utils";
 import { Static, Type } from "@sinclair/typebox";
 
 export const AdminSchema = Type.Object({
@@ -56,13 +56,3 @@ export const RemoveLiquidityResponseSchema = Type.Object({
   transactionHash: Type.String(),
 });
 export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
-
-export const CancelSenderTransferRequestSchema = Type.Intersect([
-  AdminSchema,
-  Type.Object({
-    transactionId: TBytes32,
-    senderChainId: TChainId,
-    user: TAddress,
-  }),
-]);
-export type CancelSenderTransferRequest = Static<typeof CancelSenderTransferRequestSchema>;
