@@ -64,7 +64,7 @@ export enum TransactionType {
 export enum TransactionStatus {
   Prepared = "Prepared",
   Fulfilled = "Fulfilled",
-  Cancelled = "Cancelled",
+  Reconcilled = "Reconcilled",
 }
 
 // A transaction that is executable on-chain using the data property.
@@ -80,6 +80,15 @@ export type MetaTransaction = {
   gasLimit: number;
 };
 
+export type Bid = {
+  data: string;
+}
+
+export type Cache = {
+  nxtpId: string,
+  bid: Bid
+}
+
 export type BatchJob = (transactions: MetaTransaction[]) => Promise<void>;
 
 export type BatchSendCondition = {
@@ -94,6 +103,8 @@ export type BatchExecution = {
   size: number; // Size of the batch in # of transactions.
   condition: BatchSendCondition; // The condition under which the batch was or will be sent.
 };
+
+
 
 export type Batch = {
   id: string; // ID is any string preferred to the consumer.

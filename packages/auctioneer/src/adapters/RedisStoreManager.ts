@@ -1,6 +1,7 @@
 
 import { jsonifyError, Logger } from "@connext/nxtp-utils";
 import Redis from "ioredis";
+import { Bid } from "../lib/types";
 
 // import { Batch } from "../../lib";
 
@@ -32,33 +33,19 @@ export class StoreManager {
     }
   }
 
-  private getKey(chain: number, id: string) {
-    return `${chain}-${id}`;
-  }
-
-  public async getBatch(chain: number, id: string): Promise<any> {
-    const _stored = await this.redis.get(this.getKey(chain, id));
-    // let stored: Batch | undefined;
-    let stored: any | undefined;
+  public async getCache(nxtpId: string): Promise<Bid>{
+    const _cache = await this.redis.get(nxtpId);
+    let cache: Bid | undefined;
     try {
-      stored = JSON.parse(_stored as string);
-    } catch (error: any) {
-      this.logger.error("Error parsing JSON", undefined, undefined, jsonifyError(error));
+      cache = JSON.parse(_cache as string);
+    } catch (e) {
+      this.logger.error(`Get Cache Error`, undefined, undefined, jsonifyError(e));
     }
-    if (!stored) {
-      // If entry doesn't exist, create it.
-      stored = {
-        id,
-        chain,
-        transactions: {},
-        history: [],
-      };
-      await this.save(stored);
-    }
-    return stored;
+    return cache;
+    
   }
 
-  public async save(batch: any): Promise<void> {
-    await this.redis.set(this.getKey(batch.chain, batch.id), JSON.stringify(batch));
+  public async save(cache: any): Promise<void> {
+    await this.redis.set(cache.nxtpId, JSON.stringify(cache.bid));
   }
 }
