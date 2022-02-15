@@ -10,8 +10,8 @@ export type ChainCache = {
 export class RouterCache {
   private readonly cache: Map<string, ChainCache> = new Map();
 
-  constructor(private readonly context: AppContext) {
-    if (this.context.adapters.cache) {
+  constructor(context: AppContext) {
+    if (context.adapters.cache) {
       throw new Error("Instance already exists.");
     }
     for (const chain of Object.keys(context.config.chains)) {

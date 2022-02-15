@@ -14,8 +14,8 @@ export type ChainSubgraphs = {
 export class SubgraphReader {
   private subgraphs: Map<number, ChainSubgraphs> = new Map();
 
-  constructor(private readonly context: AppContext) {
-    if (this.context.adapters.subgraph) {
+  constructor(context: AppContext) {
+    if (context.adapters.subgraph) {
       throw new Error("Instance already exists.");
     }
     for (const chain of Object.keys(context.config.chains)) {
@@ -40,18 +40,38 @@ export class SubgraphReader {
     }
   }
 
+  /**
+   *
+   * Returns available liquidity for the given asset on the TransactionManager on the provided chain.
+   *
+   * @param chain - The chain you want to determine liquidity on
+   * @param router - Router address
+   * @param asset - The asset you want to determine router liquidity of
+   * @returns The available balance
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getLiquidity(chain: number, address: string) {
+  public async getAssetBalance(chain: number, router: string, asset: string) {
+    throw new Error("Not implemented");
+  }
+
+  /**
+   * Returns available liquidity for all of the routers' assets on target chain.
+   *
+   * @param chainId - The chain you want to determine liquidity on
+   * @returns An array of asset ids and amounts of liquidity
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getAssetBalances(chain: number, router: string) {
     throw new Error("Not implemented");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async isRouterApproved(chain: number, address: string) {
+  public async isRouterApproved(chain: number, router: string) {
     throw new Error("Not implemented");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async isAssetApproved(chain: number, address: string) {
+  public async isAssetApproved(chain: number, asset: string) {
     throw new Error("Not implemented");
   }
 
