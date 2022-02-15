@@ -6,5 +6,6 @@ module.exports = {
     "./libraries/WadRayMath.sol",
     "./test/RevertableERC20.sol",
     "./test/FeeERC20.sol",
+    "./test/TestAggregator.sol",
   ],
 };

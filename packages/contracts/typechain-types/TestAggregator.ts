@@ -5,7 +5,10 @@ import {
   BaseContract,
   BigNumber,
   BigNumberish,
-  BytesLike,
+  PopulatedTransaction,
+  BaseContract,
+  ContractTransaction,
+  Overrides,
   CallOverrides,
   PopulatedTransaction,
   Signer,
@@ -22,37 +25,25 @@ export interface TestAggregatorInterface extends utils.Interface {
     "description()": FunctionFragment;
     "getRoundData(uint80)": FunctionFragment;
     "latestRoundData()": FunctionFragment;
+    "mockAnswer()": FunctionFragment;
+    "updateMockAnswer(int256)": FunctionFragment;
     "version()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "description",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoundData",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "latestRoundData",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "description", values?: undefined): string;
+  encodeFunctionData(functionFragment: "getRoundData", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "latestRoundData", values?: undefined): string;
+  encodeFunctionData(functionFragment: "mockAnswer", values?: undefined): string;
+  encodeFunctionData(functionFragment: "updateMockAnswer", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "description",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoundData",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "latestRoundData",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "description", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getRoundData", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "latestRoundData", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "mockAnswer", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateMockAnswer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 
   events: {};
@@ -69,16 +60,12 @@ export interface TestAggregator extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -92,7 +79,7 @@ export interface TestAggregator extends BaseContract {
 
     getRoundData(
       _roundId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         roundId: BigNumber;
@@ -103,9 +90,7 @@ export interface TestAggregator extends BaseContract {
       }
     >;
 
-    latestRoundData(
-      overrides?: CallOverrides
-    ): Promise<
+    latestRoundData(overrides?: CallOverrides): Promise<
       [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         roundId: BigNumber;
         answer: BigNumber;
@@ -114,6 +99,13 @@ export interface TestAggregator extends BaseContract {
         answeredInRound: BigNumber;
       }
     >;
+
+    mockAnswer(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<ContractTransaction>;
 
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
@@ -124,7 +116,7 @@ export interface TestAggregator extends BaseContract {
 
   getRoundData(
     _roundId: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<
     [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
       roundId: BigNumber;
@@ -135,9 +127,7 @@ export interface TestAggregator extends BaseContract {
     }
   >;
 
-  latestRoundData(
-    overrides?: CallOverrides
-  ): Promise<
+  latestRoundData(overrides?: CallOverrides): Promise<
     [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
       roundId: BigNumber;
       answer: BigNumber;
@@ -146,6 +136,13 @@ export interface TestAggregator extends BaseContract {
       answeredInRound: BigNumber;
     }
   >;
+
+  mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+  updateMockAnswer(
+    _answer: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> },
+  ): Promise<ContractTransaction>;
 
   version(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -156,7 +153,7 @@ export interface TestAggregator extends BaseContract {
 
     getRoundData(
       _roundId: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         roundId: BigNumber;
@@ -167,9 +164,7 @@ export interface TestAggregator extends BaseContract {
       }
     >;
 
-    latestRoundData(
-      overrides?: CallOverrides
-    ): Promise<
+    latestRoundData(overrides?: CallOverrides): Promise<
       [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         roundId: BigNumber;
         answer: BigNumber;
@@ -178,6 +173,10 @@ export interface TestAggregator extends BaseContract {
         answeredInRound: BigNumber;
       }
     >;
+
+    mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updateMockAnswer(_answer: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -189,12 +188,16 @@ export interface TestAggregator extends BaseContract {
 
     description(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRoundData(
-      _roundId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getRoundData(_roundId: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
+
+    mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -204,12 +207,16 @@ export interface TestAggregator extends BaseContract {
 
     description(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getRoundData(
-      _roundId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getRoundData(_roundId: BigNumberish, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mockAnswer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> },
+    ): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

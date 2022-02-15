@@ -13,7 +13,7 @@ import {
   VariantTransactionData,
 } from "@connext/nxtp-utils";
 
-import { InvalidTxStatus, PollingNotActive } from "../error";
+import { InvalidTxStatus } from "../error";
 import {
   SenderTransactionPreparedPayload,
   SenderTransactionCancelledPayload,
@@ -112,13 +112,13 @@ export class Subgraph {
   private pollingLoop: NodeJS.Timer | undefined;
   private syncStatus: Record<number, SubgraphSyncRecord> = {};
   private chainConfig: Record<number, SubgraphChainConfig>;
+  public pollingStopperBlock: Record<number, number> = {};
 
   constructor(
-    private readonly userAddress: Promise<string>,
+    private readonly userAddress: Promise<string> | string,
     _chainConfig: Record<number, Omit<SubgraphChainConfig, "subgraphSyncBuffer"> & { subgraphSyncBuffer?: number }>,
     private readonly chainReader: ChainReader,
     private readonly logger: Logger,
-    skipPolling = false,
     private readonly pollInterval = 10_000,
   ) {
     this.chainConfig = {};
@@ -142,9 +142,6 @@ export class Subgraph {
         subgraphSyncBuffer: _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
       };
     });
-    if (!skipPolling) {
-      this.startPolling();
-    }
   }
 
   public stopPolling(): void {
@@ -154,12 +151,41 @@ export class Subgraph {
     }
   }
 
-  public startPolling(): void {
+  public updatePollingStopperBlock(chainId: number, blockNumber: number): void {
+    this.pollingStopperBlock[chainId] = blockNumber;
+  }
+
+  async startPolling(): Promise<void> {
+    Object.keys(this.sdks).map(async (_chainId) => {
+      const chainId = parseInt(_chainId);
+      this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
+    });
+
     if (this.pollingLoop == null) {
       this.pollingLoop = setInterval(async () => {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
         try {
-          await this.getActiveTransactions();
+          const activeTxs = await this.getActiveTransactions();
+          if (activeTxs.length < 1) {
+            let shouldStop = false;
+            await Promise.all(
+              Object.keys(this.sdks).map(async (_chainId) => {
+                const chainId = parseInt(_chainId);
+                if (
+                  !this.pollingStopperBlock[chainId] ||
+                  this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock
+                ) {
+                  shouldStop = false;
+                  return;
+                } else {
+                  shouldStop = true;
+                }
+              }),
+            );
+            if (shouldStop) {
+              this.stopPolling();
+            }
+          }
         } catch (err) {
           this.logger.error("Error in subgraph loop", requestContext, methodContext, err);
         }
@@ -697,7 +723,7 @@ export class Subgraph {
    * Update the sync statuses of subgraph providers for each chain.
    * This will enable FallbackSubgraph to use the most in-sync subgraph provider.
    */
-  private async updateSyncStatus(): Promise<void> {
+  async updateSyncStatus(): Promise<void> {
     await Promise.all(
       Object.keys(this.sdks).map(async (_chainId) => {
         const chainId = parseInt(_chainId);
@@ -785,7 +811,7 @@ export class Subgraph {
     filter: (data: SubgraphEventPayloads[T]) => boolean = (_data: SubgraphEventPayloads[T]) => true,
   ): Promise<SubgraphEventPayloads[T]> {
     if (!this.pollingLoop) {
-      throw new PollingNotActive();
+      this.startPolling();
     }
     return this.evts[event].pipe(filter).waitFor(timeout) as Promise<SubgraphEventPayloads[T]>;
   }

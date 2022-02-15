@@ -63,6 +63,7 @@ export type ChainData = {
     fulfillL1?: string;
     cancelL1?: string;
     removeLiquidityL1?: string;
+    gasPriceFactor?: string;
   };
 };
 

@@ -20,7 +20,7 @@ WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // a
 WRAPPED_ETH_MAP.set("43114", "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"); // avalanche WAVAX
 WRAPPED_ETH_MAP.set("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"); // xdai wxDAI
 WRAPPED_ETH_MAP.set("1285", "0x98878B06940aE243284CA214f92Bb71a2b032B8A"); // moonriver wMOVR
-
+WRAPPED_ETH_MAP.set("1284", "0xAcc15dC74880C9944775448304B263D191c6077F"); // moonbeam wGLMR
 /**
  * Hardhat task defining the contract deployments for nxtp
  *
@@ -65,11 +65,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
+
+    let deployedPriceOracleAddress;
+    try {
+      deployedPriceOracleAddress = (await hre.deployments.get("ConnextPriceOracle")).address;
+    } catch (e) {
+      console.log("ConnextPriceOracle not deployed yet");
+    }
     await hre.deployments.deploy("ConnextPriceOracle", {
       from: deployer,
       args: [WRAPPED_ETH_MAP.get(chainId)],
       log: true,
     });
+
+    const priceOracleDeployment = await hre.deployments.get("ConnextPriceOracle");
+    const newPriceOracleAddress = priceOracleDeployment.address;
+    if (deployedPriceOracleAddress && deployedPriceOracleAddress != newPriceOracleAddress) {
+      console.log("Setting v1PriceOracle, v1PriceOracle: ", deployedPriceOracleAddress);
+      const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
+      const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
+      console.log("setV1PriceOracle tx: ", tx);
+      await tx.wait();
+    }
   }
 
   console.log("Deploying multicall to configured chain");
