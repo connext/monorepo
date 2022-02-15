@@ -5,9 +5,6 @@
     },
     {
       "path": "../contracts/tsconfig.build.json"
-    },
-    {
-      "path": "../txservice/tsconfig.build.json"
     }
   ],
   "extends": "../../config/tsconfig.node.json",
