@@ -1,12 +1,4 @@
 import { Wallet, BigNumberish } from "ethers";
-import {
-  AuctionBid,
-  ChainData,
-  FulfillParams,
-  InvariantTransactionData,
-  RouterNxtpNatsMessagingService,
-  VariantTransactionData,
-} from "@connext/nxtp-utils";
 import { Logger } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 
@@ -80,74 +72,31 @@ export type MetaTransaction = {
   gasLimit: number;
 };
 
+export type BidParams = {
+  recipient: string,
+  callTo: string,
+  callData: "0x",
+  originDomain: string,
+  destinationDomain: string,
+};
+
 export type Bid = {
-  data: string;
+  params: BidParams,
+  asset: string,
+  amount: BigNumberish
+};
+
+export type SignedBid = {
+  bid: Bid,
+  signature: string
 }
 
 export type Cache = {
   nxtpId: string,
-  bid: Bid
+  bid: SignedBid
 }
 
 export type BatchJob = (transactions: MetaTransaction[]) => Promise<void>;
-
-export type BatchSendCondition = {
-  ttl?: number;
-  gasLimit: number;
-};
-
-export type BatchExecution = {
-  nonce: number; // The nonce of the job in relation to all batch send job history.
-  createTimestamp: number; // Timestamp when the batch send job was created.
-  executeTimestamp?: number; // Timestamp when the batch send job was executed.
-  size: number; // Size of the batch in # of transactions.
-  condition: BatchSendCondition; // The condition under which the batch was or will be sent.
-};
-
-
-
-export type Batch = {
-  id: string; // ID is any string preferred to the consumer.
-  chain: number;
-  transactions: Record<string, MetaTransaction>; // Mapping of transactions by transaction ID.
-  history: BatchExecution[]; // Stack of batch executions in order of occurrence.
-};
-
-export type StoreChainEntry = {
-  batches: {
-    [id: string]: Batch;
-  };
-};
-
-export type Store = {
-  [chain: number]: StoreChainEntry;
-};
-
-/// MARK - Subgraph
-// Convenience format of the Transaction entity stored in subgraph.
-export type CoreTransactionEntity = {
-  variant: VariantTransactionData;
-  invariant: InvariantTransactionData;
-  relayerFee: BigNumberish;
-  encryptedCallData: string;
-};
-
-// A Transaction entity that has both sending and receiving chains prepared.
-export type ReceiverPreparedTransactionEntity = {
-  decodedBid: AuctionBid;
-  receiverPrepareHash: string;
-} & CoreTransactionEntity;
-
-// A Transaction entity that has receiving chain fulfilled.
-export type ReceiverFulfilledTransactionEntity = {
-  receiverFulfillHash: string;
-} & ReceiverPreparedTransactionEntity;
-
-// A Transaction entity that *should* have either a receiving chain cancellation or be
-// past expiry.
-export type CancelledTransactionEntity = {
-  receiverCancelHash?: string;
-} & CoreTransactionEntity;
 
 /// MARK - API
 // Formats for API response values.

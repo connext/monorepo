@@ -1,11 +1,14 @@
 import { fastify, FastifyInstance } from 'fastify';
-import { gelatoSend, gelatoFulfill, isChainSupportedByGelato } from '@connext/nxtp-utils';
+import { gelatoSend, gelatoFulfill, isChainSupportedByGelato, ethereumRequest } from '@connext/nxtp-utils';
 import bidRoute from './handlers/bid';
 import pino from 'pino';
 import { StoreManager } from './adapters/RedisStoreManager';
 import Redis from 'ioredis';
-
+import { Wallet } from 'ethers';
 import { Logger } from "@connext/nxtp-utils";
+import { getConfig } from './utils';
+import { ChainReader } from '@connext/nxtp-txservice';
+import { Bid } from './lib/types';
 
 
 // const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
@@ -17,14 +20,23 @@ export default class Auctioneer {
   store!: StoreManager;
   server!: FastifyInstance;
   logger!: Logger;
+  chainReader!: ChainReader;
+  wallet!: Wallet;
+
+  auctioneerAddress: string = "0x";
 
   constructor() {
-    
+
+    this.logger = new Logger({ level: 'debug' });
+    const config = getConfig();
+    if (config) {
+      this.wallet = Wallet.fromMnemonic(config.mnemonic);
+      this.chainReader = new ChainReader(this.logger, config, this.wallet)
+    }
   }
 
   async fastifyStart(): Promise<FastifyInstance> {
     //nxtp logger
-    this.logger = new Logger({ level: 'debug' });
 
     //fastify logger
     const pino_logger = pino({ level: LOG_LEVEL });
@@ -55,5 +67,12 @@ export default class Auctioneer {
     if (sManager) {
       this.store = sManager;
     }
+  }
+
+
+  async validateTx(bid: Bid) {
+    
+    this.chainReader.getGasEstimate()
+    
   }
 }
