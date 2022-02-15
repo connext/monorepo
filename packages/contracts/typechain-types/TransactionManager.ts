@@ -430,7 +430,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "AssetRemoved(bytes32,address)": EventFragment;
     "Fulfilled(bytes32,address,address,tuple,uint256,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
-    "LiquidityRemoved(address,address,uint256,address)": EventFragment;
+    "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Prepared(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
@@ -543,8 +543,14 @@ export type LiquidityAddedEvent = TypedEvent<
 export type LiquidityAddedEventFilter = TypedEventFilter<LiquidityAddedEvent>;
 
 export type LiquidityRemovedEvent = TypedEvent<
-  [string, string, BigNumber, string],
-  { recipient: string; local: string; amount: BigNumber; caller: string }
+  [string, string, string, BigNumber, string],
+  {
+    router: string;
+    recipient: string;
+    local: string;
+    amount: BigNumber;
+    caller: string;
+  }
 >;
 
 export type LiquidityRemovedEventFilter =
@@ -1280,13 +1286,15 @@ export interface TransactionManager extends BaseContract {
       caller?: null
     ): LiquidityAddedEventFilter;
 
-    "LiquidityRemoved(address,address,uint256,address)"(
+    "LiquidityRemoved(address,address,address,uint256,address)"(
+      router?: string | null,
       recipient?: null,
       local?: null,
       amount?: null,
       caller?: null
     ): LiquidityRemovedEventFilter;
     LiquidityRemoved(
+      router?: string | null,
       recipient?: null,
       local?: null,
       amount?: null,
