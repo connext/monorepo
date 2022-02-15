@@ -7,6 +7,8 @@ import {
   BigNumberish,
   BytesLike,
   CallOverrides,
+  ContractTransaction,
+  Overrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -22,6 +24,8 @@ export interface TestAggregatorInterface extends utils.Interface {
     "description()": FunctionFragment;
     "getRoundData(uint80)": FunctionFragment;
     "latestRoundData()": FunctionFragment;
+    "mockAnswer()": FunctionFragment;
+    "updateMockAnswer(int256)": FunctionFragment;
     "version()": FunctionFragment;
   };
 
@@ -38,6 +42,14 @@ export interface TestAggregatorInterface extends utils.Interface {
     functionFragment: "latestRoundData",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "mockAnswer",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateMockAnswer",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
@@ -51,6 +63,11 @@ export interface TestAggregatorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "latestRoundData",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "mockAnswer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateMockAnswer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
@@ -115,6 +132,13 @@ export interface TestAggregator extends BaseContract {
       }
     >;
 
+    mockAnswer(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
@@ -146,6 +170,13 @@ export interface TestAggregator extends BaseContract {
       answeredInRound: BigNumber;
     }
   >;
+
+  mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+  updateMockAnswer(
+    _answer: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   version(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -179,6 +210,13 @@ export interface TestAggregator extends BaseContract {
       }
     >;
 
+    mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
@@ -196,6 +234,13 @@ export interface TestAggregator extends BaseContract {
 
     latestRoundData(overrides?: CallOverrides): Promise<BigNumber>;
 
+    mockAnswer(overrides?: CallOverrides): Promise<BigNumber>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     version(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
@@ -210,6 +255,13 @@ export interface TestAggregator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     latestRoundData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mockAnswer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    updateMockAnswer(
+      _answer: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

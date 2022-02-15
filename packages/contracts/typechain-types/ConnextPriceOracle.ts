@@ -33,6 +33,8 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
     "setAggregators(address[],address[])": FunctionFragment;
     "setDexPriceInfo(address,address,address,bool)": FunctionFragment;
     "setDirectPrice(address,uint256)": FunctionFragment;
+    "setV1PriceOracle(address)": FunctionFragment;
+    "v1PriceOracle()": FunctionFragment;
     "wrapped()": FunctionFragment;
   };
 
@@ -75,6 +77,14 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setDirectPrice",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setV1PriceOracle",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "v1PriceOracle",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "wrapped", values?: undefined): string;
 
@@ -124,6 +134,14 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
     functionFragment: "setDirectPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setV1PriceOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "v1PriceOracle",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "wrapped", data: BytesLike): Result;
 
   events: {
@@ -131,12 +149,14 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
     "DirectPriceUpdated(address,uint256,uint256)": EventFragment;
     "NewAdmin(address,address)": EventFragment;
     "PriceRecordUpdated(address,address,address,bool)": EventFragment;
+    "V1PriceOracleUpdated(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AggregatorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DirectPriceUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewAdmin"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PriceRecordUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "V1PriceOracleUpdated"): EventFragment;
 }
 
 export type AggregatorUpdatedEvent = TypedEvent<
@@ -169,6 +189,14 @@ export type PriceRecordUpdatedEvent = TypedEvent<
 
 export type PriceRecordUpdatedEventFilter =
   TypedEventFilter<PriceRecordUpdatedEvent>;
+
+export type V1PriceOracleUpdatedEvent = TypedEvent<
+  [string, string],
+  { oldAddress: string; newAddress: string }
+>;
+
+export type V1PriceOracleUpdatedEventFilter =
+  TypedEventFilter<V1PriceOracleUpdatedEvent>;
 
 export interface ConnextPriceOracle extends BaseContract {
   contractName: "ConnextPriceOracle";
@@ -263,6 +291,13 @@ export interface ConnextPriceOracle extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<[string]>;
+
     wrapped(overrides?: CallOverrides): Promise<[string]>;
   };
 
@@ -331,6 +366,13 @@ export interface ConnextPriceOracle extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setV1PriceOracle(
+    _v1PriceOracle: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  v1PriceOracle(overrides?: CallOverrides): Promise<string>;
+
   wrapped(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
@@ -396,6 +438,13 @@ export interface ConnextPriceOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<string>;
+
     wrapped(overrides?: CallOverrides): Promise<string>;
   };
 
@@ -438,6 +487,15 @@ export interface ConnextPriceOracle extends BaseContract {
       lpToken?: null,
       _active?: null
     ): PriceRecordUpdatedEventFilter;
+
+    "V1PriceOracleUpdated(address,address)"(
+      oldAddress?: null,
+      newAddress?: null
+    ): V1PriceOracleUpdatedEventFilter;
+    V1PriceOracleUpdated(
+      oldAddress?: null,
+      newAddress?: null
+    ): V1PriceOracleUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -495,6 +553,13 @@ export interface ConnextPriceOracle extends BaseContract {
       _price: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     wrapped(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -563,6 +628,13 @@ export interface ConnextPriceOracle extends BaseContract {
       _price: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    v1PriceOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     wrapped(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

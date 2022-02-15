@@ -1,7 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { getHexDomainFromString } from "../src/nomad";
 import { constants } from "ethers";
+
+import { getHexDomainFromString } from "../src/nomad";
 
 const TEST_ROUTERS = [
   "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a", // live testnet router
@@ -23,6 +24,7 @@ WRAPPED_ETH_MAP.set("42161", "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"); // a
 WRAPPED_ETH_MAP.set("43114", "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7"); // avalanche WAVAX
 WRAPPED_ETH_MAP.set("100", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"); // xdai wxDAI
 WRAPPED_ETH_MAP.set("1285", "0x98878B06940aE243284CA214f92Bb71a2b032B8A"); // moonriver wMOVR
+WRAPPED_ETH_MAP.set("1284", "0xAcc15dC74880C9944775448304B263D191c6077F"); // moonbeam wGLMR
 
 const chainIdToNomad: Map<number, { name: string; bridgeRouter: string; tokenRegistry: string; wrappedEth: string }> =
   new Map([
@@ -45,7 +47,7 @@ const chainIdToNomad: Map<number, { name: string; bridgeRouter: string; tokenReg
       },
     ],
     [
-      1337,
+      31337,
       {
         name: "local",
         bridgeRouter: constants.AddressZero,
@@ -77,42 +79,65 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("nomadConfig: ", nomadConfig);
   const domain = getHexDomainFromString(nomadConfig.name);
 
-  await hre.deployments.deterministic("TransactionManager", {
+  let dep = await hre.deployments.deterministic("TransactionManager", {
     from: deployer,
     args: [domain, nomadConfig.bridgeRouter, nomadConfig.tokenRegistry, nomadConfig.wrappedEth],
     log: true,
   });
+  let deployment = await dep.deploy();
 
-  const txManagerDeployment = await hre.deployments.get("TransactionManager");
-  const txManagerAddress = txManagerDeployment.address;
+  const txManagerAddress = deployment.address;
   console.log("txManagerAddress: ", txManagerAddress);
 
   if (WRAPPED_ETH_MAP.has(chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
+
+    let deployedPriceOracleAddress;
+    try {
+      deployedPriceOracleAddress = (await hre.deployments.get("ConnextPriceOracle")).address;
+    } catch (e) {
+      console.log("ConnextPriceOracle not deployed yet");
+    }
     await hre.deployments.deploy("ConnextPriceOracle", {
       from: deployer,
       args: [WRAPPED_ETH_MAP.get(chainId)],
       log: true,
     });
+
+    const priceOracleDeployment = await hre.deployments.get("ConnextPriceOracle");
+    const newPriceOracleAddress = priceOracleDeployment.address;
+    if (deployedPriceOracleAddress && deployedPriceOracleAddress != newPriceOracleAddress) {
+      console.log("Setting v1PriceOracle, v1PriceOracle: ", deployedPriceOracleAddress);
+      const priceOracleContract = await hre.ethers.getContractAt("ConnextPriceOracle", newPriceOracleAddress);
+      const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
+      console.log("setV1PriceOracle tx: ", tx);
+      await tx.wait();
+    }
   }
 
   console.log("Deploying multicall to configured chain");
-  await hre.deployments.deploy("Multicall", {
+  dep = await hre.deployments.deterministic("Multicall", {
     from: deployer,
     log: true,
   });
+  await dep.deploy();
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");
-    await hre.deployments.deploy("TestERC20", {
+    await hre.deployments.deterministic("TestERC20", {
       from: deployer,
       log: true,
     });
+    deployment = await dep.deploy();
+    console.log("TestERC20: ", deployment.address);
 
-    await hre.deployments.deploy("Counter", {
-      from: deployer,
-      log: true,
-    });
+    // console.log("Deploying counter on non-mainnet chain");
+    // await hre.deployments.deterministic("Counter", {
+    //   from: deployer,
+    //   log: true,
+    // });
+    // deployment = await dep.deploy();
+    // console.log("Counter: ", deployment.address);
 
     if (!process.env.SKIP_SETUP) {
       console.log("Setting up test routers on chain", chainId);

@@ -121,7 +121,7 @@ export class NxtpSdkBase {
   // TODO: Make this private. Rn it's public for Sdk class to use for chainReader calls; but all calls should happen here.
   public readonly chainReader: ChainReader;
   private readonly messaging: UserNxtpNatsMessagingService;
-  private readonly subgraph: Subgraph;
+  private subgraph: Subgraph;
   private readonly logger: Logger;
   public readonly chainData?: Map<string, ChainData>;
 
@@ -249,8 +249,11 @@ export class NxtpSdkBase {
       subgraphConfig,
       this.chainReader,
       this.logger.child({ module: "Subgraph" }),
-      skipPolling,
     );
+
+    if (!skipPolling) {
+      this.subgraph.startPolling();
+    }
   }
 
   async connectMessaging(bearerToken?: string): Promise<string> {
@@ -938,6 +941,7 @@ export class NxtpSdkBase {
       expiry,
     };
     const tx = await this.transactionManager.prepare(sendingChainId, params, requestContext);
+    await this.subgraph.startPolling();
     return tx;
   }
 

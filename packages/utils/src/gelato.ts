@@ -12,6 +12,7 @@ const endpoints = {
   [CHAIN_ID.RINKEBY]: "https://staging.relay.gelato.digital/rinkeby/relay",
   [CHAIN_ID.GOERLI]: "https://staging.relay.gelato.digital/goerli/relay",
   [CHAIN_ID.BSC]: "https://prod.relay.gelato.digital/bsc/relay",
+  [CHAIN_ID.XDAI]: "https://prod.relay.gelato.digital/gnosis/relay",
   [CHAIN_ID.MATIC]: "https://prod.relay.gelato.digital/matic/relay",
   [CHAIN_ID.FANTOM]: "https://prod.relay.gelato.digital/fantom/relay",
   [CHAIN_ID.ARBITRUM]: "https://prod.relay.gelato.digital/arbitrum/relay",

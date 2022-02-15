@@ -70,7 +70,7 @@ export type SdkBaseChainConfigParams = {
 };
 export type SdkBaseConfigParams = {
   chainConfig: SdkBaseChainConfigParams;
-  signerAddress: Promise<string>;
+  signerAddress: Promise<string> | string;
   signer?: Signer;
   messagingSigner?: Signer;
   logger?: Logger;
