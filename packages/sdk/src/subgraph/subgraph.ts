@@ -13,7 +13,7 @@ import {
   VariantTransactionData,
 } from "@connext/nxtp-utils";
 
-import { InvalidTxStatus, PollingNotActive } from "../error";
+import { InvalidTxStatus } from "../error";
 import {
   SenderTransactionPreparedPayload,
   SenderTransactionCancelledPayload,
@@ -811,7 +811,7 @@ export class Subgraph {
     filter: (data: SubgraphEventPayloads[T]) => boolean = (_data: SubgraphEventPayloads[T]) => true,
   ): Promise<SubgraphEventPayloads[T]> {
     if (!this.pollingLoop) {
-      throw new PollingNotActive();
+      this.startPolling();
     }
     return this.evts[event].pipe(filter).waitFor(timeout) as Promise<SubgraphEventPayloads[T]>;
   }
