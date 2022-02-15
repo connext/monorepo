@@ -55,21 +55,30 @@ export declare namespace TransactionManager {
 
   export type FulfillArgsStruct = {
     params: TransactionManager.CallParamsStruct;
-    nonce: BigNumberish;
     local: string;
+    router: string;
+    feePercentage: BigNumberish;
+    nonce: BigNumberish;
     amount: BigNumberish;
+    relayerSignature: BytesLike;
   };
 
   export type FulfillArgsStructOutput = [
     TransactionManager.CallParamsStructOutput,
-    BigNumber,
     string,
-    BigNumber
+    string,
+    number,
+    BigNumber,
+    BigNumber,
+    string
   ] & {
     params: TransactionManager.CallParamsStructOutput;
-    nonce: BigNumber;
     local: string;
+    router: string;
+    feePercentage: number;
+    nonce: BigNumber;
     amount: BigNumber;
+    relayerSignature: string;
   };
 
   export type PrepareArgsStruct = {
@@ -104,6 +113,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "addLiquidity(uint256,address)": FunctionFragment;
     "addLiquidityFor(uint256,address,address)": FunctionFragment;
+    "addRelayerFees(address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "adoptedToCanonical(address)": FunctionFragment;
@@ -115,7 +125,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "canonicalToAdopted(bytes32)": FunctionFragment;
     "delay()": FunctionFragment;
     "domain()": FunctionFragment;
-    "fulfill(((address,address,bytes,uint32,uint32),uint256,address,uint256))": FunctionFragment;
+    "fulfill(((address,address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes))": FunctionFragment;
     "interpreter()": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
@@ -131,6 +141,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "reconciledTransactions(bytes32)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
+    "removeRelayerFees(uint256,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
     "renounceAssetOwnership()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -140,6 +151,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "routedTransactionsGas(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "routerOwnershipTimestamp()": FunctionFragment;
+    "routerRelayerFees(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
     "wrapper()": FunctionFragment;
@@ -156,6 +168,10 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addLiquidityFor",
     values: [BigNumberish, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addRelayerFees",
+    values: [string]
   ): string;
   encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
   encodeFunctionData(
@@ -248,6 +264,10 @@ export interface TransactionManagerInterface extends utils.Interface {
     values: [BigNumberish, string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeRelayerFees",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeRouter",
     values: [string]
   ): string;
@@ -281,6 +301,10 @@ export interface TransactionManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "routerRelayerFees",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setupAsset",
     values: [BridgeMessage.TokenIdStruct, string, string]
   ): string;
@@ -300,6 +324,10 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "addLiquidityFor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addRelayerFees",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
@@ -384,6 +412,10 @@ export interface TransactionManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "removeRelayerFees",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
@@ -416,6 +448,10 @@ export interface TransactionManagerInterface extends utils.Interface {
     functionFragment: "routerOwnershipTimestamp",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "routerRelayerFees",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenRegistry",
@@ -430,7 +466,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "AssetRemoved(bytes32,address)": EventFragment;
     "Fulfilled(bytes32,address,address,tuple,uint256,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
-    "LiquidityRemoved(address,address,uint256,address)": EventFragment;
+    "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Prepared(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
@@ -543,8 +579,14 @@ export type LiquidityAddedEvent = TypedEvent<
 export type LiquidityAddedEventFilter = TypedEventFilter<LiquidityAddedEvent>;
 
 export type LiquidityRemovedEvent = TypedEvent<
-  [string, string, BigNumber, string],
-  { recipient: string; local: string; amount: BigNumber; caller: string }
+  [string, string, string, BigNumber, string],
+  {
+    router: string;
+    recipient: string;
+    local: string;
+    amount: BigNumber;
+    caller: string;
+  }
 >;
 
 export type LiquidityRemovedEventFilter =
@@ -700,6 +742,11 @@ export interface TransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    addRelayerFees(
+      router: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     addRouter(
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -808,6 +855,12 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    removeRelayerFees(
+      amount: BigNumberish,
+      recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     removeRouter(
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -853,6 +906,11 @@ export interface TransactionManager extends BaseContract {
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    routerRelayerFees(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
@@ -878,6 +936,11 @@ export interface TransactionManager extends BaseContract {
   addLiquidityFor(
     amount: BigNumberish,
     local: string,
+    router: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addRelayerFees(
     router: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -984,6 +1047,12 @@ export interface TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  removeRelayerFees(
+    amount: BigNumberish,
+    recipient: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   removeRouter(
     router: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1029,6 +1098,11 @@ export interface TransactionManager extends BaseContract {
 
   routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  routerRelayerFees(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   setupAsset(
     canonical: BridgeMessage.TokenIdStruct,
     adoptedAssetId: string,
@@ -1055,6 +1129,8 @@ export interface TransactionManager extends BaseContract {
       router: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    addRelayerFees(router: string, overrides?: CallOverrides): Promise<void>;
 
     addRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
@@ -1156,6 +1232,12 @@ export interface TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    removeRelayerFees(
+      amount: BigNumberish,
+      recipient: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
     renounceAssetOwnership(overrides?: CallOverrides): Promise<void>;
@@ -1191,6 +1273,11 @@ export interface TransactionManager extends BaseContract {
     ): Promise<BigNumber>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    routerRelayerFees(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
@@ -1280,13 +1367,15 @@ export interface TransactionManager extends BaseContract {
       caller?: null
     ): LiquidityAddedEventFilter;
 
-    "LiquidityRemoved(address,address,uint256,address)"(
+    "LiquidityRemoved(address,address,address,uint256,address)"(
+      router?: string | null,
       recipient?: null,
       local?: null,
       amount?: null,
       caller?: null
     ): LiquidityRemovedEventFilter;
     LiquidityRemoved(
+      router?: string | null,
       recipient?: null,
       local?: null,
       amount?: null,
@@ -1411,6 +1500,11 @@ export interface TransactionManager extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    addRelayerFees(
+      router: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     addRouter(
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1519,6 +1613,12 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    removeRelayerFees(
+      amount: BigNumberish,
+      recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     removeRouter(
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1556,6 +1656,11 @@ export interface TransactionManager extends BaseContract {
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    routerRelayerFees(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
@@ -1582,6 +1687,11 @@ export interface TransactionManager extends BaseContract {
     addLiquidityFor(
       amount: BigNumberish,
       local: string,
+      router: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addRelayerFees(
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1700,6 +1810,12 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    removeRelayerFees(
+      amount: BigNumberish,
+      recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     removeRouter(
       router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1736,6 +1852,11 @@ export interface TransactionManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     routerOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    routerRelayerFees(
+      arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

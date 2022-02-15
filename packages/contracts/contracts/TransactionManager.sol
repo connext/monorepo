@@ -11,6 +11,7 @@ import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 // Open questions:
 // 1. How to indicate if devs allow fast liquidity?
@@ -128,18 +129,23 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   /**
    * @notice 
    * @param params - The CallParams. These are consistent across sending and receiving chains
-   * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate 
-   * the transaction id for the crosschain transaction
    * @param local - The local asset for the transaction, will be swapped to the adopted asset if
    * appropriate
+   * @param router - The router who you are sending the funds on behalf of
+   * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate 
+   * the transaction id for the crosschain transaction
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
+   * @param feePercentage - The amount over the BASEFEE to tip the relayer
    */
   struct FulfillArgs {
     CallParams params;
-    uint256 nonce;
     address local;
+    address router;
+    uint32 feePercentage;
+    uint256 nonce;
     uint256 amount;
+    bytes relayerSignature;
   }
 
   // ============ Events ============
@@ -772,6 +778,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       });
     }
 
+    // Pay metatx relayer
+    // NOTE: if this is done *without* fast liquidity, router will be address(0) and the relayer
+    // will always be paid
+    _handleRelayerFees(_args.router, _args.nonce, _args.feePercentage, _args.relayerSignature);
+
     // Emit event
     emit Fulfilled(
       _transactionId,
@@ -1078,6 +1089,41 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
   }
 
   /**
+   * @notice Pays the relayer fee on behalf of a router some multiple on the basefee
+   * @dev Currently only supported on eip-1559 chains and only handles native assets.
+   * Alos only used in `fulfill` transactions
+   * @param _router - The router you are sending the tx on behalf of
+   * @param _nonce - The nonce of the transaction
+   * @param _feePct - The percent over the basefee you are adding
+   */
+  function _handleRelayerFees(
+    address _router,
+    uint256 _nonce,
+    uint32 _feePct,
+    bytes calldata _sig
+  ) internal {
+    // If the sender *is* the router, do nothing
+    if (msg.sender == _router) {
+      return;
+    }
+
+    // Check the signature of the router on the nonce + fee pct
+    require(_router == recoverSignature(abi.encode(_nonce, _feePct), _sig), "!rtr_sig");
+
+    // Otherwise, send the fee percentage
+    // TODO: BASEFEE opcode will only be supported if the domain supports EIP1559
+    // must be able to detect this dynamically
+
+    uint256 fee = block.basefee * _feePct / 100;
+
+    // Decrement liquidity
+    routerRelayerFees[_router] -= fee;
+
+    // Pay sender
+    Address.sendValue(payable(msg.sender), fee);
+  }
+
+  /**
    * @notice Sends a message over the bridge
    * @param _destination - The destination domain for the message
    * @param _recipient - The address that should receive the funds, or fallback address if the external call
@@ -1106,6 +1152,20 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       true,
       _id,
       _callHash
+    );
+  }
+
+  /**
+   * @notice Holds the logic to recover the signer from an encoded payload.
+   * @dev Will hash and convert to an eth signed message.
+   * @param _encoded The payload that was signed
+   * @param _sig The signature you are recovering the signer from
+   */
+  function recoverSignature(bytes memory _encoded, bytes calldata _sig) internal pure returns (address) {
+    // Recover
+    return ECDSA.recover(
+      ECDSA.toEthSignedMessageHash(keccak256(_encoded)),
+      _sig
     );
   }
 }
