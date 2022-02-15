@@ -9,8 +9,6 @@ import "@nomiclabs/hardhat-etherscan";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
-import { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } from "hardhat/builtin-tasks/task-names";
-import { subtask } from "hardhat/config";
 
 import "./src/tasks/addRouter";
 import "./src/tasks/addAsset";
