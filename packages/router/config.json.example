@@ -1,6 +1,6 @@
 {
   "adminToken": "blahblah",
-  "chainConfig": {
+  "chains": {
     "1": {
       "rpc": ["https://mainnet.infura.io/v3/"]
     },
