@@ -35,35 +35,40 @@ type Transaction @entity {
   router: Router
   transactingAsset: Bytes!
   localAsset: Bytes!
+  callTo: Bytes!
+  callData: Bytes!
 
   # Prepared
   prepareCaller: Bytes!
   prepareTransactingAmount: BigInt!
   prepareLocalAmount: BigInt!
-  callTo: Bytes!
-  callData: Bytes!
 
-  # TransactionPrepared
-  prepareTransactionHash: Bytes!
-  prepareTimestamp: BigInt!
-  prepareGasPrice: BigInt!
-  prepareGasLimit: BigInt!
+  # Prepared Transaction
+  prepareTransactionHash: Bytes
+  prepareTimestamp: BigInt
+  prepareGasPrice: BigInt
+  prepareGasLimit: BigInt
+  prepareBlockNumber: BigInt
 
   # Fulfill
-  fulfillCaller: Bytes!
-  fulfillTransactingAmount: BigInt!
-  fulfillLocalAmount: BigInt!
+  fulfillCaller: Bytes
+  fulfillTransactingAmount: BigInt
+  fulfillLocalAmount: BigInt
 
-  # TransactionFulfilled
+  # Fulfilled Transaction
   fulfillTransactionHash: Bytes
   fulfillTimestamp: BigInt
-  fulfillGasPrice: BigInt!
-  fulfillGasLimit: BigInt!
+  fulfillGasPrice: BigInt
+  fulfillGasLimit: BigInt
+  fulfillBlockNumber: BigInt
 
   # Reconciled
   externalCallHash: Bytes
+
+  # Reconciled Transaction
   reconciledTransactionHash: Bytes
   reconciledTimestamp: BigInt
-  reconciledGasPrice: BigInt!
-  reconciledGasLimit: BigInt!
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
 }

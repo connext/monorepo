@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Sinon, { reset, restore, SinonStub } from "sinon";
-import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain";
+import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain-types";
 import * as contractFns from "../../src/shared/contracts";
 
 describe("contracts", () => {

@@ -95,18 +95,19 @@ export function handlePrepared(event: Prepared): void {
   transaction.recipient = event.params.recipient;
   transaction.transactingAsset = event.params.transactingAsset;
   transaction.localAsset = event.params.localAsset;
+  transaction.callTo = event.params.params.callTo;
+  transaction.callData = event.params.params.callData;
 
   // Prepared
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactingAmount = event.params.transactingAmount;
   transaction.prepareLocalAmount = event.params.localAmount;
-  transaction.callTo = event.params.params.callTo;
-  transaction.callData = event.params.params.callData;
 
   // TransactionPrepared
   transaction.prepareTransactionHash = event.transaction.hash;
   transaction.prepareGasPrice = event.transaction.gasPrice;
   transaction.prepareGasLimit = event.transaction.gasLimit;
+  transaction.prepareBlockNumber = event.block.number;
 
   transaction.save();
 }
@@ -133,19 +134,22 @@ export function handleFulfilled(event: Fulfilled): void {
     transaction.recipient = event.params.recipient;
     transaction.transactingAsset = event.params.transactingAsset;
     transaction.localAsset = event.params.localAsset;
+    transaction.callTo = event.params.params.callTo;
+    transaction.callData = event.params.params.callData;
   }
 
   // Fulfill
   transaction.fulfillCaller = event.params.caller;
   transaction.fulfillTransactingAmount = event.params.transactingAmount;
   transaction.fulfillLocalAmount = event.params.localAmount;
+  transaction.status = "Reconciled";
 
   // TransactionFulfilled
   transaction.fulfillTransactionHash = event.transaction.hash;
   transaction.fulfillTimestamp = event.block.timestamp;
   transaction.fulfillGasPrice = event.transaction.gasPrice;
   transaction.fulfillGasLimit = event.transaction.gasLimit;
-  transaction.status = "Reconciled";
+  transaction.fulfillBlockNumber = event.block.number;
 
   transaction.save();
 }
@@ -159,10 +163,12 @@ export function handleReconciled(event: Reconciled): void {
   let transaction = Transaction.load(event.params.transactionId.toHexString());
 
   transaction!.externalCallHash = event.params.externalHash;
+
   transaction!.reconciledTransactionHash = event.transaction.hash;
   transaction!.reconciledTimestamp = event.block.timestamp;
   transaction!.reconciledGasPrice = event.transaction.gasPrice;
   transaction!.reconciledGasLimit = event.transaction.gasLimit;
+  transaction!.reconciledBlockNumber = event.block.number;
 }
 
 function getChainId(): BigInt {
