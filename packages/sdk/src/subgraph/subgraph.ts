@@ -13,7 +13,7 @@ import {
   VariantTransactionData,
 } from "@connext/nxtp-utils";
 
-import { InvalidTxStatus, PollingNotActive } from "../error";
+import { InvalidTxStatus } from "../error";
 import {
   SenderTransactionPreparedPayload,
   SenderTransactionCancelledPayload,
