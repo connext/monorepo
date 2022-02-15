@@ -13,8 +13,8 @@ export const getTransactions = gql`
       where: {
         status: Prepared
         destinationDomain: $destinationDomain
-        prepareBlockNumber: $prepareBlockNumber
-        nonce: $nonce
+        prepareBlockNumber_gte: $prepareBlockNumber
+        nonce_gte: $nonce
       }
       orderBy: prepareBlockNumber
       orderDirection: desc
