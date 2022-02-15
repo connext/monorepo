@@ -1,0 +1,57 @@
+{
+  "name": "@connext/auctioneer",
+  "version": "0.0.1",
+  "description": "Auctioneer for Amarok",
+  "author": "Connext",
+  "license": "MIT",
+  "scripts": {
+    "dev": "yarn build --watch --preserveWatchOutput",
+    "docker:redis:up": "docker-compose -f ops/start-redis.docker-compose.yml up -d",
+    "start": "node dist/index.js",
+    "lint": "eslint ./src --ext .ts --env node",
+    "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
+    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
+    "build": "tsc --build ./tsconfig.build.json",
+    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
+    "purge": "yarn clean && rimraf ./node_modules",
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "codegen": "graphql-codegen"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "chai-subset": "^1.6.0",
+    "eslint": "^7.32.0",
+    "hardhat": "^2.8.3",
+    "mocha": "^9.0.3",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^13.0.0",
+    "ts-mocha": "^8.0.0",
+    "tslib": "^2.3.1",
+    "typescript": "4.3.5"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/**/*"
+  ],
+  "eslintIgnore": [
+    "graphqlsdk.ts"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "dependencies": {
+    "@connext/utils": "^7.3.17",
+    "fastify": "^3.27.1",
+    "fastify-plugin": "^3.0.1",
+    "ioredis": "^4.28.5",
+    "pino": "^7.8.0",
+    "tsc": "^2.0.4"
+  }
+}
