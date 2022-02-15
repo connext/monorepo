@@ -13,10 +13,10 @@ const LISTEN_PORT = process.env.PORT || 1234;
 const LOG_LEVEL = process.env.loglevel || 'debug';
 
 
-export class Auctioneer {
-  store: StoreManager;
-  server: FastifyInstance;
-  logger: Logger;
+export default class Auctioneer {
+  store!: StoreManager;
+  server!: FastifyInstance;
+  logger!: Logger;
 
   constructor() {
     

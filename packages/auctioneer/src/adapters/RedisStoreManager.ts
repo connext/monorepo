@@ -2,7 +2,7 @@
 import { jsonifyError, Logger } from "@connext/nxtp-utils";
 import Redis from "ioredis";
 
-import { Batch } from "../../lib";
+// import { Batch } from "../../lib";
 
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
 
@@ -36,9 +36,10 @@ export class StoreManager {
     return `${chain}-${id}`;
   }
 
-  public async getBatch(chain: number, id: string): Promise<Batch> {
+  public async getBatch(chain: number, id: string): Promise<any> {
     const _stored = await this.redis.get(this.getKey(chain, id));
-    let stored: Batch | undefined;
+    // let stored: Batch | undefined;
+    let stored: any | undefined;
     try {
       stored = JSON.parse(_stored as string);
     } catch (error: any) {
@@ -57,7 +58,7 @@ export class StoreManager {
     return stored;
   }
 
-  public async save(batch: Batch): Promise<void> {
+  public async save(batch: any): Promise<void> {
     await this.redis.set(this.getKey(batch.chain, batch.id), JSON.stringify(batch));
   }
 }

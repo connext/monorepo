@@ -1,10 +1,13 @@
-import { fastifyStart } from "./createAuctioneer";
+import  Auctioneer  from "./createAuctioneer";
 import bidRoute from './handlers/bid';
 
 console.log(`Creating Auctioneer`)
 
 export async function makeAuctioneer() {
-  const serverInstance = await fastifyStart();
+  const auctioneer = new Auctioneer();
+  await auctioneer.fastifyStart();
+  await auctioneer.redisStart();
+  
 
 }
 
