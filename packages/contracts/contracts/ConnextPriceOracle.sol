@@ -112,7 +112,6 @@ contract ConnextPriceOracle is PriceOracle {
             return 0;
         }
     }
-  }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
     uint256 chainLinkPrice = getPriceFromChainlink(_tokenAddress);
@@ -120,20 +119,21 @@ contract ConnextPriceOracle is PriceOracle {
   }
 
   function getPriceFromChainlink(address _tokenAddress) public view returns (uint256) {
-    AggregatorV3Interface aggregator = aggregators[_tokenAddress];
-    if (address(aggregator) != address(0)) {
-      (, int256 answer, , , ) = aggregator.latestRoundData();
+        AggregatorV3Interface aggregator = aggregators[_tokenAddress];
+        if (address(aggregator) != address(0)) {
+            (, int256 answer, , , ) = aggregator.latestRoundData();
 
-      // It's fine for price to be 0. We have two price feeds.
-      if (answer == 0) {
-        return 0;
-      }
+            // It's fine for price to be 0. We have two price feeds.
+            if (answer == 0) {
+                return 0;
+            }
 
-      // Extend the decimals to 1e18.
-      uint256 retVal = uint256(answer);
-      uint256 price = retVal.mul(10**(18 - uint256(aggregator.decimals())));
+            // Extend the decimals to 1e18.
+            uint256 retVal = uint256(answer);
+            uint256 price = retVal.mul(10**(18 - uint256(aggregator.decimals())));
 
-      return price;
+            return price;
+        }
     }
 
     function setDexPriceInfo(address _token, address _baseToken, address _lpToken, bool _active) external onlyAdmin {
@@ -146,7 +146,6 @@ contract ConnextPriceOracle is PriceOracle {
         priceInfo.active = _active;
         emit PriceRecordUpdated(_token, _baseToken, _lpToken, _active);
     }
-  }
 
     function setDirectPrice(address _token, uint256 _price) external onlyAdmin {
         emit DirectPriceUpdated(_token, assetPrices[_token], _price);
