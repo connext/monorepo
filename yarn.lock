@@ -1668,7 +1668,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-read-subgraph@workspace:packages/read-subgraph":
+"@connext/nxtp-read-subgraph@workspace:*, @connext/nxtp-read-subgraph@workspace:packages/read-subgraph":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-read-subgraph@workspace:packages/read-subgraph"
   dependencies:
@@ -1690,6 +1690,7 @@ __metadata:
   resolution: "@connext/nxtp-router@workspace:packages/router"
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
+    "@connext/nxtp-read-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": ^2.0.1
     "@graphql-codegen/typescript": ^2.0.0
