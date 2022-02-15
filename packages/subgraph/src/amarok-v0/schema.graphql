@@ -1,0 +1,76 @@
+type AssetBalance @entity {
+  id: ID!
+  amount: BigInt!
+  router: Router!
+  assetId: Bytes!
+  canonicalId: Bytes!
+}
+
+# User entity keeps track of active user transactions
+type User @entity {
+  id: ID!
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+}
+
+# Router represents a router and its associated liquidity
+type Router @entity {
+  id: ID!
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+  transactions: [Transaction!]! @derivedFrom(field: "router")
+}
+
+enum TransactionStatus {
+  Prepared
+  Fulfilled
+  Reconciled
+}
+
+# Transaction represents a transaction
+type Transaction @entity {
+  id: ID!
+  # Meta
+  originDomain: BigInt!
+  destinationDomain: BigInt!
+  chainId: BigInt!
+  status: TransactionStatus!
+  preparedTimestamp: BigInt!
+
+  # Transfer Data
+  nonce: BigInt!
+  transactionId: Bytes!
+  user: User!
+  recipient: Bytes!
+  router: Router
+  transactingAsset:
+  localAsset: Bytes!
+
+  # Prepared
+  prepareCaller: Bytes!
+  prepareTransactingAmount: BigInt!
+  prepareLocalAmount: BigInt!
+  callTo: Bytes!
+  callData: Bytes!
+
+  # TransactionPrepared
+  prepareTransactionHash: Bytes!
+  prepareTimestamp: BigInt
+  prepareGasFee: BigInt!
+  prepareGasLimit: BigInt!
+
+  # Fulfill
+  fulfillCaller: Bytes!
+  fulfillTransactingAmount: BigInt!
+  fulfillLocalAmount: BigInt!
+  externalCallSuccess: Boolean
+  externalCallReturnData: Bytes
+  
+  # TransactionFulfilled
+  fulfillTransactionHash: Bytes
+  fulfillTimestamp: BigInt
+  fulfillGasFee: BigInt!
+  fulfillGasLimit: BigInt!
+
+  # Reconciled
+  externalCallHash: Bytes
+  externalCallSuccess: Boolean
+}
