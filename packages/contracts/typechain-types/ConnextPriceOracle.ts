@@ -41,35 +41,107 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(functionFragment: "aggregators", values: [string]): string;
   encodeFunctionData(functionFragment: "assetPrices", values: [string]): string;
-  encodeFunctionData(functionFragment: "getPriceFromChainlink", values: [string]): string;
-  encodeFunctionData(functionFragment: "getPriceFromDex", values: [string]): string;
-  encodeFunctionData(functionFragment: "getPriceFromOracle", values: [string]): string;
-  encodeFunctionData(functionFragment: "getTokenPrice", values: [string]): string;
-  encodeFunctionData(functionFragment: "isPriceOracle", values?: undefined): string;
-  encodeFunctionData(functionFragment: "priceRecords", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "getPriceFromChainlink",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPriceFromDex",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPriceFromOracle",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenPrice",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isPriceOracle",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "priceRecords",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
-  encodeFunctionData(functionFragment: "setAggregators", values: [string[], string[]]): string;
-  encodeFunctionData(functionFragment: "setDexPriceInfo", values: [string, string, string, boolean]): string;
-  encodeFunctionData(functionFragment: "setDirectPrice", values: [string, BigNumberish]): string;
-  encodeFunctionData(functionFragment: "setV1PriceOracle", values: [string]): string;
-  encodeFunctionData(functionFragment: "v1PriceOracle", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setAggregators",
+    values: [string[], string[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDexPriceInfo",
+    values: [string, string, string, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDirectPrice",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setV1PriceOracle",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "v1PriceOracle",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "wrapped", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "aggregators", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "assetPrices", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getPriceFromChainlink", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getPriceFromDex", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getPriceFromOracle", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getTokenPrice", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isPriceOracle", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "priceRecords", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "aggregators",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "assetPrices",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPriceFromChainlink",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPriceFromDex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPriceFromOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTokenPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isPriceOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "priceRecords",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setAggregators", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setDexPriceInfo", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setDirectPrice", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setV1PriceOracle", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "v1PriceOracle", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setAggregators",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDexPriceInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDirectPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setV1PriceOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "v1PriceOracle",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "wrapped", data: BytesLike): Result;
 
   events: {
@@ -87,18 +159,26 @@ export interface ConnextPriceOracleInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "V1PriceOracleUpdated"): EventFragment;
 }
 
-export type AggregatorUpdatedEvent = TypedEvent<[string, string], { tokenAddress: string; source: string }>;
+export type AggregatorUpdatedEvent = TypedEvent<
+  [string, string],
+  { tokenAddress: string; source: string }
+>;
 
-export type AggregatorUpdatedEventFilter = TypedEventFilter<AggregatorUpdatedEvent>;
+export type AggregatorUpdatedEventFilter =
+  TypedEventFilter<AggregatorUpdatedEvent>;
 
 export type DirectPriceUpdatedEvent = TypedEvent<
   [string, BigNumber, BigNumber],
   { token: string; oldPrice: BigNumber; newPrice: BigNumber }
 >;
 
-export type DirectPriceUpdatedEventFilter = TypedEventFilter<DirectPriceUpdatedEvent>;
+export type DirectPriceUpdatedEventFilter =
+  TypedEventFilter<DirectPriceUpdatedEvent>;
 
-export type NewAdminEvent = TypedEvent<[string, string], { oldAdmin: string; newAdmin: string }>;
+export type NewAdminEvent = TypedEvent<
+  [string, string],
+  { oldAdmin: string; newAdmin: string }
+>;
 
 export type NewAdminEventFilter = TypedEventFilter<NewAdminEvent>;
 
@@ -107,7 +187,16 @@ export type PriceRecordUpdatedEvent = TypedEvent<
   { token: string; baseToken: string; lpToken: string; _active: boolean }
 >;
 
-export type PriceRecordUpdatedEventFilter = TypedEventFilter<PriceRecordUpdatedEvent>;
+export type PriceRecordUpdatedEventFilter =
+  TypedEventFilter<PriceRecordUpdatedEvent>;
+
+export type V1PriceOracleUpdatedEvent = TypedEvent<
+  [string, string],
+  { oldAddress: string; newAddress: string }
+>;
+
+export type V1PriceOracleUpdatedEventFilter =
+  TypedEventFilter<V1PriceOracleUpdatedEvent>;
 
 export interface ConnextPriceOracle extends BaseContract {
   contractName: "ConnextPriceOracle";
@@ -120,12 +209,16 @@ export interface ConnextPriceOracle extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -139,19 +232,31 @@ export interface ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getPriceFromChainlink(_tokenAddress: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    getPriceFromChainlink(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    getPriceFromDex(_tokenAddress: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    getPriceFromDex(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    getPriceFromOracle(_tokenAddress: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    getPriceFromOracle(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    getTokenPrice(_tokenAddress: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    getTokenPrice(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     isPriceOracle(overrides?: CallOverrides): Promise<[boolean]>;
 
     priceRecords(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<
       [string, string, string, boolean] & {
         token: string;
@@ -163,13 +268,13 @@ export interface ConnextPriceOracle extends BaseContract {
 
     setAdmin(
       newAdmin: string,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setAggregators(
       tokenAddresses: string[],
       sources: string[],
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setDexPriceInfo(
@@ -177,18 +282,18 @@ export interface ConnextPriceOracle extends BaseContract {
       _baseToken: string,
       _lpToken: string,
       _active: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setDirectPrice(
       _token: string,
       _price: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setV1PriceOracle(
       _v1PriceOracle: string,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     v1PriceOracle(overrides?: CallOverrides): Promise<[string]>;
@@ -202,19 +307,31 @@ export interface ConnextPriceOracle extends BaseContract {
 
   assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  getPriceFromChainlink(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+  getPriceFromChainlink(
+    _tokenAddress: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  getPriceFromDex(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+  getPriceFromDex(
+    _tokenAddress: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  getPriceFromOracle(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+  getPriceFromOracle(
+    _tokenAddress: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  getTokenPrice(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+  getTokenPrice(
+    _tokenAddress: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   isPriceOracle(overrides?: CallOverrides): Promise<boolean>;
 
   priceRecords(
     arg0: string,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<
     [string, string, string, boolean] & {
       token: string;
@@ -224,12 +341,15 @@ export interface ConnextPriceOracle extends BaseContract {
     }
   >;
 
-  setAdmin(newAdmin: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  setAdmin(
+    newAdmin: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setAggregators(
     tokenAddresses: string[],
     sources: string[],
-    overrides?: Overrides & { from?: string | Promise<string> },
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setDexPriceInfo(
@@ -237,18 +357,18 @@ export interface ConnextPriceOracle extends BaseContract {
     _baseToken: string,
     _lpToken: string,
     _active: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> },
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setDirectPrice(
     _token: string,
     _price: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> },
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setV1PriceOracle(
     _v1PriceOracle: string,
-    overrides?: Overrides & { from?: string | Promise<string> },
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   v1PriceOracle(overrides?: CallOverrides): Promise<string>;
@@ -262,19 +382,31 @@ export interface ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getPriceFromChainlink(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getPriceFromChainlink(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getPriceFromDex(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getPriceFromDex(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getPriceFromOracle(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getPriceFromOracle(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getTokenPrice(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getTokenPrice(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isPriceOracle(overrides?: CallOverrides): Promise<boolean>;
 
     priceRecords(
       arg0: string,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<
       [string, string, string, boolean] & {
         token: string;
@@ -286,19 +418,30 @@ export interface ConnextPriceOracle extends BaseContract {
 
     setAdmin(newAdmin: string, overrides?: CallOverrides): Promise<void>;
 
-    setAggregators(tokenAddresses: string[], sources: string[], overrides?: CallOverrides): Promise<void>;
+    setAggregators(
+      tokenAddresses: string[],
+      sources: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setDexPriceInfo(
       _token: string,
       _baseToken: string,
       _lpToken: string,
       _active: boolean,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
-    setDirectPrice(_token: string, _price: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    setDirectPrice(
+      _token: string,
+      _price: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setV1PriceOracle(_v1PriceOracle: string, overrides?: CallOverrides): Promise<void>;
+    setV1PriceOracle(
+      _v1PriceOracle: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     v1PriceOracle(overrides?: CallOverrides): Promise<string>;
 
@@ -306,39 +449,53 @@ export interface ConnextPriceOracle extends BaseContract {
   };
 
   filters: {
-    "AggregatorUpdated(address,address)"(tokenAddress?: null, source?: null): AggregatorUpdatedEventFilter;
-    AggregatorUpdated(tokenAddress?: null, source?: null): AggregatorUpdatedEventFilter;
+    "AggregatorUpdated(address,address)"(
+      tokenAddress?: null,
+      source?: null
+    ): AggregatorUpdatedEventFilter;
+    AggregatorUpdated(
+      tokenAddress?: null,
+      source?: null
+    ): AggregatorUpdatedEventFilter;
 
     "DirectPriceUpdated(address,uint256,uint256)"(
       token?: null,
       oldPrice?: null,
-      newPrice?: null,
+      newPrice?: null
     ): DirectPriceUpdatedEventFilter;
-    DirectPriceUpdated(token?: null, oldPrice?: null, newPrice?: null): DirectPriceUpdatedEventFilter;
+    DirectPriceUpdated(
+      token?: null,
+      oldPrice?: null,
+      newPrice?: null
+    ): DirectPriceUpdatedEventFilter;
 
-    "NewAdmin(address,address)"(oldAdmin?: null, newAdmin?: null): NewAdminEventFilter;
+    "NewAdmin(address,address)"(
+      oldAdmin?: null,
+      newAdmin?: null
+    ): NewAdminEventFilter;
     NewAdmin(oldAdmin?: null, newAdmin?: null): NewAdminEventFilter;
 
     "PriceRecordUpdated(address,address,address,bool)"(
       token?: null,
       baseToken?: null,
       lpToken?: null,
-      _active?: null,
+      _active?: null
     ): PriceRecordUpdatedEventFilter;
     PriceRecordUpdated(
       token?: null,
       baseToken?: null,
       lpToken?: null,
-      _active?: null,
-    ): TypedEventFilter<
-      [string, string, string, boolean],
-      { token: string; baseToken: string; lpToken: string; _active: boolean }
-    >;
+      _active?: null
+    ): PriceRecordUpdatedEventFilter;
 
+    "V1PriceOracleUpdated(address,address)"(
+      oldAddress?: null,
+      newAddress?: null
+    ): V1PriceOracleUpdatedEventFilter;
     V1PriceOracleUpdated(
       oldAddress?: null,
-      newAddress?: null,
-    ): TypedEventFilter<[string, string], { oldAddress: string; newAddress: string }>;
+      newAddress?: null
+    ): V1PriceOracleUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -348,24 +505,39 @@ export interface ConnextPriceOracle extends BaseContract {
 
     assetPrices(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getPriceFromChainlink(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getPriceFromChainlink(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getPriceFromDex(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getPriceFromDex(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getPriceFromOracle(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getPriceFromOracle(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getTokenPrice(_tokenAddress: string, overrides?: CallOverrides): Promise<BigNumber>;
+    getTokenPrice(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isPriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     priceRecords(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    setAdmin(newAdmin: string, overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    setAdmin(
+      newAdmin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     setAggregators(
       tokenAddresses: string[],
       sources: string[],
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setDexPriceInfo(
@@ -373,18 +545,18 @@ export interface ConnextPriceOracle extends BaseContract {
       _baseToken: string,
       _lpToken: string,
       _active: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setDirectPrice(
       _token: string,
       _price: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setV1PriceOracle(
       _v1PriceOracle: string,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     v1PriceOracle(overrides?: CallOverrides): Promise<BigNumber>;
@@ -395,31 +567,52 @@ export interface ConnextPriceOracle extends BaseContract {
   populateTransaction: {
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    aggregators(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    aggregators(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    assetPrices(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    assetPrices(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    getPriceFromChainlink(_tokenAddress: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getPriceFromChainlink(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    getPriceFromDex(_tokenAddress: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getPriceFromDex(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    getPriceFromOracle(_tokenAddress: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getPriceFromOracle(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    getTokenPrice(_tokenAddress: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getTokenPrice(
+      _tokenAddress: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     isPriceOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    priceRecords(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    priceRecords(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     setAdmin(
       newAdmin: string,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setAggregators(
       tokenAddresses: string[],
       sources: string[],
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setDexPriceInfo(
@@ -427,18 +620,18 @@ export interface ConnextPriceOracle extends BaseContract {
       _baseToken: string,
       _lpToken: string,
       _active: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setDirectPrice(
       _token: string,
       _price: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setV1PriceOracle(
       _v1PriceOracle: string,
-      overrides?: Overrides & { from?: string | Promise<string> },
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     v1PriceOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;

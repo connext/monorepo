@@ -111,6 +111,36 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     address recipient;
   }
 
+  /**
+   * @notice The arguments you supply to the `prepare` function called by user on origin domain
+   * @param params - The CallParams. These are consistent across sending and receiving chains
+   * @param transactingAssetId - The asset the caller sent with the transaction. Can be the adopted, canonical,
+   * or the representational asset
+   * @param amount - The amount of transacting asset the tx prepared with
+   */
+  struct PrepareArgs {
+    CallParams params;
+    address transactingAssetId; // Could be adopted, local, or wrapped
+    uint256 amount;
+  }
+
+  /**
+   * @notice 
+   * @param params - The CallParams. These are consistent across sending and receiving chains
+   * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate 
+   * the transaction id for the crosschain transaction
+   * @param local - The local asset for the transaction, will be swapped to the adopted asset if
+   * appropriate
+   * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
+   * if fast liquidity was used
+   */
+  struct FulfillArgs {
+    CallParams params;
+    uint256 nonce;
+    address local;
+    uint256 amount;
+  }
+
   // ============ Events ============
 
   /**
@@ -556,17 +586,12 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    * @notice This function is called by a user who is looking to bridge funds
    * @dev This contract must have approval to transfer the adopted assets. They are then swapped to
    * the local nomad assets via the configured AMM and sent over the bridge router.
-   * @param _params - The CallParams. These are consistent across sending and receiving chains
-   * @param _transactingAssetId - The asset the caller sent with the transaction. Can be the adopted, canonical,
-   * or the representational asset
-   * @param _amount - The amount of transacting asset the tx prepared with
+   * @param _args - The PrepareArgs
    * @return The transaction id of the crosschain transaction
    */
   // TODO: add indicator if fast liquidity is allowed
   function prepare(
-    CallParams calldata _params,
-    address _transactingAssetId, // Could be adopted, local, or wrapped
-    uint256 _amount
+    PrepareArgs calldata _args
   ) external payable returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
@@ -577,42 +602,41 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     // );
 
     require(
-      adoptedToCanonical[_transactingAssetId == address(0) ? address(wrapper) : _transactingAssetId].id != bytes32(0),
+      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id != bytes32(0),
       "!supported_asset"
     );
 
     // Transfer funds to the contract
-    (_transactingAssetId, _amount) = _transferAssetToContract(_transactingAssetId, _amount);
+    (address _transactingAssetId, uint256 _amount) = _transferAssetToContract(_args.transactingAssetId, _args.amount);
 
     // Swap to the local asset from the adopted
-    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
+    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_args.transactingAssetId, _args.amount);
 
     // Compute the transaction id
-    uint256 usedNonce = nonce;
-    bytes32 _transactionId = _getTransactionId(usedNonce, domain);
+    bytes32 _transactionId = _getTransactionId(nonce, domain);
     // Update nonce
     nonce++;
 
     // Call `send` on the bridge router
     _sendMessage(
-      _params.destinationDomain,
-      _params.recipient,
+      _args.params.destinationDomain,
+      _args.params.recipient,
       _bridged,
       _bridgedAmt,
       _transactionId,
-      _getExternalHash(_params.recipient, _params.callTo, _params.callData)
+      _getExternalHash(_args.params.recipient, _args.params.callTo, _args.params.callData)
     );
 
     // Emit event
     emit Prepared(
       _transactionId,
-      _params.recipient,
-      _params,
+      _args.params.recipient,
+      _args.params,
       _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
       _bridged,
       _amount,
       _bridgedAmt,
-      usedNonce,
+      nonce - 1,
       msg.sender
     );
 
@@ -674,70 +698,38 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    * fast liquidity) or after reconcile (when using liquidity from the bridge)
    * @dev Will store the `FulfilledTransaction` if fast liquidity is provided, or assert the hash of the
    * `ReconciledTransaction` when using bridge liquidity
-   * @param _params - The CallParams. These are consistent across sending and receiving chains
-   * @param _nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate 
-   * the transaction id for the crosschain transaction
-   * @param _local - The local asset for the transaction, will be swapped to the adopted asset if
-   * appropriate
-   * @param _amount - The amount of liquidity the router provided or the bridge forwarded, depending on
-   * if fast liquidity was used
+   * @param _args - The `FulfillArgs` for the transaction
    * @return The transaction id of the crosschain transaction
    */
   function fulfill(
-    CallParams calldata _params,
-    uint256 _nonce,
-    address _local,
-    uint256 _amount
+    FulfillArgs calldata _args
   ) external returns (bytes32) {
     // Get the starting gas
-    uint256 start = gasleft();
+    uint256 _start = gasleft();
 
     // Calculate the transaction id
-    bytes32 _transactionId = _getTransactionId(_nonce, _params.originDomain);
-
-    // Determine if it is fast (i.e. happened before reconcile called, needs
-    // a router to front)
+    bytes32 _transactionId = _getTransactionId(_args.nonce, _args.params.originDomain);
     bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
 
-    if (_isFast) {
-      // Check the router has enough liquidity
-      require(routerBalances[msg.sender][_local] >= _amount, "!liquidity");
-
-      // Decrement router liquidity
-      unchecked {
-        routerBalances[msg.sender][_local] -= _amount; 
-      }
-
-      // Store the router
-      routedTransactions[_transactionId] = FulfilledTransaction({
-        router: msg.sender,
-        externalHash: _getExternalHash(_params.recipient, _params.callTo, _params.callData),
-        amount: _amount // will be of the mad asset, not adopted
-      });
-    } else {
-      // Check the reconciled transactions to ensure it is the right data
-      bytes32 stored = reconciledTransactions[_transactionId];
-      require(stored != bytes32(0), "!found");
-      require(stored == _getReconciledHash(_local, _params.recipient, _amount, _getExternalHash(_params.recipient, _params.callTo, _params.callData)), "!params");
-    }
+    _handleLiquidity(_args.params, _transactionId, _args.local, _isFast, _args.amount);
 
     // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
-    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_local, _amount);
+    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_args.local, _args.amount);
 
-    if (_params.callTo == address(0)) {
+    if (_args.params.callTo == address(0)) {
       // Send funds to the user
-      _transferAssetFromContract(adopted, _params.recipient, amount);
+      _transferAssetFromContract(adopted, _args.params.recipient, amount);
     } else {
       // Send funds to interprepter
       _transferAssetFromContract(adopted, address(interpreter), amount);
       interpreter.execute(
         _transactionId,
-        payable(_params.callTo),
+        payable(_args.params.callTo),
         adopted,
-        payable(_params.recipient),
+        payable(_args.params.recipient),
         amount,
-        _params.callData
+        _args.params.callData
       );
     }
 
@@ -745,7 +737,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     if (_isFast) {
       routedTransactionsGas[_transactionId] = GasInfo({
         gasPrice: tx.gasprice,
-        gasUsed: start - gasleft()
+        gasUsed: _start - gasleft()
         // TODO: account for gas used in storage
       });
     }
@@ -753,13 +745,13 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     // Emit event
     emit Fulfilled(
       _transactionId,
-      _params.recipient,
+      _args.params.recipient,
       msg.sender,
-      _params,
-      _nonce,
-      _local,
+      _args.params,
+      _args.nonce,
+      _args.local,
       adopted,
-      _amount,
+      _args.amount,
       amount,
       msg.sender
     );
@@ -1025,6 +1017,35 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     adoptedToLocalPools[_canonical.id] = IStableSwap(_stableSwap);
 
     emit StableSwapAdded(_canonical.id, _canonical.domain, _stableSwap, msg.sender);
+  }
+
+  /** */
+  function _handleLiquidity(
+    CallParams calldata _params,
+    bytes32 _transactionId,
+    address _local,
+    bool _isFast,
+    uint256 _amount
+  ) internal {
+    // Determine if it is fast (i.e. happened before reconcile called, needs
+    // a router to front)
+    bytes32 _externalHash = _getExternalHash(_params.recipient, _params.callTo, _params.callData);
+
+    if (_isFast) {
+      routerBalances[msg.sender][_local] -= _amount; 
+
+      // Store the router
+      routedTransactions[_transactionId] = FulfilledTransaction({
+        router: msg.sender,
+        externalHash: _externalHash,
+        amount: _amount // will be of the mad asset, not adopted
+      });
+    } else {
+      // Check the reconciled transactions to ensure it is the right data
+      bytes32 stored = reconciledTransactions[_transactionId];
+      require(stored != bytes32(0), "!found");
+      require(stored == _getReconciledHash(_local, _params.recipient, _amount, _externalHash), "!params");
+    }
   }
 
   /**
