@@ -88,4 +88,13 @@ export class SubgraphReader {
     // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
     // is included in the respective array argument, `destinations`.
   }
+
+  /**
+   * Get the latest prepare transactions' nonce.
+   * @param chain - Chain where we'll check the latest prepare nonce
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getLatestNonce(chain: number): Promise<BigNumber> {
+    throw new Error("Not implemented");
+  }
 }
