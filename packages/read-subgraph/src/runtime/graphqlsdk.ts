@@ -652,9 +652,8 @@ export enum _SubgraphErrorPolicy_ {
 }
 
 export type GetPreparedTransactionsQueryVariables = Exact<{
-  status: TransactionStatus;
   destinationDomains?: InputMaybe<Array<Scalars['BigInt']> | Scalars['BigInt']>;
-  prepareBlockNumber: Scalars['BigInt'];
+  maxPrepareBlockNumber: Scalars['BigInt'];
   nonce: Scalars['BigInt'];
 }>;
 
@@ -663,9 +662,9 @@ export type GetPreparedTransactionsQuery = { __typename?: 'Query', transactions:
 
 
 export const GetPreparedTransactionsDocument = gql`
-    query GetPreparedTransactions($status: TransactionStatus!, $destinationDomains: [BigInt!], $prepareBlockNumber: BigInt!, $nonce: BigInt!) {
+    query GetPreparedTransactions($destinationDomains: [BigInt!], $maxPrepareBlockNumber: BigInt!, $nonce: BigInt!) {
   transactions(
-    where: {status: Prepared, destinationDomain_in: $destinationDomains, prepareBlockNumber_gte: $prepareBlockNumber, nonce_gte: $nonce}
+    where: {status: Prepared, destinationDomain_in: $destinationDomains, prepareBlockNumber_gte: $maxPrepareBlockNumber, nonce_gte: $nonce}
     orderBy: prepareBlockNumber
     orderDirection: desc
   ) {

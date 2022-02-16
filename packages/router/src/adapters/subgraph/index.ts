@@ -1,5 +1,6 @@
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
-import { getRuntimeSdk, Sdk } from "@connext/nxtp-read-subgraph";
+import { getRuntimeSdk, Sdk, GetPreparedTransactionsQuery } from "@connext/nxtp-read-subgraph";
+import { BigNumber } from "ethers";
 
 import { AppContext } from "../../context";
 
@@ -64,13 +65,21 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  public async getOpenPrepares(chain: number, destinations: number[]): Promise<any> {
+  public async getOpenPrepares(
+    chain: number,
+    destinations: BigNumber[],
+    nonce: BigNumber,
+    prepareBlockNumber: BigNumber,
+  ): Promise<any> {
     const subgraph = this.subgraphs.get(chain);
     if (!subgraph) {
       throw new Error(`Subgraph not defined for chain ${chain}`);
     }
-    await subgraph?.runtime.sync();
-    throw new Error("Not implemented");
+    await subgraph.runtime.sync();
+    const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
+      client.GetPreparedTransactions({ destinationDomains: destinations, nonce, prepareBlockNumber }),
+    );
+    return transactions;
     // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
     // is included in the respective array argument, `destinations`.
   }
