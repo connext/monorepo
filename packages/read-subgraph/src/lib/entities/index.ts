@@ -2,6 +2,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
 import { Sdk, GetPreparedTransactionsQuery } from "../../adapters/runtime/graphqlsdk";
 import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
+import Redis from "ioredis";
 
 const MIN_SUBGRAPH_MAX_LAG = 25;
 
@@ -26,3 +27,8 @@ export type ChainSubgraphs = {
 };
 
 export type SubgraphMap = Map<number, ChainSubgraphs>;
+
+export type RedisUpdate = {
+  redisInstance: Redis.Redis;
+  PollPeriod: number;
+};
