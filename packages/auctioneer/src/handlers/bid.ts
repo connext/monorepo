@@ -8,12 +8,13 @@ import {
 import fp from "fastify-plugin";
 import Redis from "ioredis";
 import { StoreManager } from "../adapters/RedisStoreManager";
-import { Bid } from '../lib/types';
+import { Bid, GelatoSendBid } from '../lib/types';
 import { Wallet, Contract, utils as ethersUtils } from 'ethers';
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager  } from "@connext/nxtp-contracts/typechain-types";
 import { getConfig, Config} from '../utils';
 import { ChainReader } from '@connext/nxtp-txservice';
+import { gelatoSend, gelatoFulfill, isChainSupportedByGelato } from '@connext/nxtp-utils';
 
 
 
@@ -45,13 +46,13 @@ export class BidHandler {
 
   async validateTx(bid: Bid, chainId: number):Promise<boolean> {    
     const contractInterface = new ethersUtils.Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
-    const data =  contractInterface.encodeFunctionData("fulfill", [
-      { ...bid }
-    ]);
+    // const data =  contractInterface.encodeFunctionData("fulfill", [
+    //   { ...bid }
+    // ]);
     
-    const isValid = await this.chainReader.getGasEstimate(chainId,{
-      chainId: chainId, to: "0x", data: data
-    });
+    // const isValid = await this.chainReader.getGasEstimate(chainId,{
+    //   chainId: chainId, to: "0x", data: data
+    // });
     return true;
   }
 
@@ -73,6 +74,13 @@ export class BidHandler {
       //single bid no cache
       try {
         const dbResponse = await this.dbStuff(req);
+        
+
+        const bid = JSON.parse(req.body as string);
+        const gBid = bid as GelatoSendBid;
+        
+        gelatoSend(gBid.chainId, gBid.dest, gBid.data, gBid.token, gBid.relayerFee);
+
         if (dbResponse) {
           server.log.debug(`Database Response: ${dbResponse}`);
         }

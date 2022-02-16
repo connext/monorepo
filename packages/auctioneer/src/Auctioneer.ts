@@ -1,5 +1,4 @@
 import { fastify, FastifyInstance } from 'fastify';
-import { gelatoSend, gelatoFulfill, isChainSupportedByGelato } from '@connext/nxtp-utils';
 import { BidHandler } from './handlers/bid';
 import pino from 'pino';
 import { Wallet, Contract, utils as ethersUtils } from 'ethers';

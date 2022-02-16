@@ -14,7 +14,7 @@
   "routers": [],
   "logLevel": "info",
   "network": "testnet",
-  "mnemonic": "****MNEMONIC****",
+  "mnemonic": "leopard pitch coconut code bag warfare fashion seven iron scrub mixture clutch",
   "swapPools": [
     {
       "name": "TEST",

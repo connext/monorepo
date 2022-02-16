@@ -91,6 +91,14 @@ export type SignedBid = {
   signature: string
 }
 
+export type GelatoSendBid = {
+  chainId: number,
+  dest: string,
+  data: string,
+  token: string,
+  relayerFee: string
+}
+
 export type Cache = {
   nxtpId: string,
   bid: SignedBid
