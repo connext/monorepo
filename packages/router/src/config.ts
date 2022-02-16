@@ -76,7 +76,8 @@ export const TChainConfig = Type.Object({
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    priceOracle: Type.Optional(TAddress),
+    priceOracle: TAddress,
+    transactionManager: TAddress,
   }),
 });
 
@@ -247,6 +248,8 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
       confirmations: config?.confirmations ?? data.confirmations,
       deployments: {
         priceOracle: config?.deployments?.priceOracle ?? getDeployedPriceOracleContract(chainId)?.address,
+        transactionManager:
+          config?.deployments?.transactionManager ?? getDeployedTransactionManagerContract(chainId)?.address,
       },
     };
   }
