@@ -9,7 +9,7 @@ type MockSubgraphSdk = {
   MockSubgraphSdkMethod: () => {};
 };
 
-let axiosGetStub: SinonStub = stub(axios, "get");
+let axiosGetStub: SinonStub;
 
 describe("FallbackSubgraph", () => {
   const mockChainId = 1337;
@@ -51,6 +51,7 @@ describe("FallbackSubgraph", () => {
   let fallbackSubgraph: FallbackSubgraph<MockSubgraphSdk>;
 
   beforeEach(() => {
+    axiosGetStub = stub(axios, "get");
     MockSubgraphSdkMethod = stub();
     fallbackSubgraph = new FallbackSubgraph<MockSubgraphSdk>(
       mockChainId,
@@ -59,6 +60,10 @@ describe("FallbackSubgraph", () => {
       SubgraphDomain.TEST,
     );
     MockFailingSubgraphSdkMethod = stub().rejects(failingSubgraphSdkError);
+  });
+
+  afterEach(() => {
+    axiosGetStub.restore();
   });
 
   describe("getOrderedSubgraphs-stubbed methods", () => {

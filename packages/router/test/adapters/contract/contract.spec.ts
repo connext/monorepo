@@ -82,7 +82,7 @@ describe("Contract Adapter", () => {
     stub(SharedFns, "getErc20ContractInterface").returns(erc20InterfaceMock as unknown as ERC20Interface);
 
     isRouterWhitelistedStub = stub(SharedFns, "isRouterWhitelisted");
-    isChainSupportedByGelatoStub = stub(ContractFns, "isChainSupportedByGelato").returns(true);
+    isChainSupportedByGelatoStub = stub(ContractFns, "isChainSupportedByGelato").resolves(true);
     gelatoSendStub = stub(ContractFns, "gelatoSend");
 
     gasConsumedStub = stub(MetricsFns, "incrementGasConsumed");

@@ -1,24 +1,10 @@
 import axios from "axios";
+import { BigNumber } from "ethers";
 import { Interface } from "ethers/lib/utils";
 
 import { FulfillParams } from "./transactionManager";
 
-import { CHAIN_ID } from ".";
-
-const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
-
-const endpoints = {
-  [CHAIN_ID.MAINNET]: "https://prod.relay.gelato.digital/mainnet/relay",
-  [CHAIN_ID.RINKEBY]: "https://staging.relay.gelato.digital/rinkeby/relay",
-  [CHAIN_ID.GOERLI]: "https://staging.relay.gelato.digital/goerli/relay",
-  [CHAIN_ID.BSC]: "https://prod.relay.gelato.digital/bsc/relay",
-  [CHAIN_ID.XDAI]: "https://prod.relay.gelato.digital/gnosis/relay",
-  [CHAIN_ID.MATIC]: "https://prod.relay.gelato.digital/matic/relay",
-  [CHAIN_ID.FANTOM]: "https://prod.relay.gelato.digital/fantom/relay",
-  [CHAIN_ID.ARBITRUM]: "https://prod.relay.gelato.digital/arbitrum/relay",
-  [CHAIN_ID.AVALANCHE]: "https://prod.relay.gelato.digital/avalanche/relay",
-  [CHAIN_ID.OPTIMISM]: "https://prod.relay.gelato.digital/optimism/relay",
-};
+const gelatoServer = "https://relay.gelato.digital";
 
 const gelatoSend = async (
   chainId: number,
@@ -27,12 +13,11 @@ const gelatoSend = async (
   token: string,
   relayerFee: string,
 ): Promise<any> => {
-  const server = endpoints[chainId];
-  const params = { dest, data, token, relayerFee, access_token: ACCESS_TOKEN };
+  const params = { dest, data, token, relayerFee};
 
   let output;
   try {
-    const res = await axios.post(server, params);
+    const res = await axios.post(`${gelatoServer}/relays/${chainId}`, params);
     output = res.data;
   } catch (error) {
     console.error(error);
@@ -54,8 +39,74 @@ const gelatoFulfill = async (
   return ret;
 };
 
-const isChainSupportedByGelato = (chainId: number): boolean => {
-  return Object.keys(endpoints).indexOf(chainId.toString()) !== -1;
+const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
+  const chainsSupportedByGelato = await getGelatoRelayChains();
+  return chainsSupportedByGelato.includes(chainId.toString());
 };
 
-export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };
+const getGelatoRelayChains = async (): Promise<string[]> => {
+  let result = [];
+  try {
+    const res = await axios.get(`${gelatoServer}/relays/`);
+    result = res.data.relays;
+  }
+  catch(error){
+    console.error(error);
+  }
+
+  return result;
+};
+
+
+const getEstimatedFee = async (
+  chainId: number,
+  paymentToken: string,
+  gasLimit: number,
+  isHighPriority: boolean,
+): Promise<BigNumber> => {
+  const result = await _getEstimatedFee(chainId, paymentToken, gasLimit, isHighPriority);
+  return result;
+};
+
+const _getEstimatedFee = async (
+  chainId: number,
+  paymentToken: string,
+  gasLimit: number,
+  isHighPriority: boolean,
+): Promise<BigNumber> => {
+  const params = {paymentToken, gasLimit, isHighPriority};
+  let result: BigNumber;
+  try {
+    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, {params});
+    result = BigNumber.from(res.data.estimatedFee);
+  }
+  catch(error){
+    let message: string = (error as Error).message;
+    if (axios.isAxiosError(error) && error.response){
+      message = error.response?.data; 
+    }
+    throw new Error(message);
+  }
+  return result;
+};
+
+const isOracleActive = async (chainId: number): Promise<boolean> => {
+  const oracles = await getGelatoOracles();
+  return oracles.includes(chainId.toString());
+};
+
+const getGelatoOracles = async (): Promise<string[]> => {
+  let result = [];
+  try {
+    const res = await axios.get(`${gelatoServer}/oracles/`);
+    result = res.data.oracles;
+  }
+  catch(error){
+    console.error(error);
+  }
+
+  return result;
+};
+
+
+export { gelatoFulfill, isChainSupportedByGelato, gelatoSend, isOracleActive, getEstimatedFee };
