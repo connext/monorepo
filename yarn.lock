@@ -1668,11 +1668,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/nxtp-read-subgraph@workspace:*, @connext/nxtp-read-subgraph@workspace:packages/read-subgraph":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-read-subgraph@workspace:packages/read-subgraph"
+  dependencies:
+    "@connext/nxtp-subgraph": "workspace:*"
+    "@graphql-codegen/cli": ^2.0.1
+    "@graphql-codegen/typescript": ^2.0.0
+    "@graphql-codegen/typescript-graphql-request": ^4.0.0
+    "@graphql-codegen/typescript-operations": ^2.0.1
+    graphql: ^15.5.1
+    graphql-request: ^3.5.0
+    graphql-tag: ^2.12.5
+    tslib: ^2.3.1
+    typescript: 4.3.5
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-router@workspace:packages/router":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-router@workspace:packages/router"
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
+    "@connext/nxtp-read-subgraph": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": ^2.0.1
     "@graphql-codegen/typescript": ^2.0.0
@@ -1780,7 +1799,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-subgraph@workspace:packages/subgraph":
+"@connext/nxtp-subgraph@workspace:*, @connext/nxtp-subgraph@workspace:packages/subgraph":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-subgraph@workspace:packages/subgraph"
   dependencies:

@@ -1,14 +1,11 @@
-import { GraphQLClient } from "graphql-request";
+import { BigNumber } from "ethers";
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
+import { getRuntimeSdk, Sdk, GetPreparedTransactionsQuery } from "@connext/nxtp-read-subgraph";
 
 import { AppContext } from "../../context";
 
-import { Sdk as AnalyticsSdk, getSdk as getAnalyticsSdk } from "./analytics/graphqlsdk";
-import { Sdk as RuntimeSdk, getSdk as getRuntimeSdk } from "./runtime/graphqlsdk";
-
 export type ChainSubgraphs = {
-  runtime: FallbackSubgraph<RuntimeSdk>;
-  analytics: FallbackSubgraph<AnalyticsSdk>;
+  runtime: FallbackSubgraph<Sdk>;
 };
 
 export class SubgraphReader {
@@ -20,21 +17,14 @@ export class SubgraphReader {
     }
     for (const chain of Object.keys(context.config.chains)) {
       const chainId = parseInt(chain);
-      const { maxLag, runtime: runtimeUrls, analytics: analyticsUrls } = context.config.chains[chain].subgraph;
+      const { maxLag, runtime: runtimeUrls } = context.config.chains[chain].subgraph;
       this.subgraphs.set(chainId, {
-        runtime: new FallbackSubgraph<RuntimeSdk>(
+        runtime: new FallbackSubgraph<Sdk>(
           chainId,
-          (url: string) => getRuntimeSdk(new GraphQLClient(url)),
+          (url: string) => getRuntimeSdk(url),
           maxLag,
-          SubgraphDomain.COMMON,
+          SubgraphDomain.RUNTIME,
           runtimeUrls,
-        ),
-        analytics: new FallbackSubgraph<AnalyticsSdk>(
-          chainId,
-          (url: string) => getAnalyticsSdk(new GraphQLClient(url)),
-          maxLag,
-          SubgraphDomain.ANALYTICS,
-          analyticsUrls,
         ),
       });
     }
@@ -50,18 +40,19 @@ export class SubgraphReader {
    * @returns The available balance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getAssetBalance(chain: number, router: string, asset: string) {
+  public async getAssetBalance(chain: number, router: string, asset: string): Promise<BigNumber> {
     throw new Error("Not implemented");
   }
 
   /**
    * Returns available liquidity for all of the routers' assets on target chain.
    *
-   * @param chainId - The chain you want to determine liquidity on
+   * @param chain - The chain you want to determine liquidity on
+   * @param router - Router address
    * @returns An array of asset ids and amounts of liquidity
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getAssetBalances(chain: number, router: string) {
+  public async getAssetBalances(chain: number, router: string): Promise<{ [asset: string]: BigNumber }> {
     throw new Error("Not implemented");
   }
 
@@ -75,10 +66,25 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  // TODO: PrepareEntity type.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getOpenPrepares(chain: number, destinations: number[]): Promise<any> {
-    throw new Error("Not implemented");
+  public async getOpenPrepares(
+    chain: number,
+    destinations: BigNumber[],
+    nonce: BigNumber,
+    maxPrepareBlockNumber: BigNumber,
+  ): Promise<any> {
+    const subgraph = this.subgraphs.get(chain);
+    if (!subgraph) {
+      throw new Error(`Subgraph not defined for chain ${chain}`);
+    }
+    await subgraph.runtime.sync();
+    const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
+      client.GetPreparedTransactions({
+        destinationDomains: destinations,
+        nonce,
+        maxPrepareBlockNumber,
+      }),
+    );
+    return transactions;
     // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
     // is included in the respective array argument, `destinations`.
   }

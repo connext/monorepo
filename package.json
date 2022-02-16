@@ -27,7 +27,8 @@
     "packages/test-ui",
     "packages/txservice",
     "packages/utils",
-    "packages/auctioneer"
+    "packages/auctioneer",
+    "packages/read-subgraph"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",

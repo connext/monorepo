@@ -1,11 +1,7 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "types": [
-      "node",
-      "mocha",
-      "chai"
-    ]
+    "types": ["node", "mocha", "chai"]
   },
   "exclude": [],
   "references": [
@@ -17,6 +13,9 @@
     },
     {
       "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../read-subgraph/tsconfig.build.json"
     }
   ]
 }

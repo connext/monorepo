@@ -17,6 +17,9 @@
     },
     {
       "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../read-subgraph/tsconfig.build.json"
     }
   ]
 }

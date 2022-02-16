@@ -1,7 +1,7 @@
 import { Interface } from "ethers/lib/utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain";
+import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain-types";
 
 /**
  * Helper to allow easy mocking
