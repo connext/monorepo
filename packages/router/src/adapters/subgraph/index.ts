@@ -69,7 +69,7 @@ export class SubgraphReader {
     chain: number,
     destinations: BigNumber[],
     nonce: BigNumber,
-    prepareBlockNumber: BigNumber,
+    maxPrepareBlockNumber: BigNumber,
   ): Promise<any> {
     const subgraph = this.subgraphs.get(chain);
     if (!subgraph) {
@@ -77,7 +77,11 @@ export class SubgraphReader {
     }
     await subgraph.runtime.sync();
     const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
-      client.GetPreparedTransactions({ destinationDomains: destinations, nonce, prepareBlockNumber }),
+      client.GetPreparedTransactions({
+        destinationDomains: destinations,
+        nonce,
+        maxPrepareBlockNumber,
+      }),
     );
     return transactions;
     // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
