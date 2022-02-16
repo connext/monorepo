@@ -1,14 +1,10 @@
-import { GraphQLClient } from "graphql-request";
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
+import { getRuntimeSdk, Sdk } from "@connext/nxtp-read-subgraph";
 
 import { AppContext } from "../../context";
 
-import { Sdk as AnalyticsSdk, getSdk as getAnalyticsSdk } from "./analytics/graphqlsdk";
-import { Sdk as RuntimeSdk, getSdk as getRuntimeSdk } from "./runtime/graphqlsdk";
-
 export type ChainSubgraphs = {
-  runtime: FallbackSubgraph<RuntimeSdk>;
-  analytics: FallbackSubgraph<AnalyticsSdk>;
+  runtime: FallbackSubgraph<Sdk>;
 };
 
 export class SubgraphReader {
@@ -20,21 +16,14 @@ export class SubgraphReader {
     }
     for (const chain of Object.keys(context.config.chains)) {
       const chainId = parseInt(chain);
-      const { maxLag, runtime: runtimeUrls, analytics: analyticsUrls } = context.config.chains[chain].subgraph;
+      const { maxLag, runtime: runtimeUrls } = context.config.chains[chain].subgraph;
       this.subgraphs.set(chainId, {
-        runtime: new FallbackSubgraph<RuntimeSdk>(
+        runtime: new FallbackSubgraph<Sdk>(
           chainId,
-          (url: string) => getRuntimeSdk(new GraphQLClient(url)),
+          (url: string) => getRuntimeSdk(url),
           maxLag,
           SubgraphDomain.COMMON,
           runtimeUrls,
-        ),
-        analytics: new FallbackSubgraph<AnalyticsSdk>(
-          chainId,
-          (url: string) => getAnalyticsSdk(new GraphQLClient(url)),
-          maxLag,
-          SubgraphDomain.ANALYTICS,
-          analyticsUrls,
         ),
       });
     }
