@@ -1,6 +1,6 @@
+import { BigNumber } from "ethers";
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
 import { getRuntimeSdk, Sdk, GetPreparedTransactionsQuery } from "@connext/nxtp-read-subgraph";
-import { BigNumber } from "ethers";
 
 import { AppContext } from "../../context";
 
@@ -23,7 +23,7 @@ export class SubgraphReader {
           chainId,
           (url: string) => getRuntimeSdk(url),
           maxLag,
-          SubgraphDomain.COMMON,
+          SubgraphDomain.RUNTIME,
           runtimeUrls,
         ),
       });
@@ -40,18 +40,19 @@ export class SubgraphReader {
    * @returns The available balance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getAssetBalance(chain: number, router: string, asset: string) {
+  public async getAssetBalance(chain: number, router: string, asset: string): Promise<BigNumber> {
     throw new Error("Not implemented");
   }
 
   /**
    * Returns available liquidity for all of the routers' assets on target chain.
    *
-   * @param chainId - The chain you want to determine liquidity on
+   * @param chain - The chain you want to determine liquidity on
+   * @param router - Router address
    * @returns An array of asset ids and amounts of liquidity
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getAssetBalances(chain: number, router: string) {
+  public async getAssetBalances(chain: number, router: string): Promise<{ [asset: string]: BigNumber }> {
     throw new Error("Not implemented");
   }
 

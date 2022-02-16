@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import interval from "interval-promise";
 
 import { AppContext } from "../../context";
@@ -7,30 +8,66 @@ const SUBGRAPH_POLLING_INTERVAL = 15 * 1_000; // 15 sec.
 
 export const bindSubgraph = async (context: AppContext) => {
   const {
-    adapters: { subgraph },
+    adapters: { subgraph, cache, chainreader, wallet },
+    config,
   } = context;
 
-  // Receiver fulfill obligation handler cycle. Should repeat/poll very rapidly (e.g. 3min).
+  const routerAddress = await wallet.getAddress();
+  const destinationChains = Object.keys(config.chains).filter((chain) => config.chains[chain].assets.length > 0);
+  // Use subgraph to get current liquidity for each destination chain (mapped by asset).
+  const liquidity: {
+    [chain: number]: {
+      [asset: string]: BigNumber;
+    };
+  } = {};
+  await Promise.all(
+    destinationChains.map(async (chain) => {
+      const chainId = parseInt(chain);
+      liquidity[chainId] = await subgraph.getAssetBalances(chainId, routerAddress);
+    }),
+  );
+  // Convert destination chains into destination nomad domains.
+  const destinationDomains = destinationChains.map((chain) => BigNumber.from(config.chains[chain].nomadDomain));
+
   interval(
     async () => {
-      const validDestinationChains = Object.keys(context.config.chains)
-        .filter((chain) => context.config.chains[chain].assets.length > 0)
-        .map(Number);
       await Promise.all(
         // NOTE: This iteration will include ALL supported chains, not just the ones we provide
         // liquidity for, as we must scan subgraphs on the origin chain for transfers, not the destination
         // chain.
-        Object.keys(context.config.chains).map(async (chain) => {
-          // TODO:
-          // - Use subgraph peripheral from context to get current liquidity.
+        Object.keys(config.chains).map(async (chain) => {
+          const chainId = parseInt(chain);
+          // Get the current tx nonce for this chain from the cache. If not available, get it from the
+          // chain in the current block.
+          let nonce: BigNumber | undefined = await cache.getOpenTxNonce(chainId);
+          if (!nonce) {
+            // NOTE: Router is blind to any/all previous transactions, regardless of whether they are open,
+            // on boot.
+            const res = await chainreader.readTx({
+              chainId,
+              data: encodedData,
+              to: config.chains[chain].deployments.txmanager,
+            });
+            try {
+              nonce = BigNumber.from(res);
+            } catch (_) {}
+          }
+          // Get the maximum prepared block number based on the required confirmations.
+          const blockNumber = await chainreader.getBlockNumber(chainId);
+          const maxPreparedBlockNumber = BigNumber.from(blockNumber - config.chains[chain].confirmations);
+
           // - Get the lot of open/available transfers on this chain.
           // - If we have sufficient liquidity available for a transfer, send bid to auctioneer.
 
           // Read subgraph for new prepares going to chains for which we're providing liquidity.
-          const chainId = parseInt(chain);
 
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const prepares = await subgraph.getOpenPrepares(chainId, validDestinationChains);
+          const prepares = await subgraph.getOpenPrepares(
+            chainId,
+            destinationDomains,
+            nonce ?? BigNumber.from(0),
+            maxPreparedBlockNumber,
+          );
           // For each prepare: check to see if we support the receiving chain / receiving asset.
         }),
       );

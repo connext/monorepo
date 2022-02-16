@@ -26,6 +26,7 @@ export type ChainData = {
   chain: string;
   network: string;
   networkId: number;
+  nomadDomain: string;
   nativeCurrency: {
     name: string;
     symbol: string;

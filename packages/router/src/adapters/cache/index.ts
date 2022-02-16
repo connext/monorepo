@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 import { AppContext } from "../../context";
 
 import { AuctionCache } from "./auction";
@@ -19,5 +21,10 @@ export class RouterCache {
         auctions: new AuctionCache(),
       });
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getOpenTxNonce(chain: number): Promise<BigNumber> {
+    throw new Error("Not implemented");
   }
 }
