@@ -95,6 +95,7 @@ export const TChainConfig = Type.Object({
     priceOracle: TAddress,
     transactionManager: TAddress,
   }),
+  nomadDomain: Type.String(),
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -267,6 +268,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
         transactionManager:
           config?.deployments?.transactionManager ?? getDeployedTransactionManagerContract(chainId)?.address,
       },
+      nomadDomain: data.nomadDomain,
     };
   }
 
