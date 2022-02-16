@@ -665,7 +665,7 @@ export type GetPreparedTransactionsQuery = { __typename?: 'Query', transactions:
 export const GetPreparedTransactionsDocument = gql`
     query GetPreparedTransactions($status: TransactionStatus!, $destinationDomain: BigInt!, $prepareBlockNumber: BigInt!, $nonce: BigInt!) {
   transactions(
-    where: {status: Prepared, destinationDomain: $destinationDomain, prepareBlockNumber: $prepareBlockNumber, nonce: $nonce}
+    where: {status: Prepared, destinationDomain: $destinationDomain, prepareBlockNumber_gte: $prepareBlockNumber, nonce_gte: $nonce}
     orderBy: prepareBlockNumber
     orderDirection: desc
   ) {
