@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./src/amarok-v0/schema.graphql
+  file: ./src/amarok-runtime-v0/schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: TransactionManager
@@ -20,7 +20,7 @@ dataSources:
         - Transaction
       abis:
         - name: TransactionManager
-          file: ./src/amarok-v0/abis/TransactionManager.json
+          file: ./src/amarok-runtime-v0/abis/TransactionManager.json
       eventHandlers:
         - event: RouterAdded(address,address)
           handler: handleRouterAdded
@@ -42,4 +42,4 @@ dataSources:
           handler: handleFulfilled
         - event: Reconciled(indexed bytes32,indexed address,indexed address,address,uint256,bytes32,(address,uint256,bytes32),address)
           handler: handleReconciled
-      file: ./src/amarok-v0/mapping.ts
+      file: ./src/amarok-runtime-v0/mapping.ts
