@@ -3,8 +3,6 @@ import { jsonifyError, Logger } from "@connext/nxtp-utils";
 import Redis from "ioredis";
 import { Bid } from "../lib/types";
 
-// import { Batch } from "../../lib";
-
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
 
 export class StoreManager {
@@ -33,7 +31,7 @@ export class StoreManager {
     }
   }
 
-  public async getCache(nxtpId: string): Promise<Bid>{
+  public async getCache(nxtpId: string): Promise<Bid | undefined>{
     const _cache = await this.redis.get(nxtpId);
     let cache: Bid | undefined;
     try {
