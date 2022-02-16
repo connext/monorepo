@@ -13,6 +13,7 @@ export const bindSubgraph = async (context: AppContext) => {
   } = context;
 
   const routerAddress = await wallet.getAddress();
+  // Get the destination chains for which this router is providing liquidity.
   const destinationChains = Object.keys(config.chains).filter((chain) => config.chains[chain].assets.length > 0);
   // Use subgraph to get current liquidity for each destination chain (mapped by asset).
   const liquidity: {
@@ -40,21 +41,15 @@ export const bindSubgraph = async (context: AppContext) => {
           // Get the current tx nonce for this chain from the cache. If not available, get it from the
           // chain in the current block.
           let nonce: BigNumber | undefined = await cache.getOpenTxNonce(chainId);
+          const { confirmations } = config.chains[chain];
           if (!nonce) {
             // NOTE: Router is blind to any/all previous transactions, regardless of whether they are open,
             // on boot.
-            const res = await chainreader.readTx({
-              chainId,
-              data: encodedData,
-              to: config.chains[chain].deployments.txmanager,
-            });
-            try {
-              nonce = BigNumber.from(res);
-            } catch (_) {}
+            nonce = await subgraph.getLatestNonce(chainId);
           }
           // Get the maximum prepared block number based on the required confirmations.
           const blockNumber = await chainreader.getBlockNumber(chainId);
-          const maxPreparedBlockNumber = BigNumber.from(blockNumber - config.chains[chain].confirmations);
+          const maxPreparedBlockNumber = BigNumber.from(blockNumber - confirmations);
 
           // - Get the lot of open/available transfers on this chain.
           // - If we have sufficient liquidity available for a transfer, send bid to auctioneer.
