@@ -64,9 +64,12 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  // TODO: PrepareEntity type.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getOpenPrepares(chain: number, destinations: number[]): Promise<any> {
+    const subgraph = this.subgraphs.get(chain);
+    if (!subgraph) {
+      throw new Error(`Subgraph not defined for chain ${chain}`);
+    }
+    await subgraph?.runtime.sync();
     throw new Error("Not implemented");
     // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
     // is included in the respective array argument, `destinations`.

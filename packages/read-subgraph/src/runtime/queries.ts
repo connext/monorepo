@@ -5,14 +5,14 @@ import { gql } from "graphql-request";
 export const getTransactions = gql`
   query GetPreparedTransactions(
     $status: TransactionStatus!
-    $destinationDomain: BigInt!
+    $destinationDomains: [BigInt!]
     $prepareBlockNumber: BigInt!
     $nonce: BigInt!
   ) {
     transactions(
       where: {
         status: Prepared
-        destinationDomain: $destinationDomain
+        destinationDomain_in: $destinationDomains
         prepareBlockNumber_gte: $prepareBlockNumber
         nonce_gte: $nonce
       }
