@@ -1,8 +1,9 @@
 import { Wallet } from "ethers";
 import { Logger } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
+import { SubgraphReader } from "@connext/nxtp-read-subgraph";
 
-import { SubgraphReader, Auctioneer, Web3Signer, RouterCache } from "./adapters";
+import { Auctioneer, Web3Signer, RouterCache } from "./adapters";
 import { NxtpRouterConfig } from "./config";
 
 export type AppContext = {

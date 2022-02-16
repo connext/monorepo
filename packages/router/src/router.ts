@@ -1,8 +1,9 @@
 import { logger, Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-read-subgraph";
 
 import { getConfig } from "./config";
-import { SubgraphReader, Auctioneer, Web3Signer, RouterCache } from "./adapters";
+import { Auctioneer, Web3Signer, RouterCache } from "./adapters";
 import { bindFastify, bindMetrics, bindPrices } from "./bindings";
 import { AppContext } from "./context";
 import { bindSubgraph } from "./bindings/subgraph";
@@ -25,7 +26,16 @@ export const makeRouter = async () => {
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
     context.adapters.cache = new RouterCache(context);
-    context.adapters.subgraph = new SubgraphReader(context);
+
+    // setup read subgraph
+    let subgraphConfig: ReadSubgraphConfig;
+    Object.keys(context.config.chains).map((chainId) => {
+      subgraphConfig[chainId.toString()] = context.config.chains[chainId].subgraph;
+    });
+
+    context.adapters.subgraph = new SubgraphReader(subgraphConfig);
+    context.adapters.subgraph.create(subgraphConfig);
+
     context.adapters.auctioneer = new Auctioneer(context);
 
     // Make logger instance.
