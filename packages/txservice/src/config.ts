@@ -219,7 +219,7 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   // to get 1 confirmation.
   confirmationTimeout: 90_000,
   debug_logRpcCalls: false,
-  gelatoOracle: true,
+  gelatoOracle: false,
 };
 
 export const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {
