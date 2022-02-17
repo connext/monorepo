@@ -1,33 +1,17 @@
 import { BigNumber } from "ethers";
-import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
-import { TransactionCache } from "@connext/nxtp-adapters-cache";
 
 import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
-import { Sdk as RuntimeSdk } from "./runtime/graphqlsdk";
-import { SubgraphMap } from "./types";
-import { ReadSubgraphConfig } from "./config";
-import { getRuntimeSdk } from ".";
+import { ReadSubgraphConfig, SubgraphMap } from "./types";
+import { getHelpers } from "./helpers";
 
 export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();
 
   private constructor() {}
 
-  public async create(config: ReadSubgraphConfig, txCache: TransactionCache) {
-    const subgraphMap: SubgraphMap = new Map();
-    for (const chain of Object.keys(config.chains)) {
-      const chainId = parseInt(chain);
-      const { maxLag, runtime: runtimeUrls } = config.chains[chain].subgraph;
-      subgraphMap.set(chainId, {
-        runtime: new FallbackSubgraph<RuntimeSdk>(
-          chainId,
-          (url: string) => getRuntimeSdk(url),
-          maxLag,
-          SubgraphDomain.RUNTIME,
-          runtimeUrls,
-        ),
-      });
-    }
+  public async create(config: ReadSubgraphConfig) {
+    const { create } = getHelpers();
+    this.subgraphs = await create(config);
   }
 
   // TODO: query update
@@ -79,7 +63,7 @@ export class SubgraphReader {
   }
 
   // get transactions from all the subgraphs and save into redis
-  public async updateTransactions({
+  public async update({
     nonce,
     maxPrepareBlockNumber,
   }: {
