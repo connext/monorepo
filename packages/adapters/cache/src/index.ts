@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { AuctionCache } from "./auction";
+import { CachedTransaction } from "./lib/entities/cache";
 
 import { Logger, TransactionData } from "@connext/nxtp-utils";
 import Redis from "ioredis";
@@ -105,8 +106,11 @@ export class TransactionCache {
     await this.txStatus.set(cache.nxtpId, JSON.stringify(cache.bid));
   }
 
-  public async storeTxData(data: any): Promise<void> {
-    await this.txData.set(data.nxtpId, JSON.stringify(""));
+  public async storeTxData(data: CachedTransaction): Promise<void> {
+    // TODO Basically it should save a new transaction or update transaction status if already exists.
+    // Whenever a new pending tx arrives, it needs to call `publishToInstance` to be processed in router side
+    // Key name needs to be matched with other types.
+    await this.txData.set(data.transactionId, JSON.stringify(data.transaction));
   }
 
   /**
