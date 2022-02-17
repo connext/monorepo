@@ -18,6 +18,10 @@ export type ChainCache = {
 };
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
 
+export const RedisChannels = {
+  NEW_TX: "NewTransaction",
+};
+
 // TODO: This storage endpoint should be considered a stub for a future redis / permanent storage solution.
 export class TransactionCache {
   private readonly cache: Map<string, ChainCache> = new Map();
@@ -87,16 +91,20 @@ export class TransactionCache {
   }
 
   /**
-   * publich data to specified channel
+   * Publishes a message to the specified channel
+   * @param channelName The channel name that publishes messages to
+   * @param message The message to publish
    */
-  public async publishToInstance(): Promise<void> {
+  public async publishToInstance(channelName: string, message: string): Promise<void> {
     throw new Error("Not implemented");
   }
 
   /**
-   * subscribe to specified channel, callback fn is called when new message
+   * Subscribes to the specified channel, callback fn is called whenever a new message arrives
+   * @param channelName The channel name that publishes messages to
+   * @param callbackFn The callback function that is called whenever a new message arrives
    */
-  public async subscribeToInstance(): Promise<void> {
+  public async subscribeToInstance(channelName: string, callbackFn: (msg: any, err?: any) => void): Promise<void> {
     throw new Error("Not implemented");
   }
 }
