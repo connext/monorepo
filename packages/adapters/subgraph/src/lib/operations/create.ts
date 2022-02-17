@@ -1,10 +1,8 @@
 import { ReadSubgraphConfig, SubgraphMap } from "../entities";
-import { GraphQLClient } from "graphql-request";
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
 
-import { getSdk, Sdk as RuntimeSdk } from "../../runtime/graphqlsdk";
-
-export const getRuntimeSdk = (url: string) => getSdk(new GraphQLClient(url));
+import { Sdk as RuntimeSdk } from "../../runtime/graphqlsdk";
+import { getRuntimeSdk } from ".";
 
 export const create = async (config: ReadSubgraphConfig): Promise<SubgraphMap> => {
   const subgraphMap: SubgraphMap = new Map();

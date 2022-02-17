@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "types": ["node", "mocha", "chai"]
   },

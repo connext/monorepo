@@ -1,4 +1,4 @@
-import { GetPreparedTransactionsQuery, GetPreparedTransactionsQueryVariables } from "../../adapters/runtime/graphqlsdk";
+import { GetPreparedTransactionsQuery, GetPreparedTransactionsQueryVariables } from "../../runtime/graphqlsdk";
 import { SubgraphMap } from "../entities";
 
 export const getPreparedTransactions = async (

@@ -1,11 +1,5 @@
-import { AppContext } from "../../context";
-
-export class Auctioneer {
-  constructor(context: AppContext) {
-    if (context.adapters.auctioneer) {
-      throw new Error("Instance already exists.");
-    }
-  }
+export class AuctioneerAPI {
+  constructor() {}
 
   // TODO: MetaTx type
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
