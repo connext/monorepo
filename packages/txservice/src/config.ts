@@ -113,6 +113,9 @@ const CoreChainConfigSchema = Type.Object({
   // purposes only, and can greatly affect performance.
   // Whether to log rpc calls.
   debug_logRpcCalls: Type.Boolean(),
+
+  // USE GELATO ORACLE
+  gelatoOracle: Type.Boolean(),
 });
 
 export type CoreChainConfig = Static<typeof CoreChainConfigSchema>;
@@ -216,6 +219,7 @@ export const DEFAULT_CHAIN_CONFIG: CoreChainConfig = {
   // to get 1 confirmation.
   confirmationTimeout: 90_000,
   debug_logRpcCalls: false,
+  gelatoOracle: true,
 };
 
 export const DEFAULT_CHAIN_CONFIG_VALUE_MINS = {
