@@ -14,6 +14,7 @@ import Redis from "ioredis";
 //key: domain:nonce
 //value: "Pending", "Completed", "Reconcilled" <txStatus>
 
+export type Bid = {};
 export type ChainCache = {
   auctions: AuctionCache;
 };
@@ -33,9 +34,9 @@ export class TransactionCache {
 
   private static instance: TransactionCache | undefined;
 
-  private readonly txData: Redis.Redis;
-  private readonly txStatus: Redis.Redis;
-  private readonly pendingTxData: Redis.Redis;
+  private readonly txData!: Redis.Redis;
+  private readonly txStatus!: Redis.Redis;
+  private readonly pendingTxData!: Redis.Redis;
 
   private readonly logger: Logger;
 
@@ -86,7 +87,9 @@ export class TransactionCache {
   public async getLatestNonce(domain: string): Promise<TransactionData | undefined> {
     //assuming theres a guranetee it starts from latest record
 
-    this.txData.zrevrangebyscore();
+    // TODO: add arguments
+    // this.txData.zrevrangebyscore();
+
     const stream = this.txData.scanStream({
       // only returns keys following the pattern of `user:*`
       match: `${domain}:*`,
