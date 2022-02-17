@@ -1629,6 +1629,7 @@ __metadata:
     "@graphql-codegen/typescript-graphql-request": ^4.0.0
     "@graphql-codegen/typescript-operations": ^2.0.1
     "@types/ioredis": ^4
+    ethers: ^5.5.4
     graphql: ^15.5.1
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.5
@@ -1642,6 +1643,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-web3signer@workspace:packages/adapters/web3signer"
   dependencies:
+    "@connext/nxtp-utils": "workspace:*"
     ethers: ^5.5.4
     tslib: ^2.3.1
     typescript: 4.3.5

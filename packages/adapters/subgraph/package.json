@@ -39,6 +39,7 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-subgraph": "workspace:*",
+    "ethers": "^5.5.4",
     "graphql": "^15.5.1",
     "graphql-request": "^3.5.0",
     "graphql-tag": "^2.12.5",
