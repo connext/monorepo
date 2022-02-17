@@ -3,11 +3,11 @@ import { gql } from "graphql-request";
 // Contains all subgraph queries used by router
 
 export const getPreparedTransactions = gql`
-  query GetPreparedTransactions($destinationDomain: BigInt!, $maxPrepareBlockNumber: BigInt!, $nonce: BigInt!) {
+  query GetPreparedTransactions($destinationDomains: [BigInt!], $maxPrepareBlockNumber: BigInt!, $nonce: BigInt!) {
     transactions(
       where: {
         status: Prepared
-        destinationDomain: $destinationDomain
+        destinationDomain_in: $destinationDomains
         prepareBlockNumber_gte: $maxPrepareBlockNumber
         nonce_gte: $nonce
       }
