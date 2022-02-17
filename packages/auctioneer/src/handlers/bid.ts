@@ -46,9 +46,9 @@ export class BidHandler {
 
   async validateTx(bid: Bid, chainId: number):Promise<boolean> {    
     const contractInterface = new ethersUtils.Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
-    // const data =  contractInterface.encodeFunctionData("fulfill", [
-    //   { ...bid }
-    // ]);
+    const data =  contractInterface.encodeFunctionData("fulfill", [
+      { ...bid }
+    ]);
     
     // const isValid = await this.chainReader.getGasEstimate(chainId,{
     //   chainId: chainId, to: "0x", data: data
@@ -78,7 +78,7 @@ export class BidHandler {
 
         const bid = JSON.parse(req.body as string);
         const gBid = bid as GelatoSendBid;
-        
+
         gelatoSend(gBid.chainId, gBid.dest, gBid.data, gBid.token, gBid.relayerFee);
 
         if (dbResponse) {

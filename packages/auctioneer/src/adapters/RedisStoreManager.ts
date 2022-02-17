@@ -1,6 +1,7 @@
 
-import { jsonifyError, Logger } from "@connext/nxtp-utils";
+import { jsonifyError, Logger, TransactionData } from "@connext/nxtp-utils";
 import Redis from "ioredis";
+import { Stream } from "stream";
 import { Bid } from "../lib/types";
 
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
@@ -8,15 +9,16 @@ type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redi
 export class StoreManager {
   private static instance: StoreManager | undefined;
 
-  private readonly redis: Redis.Redis;
+  private readonly txData: Redis.Redis;
+  private readonly txStatus: Redis.Redis;
 
   private readonly logger: Logger;
 
   private constructor({ redisUrl, logger, redis }: StoreManagerParams) {
     if (redis) {
-      this.redis = redis;
     } else {
-      this.redis = new Redis(redisUrl);
+      this.txData = new Redis(redisUrl + "/1");
+      this.txStatus = new Redis(redisUrl + "/2");
     }
     this.logger = logger;
   }
@@ -31,15 +33,37 @@ export class StoreManager {
     }
   }
 
-  public async getCache(nxtpId: string): Promise<Bid | undefined>{
-    const _cache = await this.redis.get(nxtpId);
-    let cache: Bid | undefined;
-    try {
-      cache = JSON.parse(_cache as string);
-    } catch (e) {
-      this.logger.error(`Get Cache Error`, undefined, undefined, jsonifyError(e));
-    }
-    return cache;
+  public async getStatus(domain: string, nonce: string): Promise<Bid | undefined>{
+    const status = this.txStatus.scanStream({
+      match: `${domain}:${nonce}`,
+      type: "zset",
+      count: 1,
+    });
+
+    const recordStatus = await status.read(1);
+    //todo: cast to status enum
+    return recordStatus;
+
+    
+  }
+
+  public async getLatestNonce(domain: string): Promise<TransactionData | undefined>{
+    
+    //assuming theres a guranetee it starts from latest record
+    const stream = this.txData.scanStream({
+      // only returns keys following the pattern of `user:*`
+      match: `${domain}:*`,
+      // only return objects that match a given type,
+      // (requires Redis >= 6.0)
+      type: "zset",
+      // returns approximately 100 elements per call
+      count: 1,
+    });
+
+    const latestRecordForDomain = await stream.read(1);
+    const parsedRecord = JSON.parse(latestRecordForDomain);
+
+    return parsedRecord;
     
   }
 

@@ -1,14 +1,23 @@
 import { BigNumber } from "ethers";
-
 import { AuctionCache } from "./auction";
 import { CacheConfig } from "./lib/entities";
+
+
+//Redis Store I
+
+//domain:nonce
+//value: JSON.stringify(transactionData);
+
+//Redis Store II
+//key: domain:nonce
+//value: "Pending", "Completed", "Reconcilled" <txStatus>
 
 export type ChainCache = {
   auctions: AuctionCache;
 };
 
 // TODO: This storage endpoint should be considered a stub for a future redis / permanent storage solution.
-export class CacheManager {
+export class TransactionCache {
   private readonly cache: Map<string, ChainCache> = new Map();
 
   constructor(config: CacheConfig) {
