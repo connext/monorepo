@@ -16,6 +16,9 @@ import Redis from "ioredis";
 export type ChainCache = {
   auctions: AuctionCache;
 };
+
+export type CallbackFn = (msg: any, err?: any) => void;
+
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
 
 export const RedisChannels = {
@@ -25,11 +28,13 @@ export const RedisChannels = {
 // TODO: This storage endpoint should be considered a stub for a future redis / permanent storage solution.
 export class TransactionCache {
   private readonly cache: Map<string, ChainCache> = new Map();
+  private readonly subscriptions: Map<string, CallbackFn> = new Map();
 
   private static instance: TransactionCache | undefined;
 
   private readonly txData: Redis.Redis;
   private readonly txStatus: Redis.Redis;
+  private readonly pendingTxData: Redis.Redis;
 
   private readonly logger: Logger;
 
@@ -38,8 +43,19 @@ export class TransactionCache {
     } else {
       this.txData = new Redis(redisUrl + "/1");
       this.txStatus = new Redis(redisUrl + "/2");
+      this.pendingTxData = new Redis(redisUrl + "/3");
+      this.initSubscribers();
     }
     this.logger = logger;
+  }
+
+  private initSubscribers() {
+    this.pendingTxData.on("message", (channel, message) => {
+      if (this.subscriptions.has(channel)) {
+        const callbackFn = this.subscriptions.get(channel);
+        if (callbackFn) callbackFn(message);
+      }
+    });
   }
 
   public static getInstance({ redisUrl, logger, redis }: StoreManagerParams): TransactionCache {
@@ -96,7 +112,7 @@ export class TransactionCache {
    * @param message The message to publish
    */
   public async publishToInstance(channelName: string, message: string): Promise<void> {
-    throw new Error("Not implemented");
+    this.pendingTxData.publish(channelName, message);
   }
 
   /**
@@ -104,7 +120,12 @@ export class TransactionCache {
    * @param channelName The channel name that publishes messages to
    * @param callbackFn The callback function that is called whenever a new message arrives
    */
-  public async subscribeToInstance(channelName: string, callbackFn: (msg: any, err?: any) => void): Promise<void> {
-    throw new Error("Not implemented");
+  public async subscribeToInstance(channelName: string, callbackFn: CallbackFn): Promise<void> {
+    if (!this.subscriptions.has(channelName)) {
+      throw new Error(`Channel ${channelName} doesn't exist`);
+    }
+
+    await this.pendingTxData.subscribe(channelName);
+    this.subscriptions.set(channelName, callbackFn);
   }
 }
