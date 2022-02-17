@@ -49,6 +49,9 @@ export class TransactionCache {
     this.logger = logger;
   }
 
+  /**
+   * Initialize channels and handlers
+   */
   private initSubscribers() {
     this.pendingTxData.on("message", (channel, message) => {
       if (this.subscriptions.has(channel)) {
@@ -112,6 +115,9 @@ export class TransactionCache {
    * @param message The message to publish
    */
   public async publishToInstance(channelName: string, message: string): Promise<void> {
+    if (!this.subscriptions.has(channelName)) {
+      throw new Error(`Channel ${channelName} doesn't exist`);
+    }
     this.pendingTxData.publish(channelName, message);
   }
 
@@ -121,11 +127,7 @@ export class TransactionCache {
    * @param callbackFn The callback function that is called whenever a new message arrives
    */
   public async subscribeToInstance(channelName: string, callbackFn: CallbackFn): Promise<void> {
-    if (!this.subscriptions.has(channelName)) {
-      throw new Error(`Channel ${channelName} doesn't exist`);
-    }
-
-    await this.pendingTxData.subscribe(channelName);
     this.subscriptions.set(channelName, callbackFn);
+    await this.pendingTxData.subscribe(channelName);
   }
 }
