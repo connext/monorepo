@@ -1623,6 +1623,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-subgraph@workspace:packages/adapters/subgraph"
   dependencies:
+    "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-subgraph": "workspace:*"
     "@graphql-codegen/cli": ^2.0.1
     "@graphql-codegen/typescript": ^2.0.0

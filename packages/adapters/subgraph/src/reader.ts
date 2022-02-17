@@ -1,19 +1,34 @@
 import { BigNumber } from "ethers";
+import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
+import {} from "@connext/nxtp-adapters-cache";
 
 import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
-import { getOperations } from "./lib/operations";
-import { ReadSubgraphConfig, SubgraphMap } from "./lib/entities";
+import { Sdk as RuntimeSdk } from "./runtime/graphqlsdk";
+import { SubgraphMap } from "./types";
+import { ReadSubgraphConfig } from "./config";
+import { getRuntimeSdk } from ".";
 
 export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();
 
-  public async create(config: ReadSubgraphConfig) {
-    const { create } = getOperations();
-    this.subgraphs = await create(config);
-  }
+  private constructor() {}
 
-  // TODO: update the redis instance passed in periodically
-  public async redisUpdate() {}
+  public async create(config: ReadSubgraphConfig) {
+    const subgraphMap: SubgraphMap = new Map();
+    for (const chain of Object.keys(config.chains)) {
+      const chainId = parseInt(chain);
+      const { maxLag, runtime: runtimeUrls } = config.chains[chain].subgraph;
+      subgraphMap.set(chainId, {
+        runtime: new FallbackSubgraph<RuntimeSdk>(
+          chainId,
+          (url: string) => getRuntimeSdk(url),
+          maxLag,
+          SubgraphDomain.RUNTIME,
+          runtimeUrls,
+        ),
+      });
+    }
+  }
 
   // TODO: query update
   public async query() {}
@@ -63,26 +78,48 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  public async getOpenPrepares(
-    chain: number,
-    destinations: BigNumber[],
-    nonce: BigNumber,
-    maxPrepareBlockNumber: BigNumber,
-  ): Promise<any> {
-    const subgraph = this.subgraphs.get(chain);
-    if (!subgraph) {
-      throw new Error(`Subgraph not defined for chain ${chain}`);
-    }
-    await subgraph.runtime.sync();
-    const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
-      client.GetPreparedTransactions({
-        destinationDomains: destinations,
-        nonce,
-        maxPrepareBlockNumber,
-      }),
-    );
-    return transactions;
-    // Query and return all prepares in the past 30 mins for this chain, assuming the destination chain
-    // is included in the respective array argument, `destinations`.
+  // get transactions from all the subgraphs and save into redis
+  public async updateTransactions({
+    nonce,
+    maxPrepareBlockNumber,
+  }: {
+    nonce: BigNumber;
+    maxPrepareBlockNumber: BigNumber;
+  }): Promise<any> {
+    const destinations = [...this.subgraphs.keys()];
+
+    // first get all sending side txs
+    const sendingSide = (
+      await Promise.all(
+        [...this.subgraphs.values()].map(async (subgraph) => {
+          await subgraph.runtime.sync();
+          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
+            client.GetPreparedTransactions({
+              destinationDomains: destinations,
+              nonce,
+              maxPrepareBlockNumber,
+            }),
+          );
+          return transactions;
+        }),
+      )
+    )
+      .flat()
+      .filter((x) => !!x);
+
+    // separate all sending side txs into receiving side buckets
+    const destinationTxs = new Map<string, string[]>();
+    sendingSide.forEach((tx) => {
+      if (destinationTxs.has(tx.destinationDomain)) {
+        const txs = destinationTxs.get(tx.destinationDomain)!;
+        txs.push(tx.transactionId);
+        destinationTxs.set(tx.destinationDomain, txs);
+      } else {
+        destinationTxs.set(tx.destinationDomain, [tx.transactionId]);
+      }
+    });
+
+    // get receiving
+    [...destinationTxs.entries()].forEach(([destinationDomain, txs]) => {});
   }
 }
