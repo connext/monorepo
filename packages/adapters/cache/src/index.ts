@@ -1,20 +1,18 @@
 import { BigNumber } from "ethers";
 
 import { AuctionCache } from "./auction";
+import { CacheConfig } from "./lib/entities";
 
 export type ChainCache = {
   auctions: AuctionCache;
 };
 
 // TODO: This storage endpoint should be considered a stub for a future redis / permanent storage solution.
-export class RouterCache {
+export class CacheManager {
   private readonly cache: Map<string, ChainCache> = new Map();
 
-  constructor(context: AppContext) {
-    if (context.adapters.cache) {
-      throw new Error("Instance already exists.");
-    }
-    for (const chain of Object.keys(context.config.chains)) {
+  constructor(config: CacheConfig) {
+    for (const chain of Object.keys(config.chains)) {
       this.cache.set(chain, {
         auctions: new AuctionCache(),
       });
