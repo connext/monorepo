@@ -1,7 +1,7 @@
 {
-  "name": "@connext/nxtp-read-subgraph",
+  "name": "@connext/nxtp-adapters-web3signer",
   "version": "",
-  "description": "package for subgraph interaction of nxtp protocol",
+  "description": "adapter for subgraph interaction of nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -32,22 +32,13 @@
       "../@connext/nxtp-utils/dist"
     ]
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
+  "eslintIgnore": [],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-subgraph": "workspace:*",
-    "graphql": "^15.5.1",
-    "graphql-request": "^3.5.0",
-    "graphql-tag": "^2.12.5"
+    "ethers": "^5.5.4"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.0.1",
-    "@graphql-codegen/typescript": "^2.0.0",
-    "@graphql-codegen/typescript-graphql-request": "^4.0.0",
-    "@graphql-codegen/typescript-operations": "^2.0.1",
     "tslib": "^2.3.1",
     "typescript": "4.3.5"
   },

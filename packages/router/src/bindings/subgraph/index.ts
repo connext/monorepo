@@ -51,19 +51,19 @@ export const bindSubgraph = async (context: AppContext) => {
           const blockNumber = await chainreader.getBlockNumber(chainId);
           const maxPreparedBlockNumber = BigNumber.from(blockNumber - confirmations);
 
-          // - Get the lot of open/available transfers on this chain.
-          // - If we have sufficient liquidity available for a transfer, send bid to auctioneer.
-
           // Read subgraph for new prepares going to chains for which we're providing liquidity.
-
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const prepares = await subgraph.getOpenPrepares(
+          await Promise.all((await subgraph.getOpenPrepares(
             chainId,
             destinationDomains,
             nonce ?? BigNumber.from(0),
             maxPreparedBlockNumber,
-          );
-          // For each prepare: check to see if we support the receiving chain / receiving asset.
+          )).map((prepare) => {
+            
+          });
+          // For each prepare: check to see if we have enough liquidity in the receiving asset.
+          
+
         }),
       );
     },

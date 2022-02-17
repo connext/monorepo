@@ -1,4 +1,4 @@
-export { Auctioneer } from "./auctioneer";
-export { RouterCache } from "./cache";
-export { SubgraphReader } from "./subgraph";
-export { Web3Signer } from "./web3signer";
+export { Auctioneer } from "@connext/nxtp-adapters-auctioneer";
+export { RouterCache } from "@connext/nxtp-adapters-cache";
+export { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+export { Web3Signer } from "@connext/nxtp-adapters-web3signer";

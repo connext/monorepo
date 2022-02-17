@@ -28,7 +28,10 @@
     "packages/txservice",
     "packages/utils",
     "packages/auctioneer",
-    "packages/read-subgraph"
+    "packages/adapters/auctioneer",
+    "packages/adapters/cache",
+    "packages/adapters/subgraph",
+    "packages/adapters/web3signer"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",

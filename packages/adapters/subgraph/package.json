@@ -1,0 +1,55 @@
+{
+  "name": "@connext/nxtp-adapters-subgraph",
+  "version": "",
+  "description": "adapter for subgraph interaction of nxtp protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "dev": "",
+    "start": "",
+    "lint": "eslint ./src --ext .ts --env node",
+    "test": "",
+    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
+    "build": "tsc --build ./tsconfig.build.json",
+    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
+    "purge": "yarn clean && rimraf ./coverage ./node_modules",
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
+    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
+  },
+  "nodemonConfig": {
+    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
+    "delay": "500",
+    "ext": "js,json",
+    "watch": [
+      ".env",
+      "./dist",
+      "../@connext/nxtp-txservice/dist",
+      "../@connext/nxtp-contracts/dist",
+      "../@connext/nxtp-utils/dist"
+    ]
+  },
+  "eslintIgnore": [
+    "graphqlsdk.ts"
+  ],
+  "author": "Connext",
+  "license": "ISC",
+  "dependencies": {
+    "@connext/nxtp-subgraph": "workspace:*",
+    "graphql": "^15.5.1",
+    "graphql-request": "^3.5.0",
+    "graphql-tag": "^2.12.5"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^2.0.1",
+    "@graphql-codegen/typescript": "^2.0.0",
+    "@graphql-codegen/typescript-graphql-request": "^4.0.0",
+    "@graphql-codegen/typescript-operations": "^2.0.1",
+    "tslib": "^2.3.1",
+    "typescript": "4.3.5"
+  },
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+}

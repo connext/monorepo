@@ -1596,6 +1596,54 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/nxtp-adapters-auctioneer@workspace:*, @connext/nxtp-adapters-auctioneer@workspace:packages/adapters/auctioneer":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-adapters-auctioneer@workspace:packages/adapters/auctioneer"
+  dependencies:
+    axios: ^0.24.0
+    ethers: ^5.5.4
+    tslib: ^2.3.1
+    typescript: 4.3.5
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-adapters-cache@workspace:*, @connext/nxtp-adapters-cache@workspace:packages/adapters/cache":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-adapters-cache@workspace:packages/adapters/cache"
+  dependencies:
+    ethers: ^5.5.4
+    tslib: ^2.3.1
+    typescript: 4.3.5
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-adapters-subgraph@workspace:*, @connext/nxtp-adapters-subgraph@workspace:packages/adapters/subgraph":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-adapters-subgraph@workspace:packages/adapters/subgraph"
+  dependencies:
+    "@connext/nxtp-subgraph": "workspace:*"
+    "@graphql-codegen/cli": ^2.0.1
+    "@graphql-codegen/typescript": ^2.0.0
+    "@graphql-codegen/typescript-graphql-request": ^4.0.0
+    "@graphql-codegen/typescript-operations": ^2.0.1
+    graphql: ^15.5.1
+    graphql-request: ^3.5.0
+    graphql-tag: ^2.12.5
+    tslib: ^2.3.1
+    typescript: 4.3.5
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-adapters-web3signer@workspace:*, @connext/nxtp-adapters-web3signer@workspace:packages/adapters/web3signer":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-adapters-web3signer@workspace:packages/adapters/web3signer"
+  dependencies:
+    ethers: ^5.5.4
+    tslib: ^2.3.1
+    typescript: 4.3.5
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-contracts@workspace:*, @connext/nxtp-contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-contracts@workspace:packages/contracts"
@@ -1668,29 +1716,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-read-subgraph@workspace:*, @connext/nxtp-read-subgraph@workspace:packages/read-subgraph":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-read-subgraph@workspace:packages/read-subgraph"
-  dependencies:
-    "@connext/nxtp-subgraph": "workspace:*"
-    "@graphql-codegen/cli": ^2.0.1
-    "@graphql-codegen/typescript": ^2.0.0
-    "@graphql-codegen/typescript-graphql-request": ^4.0.0
-    "@graphql-codegen/typescript-operations": ^2.0.1
-    graphql: ^15.5.1
-    graphql-request: ^3.5.0
-    graphql-tag: ^2.12.5
-    tslib: ^2.3.1
-    typescript: 4.3.5
-  languageName: unknown
-  linkType: soft
-
 "@connext/nxtp-router@workspace:packages/router":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-router@workspace:packages/router"
   dependencies:
+    "@connext/nxtp-adapters-auctioneer": "workspace:*"
+    "@connext/nxtp-adapters-cache": "workspace:*"
+    "@connext/nxtp-adapters-subgraph": "workspace:*"
+    "@connext/nxtp-adapters-web3signer": "workspace:*"
     "@connext/nxtp-contracts": "workspace:*"
-    "@connext/nxtp-read-subgraph": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": ^2.0.1
