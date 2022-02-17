@@ -17,6 +17,11 @@ export class SubgraphReader {
   // TODO: query update
   public async query() {}
 
+  // get transactions from all the subgraphs and save into redis
+  public async update(): Promise<any> {
+    // cacheUpdate
+  }
+
   /**
    *
    * Returns available liquidity for the given asset on the TransactionManager on the provided chain.
@@ -60,55 +65,5 @@ export class SubgraphReader {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getLatestNonce(chain: number): Promise<BigNumber> {
     throw new Error("Not implemented");
-  }
-
-  // get transactions from all the subgraphs and save into redis
-  public async update({
-    nonce,
-    maxPrepareBlockNumber,
-  }: {
-    nonce: BigNumber;
-    maxPrepareBlockNumber: BigNumber;
-  }): Promise<any> {
-    const destinations = [...this.subgraphs.keys()];
-
-    // first get all sending side txs
-    const sendingSide = (
-      await Promise.all(
-        [...this.subgraphs.values()].map(async (subgraph) => {
-          await subgraph.runtime.sync();
-          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
-            client.GetPreparedTransactions({
-              destinationDomains: destinations,
-              nonce,
-              maxPrepareBlockNumber,
-            }),
-          );
-          return transactions;
-        }),
-      )
-    )
-      .flat()
-      .filter((x) => !!x);
-
-    // save to txCache
-    // await txCache.saveTxs(destinationTxs);
-
-    // separate all sending side txs into receiving side buckets
-    const destinationTxs = new Map<string, string[]>();
-    sendingSide.forEach((tx) => {
-      if (destinationTxs.has(tx.destinationDomain)) {
-        const txs = destinationTxs.get(tx.destinationDomain)!;
-        txs.push(tx.transactionId);
-        destinationTxs.set(tx.destinationDomain, txs);
-      } else {
-        destinationTxs.set(tx.destinationDomain, [tx.transactionId]);
-      }
-    });
-
-    // get receiving
-    [...destinationTxs.entries()].forEach(([destinationDomain, txs]) => {});
-
-    // update cache
   }
 }
