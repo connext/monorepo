@@ -48,7 +48,7 @@ export class TransactionCache {
     }
   }
 
-  public async getStatus(domain: string, nonce: string): Promise<Bid | undefined>{
+  public async getStatus(domain: string, nonce: string): Promise<Bid | undefined> {
     const status = this.txStatus.scanStream({
       match: `${domain}:${nonce}`,
       count: 1,
@@ -59,8 +59,7 @@ export class TransactionCache {
     return recordStatus;
   }
 
-  public async getLatestNonce(domain: string): Promise<TransactionData | undefined>{
-    
+  public async getLatestNonce(domain: string): Promise<TransactionData | undefined> {
     //assuming theres a guranetee it starts from latest record
 
     this.txData.zrevrangebyscore();
@@ -77,14 +76,27 @@ export class TransactionCache {
     const parsedRecord = JSON.parse(latestRecordForDomain);
 
     return parsedRecord;
-    
   }
 
   public async storeStatus(cache: any): Promise<void> {
     await this.txStatus.set(cache.nxtpId, JSON.stringify(cache.bid));
   }
 
-  public async storeTxData(data: any): Promise<void>{
+  public async storeTxData(data: any): Promise<void> {
     await this.txData.set(data.nxtpId, JSON.stringify(""));
+  }
+
+  /**
+   * publich data to specified channel
+   */
+  public async publishToInstance(): Promise<void> {
+    throw new Error("Not implemented");
+  }
+
+  /**
+   * subscribe to specified channel, callback fn is called when new message
+   */
+  public async subscribeToInstance(): Promise<void> {
+    throw new Error("Not implemented");
   }
 }
