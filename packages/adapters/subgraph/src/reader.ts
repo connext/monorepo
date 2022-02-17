@@ -107,6 +107,9 @@ export class SubgraphReader {
       .flat()
       .filter((x) => !!x);
 
+    // save to txCache
+    // await txCache.saveTxs(destinationTxs);
+
     // separate all sending side txs into receiving side buckets
     const destinationTxs = new Map<string, string[]>();
     sendingSide.forEach((tx) => {
@@ -118,9 +121,6 @@ export class SubgraphReader {
         destinationTxs.set(tx.destinationDomain, [tx.transactionId]);
       }
     });
-
-    // save to txCache
-    // await txCache.saveTxs(destinationTxs);
 
     // get receiving
     [...destinationTxs.entries()].forEach(([destinationDomain, txs]) => {});
