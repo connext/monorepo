@@ -36,7 +36,8 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "ethers": "^5.5.4"
+    "ethers": "^5.5.4",
+    "ioredis": "^4.28.5"
   },
   "devDependencies": {
     "tslib": "^2.3.1",

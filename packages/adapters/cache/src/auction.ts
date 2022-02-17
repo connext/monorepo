@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 
-import { CachedBid } from "../../lib/entities/cache";
+import { CachedBid } from "./lib/entities/cache";
 
 // TODO: This could use some optimization.
 // - For one, we should be storing via Redis (and move this to adapters) to keep the state persistent across restarts.

@@ -1,15 +1,8 @@
 import { BigNumber } from "ethers";
-import { FallbackSubgraph } from "@connext/nxtp-utils";
-import { Sdk, GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 
-// import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
-
+import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 import { getOperations } from "./lib/operations";
 import { ReadSubgraphConfig, SubgraphMap } from "./lib/entities";
-
-export type ChainSubgraphs = {
-  runtime: FallbackSubgraph<Sdk>;
-};
 
 export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();

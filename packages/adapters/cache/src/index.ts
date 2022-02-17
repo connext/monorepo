@@ -1,7 +1,5 @@
 import { BigNumber } from "ethers";
 
-import { AppContext } from "../../context";
-
 import { AuctionCache } from "./auction";
 
 export type ChainCache = {

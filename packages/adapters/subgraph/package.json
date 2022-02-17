@@ -41,7 +41,8 @@
     "@connext/nxtp-subgraph": "workspace:*",
     "graphql": "^15.5.1",
     "graphql-request": "^3.5.0",
-    "graphql-tag": "^2.12.5"
+    "graphql-tag": "^2.12.5",
+    "ioredis": "^4.28.5"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.0.1",
