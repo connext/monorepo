@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
-import {} from "@connext/nxtp-adapters-cache";
+import { TransactionCache } from "@connext/nxtp-adapters-cache";
 
 import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 import { Sdk as RuntimeSdk } from "./runtime/graphqlsdk";
@@ -13,7 +13,7 @@ export class SubgraphReader {
 
   private constructor() {}
 
-  public async create(config: ReadSubgraphConfig) {
+  public async create(config: ReadSubgraphConfig, txCache: TransactionCache) {
     const subgraphMap: SubgraphMap = new Map();
     for (const chain of Object.keys(config.chains)) {
       const chainId = parseInt(chain);
@@ -119,7 +119,12 @@ export class SubgraphReader {
       }
     });
 
+    // save to txCache
+    // await txCache.saveTxs(destinationTxs);
+
     // get receiving
     [...destinationTxs.entries()].forEach(([destinationDomain, txs]) => {});
+
+    // update cache
   }
 }
