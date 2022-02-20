@@ -2,8 +2,8 @@
 pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./lib/StableSwap/OwnerPausable.sol";
 import "./lib/StableSwap/SwapUtils.sol";
 import "./lib/StableSwap/AmplificationUtils.sol";
@@ -102,7 +102,6 @@ contract Swap is OwnerPausable, ReentrancyGuard {
      * StableSwap paper for details
      * @param _fee default swap fee to be initialized with
      * @param _adminFee default adminFee to be initialized with
-     * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
      */
     constructor (
         IERC20[] memory _pooledTokens,
