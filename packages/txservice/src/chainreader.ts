@@ -452,10 +452,10 @@ export class ChainReader {
     const tokenAmountForGasFee = tokenPrice.isZero()
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
-      
+
     // Use Gelato Oracle if it's configured and available for the chain id
     let gelatoEstimatedFee: BigNumber | undefined;
-    if (this.config[chainIdForTokenPrice].gelatoOracle){
+    if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle){
       gelatoEstimatedFee = await this.calculateGelatoFee(chainIdForGasPrice, assetId, gasLimit.toNumber());
     }
 
