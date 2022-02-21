@@ -48,6 +48,6 @@ export const updateTransaction = (cacheInstance: TransactionCache, subgraphs: Su
   // Or
   // Router/Auctioneer/ExplorerBackend pushes transactionId or nonce to fetch the updated status
   // First one seems like a better approach
-  // problem: what's the best way to decide to fetch these transactions data?
+  // problem: when to fetch these transactions data?
   // should we get all the prepareTransactions within a time interval?
 };
