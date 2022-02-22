@@ -1,11 +1,11 @@
 import { BigNumber } from "ethers";
-
-import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
+import { TransactionCache } from "@connext/nxtp-adapters-cache";
 import { ReadSubgraphConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
 
 export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();
+  private cacheUpdaterInterval: NodeJS.Timeout | undefined;
 
   private constructor() {}
 
@@ -14,13 +14,15 @@ export class SubgraphReader {
     this.subgraphs = await create(config);
   }
 
-  // TODO: query update
-  public async query() {}
-
   // get transactions from all the subgraphs and save into redis
-  public async update(): Promise<any> {
+  public async cacheUpdate(cacheInstance: TransactionCache): Promise<any> {
     // cacheUpdate
+    const { cacheUpdate } = getHelpers();
+    this.cacheUpdaterInterval = await cacheUpdate(cacheInstance, this.subgraphs);
   }
+
+  // TODO: query
+  public async query() {}
 
   /**
    *
