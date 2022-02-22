@@ -13,10 +13,11 @@ export const getSenderTransactionsQuery = async (
   return transactions;
 };
 
+type GetTransactionQueryVariables = {};
 export const getTransaction = async (subgraphs: SubgraphMap, chainId: number, params: GetTransactionQueryVariables) => {
   const subgraph = subgraphs.get(chainId);
 
-  const { transaction } = await subgraph!.runtime.request<GetTransactionQuery>((client) =>
-    client.GetTransaction(params),
-  );
+  // const { transaction } = await subgraph!.runtime.request<GetTransactionQuery>((client) =>
+  //   client.GetTransaction(params),
+  // );
 };
