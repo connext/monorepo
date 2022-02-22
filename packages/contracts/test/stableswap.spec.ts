@@ -10,11 +10,11 @@ import {
   setNextTimestamp,
   setTimestamp,
   forceAdvanceOneBlock,
-} from "./testUtils";
+} from "./utils";
 import { solidity } from "ethereum-waffle";
 import { deployments } from "hardhat";
 
-import { GenericERC20 } from "../typechain-types/GenericERC20";
+import { TestERC20 } from "../typechain-types/TestERC20";
 import { LPToken } from "../typechain-types/LPToken";
 import { Swap } from "../typechain-types/Swap";
 import { SwapUtils } from "../typechain-types/SwapUtils";
@@ -29,8 +29,8 @@ describe("Swap", async () => {
   let swap: Swap;
   let testSwapReturnValues: TestSwapReturnValues;
   let swapUtils: SwapUtils;
-  let firstToken: GenericERC20;
-  let secondToken: GenericERC20;
+  let firstToken: TestERC20;
+  let secondToken: TestERC20;
   let swapToken: LPToken;
   let owner: Signer;
   let user1: Signer;
@@ -67,11 +67,11 @@ describe("Swap", async () => {
     user2Address = await user2.getAddress();
 
     // Deploy dummy tokens
-    const erc20Factory = await ethers.getContractFactory("GenericERC20");
+    const erc20Factory = await ethers.getContractFactory("TestERC20");
 
-    firstToken = (await erc20Factory.deploy("First Token", "FIRST", "18")) as GenericERC20;
+    firstToken = (await erc20Factory.deploy("First Token", "FIRST", "18")) as TestERC20;
 
-    secondToken = (await erc20Factory.deploy("Second Token", "SECOND", "18")) as GenericERC20;
+    secondToken = (await erc20Factory.deploy("Second Token", "SECOND", "18")) as TestERC20;
 
     // Mint dummy tokens
     await asyncForEach([owner, user1, user2], async (signer) => {

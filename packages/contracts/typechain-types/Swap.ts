@@ -33,6 +33,7 @@ export interface SwapInterface extends utils.Interface {
     "getTokenBalance(uint8)": FunctionFragment;
     "getTokenIndex(address)": FunctionFragment;
     "getVirtualPrice()": FunctionFragment;
+    "initialize(address[],uint8[],string,string,uint256,uint256,uint256,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
@@ -96,6 +97,19 @@ export interface SwapInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getVirtualPrice",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      string[],
+      BigNumberish[],
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      string
+    ]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
@@ -199,6 +213,7 @@ export interface SwapInterface extends utils.Interface {
     functionFragment: "getVirtualPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
@@ -471,6 +486,18 @@ export interface Swap extends BaseContract {
 
     getVirtualPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    initialize(
+      _pooledTokens: string[],
+      decimals: BigNumberish[],
+      lpTokenName: string,
+      lpTokenSymbol: string,
+      _a: BigNumberish,
+      _fee: BigNumberish,
+      _adminFee: BigNumberish,
+      lpTokenTargetAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     pause(
@@ -631,6 +658,18 @@ export interface Swap extends BaseContract {
 
   getVirtualPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
+  initialize(
+    _pooledTokens: string[],
+    decimals: BigNumberish[],
+    lpTokenName: string,
+    lpTokenSymbol: string,
+    _a: BigNumberish,
+    _fee: BigNumberish,
+    _adminFee: BigNumberish,
+    lpTokenTargetAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   pause(
@@ -790,6 +829,18 @@ export interface Swap extends BaseContract {
     ): Promise<number>;
 
     getVirtualPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _pooledTokens: string[],
+      decimals: BigNumberish[],
+      lpTokenName: string,
+      lpTokenSymbol: string,
+      _a: BigNumberish,
+      _fee: BigNumberish,
+      _adminFee: BigNumberish,
+      lpTokenTargetAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1061,6 +1112,18 @@ export interface Swap extends BaseContract {
 
     getVirtualPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
+    initialize(
+      _pooledTokens: string[],
+      decimals: BigNumberish[],
+      lpTokenName: string,
+      lpTokenSymbol: string,
+      _a: BigNumberish,
+      _fee: BigNumberish,
+      _adminFee: BigNumberish,
+      lpTokenTargetAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     pause(
@@ -1204,6 +1267,18 @@ export interface Swap extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getVirtualPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      _pooledTokens: string[],
+      decimals: BigNumberish[],
+      lpTokenName: string,
+      lpTokenSymbol: string,
+      _a: BigNumberish,
+      _fee: BigNumberish,
+      _adminFee: BigNumberish,
+      lpTokenTargetAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

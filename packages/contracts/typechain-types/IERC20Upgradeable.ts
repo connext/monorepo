@@ -17,14 +17,12 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface ERC20Interface extends utils.Interface {
-  contractName: "ERC20";
+export interface IERC20UpgradeableInterface extends utils.Interface {
+  contractName: "IERC20Upgradeable";
   functions: {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "decreaseAllowance(address,uint256)": FunctionFragment;
-    "increaseAllowance(address,uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
@@ -39,14 +37,6 @@ export interface ERC20Interface extends utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "decreaseAllowance",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "increaseAllowance",
-    values: [string, BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -63,14 +53,6 @@ export interface ERC20Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "decreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "increaseAllowance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -104,13 +86,13 @@ export type TransferEvent = TypedEvent<
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
-export interface ERC20 extends BaseContract {
-  contractName: "ERC20";
+export interface IERC20Upgradeable extends BaseContract {
+  contractName: "IERC20Upgradeable";
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ERC20Interface;
+  interface: IERC20UpgradeableInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -133,130 +115,91 @@ export interface ERC20 extends BaseContract {
 
   functions: {
     allowance(
-      _owner: string,
-      _spender: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     approve(
-      _spender: string,
-      _amount: BigNumberish,
+      spender: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    balanceOf(
-      _account: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    decreaseAllowance(
-      _spender: string,
-      _subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    increaseAllowance(
-      _spender: string,
-      _addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transfer(
-      _recipient: string,
-      _amount: BigNumberish,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transferFrom(
-      _sender: string,
-      _recipient: string,
-      _amount: BigNumberish,
+      from: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   allowance(
-    _owner: string,
-    _spender: string,
+    owner: string,
+    spender: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   approve(
-    _spender: string,
-    _amount: BigNumberish,
+    spender: string,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  balanceOf(_account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  decreaseAllowance(
-    _spender: string,
-    _subtractedValue: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  increaseAllowance(
-    _spender: string,
-    _addedValue: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   transfer(
-    _recipient: string,
-    _amount: BigNumberish,
+    to: string,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transferFrom(
-    _sender: string,
-    _recipient: string,
-    _amount: BigNumberish,
+    from: string,
+    to: string,
+    amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     allowance(
-      _owner: string,
-      _spender: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     approve(
-      _spender: string,
-      _amount: BigNumberish,
+      spender: string,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    balanceOf(_account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    decreaseAllowance(
-      _spender: string,
-      _subtractedValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    increaseAllowance(
-      _spender: string,
-      _addedValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transfer(
-      _recipient: string,
-      _amount: BigNumberish,
+      to: string,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     transferFrom(
-      _sender: string,
-      _recipient: string,
-      _amount: BigNumberish,
+      from: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -287,89 +230,65 @@ export interface ERC20 extends BaseContract {
 
   estimateGas: {
     allowance(
-      _owner: string,
-      _spender: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     approve(
-      _spender: string,
-      _amount: BigNumberish,
+      spender: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    balanceOf(_account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    decreaseAllowance(
-      _spender: string,
-      _subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    increaseAllowance(
-      _spender: string,
-      _addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transfer(
-      _recipient: string,
-      _amount: BigNumberish,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transferFrom(
-      _sender: string,
-      _recipient: string,
-      _amount: BigNumberish,
+      from: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     allowance(
-      _owner: string,
-      _spender: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     approve(
-      _spender: string,
-      _amount: BigNumberish,
+      spender: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
-      _account: string,
+      account: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    decreaseAllowance(
-      _spender: string,
-      _subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    increaseAllowance(
-      _spender: string,
-      _addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transfer(
-      _recipient: string,
-      _amount: BigNumberish,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferFrom(
-      _sender: string,
-      _recipient: string,
-      _amount: BigNumberish,
+      from: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

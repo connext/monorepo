@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 /**
  * @title OwnerPausable
@@ -11,19 +10,27 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * contract without a delay.
  * @dev Only methods using the provided modifiers will be paused.
  */
-abstract contract OwnerPausable is Ownable, Pausable
+abstract contract OwnerPausableUpgradeable is
+    OwnableUpgradeable,
+    PausableUpgradeable
 {
+    function __OwnerPausable_init() internal initializer {
+        __Context_init_unchained();
+        __Ownable_init_unchained();
+        __Pausable_init_unchained();
+    }
+
     /**
      * @notice Pause the contract. Revert if already paused.
      */
     function pause() external onlyOwner {
-        Pausable._pause();
+        PausableUpgradeable._pause();
     }
 
     /**
      * @notice Unpause the contract. Revert if already unpaused.
      */
     function unpause() external onlyOwner {
-        Pausable._unpause();
+        PausableUpgradeable._unpause();
     }
 }

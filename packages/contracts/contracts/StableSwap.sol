@@ -3,8 +3,9 @@ pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./lib/StableSwap/OwnerPausable.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "./lib/StableSwap/OwnerPausableUpgradeable.sol";
 import "./lib/StableSwap/SwapUtils.sol";
 import "./lib/StableSwap/AmplificationUtils.sol";
 import "./interfaces/IStableSwap.sol";
@@ -26,7 +27,7 @@ import "./interfaces/IStableSwap.sol";
  * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
  * deployment size.
  */
-contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
+contract Swap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using SwapUtils for SwapUtils.Swap;
@@ -39,54 +40,6 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     // Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
     // getTokenIndex function also relies on this mapping to retrieve token index.
     mapping(address => uint8) private tokenIndexes;
-
-    /*** EVENTS ***/
-
-    // events replicated from SwapUtils to make the ABI easier for dumb
-    // clients
-    event TokenSwap(
-        address indexed buyer,
-        uint256 tokensSold,
-        uint256 tokensBought,
-        uint128 soldId,
-        uint128 boughtId
-    );
-    event AddLiquidity(
-        address indexed provider,
-        uint256[] tokenAmounts,
-        uint256[] fees,
-        uint256 invariant,
-        uint256 lpTokenSupply
-    );
-    event RemoveLiquidity(
-        address indexed provider,
-        uint256[] tokenAmounts,
-        uint256 lpTokenSupply
-    );
-    event RemoveLiquidityOne(
-        address indexed provider,
-        uint256 lpTokenAmount,
-        uint256 lpTokenSupply,
-        uint256 boughtId,
-        uint256 tokensBought
-    );
-    event RemoveLiquidityImbalance(
-        address indexed provider,
-        uint256[] tokenAmounts,
-        uint256[] fees,
-        uint256 invariant,
-        uint256 lpTokenSupply
-    );
-    event NewAdminFee(uint256 newAdminFee);
-    event NewSwapFee(uint256 newSwapFee);
-    event NewWithdrawFee(uint256 newWithdrawFee);
-    event RampA(
-        uint256 oldA,
-        uint256 newA,
-        uint256 initialTime,
-        uint256 futureTime
-    );
-    event StopRampA(uint256 currentA, uint256 time);
 
     /**
      * @notice Initializes this Swap contract with the given parameters.
@@ -103,16 +56,21 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
      * StableSwap paper for details
      * @param _fee default swap fee to be initialized with
      * @param _adminFee default adminFee to be initialized with
+     * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
      */
-    constructor (
+    function initialize (
         IERC20[] memory _pooledTokens,
         uint8[] memory decimals,
         string memory lpTokenName,
         string memory lpTokenSymbol,
         uint256 _a,
         uint256 _fee,
-        uint256 _adminFee
-    ) public {
+        uint256 _adminFee,
+        address lpTokenTargetAddress
+    ) public virtual initializer {
+        __OwnerPausable_init();
+        __ReentrancyGuard_init();
+
         // Check _pooledTokens and precisions parameter
         require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
         require(_pooledTokens.length <= 32, "_pooledTokens.length > 32");
@@ -157,7 +115,11 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         );
 
         // Initialize a LPToken contract
-        LPToken lpToken = new LPToken(lpTokenName, lpTokenSymbol);
+        LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
+        require(
+            lpToken.initialize(lpTokenName, lpTokenSymbol),
+            "could not init lpToken clone"
+        );
         
         // Initialize swapStorage struct
         swapStorage.lpToken = lpToken;
@@ -190,7 +152,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
      * @dev See the StableSwap paper for details
      * @return A parameter
      */
-    function getA() external view virtual returns (uint256) {
+    function getA() external view override returns (uint256) {
         return swapStorage.getA();
     }
 
@@ -199,7 +161,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
      * @dev See the StableSwap paper for details
      * @return A parameter in its raw precision form
      */
-    function getAPrecise() external view virtual returns (uint256) {
+    function getAPrecise() external view returns (uint256) {
         return swapStorage.getAPrecise();
     }
 
@@ -208,7 +170,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
      * @param index the index of the token
      * @return address of the token at given index
      */
-    function getToken(uint8 index) public view virtual returns (IERC20) {
+    function getToken(uint8 index) public view override returns (IERC20) {
         require(index < swapStorage.pooledTokens.length, "Out of range");
         return swapStorage.pooledTokens[index];
     }
@@ -222,7 +184,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     function getTokenIndex(address tokenAddress)
         public
         view
-        virtual
+        override
         returns (uint8)
     {
         uint8 index = tokenIndexes[tokenAddress];
@@ -241,7 +203,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     function getTokenBalance(uint8 index)
         external
         view
-        virtual
+        override
         returns (uint256)
     {
         require(index < swapStorage.pooledTokens.length, "Index out of range");
@@ -252,7 +214,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
      * @notice Get the virtual price, to help calculate profit
      * @return the virtual price, scaled to the POOL_PRECISION_DECIMALS
      */
-    function getVirtualPrice() external view virtual returns (uint256) {
+    function getVirtualPrice() external view override returns (uint256) {
         return swapStorage.getVirtualPrice();
     }
 
@@ -268,7 +230,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         uint8 tokenIndexFrom,
         uint8 tokenIndexTo,
         uint256 dx
-    ) external view virtual returns (uint256) {
+    ) external view override returns (uint256) {
         return swapStorage.calculateSwap(tokenIndexFrom, tokenIndexTo, dx);
     }
 
@@ -290,7 +252,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     function calculateTokenAmount(uint256[] calldata amounts, bool deposit)
         external
         view
-        virtual
+        override
         returns (uint256)
     {
         return swapStorage.calculateTokenAmount(amounts, deposit);
@@ -305,7 +267,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     function calculateRemoveLiquidity(uint256 amount)
         external
         view
-        virtual
+        override
         returns (uint256[] memory)
     {
         return swapStorage.calculateRemoveLiquidity(amount);
@@ -322,7 +284,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     function calculateRemoveLiquidityOneToken(
         uint256 tokenAmount,
         uint8 tokenIndex
-    ) external view virtual returns (uint256 availableTokenAmount) {
+    ) external view override returns (uint256 availableTokenAmount) {
         return swapStorage.calculateWithdrawOneToken(tokenAmount, tokenIndex);
     }
 
@@ -334,7 +296,6 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     function getAdminBalance(uint256 index)
         external
         view
-        virtual
         returns (uint256)
     {
         return swapStorage.getAdminBalance(index);
@@ -358,7 +319,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         uint256 deadline
     )
         external
-        virtual
+        override
         nonReentrant
         whenNotPaused
         deadlineCheck(deadline)
@@ -379,7 +340,6 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         address assetOut
     )
         external
-        virtual
         override
         payable
         nonReentrant
@@ -405,7 +365,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         uint256 deadline
     )
         external
-        virtual
+        override
         nonReentrant
         whenNotPaused
         deadlineCheck(deadline)
@@ -430,7 +390,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         uint256 deadline
     )
         external
-        virtual
+        override
         nonReentrant
         deadlineCheck(deadline)
         returns (uint256[] memory)
@@ -454,7 +414,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         uint256 deadline
     )
         external
-        virtual
+        override
         nonReentrant
         whenNotPaused
         deadlineCheck(deadline)
@@ -484,7 +444,7 @@ contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
         uint256 deadline
     )
         external
-        virtual
+        override
         nonReentrant
         whenNotPaused
         deadlineCheck(deadline)

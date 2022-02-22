@@ -2,6 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OwnableUpgradeable } from "./OwnableUpgradeable";
+export type { PausableUpgradeable } from "./PausableUpgradeable";
+export type { ERC20Upgradeable } from "./ERC20Upgradeable";
+export type { ERC20BurnableUpgradeable } from "./ERC20BurnableUpgradeable";
+export type { IERC20MetadataUpgradeable } from "./IERC20MetadataUpgradeable";
+export type { IERC20Upgradeable } from "./IERC20Upgradeable";
 export type { Ownable } from "./Ownable";
 export type { Pausable } from "./Pausable";
 export type { ERC20 } from "./ERC20";
@@ -19,7 +24,7 @@ export type { IWrapped } from "./IWrapped";
 export type { FulfillInterpreter } from "./FulfillInterpreter";
 export type { AmplificationUtils } from "./AmplificationUtils";
 export type { LPToken } from "./LPToken";
-export type { OwnerPausable } from "./OwnerPausable";
+export type { OwnerPausableUpgradeable } from "./OwnerPausableUpgradeable";
 export type { SwapUtils } from "./SwapUtils";
 export type { Multicall } from "./Multicall";
 export type { GovernanceRouter } from "./GovernanceRouter";
@@ -63,6 +68,11 @@ export type { WETH } from "./WETH";
 export type { TransactionManager } from "./TransactionManager";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
+export { PausableUpgradeable__factory } from "./factories/PausableUpgradeable__factory";
+export { ERC20Upgradeable__factory } from "./factories/ERC20Upgradeable__factory";
+export { ERC20BurnableUpgradeable__factory } from "./factories/ERC20BurnableUpgradeable__factory";
+export { IERC20MetadataUpgradeable__factory } from "./factories/IERC20MetadataUpgradeable__factory";
+export { IERC20Upgradeable__factory } from "./factories/IERC20Upgradeable__factory";
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { Pausable__factory } from "./factories/Pausable__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -80,7 +90,7 @@ export { IWrapped__factory } from "./factories/IWrapped__factory";
 export { FulfillInterpreter__factory } from "./factories/FulfillInterpreter__factory";
 export { AmplificationUtils__factory } from "./factories/AmplificationUtils__factory";
 export { LPToken__factory } from "./factories/LPToken__factory";
-export { OwnerPausable__factory } from "./factories/OwnerPausable__factory";
+export { OwnerPausableUpgradeable__factory } from "./factories/OwnerPausableUpgradeable__factory";
 export { SwapUtils__factory } from "./factories/SwapUtils__factory";
 export { Multicall__factory } from "./factories/Multicall__factory";
 export { GovernanceRouter__factory } from "./factories/GovernanceRouter__factory";
