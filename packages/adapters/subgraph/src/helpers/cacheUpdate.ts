@@ -1,17 +1,43 @@
 import { TransactionCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphMap } from "../types";
 import { GetPreparedTransactionsQueryVariables } from "../runtime/graphqlsdk";
-import { getSenderTransactionsQuery } from "./query";
+import { getSenderTransactionsQuery, getTransaction } from "./query";
 
-export const cacheUpdate = (cacheInstance: TransactionCache) => {
-  // initiate the polling here
+const pollInterval = 10_000;
+
+export const getChainIdFromDomain = (domain: string) => {
+  // TODO: get chainId from domain.
+  // TODO: move this function in utils after cleanup
+  return 1;
 };
 
-export const updatePreparedTransactions = async (
-  cacheInstance: TransactionCache,
-  subgraphs: SubgraphMap,
-  destinationDomains: string[],
-) => {
+export const getDomainFromChainId = (chainId: number) => {
+  // TODO: get domain from chainId.
+  // TODO: move this function in utils after cleanup
+  return "1";
+};
+
+export const cacheUpdate = async (cacheInstance: TransactionCache, subgraphs: SubgraphMap): Promise<NodeJS.Timeout> => {
+  // initiate the polling here
+
+  const updaterLoop = setInterval(async () => {
+    try {
+      await Promise.all([
+        updatePreparedTransactions(cacheInstance, subgraphs),
+        updateTransaction(cacheInstance, subgraphs),
+      ]);
+    } catch (err) {
+      // throw error
+    }
+  }, pollInterval);
+
+  return updaterLoop;
+};
+
+export const updatePreparedTransactions = async (cacheInstance: TransactionCache, subgraphs: SubgraphMap) => {
+  const destinationChainIds: number[] = [...subgraphs.keys()];
+
+  const destinationDomains: string[] = destinationChainIds.map((chainId) => getDomainFromChainId(chainId));
   // first get all sending side txs
   const preparedTransactions = (
     await Promise.all(
@@ -43,11 +69,21 @@ export const updatePreparedTransactions = async (
   // TODO: update redis db with preparedTransactions
 };
 
-export const updateTransaction = (cacheInstance: TransactionCache, subgraphs: SubgraphMap, transferId: string) => {
-  // Either we get the prepared status transactions from instance and then update the receiving side status
-  // Or
-  // Router/Auctioneer/ExplorerBackend pushes transactionId or nonce to fetch the updated status
-  // First one seems like a better approach
-  // problem: when to fetch these transactions data?
-  // should we get all the prepareTransactions within a time interval?
+export const updateTransaction = async (cacheInstance: TransactionCache, subgraphs: SubgraphMap) => {
+  // get transactions with prepared/fulfilled status from redis instance and update it
+
+  // TODO: fetch transactions with prepared/fulfilled status from redis instance.
+
+  const transactions: any = [];
+
+  transactions.map(async (tx: any) => {
+    const transactionId = tx.transactionId;
+
+    const chainId = getChainIdFromDomain(tx.destinationDomain);
+
+    const receivingSideRecord = await getTransaction(subgraphs, chainId, transactionId);
+
+    // check if the status is either fulfilled or reconcilled
+    // if yes then update the redis storage
+  });
 };
