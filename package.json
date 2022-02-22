@@ -20,6 +20,7 @@
   "workspaces": [
     "packages/contracts",
     "packages/integration",
+    "packages/sdk",
     "packages/router",
     "packages/subgraph",
     "packages/test-ui",
