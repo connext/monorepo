@@ -27,7 +27,7 @@ import "./interfaces/IStableSwap.sol";
  * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
  * deployment size.
  */
-contract Swap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
+contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using SwapUtils for SwapUtils.Swap;
@@ -67,7 +67,7 @@ contract Swap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeab
         uint256 _fee,
         uint256 _adminFee,
         address lpTokenTargetAddress
-    ) public virtual initializer {
+    ) public override initializer {
         __OwnerPausable_init();
         __ReentrancyGuard_init();
 
