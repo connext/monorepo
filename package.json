@@ -21,8 +21,6 @@
     "packages/contracts",
     "packages/integration",
     "packages/router",
-    "packages/sdk",
-    "packages/sdk-server",
     "packages/subgraph",
     "packages/test-ui",
     "packages/txservice",
