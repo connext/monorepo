@@ -14,23 +14,25 @@ import {
 import { solidity } from "ethereum-waffle";
 import { deployments } from "hardhat";
 
-import { TestERC20 } from "../typechain-types/TestERC20";
+import { GenericERC20 } from "../typechain-types/GenericERC20";
 import { LPToken } from "../typechain-types/LPToken";
-import { Swap } from "../typechain-types/Swap";
+import { StableSwap } from "../typechain-types/StableSwap";
 import { SwapUtils } from "../typechain-types/SwapUtils";
-import { TestSwapReturnValues } from "../typechain-types/TestSwapReturnValues";
+import { AmplificationUtils } from "../typechain-types/AmplificationUtils";
+import { TestStableSwap } from "../typechain-types/TestStableSwap";
 import chai from "chai";
 
 chai.use(solidity);
 const { expect } = chai;
 
-describe("Swap", async () => {
+describe("StableSwap", async () => {
   let signers: Array<Signer>;
-  let swap: Swap;
-  let testSwapReturnValues: TestSwapReturnValues;
+  let swap: StableSwap;
+  let testStableSwap: TestStableSwap;
   let swapUtils: SwapUtils;
-  let firstToken: TestERC20;
-  let secondToken: TestERC20;
+  let amplificationUtils: AmplificationUtils;
+  let firstToken: GenericERC20;
+  let secondToken: GenericERC20;
   let swapToken: LPToken;
   let owner: Signer;
   let user1: Signer;
@@ -67,11 +69,15 @@ describe("Swap", async () => {
     user2Address = await user2.getAddress();
 
     // Deploy dummy tokens
-    const erc20Factory = await ethers.getContractFactory("TestERC20");
+    const erc20Factory = await ethers.getContractFactory("GenericERC20");
 
-    firstToken = (await erc20Factory.deploy("First Token", "FIRST", "18")) as TestERC20;
+    firstToken = (await erc20Factory.deploy("First Token", "FIRST")) as GenericERC20;
 
-    secondToken = (await erc20Factory.deploy("Second Token", "SECOND", "18")) as TestERC20;
+    secondToken = (await erc20Factory.deploy("Second Token", "SECOND")) as GenericERC20;
+
+    const lpTokenFactory = await ethers.getContractFactory("LPToken");
+    swapToken = (await lpTokenFactory.deploy()) as LPToken;
+    swapToken.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
     // Mint dummy tokens
     await asyncForEach([owner, user1, user2], async (signer) => {
@@ -81,7 +87,21 @@ describe("Swap", async () => {
     });
 
     // Get Swap contract
-    swap = await ethers.getContract("Swap");
+    //swap = await ethers.getContract("Swap");
+
+    const amplificationUtilsFactory = await ethers.getContractFactory("AmplificationUtils");
+    amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtils;
+
+    const swapUtilsFactory = await ethers.getContractFactory("SwapUtils");
+    swapUtils = (await swapUtilsFactory.deploy()) as SwapUtils;
+
+    const swapFactory = await ethers.getContractFactory("StableSwap", {
+      libraries: {
+        SwapUtils: swapUtils.address,
+        AmplificationUtils: amplificationUtils.address,
+      },
+    });
+    swap = (await swapFactory.deploy()) as StableSwap;
 
     await swap.initialize(
       [firstToken.address, secondToken.address],
@@ -91,23 +111,16 @@ describe("Swap", async () => {
       INITIAL_A_VALUE,
       SWAP_FEE,
       0,
-      (
-        await get("LPToken")
-      ).address,
+      swapToken.address,
     );
 
     expect(await swap.getVirtualPrice()).to.be.eq(0);
 
     swapStorage = await swap.swapStorage();
-
     swapToken = (await ethers.getContractAt("LPToken", swapStorage.lpToken)) as LPToken;
 
-    const testSwapReturnValuesFactory = await ethers.getContractFactory("TestSwapReturnValues");
-    testSwapReturnValues = (await testSwapReturnValuesFactory.deploy(
-      swap.address,
-      swapToken.address,
-      2,
-    )) as TestSwapReturnValues;
+    const testStableSwapFactory = await ethers.getContractFactory("TestStableSwap");
+    testStableSwap = (await testStableSwapFactory.deploy(swap.address, swapToken.address, 2)) as TestStableSwap;
 
     await asyncForEach([owner, user1, user2], async (signer) => {
       await firstToken.connect(signer).approve(swap.address, MAX_UINT256);
@@ -138,6 +151,7 @@ describe("Swap", async () => {
       it("Returns true after successfully calling transferFrom", async () => {
         // User 1 adds liquidity
         await swap.connect(user1).addLiquidity([String(2e18), String(1e16)], 0, MAX_UINT256);
+        console.log(await swapToken.balanceOf(user1Address));
 
         // User 1 approves User 2 for MAX_UINT256
         swapToken.connect(user1).approve(user2Address, MAX_UINT256);
@@ -289,10 +303,10 @@ describe("Swap", async () => {
     });
 
     it("Returns correct minted lpToken amount", async () => {
-      await firstToken.mint(testSwapReturnValues.address, String(1e20));
-      await secondToken.mint(testSwapReturnValues.address, String(1e20));
+      await firstToken.mint(testStableSwap.address, String(1e20));
+      await secondToken.mint(testStableSwap.address, String(1e20));
 
-      await testSwapReturnValues.test_addLiquidity([String(1e18), String(2e18)], 0);
+      await testStableSwap.test_addLiquidity([String(1e18), String(2e18)], 0);
     });
 
     it("Reverts when minToMint is not reached due to front running", async () => {
@@ -372,7 +386,7 @@ describe("Swap", async () => {
 
       const [firstTokenBalanceBefore, secondTokenBalanceBefore, poolTokenBalanceBefore] = await getUserTokenBalances(
         user1,
-        [firstToken, secondToken, swapToken],
+        [firstToken, secondToken, swapToken as unknown as GenericERC20],
       );
 
       expect(poolTokenBalanceBefore).to.eq(BigNumber.from("1996275270169644725"));
@@ -401,13 +415,13 @@ describe("Swap", async () => {
     });
 
     it("Returns correct amounts of received tokens", async () => {
-      await firstToken.mint(testSwapReturnValues.address, String(1e20));
-      await secondToken.mint(testSwapReturnValues.address, String(1e20));
+      await firstToken.mint(testStableSwap.address, String(1e20));
+      await secondToken.mint(testStableSwap.address, String(1e20));
 
-      await testSwapReturnValues.test_addLiquidity([String(1e18), String(2e18)], 0);
-      const tokenBalance = await swapToken.balanceOf(testSwapReturnValues.address);
+      await testStableSwap.test_addLiquidity([String(1e18), String(2e18)], 0);
+      const tokenBalance = await swapToken.balanceOf(testStableSwap.address);
 
-      await testSwapReturnValues.test_removeLiquidity(tokenBalance, [0, 0]);
+      await testStableSwap.test_removeLiquidity(tokenBalance, [0, 0]);
     });
 
     it("Reverts when user tries to burn more LP tokens than they own", async () => {
@@ -523,7 +537,7 @@ describe("Swap", async () => {
 
       const [firstTokenBalanceBefore, secondTokenBalanceBefore, poolTokenBalanceBefore] = await getUserTokenBalances(
         user1,
-        [firstToken, secondToken, swapToken],
+        [firstToken, secondToken, swapToken as unknown as GenericERC20],
       );
 
       // User 1 withdraws imbalanced tokens
@@ -538,7 +552,7 @@ describe("Swap", async () => {
 
       const [firstTokenBalanceAfter, secondTokenBalanceAfter, poolTokenBalanceAfter] = await getUserTokenBalances(
         user1,
-        [firstToken, secondToken, swapToken],
+        [firstToken, secondToken, swapToken as unknown as GenericERC20],
       );
 
       // Check the actual returned token amounts match the requested amounts
@@ -554,13 +568,13 @@ describe("Swap", async () => {
     });
 
     it("Returns correct amount of burned lpToken", async () => {
-      await firstToken.mint(testSwapReturnValues.address, String(1e20));
-      await secondToken.mint(testSwapReturnValues.address, String(1e20));
+      await firstToken.mint(testStableSwap.address, String(1e20));
+      await secondToken.mint(testStableSwap.address, String(1e20));
 
-      await testSwapReturnValues.test_addLiquidity([String(1e18), String(2e18)], 0);
+      await testStableSwap.test_addLiquidity([String(1e18), String(2e18)], 0);
 
-      const tokenBalance = await swapToken.balanceOf(testSwapReturnValues.address);
-      await testSwapReturnValues.test_removeLiquidityImbalance([String(1e18), String(1e17)], tokenBalance);
+      const tokenBalance = await swapToken.balanceOf(testStableSwap.address);
+      await testStableSwap.test_removeLiquidityImbalance([String(1e18), String(1e17)], tokenBalance);
     });
 
     it("Reverts when user tries to burn more LP tokens than they own", async () => {
@@ -696,10 +710,10 @@ describe("Swap", async () => {
     });
 
     it("Returns correct amount of received token", async () => {
-      await firstToken.mint(testSwapReturnValues.address, String(1e20));
-      await secondToken.mint(testSwapReturnValues.address, String(1e20));
-      await testSwapReturnValues.test_addLiquidity([String(1e18), String(2e18)], 0);
-      await testSwapReturnValues.test_removeLiquidityOneToken(String(2e18), 0, 0);
+      await firstToken.mint(testStableSwap.address, String(1e20));
+      await secondToken.mint(testStableSwap.address, String(1e20));
+      await testStableSwap.test_addLiquidity([String(1e18), String(2e18)], 0);
+      await testStableSwap.test_removeLiquidityOneToken(String(2e18), 0, 0);
     });
 
     it("Reverts when user tries to burn more LP tokens than they own", async () => {
@@ -798,6 +812,25 @@ describe("Swap", async () => {
       expect(tokenToBalanceAfter.sub(tokenToBalanceBefore)).to.eq(calculatedSwapReturn);
     });
 
+    it("Succeeds with expected swap amounts and asset address", async () => {
+      // User 1 calculates how much token to receive
+      const calculatedSwapReturn = await swap.calculateSwap(0, 1, String(1e17));
+      expect(calculatedSwapReturn).to.eq(BigNumber.from("99702611562565289"));
+
+      const [tokenFromBalanceBefore, tokenToBalanceBefore] = await getUserTokenBalances(user1, [
+        firstToken,
+        secondToken,
+      ]);
+
+      // User 1 successfully initiates swap
+      await swap.connect(user1).swapExact(String(1e17), firstToken.address, secondToken.address);
+
+      // Check the sent and received amounts are as expected
+      const [tokenFromBalanceAfter, tokenToBalanceAfter] = await getUserTokenBalances(user1, [firstToken, secondToken]);
+      expect(tokenFromBalanceBefore.sub(tokenFromBalanceAfter)).to.eq(BigNumber.from(String(1e17)));
+      expect(tokenToBalanceAfter.sub(tokenToBalanceBefore)).to.eq(calculatedSwapReturn);
+    });
+
     it("Reverts when minDy (minimum amount token to receive) is not reached due to front running", async () => {
       // User 1 calculates how much token to receive
       const calculatedSwapReturn = await swap.calculateSwap(0, 1, String(1e17));
@@ -841,10 +874,10 @@ describe("Swap", async () => {
     });
 
     it("Returns correct amount of received token", async () => {
-      await firstToken.mint(testSwapReturnValues.address, String(1e20));
-      await secondToken.mint(testSwapReturnValues.address, String(1e20));
-      await testSwapReturnValues.test_addLiquidity([String(1e18), String(2e18)], 0);
-      await testSwapReturnValues.test_swap(0, 1, String(1e18), 0);
+      await firstToken.mint(testStableSwap.address, String(1e20));
+      await secondToken.mint(testStableSwap.address, String(1e20));
+      await testStableSwap.test_addLiquidity([String(1e18), String(2e18)], 0);
+      await testStableSwap.test_swap(0, 1, String(1e18), 0);
     });
 
     it("Reverts when block is mined after deadline", async () => {

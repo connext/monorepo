@@ -14,7 +14,7 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnable, TestERC20 } from "../typechain-types";
+import { ProposedOwnable, GenericERC20 } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -286,7 +286,7 @@ export async function getCurrentBlockTimestamp(): Promise<number> {
   return block.timestamp;
 }
 
-export async function getUserTokenBalances(address: string | Signer, tokens: TestERC20[]): Promise<BigNumber[]> {
+export async function getUserTokenBalances(address: string | Signer, tokens: GenericERC20[]): Promise<BigNumber[]> {
   const balanceArray = [];
 
   if (address instanceof Signer) {
@@ -300,7 +300,7 @@ export async function getUserTokenBalances(address: string | Signer, tokens: Tes
   return balanceArray;
 }
 
-export async function getUserTokenBalance(address: string | Signer, token: TestERC20): Promise<BigNumber> {
+export async function getUserTokenBalance(address: string | Signer, token: GenericERC20): Promise<BigNumber> {
   if (address instanceof Signer) {
     address = await address.getAddress();
   }
