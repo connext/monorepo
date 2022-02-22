@@ -2,11 +2,10 @@ import { logger, Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-read-subgraph";
 
-import { getConfig } from "./config";
+import { getConfig, NxtpRouterConfig } from "./config";
 import { Auctioneer, Web3Signer, RouterCache } from "./adapters";
 import { bindFastify, bindMetrics, bindPrices } from "./bindings";
 import { AppContext } from "./context";
-import { bindSubgraph } from "./bindings/subgraph";
 
 const context: AppContext = {} as any;
 
@@ -27,14 +26,7 @@ export const makeRouter = async () => {
       : new Web3Signer(context.config.web3SignerUrl!);
     context.adapters.cache = new RouterCache(context);
 
-    // setup read subgraph
-    let subgraphConfig: ReadSubgraphConfig;
-    Object.keys(context.config.chains).map((chainId) => {
-      subgraphConfig[chainId.toString()] = context.config.chains[chainId].subgraph;
-    });
-
-    context.adapters.subgraph = new SubgraphReader(subgraphConfig);
-    context.adapters.subgraph.create(subgraphConfig);
+    context.adapters.subgraph = await setupReadSubgraph(context.config);
 
     context.adapters.auctioneer = new Auctioneer(context);
 
@@ -62,11 +54,24 @@ export const makeRouter = async () => {
     }
     await bindFastify(context);
     await bindMetrics(context);
-    await bindSubgraph(context);
 
     logger.info("Router ready!");
   } catch (e) {
     console.error("Error starting router. Sad! :(", e);
     process.exit();
   }
+};
+
+const setupReadSubgraph = async (config: NxtpRouterConfig): Promise<SubgraphReader> => {
+  // setup read subgraph
+
+  let subgraphConfig: ReadSubgraphConfig;
+  Object.keys(config.chains).map((chainId) => {
+    subgraphConfig[chainId.toString()] = config.chains[chainId].subgraph;
+  });
+
+  const subgraph = new SubgraphReader(subgraphConfig);
+  subgraph.create(subgraphConfig);
+
+  return subgraph;
 };
