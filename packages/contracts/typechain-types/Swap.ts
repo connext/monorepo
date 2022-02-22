@@ -9,6 +9,7 @@ import {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -44,6 +45,7 @@ export interface SwapInterface extends utils.Interface {
     "setSwapFee(uint256)": FunctionFragment;
     "stopRampA()": FunctionFragment;
     "swap(uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
+    "swapExact(uint256,address,address)": FunctionFragment;
     "swapStorage()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "unpause()": FunctionFragment;
@@ -138,6 +140,10 @@ export interface SwapInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "swapExact",
+    values: [BigNumberish, string, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "swapStorage",
     values?: undefined
   ): string;
@@ -220,6 +226,7 @@ export interface SwapInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setSwapFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stopRampA", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "swapExact", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "swapStorage",
     data: BytesLike
@@ -527,6 +534,13 @@ export interface Swap extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    swapExact(
+      amountIn: BigNumberish,
+      assetIn: string,
+      assetOut: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     swapStorage(
       overrides?: CallOverrides
     ): Promise<
@@ -680,6 +694,13 @@ export interface Swap extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  swapExact(
+    amountIn: BigNumberish,
+    assetIn: string,
+    assetOut: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   swapStorage(
     overrides?: CallOverrides
   ): Promise<
@@ -824,6 +845,13 @@ export interface Swap extends BaseContract {
       dx: BigNumberish,
       minDy: BigNumberish,
       deadline: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    swapExact(
+      amountIn: BigNumberish,
+      assetIn: string,
+      assetOut: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1096,6 +1124,13 @@ export interface Swap extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    swapExact(
+      amountIn: BigNumberish,
+      assetIn: string,
+      assetOut: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     swapStorage(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
@@ -1231,6 +1266,13 @@ export interface Swap extends BaseContract {
       minDy: BigNumberish,
       deadline: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    swapExact(
+      amountIn: BigNumberish,
+      assetIn: string,
+      assetOut: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     swapStorage(overrides?: CallOverrides): Promise<PopulatedTransaction>;

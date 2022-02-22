@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./lib/StableSwap/OwnerPausable.sol";
 import "./lib/StableSwap/SwapUtils.sol";
 import "./lib/StableSwap/AmplificationUtils.sol";
+import "./interfaces/IStableSwap.sol";
 
 /**
  * @title Swap - A StableSwap implementation in solidity.
@@ -25,7 +26,7 @@ import "./lib/StableSwap/AmplificationUtils.sol";
  * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
  * deployment size.
  */
-contract Swap is OwnerPausable, ReentrancyGuard {
+contract Swap is IStableSwap, OwnerPausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using SwapUtils for SwapUtils.Swap;
@@ -364,6 +365,30 @@ contract Swap is OwnerPausable, ReentrancyGuard {
         returns (uint256)
     {
         return swapStorage.swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
+    }
+
+    /**
+     * @notice Swap two tokens using this pool
+     * @param assetIn the token the user wants to swap from
+     * @param assetOut the token the user wants to swap to
+     * @param amountIn the amount of tokens the user wants to swap from
+     */
+    function swapExact(
+        uint256 amountIn,
+        address assetIn,
+        address assetOut
+    )
+        external
+        virtual
+        override
+        payable
+        nonReentrant
+        whenNotPaused
+        returns (uint256)
+    {
+        uint8 tokenIndexFrom = getTokenIndex(assetIn);
+        uint8 tokenIndexTo = getTokenIndex(assetOut);
+        return swapStorage.swap(tokenIndexFrom, tokenIndexTo, amountIn, 0);
     }
 
     /**
