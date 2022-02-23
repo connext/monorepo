@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers";
+import Redis from "ioredis";
+import { Logger, TransactionData } from "@connext/nxtp-utils";
+
 import { AuctionCache } from "./auction";
 import { CachedTransaction } from "./lib/entities/cache";
-
-import { Logger, TransactionData } from "@connext/nxtp-utils";
-import Redis from "ioredis";
 
 //Redis Store I
 
