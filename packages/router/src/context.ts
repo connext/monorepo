@@ -1,8 +1,8 @@
 import { Wallet } from "ethers";
 import { Logger } from "@connext/nxtp-utils";
 import { ChainReader } from "@connext/nxtp-txservice";
-import { Auctioneer } from "@connext/nxtp-adapters-auctioneer";
-import { RouterCache } from "@connext/nxtp-adapters-cache";
+import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
+import { TransactionCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
@@ -14,8 +14,8 @@ export type AppContext = {
     // Stateful interfaces for peripherals.
     wallet: Wallet | Web3Signer; // Used for signing metatxs for bids.
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
-    auctioneer: Auctioneer; // Auctioneer HTTP API interface.
-    cache: RouterCache; // Used to cache important data locally.
+    auctioneer: AuctioneerAPI; // Auctioneer HTTP API interface.
+    cache: TransactionCache; // Used to cache important data locally.
     chainreader: ChainReader; // Used to read from the blockchain using RPC providers.
   };
   config: NxtpRouterConfig;

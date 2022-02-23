@@ -36,8 +36,8 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@connext/nxtp-utils": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
     "ethers": "^5.5.4"
   },
   "devDependencies": {

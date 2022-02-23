@@ -1600,8 +1600,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-auctioneer@workspace:packages/adapters/auctioneer"
   dependencies:
+    "@typescript-eslint/eslint-plugin": ^4.29.2
     axios: ^0.24.0
     ethers: ^5.5.4
+    ts-node: ^10.2.0
     tslib: ^2.3.1
     typescript: 4.3.5
   languageName: unknown
@@ -1612,8 +1614,10 @@ __metadata:
   resolution: "@connext/nxtp-adapters-cache@workspace:packages/adapters/cache"
   dependencies:
     "@types/ioredis": ^4
+    "@typescript-eslint/eslint-plugin": ^4.29.2
     ethers: ^5.5.4
     ioredis: ^4.28.5
+    ts-node: ^10.2.0
     tslib: ^2.3.1
     typescript: 4.3.5
   languageName: unknown
@@ -1630,11 +1634,13 @@ __metadata:
     "@graphql-codegen/typescript-graphql-request": ^4.0.0
     "@graphql-codegen/typescript-operations": ^2.0.1
     "@types/ioredis": ^4
+    "@typescript-eslint/eslint-plugin": ^4.29.2
     ethers: ^5.5.4
     graphql: ^15.5.1
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.5
     ioredis: ^4.28.5
+    ts-node: ^10.2.0
     tslib: ^2.3.1
     typescript: 4.3.5
   languageName: unknown
@@ -1645,7 +1651,9 @@ __metadata:
   resolution: "@connext/nxtp-adapters-web3signer@workspace:packages/adapters/web3signer"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
+    "@typescript-eslint/eslint-plugin": ^4.29.2
     ethers: ^5.5.4
+    ts-node: ^10.2.0
     tslib: ^2.3.1
     typescript: 4.3.5
   languageName: unknown
@@ -1781,24 +1789,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-sdk-server@workspace:packages/sdk-server":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-sdk-server@workspace:packages/sdk-server"
-  dependencies:
-    "@connext/nxtp-sdk": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@sinclair/typebox": ^0.18.1
-    "@types/node": ^16.11.4
-    "@types/pino": ^6.3.11
-    ethers: ^5.5.4
-    fastify: ^3.22.1
-    pino: ^6.13.0
-    pino-pretty: ^5.1.3
-    rimraf: ^3.0.2
-    typescript: 4.3.5
-  languageName: unknown
-  linkType: soft
-
 "@connext/nxtp-sdk@workspace:*, @connext/nxtp-sdk@workspace:packages/sdk":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-sdk@workspace:packages/sdk"
@@ -1811,29 +1801,29 @@ __metadata:
     "@graphql-codegen/typescript-graphql-request": ^4.0.0
     "@graphql-codegen/typescript-operations": ^2.0.1
     "@sinclair/typebox": ^0.18.1
-    "@types/chai": ^4.3.0
+    "@types/chai": ^4.2.21
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
-    "@types/mocha": ^9.1.0
+    "@types/mocha": ^9.0.0
     "@types/pino": ^6.3.11
     "@types/sinon": ^10.0.2
     ajv: ^8.6.2
     ajv-formats: ^2.1.1
-    chai: ^4.3.6
+    chai: ^4.3.4
     chai-as-promised: ^7.1.1
     chai-subset: ^1.6.0
     eslint: ^7.32.0
-    ethers: ^5.5.4
+    ethers: ^5.4.6
     evt: ^1.10.1
     graphql: ^15.5.1
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.5
-    hardhat: ^2.8.3
+    hardhat: ^2.6.8
     mocha: ^9.0.3
     nyc: ^15.1.0
     pino: ^6.13.0
     rimraf: ^3.0.2
-    sinon: ^13.0.0
+    sinon: ^11.1.2
     ts-mocha: ^8.0.0
     tslib: ^2.3.1
     typescript: 4.3.5
@@ -3944,7 +3934,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/samsam@npm:^6.1.1":
+"@sinonjs/fake-timers@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "@sinonjs/fake-timers@npm:7.1.2"
+  dependencies:
+    "@sinonjs/commons": ^1.7.0
+  checksum: 5ce48e40db14d7e1419bae287b84559133d580cb56130b51d7479dff318bfafed87531f8b48f618f07e3c9a6113c9e3f00286805d55de64986b9cccb8eb6d5cf
+  languageName: node
+  linkType: hard
+
+"@sinonjs/samsam@npm:^6.0.2, @sinonjs/samsam@npm:^6.1.1":
   version: 6.1.1
   resolution: "@sinonjs/samsam@npm:6.1.1"
   dependencies:
@@ -4331,7 +4330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:*, @types/chai@npm:^4.3.0":
+"@types/chai@npm:*, @types/chai@npm:^4.2.21, @types/chai@npm:^4.3.0":
   version: 4.3.0
   resolution: "@types/chai@npm:4.3.0"
   checksum: 19386620ed199e4b15c5980aff22040130052c52da599c66c0d98d18f21746950003447c9f30385324838b8ccb0253be5ef2ee7d73cd20da9d21140dd58a50ed
@@ -4563,7 +4562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^9.1.0":
+"@types/mocha@npm:^9.0.0, @types/mocha@npm:^9.1.0":
   version: 9.1.0
   resolution: "@types/mocha@npm:9.1.0"
   checksum: f9684606fe5bbbd998f6af42948bdf10047cfec47377b1d08f701d16f2ec2cf08ba542bae9e6d9a92467340e7891fd97fa9547718cb24ac4f582f0deea1c024f
@@ -4612,13 +4611,6 @@ __metadata:
   version: 14.18.12
   resolution: "@types/node@npm:14.18.12"
   checksum: 79af6426484798fdd6b5bf4b1b6abc4f9bfcbbe378d7566c44d7a8ab3717211a7de1db8b1d9be038f25d3ebb7008df6361ef79cdb9c8e7ed33acaffdee02d465
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^16.11.4":
-  version: 16.11.25
-  resolution: "@types/node@npm:16.11.25"
-  checksum: a69d778321cefdf2825ed999df75875a5860b732520dfc78064b6c3caa0aa7a3f33d3d6a44bf7f2e2b407401bc792cace5a65f87c669eecf5fd99dc3431d5d8a
   languageName: node
   linkType: hard
 
@@ -8234,7 +8226,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.3.6":
+"chai@npm:^4.3.4, chai@npm:^4.3.6":
   version: 4.3.6
   resolution: "chai@npm:4.3.6"
   dependencies:
@@ -11989,7 +11981,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.2, ethers@npm:^5.5.4":
+"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.6, ethers@npm:^5.5.2, ethers@npm:^5.5.4":
   version: 5.5.4
   resolution: "ethers@npm:5.5.4"
   dependencies:
@@ -12461,7 +12453,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:^3.20.2, fastify@npm:^3.22.1, fastify@npm:^3.27.1":
+"fastify@npm:^3.20.2, fastify@npm:^3.27.1":
   version: 3.27.1
   resolution: "fastify@npm:3.27.1"
   dependencies:
@@ -13880,7 +13872,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.8.3":
+"hardhat@npm:^2.6.8, hardhat@npm:^2.8.3":
   version: 2.8.4
   resolution: "hardhat@npm:2.8.4"
   dependencies:
@@ -19236,7 +19228,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nise@npm:^5.1.1":
+"nise@npm:^5.1.0, nise@npm:^5.1.1":
   version: 5.1.1
   resolution: "nise@npm:5.1.1"
   dependencies:
@@ -24874,6 +24866,20 @@ resolve@^2.0.0-next.3:
     chai: ^4.0.0
     sinon: ">=4.0.0"
   checksum: bea04f685f37c1ee68c280aa2ef6a59929b1b8f6dec97bcfb3d4965eca8cf43a40106303d64fae9d2d456d46c9651e9eabada5644ea5b7bc69c769c08b919814
+  languageName: node
+  linkType: hard
+
+"sinon@npm:^11.1.2":
+  version: 11.1.2
+  resolution: "sinon@npm:11.1.2"
+  dependencies:
+    "@sinonjs/commons": ^1.8.3
+    "@sinonjs/fake-timers": ^7.1.2
+    "@sinonjs/samsam": ^6.0.2
+    diff: ^5.0.0
+    nise: ^5.1.0
+    supports-color: ^7.2.0
+  checksum: dca6f9cbc7cb1af0b1f8e3fb14afad261f280b5cb29372f8e9b7432afc17d6c60e3f8895997bc97237855795fe82cf2c3b82e9d4f3554b5ae026874d52d7c71c
   languageName: node
   linkType: hard
 

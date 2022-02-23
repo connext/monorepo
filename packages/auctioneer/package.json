@@ -17,21 +17,6 @@
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "codegen": "graphql-codegen"
   },
-  "devDependencies": {
-    "@types/ioredis": "^4",
-    "chai": "^4.3.6",
-    "chai-as-promised": "^7.1.1",
-    "chai-subset": "^1.6.0",
-    "eslint": "^7.32.0",
-    "hardhat": "^2.8.3",
-    "mocha": "^9.0.3",
-    "nyc": "^15.1.0",
-    "rimraf": "^3.0.2",
-    "sinon": "^13.0.0",
-    "ts-mocha": "^8.0.0",
-    "tslib": "^2.3.1",
-    "typescript": "4.3.5"
-  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -54,5 +39,20 @@
     "ioredis": "^4.28.5",
     "pino": "^7.8.0",
     "tsc": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "chai-subset": "^1.6.0",
+    "eslint": "^7.32.0",
+    "hardhat": "^2.8.3",
+    "mocha": "^9.0.3",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^13.0.0",
+    "ts-mocha": "^8.0.0",
+    "tslib": "^2.3.1",
+    "typescript": "4.3.5"
   }
 }
