@@ -13,7 +13,8 @@ import { CachedTransaction } from "./lib/entities/cache";
 //key: domain:nonce
 //value: "Pending", "Completed", "Reconcilled" <txStatus>
 
-export type Bid = {};
+// TODO:
+export type Bid = any;
 export type ChainCache = {
   auctions: AuctionCache;
 };
@@ -26,12 +27,11 @@ export const RedisChannels = {
   NEW_TX: "NewTransaction",
 };
 
-// TODO: This storage endpoint should be considered a stub for a future redis / permanent storage solution.
-export class TransactionCache {
+export class StoreManager {
   private readonly cache: Map<string, ChainCache> = new Map();
   private readonly subscriptions: Map<string, CallbackFn> = new Map();
 
-  private static instance: TransactionCache | undefined;
+  private static instance: StoreManager | undefined;
 
   private readonly txData!: Redis.Redis;
   private readonly txStatus!: Redis.Redis;
@@ -62,12 +62,12 @@ export class TransactionCache {
     });
   }
 
-  public static getInstance({ redisUrl, logger, redis }: StoreManagerParams): TransactionCache {
-    if (TransactionCache.instance) {
-      return TransactionCache.instance;
+  public static getInstance({ redisUrl, logger, redis }: StoreManagerParams): StoreManager {
+    if (StoreManager.instance) {
+      return StoreManager.instance;
     } else {
-      const store = new TransactionCache({ redis, redisUrl, logger });
-      TransactionCache.instance = store;
+      const store = new StoreManager({ redis, redisUrl, logger });
+      StoreManager.instance = store;
       return store;
     }
   }

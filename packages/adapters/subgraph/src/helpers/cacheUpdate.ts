@@ -1,6 +1,8 @@
-import { TransactionCache } from "@connext/nxtp-adapters-cache";
-import { SubgraphMap } from "../types";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
+
 import { GetPreparedTransactionsQueryVariables } from "../runtime/graphqlsdk";
+import { SubgraphMap } from "../types";
+
 import { getSenderTransactionsQuery, getTransaction } from "./query";
 
 const pollInterval = 10_000;
@@ -17,7 +19,7 @@ export const getDomainFromChainId = (chainId: number) => {
   return "1";
 };
 
-export const cacheUpdate = async (cacheInstance: TransactionCache, subgraphs: SubgraphMap): Promise<NodeJS.Timeout> => {
+export const cacheUpdate = async (cacheInstance: StoreManager, subgraphs: SubgraphMap): Promise<NodeJS.Timeout> => {
   // initiate the polling here
 
   const updaterLoop = setInterval(async () => {
@@ -34,7 +36,7 @@ export const cacheUpdate = async (cacheInstance: TransactionCache, subgraphs: Su
   return updaterLoop;
 };
 
-export const updatePreparedTransactions = async (cacheInstance: TransactionCache, subgraphs: SubgraphMap) => {
+export const updatePreparedTransactions = async (cacheInstance: StoreManager, subgraphs: SubgraphMap) => {
   const destinationChainIds: number[] = [...subgraphs.keys()];
 
   const destinationDomains: string[] = destinationChainIds.map((chainId) => getDomainFromChainId(chainId));
@@ -69,7 +71,7 @@ export const updatePreparedTransactions = async (cacheInstance: TransactionCache
   // TODO: update redis db with preparedTransactions
 };
 
-export const updateTransaction = async (cacheInstance: TransactionCache, subgraphs: SubgraphMap) => {
+export const updateTransaction = async (cacheInstance: StoreManager, subgraphs: SubgraphMap) => {
   // get transactions with prepared/fulfilled status from redis instance and update it
 
   // TODO: fetch transactions with prepared/fulfilled status from redis instance.

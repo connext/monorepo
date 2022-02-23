@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { TransactionCache } from "@connext/nxtp-adapters-cache";
+
 import { ReadSubgraphConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
 
