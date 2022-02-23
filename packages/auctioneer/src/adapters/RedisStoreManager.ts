@@ -1,6 +1,6 @@
-
-import { jsonifyError, Logger, TransactionData } from "@connext/nxtp-utils";
 import Redis from "ioredis";
+import { Logger, TransactionData } from "@connext/nxtp-utils";
+
 import { Bid } from "../lib/types";
 
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
@@ -32,7 +32,7 @@ export class StoreManager {
     }
   }
 
-  public async getStatus(domain: string, nonce: string): Promise<Bid | undefined>{
+  public async getStatus(domain: string, nonce: string): Promise<Bid | undefined> {
     const status = this.txStatus.scanStream({
       match: `${domain}:${nonce}`,
       count: 1,
@@ -43,11 +43,10 @@ export class StoreManager {
     return recordStatus;
   }
 
-  public async getLatestNonce(domain: string): Promise<TransactionData | undefined>{
-    
+  public async getLatestNonce(domain: string): Promise<TransactionData | undefined> {
     //assuming theres a guranetee it starts from latest record
 
-    this.txData.zrevrangebyscore()
+    this.txData.zrevrangebyscore();
     const stream = this.txData.scanStream({
       // only returns keys following the pattern of `user:*`
       match: `${domain}:*`,
@@ -61,14 +60,11 @@ export class StoreManager {
     const parsedRecord = JSON.parse(latestRecordForDomain);
 
     return parsedRecord;
-    
   }
 
   public async storeStatus(cache: any): Promise<void> {
     await this.redis.set(cache.nxtpId, JSON.stringify(cache.bid));
   }
 
-  public async storeTxData(data: any): Promise<void>{
-    
-  }
+  public async storeTxData(data: any): Promise<void> {}
 }

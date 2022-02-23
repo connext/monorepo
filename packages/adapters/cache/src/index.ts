@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import Redis from "ioredis";
 import { Logger, TransactionData } from "@connext/nxtp-utils";
 

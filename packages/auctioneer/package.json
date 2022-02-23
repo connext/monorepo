@@ -32,8 +32,8 @@
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "dependencies": {
-    "@connext/nxtp-contracts": "workspace:packages/contracts",
-    "@connext/utils": "^7.3.17",
+    "@connext/nxtp-contracts": "workspace:*",
+    "@connext/nxtp-utils": "workspace:*",
     "fastify": "^3.27.1",
     "fastify-plugin": "^3.0.1",
     "ioredis": "^4.28.5",

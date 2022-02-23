@@ -1,6 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TIntegerString } from "@connext/nxtp-utils";
-import { FallbackSubgraph } from "@connext/nxtp-utils";
+import { TIntegerString, FallbackSubgraph } from "@connext/nxtp-utils";
 import Redis from "ioredis";
 
 import { Sdk } from "./runtime/graphqlsdk";

@@ -40,6 +40,8 @@
   "dependencies": {
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-subgraph": "workspace:*",
+    "@connext/nxtp-utils": "workspace:*",
+    "@sinclair/typebox": "^0.18.1",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "ethers": "^5.5.4",
     "graphql": "^15.5.1",
