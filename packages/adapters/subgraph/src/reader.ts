@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { TransactionCache } from "@connext/nxtp-adapters-cache";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 import { ReadSubgraphConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
@@ -16,7 +16,7 @@ export class SubgraphReader {
   }
 
   // get transactions from all the subgraphs and save into redis
-  public async cacheUpdate(cacheInstance: TransactionCache): Promise<any> {
+  public async cacheUpdate(cacheInstance: StoreManager): Promise<any> {
     // cacheUpdate
     const { cacheUpdate } = getHelpers();
     this.cacheUpdaterInterval = await cacheUpdate(cacheInstance, this.subgraphs);

@@ -1,20 +1,20 @@
-import { fastify, FastifyInstance } from 'fastify';
-import { BidHandler } from './handlers/bid';
-import pino from 'pino';
-import { Wallet, Contract, utils as ethersUtils } from 'ethers';
-import { Logger } from "@connext/nxtp-utils";
-import { getConfig, Config} from './utils';
-import { Bid } from './lib/types';
-import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { TransactionManager as TTransactionManager  } from "@connext/nxtp-contracts/typechain-types";
-import fp from 'fastify-plugin';
-import { env } from 'process';
+import { env } from "process";
 
+import { fastify, FastifyInstance } from "fastify";
+import pino from "pino";
+import { Wallet, Contract, utils as ethersUtils } from "ethers";
+import { Logger } from "@connext/nxtp-utils";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain-types";
+import fp from "fastify-plugin";
+
+import { Bid } from "./lib/types";
+import { getConfig, Config } from "./utils";
+import { BidHandler } from "./handlers/bid";
 
 // const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
 const LISTEN_PORT = process.env.PORT || 1234;
-const LOG_LEVEL = process.env.loglevel || 'debug';
-
+const LOG_LEVEL = process.env.loglevel || "debug";
 
 export default class Auctioneer {
   server!: FastifyInstance;
@@ -24,11 +24,11 @@ export default class Auctioneer {
   wallet!: Wallet;
   txManagerContract!: Contract;
 
-  auctioneerAddress: string = "0x";
-  config:Config;
+  auctioneerAddress = "0x";
+  config: Config;
 
   constructor() {
-    this.logger = new Logger({ level: 'debug' });
+    this.logger = new Logger({ level: "debug" });
     this.config = getConfig();
     if (this.config) {
       this.wallet = Wallet.fromMnemonic(this.config.mnemonic);
@@ -47,17 +47,13 @@ export default class Auctioneer {
       //register bid routes;
       this.server.register(fp(this.bidHandler.bidRoute));
       await this.server.listen(LISTEN_PORT);
-  
-      this.server.log.info({},
-        `Auctioneer Listening @ ${LISTEN_PORT}`
-      );
-    }
-    catch (e) {
+
+      this.server.log.info({}, `Auctioneer Listening @ ${LISTEN_PORT}`);
+    } catch (e) {
       this.server.log.error(e);
       process.exit(1);
     }
-  
+
     return this.server;
-   }
-  
+  }
 }

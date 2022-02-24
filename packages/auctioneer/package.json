@@ -1,5 +1,5 @@
 {
-  "name": "@connext/auctioneer",
+  "name": "@connext/nxtp-auctioneer",
   "version": "0.0.1",
   "description": "Auctioneer for Amarok",
   "author": "Connext",
