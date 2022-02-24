@@ -8,7 +8,7 @@ export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();
   private cacheUpdaterInterval: NodeJS.Timeout | undefined;
 
-  private constructor() {}
+  public constructor() {}
 
   public async create(config: ReadSubgraphConfig) {
     const { create } = getHelpers();

@@ -1,11 +1,12 @@
 import { fastify, FastifyInstance } from "fastify";
 import pino from "pino";
-import { Logger } from "@connext/nxtp-utils";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { Logger, ChainData, getChainData } from "@connext/nxtp-utils";
+import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 import { getConfig, Config } from "./utils";
 import { BidHandler } from "./handlers/bid";
+import { setupReadSubgraph } from "./helpers/subgraph";
 
 // const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
 const LISTEN_PORT = process.env.PORT || 1234;
@@ -17,6 +18,7 @@ export default class Auctioneer {
   bidHandler!: BidHandler;
   subgraph!: SubgraphReader;
   store!: StoreManager;
+  chainData: Map<string, ChainData> | undefined;
 
   constructor() {
     this.logger = new Logger({ level: "debug" });
@@ -24,6 +26,23 @@ export default class Auctioneer {
     this.bidHandler = new BidHandler(this.config);
     const pino_logger = pino({ level: LOG_LEVEL });
     this.server = fastify({ logger: pino_logger });
+  }
+
+  async start() {
+    // read chaindata
+    this.chainData = await getChainData();
+
+    if (!this.chainData) {
+      throw new Error(`Getting chainData failed`);
+    }
+
+    // setup subgraph
+    this.subgraph = await setupReadSubgraph(this.chainData);
+
+    // setup redis
+
+    // setup fastify
+    await this.fastifyStart();
   }
 
   async fastifyStart(): Promise<FastifyInstance> {
