@@ -1,25 +1,17 @@
 import { BigNumber } from "ethers";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 import { ReadSubgraphConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
+import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 
 export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();
-  private cacheUpdaterInterval: NodeJS.Timeout | undefined;
 
   public constructor() {}
 
   public async create(config: ReadSubgraphConfig) {
     const { create } = getHelpers();
     this.subgraphs = await create(config);
-  }
-
-  // get transactions from all the subgraphs and save into redis
-  public async cacheUpdate(cacheInstance: StoreManager): Promise<any> {
-    // cacheUpdate
-    const { cacheUpdate } = getHelpers();
-    this.cacheUpdaterInterval = await cacheUpdate(cacheInstance, this.subgraphs);
   }
 
   // TODO: query
@@ -68,5 +60,28 @@ export class SubgraphReader {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getLatestNonce(chain: number): Promise<BigNumber> {
     throw new Error("Not implemented");
+  }
+
+  public async getTransactionsWithStatuses(): Promise<any[]> {
+    // first get prepared transactions on all chains
+    const destinationDomains = [...this.subgraphs.keys()];
+    const allSending = (
+      await Promise.all(
+        [...this.subgraphs].map(async ([chain, subgraph]) => {
+          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
+            client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
+          );
+          return transactions;
+        }),
+      )
+    )
+      .flat()
+      .filter((x) => !!x);
+
+    // get all receiving domains
+
+    // client.GetFulfilledAndReconciledTransactionsByIds use prepared IDs to get all receiving txs
+
+    // create array of all transactions by status
   }
 }

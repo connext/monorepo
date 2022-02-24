@@ -1,3 +1,5 @@
+// TODO: move this into cache
+
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 
 import { GetPreparedTransactionsQueryVariables } from "../runtime/graphqlsdk";

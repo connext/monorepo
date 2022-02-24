@@ -658,14 +658,112 @@ export type GetPreparedTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type GetPreparedTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransactionStatus, nonce: any, transactionId: any, recipient: any, transactingAsset: any, localAsset: any, prepareCaller: any, prepareTransactingAmount: any, prepareLocalAmount: any, callTo: any, callData: any, prepareTransactionHash?: any | null, prepareTimestamp?: any | null, prepareGasPrice?: any | null, prepareGasLimit?: any | null, prepareBlockNumber?: any | null, fulfillCaller?: any | null, fulfillTransactingAmount?: any | null, fulfillLocalAmount?: any | null, fulfillTransactionHash?: any | null, fulfillTimestamp?: any | null, fulfillGasPrice?: any | null, fulfillGasLimit?: any | null, fulfillBlockNumber?: any | null, externalCallHash?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetPreparedTransactionsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransactionStatus, nonce: any, transactionId: any, recipient: any, transactingAsset: any, localAsset: any, prepareCaller: any, prepareTransactingAmount: any, prepareLocalAmount: any, callTo: any, callData: any, prepareTransactionHash?: any | null, prepareTimestamp?: any | null, prepareGasPrice?: any | null, prepareGasLimit?: any | null, prepareBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+
+export type GetTransactionQueryVariables = Exact<{
+  originDomain: Scalars['BigInt'];
+  destinationDomain: Scalars['BigInt'];
+  nonce: Scalars['BigInt'];
+  maxPrepareBlockNumber: Scalars['BigInt'];
+}>;
+
+
+export type GetTransactionQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransactionStatus, nonce: any, transactionId: any, recipient: any, transactingAsset: any, localAsset: any, prepareCaller: any, prepareTransactingAmount: any, prepareLocalAmount: any, callTo: any, callData: any, prepareTransactionHash?: any | null, prepareTimestamp?: any | null, prepareGasPrice?: any | null, prepareGasLimit?: any | null, prepareBlockNumber?: any | null, fulfillCaller?: any | null, fulfillTransactingAmount?: any | null, fulfillLocalAmount?: any | null, fulfillTransactionHash?: any | null, fulfillTimestamp?: any | null, fulfillGasPrice?: any | null, fulfillGasLimit?: any | null, fulfillBlockNumber?: any | null, externalCallHash?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+
+export type GetFulfilledAndReconciledTransactionsByIdsQueryVariables = Exact<{
+  transactionIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
+  maxPrepareBlockNumber: Scalars['BigInt'];
+}>;
+
+
+export type GetFulfilledAndReconciledTransactionsByIdsQuery = { __typename?: 'Query', transactions: Array<{ __typename?: 'Transaction', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransactionStatus, nonce: any, transactionId: any, recipient: any, transactingAsset: any, localAsset: any, prepareCaller: any, prepareTransactingAmount: any, prepareLocalAmount: any, callTo: any, callData: any, prepareTransactionHash?: any | null, prepareTimestamp?: any | null, prepareGasPrice?: any | null, prepareGasLimit?: any | null, prepareBlockNumber?: any | null, fulfillCaller?: any | null, fulfillTransactingAmount?: any | null, fulfillLocalAmount?: any | null, fulfillTransactionHash?: any | null, fulfillTimestamp?: any | null, fulfillGasPrice?: any | null, fulfillGasLimit?: any | null, fulfillBlockNumber?: any | null, externalCallHash?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
 
 export const GetPreparedTransactionsDocument = gql`
     query GetPreparedTransactions($destinationDomains: [BigInt!], $maxPrepareBlockNumber: BigInt!, $nonce: BigInt!) {
   transactions(
-    where: {status: Prepared, destinationDomain_in: $destinationDomains, prepareBlockNumber_gte: $maxPrepareBlockNumber, nonce_gte: $nonce}
+    where: {status: Prepared, destinationDomain_in: $destinationDomains, prepareBlockNumber_lte: $maxPrepareBlockNumber, nonce_gte: $nonce}
     orderBy: prepareBlockNumber
+    orderDirection: desc
+  ) {
+    id
+    originDomain
+    destinationDomain
+    chainId
+    status
+    nonce
+    transactionId
+    recipient
+    router {
+      id
+    }
+    transactingAsset
+    localAsset
+    prepareCaller
+    prepareTransactingAmount
+    prepareLocalAmount
+    callTo
+    callData
+    prepareTransactionHash
+    prepareTimestamp
+    prepareGasPrice
+    prepareGasLimit
+    prepareBlockNumber
+  }
+}
+    `;
+export const GetTransactionDocument = gql`
+    query GetTransaction($originDomain: BigInt!, $destinationDomain: BigInt!, $nonce: BigInt!, $maxPrepareBlockNumber: BigInt!) {
+  transactions(
+    where: {originDomain: $originDomain, destinationDomain: $destinationDomain, nonce: $nonce, prepareBlockNumber_lte: $maxPrepareBlockNumber}
+    orderBy: prepareBlockNumber
+    orderDirection: desc
+  ) {
+    id
+    originDomain
+    destinationDomain
+    chainId
+    status
+    nonce
+    transactionId
+    recipient
+    router {
+      id
+    }
+    transactingAsset
+    localAsset
+    prepareCaller
+    prepareTransactingAmount
+    prepareLocalAmount
+    callTo
+    callData
+    prepareTransactionHash
+    prepareTimestamp
+    prepareGasPrice
+    prepareGasLimit
+    prepareBlockNumber
+    fulfillCaller
+    fulfillTransactingAmount
+    fulfillLocalAmount
+    fulfillTransactionHash
+    fulfillTimestamp
+    fulfillGasPrice
+    fulfillGasLimit
+    fulfillBlockNumber
+    externalCallHash
+    reconciledTransactionHash
+    reconciledTimestamp
+    reconciledGasPrice
+    reconciledGasLimit
+    reconciledBlockNumber
+  }
+}
+    `;
+export const GetFulfilledAndReconciledTransactionsByIdsDocument = gql`
+    query GetFulfilledAndReconciledTransactionsByIds($transactionIds: [Bytes!], $maxPrepareBlockNumber: BigInt!) {
+  transactions(
+    where: {transactionId_in: $transactionIds, prepareBlockNumber_lte: $maxPrepareBlockNumber, status_in: [Fulfilled, Reconciled]}
+    orderBy: fulfillBlockNumber
     orderDirection: desc
   ) {
     id
@@ -718,6 +816,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     GetPreparedTransactions(variables: GetPreparedTransactionsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetPreparedTransactionsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetPreparedTransactionsQuery>(GetPreparedTransactionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetPreparedTransactions');
+    },
+    GetTransaction(variables: GetTransactionQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransactionQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetTransactionQuery>(GetTransactionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransaction');
+    },
+    GetFulfilledAndReconciledTransactionsByIds(variables: GetFulfilledAndReconciledTransactionsByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetFulfilledAndReconciledTransactionsByIdsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetFulfilledAndReconciledTransactionsByIdsQuery>(GetFulfilledAndReconciledTransactionsByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetFulfilledAndReconciledTransactionsByIds');
     }
   };
 }

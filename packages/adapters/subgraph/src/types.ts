@@ -1,5 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TIntegerString, FallbackSubgraph } from "@connext/nxtp-utils";
+import { FallbackSubgraph } from "@connext/nxtp-utils";
 import Redis from "ioredis";
 
 import { Sdk } from "./runtime/graphqlsdk";
@@ -10,7 +10,7 @@ export type ChainSubgraphs = {
   runtime: FallbackSubgraph<Sdk>;
 };
 
-export type SubgraphMap = Map<number, ChainSubgraphs>;
+export type SubgraphMap = Map<string, ChainSubgraphs>;
 
 export type RedisUpdate = {
   redisInstance: Redis.Redis;
@@ -28,7 +28,7 @@ export const TChainConfig = Type.Object({
 export type ChainConfig = Static<typeof TChainConfig>;
 
 export const ReadSubgraphConfigSchema = Type.Object({
-  chains: Type.Record(TIntegerString, TChainConfig),
+  chains: Type.Record(Type.String(), TChainConfig),
 });
 
 export type ReadSubgraphConfig = Static<typeof ReadSubgraphConfigSchema>;

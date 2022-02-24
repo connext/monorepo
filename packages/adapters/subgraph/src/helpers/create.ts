@@ -7,7 +7,7 @@ import { getRuntimeSdk } from "../";
 export const create = async (config: ReadSubgraphConfig): Promise<SubgraphMap> => {
   const subgraphMap: SubgraphMap = new Map();
   for (const chain of Object.keys(config.chains)) {
-    const chainId = parseInt(chain);
+    const chainId = chain;
     const { maxLag, runtime: runtimeUrls } = config.chains[chain].subgraph;
     subgraphMap.set(chainId, {
       runtime: new FallbackSubgraph<RuntimeSdk>(
