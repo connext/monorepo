@@ -241,6 +241,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     // deployment = await dep.deploy();
     console.log("TestERC20: ", deployment.address);
 
+    console.log("Deploying test stable swap on non-mainnet chain");
+    await hre.deployments.deploy("TestStableSwap", {
+      from: deployer.address,
+      log: true,
+    });
+
     // console.log("Deploying counter on non-mainnet chain");
     // await hre.deployments.deploy("Counter", {
     //   from: deployer,
