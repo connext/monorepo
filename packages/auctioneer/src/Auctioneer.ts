@@ -1,56 +1,38 @@
-import { env } from "process";
-
 import { fastify, FastifyInstance } from "fastify";
 import pino from "pino";
-import { Wallet, Contract, utils as ethersUtils } from "ethers";
 import { Logger } from "@connext/nxtp-utils";
-import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain-types";
-import fp from "fastify-plugin";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 
-import { Bid } from "./lib/types";
 import { getConfig, Config } from "./utils";
 import { BidHandler } from "./handlers/bid";
 
 // const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
 const LISTEN_PORT = process.env.PORT || 1234;
 const LOG_LEVEL = process.env.loglevel || "debug";
-
 export default class Auctioneer {
+  config: Config;
   server!: FastifyInstance;
   logger!: Logger;
   bidHandler!: BidHandler;
-
-  wallet!: Wallet;
-  txManagerContract!: Contract;
-
-  auctioneerAddress = "0x";
-  config: Config;
+  subgraph!: SubgraphReader;
+  store!: StoreManager;
 
   constructor() {
     this.logger = new Logger({ level: "debug" });
     this.config = getConfig();
-    if (this.config) {
-      this.wallet = Wallet.fromMnemonic(this.config.mnemonic);
-    }
     this.bidHandler = new BidHandler(this.config);
+    const pino_logger = pino({ level: LOG_LEVEL });
+    this.server = fastify({ logger: pino_logger });
   }
 
   async fastifyStart(): Promise<FastifyInstance> {
-    //nxtp logger
-
-    //fastify logger
-    const pino_logger = pino({ level: LOG_LEVEL });
-    this.server = fastify({ logger: pino_logger });
-
     try {
-      //register bid routes;
-      this.server.register(fp(this.bidHandler.bidRoute));
       await this.server.listen(LISTEN_PORT);
-
-      this.server.log.info({}, `Auctioneer Listening @ ${LISTEN_PORT}`);
+      this.bidHandler.route(this.server);
+      this.logger.info(`Auctioneer Listening @ ${LISTEN_PORT}`);
     } catch (e) {
-      this.server.log.error(e);
+      this.logger.error(e as string);
       process.exit(1);
     }
 
