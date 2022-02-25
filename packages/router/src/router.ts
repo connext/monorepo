@@ -6,7 +6,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { bindFastify, bindMetrics, bindPrices } from "./bindings";
+import { bindFastify, bindMetrics, bindPrices, bindContractReader } from "./bindings";
 import { AppContext } from "./context";
 
 const context: AppContext = {} as any;
@@ -56,6 +56,7 @@ export const makeRouter = async () => {
     }
     await bindFastify(context);
     await bindMetrics(context);
+    await bindContractReader(context);
 
     logger.info("Router ready!");
   } catch (e) {

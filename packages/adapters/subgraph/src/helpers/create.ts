@@ -11,7 +11,7 @@ export const create = async (config: ReadSubgraphConfig): Promise<SubgraphMap> =
     const { maxLag, runtime: runtimeUrls } = config.chains[chain].subgraph;
     subgraphMap.set(chainId, {
       runtime: new FallbackSubgraph<RuntimeSdk>(
-        chainId,
+        Number(chainId),
         (url: string) => getRuntimeSdk(url),
         maxLag,
         SubgraphDomain.RUNTIME,
