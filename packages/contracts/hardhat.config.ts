@@ -11,7 +11,7 @@ import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 
 import "./src/tasks/addRouter";
-import "./src/tasks/addAsset";
+import "./src/tasks/setupAsset";
 import "./src/tasks/createRouter";
 import "./src/tasks/removeRelayerFee";
 import "./src/tasks/addLiquidity";
@@ -26,6 +26,7 @@ import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
 import "./src/tasks/enrollRouter";
+import "./src/tasks/ensureLocal";
 
 dotEnvConfig();
 
