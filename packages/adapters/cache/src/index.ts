@@ -23,9 +23,9 @@ export type CallbackFn = (msg: any, err?: any) => void;
 
 type StoreManagerParams = { redisUrl: string; logger: Logger; redis?: Redis.Redis };
 
-export const RedisChannels = {
-  NEW_TX: "NewTransaction",
-};
+export enum RedisChannels {
+  NEW_PREPARED_TX = "NewPreparedTransaction",
+}
 
 export class StoreManager {
   private readonly cache: Map<string, ChainCache> = new Map();

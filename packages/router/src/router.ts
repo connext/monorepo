@@ -1,19 +1,28 @@
 import { logger, Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-adapters-subgraph";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { RedisChannels, StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindFastify, bindMetrics, bindPrices, bindContractReader } from "./bindings";
 import { AppContext } from "./context";
+import { getOperations } from "./lib/operations";
 
 const context: AppContext = {} as any;
+
+export const getContext = (): AppContext => {
+  if (!context || Object.keys(context).length === 0) {
+    throw new Error("Context not created");
+  }
+  return context;
+};
 
 export const makeRouter = async () => {
   const requestContext = createRequestContext("makeRouter");
   const methodContext = createMethodContext(makeRouter.name);
+  const { prepare } = getOperations();
   try {
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
@@ -33,6 +42,8 @@ export const makeRouter = async () => {
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
     context.adapters.cache = StoreManager.getInstance({ redisUrl: context.config.redisUrl!, logger: context.logger });
+    // subscribe to
+    context.adapters.cache.subscribeToInstance(RedisChannels.NEW_PREPARED_TX, prepare);
 
     context.adapters.subgraph = await setupReadSubgraph(context.config);
 
