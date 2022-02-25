@@ -8,24 +8,18 @@ export interface Store {
 }
 
 /**
- * @classdesc Manages storage, updates, and retrieval of a set of data determined by use-case and organized by
- * domain. Includes a set of subscriptions for listening to changes in the data.
- * 
- * ex.
- * const store = StoreManager.getInstance<{ transactions: TransactionsCache }>({ redis: { url }, logger, domains });
- * store.transactions.getStatus(domain, nonce);
+ * @classdesc Singleton to handle instantiation of publicly accessible cache adapters.
  */
 export class StoreManager implements Store {
   public readonly transactions: TransactionsCache;
 
   private static instance: StoreManager | undefined;
-
   private readonly logger: Logger;
 
   private constructor({ redis, logger }: StoreManagerParams) {
     this.logger = logger;
     const { url } = redis;
-    this.transactions =  new TransactionsCache({ url });
+    this.transactions = new TransactionsCache({ url });
   }
 
   /**
