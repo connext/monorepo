@@ -1621,7 +1621,7 @@ __metadata:
     ethereum-waffle: ^3.4.0
     ethers: ^5.5.4
     hardhat: ^2.8.3
-    hardhat-deploy: ^0.10.4
+    hardhat-deploy: ^0.10.5
     hardhat-gas-reporter: ^1.0.7
     rimraf: ^3.0.2
     sinclair: ^0.2.0
@@ -13773,7 +13773,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.10.4":
+"hardhat-deploy@npm:^0.10.5":
   version: 0.10.5
   resolution: "hardhat-deploy@npm:0.10.5"
   dependencies:

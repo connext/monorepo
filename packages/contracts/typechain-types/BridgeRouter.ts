@@ -31,10 +31,10 @@ export interface BridgeRouterInterface extends utils.Interface {
     "liquidityProvider(bytes32)": FunctionFragment;
     "migrate(address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "preFill(uint32,uint32,bytes)": FunctionFragment;
     "remotes(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "send(address,uint256,uint32,bytes32,bool,bytes32,bytes32)": FunctionFragment;
+    "setTransactionManager(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
     "transactionManager()": FunctionFragment;
@@ -78,10 +78,6 @@ export interface BridgeRouterInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "migrate", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "preFill",
-    values: [BigNumberish, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "remotes",
     values: [BigNumberish]
   ): string;
@@ -100,6 +96,10 @@ export interface BridgeRouterInterface extends utils.Interface {
       BytesLike,
       BytesLike
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTransactionManager",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
@@ -151,13 +151,16 @@ export interface BridgeRouterInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "migrate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "preFill", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "remotes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setTransactionManager",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
@@ -302,13 +305,6 @@ export interface BridgeRouter extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    preFill(
-      _origin: BigNumberish,
-      _nonce: BigNumberish,
-      _message: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     remotes(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
@@ -323,6 +319,11 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -390,13 +391,6 @@ export interface BridgeRouter extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  preFill(
-    _origin: BigNumberish,
-    _nonce: BigNumberish,
-    _message: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   remotes(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
@@ -411,6 +405,11 @@ export interface BridgeRouter extends BaseContract {
     _enableFast: boolean,
     _externalId: BytesLike,
     _externalHash: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setTransactionManager(
+    _transactionManager: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -475,13 +474,6 @@ export interface BridgeRouter extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    preFill(
-      _origin: BigNumberish,
-      _nonce: BigNumberish,
-      _message: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     remotes(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
@@ -494,6 +486,11 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -609,13 +606,6 @@ export interface BridgeRouter extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    preFill(
-      _origin: BigNumberish,
-      _nonce: BigNumberish,
-      _message: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     remotes(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
@@ -630,6 +620,11 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -702,13 +697,6 @@ export interface BridgeRouter extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    preFill(
-      _origin: BigNumberish,
-      _nonce: BigNumberish,
-      _message: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     remotes(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -726,6 +714,11 @@ export interface BridgeRouter extends BaseContract {
       _enableFast: boolean,
       _externalId: BytesLike,
       _externalHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTransactionManager(
+      _transactionManager: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

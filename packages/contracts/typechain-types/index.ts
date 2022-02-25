@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OwnableUpgradeable } from "./OwnableUpgradeable";
+export type { IERC20Upgradeable } from "./IERC20Upgradeable";
 export type { Ownable } from "./Ownable";
 export type { ERC20 } from "./ERC20";
 export type { IERC20Metadata } from "./IERC20Metadata";
@@ -56,6 +57,7 @@ export type { WETH } from "./WETH";
 export type { TransactionManager } from "./TransactionManager";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
+export { IERC20Upgradeable__factory } from "./factories/IERC20Upgradeable__factory";
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";

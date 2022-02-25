@@ -64,7 +64,7 @@
     "ajv": "^8.6.2",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
-    "hardhat-deploy": "^0.10.4",
+    "hardhat-deploy": "^0.10.5",
     "hardhat-gas-reporter": "^1.0.7",
     "typechain": "^7.0.0"
   },
