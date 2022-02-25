@@ -52,7 +52,7 @@ export const makeRouter = async () => {
 
     context.adapters.auctioneer = new AuctioneerAPI();
 
-    context.txService = new TransactionService(
+    context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
       context.config.chains as any,
       context.adapters.wallet,

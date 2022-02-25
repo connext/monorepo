@@ -27,8 +27,7 @@ export const prepare = async (pendingTx: CrossChainTx) => {
   const {
     logger,
     config,
-    adapters: { auctioneer, subgraph },
-    txService,
+    adapters: { auctioneer, subgraph, txservice },
     chainData,
     routerAddress,
   } = getContext();
@@ -66,9 +65,9 @@ export const prepare = async (pendingTx: CrossChainTx) => {
 
   const sendingChainId = getChainIdFromDomain(originDomain);
   const receivingChainId = getChainIdFromDomain(destinationDomain);
-  const localInputDecimals = await txService.getDecimalsForAsset(sendingChainId, prepareLocalAsset);
+  const localInputDecimals = await txservice.getDecimalsForAsset(sendingChainId, prepareLocalAsset);
   const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
-  const localOutputDecimals = await txService.getDecimalsForAsset(receivingChainId, fulfillLocalAsset);
+  const localOutputDecimals = await txservice.getDecimalsForAsset(receivingChainId, fulfillLocalAsset);
 
   let { receivingAmount: receiverAmount } = await getReceiverAmount(
     prepareLocalAmount,
@@ -76,7 +75,7 @@ export const prepare = async (pendingTx: CrossChainTx) => {
     localOutputDecimals,
   );
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
-  const gasFeeInFulfillLocalAsset = await txService.calculateGasFeeInReceivingToken(
+  const gasFeeInFulfillLocalAsset = await txservice.calculateGasFeeInReceivingToken(
     sendingChainId,
     prepareLocalAsset,
     receivingChainId,
