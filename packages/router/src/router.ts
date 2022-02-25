@@ -4,6 +4,7 @@ import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-adapters-subgr
 import { RedisChannels, StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
+import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindFastify, bindMetrics, bindPrices, bindContractReader } from "./bindings";
@@ -42,12 +43,18 @@ export const makeRouter = async () => {
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
     context.adapters.cache = StoreManager.getInstance({ redisUrl: context.config.redisUrl!, logger: context.logger });
-    // subscribe to
+    // subscribe to `NewPreparedTx` channel
     context.adapters.cache.subscribeToInstance(RedisChannels.NEW_PREPARED_TX, prepare);
 
     context.adapters.subgraph = await setupReadSubgraph(context.config);
 
     context.adapters.auctioneer = new AuctioneerAPI();
+
+    context.txService = new TransactionService(
+      context.logger.child({ module: "TransactionService" }, context.config.logLevel),
+      context.config.chains as any,
+      context.adapters.wallet,
+    );
 
     context.logger.info("Router config generated", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),

@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import { Logger } from "@connext/nxtp-utils";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader, TransactionService } from "@connext/nxtp-txservice";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -18,5 +18,6 @@ export type AppContext = {
     cache: StoreManager; // Used to cache important data locally.
     chainreader: ChainReader; // Used to read from the blockchain using RPC providers.
   };
+  txService: TransactionService;
   config: NxtpRouterConfig;
 };
