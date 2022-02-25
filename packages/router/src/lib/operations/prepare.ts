@@ -14,6 +14,7 @@ export const prepare = async (pendingTx: CrossChainTx) => {
     logger,
     config,
     adapters: { auctioneer },
+    txService,
   } = getContext();
   logger.info("Method start", requestContext, methodContext, pendingTx);
 
@@ -35,20 +36,8 @@ export const prepare = async (pendingTx: CrossChainTx) => {
   const lowThreshold = BigNumber.from(prepareTransactingAmount)
     .mul(100 - thresholdPct)
     .div(100);
-  if (
-    BigNumber.from(prepareTransactingAmount).gt(highThreshold) ||
-    BigNumber.from(prepareTransactingAmount).lt(lowThreshold)
-  ) {
-    throw new OriginDomainDataInvalid({
-      methodContext,
-      requestContext,
-      prepareTransactingAmount: prepareTransactingAmount.toString(),
-      highThreshold: highThreshold.toString(),
-      lowThreshold: lowThreshold.toString(),
-      pendingTx,
-    });
-  }
 
+  const inputDecimals = await txService.getDecimalsForAsset();
   // send the bid to auctioneer
   await auctioneer.sendBid(null);
 };

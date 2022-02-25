@@ -1,6 +1,7 @@
 // TODO: move this into cache
 
 import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { getDomainFromChainId, getChainIdFromDomain } from "@connext/nxtp-utils";
 
 import { GetPreparedTransactionsQueryVariables } from "../runtime/graphqlsdk";
 import { SubgraphMap } from "../types";
@@ -8,18 +9,6 @@ import { SubgraphMap } from "../types";
 // import { getSenderTransactionsQuery, getTransaction } from "./query";
 
 const pollInterval = 10_000;
-
-export const getChainIdFromDomain = (domain: string) => {
-  // TODO: get chainId from domain.
-  // TODO: move this function in utils after cleanup
-  return 1;
-};
-
-export const getDomainFromChainId = (chainId: number) => {
-  // TODO: get domain from chainId.
-  // TODO: move this function in utils after cleanup
-  return "1";
-};
 
 export const cacheUpdate = async (cacheInstance: StoreManager, subgraphs: SubgraphMap): Promise<NodeJS.Timeout> => {
   // initiate the polling here
