@@ -1,9 +1,8 @@
-export const CrossChainTxStatuses = {
-  Prepared: "Prepared",
-  Fulfilled: "Fulfilled",
-  Reconcilced: "Reconciled",
-} as const;
-export type CrossChainTxStatus = typeof CrossChainTxStatuses;
+export enum CrossChainTxStatus {
+  Prepared = "Prepared",
+  Fulfilled = "Fulfilled",
+  Reconcilced = "Reconciled",
+}
 
 export type CrossChainTx = {
   // Meta

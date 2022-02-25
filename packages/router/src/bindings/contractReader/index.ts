@@ -1,4 +1,4 @@
-import { createLoggingContext, CrossChainTx, CrossChainTxStatuses, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../context";
 
@@ -26,10 +26,4 @@ export const bindContractReader = async (context: AppContext) => {
       return;
     }
   }, LOOP_INTERVAL);
-};
-
-export const handleActiveTransactions = async (crossChainTxs: CrossChainTx[], context: AppContext) => {
-  const { logger } = context;
-  const { requestContext, methodContext } = createLoggingContext("handleActiveTransactions");
-  logger.info("Method Start", requestContext, methodContext);
 };
