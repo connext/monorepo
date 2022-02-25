@@ -93,8 +93,6 @@ export function handlePrepared(event: Prepared): void {
   transaction.nonce = event.params.nonce;
   transaction.transactionId = event.params.transactionId;
   transaction.recipient = event.params.recipient;
-  transaction.transactingAsset = event.params.transactingAsset;
-  transaction.localAsset = event.params.localAsset;
   transaction.callTo = event.params.params.callTo;
   transaction.callData = event.params.params.callData;
 
@@ -102,6 +100,8 @@ export function handlePrepared(event: Prepared): void {
   transaction.prepareCaller = event.params.caller;
   transaction.prepareTransactingAmount = event.params.transactingAmount;
   transaction.prepareLocalAmount = event.params.localAmount;
+  transaction.prepareTransactingAsset = event.params.transactingAsset;
+  transaction.prepareLocalAsset = event.params.localAsset;
 
   // TransactionPrepared
   transaction.prepareTransactionHash = event.transaction.hash;
@@ -132,8 +132,6 @@ export function handleFulfilled(event: Fulfilled): void {
     transaction.nonce = event.params.nonce;
     transaction.transactionId = event.params.transactionId;
     transaction.recipient = event.params.recipient;
-    transaction.transactingAsset = event.params.transactingAsset;
-    transaction.localAsset = event.params.localAsset;
     transaction.callTo = event.params.params.callTo;
     transaction.callData = event.params.params.callData;
   }
@@ -142,6 +140,8 @@ export function handleFulfilled(event: Fulfilled): void {
   transaction.fulfillCaller = event.params.caller;
   transaction.fulfillTransactingAmount = event.params.transactingAmount;
   transaction.fulfillLocalAmount = event.params.localAmount;
+  transaction.fulfillTransactingAsset = event.params.transactingAsset;
+  transaction.fulfillLocalAsset = event.params.localAsset;
   transaction.status = "Reconciled";
 
   // TransactionFulfilled

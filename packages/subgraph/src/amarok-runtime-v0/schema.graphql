@@ -33,8 +33,6 @@ type Transaction @entity {
   transactionId: Bytes!
   recipient: Bytes!
   router: Router
-  transactingAsset: Bytes!
-  localAsset: Bytes!
   callTo: Bytes!
   callData: Bytes!
 
@@ -42,10 +40,12 @@ type Transaction @entity {
   prepareCaller: Bytes!
   prepareTransactingAmount: BigInt!
   prepareLocalAmount: BigInt!
+  prepareTransactingAsset: Bytes
+  prepareLocalAsset: Bytes
 
   # Prepared Transaction
   prepareTransactionHash: Bytes
-  prepareTimestamp: BigInt
+  prepareTimestamp: BigInt!
   prepareGasPrice: BigInt
   prepareGasLimit: BigInt
   prepareBlockNumber: BigInt
@@ -54,6 +54,8 @@ type Transaction @entity {
   fulfillCaller: Bytes
   fulfillTransactingAmount: BigInt
   fulfillLocalAmount: BigInt
+  fulfillTransactingAsset: Bytes
+  fulfillLocalAsset: Bytes
 
   # Fulfilled Transaction
   fulfillTransactionHash: Bytes
