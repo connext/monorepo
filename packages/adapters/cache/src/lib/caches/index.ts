@@ -20,13 +20,4 @@ export abstract class Cache {
     const callback = this.subscriptions.get(channel);
     if (callback) callback(message);
   }
-
-  /**
-   * Subscribes to the specified channel, callback fn is called whenever a new message arrives
-   * @param channel The channel name that publishes messages to
-   * @param callback The callback function that is called whenever a new message arrives
-   */
-  public async subscribe(channel: StoreChannel, callback: SubscriptionCallback): Promise<void> {
-    this.subscriptions.set(channel, callback);
-  }
 }
