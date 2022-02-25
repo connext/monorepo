@@ -3,7 +3,7 @@ import { CrossChainTx } from "@connext/nxtp-utils";
 
 import { ReadSubgraphConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
-import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
+import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 
 const convertSubgraphEntityToCrossChainTx = (subgEntity: any): CrossChainTx => {
   return {
@@ -110,9 +110,9 @@ export class SubgraphReader {
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
 
     // first get prepared transactions on all chains
-    const allSending: [string, CrossChainTx][] = (
+    const allOrigin: [string, CrossChainTx][] = (
       await Promise.all(
-        [...this.subgraphs].map(async ([chain, subgraph]) => {
+        [...this.subgraphs].map(async ([, subgraph]) => {
           const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>(
             (client) =>
               client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
@@ -125,6 +125,8 @@ export class SubgraphReader {
       .filter((x) => !!x)
       .map((s) => {
         const tx = convertSubgraphEntityToCrossChainTx(s);
+
+        // set into a map by destination domain
         txIdsByDestinationDomain.set(
           tx.destinationDomain,
           (txIdsByDestinationDomain.get(tx.transactionId) ?? []).concat([tx.transactionId]),
@@ -132,15 +134,26 @@ export class SubgraphReader {
         return [s.transactionId as string, tx];
       });
 
-    const allSendingMap = new Map<string, CrossChainTx>(allSending);
-
-    // get all destinationDomains
-
-    allSending.forEach((t) => {});
+    const allTxById = new Map<string, CrossChainTx>(allOrigin);
 
     // use prepared IDs to get all receiving txs
-    Object.entries();
+    await Promise.all(
+      [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, txIds]) => {
+        const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
+        const { transactions } = await subgraph.runtime.request<GetFulfilledAndReconciledTransactionsByIdsQuery>(
+          (client) =>
+            client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
+        );
+        transactions.forEach((_tx) => {
+          const tx = convertSubgraphEntityToCrossChainTx(_tx);
+          const inMap = allTxById.get(tx.transactionId)!;
+          inMap.status = tx.status;
+          allTxById.set(tx.transactionId, inMap);
+        });
+      }),
+    );
 
     // create array of all transactions by status
+    return [...allTxById.values()];
   }
 }
