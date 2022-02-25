@@ -13,9 +13,6 @@
     },
     {
       "path": "../../utils/tsconfig.build.json"
-    },
-    {
-      "path": "../cache/tsconfig.build.json"
     }
   ]
 }
