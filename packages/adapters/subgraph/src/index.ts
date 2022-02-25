@@ -2,7 +2,7 @@ import { GraphQLClient } from "graphql-request";
 
 export { SubgraphReader } from "./reader";
 export { TransactionStatus } from "./runtime/graphqlsdk";
-export { ReadSubgraphConfig } from "./types";
+export { SubgraphReaderConfig } from "./types";
 
 import { getSdk } from "./runtime/graphqlsdk";
 
