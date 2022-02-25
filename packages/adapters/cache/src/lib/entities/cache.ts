@@ -1,5 +1,3 @@
-import Redis from "ioredis";
-
 import { CacheParams } from "./config";
 
 export type SubscriptionCallback = (msg: any, err?: any) => void;
@@ -12,29 +10,17 @@ export type Subscriptions = Map<string, SubscriptionCallback>;
  */
 export abstract class Cache {
   protected readonly subscriptions: Subscriptions = new Map();
-  public readonly sub: Redis.Redis = new Redis();
-  public readonly pub: Redis.Redis = new Redis();
 
-  constructor(_: CacheParams) {
-    this.sub.on("message", (channel, message) => {
-      if (this.subscriptions.has(channel)) {
-        const callback = this.subscriptions.get(channel);
-        if (callback) callback(message);
-      }
-    });
-  }
+  constructor(_: CacheParams) {}
 
   /**
    * Publishes a message to the specified channel
    * @param channel The channel name that publishes messages to
    * @param message The message to publish
    */
-   public async publish(channel: string, message: string): Promise<void> {
-    if (!this.subscriptions.has(channel)) {
-      // Channel doesn't exist, no reason to publish.
-      return;
-    }
-    await this.pub.publish(channel, message);
+   protected async publish(channel: string, message: string): Promise<void> {
+    const callback = this.subscriptions.get(channel);
+    if (callback) callback(message);
   }
 
   /**
@@ -44,6 +30,5 @@ export abstract class Cache {
    */
   public async subscribe(channel: string, callback: SubscriptionCallback): Promise<void> {
     this.subscriptions.set(channel, callback);
-    await this.sub.subscribe(channel);
   }
 }
