@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { Cache, CacheParams, SubscriptionCallback } from "../entities";
+import { Cache, CacheParams, RedisChannels, SubscriptionCallback } from "../entities";
 
 //Redis Store I
 
@@ -22,16 +22,7 @@ export class TransactionsCache extends Cache {
     this.data = new Redis(`${url}/1`);
     this.status = new Redis(`${url}/2`);
     this.pending = new Redis(`${url}/3`);
-    this.initSubscribers();
-  }
-
-  protected initSubscribers(): void {
-    this.pending.on("message", (channel, message) => {
-      if (this.subscriptions.has(channel)) {
-        const callbackFn = this.subscriptions.get(channel);
-        if (callbackFn) callbackFn(message);
-      }
-    });
+    this.initChannels([this.pending]);
   }
 
   public async getStatus(domain: string, nonce: string): Promise<CrossChainTxStatus | undefined> {
@@ -71,33 +62,17 @@ export class TransactionsCache extends Cache {
   }
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
-    // TODO Basically it should save a new transaction or update transaction status if already exists.
-    // Whenever a new pending tx arrives, it needs to call `publishToInstance` to be processed in router side
+    // Save a new transaction, or update status if the transaction already exists.
     // Key name needs to be matched with other types.
     for (const tx of txs) {
-      await this.data.set(tx.transactionId, JSON.stringify(tx));
+      const existing = await this.data.get(tx.transactionId);
+      if (existing) {
+        await this.status.set(tx.transactionId, tx.status.toString());
+      } else {
+        await this.data.set(tx.transactionId, JSON.stringify(tx));
+        // If it's a new pending tx, we should call `publish` to notify the subscribers.
+        this.publish(this.pending, RedisChannels.NEW_PREPARED_TX, tx.transactionId);
+      }
     }
-  }
-
-  /**
-   * Publishes a message to the specified channel
-   * @param channel The channel name that publishes messages to
-   * @param message The message to publish
-   */
-  public async publish(channel: string, message: string): Promise<void> {
-    if (!this.subscriptions.has(channel)) {
-      throw new Error(`Channel ${channel} doesn't exist`);
-    }
-    this.pending.publish(channel, message);
-  }
-
-  /**
-   * Subscribes to the specified channel, callback fn is called whenever a new message arrives
-   * @param channel The channel name that publishes messages to
-   * @param callback The callback function that is called whenever a new message arrives
-   */
-  public async subscribe(channel: string, callback: SubscriptionCallback): Promise<void> {
-    this.subscriptions.set(channel, callback);
-    await this.pending.subscribe(channel);
   }
 }
