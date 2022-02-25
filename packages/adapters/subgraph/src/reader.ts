@@ -1,8 +1,60 @@
 import { BigNumber } from "ethers";
+import { CrossChainTx } from "@connext/nxtp-utils";
 
 import { ReadSubgraphConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
 import { GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
+
+const convertSubgraphEntityToCrossChainTx = (subgEntity: any): CrossChainTx => {
+  return {
+    // Meta
+    originDomain: subgEntity.originDomain,
+    destinationDomain: subgEntity.destinationDomain,
+    status: subgEntity.status,
+
+    // Transfer Data
+    nonce: subgEntity.nonce,
+    transactionId: subgEntity.transactionId,
+    recipient: subgEntity.recipient,
+    router: subgEntity.router,
+    transactingAsset: subgEntity.transactingAsset,
+    localAsset: subgEntity.localAsset,
+
+    // Prepared
+    prepareCaller: subgEntity.prepareCaller,
+    prepareTransactingAmount: subgEntity.prepareTransactingAmount,
+    prepareLocalAmount: subgEntity.prepareLocalAmount,
+    callTo: subgEntity.callTo,
+    callData: subgEntity.callData,
+
+    // TransactionPrepared
+    prepareTransactionHash: subgEntity.prepareTransactionHash,
+    prepareTimestamp: subgEntity.prepareTimestamp,
+    prepareGasPrice: subgEntity.prepareGasPrice,
+    prepareGasLimit: subgEntity.prepareGasLimit,
+    prepareBlockNumber: subgEntity.prepareBlockNumber,
+
+    // Fulfill
+    fulfillCaller: subgEntity.fulfillCaller,
+    fulfillTransactingAmount: subgEntity.fulfillTransactingAmount,
+    fulfillLocalAmount: subgEntity.fulfillLocalAmount,
+
+    // TransactionFulfilled
+    fulfillTransactionHash: subgEntity.fulfillTransactionHash,
+    fulfillTimestamp: subgEntity.fulfillTimestamp,
+    fulfillGasPrice: subgEntity.fulfillGasPrice,
+    fulfillGasLimit: subgEntity.fulfillGasLimit,
+    fulfillBlockNumber: subgEntity.fulfillBlockNumber,
+
+    // Reconciled
+    externalCallHash: subgEntity.externalCallHash,
+    reconciledTransactionHash: subgEntity.reconciledTransactionHash,
+    reconciledTimestamp: subgEntity.reconciledTimestamp,
+    reconciledGasPrice: subgEntity.reconciledGasPrice,
+    reconciledGasLimit: subgEntity.reconciledGasLimit,
+    reconciledBlockNumber: subgEntity.reconciledBlockNumber,
+  };
+};
 
 export class SubgraphReader {
   private subgraphs: SubgraphMap = new Map();
@@ -53,34 +105,41 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  /**
-   * Get the latest prepare transactions' nonce.
-   * @param chain - Chain where we'll check the latest prepare nonce
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getLatestNonce(chain: number): Promise<BigNumber> {
-    throw new Error("Not implemented");
-  }
-
-  public async getTransactionsWithStatuses(): Promise<any[]> {
-    // first get prepared transactions on all chains
+  public async getTransactionsWithStatuses(): Promise<CrossChainTx[]> {
     const destinationDomains = [...this.subgraphs.keys()];
-    const allSending = (
+    const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+
+    // first get prepared transactions on all chains
+    const allSending: [string, CrossChainTx][] = (
       await Promise.all(
         [...this.subgraphs].map(async ([chain, subgraph]) => {
-          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) =>
-            client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
+          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>(
+            (client) =>
+              client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
           );
           return transactions;
         }),
       )
     )
       .flat()
-      .filter((x) => !!x);
+      .filter((x) => !!x)
+      .map((s) => {
+        const tx = convertSubgraphEntityToCrossChainTx(s);
+        txIdsByDestinationDomain.set(
+          tx.destinationDomain,
+          (txIdsByDestinationDomain.get(tx.transactionId) ?? []).concat([tx.transactionId]),
+        );
+        return [s.transactionId as string, tx];
+      });
 
-    // get all receiving domains
+    const allSendingMap = new Map<string, CrossChainTx>(allSending);
 
-    // client.GetFulfilledAndReconciledTransactionsByIds use prepared IDs to get all receiving txs
+    // get all destinationDomains
+
+    allSending.forEach((t) => {});
+
+    // use prepared IDs to get all receiving txs
+    Object.entries();
 
     // create array of all transactions by status
   }
