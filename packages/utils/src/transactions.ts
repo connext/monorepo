@@ -15,13 +15,13 @@ export type CrossChainTx = {
   transactionId: string;
   recipient: string;
   router: string;
-  transactingAsset: string;
-  localAsset: string;
 
   // Prepared
   prepareCaller: string;
   prepareTransactingAmount: string;
   prepareLocalAmount: string;
+  prepareTransactingAsset: string;
+  prepareLocalAsset: string;
   callTo: string;
   callData: string;
 
@@ -36,6 +36,8 @@ export type CrossChainTx = {
   fulfillCaller: string;
   fulfillTransactingAmount: string;
   fulfillLocalAmount: string;
+  fulfillTransactingAsset: string;
+  fulfillLocalAsset: string;
 
   // TransactionFulfilled
   fulfillTransactionHash: string;

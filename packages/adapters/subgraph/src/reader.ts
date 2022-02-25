@@ -17,13 +17,13 @@ const convertSubgraphEntityToCrossChainTx = (subgEntity: any): CrossChainTx => {
     transactionId: subgEntity.transactionId,
     recipient: subgEntity.recipient,
     router: subgEntity.router,
-    transactingAsset: subgEntity.transactingAsset,
-    localAsset: subgEntity.localAsset,
 
     // Prepared
     prepareCaller: subgEntity.prepareCaller,
     prepareTransactingAmount: subgEntity.prepareTransactingAmount,
     prepareLocalAmount: subgEntity.prepareLocalAmount,
+    prepareTransactingAsset: subgEntity.prepareTransactingAsset,
+    prepareLocalAsset: subgEntity.prepareLocalAsset,
     callTo: subgEntity.callTo,
     callData: subgEntity.callData,
 
@@ -38,6 +38,8 @@ const convertSubgraphEntityToCrossChainTx = (subgEntity: any): CrossChainTx => {
     fulfillCaller: subgEntity.fulfillCaller,
     fulfillTransactingAmount: subgEntity.fulfillTransactingAmount,
     fulfillLocalAmount: subgEntity.fulfillLocalAmount,
+    fulfillTransactingAsset: subgEntity.fulfillTransactingAsset,
+    fulfillLocalAsset: subgEntity.fulfillLocalAsset,
 
     // TransactionFulfilled
     fulfillTransactionHash: subgEntity.fulfillTransactionHash,
