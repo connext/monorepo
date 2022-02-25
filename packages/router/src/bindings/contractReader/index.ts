@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, CrossChainTx, CrossChainTxStatuses, jsonifyError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../context";
 
@@ -11,7 +11,11 @@ export const bindContractReader = async (context: AppContext) => {
   const { requestContext, methodContext } = createLoggingContext("bindContractReader");
   setInterval(async () => {
     try {
-      const pendingTxs = subgraph;
+      const activeTxs = await subgraph.getTransactionsWithStatuses();
+      logger.debug("Getting active transactions", requestContext, methodContext, {
+        activeTxIds: activeTxs.map((activeTx) => activeTx.transactionId),
+      });
+      await cache.storeTxData(activeTxs);
     } catch (err: any) {
       logger.error(
         "Error getting pending txs, waiting for next loop",
@@ -22,4 +26,10 @@ export const bindContractReader = async (context: AppContext) => {
       return;
     }
   }, LOOP_INTERVAL);
+};
+
+export const handleActiveTransactions = async (crossChainTxs: CrossChainTx[], context: AppContext) => {
+  const { logger } = context;
+  const { requestContext, methodContext } = createLoggingContext("handleActiveTransactions");
+  logger.info("Method Start", requestContext, methodContext);
 };

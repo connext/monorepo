@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { Logger, TransactionData } from "@connext/nxtp-utils";
+import { CrossChainTx, Logger, TransactionData } from "@connext/nxtp-utils";
 
 import { AuctionCache } from "./auction";
 import { CachedTransaction } from "./lib/entities/cache";
@@ -108,11 +108,13 @@ export class StoreManager {
     await this.txStatus.set(cache.nxtpId, JSON.stringify(cache.bid));
   }
 
-  public async storeTxData(data: CachedTransaction): Promise<void> {
+  public async storeTxData(crossChainTxs: CrossChainTx[]): Promise<void> {
     // TODO Basically it should save a new transaction or update transaction status if already exists.
     // Whenever a new pending tx arrives, it needs to call `publishToInstance` to be processed in router side
     // Key name needs to be matched with other types.
-    await this.txData.set(data.transactionId, JSON.stringify(data.transaction));
+    for (const crossChainTx of crossChainTxs) {
+      await this.txData.set(crossChainTx.transactionId, JSON.stringify(crossChainTx));
+    }
   }
 
   /**
