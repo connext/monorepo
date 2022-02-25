@@ -1,5 +1,4 @@
 import { Redis } from "ioredis";
-import { RedisChannels } from "./channels";
 
 import { CacheParams } from "./config";
 
@@ -16,6 +15,11 @@ export abstract class Cache {
 
   constructor(_: CacheParams) {}
 
+  /**
+   * Initialize the channels with a callback that checks current active subscriptions.
+   * 
+   * @param instances - Subscribable Redis instances
+   */
   protected initChannels(instances: Redis[]): void {
     for (const instance of instances) {
       instance.on("message", (channel, message) => {
@@ -32,7 +36,7 @@ export abstract class Cache {
    * @param channel The channel name that publishes messages to
    * @param message The message to publish
    */
-   public async publish(instance: Redis, channel: RedisChannels, message: string): Promise<void> {
+   public async publish(instance: Redis, channel: string, message: string): Promise<void> {
     if (!this.subscriptions.has(channel)) {
       throw new Error(`Channel ${channel} doesn't exist`);
     }
@@ -44,7 +48,7 @@ export abstract class Cache {
    * @param channel The channel name that publishes messages to
    * @param callback The callback function that is called whenever a new message arrives
    */
-  public async subscribe(instance: Redis, channel: RedisChannels, callback: SubscriptionCallback): Promise<void> {
+  public async subscribe(instance: Redis, channel: string, callback: SubscriptionCallback): Promise<void> {
     this.subscriptions.set(channel, callback);
     await instance.subscribe(channel);
   }

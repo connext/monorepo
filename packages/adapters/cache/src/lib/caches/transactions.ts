@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { Cache, CacheParams, RedisChannels, SubscriptionCallback } from "../entities";
+import { Cache, CacheParams } from "../entities";
 
 //Redis Store I
 
@@ -13,6 +13,10 @@ import { Cache, CacheParams, RedisChannels, SubscriptionCallback } from "../enti
 //value: "Pending", "Completed", "Reconcilled" <txStatus>
 
 export class TransactionsCache extends Cache {
+  public static CHANNELS = {
+    NEW_PREPARED_TX: "new-prepared-tx",
+  };
+
   private readonly data!: Redis.Redis;
   private readonly status!: Redis.Redis;
   private readonly pending!: Redis.Redis;
@@ -62,15 +66,15 @@ export class TransactionsCache extends Cache {
   }
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
-    // Save a new transaction, or update status if the transaction already exists.
-    // Key name needs to be matched with other types.
     for (const tx of txs) {
       const existing = await this.data.get(tx.transactionId);
+      // Update the status, regardless of whether the transaction already exists.
       await this.status.set(tx.transactionId, tx.status.toString());
       if (!existing) {
+        // Store the transaction data, since it doesn't already exist.
         await this.data.set(tx.transactionId, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        this.publish(this.pending, RedisChannels.NEW_PREPARED_TX, tx.transactionId);
+        this.publish(this.pending, TransactionsCache.CHANNELS.NEW_PREPARED_TX, tx.transactionId);
       }
     }
   }
