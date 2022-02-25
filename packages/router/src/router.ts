@@ -1,9 +1,11 @@
 import { logger, Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
-import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-read-subgraph";
+import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-adapters-subgraph";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { Auctioneer, Web3Signer, RouterCache } from "./adapters";
 import { bindFastify, bindMetrics, bindPrices } from "./bindings";
 import { AppContext } from "./context";
 
@@ -20,21 +22,21 @@ export const makeRouter = async () => {
     }
     context.config = await getConfig(chainData);
 
-    // Create adapter instances.
-    context.adapters.wallet = context.config.mnemonic
-      ? Wallet.fromMnemonic(context.config.mnemonic)
-      : new Web3Signer(context.config.web3SignerUrl!);
-    context.adapters.cache = new RouterCache(context);
-
-    context.adapters.subgraph = await setupReadSubgraph(context.config);
-
-    context.adapters.auctioneer = new Auctioneer(context);
-
     // Make logger instance.
     context.logger = new Logger({
       level: context.config.logLevel,
       name: await context.adapters.wallet.getAddress(),
     });
+
+    // Create adapter instances.
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
+    context.adapters.cache = StoreManager.getInstance({ redisUrl: context.config.redisUrl!, logger: context.logger });
+
+    context.adapters.subgraph = await setupReadSubgraph(context.config);
+
+    context.adapters.auctioneer = new AuctioneerAPI();
 
     context.logger.info("Router config generated", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
@@ -65,12 +67,19 @@ export const makeRouter = async () => {
 const setupReadSubgraph = async (config: NxtpRouterConfig): Promise<SubgraphReader> => {
   // setup read subgraph
 
-  let subgraphConfig: ReadSubgraphConfig;
+  const subgraphConfig: ReadSubgraphConfig = { chains: {} };
   Object.keys(config.chains).map((chainId) => {
-    subgraphConfig[chainId.toString()] = config.chains[chainId].subgraph;
+    // subgraphConfig.chains[chainId.toString()] = config.chains[chainId].subgraph;
+    subgraphConfig.chains[chainId.toString()] = {
+      subgraph: {
+        analytics: config.chains[chainId].subgraph.analytics,
+        runtime: config.chains[chainId].subgraph.runtime,
+        maxLag: config.chains[chainId].subgraph.maxLag,
+      },
+    };
   });
 
-  const subgraph = new SubgraphReader(subgraphConfig);
+  const subgraph = new SubgraphReader();
   subgraph.create(subgraphConfig);
 
   return subgraph;

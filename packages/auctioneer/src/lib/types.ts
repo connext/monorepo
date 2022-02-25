@@ -21,7 +21,7 @@ export type FulfillArgs = {
 };
 
 export type Bid = {
-  nxtpId: string;
+  transactionId: string;
   data: FulfillArgs;
 };
 
