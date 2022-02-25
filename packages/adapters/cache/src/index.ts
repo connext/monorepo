@@ -1,7 +1,7 @@
 import { Logger } from "@connext/nxtp-utils";
 
 import { TransactionsCache } from "./lib/caches";
-import { StoreManagerParams } from "./lib/entities";
+import { StoreManagerParams, Subscriptions } from "./lib/entities";
 
 export interface Store {
   readonly transactions: TransactionsCache;
@@ -11,15 +11,17 @@ export interface Store {
  * @classdesc Singleton to handle instantiation of publicly accessible cache adapters.
  */
 export class StoreManager implements Store {
-  public readonly transactions: TransactionsCache;
-
   private static instance: StoreManager | undefined;
+
+  private readonly subscriptions: Subscriptions = new Map();
   private readonly logger: Logger;
+
+  public readonly transactions: TransactionsCache;
 
   private constructor({ redis, logger }: StoreManagerParams) {
     this.logger = logger;
     const { url } = redis;
-    this.transactions = new TransactionsCache({ url });
+    this.transactions = new TransactionsCache({ url, subscriptions: this.subscriptions });
   }
 
   /**
