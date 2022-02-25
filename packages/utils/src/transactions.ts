@@ -1,7 +1,7 @@
 export enum CrossChainTxStatus {
   Prepared = "Prepared",
   Fulfilled = "Fulfilled",
-  Reconcilced = "Reconciled",
+  Reconciled = "Reconciled",
 }
 
 export type CrossChainTx = {

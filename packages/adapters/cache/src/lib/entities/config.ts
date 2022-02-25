@@ -1,12 +1,6 @@
-import { Type, Static } from "@sinclair/typebox";
-import { TIntegerString } from "@connext/nxtp-utils";
+import { Redis } from "ioredis";
+import { Logger } from "@connext/nxtp-utils";
 
-export const TChainConfig = Type.Object({});
+export type StoreManagerParams = { redis: { url: string; instance?: Redis }; logger: Logger; };
 
-export type ChainConfig = Static<typeof TChainConfig>;
-
-export const CacheConfigSchema = Type.Object({
-  chains: Type.Record(TIntegerString, TChainConfig),
-});
-
-export type CacheConfig = Static<typeof CacheConfigSchema>;
+export type CacheParams = { url: string; };

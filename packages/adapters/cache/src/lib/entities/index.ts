@@ -5,5 +5,6 @@ export type RedisUpdate = {
   PollPeriod: number;
 };
 
-export * from "./cache";
+export * from "./channels";
 export * from "./config";
+export * from "./cache";
