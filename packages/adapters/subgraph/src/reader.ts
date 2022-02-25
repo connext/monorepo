@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { CrossChainTx } from "@connext/nxtp-utils";
 
-import { ReadSubgraphConfig as SubgraphReaderConfig, SubgraphMap } from "./types";
+import { SubgraphReaderConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
 import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 

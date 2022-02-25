@@ -21,8 +21,8 @@ export const TChainConfig = Type.Object({
 
 export type ChainConfig = Static<typeof TChainConfig>;
 
-export const ReadSubgraphConfigSchema = Type.Object({
+export const SubgraphReaderConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
 });
 
-export type ReadSubgraphConfig = Static<typeof ReadSubgraphConfigSchema>;
+export type SubgraphReaderConfig = Static<typeof SubgraphReaderConfigSchema>;
