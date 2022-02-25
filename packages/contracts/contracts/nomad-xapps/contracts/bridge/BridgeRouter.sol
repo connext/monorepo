@@ -13,8 +13,8 @@ import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 // import {TypedMemView} from "@summa-tx/memview-sol/contracts/TypedMemView.sol";
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 /**
  * @title BridgeRouter
@@ -25,7 +25,7 @@ contract BridgeRouter is Version0, Router {
     using TypedMemView for bytes;
     using TypedMemView for bytes29;
     using BridgeMessage for bytes29;
-    using SafeERC20 for IERC20;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // ============ Constants ============
 
@@ -162,7 +162,7 @@ contract BridgeRouter is Version0, Router {
         if (tokenRegistry.isLocalOrigin(_token)) {
             // if the token originates on this chain,
             // hold the tokens in escrow in the Router
-            IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+            IERC20Upgradeable(_token).safeTransferFrom(msg.sender, address(this), _amount);
             // query token contract for details and calculate detailsHash
             _detailsHash = BridgeMessage.getDetailsHash(
                 _t.name(),
@@ -219,61 +219,14 @@ contract BridgeRouter is Version0, Router {
     // ======== External: Fast Liquidity =========
 
     /**
-     * @notice Allows a liquidity provider to give an
-     * end user fast liquidity by pre-filling an
-     * incoming transfer message.
-     * Transfers tokens from the liquidity provider to the end recipient, minus the LP fee;
-     * Records the liquidity provider, who receives
-     * the full token amount when the transfer message is handled.
-     * @dev fast liquidity can only be provided for ONE token transfer
-     * with the same (recipient, amount) at a time.
-     * in the case that multiple token transfers with the same (recipient, amount)
-     * @param _origin The domain of the chain from which the transfer originated
-     * @param _nonce The unique identifier for the message from origin to destination
-     * @param _message The incoming transfer message to pre-fill
+     * @notice Sets the transaction manager.
+     * @dev Transacion manager and bridge router store references to each other
+     * @param _transactionManager the address of the transaction manager implementation
      */
-    function preFill(
-        uint32 _origin,
-        uint32 _nonce,
-        bytes calldata _message
-    ) external {
-        // parse tokenId and action from message
-        bytes29 _msg = _message.ref(0).mustBeMessage();
-        bytes29 _tokenId = _msg.tokenId();
-        bytes29 _action = _msg.action();
-        // ensure that this is a fast transfer message, eligible for fast liquidity
-        require(_action.isFastTransfer(), "!fast transfer");
-        // calculate prefill ID
-        bytes32 _id = BridgeMessage.getPreFillId(
-            _origin,
-            _nonce,
-            _tokenId,
-            _action
-        );
-        // require that transfer has not already been pre-filled
-        require(liquidityProvider[_id] == address(0), "!unfilled");
-        // record liquidity provider so they will be repaid later
-        liquidityProvider[_id] = msg.sender;
-        // load transfer details to memory once
-        IERC20 _token = tokenRegistry.mustHaveLocalToken(
-            _tokenId.domain(),
-            _tokenId.id()
-        );
-        address _liquidityProvider = msg.sender;
-        address _recipient = _action.evmRecipient();
-        uint256 _amount = _applyPreFillFee(_action.amnt());
-        // transfer tokens from liquidity provider to token recipient
-        _token.safeTransferFrom(_liquidityProvider, _recipient, _amount);
-        // dust the recipient if appropriate
-        _dust(_recipient);
-        // emit event
-        emit Receive(
-            _originAndNonce(_origin, _nonce),
-            address(_token),
-            _recipient,
-            _liquidityProvider,
-            _amount
-        );
+    function setTransactionManager(
+        address _transactionManager
+    ) external onlyOwner {
+        transactionManager = ITransactionManager(_transactionManager);
     }
 
     // ======== External: Custom Tokens =========
@@ -386,7 +339,7 @@ contract BridgeRouter is Version0, Router {
             // escrow in this contract
             // while they have been circulating on remote chains;
             // transfer the tokens to the recipient
-            IERC20(_token).safeTransfer(_recipient, _amount);
+            IERC20Upgradeable(_token).safeTransfer(_recipient, _amount);
         } else {
             // if the token is of remote origin, mint the tokens to the
             // recipient on this chain
