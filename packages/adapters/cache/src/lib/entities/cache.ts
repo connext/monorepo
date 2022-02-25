@@ -1,4 +1,4 @@
-import { Redis } from "ioredis";
+import Redis from "ioredis";
 
 import { CacheParams } from "./config";
 
@@ -12,23 +12,16 @@ export type Subscriptions = Map<string, SubscriptionCallback>;
  */
 export abstract class Cache {
   protected readonly subscriptions: Subscriptions = new Map();
+  public readonly sub: Redis.Redis = new Redis();
+  public readonly pub: Redis.Redis = new Redis();
 
-  constructor(_: CacheParams) {}
-
-  /**
-   * Initialize the channels with a callback that checks current active subscriptions.
-   * 
-   * @param instances - Subscribable Redis instances
-   */
-  protected initChannels(instances: Redis[]): void {
-    for (const instance of instances) {
-      instance.on("message", (channel, message) => {
-        if (this.subscriptions.has(channel)) {
-          const callback = this.subscriptions.get(channel);
-          if (callback) callback(message);
-        }
-      });
-    }
+  constructor(_: CacheParams) {
+    this.sub.on("message", (channel, message) => {
+      if (this.subscriptions.has(channel)) {
+        const callback = this.subscriptions.get(channel);
+        if (callback) callback(message);
+      }
+    });
   }
 
   /**
@@ -36,11 +29,12 @@ export abstract class Cache {
    * @param channel The channel name that publishes messages to
    * @param message The message to publish
    */
-   public async publish(instance: Redis, channel: string, message: string): Promise<void> {
+   public async publish(channel: string, message: string): Promise<void> {
     if (!this.subscriptions.has(channel)) {
-      throw new Error(`Channel ${channel} doesn't exist`);
+      // Channel doesn't exist, no reason to publish.
+      return;
     }
-    instance.publish(channel, message);
+    await this.pub.publish(channel, message);
   }
 
   /**
@@ -48,8 +42,8 @@ export abstract class Cache {
    * @param channel The channel name that publishes messages to
    * @param callback The callback function that is called whenever a new message arrives
    */
-  public async subscribe(instance: Redis, channel: string, callback: SubscriptionCallback): Promise<void> {
+  public async subscribe(channel: string, callback: SubscriptionCallback): Promise<void> {
     this.subscriptions.set(channel, callback);
-    await instance.subscribe(channel);
+    await this.sub.subscribe(channel);
   }
 }
