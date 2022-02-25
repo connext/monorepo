@@ -138,11 +138,11 @@ export class SubgraphReader {
 
     // use prepared IDs to get all receiving txs
     await Promise.all(
-      [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, txIds]) => {
+      [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transactionIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
         const { transactions } = await subgraph.runtime.request<GetFulfilledAndReconciledTransactionsByIdsQuery>(
           (client) =>
-            client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
+            client.GetFulfilledAndReconciledTransactionsByIds({ transactionIds, maxPrepareBlockNumber: Date.now() }), // TODO: maxPrepareBlockNumber
         );
         transactions.forEach((_tx) => {
           const tx = convertSubgraphEntityToCrossChainTx(_tx);
