@@ -34,3 +34,21 @@ export class AmountInvalid extends NxtpError {
     super(`Amount (${amount}) is invalid`, context, "AmountInvalid");
   }
 }
+
+export class NotEnoughLiquidity extends NxtpError {
+  cancellable = true;
+  constructor(chainId: number, assetId: string, balance: string, amountRequested: string, context: any = {}) {
+    super(
+      "Not enough liquidity for bid.",
+      { ...context, chainId, assetId, balance, amountRequested },
+      "NotEnoughLiquidity",
+    );
+  }
+}
+
+export class NotEnoughAmount extends NxtpError {
+  cancellable = true;
+  constructor(context: any = {}) {
+    super(`Not enough amount for swap`, context, "NotEnoughAmount");
+  }
+}

@@ -1,35 +1,61 @@
-import { createLoggingContext, CrossChainTx, getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
+import {
+  CallParams,
+  FulfillArgs,
+  Bid,
+  SignedBid,
+  createLoggingContext,
+  CrossChainTx,
+  getChainIdFromDomain,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-import { AppContext } from "../../context";
 import { getContext } from "../../router";
-import { OriginDomainDataInvalid } from "../errors";
-import { getDestinationTransactingAsset, sanitationCheck } from "../helpers/shared";
+import { NotEnoughAmount, NotEnoughLiquidity } from "../errors/prepare";
+import { getReceiverAmount } from "../helpers";
+import { getDestinationLocalAsset, sanitationCheck } from "../helpers/shared";
 
+// fee percentage paid to relayer. need to be updated later
+const RelayerFeePercentage = "1"; //  1%
+
+/**
+ * Router creates a new bid and sends it to auctioneer.
+ * should be subsribed to NewPreparedTransaction channel of redis.
+ *
+ * @param pendingTx The prepared crosschain tranaction
+ */
 export const prepare = async (pendingTx: CrossChainTx) => {
-  // TODO. This is called whenever there is a new prepared transaction.
-  // Router creates a bid and send it to auctioneer
-
   const { requestContext, methodContext } = createLoggingContext(prepare.name);
   const {
     logger,
     config,
-    adapters: { auctioneer },
+    adapters: { auctioneer, subgraph },
     txService,
+    chainData,
+    routerAddress,
   } = getContext();
   logger.info("Method start", requestContext, methodContext, pendingTx);
 
-  // sanitation check before validiation
+  /// sanitation check before validiation
   await sanitationCheck(pendingTx, "prepare");
 
-  // validate CallParam schema
+  /// validate CallParam schema
 
-  // validate Prepare Input schema
+  ///  validate Prepare Input schema
 
-  // validate the prepare data
+  ///  validate the prepare data
 
-  // create a bid
-  const { originDomain, destinationDomain, prepareTransactingAmount, prepareTransactingAsset, prepareLocalAsset } =
-    pendingTx;
+  /// create a bid
+  const {
+    originDomain,
+    destinationDomain,
+    transactionId,
+    recipient,
+    prepareTransactingAmount,
+    prepareTransactingAsset,
+    prepareLocalAsset,
+    prepareLocalAmount,
+    callTo,
+    callData,
+  } = pendingTx;
   const thresholdPct = Number(config.maxSlippage.toString().split(".")[0]);
   const highThreshold = BigNumber.from(prepareTransactingAmount)
     .mul(100 + thresholdPct)
@@ -40,13 +66,82 @@ export const prepare = async (pendingTx: CrossChainTx) => {
 
   const sendingChainId = getChainIdFromDomain(originDomain);
   const receivingChainId = getChainIdFromDomain(destinationDomain);
-  const inputDecimals = await txService.getDecimalsForAsset(sendingChainId, prepareTransactingAsset);
-  const transactingAssetOnDestDomain = await getDestinationTransactingAsset(
-    originDomain,
-    prepareTransactingAsset,
-    destinationDomain,
+  const localInputDecimals = await txService.getDecimalsForAsset(sendingChainId, prepareLocalAsset);
+  const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
+  const localOutputDecimals = await txService.getDecimalsForAsset(receivingChainId, fulfillLocalAsset);
+
+  let { receivingAmount: receiverAmount } = await getReceiverAmount(
+    prepareLocalAmount,
+    localInputDecimals,
+    localOutputDecimals,
   );
-  const outputDecimals = await txService.getDecimalsForAsset(receivingChainId, transactingAssetOnDestDomain);
-  // send the bid to auctioneer
-  await auctioneer.sendBid(null);
+  const amountReceivedInBigNum = BigNumber.from(receiverAmount);
+  const gasFeeInFulfillLocalAsset = await txService.calculateGasFeeInReceivingToken(
+    sendingChainId,
+    prepareLocalAsset,
+    receivingChainId,
+    fulfillLocalAsset,
+    localOutputDecimals,
+    chainData,
+    requestContext,
+  );
+
+  receiverAmount = amountReceivedInBigNum.sub(gasFeeInFulfillLocalAsset).toString();
+  const routerBalance = await subgraph.getAssetBalance(receivingChainId, routerAddress, fulfillLocalAsset);
+  if (routerBalance.lt(receiverAmount)) {
+    // TODO: need to double check balance on chain. MUST BE IMPLEMENTED
+
+    throw new NotEnoughLiquidity(
+      receivingChainId,
+      fulfillLocalAsset,
+      routerBalance.toString(),
+      receiverAmount.toString(),
+      { methodContext, requestContext },
+    );
+  }
+
+  // make sure amount is sensible
+  if (BigNumber.from(receiverAmount).lt(0)) {
+    throw new NotEnoughAmount({
+      receiverAmount,
+      prepareTransactingAmount: prepareTransactingAmount.toString(),
+      prepareLocalAmount: prepareLocalAmount.toString(),
+      transactionId,
+      methodContext,
+      requestContext,
+    });
+  }
+
+  // TODO: should check maxSlippage here
+
+  // generate bid params
+  const callParams: CallParams = {
+    recipient,
+    callTo,
+    callData,
+    originDomain,
+    destinationDomain,
+  };
+
+  // signature must be updated with @connext/nxtp-utils signature functions
+  const signature = "0x";
+  const fulfillArguments: FulfillArgs = {
+    params: callParams,
+    transactionId: transactionId,
+    local: fulfillLocalAsset,
+    router: routerAddress,
+    feePercentage: RelayerFeePercentage,
+    amount: receiverAmount,
+    relayerSignature: signature,
+  };
+
+  const bid: SignedBid = {
+    bid: {
+      transactionId,
+      data: fulfillArguments,
+    },
+    signature,
+  };
+  /// send the bid to auctioneer
+  await auctioneer.sendBid(bid);
 };

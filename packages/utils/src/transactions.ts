@@ -54,3 +54,31 @@ export type CrossChainTx = {
   reconciledGasLimit: string;
   reconciledBlockNumber: number;
 };
+
+export type CallParams = {
+  recipient: string;
+  callTo: string;
+  callData: string;
+  originDomain: string;
+  destinationDomain: string;
+};
+
+export type FulfillArgs = {
+  params: CallParams;
+  transactionId: string;
+  local: string;
+  router: string;
+  feePercentage: string;
+  amount: string;
+  relayerSignature: string;
+};
+
+export type Bid = {
+  transactionId: string;
+  data: FulfillArgs;
+};
+
+export type SignedBid = {
+  bid: Bid;
+  signature: string;
+};

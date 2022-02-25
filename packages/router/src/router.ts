@@ -30,6 +30,7 @@ export const makeRouter = async () => {
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
+    context.chainData = chainData;
     context.config = await getConfig(chainData);
 
     // Make logger instance.
@@ -42,6 +43,7 @@ export const makeRouter = async () => {
     context.adapters.wallet = context.config.mnemonic
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
+    context.routerAddress = await context.adapters.wallet.getAddress();
     context.adapters.cache = StoreManager.getInstance({ redisUrl: context.config.redisUrl!, logger: context.logger });
     // subscribe to `NewPreparedTx` channel
     context.adapters.cache.subscribeToInstance(RedisChannels.NEW_PREPARED_TX, prepare);

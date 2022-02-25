@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { Logger } from "@connext/nxtp-utils";
+import { ChainData, Logger } from "@connext/nxtp-utils";
 import { ChainReader, TransactionService } from "@connext/nxtp-txservice";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
@@ -20,4 +20,6 @@ export type AppContext = {
   };
   txService: TransactionService;
   config: NxtpRouterConfig;
+  chainData: Map<string, ChainData>;
+  routerAddress: string;
 };
