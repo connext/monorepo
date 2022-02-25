@@ -66,9 +66,8 @@ export class TransactionsCache extends Cache {
     // Key name needs to be matched with other types.
     for (const tx of txs) {
       const existing = await this.data.get(tx.transactionId);
-      if (existing) {
-        await this.status.set(tx.transactionId, tx.status.toString());
-      } else {
+      await this.status.set(tx.transactionId, tx.status.toString());
+      if (!existing) {
         await this.data.set(tx.transactionId, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
         this.publish(this.pending, RedisChannels.NEW_PREPARED_TX, tx.transactionId);
