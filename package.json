@@ -26,7 +26,7 @@
     "packages/test-ui",
     "packages/txservice",
     "packages/utils",
-    "packages/auctioneer",
+    "packages/sequencer",
     "packages/adapters/auctioneer",
     "packages/adapters/cache",
     "packages/adapters/subgraph",
