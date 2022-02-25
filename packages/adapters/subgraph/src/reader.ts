@@ -1,71 +1,25 @@
 import { BigNumber } from "ethers";
 import { CrossChainTx } from "@connext/nxtp-utils";
 
-import { ReadSubgraphConfig, SubgraphMap } from "./types";
+import { ReadSubgraphConfig as SubgraphReaderConfig, SubgraphMap } from "./types";
 import { getHelpers } from "./helpers";
 import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
 
-const convertSubgraphEntityToCrossChainTx = (subgEntity: any): CrossChainTx => {
-  return {
-    // Meta
-    originDomain: subgEntity.originDomain,
-    destinationDomain: subgEntity.destinationDomain,
-    status: subgEntity.status,
-
-    // Transfer Data
-    nonce: subgEntity.nonce,
-    transactionId: subgEntity.transactionId,
-    recipient: subgEntity.recipient,
-    router: subgEntity.router,
-
-    // Prepared
-    prepareCaller: subgEntity.prepareCaller,
-    prepareTransactingAmount: subgEntity.prepareTransactingAmount,
-    prepareLocalAmount: subgEntity.prepareLocalAmount,
-    prepareTransactingAsset: subgEntity.prepareTransactingAsset,
-    prepareLocalAsset: subgEntity.prepareLocalAsset,
-    callTo: subgEntity.callTo,
-    callData: subgEntity.callData,
-
-    // TransactionPrepared
-    prepareTransactionHash: subgEntity.prepareTransactionHash,
-    prepareTimestamp: subgEntity.prepareTimestamp,
-    prepareGasPrice: subgEntity.prepareGasPrice,
-    prepareGasLimit: subgEntity.prepareGasLimit,
-    prepareBlockNumber: subgEntity.prepareBlockNumber,
-
-    // Fulfill
-    fulfillCaller: subgEntity.fulfillCaller,
-    fulfillTransactingAmount: subgEntity.fulfillTransactingAmount,
-    fulfillLocalAmount: subgEntity.fulfillLocalAmount,
-    fulfillTransactingAsset: subgEntity.fulfillTransactingAsset,
-    fulfillLocalAsset: subgEntity.fulfillLocalAsset,
-
-    // TransactionFulfilled
-    fulfillTransactionHash: subgEntity.fulfillTransactionHash,
-    fulfillTimestamp: subgEntity.fulfillTimestamp,
-    fulfillGasPrice: subgEntity.fulfillGasPrice,
-    fulfillGasLimit: subgEntity.fulfillGasLimit,
-    fulfillBlockNumber: subgEntity.fulfillBlockNumber,
-
-    // Reconciled
-    externalCallHash: subgEntity.externalCallHash,
-    reconciledTransactionHash: subgEntity.reconciledTransactionHash,
-    reconciledTimestamp: subgEntity.reconciledTimestamp,
-    reconciledGasPrice: subgEntity.reconciledGasPrice,
-    reconciledGasLimit: subgEntity.reconciledGasLimit,
-    reconciledBlockNumber: subgEntity.reconciledBlockNumber,
-  };
-};
-
 export class SubgraphReader {
-  private subgraphs: SubgraphMap = new Map();
+  private static instance: SubgraphReader | undefined;
+  private readonly subgraphs: SubgraphMap;
 
-  public constructor() {}
+  private constructor(subgraphs: SubgraphMap) {
+    this.subgraphs = subgraphs;
+  }
 
-  public async create(config: ReadSubgraphConfig) {
+  public static async create(config: SubgraphReaderConfig): Promise<SubgraphReader> {
+    if (SubgraphReader.instance) {
+      return SubgraphReader.instance;
+    }
     const { create } = getHelpers();
-    this.subgraphs = await create(config);
+    const subgraphs = await create(config);
+    return new SubgraphReader(subgraphs);
   }
 
   // TODO: query
@@ -110,6 +64,7 @@ export class SubgraphReader {
   public async getTransactionsWithStatuses(): Promise<CrossChainTx[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const { parser } = getHelpers();
 
     // first get prepared transactions on all chains
     const allOrigin: [string, CrossChainTx][] = (
@@ -126,7 +81,7 @@ export class SubgraphReader {
       .flat()
       .filter((x) => !!x)
       .map((s) => {
-        const tx = convertSubgraphEntityToCrossChainTx(s);
+        const tx = parser.crossChainTx(s);
 
         // set into a map by destination domain
         txIdsByDestinationDomain.set(
@@ -147,7 +102,7 @@ export class SubgraphReader {
             client.GetFulfilledAndReconciledTransactionsByIds({ transactionIds, maxPrepareBlockNumber: Date.now() }), // TODO: maxPrepareBlockNumber
         );
         transactions.forEach((_tx) => {
-          const tx = convertSubgraphEntityToCrossChainTx(_tx);
+          const tx = parser.crossChainTx(_tx);
           const inMap = allTxById.get(tx.transactionId)!;
           inMap.status = tx.status;
           allTxById.set(tx.transactionId, inMap);

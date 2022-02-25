@@ -1,7 +1,7 @@
-import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 import Redis from "ioredis";
+import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { Cache, CacheParams, SubscriptionCallback, Subscriptions } from "../entities";
+import { Cache, CacheParams, SubscriptionCallback } from "../entities";
 
 //Redis Store I
 
@@ -13,9 +13,9 @@ import { Cache, CacheParams, SubscriptionCallback, Subscriptions } from "../enti
 //value: "Pending", "Completed", "Reconcilled" <txStatus>
 
 export class TransactionsCache extends Cache {
-  public readonly data!: Redis.Redis;
-  public readonly status!: Redis.Redis;
-  public readonly pending!: Redis.Redis;
+  private readonly data!: Redis.Redis;
+  private readonly status!: Redis.Redis;
+  private readonly pending!: Redis.Redis;
 
   public constructor({ url }: CacheParams) {
     super({ url });

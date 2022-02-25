@@ -1,6 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
 import { FallbackSubgraph } from "@connext/nxtp-utils";
-import Redis from "ioredis";
 
 import { Sdk } from "./runtime/graphqlsdk";
 
@@ -11,11 +10,6 @@ export type ChainSubgraphs = {
 };
 
 export type SubgraphMap = Map<string, ChainSubgraphs>;
-
-export type RedisUpdate = {
-  redisInstance: Redis.Redis;
-  PollPeriod: number;
-};
 
 export const TChainConfig = Type.Object({
   subgraph: Type.Object({

@@ -1,6 +1,10 @@
 import { create } from "./create";
-import { cacheUpdate } from "./cacheUpdate";
+import * as parser from "./parse";
 
 export const getHelpers = () => {
-  return { create, cacheUpdate };
+  return {
+    create,
+    // Helpers for parsing subgraph entities.
+    parser,
+  };
 };
