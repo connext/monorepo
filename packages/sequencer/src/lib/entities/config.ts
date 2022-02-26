@@ -16,7 +16,7 @@ export type SequencerChainConfig = {
 };
 
 export type SequencerConfig = {
-  chainConfig: SequencerChainConfig;
+  chains: SequencerChainConfig;
   mnemonic: string;
   routers: string[];
   swapPools: SwapPool[];
@@ -24,6 +24,7 @@ export type SequencerConfig = {
   natsUrl?: string;
   authUrl?: string;
   network?: string;
+  redisUrl?: string;
 };
 
 // Copy/pasted from json file in the README - this should generally work for local chain load testing.
@@ -60,31 +61,36 @@ const DEFAULT_LOCAL_CONFIG = {
   ],
 };
 
+let sequencerConfig: SequencerConfig | undefined;
+
 /**
  * Gets and validates the router config from the environment.
  * @param useDefaultLocal - (optional) If true, use the default local config.
  * @returns The router config with sensible defaults
  */
 export const getConfig = (useDefaultLocal = false): SequencerConfig => {
-  const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/config.json";
-  const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
-  const chainConfig: SequencerChainConfig = {};
-  Object.entries(data.chainConfig).map(([chainId, config]) => {
-    const { providers: providerUrls, confirmations, ...rest } = config as any;
-    chainConfig[parseInt(chainId)] = {
-      confirmations,
-      providerUrls: providerUrls,
-      provider: new providers.FallbackProvider(
-        providerUrls.map((url: string) => new providers.StaticJsonRpcProvider(url, parseInt(chainId))),
-        1,
-      ),
-      ...rest,
+  if (!sequencerConfig) {
+    const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/config.json";
+    const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
+    const chains: SequencerChainConfig = {};
+    Object.entries(data.chainConfig).map(([chainId, config]) => {
+      const { providers: providerUrls, confirmations, ...rest } = config as any;
+      chains[parseInt(chainId)] = {
+        confirmations,
+        providerUrls: providerUrls,
+        provider: new providers.FallbackProvider(
+          providerUrls.map((url: string) => new providers.StaticJsonRpcProvider(url, parseInt(chainId))),
+          1,
+        ),
+        ...rest,
+      };
+    });
+    sequencerConfig = {
+      network: data.network || "testnet",
+      routers: [],
+      ...data,
+      chains,
     };
-  });
-  return {
-    network: data.network || "testnet",
-    routers: [],
-    ...data,
-    chainConfig,
-  };
+  }
+  return sequencerConfig!;
 };
