@@ -11,16 +11,14 @@ export type ChainSubgraphs = {
 
 export type SubgraphMap = Map<string, ChainSubgraphs>;
 
-export const TChainConfig = Type.Object({
+export const SubgraphReaderChainConfigSchema = Type.Object({
   analytics: Type.Array(Type.String()), // Analytics subgraph uri(s).
   runtime: Type.Array(Type.String()), // Runtime subgraph uri(s).
   maxLag: Type.Integer({ minimum: MIN_SUBGRAPH_MAX_LAG }), // If subgraph is out of sync by this number, will not process actions.
 });
 
-export type ChainConfig = Static<typeof TChainConfig>;
-
 export const SubgraphReaderConfigSchema = Type.Object({
-  chains: Type.Record(Type.String(), TChainConfig),
+  chains: Type.Record(Type.String(), SubgraphReaderChainConfigSchema),
 });
 
 export type SubgraphReaderConfig = Static<typeof SubgraphReaderConfigSchema>;
