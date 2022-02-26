@@ -47,7 +47,7 @@ export const makeRouter = async () => {
 
     context.adapters.cache = StoreManager.getInstance({
       redis: { url: context.config.redisUrl! },
-      logger: context.logger,
+      logger: context.logger.child({ module: "StoreManager" }),
     });
     // Subscribe to `NewPreparedTx` channel and attach prepare handler.
     context.adapters.cache.subscribe(StoreManager.Channel.NewPreparedTx, prepare);

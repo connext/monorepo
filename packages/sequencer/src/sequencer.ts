@@ -3,6 +3,7 @@ import pino from "pino";
 import { Logger, getChainData, createRequestContext, createMethodContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 import { getConfig } from "./lib/entities";
 import { AppContext } from "./context";
@@ -37,7 +38,7 @@ export const makeSequencer = async () => {
     // Set up adapters.
     context.adapters.cache = StoreManager.getInstance({
       redis: { url: context.config.redisUrl! },
-      logger: context.logger,
+      logger: context.logger.child({ module: "StoreManager" }),
     });
 
     context.adapters.subgraph = await SubgraphReader.create({
@@ -50,6 +51,11 @@ export const makeSequencer = async () => {
         {},
       ),
     });
+
+    context.adapters.chainreader = new ChainReader(
+      context.logger.child({ module: "ChainReader" }),
+      context.config.chains as any,
+    );
 
     // Create server, set up routes, and start listening.
     const server = fastify({ logger: pino({ level: LOG_LEVEL }) });
