@@ -1,8 +1,9 @@
 import { readFileSync } from "fs";
 
 import { providers } from "ethers";
+import { SwapPool } from ".";
 
-export type ChainConfig = {
+export type SequencerChainConfig = {
   [chainId: number]: {
     confirmations: number;
     providerUrls: string[];
@@ -14,18 +15,8 @@ export type ChainConfig = {
   };
 };
 
-type Asset = {
-  chainId: number;
-  assetId: string;
-};
-
-type SwapPool = {
-  name: string;
-  assets: Asset[];
-};
-
-export type Config = {
-  chainConfig: ChainConfig;
+export type SequencerConfig = {
+  chainConfig: SequencerChainConfig;
   mnemonic: string;
   routers: string[];
   swapPools: SwapPool[];
@@ -74,10 +65,10 @@ const DEFAULT_LOCAL_CONFIG = {
  * @param useDefaultLocal - (optional) If true, use the default local config.
  * @returns The router config with sensible defaults
  */
-export const getConfig = (useDefaultLocal = false): Config => {
+export const getConfig = (useDefaultLocal = false): SequencerConfig => {
   const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/config.json";
   const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
-  const chainConfig: ChainConfig = {};
+  const chainConfig: SequencerChainConfig = {};
   Object.entries(data.chainConfig).map(([chainId, config]) => {
     const { providers: providerUrls, confirmations, ...rest } = config as any;
     chainConfig[parseInt(chainId)] = {

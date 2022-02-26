@@ -1,9 +1,9 @@
-import Auctioneer from "./Auctioneer";
+import Sequencer from "./sequencer";
 
-console.log(`Creating Auctioneer`);
-
-export async function makeAuctioneer() {
-  const auctioneer = new Auctioneer();
+export async function makeSequencer() {
+  console.log("Initializing Sequencer...");
+  const auctioneer = new Sequencer();
   await auctioneer.start();
 }
-makeAuctioneer();
+
+makeSequencer();

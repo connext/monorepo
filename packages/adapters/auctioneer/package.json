@@ -36,6 +36,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@connext/nxtp-utils": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "axios": "^0.24.0",
     "ethers": "^5.5.4"

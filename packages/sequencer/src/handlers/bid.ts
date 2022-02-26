@@ -1,86 +1,44 @@
-import { Logger } from "@connext/nxtp-utils";
-import { FastifyInstance, FastifyPluginAsync, FastifyPluginOptions, FastifyRequest } from "fastify";
-import fp from "fastify-plugin";
-import Redis from "ioredis";
-import { StoreManager } from "../adapters/RedisStoreManager";
-import { Bid, GelatoSendBid } from "../lib/types";
-import { Wallet, Contract, utils as ethersUtils } from "ethers";
+import { utils as ethersUtils } from "ethers";
+import {
+  gelatoSend,
+  isChainSupportedByGelato,
+  SignedBid,
+  jsonifyError,
+  getChainIdFromDomain,
+} from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain-types";
-import { getConfig, Config } from "../utils";
-import { ChainReader } from "@connext/nxtp-txservice";
-import { gelatoSend, gelatoFulfill, isChainSupportedByGelato } from "@connext/nxtp-utils";
 
-export class BidHandler {
-  store!: StoreManager;
-  logger = new Logger({ level: "debug" });
-  chainReader!: ChainReader;
-  config: Config;
+import { AppContext } from "../context";
 
-  redisStart() {
-    const redis = new Redis();
-    let sManager: StoreManager;
-    sManager = StoreManager.getInstance({ redisUrl: "", logger: this.logger, redis });
+export const handleBid = async (context: AppContext, { bid }: SignedBid): Promise<any> => {
+  const {
+    logger,
+    adapters: { chainreader },
+  } = context;
+  const chainId = getChainIdFromDomain(bid.data.params.destinationDomain);
+  const contractInterface = new ethersUtils.Interface(
+    TransactionManagerArtifact.abi,
+  ) as TTransactionManager["interface"];
+  const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
 
-    if (sManager) {
-      this.store = sManager;
-    }
-  }
-
-  constructor(chainConfig: Config) {
-    this.config = chainConfig;
-
-    this.chainReader = new ChainReader(this.logger, this.config);
-
-    this.redisStart();
-  }
-
-  async validateTx(bid: Bid, chainId: number): Promise<boolean> {
-    const contractInterface = new ethersUtils.Interface(
-      TransactionManagerArtifact.abi,
-    ) as TTransactionManager["interface"];
-    const data = contractInterface.encodeFunctionData("fulfill", [{ ...bid }]);
-
-    // const isValid = await this.chainReader.getGasEstimate(chainId,{
-    //   chainId: chainId, to: "0x", data: data
-    // });
-    return true;
-  }
-
-  async dbStuff(req: any) {
-    console.log(req);
-    return `database response text`;
-  }
-
-  async handleBid(bid: Bid) {
-    const isValid = await this.validateTx(bid, 4);
-    if (isValid) {
-      this.store.save(bid);
-    }
-  }
-
-  route(server: FastifyInstance) {
-    server.get("/ping", async (req, res) => {
-      return res.code(200).send("pong\n");
+  // Validate the bid's fulfill call will succeed on chain.
+  try {
+    await chainreader.getGasEstimate(chainId, {
+      chainId: chainId,
+      to: "0x",
+      data: encodedData,
     });
-
-    server.post("/bid", {}, async (req, res) => {
-      try {
-        const dbResponse = await this.dbStuff(req);
-
-        const bid = JSON.parse(req.body as string);
-        const gBid = bid as GelatoSendBid;
-
-        gelatoSend(gBid.chainId, gBid.dest, gBid.data, gBid.token, gBid.relayerFee);
-
-        if (dbResponse) {
-          server.log.debug(`Database Response: ${dbResponse}`);
-        }
-        return res.code(201).send(dbResponse);
-      } catch (e) {
-        server.log.error(`Bid Post Error: ${e}`);
-        return res.code(500);
-      }
-    });
+  } catch (error: any) {
+    // TODO: Log error.
+    logger.error("Error validating bid with getGasEstimate.", undefined, undefined, jsonifyError(error), { chainId });
+    throw error;
   }
-}
+
+  if (!isChainSupportedByGelato(chainId)) {
+    throw new Error("Chain not supported by gelato.");
+  }
+
+  // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
+  await gelatoSend(chainId, bid.data.params.destinationDomain, encodedData, bid.data.local, bid.data.feePercentage);
+};

@@ -1,18 +1,18 @@
 import { fastify, FastifyInstance } from "fastify";
 import pino from "pino";
 import { Logger, ChainData, getChainData } from "@connext/nxtp-utils";
-import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-adapters-subgraph";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 
-import { getConfig, Config } from "./utils";
 import { BidHandler } from "./handlers/bid";
 import { setupReadSubgraph } from "./helpers/subgraph";
+import { getConfig, SequencerConfig } from "./lib/entities";
 
 // const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
 const LISTEN_PORT = process.env.PORT || 1234;
 const LOG_LEVEL = process.env.loglevel || "debug";
-export default class Auctioneer {
-  config: Config;
+export default class Sequencer {
+  config: SequencerConfig;
   server!: FastifyInstance;
   logger!: Logger;
   bidHandler!: BidHandler;
@@ -47,8 +47,8 @@ export default class Auctioneer {
 
   async fastifyStart(): Promise<FastifyInstance> {
     try {
-      await this.server.listen(LISTEN_PORT);
       this.bidHandler.route(this.server);
+      await this.server.listen(LISTEN_PORT);
       this.logger.info(`Auctioneer Listening @ ${LISTEN_PORT}`);
     } catch (e) {
       this.logger.error(e as string);

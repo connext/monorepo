@@ -32,11 +32,14 @@
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "dependencies": {
+    "@connext/nxtp-adapters-cache": "workspace:*",
+    "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-contracts": "workspace:*",
+    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "ethers": "^5.5.4",
     "fastify": "^3.27.1",
     "fastify-plugin": "^3.0.1",
-    "ioredis": "^4.28.5",
     "pino": "^7.8.0",
     "tsc": "^2.0.4"
   },
