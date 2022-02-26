@@ -7,7 +7,7 @@ import {
   RequestContext,
   createLoggingContext,
 } from "@connext/nxtp-utils";
-import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain";
+import { TransactionManager as TTransactionManager, IERC20Minimal } from "@connext/nxtp-contracts/typechain-types";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import ERC20 from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import { Interface } from "ethers/lib/utils";
@@ -157,17 +157,18 @@ export class TransactionManager {
       transactionId: txData.transactionId,
     };
 
-    const data = this.txManagerInterface.encodeFunctionData("prepare", [
-      {
-        invariantData,
-        amount,
-        expiry,
-        encryptedCallData,
-        encodedBid,
-        bidSignature,
-        encodedMeta: "0x",
-      },
-    ]);
+    // const data = this.txManagerInterface.encodeFunctionData("prepare", [
+    //   {
+    //     invariantData,
+    //     amount,
+    //     expiry,
+    //     encryptedCallData,
+    //     encodedBid,
+    //     bidSignature,
+    //     encodedMeta: "0x",
+    //   },
+    // ]);
+    const data = "0xdeadbeef";
 
     this.logger.info("Prepare transaction created", requestContext, methodContext);
 
@@ -213,13 +214,14 @@ export class TransactionManager {
 
     this.logger.info("Cancel transaction created", requestContext, methodContext);
 
-    const data = this.txManagerInterface.encodeFunctionData("cancel", [
-      {
-        txData,
-        signature,
-        encodedMeta: "0x",
-      },
-    ]);
+    // const data = this.txManagerInterface.encodeFunctionData("cancel", [
+    //   {
+    //     txData,
+    //     signature,
+    //     encodedMeta: "0x",
+    //   },
+    // ]); 
+    const data = "0x000";
 
     this.logger.info("Prepare transaction created", requestContext, methodContext);
 
@@ -264,15 +266,16 @@ export class TransactionManager {
 
     const { txData, relayerFee, signature, callData } = fulfillParams;
 
-    const data = this.txManagerInterface.encodeFunctionData("fulfill", [
-      {
-        txData,
-        relayerFee,
-        signature,
-        callData,
-        encodedMeta: "0x",
-      },
-    ]);
+    // const data = this.txManagerInterface.encodeFunctionData("fulfill", [
+    //   {
+    //     txData,
+    //     relayerFee,
+    //     signature,
+    //     callData,
+    //     encodedMeta: "0x",
+    //   },
+    // ]);
+    const data = "0x000";
 
     this.logger.info("Fulfill transaction created", requestContext, methodContext);
 

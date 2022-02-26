@@ -38,7 +38,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.5.4",
-    "fastify": "^3.27.1",
+    "fastify": "^3.27.2",
     "fastify-plugin": "^3.0.1",
     "pino": "^7.8.0",
     "tsc": "^2.0.4"

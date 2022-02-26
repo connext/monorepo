@@ -32,7 +32,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Interface } from "ethers/lib/utils";
 import { abi as TransactionManagerAbi } from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { abi as RouterAbi } from "@connext/nxtp-contracts/artifacts/contracts/Router.sol/Router.json";
+import { abi as RouterAbi } from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/Router.sol/Router.json";
 import { ChainReader } from "@connext/nxtp-txservice";
 
 import {
