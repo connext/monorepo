@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers";
 import { CrossChainTx } from "@connext/nxtp-utils";
 
-import { SubgraphReaderConfig, SubgraphMap } from "./types";
-import { getHelpers } from "./helpers";
-import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./runtime/graphqlsdk";
+import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
+import { getHelpers } from "./lib/helpers";
+import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
