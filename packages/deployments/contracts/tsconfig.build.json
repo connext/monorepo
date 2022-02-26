@@ -1,5 +1,5 @@
 {
-  "extends": "../../config/tsconfig.node.json",
+  "extends": "../../../config/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "dist",
     "typeRoots": ["./typechain", "./node_modules/@types"],
@@ -20,7 +20,7 @@
   "exclude": ["test/**/*.ts"],
   "references": [
     {
-      "path": "../utils/tsconfig.build.json"
+      "path": "../../utils/tsconfig.build.json"
     }
   ]
 }

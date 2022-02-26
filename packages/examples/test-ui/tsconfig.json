@@ -1,13 +1,6 @@
 {
-  "references": [
-    {
-      "path": "../sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../utils/tsconfig.build.json"
-    }
-  ],
-  "extends": "../../config/tsconfig.browser.json",
+  "references": [],
+  "extends": "../../../config/tsconfig.browser.json",
   "compilerOptions": {
     "composite": false,
     "noEmit": true,

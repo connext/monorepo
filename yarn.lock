@@ -1633,9 +1633,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-contracts@workspace:*, @connext/nxtp-contracts@workspace:packages/contracts":
+"@connext/nxtp-contracts@workspace:*, @connext/nxtp-contracts@workspace:packages/deployments/contracts":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-contracts@workspace:packages/contracts"
+  resolution: "@connext/nxtp-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
     "@nomiclabs/hardhat-ethers": ^2.0.4
@@ -1705,9 +1705,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-router@workspace:packages/router":
+"@connext/nxtp-router@workspace:packages/agents/router":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-router@workspace:packages/router"
+  resolution: "@connext/nxtp-router@workspace:packages/agents/router"
   dependencies:
     "@connext/nxtp-adapters-auctioneer": "workspace:*"
     "@connext/nxtp-adapters-cache": "workspace:*"
@@ -1763,9 +1763,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-sdk@workspace:*, @connext/nxtp-sdk@workspace:packages/sdk":
+"@connext/nxtp-sdk@workspace:*, @connext/nxtp-sdk@workspace:packages/agents/sdk":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-sdk@workspace:packages/sdk"
+  resolution: "@connext/nxtp-sdk@workspace:packages/agents/sdk"
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
@@ -1804,9 +1804,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-sequencer@workspace:packages/sequencer":
+"@connext/nxtp-sequencer@workspace:packages/agents/sequencer":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-sequencer@workspace:packages/sequencer"
+  resolution: "@connext/nxtp-sequencer@workspace:packages/agents/sequencer"
   dependencies:
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
@@ -1834,9 +1834,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-subgraph@workspace:*, @connext/nxtp-subgraph@workspace:packages/subgraph":
+"@connext/nxtp-subgraph@workspace:*, @connext/nxtp-subgraph@workspace:packages/deployments/subgraph":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-subgraph@workspace:packages/subgraph"
+  resolution: "@connext/nxtp-subgraph@workspace:packages/deployments/subgraph"
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
     "@graphprotocol/graph-cli": =0.25.0
@@ -1853,9 +1853,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-test-ui@workspace:packages/test-ui":
+"@connext/nxtp-test-ui@workspace:packages/examples/test-ui":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-test-ui@workspace:packages/test-ui"
+  resolution: "@connext/nxtp-test-ui@workspace:packages/examples/test-ui"
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
@@ -1878,9 +1878,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-txservice@workspace:*, @connext/nxtp-txservice@workspace:packages/txservice":
+"@connext/nxtp-txservice@workspace:*, @connext/nxtp-txservice@workspace:packages/adapters/txservice":
   version: 0.0.0-use.local
-  resolution: "@connext/nxtp-txservice@workspace:packages/txservice"
+  resolution: "@connext/nxtp-txservice@workspace:packages/adapters/txservice"
   dependencies:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
