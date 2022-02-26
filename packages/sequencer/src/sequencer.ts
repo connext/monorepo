@@ -1,60 +1,57 @@
-import { fastify, FastifyInstance } from "fastify";
+import { fastify } from "fastify";
 import pino from "pino";
-import { Logger, ChainData, getChainData } from "@connext/nxtp-utils";
+import { Logger, getChainData, createRequestContext, createMethodContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
 
-import { BidHandler } from "./handlers/bid";
-import { setupReadSubgraph } from "./helpers/subgraph";
-import { getConfig, SequencerConfig } from "./lib/entities";
+import { getConfig } from "./lib/entities";
+import { AppContext } from "./context";
+import { setupHandlers } from "./handlers";
+
+const context: AppContext = {} as any;
+
+export const getContext = (): AppContext => {
+  if (!context || Object.keys(context).length === 0) {
+    throw new Error("Context not created");
+  }
+  return context;
+};
 
 // const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
 const LISTEN_PORT = process.env.PORT || 1234;
 const LOG_LEVEL = process.env.loglevel || "debug";
-export default class Sequencer {
-  config: SequencerConfig;
-  server!: FastifyInstance;
-  logger!: Logger;
-  bidHandler!: BidHandler;
-  subgraph!: SubgraphReader;
-  store!: StoreManager;
-  chainData: Map<string, ChainData> | undefined;
 
-  constructor() {
-    this.logger = new Logger({ level: "debug" });
-    this.config = getConfig();
-    this.bidHandler = new BidHandler(this.config);
-    const pino_logger = pino({ level: LOG_LEVEL });
-    this.server = fastify({ logger: pino_logger });
-  }
-
-  async start() {
-    // read chaindata
-    this.chainData = await getChainData();
-
-    if (!this.chainData) {
-      throw new Error(`Getting chainData failed`);
+export const makeSequencer = async () => {
+  const requestContext = createRequestContext("makeSequencer");
+  const methodContext = createMethodContext(makeSequencer.name);
+  try {
+    // Get ChainData and parse out configuration.
+    const chainData = await getChainData();
+    if (!chainData) {
+      throw new Error("Could not get chain data");
     }
+    context.chainData = chainData;
+    context.config = getConfig();
+    context.logger = new Logger({ level: "debug" });
 
-    // setup subgraph
-    this.subgraph = await setupReadSubgraph(this.chainData);
+    // Set up adapters.
+    context.adapters.subgraph = await SubgraphReader.create({
+      // Separate out relevant subgraph chain config.
+      chains: Object.entries(context.config.chains).reduce(
+        (obj, [chainId, config]) => ({
+          ...obj,
+          [chainId]: config.subgraph,
+        }),
+        {},
+      ),
+    });
 
-    // setup redis
-
-    // setup fastify
-    await this.fastifyStart();
+    // Create server, set up routes, and start listening.
+    const server = fastify({ logger: pino({ level: LOG_LEVEL }) });
+    setupHandlers(context, server);
+    await server.listen(LISTEN_PORT);
+    context.logger.info(`Auctioneer Listening @ ${LISTEN_PORT}`, requestContext, methodContext);
+  } catch (error: any) {
+    console.error("Error starting sequencer. :'(", error);
+    process.exit();
   }
-
-  async fastifyStart(): Promise<FastifyInstance> {
-    try {
-      this.bidHandler.route(this.server);
-      await this.server.listen(LISTEN_PORT);
-      this.logger.info(`Auctioneer Listening @ ${LISTEN_PORT}`);
-    } catch (e) {
-      this.logger.error(e as string);
-      process.exit(1);
-    }
-
-    return this.server;
-  }
-}
+};

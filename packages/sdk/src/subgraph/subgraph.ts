@@ -128,7 +128,7 @@ export class Subgraph {
         cId,
         (url: string) => getSdk(new GraphQLClient(url)),
         _subgraphSyncBuffer ?? DEFAULT_SUBGRAPH_SYNC_BUFFER,
-        SubgraphDomain.COMMON,
+        SubgraphDomain.RUNTIME,
         typeof subgraph === "string" ? [subgraph] : subgraph,
       );
       this.sdks[cId] = fallbackSubgraph;

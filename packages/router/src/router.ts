@@ -63,7 +63,8 @@ export const makeRouter = async () => {
       ),
     });
 
-    context.adapters.auctioneer = new AuctioneerAPI();
+    // TODO: URL for auctioneer??
+    context.adapters.auctioneer = new AuctioneerAPI({ url: "" });
 
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
