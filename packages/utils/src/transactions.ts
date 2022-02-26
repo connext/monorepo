@@ -65,10 +65,10 @@ export type CallParams = {
 
 export type FulfillArgs = {
   params: CallParams;
-  transactionId: string;
   local: string;
   router: string;
   feePercentage: string;
+  nonce: string;
   amount: string;
   relayerSignature: string;
 };

@@ -126,11 +126,11 @@ export const prepare = async (pendingTx: CrossChainTx) => {
   const signature = "0x";
   const fulfillArguments: FulfillArgs = {
     params: callParams,
-    transactionId: transactionId,
     local: fulfillLocalAsset,
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receiverAmount,
+    nonce: pendingTx.nonce.toString(),
     relayerSignature: signature,
   };
 
