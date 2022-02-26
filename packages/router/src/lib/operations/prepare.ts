@@ -1,293 +1,146 @@
 import {
-  ajv,
+  CallParams,
+  FulfillArgs,
+  Bid,
+  SignedBid,
   createLoggingContext,
-  InvariantTransactionData,
-  InvariantTransactionDataSchema,
-  RequestContext,
+  CrossChainTx,
+  getChainIdFromDomain,
 } from "@connext/nxtp-utils";
-import { BigNumber, providers, constants, utils } from "ethers";
-
+import { BigNumber } from "ethers";
 import { getContext } from "../../router";
-import { PrepareInput, PrepareInputSchema } from "../entities";
-import {
-  ParamsInvalid,
-  AuctionSignerInvalid,
-  ExpiryInvalid,
-  NotEnoughLiquidity,
-  SenderChainDataInvalid,
-  BidExpiryInvalid,
-  NotEnoughAmount,
-} from "../errors";
-import {
-  decodeAuctionBid,
-  getNtpTimeSeconds,
-  getReceiverAmount,
-  getReceiverExpiryBuffer,
-  recoverAuctionBid,
-  validBidExpiry,
-  validExpiryBuffer,
-  sanitationCheck,
-  signRouterPrepareTransactionPayload,
-} from "../helpers";
+import { NotEnoughAmount, NotEnoughLiquidity } from "../errors/prepare";
+import { getReceiverAmount } from "../helpers";
+import { getDestinationLocalAsset, sanitationCheck } from "../helpers/shared";
 
-const { AddressZero } = constants;
-export const prepare = async (
-  invariantData: InvariantTransactionData,
-  input: PrepareInput,
-  _requestContext: RequestContext<string>,
-): Promise<providers.TransactionReceipt | undefined> => {
-  const { requestContext, methodContext } = createLoggingContext(prepare.name, _requestContext);
+// fee percentage paid to relayer. need to be updated later
+const RelayerFeePercentage = "1"; //  1%
 
+/**
+ * Router creates a new bid and sends it to auctioneer.
+ * should be subsribed to NewPreparedTransaction channel of redis.
+ *
+ * @param pendingTx The prepared crosschain tranaction
+ */
+export const prepare = async (pendingTx: CrossChainTx) => {
+  const { requestContext, methodContext } = createLoggingContext(prepare.name);
   const {
     logger,
-    wallet,
-    contractWriter,
-    contractReader,
-    txService,
     config,
-    isRouterContract,
-    routerAddress,
-    signerAddress,
+    adapters: { auctioneer, subgraph, txservice },
     chainData,
+    routerAddress,
   } = getContext();
-  logger.info("Method start", requestContext, methodContext, { invariantData, input, requestContext });
+  logger.info("Method start", requestContext, methodContext, pendingTx);
 
-  // HOTFIX: add sanitation check before cancellable validation
-  await sanitationCheck(
-    invariantData.receivingChainId,
-    { ...invariantData, amount: "0", expiry: 0, preparedBlockNumber: 0 },
-    "prepare",
-  );
+  /// sanitation check before validiation
+  await sanitationCheck(pendingTx, "prepare");
 
-  // Validate InvariantData schema
-  const validateInvariantData = ajv.compile(InvariantTransactionDataSchema);
-  const validInvariantData = validateInvariantData(invariantData);
-  if (!validInvariantData) {
-    const msg = validateInvariantData.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      invariantData,
-    });
-  }
+  /// validate CallParam schema
 
-  // Validate Prepare Input schema
-  const validateInput = ajv.compile(PrepareInputSchema);
-  const validInput = validateInput(input);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      input,
-    });
-  }
+  ///  validate Prepare Input schema
 
-  const { encryptedCallData, encodedBid, bidSignature, senderAmount, senderExpiry } = input;
+  ///  validate the prepare data
 
-  // Validate the prepare data
-  const bid = decodeAuctionBid(encodedBid);
-  logger.info("Decoded bid from event", requestContext, methodContext, { bid });
-
-  const recovered = recoverAuctionBid(bid, bidSignature);
-  if (recovered !== signerAddress) {
-    // cancellable error
-    throw new AuctionSignerInvalid(signerAddress, recovered, { methodContext, requestContext });
-  }
-
-  const thresholdPct = Number(config.allowedTolerance.toString().split(".")[0]);
-  const highThreshold = BigNumber.from(bid.amount)
+  /// create a bid
+  const {
+    originDomain,
+    destinationDomain,
+    transactionId,
+    recipient,
+    prepareTransactingAmount,
+    prepareTransactingAsset,
+    prepareLocalAsset,
+    prepareLocalAmount,
+    callTo,
+    callData,
+  } = pendingTx;
+  const thresholdPct = Number(config.maxSlippage.toString().split(".")[0]);
+  const highThreshold = BigNumber.from(prepareTransactingAmount)
     .mul(100 + thresholdPct)
     .div(100);
-  const lowThreshold = BigNumber.from(bid.amount)
+  const lowThreshold = BigNumber.from(prepareTransactingAmount)
     .mul(100 - thresholdPct)
     .div(100);
-  if (
-    BigNumber.from(senderAmount).gt(highThreshold) ||
-    BigNumber.from(senderAmount).lt(lowThreshold) ||
-    bid.transactionId !== invariantData.transactionId
-  ) {
-    // cancellable error
-    throw new SenderChainDataInvalid({
-      methodContext,
-      requestContext,
-      senderAmount: senderAmount.toString(),
-      highThreshold: highThreshold.toString(),
-      lowThreshold: lowThreshold.toString(),
-      bid,
-      invariantData,
-    });
-  }
 
-  const inputDecimals = await txService.getDecimalsForAsset(invariantData.sendingChainId, invariantData.sendingAssetId);
+  const sendingChainId = getChainIdFromDomain(originDomain);
+  const receivingChainId = getChainIdFromDomain(destinationDomain);
+  const localInputDecimals = await txservice.getDecimalsForAsset(sendingChainId, prepareLocalAsset);
+  const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
+  const localOutputDecimals = await txservice.getDecimalsForAsset(receivingChainId, fulfillLocalAsset);
 
-  const outputDecimals = await txService.getDecimalsForAsset(
-    invariantData.receivingChainId,
-    invariantData.receivingAssetId,
+  let { receivingAmount: receiverAmount } = await getReceiverAmount(
+    prepareLocalAmount,
+    localInputDecimals,
+    localOutputDecimals,
   );
-
-  let { receivingAmount: receiverAmount } = await getReceiverAmount(senderAmount, inputDecimals, outputDecimals);
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
-  const gasFeeInReceivingToken = await txService.calculateGasFeeInReceivingToken(
-    invariantData.sendingChainId,
-    invariantData.sendingAssetId,
-    invariantData.receivingChainId,
-    invariantData.receivingAssetId,
-    outputDecimals,
+  const gasFeeInFulfillLocalAsset = await txservice.calculateGasFeeInReceivingToken(
+    sendingChainId,
+    prepareLocalAsset,
+    receivingChainId,
+    fulfillLocalAsset,
+    localOutputDecimals,
     chainData,
     requestContext,
   );
-  logger.info("Got gas fee in receiving token", requestContext, methodContext, {
-    gasFeeInReceivingToken: gasFeeInReceivingToken.toString(),
-  });
 
-  receiverAmount = amountReceivedInBigNum.sub(gasFeeInReceivingToken).toString();
-
-  const routerBalance = await contractReader.getAssetBalance(
-    invariantData.receivingAssetId,
-    invariantData.receivingChainId,
-  );
+  receiverAmount = amountReceivedInBigNum.sub(gasFeeInFulfillLocalAsset).toString();
+  const routerBalance = await subgraph.getAssetBalance(receivingChainId, routerAddress, fulfillLocalAsset);
   if (routerBalance.lt(receiverAmount)) {
-    // double check balance on chain
-    const onChainBalance = await contractWriter.getRouterBalance(
-      invariantData.receivingChainId,
-      invariantData.router,
-      invariantData.receivingAssetId,
+    // TODO: need to double check balance on chain. MUST BE IMPLEMENTED
+
+    throw new NotEnoughLiquidity(
+      receivingChainId,
+      fulfillLocalAsset,
+      routerBalance.toString(),
+      receiverAmount.toString(),
+      { methodContext, requestContext },
     );
-    if (onChainBalance.lt(receiverAmount)) {
-      // cancellable error
-      throw new NotEnoughLiquidity(
-        invariantData.receivingChainId,
-        invariantData.receivingAssetId,
-        onChainBalance.toString(),
-        receiverAmount.toString(),
-        { methodContext, requestContext },
-      );
-    } else {
-      logger.error("Router balance is different onchain vs subgraph", requestContext, methodContext, undefined, {
-        onChainBalance: onChainBalance.toString(),
-        subgraphBalance: routerBalance.toString(),
-      });
-    }
   }
 
-  // Make sure amount is sensible
+  // make sure amount is sensible
   if (BigNumber.from(receiverAmount).lt(0)) {
     throw new NotEnoughAmount({
       receiverAmount,
-      preparedAmount: senderAmount.toString(),
-      transactionId: invariantData.transactionId,
+      prepareTransactingAmount: prepareTransactingAmount.toString(),
+      prepareLocalAmount: prepareLocalAmount.toString(),
+      transactionId,
       methodContext,
       requestContext,
     });
   }
 
-  // Handle the expiries.
-  // Some notes on expiries -- each participant should be using a neutral NTP time source rather than
-  // Date.now() to avoid local clock errors
+  // TODO: should check maxSlippage here
 
-  // Get current time
-  const currentTime = await getNtpTimeSeconds();
+  // generate bid params
+  const callParams: CallParams = {
+    recipient,
+    callTo,
+    callData,
+    originDomain,
+    destinationDomain,
+  };
 
-  if (!validBidExpiry(bid.expiry, currentTime)) {
-    // cancellable error
-    throw new BidExpiryInvalid(bid.bidExpiry, currentTime, {
-      methodContext,
-      requestContext,
-    });
-  }
+  // signature must be updated with @connext/nxtp-utils signature functions
+  const signature = "0x";
+  const fulfillArguments: FulfillArgs = {
+    params: callParams,
+    transactionId: transactionId,
+    local: fulfillLocalAsset,
+    router: routerAddress,
+    feePercentage: RelayerFeePercentage,
+    amount: receiverAmount,
+    relayerSignature: signature,
+  };
 
-  // Get buffers
-  const senderBuffer = senderExpiry - currentTime;
-  const receiverBuffer = getReceiverExpiryBuffer(senderBuffer);
-
-  // Calculate receiver expiry
-  const receiverExpiry = receiverBuffer + currentTime;
-
-  if (!validExpiryBuffer(receiverBuffer)) {
-    // cancellable error
-    throw new ExpiryInvalid(receiverExpiry, {
-      methodContext,
-      requestContext,
-      senderExpiry,
-      senderBuffer,
-      receiverBuffer,
-    });
-  }
-
-  logger.info("Validated input", requestContext, methodContext);
-
-  if (isRouterContract) {
-    const routerRelayerFeeAsset = utils.getAddress(
-      config.chainConfig[invariantData.receivingChainId].routerContractRelayerAsset ?? AddressZero,
-    );
-    const relayerFeeAssetDecimal = await txService.getDecimalsForAsset(
-      invariantData.receivingChainId,
-      routerRelayerFeeAsset,
-    );
-    const routerRelayerFee = await txService.calculateGasFee(
-      invariantData.receivingChainId,
-      routerRelayerFeeAsset,
-      relayerFeeAssetDecimal,
-      "prepare",
-      isRouterContract,
-      chainData,
-      requestContext,
-    );
-
-    const signature = await signRouterPrepareTransactionPayload(
-      invariantData,
-      receiverAmount,
-      receiverExpiry,
-      encryptedCallData,
-      encodedBid,
-      bidSignature,
-      "0x",
-      routerRelayerFeeAsset,
-      routerRelayerFee.toString(),
-      invariantData.receivingChainId,
-      wallet,
-    );
-
-    logger.info("Sending receiver prepare router contract tx", requestContext, methodContext);
-
-    const receipt = await contractWriter.prepareRouterContract(
-      invariantData.receivingChainId,
-      {
-        txData: invariantData,
-        amount: receiverAmount,
-        expiry: receiverExpiry,
-        bidSignature,
-        encodedBid,
-        encryptedCallData,
-      },
-      routerAddress,
-      signature,
-      routerRelayerFeeAsset,
-      routerRelayerFee.toString(),
-      true,
-      requestContext,
-    );
-    logger.info("Sent receiver prepare router contract tx", requestContext, methodContext, {
-      transactionHash: receipt.transactionHash,
-    });
-    return receipt;
-  } else {
-    logger.info("Sending receiver prepare tx", requestContext, methodContext);
-
-    const receipt = await contractWriter.prepareTransactionManager(
-      invariantData.receivingChainId,
-      {
-        txData: invariantData,
-        amount: receiverAmount,
-        expiry: receiverExpiry,
-        bidSignature,
-        encodedBid,
-        encryptedCallData,
-      },
-      requestContext,
-    );
-    logger.info("Sent receiver prepare tx", requestContext, methodContext, {
-      transactionHash: receipt.transactionHash,
-    });
-    return receipt;
-  }
+  const bid: SignedBid = {
+    bid: {
+      transactionId,
+      data: fulfillArguments,
+    },
+    signature,
+  };
+  /// send the bid to auctioneer
+  await auctioneer.sendBid(bid);
 };

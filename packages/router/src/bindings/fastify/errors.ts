@@ -1,6 +1,5 @@
+import { TransactionStatus } from "@connext/nxtp-adapters-subgraph";
 import { NxtpError } from "@connext/nxtp-utils";
-
-import { TransactionStatus } from "../../adapters/subgraph/runtime/graphqlsdk";
 
 export class NoSenderTxFound extends NxtpError {
   constructor(transactionId: string, context: any = {}) {

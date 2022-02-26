@@ -1,0 +1,49 @@
+{
+  "name": "@connext/nxtp-adapters-web3signer",
+  "version": "",
+  "description": "adapter for subgraph interaction of nxtp protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "dev": "",
+    "start": "",
+    "lint": "eslint ./src --ext .ts --env node",
+    "test": "",
+    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
+    "build": "tsc --build ./tsconfig.build.json",
+    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
+    "purge": "yarn clean && rimraf ./coverage ./node_modules",
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
+    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
+    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
+  },
+  "nodemonConfig": {
+    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
+    "delay": "500",
+    "ext": "js,json",
+    "watch": [
+      ".env",
+      "./dist",
+      "../@connext/nxtp-txservice/dist",
+      "../@connext/nxtp-contracts/dist",
+      "../@connext/nxtp-utils/dist"
+    ]
+  },
+  "eslintIgnore": [],
+  "author": "Connext",
+  "license": "ISC",
+  "dependencies": {
+    "@connext/nxtp-utils": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "ethers": "^5.5.4"
+  },
+  "devDependencies": {
+    "ts-node": "^10.2.0",
+    "tslib": "^2.3.1",
+    "typescript": "4.3.5"
+  },
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+}

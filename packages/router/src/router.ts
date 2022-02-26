@@ -1,38 +1,75 @@
 import { logger, Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
+import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig } from "./config";
-import { SubgraphReader, Auctioneer, Web3Signer, RouterCache } from "./adapters";
-import { bindFastify, bindMetrics, bindPrices } from "./bindings";
+import { bindFastify, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
-import { bindSubgraph } from "./bindings/subgraph";
+import { getOperations } from "./lib/operations";
 
 const context: AppContext = {} as any;
+
+export const getContext = (): AppContext => {
+  if (!context || Object.keys(context).length === 0) {
+    throw new Error("Context not created");
+  }
+  return context;
+};
 
 export const makeRouter = async () => {
   const requestContext = createRequestContext("makeRouter");
   const methodContext = createMethodContext(makeRouter.name);
+  const { prepare } = getOperations();
   try {
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
+    context.chainData = chainData;
     context.config = await getConfig(chainData);
-
-    // Create adapter instances.
-    context.adapters.wallet = context.config.mnemonic
-      ? Wallet.fromMnemonic(context.config.mnemonic)
-      : new Web3Signer(context.config.web3SignerUrl!);
-    context.adapters.cache = new RouterCache(context);
-    context.adapters.subgraph = new SubgraphReader(context);
-    context.adapters.auctioneer = new Auctioneer(context);
+    context.routerAddress = await context.adapters.wallet.getAddress();
 
     // Make logger instance.
     context.logger = new Logger({
       level: context.config.logLevel,
       name: await context.adapters.wallet.getAddress(),
     });
+
+    // Create adapter instances.
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
+
+    context.adapters.cache = StoreManager.getInstance({
+      redis: { url: context.config.redisUrl! },
+      logger: context.logger,
+    });
+    // Subscribe to `NewPreparedTx` channel and attach prepare handler.
+    context.adapters.cache.subscribe(StoreManager.Channel.NewPreparedTx, prepare);
+
+    context.adapters.subgraph = await SubgraphReader.create({
+      // Separate out relevant subgraph chain config.
+      chains: Object.entries(context.config.chains).reduce(
+        (obj, [chainId, config]) => ({
+          ...obj,
+          [chainId]: config.subgraph,
+        }),
+        {},
+      ),
+    });
+
+    context.adapters.auctioneer = new AuctioneerAPI();
+
+    context.adapters.txservice = new TransactionService(
+      context.logger.child({ module: "TransactionService" }, context.config.logLevel),
+      context.config.chains as any,
+      context.adapters.wallet,
+    );
 
     context.logger.info("Router config generated", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),

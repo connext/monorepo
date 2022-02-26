@@ -7,17 +7,10 @@ export class ParamsInvalid extends NxtpError {
   }
 }
 
-export class AuctionSignerInvalid extends NxtpError {
-  cancellable = true;
-  constructor(expected: string, recovered: string, context: any = {}) {
-    super(`Auction signer invalid, expected: ${expected} recovered: ${recovered}`, context, "AuctionSignerInvalid");
-  }
-}
-
-export class SenderChainDataInvalid extends NxtpError {
+export class OriginDomainDataInvalid extends NxtpError {
   cancellable = true;
   constructor(context: any = {}) {
-    super(`Invalid data on sender chain`, context, "SenderChainDataInvalid");
+    super(`Invalid data on origin domain`, context, "OriginDomainDataInvalid");
   }
 }
 
@@ -39,5 +32,23 @@ export class AmountInvalid extends NxtpError {
   cancellable = true;
   constructor(amount: string, context: any = {}) {
     super(`Amount (${amount}) is invalid`, context, "AmountInvalid");
+  }
+}
+
+export class NotEnoughLiquidity extends NxtpError {
+  cancellable = true;
+  constructor(chainId: number, assetId: string, balance: string, amountRequested: string, context: any = {}) {
+    super(
+      "Not enough liquidity for bid.",
+      { ...context, chainId, assetId, balance, amountRequested },
+      "NotEnoughLiquidity",
+    );
+  }
+}
+
+export class NotEnoughAmount extends NxtpError {
+  cancellable = true;
+  constructor(context: any = {}) {
+    super(`Not enough amount for swap`, context, "NotEnoughAmount");
   }
 }

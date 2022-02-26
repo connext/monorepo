@@ -3,13 +3,14 @@ import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { utils } from "ethers";
-import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
+import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-const MIN_SUBGRAPH_MAX_LAG = 25;
 const DEFAULT_SUBGRAPH_MAX_LAG = 40;
+const DEFAULT_REDIS_BASE_URL = "redis://admin:admin@127.0.0.1";
 
 dotenvConfig();
 
@@ -18,6 +19,22 @@ dotenvConfig();
  */
 export const getContractDeployments: any = () => {
   return contractDeployments;
+};
+
+/**
+ * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = getContractDeployments()[chainId.toString()] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.TransactionManager;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 /**
@@ -67,17 +84,15 @@ export type AssetDescription = Static<typeof TAssetDescription>;
 
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
-  subgraph: Type.Object({
-    analytics: Type.Array(Type.String()), // Analytics subgraph uri(s).
-    runtime: Type.Array(Type.String()), // Runtime subgraph uri(s).
-    maxLag: Type.Integer({ minimum: MIN_SUBGRAPH_MAX_LAG }), // If subgraph is out of sync by this number, will not process actions.
-  }),
+  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
   rpc: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    priceOracle: Type.Optional(TAddress),
+    priceOracle: TAddress,
+    transactionManager: TAddress,
   }),
+  nomadDomain: Type.String(),
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -108,6 +123,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
+  redisUrl: Type.Optional(Type.String()),
   server: TServerConfig,
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
@@ -150,6 +166,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
+    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl || DEFAULT_REDIS_BASE_URL,
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains
@@ -247,7 +264,10 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
       confirmations: config?.confirmations ?? data.confirmations,
       deployments: {
         priceOracle: config?.deployments?.priceOracle ?? getDeployedPriceOracleContract(chainId)?.address,
+        transactionManager:
+          config?.deployments?.transactionManager ?? getDeployedTransactionManagerContract(chainId)?.address,
       },
+      nomadDomain: data.nomadDomain,
     };
   }
 

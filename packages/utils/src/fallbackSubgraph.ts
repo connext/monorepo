@@ -15,7 +15,7 @@ import { NxtpError } from "./error";
  * Used as constructor param, and to get the address below.
  */
 export enum SubgraphDomain {
-  COMMON,
+  RUNTIME,
   ANALYTICS,
   TEST,
 }
@@ -75,7 +75,7 @@ type SubgraphHealth = {
 const SYNC_CACHE_TTL = 5_000;
 
 const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
-  [SubgraphDomain.COMMON]: "https://subgraph-ts-worker.connext.workers.dev/subgraph_health",
+  [SubgraphDomain.RUNTIME]: undefined,
   // TODO: Analytics health endpoint needs to be implemented.
   [SubgraphDomain.ANALYTICS]: undefined,
   // Used for unit testing.
@@ -155,7 +155,7 @@ export class FallbackSubgraph<T> {
     private readonly chainId: number,
     private readonly generateClient: (url: string) => T,
     private readonly maxLag: number,
-    private readonly domain: SubgraphDomain = SubgraphDomain.COMMON,
+    private readonly domain: SubgraphDomain = SubgraphDomain.RUNTIME,
     urls: string[] = [],
     private readonly stallTimeout = 10_000,
   ) {

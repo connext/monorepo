@@ -20,14 +20,17 @@
   "workspaces": [
     "packages/contracts",
     "packages/integration",
-    "packages/router",
     "packages/sdk",
-    "packages/sdk-server",
+    "packages/router",
     "packages/subgraph",
     "packages/test-ui",
     "packages/txservice",
     "packages/utils",
-    "packages/auctioneer"
+    "packages/sequencer",
+    "packages/adapters/auctioneer",
+    "packages/adapters/cache",
+    "packages/adapters/subgraph",
+    "packages/adapters/web3signer"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
