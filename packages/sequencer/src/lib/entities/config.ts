@@ -1,13 +1,12 @@
 import { readFileSync } from "fs";
 
-import { providers } from "ethers";
 import { SwapPool } from ".";
 
+// TODO: Use typebox??
 export type SequencerChainConfig = {
   [chainId: number]: {
     confirmations: number;
-    providerUrls: string[];
-    provider: providers.FallbackProvider;
+    providers: string[];
     transactionManagerAddress?: string;
     priceOracleAddress?: string;
     subgraph?: string | string[];
@@ -30,7 +29,7 @@ export type SequencerConfig = {
 // Copy/pasted from json file in the README - this should generally work for local chain load testing.
 const DEFAULT_LOCAL_CONFIG = {
   adminToken: "blahblah",
-  chainConfig: {
+  chains: {
     "1337": {
       providers: ["http://localhost:8545"],
       confirmations: 1,
@@ -72,24 +71,10 @@ export const getConfig = (useDefaultLocal = false): SequencerConfig => {
   if (!sequencerConfig) {
     const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/config.json";
     const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
-    const chains: SequencerChainConfig = {};
-    Object.entries(data.chainConfig).map(([chainId, config]) => {
-      const { providers: providerUrls, confirmations, ...rest } = config as any;
-      chains[parseInt(chainId)] = {
-        confirmations,
-        providerUrls: providerUrls,
-        provider: new providers.FallbackProvider(
-          providerUrls.map((url: string) => new providers.StaticJsonRpcProvider(url, parseInt(chainId))),
-          1,
-        ),
-        ...rest,
-      };
-    });
     sequencerConfig = {
       network: data.network || "testnet",
       routers: [],
       ...data,
-      chains,
     };
   }
   return sequencerConfig!;
