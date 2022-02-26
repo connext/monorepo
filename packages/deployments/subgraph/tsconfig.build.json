@@ -1,22 +1,15 @@
 {
-  "extends": "../../config/tsconfig.node.json",
+  "extends": "../../../config/tsconfig.node.json",
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "dist",
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
+  "include": ["src/**/*.ts", "generated/**/*.ts"],
   "exclude": ["test/**/*.ts"],
-  "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../txservice/tsconfig.build.json"
-    },
-    {
       "path": "../contracts/tsconfig.build.json"
-    },
-    {
-      "path": "../utils/tsconfig.build.json"
     }
   ]
 }

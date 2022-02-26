@@ -18,19 +18,19 @@
     "typescript": "4.3.5"
   },
   "workspaces": [
-    "packages/contracts",
-    "packages/integration",
-    "packages/sdk",
-    "packages/router",
-    "packages/subgraph",
-    "packages/test-ui",
-    "packages/txservice",
-    "packages/utils",
-    "packages/sequencer",
+    "packages/adapters/txservice",
     "packages/adapters/auctioneer",
     "packages/adapters/cache",
     "packages/adapters/subgraph",
-    "packages/adapters/web3signer"
+    "packages/adapters/web3signer",
+    "packages/agents/sdk",
+    "packages/agents/router",
+    "packages/agents/sequencer",
+    "packages/deployments/contracts",
+    "packages/deployments/subgraph",
+    "packages/examples/test-ui",
+    "packages/integration",
+    "packages/utils"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",

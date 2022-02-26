@@ -1,0 +1,43 @@
+{
+  "logLevel": "debug",
+  "adminToken": "blahblah",
+  "routerContractAddress": "0xB798Ad450FF06Ff80D9193A4E88087caaaB7DF0A",
+  "chainConfig": {
+    "1": {
+      "providers": [
+        "https://mainnet.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f",
+        "https://mainnet.infura.io/v3/5acf1faf05374b42acd211340f36d00a",
+        "https://mainnet.infura.io/v3/1c5b4e8a3cde459b929e891c9d4e0925"
+      ]
+    },
+    "4": {
+      "providers": [
+        "https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f",
+        "https://rinkeby.infura.io/v3/5acf1faf05374b42acd211340f36d00a",
+        "https://rinkeby.infura.io/v3/1c5b4e8a3cde459b929e891c9d4e0925"
+      ],
+      "routerContractRelayerAsset": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198"
+    },
+    "5": {
+      "providers": [
+        "https://goerli.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f",
+        "https://goerli.infura.io/v3/5acf1faf05374b42acd211340f36d00a",
+        "https://goerli.infura.io/v3/1c5b4e8a3cde459b929e891c9d4e0925"
+      ],
+      "routerContractRelayerAsset": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682"
+    }
+  },
+  "natsUrl": "nats://nats1.connext.provide.network:4222,nats://nats2.connext.provide.network:4222,nats://nats3.connext.provide.network:4222",
+  "authUrl": "https://auth.connext.network",
+  "mnemonic": "",
+  "allowRelay": true,
+  "swapPools": [
+    {
+      "name": "TEST",
+      "assets": [
+        { "chainId": 4, "assetId": "0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198" },
+        { "chainId": 5, "assetId": "0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682" }
+      ]
+    }
+  ]
+}
