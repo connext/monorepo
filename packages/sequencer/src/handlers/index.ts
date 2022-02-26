@@ -5,7 +5,6 @@ import { AppContext } from "../context";
 
 import { handleBid } from "./bid";
 
-
 export const setupHandlers = (context: AppContext, server: FastifyInstance) => {
   server.get("/ping", async (req, res) => {
     return res.code(200).send("pong\n");
