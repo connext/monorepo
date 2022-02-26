@@ -1,13 +1,13 @@
 import { logger, Wallet } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
-import { SubgraphReader, ReadSubgraphConfig } from "@connext/nxtp-adapters-subgraph";
-import { RedisChannels, StoreManager } from "@connext/nxtp-adapters-cache";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 import { TransactionService } from "@connext/nxtp-txservice";
 
-import { getConfig, NxtpRouterConfig } from "./config";
-import { bindFastify, bindMetrics, bindPrices, bindContractReader } from "./bindings";
+import { getConfig } from "./config";
+import { bindFastify, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
 import { getOperations } from "./lib/operations";
 
@@ -32,6 +32,7 @@ export const makeRouter = async () => {
     }
     context.chainData = chainData;
     context.config = await getConfig(chainData);
+    context.routerAddress = await context.adapters.wallet.getAddress();
 
     // Make logger instance.
     context.logger = new Logger({
@@ -43,12 +44,24 @@ export const makeRouter = async () => {
     context.adapters.wallet = context.config.mnemonic
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
-    context.routerAddress = await context.adapters.wallet.getAddress();
-    context.adapters.cache = StoreManager.getInstance({ redisUrl: context.config.redisUrl!, logger: context.logger });
-    // subscribe to `NewPreparedTx` channel
-    context.adapters.cache.subscribeToInstance(RedisChannels.NEW_PREPARED_TX, prepare);
 
-    context.adapters.subgraph = await setupReadSubgraph(context.config);
+    context.adapters.cache = StoreManager.getInstance({
+      redis: { url: context.config.redisUrl! },
+      logger: context.logger,
+    });
+    // Subscribe to `NewPreparedTx` channel and attach prepare handler.
+    context.adapters.cache.subscribe(StoreManager.Channel.NewPreparedTx, prepare);
+
+    context.adapters.subgraph = await SubgraphReader.create({
+      // Separate out relevant subgraph chain config.
+      chains: Object.entries(context.config.chains).reduce(
+        (obj, [chainId, config]) => ({
+          ...obj,
+          [chainId]: config.subgraph,
+        }),
+        {},
+      ),
+    });
 
     context.adapters.auctioneer = new AuctioneerAPI();
 
@@ -76,32 +89,11 @@ export const makeRouter = async () => {
     }
     await bindFastify(context);
     await bindMetrics(context);
-    await bindContractReader(context);
+    await bindSubgraph(context);
 
     logger.info("Router ready!");
   } catch (e) {
     console.error("Error starting router. Sad! :(", e);
     process.exit();
   }
-};
-
-const setupReadSubgraph = async (config: NxtpRouterConfig): Promise<SubgraphReader> => {
-  // setup read subgraph
-
-  const subgraphConfig: ReadSubgraphConfig = { chains: {} };
-  Object.keys(config.chains).map((chainId) => {
-    // subgraphConfig.chains[chainId.toString()] = config.chains[chainId].subgraph;
-    subgraphConfig.chains[chainId.toString()] = {
-      subgraph: {
-        analytics: config.chains[chainId].subgraph.analytics,
-        runtime: config.chains[chainId].subgraph.runtime,
-        maxLag: config.chains[chainId].subgraph.maxLag,
-      },
-    };
-  });
-
-  const subgraph = new SubgraphReader();
-  subgraph.create(subgraphConfig);
-
-  return subgraph;
 };

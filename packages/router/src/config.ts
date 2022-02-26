@@ -3,12 +3,12 @@ import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { utils } from "ethers";
-import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
 import { config as dotenvConfig } from "dotenv";
+import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-const MIN_SUBGRAPH_MAX_LAG = 25;
 const DEFAULT_SUBGRAPH_MAX_LAG = 40;
 const DEFAULT_REDIS_BASE_URL = "redis://admin:admin@127.0.0.1";
 
@@ -84,11 +84,7 @@ export type AssetDescription = Static<typeof TAssetDescription>;
 
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
-  subgraph: Type.Object({
-    analytics: Type.Array(Type.String()), // Analytics subgraph uri(s).
-    runtime: Type.Array(Type.String()), // Runtime subgraph uri(s).
-    maxLag: Type.Integer({ minimum: MIN_SUBGRAPH_MAX_LAG }), // If subgraph is out of sync by this number, will not process actions.
-  }),
+  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
   rpc: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
