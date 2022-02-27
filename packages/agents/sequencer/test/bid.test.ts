@@ -1,11 +1,11 @@
-import { expect } from "chai";
-import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, SinonStubbedMember, stub } from "sinon";
-import { makeAuctioneer } from "@connext/auctioneer";
+// import { expect } from "chai";
+// import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, SinonStubbedMember, stub } from "sinon";
+// import { makeSequencer } from "@connext/nxtp-sequencer";
 
-describe('Auctioneer Test', () => {
-  let auctioneer: SinonStubbedMember<makeAuctioneer
-  before(async () => {
-    createStubInstance(makeAuctioneer);
+// describe('Auctioneer Test', () => {
+//   let auctioneer: SinonStubbedMember<typeof makeSequencer>
+//   before(async () => {
+//     createStubInstance(makeSequencer);
     
-  });
-})
+//   });
+// })

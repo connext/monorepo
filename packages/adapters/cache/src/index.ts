@@ -50,3 +50,4 @@ export class StoreManager implements Store {
     this.subscriptions.set(channel, callback);
   }
 }
+export * from "./lib/caches";

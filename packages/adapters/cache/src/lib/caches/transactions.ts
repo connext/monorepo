@@ -2,7 +2,7 @@ import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
 import { CacheParams, StoreChannel } from "../entities";
-import { Cache } from ".";
+import { Cache } from "./";
 
 export class TransactionsCache extends Cache {
   // Redis Store I

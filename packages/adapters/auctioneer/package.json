@@ -11,7 +11,7 @@
     "dev": "",
     "start": "",
     "lint": "eslint ./src --ext .ts --env node",
-    "test": "",
+    "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -42,6 +42,12 @@
     "ethers": "^5.5.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.1",
+    "nyc": "^15.1.0",
+    "ts-mocha": "^9.0.2",
     "ts-node": "^10.2.0",
     "tslib": "^2.3.1",
     "typescript": "4.3.5"
