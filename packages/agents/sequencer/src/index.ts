@@ -1,6 +1,4 @@
 import { makeSequencer } from "./sequencer";
-
+export { makeSequencer };
 
 makeSequencer();
-
-export { makeSequencer };
