@@ -67,6 +67,11 @@ export const SignedCancelDataEncoding = tidy(`tuple(
   address receivingChainTxManagerAddress
 )`);
 
+export const SignedRelayerFeeDataEncoding = tidy(`tuple(
+  uint256 _nonce,
+  uint32 _feePct,
+)`);
+
 /**
  * Encodes an InvariantTransactionData object
  *
@@ -118,6 +123,18 @@ export const encodeFulfillData = (
     [SignedFulfillDataEncoding],
     [{ transactionId, relayerFee, functionIdentifier: "fulfill", receivingChainId, receivingChainTxManagerAddress }],
   );
+};
+
+/**
+ * Encodes a handleRelayerFee payload object, as defined in the TransactionManager contract
+ *
+ * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * the transaction id for the crosschain transaction
+ * @param feePercentage - The amount over the BASEFEE to tip the relayer
+ * @returns Encoded handleRelayerFee payload
+ */
+export const encodeHandleRelayerFeeData = (nonce: string, feePercentage: string): string => {
+  return defaultAbiCoder.encode([SignedRelayerFeeDataEncoding], [{ nonce, feePercentage }]);
 };
 
 /**

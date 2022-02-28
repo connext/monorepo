@@ -6,6 +6,7 @@ import {
   createLoggingContext,
   CrossChainTx,
   getChainIdFromDomain,
+  signHandleRelayerFeePayload,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { getContext } from "../../router";
@@ -27,7 +28,7 @@ export const prepare = async (pendingTx: CrossChainTx) => {
   const {
     logger,
     config,
-    adapters: { auctioneer, subgraph, txservice },
+    adapters: { auctioneer, subgraph, txservice, wallet },
     chainData,
     routerAddress,
   } = getContext();
@@ -123,7 +124,7 @@ export const prepare = async (pendingTx: CrossChainTx) => {
   };
 
   // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = "0x";
+  const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
     local: fulfillLocalAsset,
