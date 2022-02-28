@@ -1,12 +1,12 @@
 import { logger, Wallet } from "ethers";
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, Logger, RequestContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 import { TransactionService } from "@connext/nxtp-txservice";
 
-import { getConfig } from "./config";
+import { getConfig, NxtpRouterConfig } from "./config";
 import { bindFastify, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
 import { getOperations } from "./lib/operations";
@@ -23,7 +23,7 @@ export const getContext = (): AppContext => {
 export const makeRouter = async () => {
   const requestContext = createRequestContext("makeRouter");
   const methodContext = createMethodContext(makeRouter.name);
-  const { prepare } = getOperations();
+
   try {
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
@@ -32,36 +32,23 @@ export const makeRouter = async () => {
     }
     context.chainData = chainData;
     context.config = await getConfig(chainData);
-    context.routerAddress = await context.adapters.wallet.getAddress();
-
-    // Make logger instance.
-    context.logger = new Logger({
-      level: context.config.logLevel,
-      name: await context.adapters.wallet.getAddress(),
-    });
 
     // Create adapter instances.
     context.adapters.wallet = context.config.mnemonic
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
 
-    context.adapters.cache = StoreManager.getInstance({
-      redis: { url: context.config.redisUrl! },
-      logger: context.logger.child({ module: "StoreManager" }),
-    });
-    // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-    context.adapters.cache.subscribe(StoreManager.Channel.NewPreparedTx, prepare);
+    context.routerAddress = await context.adapters.wallet.getAddress();
 
-    context.adapters.subgraph = await SubgraphReader.create({
-      // Separate out relevant subgraph chain config.
-      chains: Object.entries(context.config.chains).reduce(
-        (obj, [chainId, config]) => ({
-          ...obj,
-          [chainId]: config.subgraph,
-        }),
-        {},
-      ),
+    // Make logger instance.
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      name: context.routerAddress,
     });
+
+    context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
+
+    context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
     // TODO: URL for auctioneer??
     context.adapters.auctioneer = new AuctioneerAPI({ url: "" });
@@ -97,4 +84,53 @@ export const makeRouter = async () => {
     console.error("Error starting router. Sad! :(", e);
     process.exit();
   }
+};
+
+export const setupCache = async (
+  redisUrl: string,
+  logger: Logger,
+  requestContext: RequestContext,
+): Promise<StoreManager> => {
+  const methodContext = createMethodContext(setupCache.name);
+  const { prepare } = getOperations();
+
+  logger.info("cache instance setup in progress...", requestContext, methodContext, {});
+
+  const cacheInstance = StoreManager.getInstance({
+    redis: { url: redisUrl },
+    logger: logger.child({ module: "StoreManager" }),
+  });
+
+  // Subscribe to `NewPreparedTx` channel and attach prepare handler.
+  cacheInstance.subscribe(StoreManager.Channel.NewPreparedTx, prepare);
+
+  logger.info("cache instance setup is done!", requestContext, methodContext, {
+    redisUrl: redisUrl,
+  });
+
+  return cacheInstance;
+};
+
+export const setupSubgraphReader = async (
+  routerConfig: NxtpRouterConfig,
+  logger: Logger,
+  requestContext: RequestContext,
+): Promise<SubgraphReader> => {
+  const methodContext = createMethodContext(setupSubgraphReader.name);
+
+  logger.info("subgrah reader setup in progress...", requestContext, methodContext, {});
+  const subgraphReader = await SubgraphReader.create({
+    // Separate out relevant subgraph chain config.
+    chains: Object.entries(routerConfig.chains).reduce(
+      (obj, [chainId, config]) => ({
+        ...obj,
+        [chainId]: config.subgraph,
+      }),
+      {},
+    ),
+  });
+
+  logger.info("subgrah reader setup is done!", requestContext, methodContext, {});
+
+  return subgraphReader;
 };
