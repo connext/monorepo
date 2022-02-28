@@ -16,19 +16,16 @@ export type SequencerChainConfig = {
 
 export type SequencerConfig = {
   chains: SequencerChainConfig;
-  mnemonic: string;
-  routers: string[];
+  // routers: string[];
   swapPools: SwapPool[];
-  logLevel?: string;
-  natsUrl?: string;
-  authUrl?: string;
-  network?: string;
-  redisUrl?: string;
+  logLevel: string;
+  network: string;
+  redisUrl: string;
+  listenPort: number;
 };
 
 // Copy/pasted from json file in the README - this should generally work for local chain load testing.
 export const DEFAULT_LOCAL_CONFIG = {
-  adminToken: "blahblah",
   chains: {
     "1337": {
       providers: ["http://localhost:8545"],
@@ -47,8 +44,6 @@ export const DEFAULT_LOCAL_CONFIG = {
   },
   logLevel: "info",
   network: "local",
-  mnemonic: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
-  routers: [],
   swapPools: [
     {
       name: "TEST",
