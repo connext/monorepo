@@ -175,17 +175,16 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
-      port: process.env.NXTP_PORT || configJson.server.port || configFile.server.port || 8080,
-      host: process.env.NXTP_HOST || configJson.server.host || configFile.server.host || "0.0.0.0",
-      requestLimit:
-        process.env.NXTP_REQUEST_LIMIT || configJson.server.requestLimit || configFile.server.requestLimit || 500,
-      adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.server.adminToken || configFile.server.adminToken,
+      port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
+      host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
+      requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
+      adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
     },
     mode: {
-      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode.cleanup || configFile.mode.cleanup || false,
+      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanup || configFile.cleanup || false,
       priceCaching:
-        process.env.NXTP_PRICE_CACHE_MODE || configJson.mode.priceCaching || configFile.mode.priceCaching || true,
-      diagnostic: process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode.diagnostic || configFile.mode.diagnostic || false,
+        process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCaching || configFile.priceCaching || true,
+      diagnostic: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnostic || configFile.diagnostic || false,
     },
     maxSlippage:
       process.env.NXTP_ALLOWED_TOLERANCE ||
