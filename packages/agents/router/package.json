@@ -28,6 +28,10 @@
     "watch": [
       ".env",
       "./dist",
+      "../@connext/nxtp-adapters-auctioneer/dist",
+      "../@connext/nxtp-adapters-cache/dist",
+      "../@connext/nxtp-adapters-subgraph/dist",
+      "../@connext/nxtp-adapters-web3signer/dist",
       "../@connext/nxtp-txservice/dist",
       "../@connext/nxtp-contracts/dist",
       "../@connext/nxtp-utils/dist"
