@@ -27,7 +27,7 @@ export type SequencerConfig = {
 };
 
 // Copy/pasted from json file in the README - this should generally work for local chain load testing.
-const DEFAULT_LOCAL_CONFIG = {
+export const DEFAULT_LOCAL_CONFIG = {
   adminToken: "blahblah",
   chains: {
     "1337": {
@@ -58,24 +58,4 @@ const DEFAULT_LOCAL_CONFIG = {
       ],
     },
   ],
-};
-
-let sequencerConfig: SequencerConfig | undefined;
-
-/**
- * Gets and validates the router config from the environment.
- * @param useDefaultLocal - (optional) If true, use the default local config.
- * @returns The router config with sensible defaults
- */
-export const getConfig = (useDefaultLocal = false): SequencerConfig => {
-  if (!sequencerConfig) {
-    const path = process.env.NXTP_TEST_CONFIG_FILE ?? "./ops/config/config.json";
-    const data = useDefaultLocal ? DEFAULT_LOCAL_CONFIG : JSON.parse(readFileSync(path, "utf8"));
-    sequencerConfig = {
-      network: data.network || "testnet",
-      routers: [],
-      ...data,
-    };
-  }
-  return sequencerConfig!;
 };
