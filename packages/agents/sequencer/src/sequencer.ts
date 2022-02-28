@@ -6,7 +6,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader } from "@connext/nxtp-txservice";
 
 import { SequencerConfig } from "./lib/entities";
-import { getConfig } from "./lib/helpers";
+import { getConfig } from "./config";
 import { AppContext } from "./context";
 import { setupHandlers } from "./handlers";
 
@@ -18,10 +18,6 @@ export const getContext = (): AppContext => {
   }
   return context;
 };
-
-// const REDIS_URL = process.env.REDIS_URL || 'http://localhost:6379';
-const LISTEN_PORT = process.env.PORT || 1234;
-const LOG_LEVEL = process.env.loglevel || "debug";
 
 export const makeSequencer = async () => {
   const requestContext = createRequestContext("makeSequencer");
@@ -36,7 +32,7 @@ export const makeSequencer = async () => {
       throw new Error("Could not get chain data");
     }
     context.chainData = chainData;
-    context.config = getConfig();
+    context.config = await getConfig();
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
@@ -49,12 +45,12 @@ export const makeSequencer = async () => {
     );
 
     // Create server, set up routes, and start listening.
-    const server = fastify({ logger: pino({ level: LOG_LEVEL }) });
+    const server = fastify({ logger: pino({ level: context.config.logLevel }) });
     setupHandlers(context, server);
-    await server.listen(LISTEN_PORT);
+    await server.listen(context.config.listenPort);
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
-      LISTEN_PORT,
+      listenPort: context.config.listenPort,
     });
   } catch (error: any) {
     console.error("Error starting sequencer. :'(", error);
