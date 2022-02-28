@@ -5,7 +5,8 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader } from "@connext/nxtp-txservice";
 
-import { getConfig, SequencerConfig } from "./lib/entities";
+import { SequencerConfig } from "./lib/entities";
+import { getConfig } from "./lib/helpers";
 import { AppContext } from "./context";
 import { setupHandlers } from "./handlers";
 
