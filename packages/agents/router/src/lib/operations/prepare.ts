@@ -35,7 +35,7 @@ export const prepare = async (pendingTx: CrossChainTx) => {
   logger.info("Method start", requestContext, methodContext, pendingTx);
 
   /// sanitation check before validiation
-  await sanitationCheck(pendingTx, "prepare");
+  await sanitationCheck(pendingTx, "fulfill");
 
   /// validate CallParam schema
 

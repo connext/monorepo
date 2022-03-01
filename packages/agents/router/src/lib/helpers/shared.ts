@@ -1,11 +1,24 @@
 import { CrossChainTx, RequestContext } from "@connext/nxtp-utils";
+import { getContext } from "../../router";
+import { SanitationCheckFailed } from "../errors";
 
 export const sanitationCheck = async (
   transactionData: CrossChainTx,
   functionCall: "prepare" | "fulfill" | "reconcile",
   _requestContext?: RequestContext<string>,
 ) => {
-  // TODO: Not implemented yet
+  const {
+    adapters: { txservice },
+  } = getContext();
+
+  if (functionCall === "fulfill") {
+    // Check out if this transaction provides fast liquidity
+    // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
+    // If the transaction provides fast liquidity, ensure it has not been fulfilled already
+    // If not, check the reconciled transactions to ensure it is the right data
+  } else if (functionCall == "reconcile") {
+    // This function is called by the bridge router to pass through the information provided by the user on prepare.
+  }
 };
 
 /**
