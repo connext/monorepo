@@ -1073,7 +1073,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     bytes32 _externalHash = _getExternalHash(_params.recipient, _params.callTo, _params.callData);
 
     if (_isFast) {
-      // Ensure it has not been fulfilled already
+      // Ensure it has not been fulfilled alread
       require(routedTransactions[_transactionId].router == address(0), "!empty");
 
       // Decrement liquidity

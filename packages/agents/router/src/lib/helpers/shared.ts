@@ -4,6 +4,8 @@ import {
   RequestContext,
   FulfilledTransaction,
   createLoggingContext,
+  getExternalCallHash,
+  getReconciledHash,
 } from "@connext/nxtp-utils";
 import { getTransactionManagerAddress, getTxManagerInerface } from ".";
 import { getContext } from "../../router";
@@ -53,6 +55,29 @@ export const sanitationCheck = async (
         throw new SanitationCheckFailed("fulfill", transactionId, chainId, { requestContext, methodContext });
       }
     } else {
+      /// TODO: Not implemented yet
+      // const externalCallHash = getExternalCallHash({
+      //   recipient: transactionData.recipient,
+      //   callData: transactionData.callData,
+      //   callTo: transactionData.callTo,
+      // });
+      // const _reconciledTxHash = getReconciledHash({
+      //   externalHash: externalCallHash,
+      //   local: transactionData.fulfillLocalAsset,
+      //   amount: transactionData.fulfillLocalAsset,
+      //   recipient: transactionData.recipient,
+      // });
+      // const [decodedReconciledTxHash] = getTxManagerInerface().decodeFunctionResult(
+      //   "reconciledTransactions",
+      //   reconciledTxHash,
+      // );
+      // if (_reconciledTxHash !== decodedReconciledTxHash) {
+      //   throw new SanitationCheckFailed("fulfill", transactionId, chainId, {
+      //     requestContext,
+      //     methodContext,
+      //     message: "Reconciled TxHash doesn't match",
+      //   });
+      // }
     }
   } else if (functionCall == "reconcile") {
     // This function is called by the bridge router to pass through the information provided by the user on prepare.
