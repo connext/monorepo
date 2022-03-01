@@ -16,8 +16,14 @@ export class TransactionsCache extends Cache {
 
   public constructor({ url, subscriptions }: CacheParams) {
     super({ url, subscriptions });
-    this.data = new Redis(`${url}/1`);
-    this.status = new Redis(`${url}/2`);
+    if (url.split("//").pop() === "mock") {
+      const IoRedisMock = require("ioredis-mock");
+      this.data = new IoRedisMock();
+      this.status = new IoRedisMock();
+    } else {
+      this.data = new Redis(`${url}/1`);
+      this.status = new Redis(`${url}/2`);
+    }
   }
 
   public async getStatus(domain: string, nonce: string): Promise<CrossChainTxStatus | undefined> {
