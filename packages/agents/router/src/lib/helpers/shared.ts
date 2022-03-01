@@ -1,5 +1,13 @@
-import { CrossChainTx, RequestContext } from "@connext/nxtp-utils";
+import {
+  CrossChainTx,
+  getChainIdFromDomain,
+  RequestContext,
+  FulfilledTransaction,
+  createLoggingContext,
+} from "@connext/nxtp-utils";
+import { getTransactionManagerAddress, getTxManagerInerface } from ".";
 import { getContext } from "../../router";
+import { constants } from "ethers";
 
 import { SanitationCheckFailed } from "../errors";
 
@@ -11,12 +19,41 @@ export const sanitationCheck = async (
   const {
     adapters: { txservice },
   } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(sanitationCheck.name);
 
   if (functionCall === "fulfill") {
     // Check out if this transaction provides fast liquidity
     // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
+    const transactionId = transactionData.transactionId;
+    const chainId = await getChainIdFromDomain(transactionData.destinationDomain);
+    const txManagerContractAddress = getTransactionManagerAddress(chainId);
+    const encodeReconciledTransaction = getTxManagerInerface().encodeFunctionData("reconciledTransactions", [
+      transactionId,
+    ]);
+    const reconciledTxHash = await txservice.readTx({
+      chainId,
+      to: txManagerContractAddress,
+      data: encodeReconciledTransaction,
+    });
+
+    const isFast = reconciledTxHash == constants.HashZero;
+
     // If the transaction provides fast liquidity, ensure it has not been fulfilled already
-    // If not, check the reconciled transactions to ensure it is the right data
+    // If not, check the reconciled transactions to ensur it is the right data
+    if (isFast) {
+      const encodeRoutedTransaction = getTxManagerInerface().encodeFunctionData("routedTransactions", [transactionId]);
+      const fulfilledTxEncoded = await txservice.readTx({
+        chainId,
+        to: txManagerContractAddress,
+        data: encodeRoutedTransaction,
+      });
+      const [fulfillTx] = getTxManagerInerface().decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
+      const fulfillTxTyped = fulfillTx as FulfilledTransaction;
+      if (fulfillTxTyped.router != constants.AddressZero) {
+        throw new SanitationCheckFailed("fulfill", transactionId, chainId, { requestContext, methodContext });
+      }
+    } else {
+    }
   } else if (functionCall == "reconcile") {
     // This function is called by the bridge router to pass through the information provided by the user on prepare.
   }

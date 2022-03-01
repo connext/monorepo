@@ -55,6 +55,18 @@ export type CrossChainTx = {
   reconciledBlockNumber: number;
 };
 
+export type ExternalCall = {
+  recipient: string;
+  callTo: string;
+  callData: string;
+};
+
+export type FulfilledTransaction = {
+  router: string;
+  amount: string;
+  externalHash: string;
+};
+
 export type CallParams = {
   recipient: string;
   callTo: string;
