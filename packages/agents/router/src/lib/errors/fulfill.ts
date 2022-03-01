@@ -7,10 +7,16 @@ export class ParamsInvalid extends NxtpError {
   }
 }
 
-export class OriginDomainDataInvalid extends NxtpError {
+export class SenderChainDataInvalid extends NxtpError {
   cancellable = true;
   constructor(context: any = {}) {
-    super(`Invalid data on origin domain`, context, "OriginDomainDataInvalid");
+    super(`Invalid data on sending chain`, context, "SenderChainDataInvalid");
+  }
+}
+
+export class SlippageInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Slippage invalid`, context, "SlippageInvalid");
   }
 }
 
