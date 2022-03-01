@@ -1,5 +1,6 @@
 import { CrossChainTx, RequestContext } from "@connext/nxtp-utils";
 import { getContext } from "../../router";
+
 import { SanitationCheckFailed } from "../errors";
 
 export const sanitationCheck = async (
