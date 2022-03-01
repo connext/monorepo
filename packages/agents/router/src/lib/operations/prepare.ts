@@ -23,8 +23,8 @@ const RelayerFeePercentage = "1"; //  1%
  *
  * @param pendingTx The prepared crosschain tranaction
  */
-export const prepare = async (pendingTx: CrossChainTx) => {
-  const { requestContext, methodContext } = createLoggingContext(prepare.name);
+export const fulfill = async (pendingTx: CrossChainTx) => {
+  const { requestContext, methodContext } = createLoggingContext(fulfill.name);
   const {
     logger,
     config,
