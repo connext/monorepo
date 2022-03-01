@@ -28,7 +28,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const {
     logger,
     config,
-    adapters: { auctioneer, subgraph, txservice, wallet },
+    adapters: { sequencer, subgraph, txservice, wallet },
     chainData,
     routerAddress,
   } = getContext();
@@ -143,5 +143,5 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     signature,
   };
   /// send the bid to auctioneer
-  await auctioneer.sendBid(bid);
+  await sequencer.sendBid(bid);
 };
