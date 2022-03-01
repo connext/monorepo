@@ -30,6 +30,7 @@ export const makeRouter = async () => {
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
+    context.adapters = {} as any;
     context.chainData = chainData;
     context.config = await getConfig(chainData);
 

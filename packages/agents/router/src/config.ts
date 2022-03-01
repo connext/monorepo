@@ -2,15 +2,13 @@
 import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
-import { utils } from "ethers";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-const DEFAULT_SUBGRAPH_MAX_LAG = 40;
-const DEFAULT_REDIS_BASE_URL = "redis://admin:admin@127.0.0.1";
+const DEFAULT_REDIS_BASE_URL = "redis://mock";
 
 dotenvConfig();
 
@@ -123,7 +121,8 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
-  redisUrl: Type.Optional(Type.String()),
+  redisUrl: Type.String({ format: "uri" }),
+  sequencerUrl: Type.String({ format: "uri" }),
   server: TServerConfig,
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
@@ -137,31 +136,29 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfig => {
+export const getEnvConfig = (_chainData: Map<string, ChainData>): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
   try {
+    configJson = JSON.parse(process.env.NXTP_CONFIG || "");
+  } catch (e) {
+    console.info("No NXTP_CONFIG exists, using config file and individual env vars");
+  }
+  try {
     let json: string;
 
-    if (process.env.NXTP_CONFIG_FILE) {
-      json = fs.readFileSync(process.env.NXTP_CONFIG_FILE, "utf-8");
-    } else {
-      json = fs.readFileSync("config.json", "utf-8");
-    }
-    if (json) {
+    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+    if (fs.existsSync(path)) {
+      json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
+      console.log('configFile: ', configFile);
     }
-  } catch (e) {}
-  // return configFile;
-
-  if (process.env.NXTP_CONFIG) {
-    try {
-      configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-    } catch (e) {
-      console.warn("No NXTP_CONFIG exists...");
-    }
+  } catch (e) {
+    console.error("Error reading config file!");
+    process.exit(1);
   }
+  // return configFile;
 
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
@@ -175,99 +172,31 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
-      port: process.env.NXTP_PORT || configJson.port || configFile.port || 8080,
-      host: process.env.NXTP_HOST || configJson.host || configFile.host || "0.0.0.0",
-      requestLimit: process.env.NXTP_REQUEST_LIMIT || configJson.requestLimit || configFile.requestLimit || 500,
-      adminToken: process.env.NXTP_ADMIN_TOKEN || configJson.adminToken || configFile.adminToken,
+      port: process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8080,
+      host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      requestLimit:
+        process.env.NXTP_SERVER_REQUEST_LIMIT ||
+        configJson.server?.requestLimit ||
+        configFile.server?.requestLimit ||
+        500,
+      adminToken: process.env.NXTP_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
     },
     mode: {
-      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.cleanup || configFile.cleanup || false,
+      cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
       priceCaching:
-        process.env.NXTP_PRICE_CACHE_MODE || configJson.priceCaching || configFile.priceCaching || true,
-      diagnostic: process.env.NXTP_DIAGNOSTIC_MODE || configJson.diagnostic || configFile.diagnostic || false,
+        process.env.NXTP_PRICE_CACHE_MODE || configJson.mode?.priceCaching || configFile.mode?.priceCaching || true,
+      diagnostic: process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
     maxSlippage:
       process.env.NXTP_ALLOWED_TOLERANCE ||
       configJson.allowedTolerance ||
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
+    sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
     throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
-  }
-
-  const mainnetEntry = chainData.get("1") as ChainData;
-  // Get the chains supported for this network type (i.e. mainnet or testnet).
-  const supportedChains = Array.from(chainData.values()).filter(
-    (data) => data.type === nxtpConfig.network || data.chainId === 1,
-  );
-  const supportedChainIds = supportedChains.map((data) => data.chainId.toString());
-  // Make sure every chain in nxtpconfig is supported by chaindata.
-  for (const chain of Object.keys(nxtpConfig.chains)) {
-    if (!supportedChainIds.includes(chain)) {
-      throw new Error(
-        `Chain ${chain} passed into config is not supported by chaindata for ${nxtpConfig.network}!` +
-          ` (Are you configured for the correct network?)` +
-          ` Supported Chains: ${supportedChainIds.join(",")}`,
-      );
-    }
-  }
-
-  // TODO: Re-add check for minimum recommended confirmations.
-  // Supplement chain config with chain data.
-  for (const data of supportedChains) {
-    const { chainId } = data;
-    const config: ChainConfig | undefined = nxtpConfig.chains[chainId.toString()];
-    const sanitizedAssets: AssetDescription[] = [];
-    if (config && config.assets) {
-      // Get mainnet equivalent if possible.
-      for (const asset of config.assets) {
-        let name = asset.name;
-        const mainnetEquivalent: string | undefined =
-          data.assetId[utils.getAddress(asset.id)]?.mainnetEquivalent ??
-          data.assetId[asset.id.toLowerCase()]?.mainnetEquivalent ??
-          data.assetId[asset.id.toUpperCase()]?.mainnetEquivalent;
-        if (mainnetEquivalent) {
-          // Get name from mainnet equivalent.
-          name =
-            mainnetEntry.assetId[utils.getAddress(mainnetEquivalent)]?.symbol ??
-            mainnetEntry.assetId[mainnetEquivalent.toLowerCase()]?.symbol ??
-            mainnetEntry.assetId[mainnetEquivalent.toUpperCase()]?.symbol;
-        }
-        if (!name) {
-          throw new Error(
-            `Could not find name for asset: ${JSON.stringify(
-              asset,
-            )} for chain ${chainId} in config. Please provide override.`,
-          );
-        }
-        sanitizedAssets.push({
-          ...asset,
-          name,
-          mainnetEquivalent,
-        });
-      }
-    }
-    nxtpConfig.chains[chainId.toString()] = {
-      ...(config ?? {}),
-      assets: sanitizedAssets,
-      rpc: config && Array.isArray(config.rpc) ? config.rpc.concat(data.rpc) : data.rpc ?? [],
-      subgraph: {
-        ...(config?.subgraph ?? {}),
-        runtime: (config?.subgraph?.runtime ?? []).concat(Array.isArray(data.subgraph) ? data.subgraph : []),
-        analytics: config?.subgraph?.analytics ?? data.analyticsSubgraph,
-        maxLag: config?.subgraph?.maxLag ?? DEFAULT_SUBGRAPH_MAX_LAG,
-      },
-      gasStations: config?.gasStations ?? data.gasStations,
-      confirmations: config?.confirmations ?? data.confirmations,
-      deployments: {
-        priceOracle: config?.deployments?.priceOracle ?? getDeployedPriceOracleContract(chainId)?.address,
-        transactionManager:
-          config?.deployments?.transactionManager ?? getDeployedTransactionManagerContract(chainId)?.address,
-      },
-      nomadDomain: data.nomadDomain,
-    };
   }
 
   const validate = ajv.compile(NxtpRouterConfigSchema);
