@@ -3,7 +3,6 @@ import { createMethodContext, createRequestContext, getChainData, Logger, Reques
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";

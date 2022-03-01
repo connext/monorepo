@@ -8,5 +8,18 @@
   },
   "exclude": ["test/**/*.ts"],
   "include": ["src/**/*.ts"],
-  "references": []
+  "references": [
+    {
+      "path": "../adapters/txservice/tsconfig.build.json"
+    },
+    {
+      "path": "../deployments/contracts/tsconfig.build.json"
+    },
+    {
+      "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../sequencer/tsconfig.build.json"
+    }
+  ]
 }
