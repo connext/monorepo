@@ -36,46 +36,9 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-/**
- * Returns the address of the `ConnextPriceOracle` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.ConnextPriceOracle;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
-
-/**
- * Returns the addresses where the price oracle contract is deployed to
- *
- */
-export const getDeployedChainIdsForGasFee = (): number[] => {
-  const chainIdsForGasFee: number[] = [];
-  const contractDeployments = getContractDeployments();
-  const chainIds = Object.keys(contractDeployments);
-  chainIds.forEach((chainId) => {
-    const record = contractDeployments[chainId.toString()];
-    const chainName = Object.keys(record)[0];
-    if (chainName) {
-      const priceOracleContract = record[chainName]?.contracts?.ConnextPriceOracle;
-      if (priceOracleContract) {
-        chainIdsForGasFee.push(Number(chainId));
-      }
-    }
-  });
-  return chainIdsForGasFee;
-};
-
 export const TAssetDescription = Type.Object({
   name: Type.String(),
-  id: TAddress,
+  address: TAddress,
   mainnetEquivalent: Type.Optional(TAddress),
 });
 
@@ -84,14 +47,12 @@ export type AssetDescription = Static<typeof TAssetDescription>;
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
   subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
-  rpc: Type.Array(Type.String()),
+  providers: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    priceOracle: TAddress,
     transactionManager: TAddress,
   }),
-  nomadDomain: Type.String(),
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -210,10 +171,10 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
 
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    if (!chainConfig.deployments.transactionManager) {
+    if (!chainConfig.deployments?.transactionManager) {
       const res = chainDataForChain ? getDeployedTransactionManagerContract(chainDataForChain.chainId) : undefined;
       if (!res) {
-        throw new Error(`No transactionManager address for chain ${domainId}`);
+        throw new Error(`No transactionManager address for domain ${domainId}`);
       }
       nxtpConfig.chains[domainId].deployments.transactionManager = res.address;
     }
@@ -243,7 +204,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    throw new Error(validate.errors?.map((err: any) => err.message).join(","));
+    throw new Error(validate.errors?.map((err: any) => JSON.stringify(err, null, 2)).join(","));
   }
 
   return nxtpConfig;

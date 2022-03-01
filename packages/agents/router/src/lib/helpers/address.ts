@@ -10,15 +10,6 @@ export const getTransactionManagerAddress = (chainId: number): string => {
   return nxtpContractAddress;
 };
 
-export const getPriceOracleAddress = (chainId: number): string => {
-  const { config } = getContext();
-  const priceOracleContractAddress = config.chains[chainId].deployments.priceOracle;
-  if (!priceOracleContractAddress) {
-    throw new Error(`No priceOracle contract exists for chain ${chainId}`);
-  }
-  return priceOracleContractAddress;
-};
-
 export const getStableSwapAddress = (chainId: number): string => {
   // Not implemented yet
   return constants.AddressZero;

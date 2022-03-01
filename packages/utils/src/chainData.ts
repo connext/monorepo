@@ -20,6 +20,7 @@ export const CHAIN_ID = {
 export type ChainData = {
   name: string;
   chainId: number;
+  domainId: string;
   confirmations: number;
   shortName: string;
   type: "mainnet" | "testnet" | "";
@@ -74,8 +75,12 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   const chainData: Map<string, ChainData> = new Map();
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
-    const chainId = item.chainId.toString();
-    chainData.set(chainId, Object.fromEntries(Object.entries(item).filter((e) => e[0] !== "chainId")) as ChainData);
+    const domainId = item.domainId;
+    if (domainId) {
+      chainData.set(domainId, item as ChainData);
+    } else {
+      console.warn(`No domainId for chain! Continuing without indexing chain ${item.chainId}`);
+    }
   }
   return chainData;
 };
