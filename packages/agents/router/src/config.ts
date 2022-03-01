@@ -3,12 +3,13 @@ import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, TIntegerString } from "@connext/nxtp-utils";
+import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const DEFAULT_REDIS_BASE_URL = "redis://mock";
+const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 dotenvConfig();
 
@@ -109,7 +110,7 @@ export const TModeConfig = Type.Object({
 });
 
 export const NxtpRouterConfigSchema = Type.Object({
-  chains: Type.Record(TIntegerString, TChainConfig),
+  chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),
@@ -136,7 +137,7 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (_chainData: Map<string, ChainData>): NxtpRouterConfig => {
+export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -152,7 +153,6 @@ export const getEnvConfig = (_chainData: Map<string, ChainData>): NxtpRouterConf
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
-      console.log('configFile: ', configFile);
     }
   } catch (e) {
     console.error("Error reading config file!");
@@ -185,7 +185,8 @@ export const getEnvConfig = (_chainData: Map<string, ChainData>): NxtpRouterConf
       cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
       priceCaching:
         process.env.NXTP_PRICE_CACHE_MODE || configJson.mode?.priceCaching || configFile.mode?.priceCaching || true,
-      diagnostic: process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
+      diagnostic:
+        process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
     maxSlippage:
       process.env.NXTP_ALLOWED_TOLERANCE ||
@@ -198,6 +199,44 @@ export const getEnvConfig = (_chainData: Map<string, ChainData>): NxtpRouterConf
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
     throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
   }
+
+  const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
+
+  // add contract deployments if they exist
+  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+    const chainDataForChain = chainData.get(domainId);
+    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
+    const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
+
+    // allow passed in address to override
+    // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
+    if (!chainConfig.deployments.transactionManager) {
+      const res = chainDataForChain ? getDeployedTransactionManagerContract(chainDataForChain.chainId) : undefined;
+      if (!res) {
+        throw new Error(`No transactionManager address for chain ${domainId}`);
+      }
+      nxtpConfig.chains[domainId].deployments.transactionManager = res.address;
+    }
+
+    if (!chainConfig.subgraph.runtime) {
+      nxtpConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraph ?? [];
+    }
+
+    if (!chainConfig.subgraph.analytics) {
+      nxtpConfig.chains[domainId].subgraph.runtime = chainDataForChain?.analyticsSubgraph ?? [];
+    }
+
+    if (!chainConfig.confirmations) {
+      nxtpConfig.chains[domainId].confirmations = chainRecommendedConfirmations;
+    }
+
+    const maxLag = chainConfig.subgraph.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
+    // 25 blocks minimum.
+    nxtpConfig.chains[domainId].subgraph.maxLag = maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag;
+
+    const addedStations = nxtpConfig.chains[domainId].gasStations ?? [];
+    nxtpConfig.chains[domainId].gasStations = addedStations.concat(chainRecommendedGasStations);
+  });
 
   const validate = ajv.compile(NxtpRouterConfigSchema);
 
