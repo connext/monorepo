@@ -14,12 +14,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 // Open questions:
-// 1. How to indicate if devs allow fast liquidity?
-// 2. How to account for fees/specify amount used on receiving chain?
-// 3. Callback interface?
-// 4. Best way to preserve "originator" for some permissioning on the receiving chain?
-// 5. Should we allow a "desiredAsset" to allow for users to specify that they *want* the
-//    local asset?
+// 1. How to account for fees/specify amount used on receiving chain?
+// 2. Callback interface?
+// 3. Best way to preserve "originator" for some permissioning on the receiving chain?
 
 // TODO:
 // - decide on interface for the stable swap
@@ -34,7 +31,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 // - event finalization
 // - unit tests
 // - restricted router withdrawals
-// - fulfill interpreter improvements
+// - fulfill interpreter improvements (from audit and pass through origin domain stuff)
 // - batching
 // - native metatxs (with any asset)
 
@@ -626,7 +623,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    * @return The transaction id of the crosschain transaction
    */
   // TODO: add indicator if fast liquidity is allowed
-  function prepare(
+  function send(
     PrepareArgs calldata _args
   ) external payable returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
