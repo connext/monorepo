@@ -1,4 +1,4 @@
-import { defaultAbiCoder } from "ethers/lib/utils";
+import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 
 import { ExternalCall, ReconciledTransaction } from "./transactions";
 
@@ -54,6 +54,17 @@ export const encodeReconcileData = (reconcileData: ReconciledTransaction): strin
 };
 
 /**
+ * Hashes ReconciledData payload object
+ *
+ * @param reconciledData Object to encode and hash
+ * @returns Hash of encode object
+ */
+export const getReconciledHash = (reconciledData: ReconciledTransaction): string => {
+  const digest = keccak256(defaultAbiCoder.encode([ReconciledTransactionDataEncoding], [reconciledData]));
+  return digest;
+};
+
+/**
  * Encodes an external call transaction payload object, as defined in the TransactionManager contract
  *
  * @param recipient - The address that should receive the funds on the destination domain if no call is
@@ -64,4 +75,15 @@ export const encodeReconcileData = (reconcileData: ReconciledTransaction): strin
  */
 export const encodeExternalCallData = (exteranalCallData: ExternalCall): string => {
   return defaultAbiCoder.encode([ExternalCallDataEncoding], [exteranalCallData]);
+};
+
+/**
+ * Hashes ExternalCall payload object
+ *
+ * @param externalCallData Object to encode and hash
+ * @returns Hash of encoded object
+ */
+export const getExternalCallHash = (externalCallData: ExternalCall): string => {
+  const digest = keccak256(defaultAbiCoder.encode([ExternalCallDataEncoding], [externalCallData]));
+  return digest;
 };
