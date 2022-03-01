@@ -67,6 +67,13 @@ export type FulfilledTransaction = {
   externalHash: string;
 };
 
+export type ReconciledTransaction = {
+  externalHash: string;
+  local: string;
+  amount: string;
+  recipient: string;
+};
+
 export type CallParams = {
   recipient: string;
   callTo: string;
