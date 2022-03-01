@@ -13,11 +13,11 @@ export const bindSubgraph = async (context: AppContext) => {
   const { requestContext, methodContext } = createLoggingContext("bindSubgraph");
   interval(async () => {
     try {
-      const activeTxs = await subgraph.getTransactionsWithStatuses();
-      logger.debug("Getting active transactions", requestContext, methodContext, {
-        activeTxIds: activeTxs.map((activeTx) => activeTx.transactionId),
+      const transactions = await subgraph.getTransactionsWithStatuses();
+      logger.debug("Got transactions", requestContext, methodContext, {
+        transactions,
       });
-      await cache.transactions.storeTxData(activeTxs);
+      await cache.transactions.storeTxData(transactions);
     } catch (err: any) {
       logger.error(
         "Error getting pending txs, waiting for next loop",
