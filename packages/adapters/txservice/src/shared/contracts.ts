@@ -1,4 +1,4 @@
-import { Interface } from "ethers/lib/utils";
+import { utils } from "ethers";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain-types";
@@ -57,4 +57,4 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
  * @returns An ethers Interface object initialized with the Connext Price
  * Oracle ABI.
  */
-export const getPriceOracleInterface = () => new Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
+export const getPriceOracleInterface = () => new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];

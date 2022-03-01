@@ -3,13 +3,13 @@ import { createMethodContext, createRequestContext, getChainData, Logger, Reques
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { AuctioneerAPI } from "@connext/nxtp-adapters-auctioneer";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindFastify, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
 import { getOperations } from "./lib/operations";
+import { getSequencer } from "./adapters/sequencer";
 
 const context: AppContext = {} as any;
 
@@ -30,8 +30,18 @@ export const makeRouter = async () => {
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
+    context.adapters = {} as any;
     context.chainData = chainData;
     context.config = await getConfig(chainData);
+
+    // Make logger instance.
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      name: context.routerAddress,
+    });
+    context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
+      config: { ...context.config, mnemonic: "*****" },
+    });
 
     // Create adapter instances.
     context.adapters.wallet = context.config.mnemonic
@@ -40,22 +50,15 @@ export const makeRouter = async () => {
 
     context.routerAddress = await context.adapters.wallet.getAddress();
 
-    // Make logger instance.
-    context.logger = new Logger({
-      level: context.config.logLevel,
-      name: context.routerAddress,
-    });
-
     context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
 
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
-    // TODO: URL for auctioneer??
-    context.adapters.auctioneer = new AuctioneerAPI({ url: "" });
+    context.adapters.sequencer = await getSequencer();
 
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
-      context.config.chains as any,
+      context.config.chains,
       context.adapters.wallet,
     );
 
@@ -92,7 +95,7 @@ export const setupCache = async (
   requestContext: RequestContext,
 ): Promise<StoreManager> => {
   const methodContext = createMethodContext(setupCache.name);
-  const { prepare } = getOperations();
+  const { fulfill } = getOperations();
 
   logger.info("cache instance setup in progress...", requestContext, methodContext, {});
 
@@ -102,7 +105,7 @@ export const setupCache = async (
   });
 
   // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-  cacheInstance.subscribe(StoreManager.Channel.NewPreparedTx, prepare);
+  cacheInstance.subscribe(StoreManager.Channel.NewPreparedTx, fulfill);
 
   logger.info("cache instance setup is done!", requestContext, methodContext, {
     redisUrl: redisUrl,

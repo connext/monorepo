@@ -1,7 +1,7 @@
-import { prepare } from "./prepare";
+import { fulfill } from "./fulfill";
 
 export const getOperations = () => {
   return {
-    prepare,
+    fulfill,
   };
 };

@@ -27,8 +27,6 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-contracts/dist",
       "../@connext/nxtp-utils/dist"
     ]
   },
@@ -39,7 +37,8 @@
     "@connext/nxtp-utils": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "ethers": "^5.5.4",
-    "ioredis": "^4.28.5"
+    "ioredis": "^4.28.5",
+    "ioredis-mock": "^7.1.0"
   },
   "devDependencies": {
     "@types/ioredis": "^4",

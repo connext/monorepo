@@ -25,7 +25,7 @@
   "types": "typechain/index.ts",
   "files": [
     "src",
-    "typechain",
+    "typechain-types",
     "artifacts",
     "deployments.json",
     "contracts",

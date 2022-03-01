@@ -6,15 +6,9 @@ import {
   InvariantTransactionData,
   VariantTransactionData,
   TransactionData,
-  TransactionPreparedEvent,
   TransactionFulfilledEvent,
-  AuctionBid,
-  encodeAuctionBid,
   mkSig,
   RequestContext,
-  PrepareParams,
-  FulfillParams,
-  CancelParams,
 } from "./index";
 
 export const txReceiptMock = {
@@ -56,27 +50,6 @@ export const variantDataMock: VariantTransactionData = {
   preparedBlockNumber: 1234,
 };
 
-export const auctionBidMock: AuctionBid = {
-  user: invariantDataMock.user,
-  router: invariantDataMock.router,
-  initiator: invariantDataMock.initiator,
-  sendingAssetId: invariantDataMock.sendingAssetId,
-  receivingAssetId: invariantDataMock.receivingAssetId,
-  receivingAddress: invariantDataMock.receivingAddress,
-  sendingChainId: invariantDataMock.sendingChainId,
-  receivingChainId: invariantDataMock.receivingChainId,
-  callTo: invariantDataMock.callTo,
-  callDataHash: invariantDataMock.callDataHash,
-  transactionId: invariantDataMock.transactionId,
-  amount: variantDataMock.amount,
-  sendingChainTxManagerAddress: mkAddress("0x1"),
-  receivingChainTxManagerAddress: mkAddress("0x2"),
-  expiry: variantDataMock.expiry,
-  encryptedCallData: "0x",
-  amountReceived: "120",
-  bidExpiry: 123457,
-};
-
 export const txDataMock: TransactionData = {
   ...invariantDataMock,
   ...variantDataMock,
@@ -101,13 +74,6 @@ export const transactionSubgraphMock: any = {
   preparedBlockNumber: txDataMock.preparedBlockNumber,
 };
 
-export const senderPrepareDataMock: TransactionPreparedEvent = {
-  txData: txDataMock,
-  caller: mkAddress("0xf"),
-  encryptedCallData: mkSig("0xabc"),
-  encodedBid: encodeAuctionBid(auctionBidMock),
-  bidSignature: mkSig("0xeee"),
-};
 
 export const receiverFulfillDataMock: TransactionFulfilledEvent = {
   txData: txDataMock,
@@ -120,27 +86,6 @@ export const receiverFulfillDataMock: TransactionFulfilledEvent = {
 export const requestContextMock: RequestContext = {
   id: "0xf",
   origin: "0xe",
-};
-
-export const prepareParamsMock: PrepareParams = {
-  txData: txDataMock,
-  amount: "123",
-  expiry: 123456,
-  encryptedCallData: mkSig("0xabc"),
-  encodedBid: encodeAuctionBid(auctionBidMock),
-  bidSignature: mkSig("0xeee"),
-};
-
-export const fulfillParamsMock: FulfillParams = {
-  txData: txDataMock,
-  relayerFee: "5678",
-  signature: mkSig("0xeee"),
-  callData: "0x",
-};
-
-export const cancelParamsMock: CancelParams = {
-  txData: txDataMock,
-  signature: mkSig("0xeee"),
 };
 
 export const sigMock = "0xabcdef1c";

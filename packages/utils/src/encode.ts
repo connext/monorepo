@@ -1,7 +1,6 @@
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 
-import { AuctionBid } from "./messaging";
-import { InvariantTransactionData, TransactionData, VariantTransactionData } from "./transactionManager";
+import { ExternalCall, ReconciledTransaction } from "./transactions";
 
 /**
  * Cleans any strings so they replace the newlines and properly format whitespace. Used to translate human readable encoding to contract-compatible encoding.
@@ -11,119 +10,23 @@ import { InvariantTransactionData, TransactionData, VariantTransactionData } fro
  */
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
-export const TransactionDataEncoding = tidy(`tuple(
-  address receivingChainTxManagerAddress,
-  address user,
-  address router,
-  address initiator,
-  address sendingAssetId,
-  address receivingAssetId,
-  address sendingChainFallback,
-  address receivingAddress,
-  address callTo,
-  bytes32 callDataHash,
-  bytes32 transactionId,
-  uint256 sendingChainId,
-  uint256 receivingChainId,
-  uint256 amount,
-  uint256 expiry,
-  uint256 preparedBlockNumber
-)`);
-
-export const InvariantTransactionDataEncoding = tidy(`tuple(
-  address receivingChainTxManagerAddress,
-  address user,
-  address router,
-  address initiator,
-  address sendingAssetId,
-  address receivingAssetId,
-  address sendingChainFallback,
-  address receivingAddress,
-  address callTo,
-  uint24 sendingChainId,
-  uint24 receivingChainId,
-  bytes32 callDataHash,
-  bytes32 transactionId
-)`);
-
-export const VariantTransactionDataEncoding = tidy(`tuple(
-  uint256 amount,
-  uint256 expiry,
-  uint256 preparedBlockNumber
-)`);
-
-export const SignedFulfillDataEncoding = tidy(`tuple(
-  bytes32 transactionId,
-  uint256 relayerFee,
-  string functionIdentifier,
-  uint256 receivingChainId,
-  address receivingChainTxManagerAddress
-)`);
-
-export const SignedCancelDataEncoding = tidy(`tuple(
-  bytes32 transactionId,
-  string functionIdentifier,
-  uint256 receivingChainId,
-  address receivingChainTxManagerAddress
-)`);
-
 export const SignedRelayerFeeDataEncoding = tidy(`tuple(
   uint256 _nonce,
   uint32 _feePct,
 )`);
 
-/**
- * Encodes an InvariantTransactionData object
- *
- * @param txDataParams - Object to encode
- * @returns Encoded version of the params
- */
-export const encodeTxData = (txDataParams: InvariantTransactionData): string => {
-  return defaultAbiCoder.encode([InvariantTransactionDataEncoding], [txDataParams]);
-};
+export const ExternalCallDataEncoding = tidy(`tuple(
+  address recipient;
+  address callTo;
+  bytes callData;
+)`);
 
-/**
- * Hashes an InvariantTransactionData object
- *
- * @param txDataParams - Object to encode + hash
- * @returns The hash of the encoded object
- */
-export const getInvariantTransactionDigest = (txDataParams: InvariantTransactionData): string => {
-  const digest = keccak256(encodeTxData(txDataParams));
-  return digest;
-};
-
-/**
- * Hashes VariantTransactionData object
- *
- * @param txDataParams - Object to encode + hash
- * @returns Hash of the encoded object
- */
-export const getVariantTransactionDigest = (txDataParams: VariantTransactionData): string => {
-  const digest = keccak256(defaultAbiCoder.encode([VariantTransactionDataEncoding], [txDataParams]));
-  return digest;
-};
-
-/**
- * Encodes a fulfill payload object, as defined in the TransactionManager contract
- *
- * @param transactionId - Unique identifier to encode
- * @param relayerFee - Fee to encode
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
- * @returns Encoded fulfill payload
- */
-export const encodeFulfillData = (
-  transactionId: string,
-  relayerFee: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-): string => {
-  return defaultAbiCoder.encode(
-    [SignedFulfillDataEncoding],
-    [{ transactionId, relayerFee, functionIdentifier: "fulfill", receivingChainId, receivingChainTxManagerAddress }],
-  );
-};
+export const ReconciledTransactionDataEncoding = tidy(`tuple(
+  bytes32 externalHash,
+  address local,
+  uint256 amount,
+  address recipient,
+)`);
 
 /**
  * Encodes a handleRelayerFee payload object, as defined in the TransactionManager contract
@@ -138,250 +41,49 @@ export const encodeHandleRelayerFeeData = (nonce: string, feePercentage: string)
 };
 
 /**
- * Encode a cancel payload object, as defined in the TransactionManager contract
+ * Encodes a reconcile transaction payload object, as defined in the TransactionManager contract
  *
- * @param transactionId - Unique identifier to encode
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
- * @returns  Encoded cancel payload
+ * @param externalHash - Hash of the `ExternalCall`
+ * @param local - The address of the bridged asset
+ * @param amount - The amount forwarded through the bridge
+ * @param recipient - The address that gets the funds on the destination chain
+ * @returns Encoded reconcile transaction payload
  */
-export const encodeCancelData = (
-  transactionId: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-): string => {
-  return defaultAbiCoder.encode(
-    [SignedCancelDataEncoding],
-    [{ transactionId, functionIdentifier: "cancel", receivingChainId, receivingChainTxManagerAddress }],
-  );
+export const encodeReconcileData = (reconcileData: ReconciledTransaction): string => {
+  return defaultAbiCoder.encode([ReconciledTransactionDataEncoding], [reconcileData]);
 };
 
-////// AUCTION
-export const AuctionBidEncoding = tidy(`tuple(
-  address user,
-  address router,
-  address initiator,
-  uint24 sendingChainId,
-  address sendingAssetId,
-  uint256 amount,
-  uint24 receivingChainId,
-  address receivingAssetId,
-  uint256 amountReceived,
-  address receivingAddress,
-  bytes32 transactionId,
-  uint256 expiry,
-  bytes32 callDataHash,
-  address callTo,
-  bytes encryptedCallData,
-  address sendingChainTxManagerAddress,
-  address receivingChainTxManagerAddress,
-  uint256 bidExpiry
-)`);
-
 /**
- * Encodes a bid on a crosschain transaction auction
+ * Hashes ReconciledData payload object
  *
- * @param bid - Bid to encode
- * @returns Encoded bid
+ * @param reconciledData Object to encode and hash
+ * @returns Hash of encode object
  */
-export const encodeAuctionBid = (bid: AuctionBid): string => {
-  return defaultAbiCoder.encode([AuctionBidEncoding], [bid]);
+export const getReconciledHash = (reconciledData: ReconciledTransaction): string => {
+  const digest = keccak256(defaultAbiCoder.encode([ReconciledTransactionDataEncoding], [reconciledData]));
+  return digest;
 };
 
 /**
- * Decode bid
- * @param data - Data to decode
- * @returns Decoded bid
+ * Encodes an external call transaction payload object, as defined in the TransactionManager contract
+ *
+ * @param recipient - The address that should receive the funds on the destination domain if no call is
+ * specified, or the fallback if an external call fails
+ * @param callTo - The address of the receiving chain to execute the `callData` on
+ * @param callData - The data to execute on the receiving chain
+ * @returns Encoded exteranl call payload
  */
-export const decodeAuctionBid = (data: string): AuctionBid => {
-  const [decoded] = defaultAbiCoder.decode([AuctionBidEncoding], data);
-  return {
-    user: decoded.user,
-    router: decoded.router,
-    initiator: decoded.initiator,
-    sendingAssetId: decoded.sendingAssetId,
-    sendingChainId: decoded.sendingChainId,
-    amount: decoded.amount.toString(),
-    receivingAssetId: decoded.receivingAssetId,
-    receivingChainId: decoded.receivingChainId,
-    receivingAddress: decoded.receivingAddress,
-    amountReceived: decoded.amountReceived.toString(),
-    transactionId: decoded.transactionId,
-    callDataHash: decoded.callDataHash,
-    encryptedCallData: decoded.encryptedCallData,
-    callTo: decoded.callTo,
-    bidExpiry: decoded.bidExpiry.toNumber(),
-    expiry: decoded.expiry.toNumber(),
-    receivingChainTxManagerAddress: decoded.receivingChainTxManagerAddress,
-    sendingChainTxManagerAddress: decoded.sendingChainTxManagerAddress,
-  };
+export const encodeExternalCallData = (exteranalCallData: ExternalCall): string => {
+  return defaultAbiCoder.encode([ExternalCallDataEncoding], [exteranalCallData]);
 };
-
-// For Router.sol
-/**
- * Encoding for a Router.sol prepare call
- */
-
-export const PrepareDataEncoding = tidy(`tuple(
-  ${InvariantTransactionDataEncoding} invariantData,
-  uint256 amount,
-  uint256 expiry,
-  bytes encryptedCallData,
-  bytes encodedBid,
-  bytes bidSignature,
-  bytes encodedMeta
-  )`);
-
-export const SignedRouterPrepareDataEncoding = tidy(`tuple(
-  ${PrepareDataEncoding} args,
-  address routerRelayerFeeAsset,
-  uint256 routerRelayerFee,
-  uint256 chainId)
-  `);
-
-export const FulfillDataEncoding = tidy(`tuple(
-  ${TransactionDataEncoding} txData,
-  uint256 relayerFee,
-  bytes signature,
-  bytes callData,
-  bytes encodedMeta
-  )`);
-
-export const SignedRouterFulfillDataEncoding = tidy(`tuple(
-  ${FulfillDataEncoding} args,
-  address routerRelayerFeeAsset,
-  uint256 routerRelayerFee,
-  uint256 chainId
-  )`);
-
-const CancelDataEncoding = tidy(`tuple(
-  ${TransactionDataEncoding} txData,
-  bytes signature,
-  bytes encodedMeta
-  )`);
-
-const SignedRouterCancelDataEncoding = tidy(`tuple(
-  ${CancelDataEncoding} args,
-  address routerRelayerFeeAsset,
-  uint256 routerRelayerFee,
-  uint256 chainId
-  )`);
-
-const SignedRouterRemoveLiquidityDataEncoding = tidy(`tuple(
-  uint256 amount,
-  address assetId,
-  address routerRelayerFeeAsset,
-  uint256 routerRelayerFee,
-  uint256 chainId
-)`);
 
 /**
- * Encodes data for prepare function
- * @param invariantData
- * @param amount
- * @param expiry
- * @param encryptedCallData
- * @param encodedBid
- * @param bidSignature
- * @param encodedMeta
- * @returns
+ * Hashes ExternalCall payload object
+ *
+ * @param externalCallData Object to encode and hash
+ * @returns Hash of encoded object
  */
-export const encodeRouterPrepareData = (
-  invariantData: InvariantTransactionData,
-  amount: string,
-  expiry: number,
-  encryptedCallData: string,
-  encodedBid: string,
-  bidSignature: string,
-  encodedMeta: string,
-  routerRelayerFeeAsset: string,
-  routerRelayerFee: string,
-  chainId: number,
-): string => {
-  return defaultAbiCoder.encode(
-    [SignedRouterPrepareDataEncoding],
-    [
-      {
-        args: {
-          invariantData,
-          amount,
-          expiry,
-          encryptedCallData,
-          encodedBid,
-          bidSignature,
-          encodedMeta,
-        },
-        routerRelayerFeeAsset,
-        routerRelayerFee,
-        chainId,
-      },
-    ],
-  );
-};
-
-export const encodeRouterFulfillData = (
-  txData: TransactionData,
-  fulfillSignature: string,
-  fulfillRelayerFee: string,
-  callData: string,
-  encodedMeta: string,
-  routerRelayerFeeAsset: string,
-  routerRelayerFee: string,
-  chainId: number,
-): string => {
-  return defaultAbiCoder.encode(
-    [SignedRouterFulfillDataEncoding],
-    [
-      {
-        args: {
-          txData,
-          relayerFee: fulfillRelayerFee,
-          signature: fulfillSignature,
-          callData,
-          encodedMeta,
-        },
-        routerRelayerFeeAsset,
-        routerRelayerFee,
-        chainId,
-      },
-    ],
-  );
-};
-
-export const encodeRouterCancelData = (
-  txData: TransactionData,
-  cancelSignature: string,
-  encodedMeta: string,
-  routerRelayerFeeAsset: string,
-  routerRelayerFee: string,
-  chainId: number,
-): string => {
-  return defaultAbiCoder.encode(
-    [SignedRouterCancelDataEncoding],
-    [
-      {
-        args: {
-          txData,
-          signature: cancelSignature,
-          encodedMeta,
-        },
-        routerRelayerFeeAsset,
-        routerRelayerFee,
-        chainId,
-      },
-    ],
-  );
-};
-
-export const encodeRouterRemoveLiquidityData = (
-  amount: string,
-  assetId: string,
-  routerRelayerFeeAsset: string,
-  routerRelayerFee: string,
-  chainId: number,
-): string => {
-  return defaultAbiCoder.encode(
-    [SignedRouterRemoveLiquidityDataEncoding],
-    [{ amount, assetId, routerRelayerFeeAsset, routerRelayerFee, chainId }],
-  );
+export const getExternalCallHash = (externalCallData: ExternalCall): string => {
+  const digest = keccak256(defaultAbiCoder.encode([ExternalCallDataEncoding], [externalCallData]));
+  return digest;
 };

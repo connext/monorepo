@@ -1,7 +1,6 @@
 import {
   CallParams,
   FulfillArgs,
-  Bid,
   SignedBid,
   createLoggingContext,
   CrossChainTx,
@@ -10,9 +9,15 @@ import {
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { getContext } from "../../router";
-import { NotEnoughAmount, NotEnoughLiquidity } from "../errors/prepare";
+import { NotEnoughAmount, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
+import { SlippageInvalid } from "../errors/fulfill";
 import { getReceiverAmount } from "../helpers";
-import { getDestinationLocalAsset, sanitationCheck } from "../helpers/shared";
+import {
+  getAmountOut,
+  getDestinationLocalAsset,
+  getDestinationTransactingAsset,
+  sanitationCheck,
+} from "../helpers/shared";
 
 // fee percentage paid to relayer. need to be updated later
 const RelayerFeePercentage = "1"; //  1%
@@ -23,12 +28,12 @@ const RelayerFeePercentage = "1"; //  1%
  *
  * @param pendingTx The prepared crosschain tranaction
  */
-export const prepare = async (pendingTx: CrossChainTx) => {
-  const { requestContext, methodContext } = createLoggingContext(prepare.name);
+export const fulfill = async (pendingTx: CrossChainTx) => {
+  const { requestContext, methodContext } = createLoggingContext(fulfill.name);
   const {
     logger,
     config,
-    adapters: { auctioneer, subgraph, txservice, wallet },
+    adapters: { sequencer, subgraph, txservice, wallet },
     chainData,
     routerAddress,
   } = getContext();
@@ -36,12 +41,6 @@ export const prepare = async (pendingTx: CrossChainTx) => {
 
   /// sanitation check before validiation
   await sanitationCheck(pendingTx, "fulfill");
-
-  /// validate CallParam schema
-
-  ///  validate Prepare Input schema
-
-  ///  validate the prepare data
 
   /// create a bid
   const {
@@ -56,18 +55,26 @@ export const prepare = async (pendingTx: CrossChainTx) => {
     callTo,
     callData,
   } = pendingTx;
-  const thresholdPct = Number(config.maxSlippage.toString().split(".")[0]);
-  const highThreshold = BigNumber.from(prepareTransactingAmount)
-    .mul(100 + thresholdPct)
-    .div(100);
-  const lowThreshold = BigNumber.from(prepareTransactingAmount)
-    .mul(100 - thresholdPct)
-    .div(100);
+  // generate bid params
+  const callParams: CallParams = {
+    recipient,
+    callTo,
+    callData,
+    originDomain,
+    destinationDomain,
+  };
 
   const sendingChainId = getChainIdFromDomain(originDomain);
   const receivingChainId = getChainIdFromDomain(destinationDomain);
+  const trascitingInputDecimals = await txservice.getDecimalsForAsset(sendingChainId, prepareTransactingAsset);
   const localInputDecimals = await txservice.getDecimalsForAsset(sendingChainId, prepareLocalAsset);
   const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
+  const fulfillTransactingAsset = await getDestinationTransactingAsset(
+    originDomain,
+    prepareTransactingAsset,
+    destinationDomain,
+  );
+  const transactingOutputDecimals = await txservice.getDecimalsForAsset(receivingChainId, fulfillTransactingAsset);
   const localOutputDecimals = await txservice.getDecimalsForAsset(receivingChainId, fulfillLocalAsset);
 
   let { receivingAmount: receiverAmount } = await getReceiverAmount(
@@ -75,6 +82,36 @@ export const prepare = async (pendingTx: CrossChainTx) => {
     localInputDecimals,
     localOutputDecimals,
   );
+  const fulfillTransactingAmount = await getAmountOut(
+    receiverAmount,
+    destinationDomain,
+    fulfillTransactingAsset,
+    fulfillLocalAsset,
+  );
+
+  // check maxSlippage here
+  const thresholdPct = Number(config.maxSlippage.toString().split(".")[0]);
+  const convertedPrepareTransactingAmount = BigNumber.from(prepareTransactingAmount).div(
+    BigNumber.from(10).pow(18 - transactingOutputDecimals),
+  );
+  const highThreshold = convertedPrepareTransactingAmount.mul(100 + thresholdPct).div(100);
+  const lowThreshold = convertedPrepareTransactingAmount.mul(100 - thresholdPct).div(100);
+  const convertedFulfillTxAmount = BigNumber.from(fulfillTransactingAmount).div(
+    BigNumber.from(10).pow(18 - transactingOutputDecimals),
+  );
+
+  if (convertedFulfillTxAmount.gt(highThreshold) || convertedFulfillTxAmount.lt(lowThreshold)) {
+    throw new SlippageInvalid({
+      requestContext,
+      methodContext,
+      lowThreshold: lowThreshold.toString(),
+      highThreshold: highThreshold.toString(),
+      prepareTransactingAmount: convertedPrepareTransactingAmount.toString(),
+      fulfillTransactingAmount: convertedPrepareTransactingAmount.toString(),
+      pendingTx,
+    });
+  }
+
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
   const gasFeeInFulfillLocalAsset = await txservice.calculateGasFeeInReceivingToken(
     sendingChainId,
@@ -112,17 +149,6 @@ export const prepare = async (pendingTx: CrossChainTx) => {
     });
   }
 
-  // TODO: should check maxSlippage here
-
-  // generate bid params
-  const callParams: CallParams = {
-    recipient,
-    callTo,
-    callData,
-    originDomain,
-    destinationDomain,
-  };
-
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
@@ -143,5 +169,5 @@ export const prepare = async (pendingTx: CrossChainTx) => {
     signature,
   };
   /// send the bid to auctioneer
-  await auctioneer.sendBid(bid);
+  await sequencer.sendBid(bid);
 };
