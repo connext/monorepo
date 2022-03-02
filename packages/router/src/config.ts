@@ -368,7 +368,7 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     }
 
     if (chainConfig.gelatoOracle === undefined || chainConfig.gelatoOracle === null) {
-      nxtpConfig.chainConfig[chainId].gelatoOracle = false;
+      nxtpConfig.chainConfig[chainId].gelatoOracle = true;
     }
 
     if (!chainConfig.subgraph) {
