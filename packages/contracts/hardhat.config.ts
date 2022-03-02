@@ -181,6 +181,11 @@ const config: HardhatUserConfig = {
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
     },
+    "milkomeda-cardano": {
+      accounts: { mnemonic },
+      chainId: 2001,
+      url: "https://rpc.c1.milkomeda.com:8545",
+    },
     "arbitrum-one": {
       accounts: { mnemonic },
       chainId: 42161,
