@@ -1,56 +1,37 @@
-import { readFileSync } from "fs";
+import { Type, Static } from "@sinclair/typebox";
 
-import { SwapPool } from ".";
+import { TAddress } from "@connext/nxtp-utils";
+import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 
-// TODO: Use typebox??
-export type SequencerChainConfig = {
-  [chainId: number]: {
-    confirmations: number;
-    providers: string[];
-    transactionManagerAddress?: string;
-    priceOracleAddress?: string;
-    subgraph?: string | string[];
-    gasStations: string[];
-  };
-};
+export const TChainConfig = Type.Object({
+  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
+  providers: Type.Array(Type.String()),
+  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
+  deployments: Type.Object({
+    transactionManager: TAddress,
+  }),
+});
 
-export type SequencerConfig = {
-  chains: SequencerChainConfig;
-  // routers: string[];
-  swapPools: SwapPool[];
-  logLevel: string;
-  network: string;
-  redisUrl: string;
-  listenPort: number;
-};
+export type ChainConfig = Static<typeof TChainConfig>;
 
-// Copy/pasted from json file in the README - this should generally work for local chain load testing.
-export const DEFAULT_LOCAL_CONFIG = {
-  chains: {
-    "1337": {
-      providers: ["http://localhost:8545"],
-      confirmations: 1,
-      subgraph: "http://localhost:8010/subgraphs/name/connext/nxtp",
-      transactionManagerAddress: "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-      priceOracleAddress: "0x0000000000000000000000000000000000000000",
-    },
-    "1338": {
-      providers: ["http://localhost:8546"],
-      confirmations: 1,
-      subgraph: "http://localhost:9010/subgraphs/name/connext/nxtp",
-      transactionManagerAddress: "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-      priceOracleAddress: "0x0000000000000000000000000000000000000000",
-    },
-  },
-  logLevel: "info",
-  network: "local",
-  swapPools: [
-    {
-      name: "TEST",
-      assets: [
-        { chainId: 1337, assetId: "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-        { chainId: 1338, assetId: "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-      ],
-    },
-  ],
-};
+export const TServerConfig = Type.Object({
+  listenPort: Type.Integer({ minimum: 1, maximum: 65535 }),
+});
+
+export const SequencerConfigSchema = Type.Object({
+  chains: Type.Record(Type.String(), TChainConfig),
+  logLevel: Type.Union([
+    Type.Literal("fatal"),
+    Type.Literal("error"),
+    Type.Literal("warn"),
+    Type.Literal("info"),
+    Type.Literal("debug"),
+    Type.Literal("trace"),
+    Type.Literal("silent"),
+  ]),
+  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  redisUrl: Type.String({ format: "uri" }),
+  server: TServerConfig,
+});
+
+export type SequencerConfig = Static<typeof SequencerConfigSchema>;
