@@ -122,6 +122,7 @@ export const TChainConfig = Type.Object({
   relayerFeeThreshold: Type.Number({ minimum: 0, maximum: 100 }),
   subgraphSyncBuffer: Type.Number(), // If subgraph is out of sync by this number, will not process actions
   routerContractRelayerAsset: Type.Optional(Type.String()),
+  gelatoOracle: Type.Boolean(),
 });
 
 export const TSwapPool = Type.Object({
@@ -364,6 +365,10 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
     if (chainConfig.allowRelay === undefined || chainConfig.allowRelay === null) {
       nxtpConfig.chainConfig[chainId].allowRelay = false;
+    }
+
+    if (chainConfig.gelatoOracle === undefined || chainConfig.gelatoOracle === null) {
+      nxtpConfig.chainConfig[chainId].gelatoOracle = false;
     }
 
     if (!chainConfig.subgraph) {
