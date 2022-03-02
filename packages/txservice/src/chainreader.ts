@@ -9,7 +9,7 @@ import {
   getHardcodedGasLimits,
   isOracleActive,
   getEstimatedFee,
-  isPaymentTokenSupported
+  isPaymentTokenSupported,
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
@@ -455,7 +455,7 @@ export class ChainReader {
 
     // Use Gelato Oracle if it's configured and available for the chain id
     let gelatoEstimatedFee: BigNumber | undefined;
-    if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle){
+    if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
       gelatoEstimatedFee = await this.calculateGelatoFee(chainIdForGasPrice, assetId, gasLimit.toNumber());
     }
 
@@ -480,10 +480,10 @@ export class ChainReader {
       },
       gasAmountInUsd: gasAmountInUsd.toString(),
       finalTokenAmountForGasFee: tokenAmountForGasFee.toString(),
-      gelatoEstimatedFee: gelatoEstimatedFee? gelatoEstimatedFee.toString() : "N/A",
+      gelatoEstimatedFee: gelatoEstimatedFee ? gelatoEstimatedFee.toString() : "N/A",
     });
 
-    return gelatoEstimatedFee? gelatoEstimatedFee: tokenAmountForGasFee;
+    return gelatoEstimatedFee ? gelatoEstimatedFee : tokenAmountForGasFee;
   }
 
   /**
@@ -556,11 +556,16 @@ export class ChainReader {
    * @param gasLimit - The gas limit to estimate.
    * @param isHighPriority - Flag to bump the estimated fee to have more priority.
    */
-  protected async calculateGelatoFee(chainId: number, assetId: string, gasLimit: number, isHighPriority = false): Promise<BigNumber | undefined> {
+  protected async calculateGelatoFee(
+    chainId: number,
+    assetId: string,
+    gasLimit: number,
+    isHighPriority = false,
+  ): Promise<BigNumber | undefined> {
     const gelatoOracleActive = await isOracleActive(chainId);
     let gelatoEstimatedFee: BigNumber | undefined;
 
-    if (gelatoOracleActive){
+    if (gelatoOracleActive) {
       const tokenSupportedByGelato = await isPaymentTokenSupported(chainId, assetId);
       if (tokenSupportedByGelato) {
         gelatoEstimatedFee = await getEstimatedFee(chainId, assetId, gasLimit, isHighPriority);
@@ -569,5 +574,4 @@ export class ChainReader {
 
     return gelatoEstimatedFee;
   }
-
 }
