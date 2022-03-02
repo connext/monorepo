@@ -43,24 +43,22 @@ export class TransactionsCache extends Cache {
    * @param domain The network id that we're going to get the latest nonce on
    */
   public async getLatestNonce(domain: string): Promise<number> {
-    //assuming theres a guranetee it starts from latest record
+    const keys = await this.data.keys("*");
+    const crossChainTxs: CrossChainTx[] = [];
+    for (const key of keys) {
+      const value = await this.data.get(key);
+      if (value) {
+        const crossChainTx = JSON.parse(value) as CrossChainTx;
+        if (crossChainTx.originDomain === domain) crossChainTxs.push(crossChainTx);
+      }
+    }
 
-    // TODO: add arguments
-    // this.txData.zrevrangebyscore();
+    const sortedCrossChainTxs = crossChainTxs
+      .filter((tx) => tx.status === CrossChainTxStatus.Prepared)
+      .sort((a, b) => a.nonce - b.nonce);
 
-    const stream = this.data.scanStream({
-      // only returns keys following the pattern of `user:*`
-      match: `${domain}:*`,
-      // only return objects that match a given type,
-      // (requires Redis >= 6.0)
-      // returns approximately 100 elements per call
-      count: 1,
-    });
-
-    const latestRecordForDomain = await stream.read(1);
-    const parsedRecord = JSON.parse(latestRecordForDomain);
-
-    return parsedRecord;
+    const latestNonce = sortedCrossChainTxs.length > 0 ? sortedCrossChainTxs[0].nonce : 0;
+    return latestNonce;
   }
 
   public async storeStatus(cache: any): Promise<void> {
