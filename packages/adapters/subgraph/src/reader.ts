@@ -1,9 +1,12 @@
 import { BigNumber } from "ethers";
-import { CrossChainTx } from "@connext/nxtp-utils";
+import { CrossChainTx, SubgraphCache } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
-import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./lib/subgraphs/runtime/graphqlsdk";
+import {
+  GetFulfilledAndReconciledTransactionsByIdsQuery,
+  GetPreparedTransactionsQuery,
+} from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -61,7 +64,7 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  public async getTransactionsWithStatuses(): Promise<CrossChainTx[]> {
+  public async getTransactionsWithStatuses(agents: Map<string, SubgraphCache>): Promise<CrossChainTx[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
@@ -69,11 +72,18 @@ export class SubgraphReader {
     // first get prepared transactions on all chains
     const allOrigin: [string, CrossChainTx][] = (
       await Promise.all(
-        [...this.subgraphs].map(async ([, subgraph]) => {
-          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>(
-            (client) =>
-              client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
-          );
+        [...this.subgraphs].map(async ([domain, subgraph]) => {
+          const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) => {
+            const prepareBlockNumber = agents.get(domain)!.currentBlock;
+            const safeConfirmation = agents.get(domain)!.safeConfirmation;
+            const nonce = agents.get(domain)!.latestNonce;
+
+            return client.GetPreparedTransactions({
+              destinationDomains,
+              maxPrepareBlockNumber: (prepareBlockNumber - safeConfirmation).toString(),
+              nonce,
+            }); // TODO: nonce + maxPrepareBlockNumber
+          });
           return transactions;
         }),
       )
@@ -97,9 +107,15 @@ export class SubgraphReader {
     await Promise.all(
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transactionIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
+        const prepareBlockNumber = agents.get(destinationDomain)!.currentBlock;
+        const safeConfirmation = agents.get(destinationDomain)!.safeConfirmation;
+
         const { transactions } = await subgraph.runtime.request<GetFulfilledAndReconciledTransactionsByIdsQuery>(
           (client) =>
-            client.GetFulfilledAndReconciledTransactionsByIds({ transactionIds, maxPrepareBlockNumber: Date.now() }), // TODO: maxPrepareBlockNumber
+            client.GetFulfilledAndReconciledTransactionsByIds({
+              transactionIds,
+              maxPrepareBlockNumber: (prepareBlockNumber - safeConfirmation).toString(),
+            }), // TODO: maxPrepareBlockNumber
         );
         transactions.forEach((_tx) => {
           const tx = parser.crossChainTx(_tx);

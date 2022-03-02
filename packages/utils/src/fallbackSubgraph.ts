@@ -82,6 +82,12 @@ const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
   [SubgraphDomain.TEST]: "test",
 };
 
+export type SubgraphCache = {
+  currentBlock: number;
+  safeConfirmation: number;
+  latestNonce: number;
+};
+
 export const graphQuery = async (url: string, query: string): Promise<any> => {
   return await graphQLRequest(url, query);
 };

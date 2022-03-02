@@ -23,6 +23,7 @@ export const makeSequencer = async () => {
   const requestContext = createRequestContext("makeSequencer");
   const methodContext = createMethodContext(makeSequencer.name);
   try {
+    context.adapters = {} as any;
     context.logger = new Logger({ level: "debug" });
 
     context.logger.info("Setting up Sequencer", requestContext, methodContext, {});
@@ -47,13 +48,13 @@ export const makeSequencer = async () => {
     // Create server, set up routes, and start listening.
     const server = fastify({ logger: pino({ level: context.config.logLevel }) });
     setupHandlers(context, server);
-    await server.listen(context.config.listenPort);
+    await server.listen(context.config.server.listenPort);
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
-      listenPort: context.config.listenPort,
+      listenPort: context.config.server.listenPort,
     });
   } catch (error: any) {
-    console.error("Error starting sequencer. :'(", error);
+    console.error("Error starting sequencer :'(", error);
     process.exit();
   }
 };
