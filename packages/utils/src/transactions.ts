@@ -55,6 +55,25 @@ export type CrossChainTx = {
   reconciledBlockNumber: number;
 };
 
+export type ExternalCall = {
+  recipient: string;
+  callTo: string;
+  callData: string;
+};
+
+export type FulfilledTransaction = {
+  router: string;
+  amount: string;
+  externalHash: string;
+};
+
+export type ReconciledTransaction = {
+  externalHash: string;
+  local: string;
+  amount: string;
+  recipient: string;
+};
+
 export type CallParams = {
   recipient: string;
   callTo: string;
@@ -65,10 +84,10 @@ export type CallParams = {
 
 export type FulfillArgs = {
   params: CallParams;
-  transactionId: string;
   local: string;
   router: string;
   feePercentage: string;
+  nonce: string;
   amount: string;
   relayerSignature: string;
 };

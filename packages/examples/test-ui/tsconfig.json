@@ -1,0 +1,14 @@
+{
+  "references": [],
+  "extends": "../../../config/tsconfig.browser.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "exclude": []
+}

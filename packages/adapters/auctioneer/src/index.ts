@@ -1,15 +1,22 @@
-export class AuctioneerAPI {
-  constructor() {}
+// import axios, { AxiosResponse } from "axios";
+// import { SignedBid } from "@connext/nxtp-utils";
 
-  // TODO: MetaTx type
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendBid(metaTx: any) {
-    throw new Error("Not implemented");
-  }
+// import { AuctioneerAPIConfig } from "./lib/entities";
 
-  public async getAuctionCycleTime(): Promise<number> {
-    // TODO: Should be cached locally, this value will reflect the period for which a
-    // transaction's auction will last, i.e. 30s.
-    throw new Error("Not implemented");
-  }
-}
+// export class AuctioneerAPI {
+//   constructor(private readonly config: AuctioneerAPIConfig) {}
+
+//   /**
+//    * Send a bid to the auctioneer for the given transaction.
+//    * @param bid - Bid and signature.
+//    */
+//   public async sendBid(bid: SignedBid): Promise<AxiosResponse> {
+//     return await axios.post(this.config.url, bid);
+//   }
+
+//   public async getAuctionCycleTime(): Promise<number> {
+//     // TODO: Should be cached locally, this value will reflect the period for which a
+//     // transaction's auction will last, i.e. 30s.
+//     throw new Error("Not implemented");
+//   }
+// }

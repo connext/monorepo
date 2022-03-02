@@ -25,8 +25,8 @@ report.*.json
 
 ops/data
 **/*/.nyc_output/*
-packages/router/*config.json
-packages/router/chaindata.json
+packages/agents/router/*config.json
+packages/agents/router/chaindata.json
 
 packages/sdk-server/*config.json
 packages/integration/logs.json

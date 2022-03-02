@@ -1,0 +1,26 @@
+{
+  "extends": "../../../config/tsconfig.node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "typeRoots": ["./typechain", "./node_modules/@types"],
+    "rootDir": ".",
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
+  },
+  "include": [
+    "hardhat.config.ts",
+    "./scripts",
+    "./deploy",
+    "./deployHelpers",
+    "./typechain",
+    "src/**/*.ts",
+    "./artifacts",
+    "./deployments.json"
+  ],
+  "exclude": ["test/**/*.ts"],
+  "references": [
+    {
+      "path": "../../utils/tsconfig.build.json"
+    }
+  ]
+}

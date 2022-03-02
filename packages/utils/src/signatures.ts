@@ -1,17 +1,7 @@
 import { Signer, Wallet, BigNumber, providers } from "ethers";
 import { arrayify, solidityKeccak256, splitSignature, verifyMessage } from "ethers/lib/utils";
 
-import {
-  encodeAuctionBid,
-  encodeCancelData,
-  encodeFulfillData,
-  encodeRouterPrepareData,
-  encodeRouterFulfillData,
-  encodeRouterCancelData,
-  encodeRouterRemoveLiquidityData,
-} from "./encode";
-import { AuctionBid } from "./messaging";
-import { InvariantTransactionData, TransactionData } from "./transactionManager";
+import { encodeHandleRelayerFeeData } from "./encode";
 
 /**
  * Occasionally have seen metamask return signatures with v = 00 or v = 01.
@@ -52,220 +42,47 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
 };
 
 /**
- * Generates a signature on an fulfill transaction payload
+ * Generates a signature on the handleRelayerFee payload in `fulfill` transaction
  *
- * @param transactionId - Transaction ID that was signed
- * @param relayerFee - Relayer fee that was signed
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
- * @param signature - Signature to recover signer of
+ * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * the transaction id for the crosschain transaction
+ * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Signature of the payload from the signer
  */
-export const signFulfillTransactionPayload = async (
-  transactionId: string,
-  relayerFee: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
+export const signHandleRelayerFeePayload = async (
+  nonce: string,
+  feePercentage: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getFulfillTransactionHashToSign(
-    transactionId,
-    relayerFee,
-    receivingChainId,
-    receivingChainTxManagerAddress,
-  );
+  const hash = getHandleRelayerFeeHashToSign(nonce, feePercentage);
 
   return sign(hash, signer);
 };
 
 /**
- * Generates a hash to sign of an fulfill transaction payload
+ * Generates a hash to sign of the handleRelayerFee payload in `fulfill` transaction
  *
- * @param transactionId - Transaction ID that was signed
- * @param relayerFee - Relayer fee that was signed
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
+ * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * the transaction id for the crosschain transaction
+ * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Hash that should be signed
  */
-export const getFulfillTransactionHashToSign = (
-  transactionId: string,
-  relayerFee: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-): string => {
-  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
+export const getHandleRelayerFeeHashToSign = (nonce: string, feePercentage: string): string => {
+  const payload = encodeHandleRelayerFeeData(nonce, feePercentage);
   const hash = solidityKeccak256(["bytes"], [payload]);
   return hash;
 };
 
 /**
- * Returns the recovered signer from the fulfilled transaction
+ * Returns the recovered signer from the handleRelayerFee payload
  *
- * @param transactionId - Transaction ID that was signed
- * @param relayerFee - Relayer fee that was signed
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
- * @param signature - Signature to recover signer of
+ * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * the transaction id for the crosschain transaction
+ * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Recovered address of signer
  */
-export const recoverFulfilledTransactionPayload = (
-  transactionId: string,
-  relayerFee: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-  signature: string,
-): string => {
-  const payload = encodeFulfillData(transactionId, relayerFee, receivingChainId, receivingChainTxManagerAddress);
+export const recoverHandleRelayerFeePayload = (nonce: string, feePercentage: string, signature: string): string => {
+  const payload = encodeHandleRelayerFeeData(nonce, feePercentage);
   const hashed = solidityKeccak256(["bytes"], [payload]);
   return verifyMessage(arrayify(hashed), signature);
-};
-
-/**
- * Generates a signature on an cancel transaction payload
- *
- * @param transactionId - Transaction ID that was signed
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
- * @param signature - Signature to recover signer of
- * @returns Signature of the payload from the signer
- */
-export const signCancelTransactionPayload = async (
-  transactionId: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-  signer: Signer,
-): Promise<string> => {
-  const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
-  const hash = solidityKeccak256(["bytes"], [payload]);
-  return sign(hash, signer);
-};
-
-/**
- * Returns the recovered signer from the cancelled transaction
- *
- * @param transactionId - Transaction ID that was signed
- * @param receivingChainId - Chain id for receiving chain
- * @param receivingChainTxManagerAddress - Address of `TransactionManager.sol` on the receiving chain
- * @param signature - Signature to recover signer of
- * @returns Recovered address of signer
- */
-export const recoverCancelTransactionPayload = (
-  transactionId: string,
-  receivingChainId: number,
-  receivingChainTxManagerAddress: string,
-  signature: string,
-): string => {
-  const payload = encodeCancelData(transactionId, receivingChainId, receivingChainTxManagerAddress);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
-  return verifyMessage(arrayify(hashed), signature);
-};
-
-/**
- * Generates a signature on an auction bid
- *
- * @param bid - Bid to sign
- * @param signer - Account signing the bid
- * @returns Signature of the bid from the signer
- */
-export const signAuctionBid = async (bid: AuctionBid, signer: Signer): Promise<string> => {
-  const payload = encodeAuctionBid(bid);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
-  return sanitizeSignature(await signer.signMessage(arrayify(hashed)));
-};
-
-/**
- * Recovers the signer of a given auction bid
- *
- * @param bid - Bid information that should've been signed
- * @param signature - Signature to recover signer of
- * @returns Recovered signer
- */
-export const recoverAuctionBid = (bid: AuctionBid, signature: string): string => {
-  const payload = encodeAuctionBid(bid);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
-  return verifyMessage(arrayify(hashed), signature);
-};
-
-// Router.sol
-
-export const signRouterPrepareTransactionPayload = async (
-  invariantData: InvariantTransactionData,
-  amount: string,
-  expiry: number,
-  encryptedCallData: string,
-  encodedBid: string,
-  bidSignature: string,
-  encodedMeta: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-  chainId: number,
-  signer: Wallet | Signer,
-): Promise<string> => {
-  const payload = encodeRouterPrepareData(
-    invariantData,
-    amount,
-    expiry,
-    encryptedCallData,
-    encodedBid,
-    bidSignature,
-    encodedMeta,
-    relayerFeeAsset,
-    relayerFee,
-    chainId,
-  );
-  const hash = solidityKeccak256(["bytes"], [payload]);
-
-  return sign(hash, signer);
-};
-
-export const signRouterFulfillTransactionPayload = async (
-  txData: TransactionData,
-  fulfillSignature: string,
-  fulfillRelayerFee: string,
-  callData: string,
-  encodedMeta: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-  chainId: number,
-  signer: Wallet | Signer,
-): Promise<string> => {
-  const payload = encodeRouterFulfillData(
-    txData,
-    fulfillSignature,
-    fulfillRelayerFee,
-    callData,
-    encodedMeta,
-    relayerFeeAsset,
-    relayerFee,
-    chainId,
-  );
-  const hash = solidityKeccak256(["bytes"], [payload]);
-  return sign(hash, signer);
-};
-
-export const signRouterCancelTransactionPayload = async (
-  txData: TransactionData,
-  cancelSignature: string,
-  encodedMeta: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-  chainId: number,
-  signer: Wallet | Signer,
-): Promise<string> => {
-  const payload = encodeRouterCancelData(txData, cancelSignature, encodedMeta, relayerFeeAsset, relayerFee, chainId);
-  const hash = solidityKeccak256(["bytes"], [payload]);
-  return sign(hash, signer);
-};
-
-export const signRouterRemoveLiquidityTransactionPayload = (
-  amount: string,
-  assetId: string,
-  relayerFeeAsset: string,
-  relayerFee: string,
-  chainId: number,
-  signer: Wallet | Signer,
-): Promise<string> => {
-  const payload = encodeRouterRemoveLiquidityData(amount, assetId, relayerFeeAsset, relayerFee, chainId);
-  const hash = solidityKeccak256(["bytes"], [payload]);
-  return sign(hash, signer);
 };
