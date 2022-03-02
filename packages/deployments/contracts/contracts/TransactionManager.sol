@@ -623,7 +623,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    * @return The transaction id of the crosschain transaction
    */
   // TODO: add indicator if fast liquidity is allowed
-  function send(
+  function prepare(
     PrepareArgs calldata _args
   ) external payable returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
