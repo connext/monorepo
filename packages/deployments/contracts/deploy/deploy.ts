@@ -132,7 +132,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const bridge = (await hre.ethers.getContractAt("BridgeRouter", bridgeAddress)).connect(deployer);
   console.log("deployed, test:", await bridge.owner());
 
-  // NOTE: need to run `enrollRemoteBridge` task post-deployment to enroll the
+  // NOTE: need to run `enrollHandler` task post-deployment to enroll the
   // remote routers for different chains after they are all deployed
   // ========== End: Nomad BridgeRouter Deployment ==========
 
