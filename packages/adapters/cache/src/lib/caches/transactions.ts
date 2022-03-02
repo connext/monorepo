@@ -37,7 +37,12 @@ export class TransactionsCache extends Cache {
     return recordStatus;
   }
 
-  public async getLatestNonce(domain: string): Promise<TransactionData | undefined> {
+  /**
+   * Returns latest nonce on `domain` network
+   *
+   * @param domain The network id that we're going to get the latest nonce on
+   */
+  public async getLatestNonce(domain: string): Promise<number> {
     //assuming theres a guranetee it starts from latest record
 
     // TODO: add arguments
@@ -71,7 +76,7 @@ export class TransactionsCache extends Cache {
         // Store the transaction data, since it doesn't already exist.
         await this.data.set(tx.transactionId, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        this.publish(StoreChannel.NewPreparedTx, tx.transactionId);
+        this.publish(StoreChannel.NewPreparedTx, tx);
       }
     }
   }

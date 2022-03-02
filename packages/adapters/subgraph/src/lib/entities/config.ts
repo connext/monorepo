@@ -22,9 +22,3 @@ export const SubgraphReaderConfigSchema = Type.Object({
 });
 
 export type SubgraphReaderConfig = Static<typeof SubgraphReaderConfigSchema>;
-
-export type SubgraphCache = {
-  currentBlock: number;
-  safeConfirmation: number;
-  latestNonce: number;
-};

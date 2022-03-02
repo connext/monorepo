@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
-import { CrossChainTx } from "@connext/nxtp-utils";
+import { CrossChainTx, SubgraphCache } from "@connext/nxtp-utils";
 
-import { SubgraphReaderConfig, SubgraphMap, SubgraphCache } from "./lib/entities";
+import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
   GetFulfilledAndReconciledTransactionsByIdsQuery,

@@ -13,7 +13,7 @@ export abstract class Cache {
    * @param channel The channel name that publishes messages to
    * @param message The message to publish
    */
-  protected async publish(channel: StoreChannel, message: string): Promise<void> {
+  protected async publish(channel: StoreChannel, message: any): Promise<void> {
     const callback = this.subscriptions.get(channel);
     if (callback) callback(message);
   }
