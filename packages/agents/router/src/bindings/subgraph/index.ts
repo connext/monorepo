@@ -1,4 +1,3 @@
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createLoggingContext, jsonifyError, SubgraphCache } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
@@ -14,7 +13,6 @@ export const bindSubgraph = async (context: AppContext) => {
     adapters: { cache, subgraph, txservice },
     logger,
     config,
-    chainData,
   } = context;
   const { requestContext, methodContext } = createLoggingContext("bindSubgraph");
   interval(async () => {
