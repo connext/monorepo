@@ -3,7 +3,10 @@ import { CrossChainTx } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
-import { GetFulfilledAndReconciledTransactionsByIdsQuery, GetPreparedTransactionsQuery } from "./lib/subgraphs/runtime/graphqlsdk";
+import {
+  GetFulfilledAndReconciledTransactionsByIdsQuery,
+  GetPreparedTransactionsQuery,
+} from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -72,7 +75,11 @@ export class SubgraphReader {
         [...this.subgraphs].map(async ([, subgraph]) => {
           const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>(
             (client) =>
-              client.GetPreparedTransactions({ destinationDomains, maxPrepareBlockNumber: Date.now(), nonce: 0 }), // TODO: nonce + maxPrepareBlockNumber
+              client.GetPreparedTransactions({
+                destinationDomains,
+                maxPrepareBlockNumber: Date.now().toString(),
+                nonce: 0,
+              }), // TODO: nonce + maxPrepareBlockNumber
           );
           return transactions;
         }),
