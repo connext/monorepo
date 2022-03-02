@@ -25,6 +25,7 @@ import "./src/tasks/setDexPrice";
 import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
+import "./src/tasks/prepareTx";
 
 dotEnvConfig();
 
