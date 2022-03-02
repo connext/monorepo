@@ -21,13 +21,11 @@ export const bindSubgraph = async (context: AppContext) => {
     try {
       const subgraphCache: Map<string, SubgraphCache> = new Map();
       for (const domain of Object.keys(config.chains)) {
-        const chainId = chainData.get(domain)?.chainId;
-        if (!chainId) {
-          throw new Error("ChainData incomplete!");
-        }
-        const latestBlockNumber = await txservice.getBlockNumber(chainId);
+        // TODO. txservice currently works with chainId, not domain. It needs to be updated
+        const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
         const safeConfirmations = DEFAULT_SAFE_CONFIRMATIONS;
         const latestNonce = await cache.transactions.getLatestNonce(domain);
+        console.log({ domain, latestBlockNumber, safeConfirmations, latestNonce });
         subgraphCache.set(domain, {
           currentBlock: latestBlockNumber,
           safeConfirmation: safeConfirmations,
