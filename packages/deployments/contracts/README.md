@@ -110,6 +110,8 @@ yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --solc-input --n
 yarn workspace @connext/nxtp-contracts export
 ```
 
+Congratulations! You have deployed the contracts. To configure them properly, see the Amarok Tasks below.
+
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
 
 ## How to set price information in ConnextPriceOracle
