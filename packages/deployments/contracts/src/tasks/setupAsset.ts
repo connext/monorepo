@@ -1,7 +1,6 @@
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { NOMAD_DEPLOYMENTS } from "../constants";
 import { canonizeId } from "../nomad";
 
 export default task("setup-asset", "Configures an asset")
