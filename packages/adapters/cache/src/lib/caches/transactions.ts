@@ -1,8 +1,9 @@
 import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { CacheParams, StoreChannel } from "../entities";
+import { CacheParams, StoreChannel, TxStatus } from "../entities";
 import { Cache } from "./";
+import { stat } from "fs";
 
 export class TransactionsCache extends Cache {
   // Redis Store I
@@ -26,55 +27,66 @@ export class TransactionsCache extends Cache {
     }
   }
 
-  public async getStatus(domain: string, nonce: string): Promise<CrossChainTxStatus | undefined> {
-    const status = this.status.scanStream({
-      match: `${domain}:${nonce}`,
-      count: 1,
-    });
 
-    const recordStatus = await status.read(1);
-    //todo: cast to status enum
-    return recordStatus;
+  //Stats:
+  //key: txid | value: "status"
+  public async getStatus(txid: string): Promise<CrossChainTxStatus | undefined> {
+    const status = this.status.get(txid);
+    if (typeof(status) === "string") {
+      return status as CrossChainTxStatus;
+    }
+    return;
   }
 
   /**
    * Returns latest nonce on `domain` network
    *
    * @param domain The network id that we're going to get the latest nonce on
+   * Nonce should be implicitly the index of the last element in the ordered list
+   * //todo: this implies we need to keep the highest score if we prune data
+
    */
+
+  //Data
+  //key: domain 
   public async getLatestNonce(domain: string): Promise<number> {
-    const keys = await this.data.keys("*");
-    const crossChainTxs: CrossChainTx[] = [];
-    for (const key of keys) {
-      const value = await this.data.get(key);
-      if (value) {
-        const crossChainTx = JSON.parse(value) as CrossChainTx;
-        if (crossChainTx.originDomain === domain) crossChainTxs.push(crossChainTx);
-      }
-    }
-
-    const sortedCrossChainTxs = crossChainTxs
-      .filter((tx) => tx.status === CrossChainTxStatus.Prepared)
-      .sort((a, b) => a.nonce - b.nonce);
-
-    const latestNonce = sortedCrossChainTxs.length > 0 ? sortedCrossChainTxs[0].nonce : 0;
-    return latestNonce;
+    //get highest score in reverse for a domain data's ordered set.
+    const highestScore = await this.data.zrevrange(domain, 0, 0, "WITHSCORES");
+    return Number(highestScore[0]);
   }
 
-  public async storeStatus(cache: any): Promise<void> {
-    await this.status.set(cache.nxtpId, JSON.stringify(cache.bid));
+
+  public async storeStatus(status: CrossChainTxStatus, txid: string): Promise<string | number> {
+    //todo:this dosent need to be ordered afaik.
+    //get highest score (latest record) for the domain
+    const highestScore = await this.status.zrevrange(txid, 0, 0, "WITHSCORES");
+    //add to the sorted list and increment score
+    const newScore = Number(highestScore[0]) + 1;
+    const addRes = await this.status.zadd(txid, newScore, status);
+    return addRes;
+  
   }
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
+    
     for (const tx of txs) {
+      //get latest score of origin domain's ordered set
+      
+
       const existing = await this.data.get(tx.transactionId);
       // Update the status, regardless of whether the transaction already exists.
       await this.status.set(tx.transactionId, tx.status.toString());
       if (!existing) {
-        // Store the transaction data, since it doesn't already exist.
-        await this.data.set(tx.transactionId, JSON.stringify(tx));
+        const highestScore = await this.status.zrevrange(tx.originDomain, 0, 0, "WITHSCORES");
+        const newScore = Number(highestScore[0]) + 1;
+        // Store the transaction data with score in order it was recieved since it doesn't already exist.
+        await this.data.zadd(tx.transactionId, newScore, JSON.stringify(tx));
+        //and update the status 
+        await this.storeStatus(CrossChainTxStatus.Prepared, tx.transactionId)
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        this.publish(StoreChannel.NewPreparedTx, tx);
+        this.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
+
+
       }
     }
   }
