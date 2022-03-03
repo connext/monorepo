@@ -14,7 +14,7 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnable, GenericERC20 } from "../typechain-types";
+import { ProposedOwnable, GenericERC20, UpgradeBeaconProxy, Home__factory } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -26,6 +26,7 @@ const deployFromFactory = async <T extends Contract = Contract>(factory: Contrac
   await contract.deployed();
   return contract as T;
 };
+
 export const deployContract = async <T extends Contract = Contract>(
   factoryInfo: string | Artifact,
   ...args: any[]
@@ -49,6 +50,29 @@ export const deployContractWithLibs = async <T extends Contract = Contract>(
   })) as ContractFactory;
 
   return deployFromFactory(factory, ...args);
+};
+
+export const deployUpgradeableProxy = async <T extends Contract = Contract>(
+  name: string,
+  initArgs: any[],
+  controllerAddress: string,
+  ...constructorArgs: any[]
+): Promise<T> => {
+  // Get init data
+  const factory = (await ethers.getContractFactory(name)) as ContractFactory;
+  const initData = factory.interface.encodeFunctionData("initialize", initArgs);
+
+  // Deploy implementation
+  const implementation = await deployFromFactory(factory, ...constructorArgs);
+
+  // Deploy beacon
+  const beaconFactory = await ethers.getContractFactory("UpgradeBeacon");
+  const beacon = await deployFromFactory(beaconFactory, implementation.address, controllerAddress);
+
+  // Deploy proxy
+  const proxyFactory = await ethers.getContractFactory("UpgradeBeaconProxy");
+  const proxy = await deployFromFactory<UpgradeBeaconProxy>(proxyFactory, beacon.address, initData);
+  return new Contract(proxy.address, implementation.interface) as T;
 };
 
 export const getOnchainBalance = async (

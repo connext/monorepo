@@ -131,6 +131,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "isRouterOwnershipRenounced()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
+    "prepare(((address,address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
@@ -151,7 +152,6 @@ export interface TransactionManagerInterface extends utils.Interface {
     "routerBalances(address,address)": FunctionFragment;
     "routerOwnershipTimestamp()": FunctionFragment;
     "routerRelayerFees(address)": FunctionFragment;
-    "send(((address,address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
     "wrapper()": FunctionFragment;
@@ -227,6 +227,10 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "prepare",
+    values: [TransactionManager.PrepareArgsStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "proposeAssetOwnershipRenunciation",
     values?: undefined
   ): string;
@@ -299,10 +303,6 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "routerRelayerFees",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "send",
-    values: [TransactionManager.PrepareArgsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "setupAsset",
@@ -380,6 +380,7 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAssetOwnershipRenunciation",
     data: BytesLike
@@ -451,7 +452,6 @@ export interface TransactionManagerInterface extends utils.Interface {
     functionFragment: "routerRelayerFees",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenRegistry",
@@ -806,6 +806,11 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    prepare(
+      _args: TransactionManager.PrepareArgsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     proposeAssetOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -906,11 +911,6 @@ export interface TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    send(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
@@ -997,6 +997,11 @@ export interface TransactionManager extends BaseContract {
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  prepare(
+    _args: TransactionManager.PrepareArgsStruct,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   proposeAssetOwnershipRenunciation(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1098,11 +1103,6 @@ export interface TransactionManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  send(
-    _args: TransactionManager.PrepareArgsStruct,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setupAsset(
     canonical: BridgeMessage.TokenIdStruct,
     adoptedAssetId: string,
@@ -1184,6 +1184,11 @@ export interface TransactionManager extends BaseContract {
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    prepare(
+      _args: TransactionManager.PrepareArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     proposeAssetOwnershipRenunciation(overrides?: CallOverrides): Promise<void>;
 
@@ -1273,11 +1278,6 @@ export interface TransactionManager extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    send(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
@@ -1564,6 +1564,11 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    prepare(
+      _args: TransactionManager.PrepareArgsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     proposeAssetOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1654,11 +1659,6 @@ export interface TransactionManager extends BaseContract {
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    send(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setupAsset(
@@ -1761,6 +1761,11 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    prepare(
+      _args: TransactionManager.PrepareArgsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     proposeAssetOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1853,11 +1858,6 @@ export interface TransactionManager extends BaseContract {
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    send(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setupAsset(

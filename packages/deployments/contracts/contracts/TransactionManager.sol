@@ -623,7 +623,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
    * @return The transaction id of the crosschain transaction
    */
   // TODO: add indicator if fast liquidity is allowed
-  function send(
+  function prepare(
     PrepareArgs calldata _args
   ) external payable returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
@@ -1111,6 +1111,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 
     // Check the signature of the router on the nonce + fee pct
     require(_router == recoverSignature(abi.encode(_nonce, _feePct), _sig), "!rtr_sig");
+
+    // Handle 0 case
+    if (_feePct == 0) {
+      return;
+    }
 
     // Otherwise, send the fee percentage
     // TODO: BASEFEE opcode will only be supported if the domain supports EIP1559

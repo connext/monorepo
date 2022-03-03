@@ -11,7 +11,7 @@ import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 
 import "./src/tasks/addRouter";
-import "./src/tasks/addAsset";
+import "./src/tasks/setupAsset";
 import "./src/tasks/createRouter";
 import "./src/tasks/removeRelayerFee";
 import "./src/tasks/addLiquidity";
@@ -25,6 +25,8 @@ import "./src/tasks/setDexPrice";
 import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
+import "./src/tasks/enrollHandler";
+import "./src/tasks/ensureLocal";
 import "./src/tasks/prepareTx";
 
 dotEnvConfig();
@@ -36,26 +38,6 @@ const mnemonic =
   process.env.SUGAR_DADDY ||
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-
-// const path = require("path");
-
-// subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) => {
-//   if (args.solcVersion === "0.8.11") {
-//     const compilerPath = path.join(__dirname, "soljson.js");
-
-//     return {
-//       compilerPath,
-//       isSolcJs: true, // if you are using a native compiler, set this to false
-//       version: args.solcVersion,
-//       // this is used as extra information in the build-info files, but other than
-//       // that is not important
-//       longVersion: "0.8.11",
-//     };
-//   }
-
-//   // we just use the default subtask if the version is not 0.8.5
-//   return runSuper();
-// });
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -112,7 +94,7 @@ const config: HardhatUserConfig = {
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
-      url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
+      url: "https://rinkeby.infura.io/v3/4ab2583ce84d4dd7b973bb4a29147d9b", // urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     goerli: {
       accounts: { mnemonic },
@@ -127,7 +109,7 @@ const config: HardhatUserConfig = {
     kovan: {
       accounts: { mnemonic },
       chainId: 42,
-      url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
+      url: "https://kovan.infura.io/v3/4ab2583ce84d4dd7b973bb4a29147d9b", // urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     "optimism-kovan": {
       accounts: { mnemonic },

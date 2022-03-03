@@ -137,6 +137,8 @@ yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\>
 
 You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
 
+**NOTE:** You will have to run the `enroll-remote` task if deploying custom bridge routers.
+
 3. (optional) To verify the contracts (works with Etherscan-based networks):
 
 ```sh

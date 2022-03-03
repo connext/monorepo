@@ -20,17 +20,17 @@ export default task("renounce-ownership", "Renounce Ownership")
     const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
     let isRenouncedFunction;
     let ownershipTimestampFunction;
-    // let proposeRenunciationFunction;
+    let proposeRenunciationFunction;
     let renounceFunction;
     if (type === "router") {
       isRenouncedFunction = txManager.isRouterOwnershipRenounced;
       ownershipTimestampFunction = txManager.routerOwnershipTimestamp;
-      // proposeRenunciationFunction = txManager.proposeRouterOwnershipRenunciation;
+      proposeRenunciationFunction = txManager.proposeRouterOwnershipRenunciation;
       renounceFunction = txManager.renounceRouterOwnership;
     } else if (type === "asset") {
       isRenouncedFunction = txManager.isAssetOwnershipRenounced;
       ownershipTimestampFunction = txManager.assetOwnershipTimestamp;
-      // proposeRenunciationFunction = txManager.proposeAssetOwnershipRenunciation;
+      proposeRenunciationFunction = txManager.proposeAssetOwnershipRenunciation;
       renounceFunction = txManager.renounceAssetOwnership;
     } else {
       throw new Error("Unsupported type");
@@ -48,16 +48,16 @@ export default task("renounce-ownership", "Renounce Ownership")
     const currentTime = Math.floor(Date.now() / 1000);
     console.log("currentTime: ", currentTime);
 
-    // bug in contracts doesnt check for zero
-    // if (ownershipTimestamp.isZero()) {
-    //   console.log("Proposing renunciation");
-    //   const tx = await proposeRenunciationFunction();
-    //   console.log("proposeRenunciationFunction tx: ", tx);
-    //   await tx.wait();
-    //   const ownershipTimestamp = await ownershipTimestampFunction();
-    //   console.log("ownershipTimestamp: ", ownershipTimestamp);
-    //   return;
-    // }
+    // check the renunciation has been proposed
+    if (ownershipTimestamp.isZero()) {
+      console.log("Proposing renunciation");
+      const tx = await proposeRenunciationFunction();
+      console.log("proposeRenunciationFunction tx: ", tx);
+      await tx.wait();
+      const ownershipTimestamp = await ownershipTimestampFunction();
+      console.log("ownershipTimestamp: ", ownershipTimestamp);
+      return;
+    }
 
     if (ownershipTimestamp.gt(currentTime)) {
       console.log(
