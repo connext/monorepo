@@ -1,92 +1,103 @@
 import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { CacheParams, StoreChannel, TxStatus } from "../entities";
+import { CacheParams, StoreChannel } from "../entities";
 import { Cache } from "./";
-import { stat } from "fs";
-
+import { Stream } from "stream";
+/**
+ * Redis Store Details:
+ * Transaction Data by Domain & Nonce
+   key: $domain:$nonce | value: JSON.stringify(CrossChainTx);
+ * Transaction Status by TransactionId
+   key: $txid | value CrossChainTxStatus as string
+ */
 export class TransactionsCache extends Cache {
-  // Redis Store I
-  // domain:nonce
-  // value: JSON.stringify(transactionData);
+
   private readonly data!: Redis.Redis;
-  // Redis Store II
-  // key: domain:nonce
-  // value: "Pending", "Completed", "Reconcilled" <txStatus>
-  private readonly status!: Redis.Redis;
 
   public constructor({ url, subscriptions }: CacheParams) {
     super({ url, subscriptions });
     if (url.split("//").pop() === "mock") {
       const IoRedisMock = require("ioredis-mock");
       this.data = new IoRedisMock();
-      this.status = new IoRedisMock();
     } else {
-      this.data = new Redis(`${url}/1`);
-      this.status = new Redis(`${url}/2`);
+      this.data = new Redis(`${url}`);
     }
   }
-
-
-  //Stats:
-  //key: txid | value: "status"
-  public async getStatus(txid: string): Promise<CrossChainTxStatus | undefined> {
-    const status = this.status.get(txid);
-    if (typeof(status) === "string") {
-      return status as CrossChainTxStatus;
+  /**
+   *
+   * @param txid TransactionId to store
+   * @param status The status of the TranscationID
+   * @returns true/false based on an "OK" from the store.
+   * todo://getStatus() to verify that it's not already in the DB
+   */
+  public async storeStatus(txid: string, status: CrossChainTxStatus): Promise<boolean> {
+    const stored = await this.data.set(txid, status);
+    if (stored === "OK") {
+      return true;
+    } else {
+      return false;
     }
-    return;
+  }
+  /**
+   *
+   * @param txid TransacionId to search the cache for
+   * @returns TransactionId's status or unfefined if it's not there.
+   */
+  public async getStatus(txid: string): Promise<CrossChainTxStatus | undefined> {
+    const status = this.data.scanStream({
+      match: `${txid}`,
+    });
+    status.on("data", (txidMatch) => {
+      console.log("found txid");
+      return txidMatch as CrossChainTx;
+    });
+    //todo: cast to status enum
+    console.log("no txid found");
+    return undefined;
   }
 
   /**
    * Returns latest nonce on `domain` network
    *
-   * @param domain The network id that we're going to get the latest nonce on
-   * Nonce should be implicitly the index of the last element in the ordered list
-   * //todo: this implies we need to keep the highest score if we prune data
-
+   * @param domain The chain's domain that we're going to get the latest nonce on
+   * @returns latest nonce for that domain
    */
-
-  //Data
-  //key: domain 
   public async getLatestNonce(domain: string): Promise<number> {
-    //get highest score in reverse for a domain data's ordered set.
-    const highestScore = await this.data.zrevrange(domain, 0, 0, "WITHSCORES");
-    return Number(highestScore[0]);
-  }
+    let highestNonce: number = 0;
 
-
-  public async storeStatus(status: CrossChainTxStatus, txid: string): Promise<string | number> {
-    //todo:this dosent need to be ordered afaik.
-    //get highest score (latest record) for the domain
-    const highestScore = await this.status.zrevrange(txid, 0, 0, "WITHSCORES");
-    //add to the sorted list and increment score
-    const newScore = Number(highestScore[0]) + 1;
-    const addRes = await this.status.zadd(txid, newScore, status);
-    return addRes;
-  
+    const nonceStream = await this.data.scanStream({
+      //search all records for the domain across all nonces.
+      match: `${domain}:*}`,
+    });
+    return new Promise((res, rej) => {
+      nonceStream.on("data", (data: string) => {
+        //strip domain name from key
+        const nonce = parseInt(data.substring(0, data.indexOf(":")));
+        //mark as highest
+        nonce > highestNonce ? (highestNonce = nonce) : highestNonce;
+      });
+      //return highest
+      nonceStream.on("end", () => {
+        this.publish(StoreChannel.NewHighestNonce, domain);
+        res(highestNonce);
+      });
+      nonceStream.on("error", () => {
+        rej();
+      });
+    });
   }
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
-    
     for (const tx of txs) {
-      //get latest score of origin domain's ordered set
-      
-
       const existing = await this.data.get(tx.transactionId);
       // Update the status, regardless of whether the transaction already exists.
-      await this.status.set(tx.transactionId, tx.status.toString());
+      await this.data.set(`${tx.transactionId}`, tx.status.toString());
       if (!existing) {
-        const highestScore = await this.status.zrevrange(tx.originDomain, 0, 0, "WITHSCORES");
-        const newScore = Number(highestScore[0]) + 1;
-        // Store the transaction data with score in order it was recieved since it doesn't already exist.
-        await this.data.zadd(tx.transactionId, newScore, JSON.stringify(tx));
-        //and update the status 
-        await this.storeStatus(CrossChainTxStatus.Prepared, tx.transactionId)
+        // Store the transaction data, since it doesn't already exist.
+        await this.data.set(`${tx.originDomain}:${tx.nonce}`, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        this.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
-
-
+        this.publish(StoreChannel.NewPreparedTx, tx);
       }
     }
   }
