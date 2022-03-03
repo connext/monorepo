@@ -3,7 +3,6 @@ import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp
 
 import { CacheParams, StoreChannel } from "../entities";
 import { Cache } from "./";
-import { Stream } from "stream";
 /**
  * Redis Store Details:
  * Transaction Data by Domain & Nonce
@@ -52,7 +51,6 @@ export class TransactionsCache extends Cache {
       console.log("found txid");
       return txidMatch as CrossChainTx;
     });
-    //todo: cast to status enum
     console.log("no txid found");
     return undefined;
   }
