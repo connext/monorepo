@@ -1112,6 +1112,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
     // Check the signature of the router on the nonce + fee pct
     require(_router == recoverSignature(abi.encode(_nonce, _feePct), _sig), "!rtr_sig");
 
+    // Handle 0 case
+    if (_feePct == 0) {
+      return;
+    }
+
     // Otherwise, send the fee percentage
     // TODO: BASEFEE opcode will only be supported if the domain supports EIP1559
     // must be able to detect this dynamically
