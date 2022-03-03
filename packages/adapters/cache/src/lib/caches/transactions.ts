@@ -27,12 +27,11 @@ export class TransactionsCache extends Cache {
     }
   }
 
-
   //Stats:
   //key: txid | value: "status"
   public async getStatus(txid: string): Promise<CrossChainTxStatus | undefined> {
     const status = this.status.get(txid);
-    if (typeof(status) === "string") {
+    if (typeof status === "string") {
       return status as CrossChainTxStatus;
     }
     return;
@@ -47,14 +46,24 @@ export class TransactionsCache extends Cache {
 
    */
 
-  //Data
-  //key: domain 
   public async getLatestNonce(domain: string): Promise<number> {
-    //get highest score in reverse for a domain data's ordered set.
-    const highestScore = await this.data.zrevrange(domain, 0, 0, "WITHSCORES");
-    return Number(highestScore[0]);
-  }
+    const keys = await this.data.keys("*");
+    const crossChainTxs: CrossChainTx[] = [];
+    for (const key of keys) {
+      const value = await this.data.get(key);
+      if (value) {
+        const crossChainTx = JSON.parse(value) as CrossChainTx;
+        if (crossChainTx.originDomain === domain) crossChainTxs.push(crossChainTx);
+      }
+    }
 
+    const sortedCrossChainTxs = crossChainTxs
+      .filter((tx) => tx.status === CrossChainTxStatus.Prepared)
+      .sort((a, b) => a.nonce - b.nonce);
+
+    const latestNonce = sortedCrossChainTxs.length > 0 ? sortedCrossChainTxs[0].nonce : 0;
+    return latestNonce;
+  }
 
   public async storeStatus(status: CrossChainTxStatus, txid: string): Promise<string | number> {
     //todo:this dosent need to be ordered afaik.
@@ -64,14 +73,11 @@ export class TransactionsCache extends Cache {
     const newScore = Number(highestScore[0]) + 1;
     const addRes = await this.status.zadd(txid, newScore, status);
     return addRes;
-  
   }
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
-    
     for (const tx of txs) {
       //get latest score of origin domain's ordered set
-      
 
       const existing = await this.data.get(tx.transactionId);
       // Update the status, regardless of whether the transaction already exists.
@@ -81,12 +87,10 @@ export class TransactionsCache extends Cache {
         const newScore = Number(highestScore[0]) + 1;
         // Store the transaction data with score in order it was recieved since it doesn't already exist.
         await this.data.zadd(tx.transactionId, newScore, JSON.stringify(tx));
-        //and update the status 
-        await this.storeStatus(CrossChainTxStatus.Prepared, tx.transactionId)
+        //and update the status
+        await this.storeStatus(CrossChainTxStatus.Prepared, tx.transactionId);
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
         this.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
-
-
       }
     }
   }
