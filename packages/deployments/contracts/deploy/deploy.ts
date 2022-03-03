@@ -1,17 +1,17 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Signer } from "ethers";
+import { Contract, Signer } from "ethers";
 
 import { NOMAD_DEPLOYMENTS, SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 
 // Helper function
-const deployUpgradeable = async (
+const deployUpgradeable = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   controllerAddress: string,
   deployer: Signer & { address: string },
   hre: HardhatRuntimeEnvironment,
-): Promise<string> => {
+): Promise<T> => {
   // Get init data
   const factory = await hre.ethers.getContractFactory(name, deployer.address);
   const initData = factory.interface.encodeFunctionData("initialize", args);
@@ -42,7 +42,7 @@ const deployUpgradeable = async (
   });
   const proxyAddress = proxyDeployment.address;
   console.log(`${name} proxyAddress:`, proxyAddress);
-  return proxyAddress;
+  return hre.ethers.getContractAt(proxyDeployment.abi, proxyDeployment.address);
 };
 
 /**
@@ -87,14 +87,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   console.log("Deploying token registry...");
-  const tokenRegistryAddress = await deployUpgradeable(
+  const tokenRegistry = await deployUpgradeable(
     "TokenRegistry",
     [nomadConfig.tokenBeacon, xappConnectionManagerAddress],
     controllerAddress,
     deployer,
     hre,
   );
-  console.log("tokenRegistryAddress:", tokenRegistryAddress);
+  console.log("tokenRegistry address:", tokenRegistry.address);
 
   // Set the home
   console.log("xapp owner", await xappConnectionManager.owner());
@@ -121,16 +121,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy bridge router
   console.log("Deploying bridge router...");
-  const bridgeAddress = await deployUpgradeable(
-    "BridgeRouter",
-    [tokenRegistryAddress, xappConnectionManagerAddress],
-    controllerAddress,
-    deployer,
-    hre,
-  );
-  console.log("bridgeAddress:", bridgeAddress);
-  const bridge = (await hre.ethers.getContractAt("BridgeRouter", bridgeAddress)).connect(deployer);
-  console.log("deployed, test:", await bridge.owner());
+  const bridge = (
+    await deployUpgradeable(
+      "BridgeRouter",
+      [tokenRegistry.address, xappConnectionManagerAddress],
+      controllerAddress,
+      deployer,
+      hre,
+    )
+  ).connect(deployer);
+  console.log("bridge address:", bridge.address);
+  console.log("bridge owner:", await bridge.owner());
 
   // NOTE: need to run `enrollHandler` task post-deployment to enroll the
   // remote routers for different chains after they are all deployed
@@ -139,7 +140,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Deploy tx manager
   let deployment = await hre.deployments.deploy("TransactionManager", {
     from: deployer.address,
-    args: [nomadConfig.domain, bridge.address, tokenRegistryAddress, nomadConfig.wrappedEth],
+    args: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
     log: true,
     // salt: keccak256("amarokrulez"),
   });
