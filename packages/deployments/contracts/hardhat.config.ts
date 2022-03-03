@@ -39,26 +39,6 @@ const mnemonic =
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
-// const path = require("path");
-
-// subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) => {
-//   if (args.solcVersion === "0.8.11") {
-//     const compilerPath = path.join(__dirname, "soljson.js");
-
-//     return {
-//       compilerPath,
-//       isSolcJs: true, // if you are using a native compiler, set this to false
-//       version: args.solcVersion,
-//       // this is used as extra information in the build-info files, but other than
-//       // that is not important
-//       longVersion: "0.8.11",
-//     };
-//   }
-
-//   // we just use the default subtask if the version is not 0.8.5
-//   return runSuper();
-// });
-
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.11",
