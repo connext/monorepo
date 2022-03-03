@@ -63,7 +63,7 @@ export default task("prepare", "Prepare a cross-chain tx")
       }
 
       const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
-      tx = await txManager.functions.send(
+      tx = await txManager.functions.prepare(
         {
           params: {
             recipient,
