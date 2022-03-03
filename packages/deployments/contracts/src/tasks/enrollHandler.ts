@@ -3,14 +3,14 @@ import { task } from "hardhat/config";
 
 import { NOMAD_DEPLOYMENTS } from "../constants";
 
-export default task("enroll-router", "Add a remote router")
-  .addParam("router", "Remote router address")
+export default task("enroll-handler", "Add a remote router")
+  .addParam("handler", "Remote nomad handler address")
   .addParam("chain", "Chain of remote router")
   .addOptionalParam("local", "Override local router address")
-  .setAction(async ({ router, local: _local, chain }, { deployments, getNamedAccounts, ethers }) => {
+  .setAction(async ({ handler, local: _local, chain }, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
-    console.log("router:", router);
+    console.log("handler:", handler);
     console.log("chain:", chain);
     console.log("namedAccounts: ", namedAccounts);
 
@@ -27,7 +27,7 @@ export default task("enroll-router", "Add a remote router")
     }
 
     const localRouter = await ethers.getContractAt((await deployments.getArtifact("BridgeRouter")).abi, local);
-    const enrollTx = await localRouter.enrollRemoteRouter(config.domain, hexZeroPad(router, 32));
+    const enrollTx = await localRouter.enrollRemoteRouter(config.domain, hexZeroPad(handler, 32));
     console.log("enroll tx:", enrollTx);
     const receipt = await enrollTx.wait();
     console.log("enroll tx mined:", receipt);
