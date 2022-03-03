@@ -109,4 +109,26 @@ const getGelatoOracles = async (): Promise<string[]> => {
 };
 
 
-export { gelatoFulfill, isChainSupportedByGelato, gelatoSend, isOracleActive, getEstimatedFee };
+const isPaymentTokenSupported = async (chainId: number, token: string): Promise<boolean> => {
+  const paymentTokens = await getPaymentTokens(chainId);
+  const lowerPaymentTokens = paymentTokens.map((address) => {
+    return address.toLowerCase();
+  });
+  return lowerPaymentTokens.includes(token.toString().toLowerCase());
+};
+
+const getPaymentTokens = async (chainId: number): Promise<string[]> => {
+  let result = [];
+  try {
+    const res = await axios.get(
+      `${gelatoServer}/oracles/${chainId}/paymentTokens/`
+    );
+    result = res.data.paymentTokens;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return result;
+};
+
+export { gelatoFulfill, isChainSupportedByGelato, gelatoSend, isOracleActive, getEstimatedFee, getPaymentTokens, isPaymentTokenSupported };

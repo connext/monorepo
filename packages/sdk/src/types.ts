@@ -66,6 +66,7 @@ export type SdkBaseChainConfigParams = {
     priceOracleAddress?: string;
     subgraph?: string | string[];
     subgraphSyncBuffer?: number;
+    gelatoOracle?: boolean;
   };
 };
 export type SdkBaseConfigParams = {

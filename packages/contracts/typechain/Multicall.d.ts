@@ -22,23 +22,14 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface MulticallInterface extends ethers.utils.Interface {
   functions: {
     "aggregate(tuple[])": FunctionFragment;
-    "c_0x6951f120(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "aggregate",
     values: [{ target: string; callData: BytesLike }[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "c_0x6951f120",
-    values: [BytesLike]
-  ): string;
 
   decodeFunctionResult(functionFragment: "aggregate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0x6951f120",
-    data: BytesLike
-  ): Result;
 
   events: {};
 }
@@ -91,22 +82,12 @@ export class Multicall extends BaseContract {
       calls: { target: string; callData: BytesLike }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    c_0x6951f120(
-      c__0x6951f120: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
   };
 
   aggregate(
     calls: { target: string; callData: BytesLike }[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  c_0x6951f120(
-    c__0x6951f120: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
 
   callStatic: {
     aggregate(
@@ -115,11 +96,6 @@ export class Multicall extends BaseContract {
     ): Promise<
       [BigNumber, string[]] & { blockNumber: BigNumber; returnData: string[] }
     >;
-
-    c_0x6951f120(
-      c__0x6951f120: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {};
@@ -129,22 +105,12 @@ export class Multicall extends BaseContract {
       calls: { target: string; callData: BytesLike }[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    c_0x6951f120(
-      c__0x6951f120: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     aggregate(
       calls: { target: string; callData: BytesLike }[],
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    c_0x6951f120(
-      c__0x6951f120: BytesLike,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

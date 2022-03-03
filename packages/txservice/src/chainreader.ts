@@ -7,6 +7,9 @@ import {
   ChainData,
   getMainnetEquivalent,
   getHardcodedGasLimits,
+  isOracleActive,
+  getEstimatedFee,
+  isPaymentTokenSupported,
 } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
@@ -450,6 +453,12 @@ export class ChainReader {
       ? constants.Zero
       : gasAmountInUsd.div(tokenPrice).div(BigNumber.from(10).pow(18 - decimals));
 
+    // Use Gelato Oracle if it's configured and available for the chain id
+    let gelatoEstimatedFee: BigNumber | undefined;
+    if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
+      gelatoEstimatedFee = await this.calculateGelatoFee(chainIdForGasPrice, assetId, gasLimit.toNumber());
+    }
+
     this.logger.info("Calculated gas fee.", requestContext, methodContext, {
       method,
       isRouterContract,
@@ -471,9 +480,10 @@ export class ChainReader {
       },
       gasAmountInUsd: gasAmountInUsd.toString(),
       finalTokenAmountForGasFee: tokenAmountForGasFee.toString(),
+      gelatoEstimatedFee: gelatoEstimatedFee ? gelatoEstimatedFee.toString() : "N/A",
     });
 
-    return tokenAmountForGasFee;
+    return gelatoEstimatedFee ? gelatoEstimatedFee : tokenAmountForGasFee;
   }
 
   /**
@@ -537,5 +547,31 @@ export class ChainReader {
       const provider = new RpcProviderAggregator(this.logger, chainIdNumber, chain, signer);
       this.providers.set(chainIdNumber, provider);
     });
+  }
+
+  /**
+   * Get the estimated Fee for a given gas limit.
+   * @param chainId - ID of the chain for which this call is related.
+   * @param assetId - The asset address on destination chain.
+   * @param gasLimit - The gas limit to estimate.
+   * @param isHighPriority - Flag to bump the estimated fee to have more priority.
+   */
+  protected async calculateGelatoFee(
+    chainId: number,
+    assetId: string,
+    gasLimit: number,
+    isHighPriority = false,
+  ): Promise<BigNumber | undefined> {
+    const gelatoOracleActive = await isOracleActive(chainId);
+    let gelatoEstimatedFee: BigNumber | undefined;
+
+    if (gelatoOracleActive) {
+      const tokenSupportedByGelato = await isPaymentTokenSupported(chainId, assetId);
+      if (tokenSupportedByGelato) {
+        gelatoEstimatedFee = await getEstimatedFee(chainId, assetId, gasLimit, isHighPriority);
+      }
+    }
+
+    return gelatoEstimatedFee;
   }
 }
