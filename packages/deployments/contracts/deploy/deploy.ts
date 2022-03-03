@@ -96,6 +96,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   );
   console.log("tokenRegistry address:", tokenRegistry.address);
 
+  // Set token registry local domain
+  console.log("Setting local domain of token registry...");
+  const setDomain = await tokenRegistry.setLocalDomain(nomadConfig.domain);
+  console.log("setDomain tx:", setDomain.hash);
+  const setDomainReceipt = await setDomain.wait();
+  console.log("setDomain tx mined:", setDomainReceipt);
+
   // Set the home
   console.log("xapp owner", await xappConnectionManager.owner());
   if ((await xappConnectionManager.home()).toLowerCase() !== nomadConfig.home.toLowerCase()) {
