@@ -11,7 +11,6 @@ import { Cache } from "./";
    key: $txid | value CrossChainTxStatus as string
  */
 export class TransactionsCache extends Cache {
-
   private readonly data!: Redis.Redis;
 
   public constructor({ url, subscriptions }: CacheParams) {
@@ -50,13 +49,13 @@ export class TransactionsCache extends Cache {
     return new Promise((res, rej) => {
       status.on("data", (txidMatch) => {
         console.log("found txid");
-        res(txidMatch);
+        const val = this.data.get(txidMatch);
+        res(val as unknown as CrossChainTxStatus);
       });
       status.on("end", () => {
-        rej(undefined);
-      })
-    })
-
+        res(undefined);
+      });
+    });
   }
 
   /**
@@ -70,22 +69,21 @@ export class TransactionsCache extends Cache {
 
     const nonceStream = await this.data.scanStream({
       //search all records for the domain across all nonces.
-      match: `${domain}:*}`,
+      match: `${domain}:*`,
     });
     return new Promise((res, rej) => {
       nonceStream.on("data", (data) => {
-        console.log(JSON.stringify(data))
         //strip domain name from key
         if (data[0] !== undefined) {
-          const nonceStr = data[0].substring(0, data.indexOf(":"));
+          const nonceStr = data[0].substring(data[0].indexOf(":") + 1, data[0].length);
           const nonce = parseInt(nonceStr);
           //mark as highest
           nonce > highestNonce ? (highestNonce = nonce) : highestNonce;
         }
       });
       //return highest
-      nonceStream.on("end", () => {
-        this.publish(StoreChannel.NewHighestNonce, domain);
+      nonceStream.on("end", async () => {
+        await this.data.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
       nonceStream.on("error", () => {
@@ -98,12 +96,14 @@ export class TransactionsCache extends Cache {
     for (const tx of txs) {
       const existing = await this.data.get(tx.transactionId);
       // Update the status, regardless of whether the transaction already exists.
-      await this.data.set(`${tx.transactionId}`, tx.status.toString());
+      await this.data.set(tx.transactionId, tx.status);
+      await this.data.publish(StoreChannel.NewStatus, tx.status);
+
       if (!existing) {
         // Store the transaction data, since it doesn't already exist.
         await this.data.set(`${tx.originDomain}:${tx.nonce}`, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        this.publish(StoreChannel.NewPreparedTx, tx);
+        await this.data.publish(StoreChannel.NewPreparedTx, tx.transactionId);
       }
     }
   }

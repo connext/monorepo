@@ -47,29 +47,30 @@ const fakeCrossChainTxData: CrossChainTx = {
 
 export async function main() {
   const subscriptions = new Map();
-  const transactions = new TransactionsCache({ url: "", subscriptions: subscriptions });
-
-  //setup sub instance
-  RedisSub.on("message", (chan: string, msg: string) => {
-    console.log(`Got Subscribed Message Channel: ${chan}, Message Data: ${msg}`);
-  });
+  const transactions = new TransactionsCache({ url: "mock", subscriptions: subscriptions });
 
   RedisSub.subscribe(StoreChannel.NewHighestNonce);
   RedisSub.subscribe(StoreChannel.NewPreparedTx);
   RedisSub.subscribe(StoreChannel.NewStatus);
+
+  //setup sub instance
+  RedisSub.on("message", (chan: any, msg: any) => {
+    console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
+  });
 
   //add fake txid's status, should fire off event.
   await transactions.storeStatus(fakeTxId, CrossChainTxStatus.Prepared);
   await transactions.storeTxData([fakeCrossChainTxData]);
 
   const status = await transactions.getStatus(fakeTxId);
-  const nonce = await transactions.getLatestNonce("2000");
+  const nonce = await transactions.getLatestNonce("3000");
 
   if (status) {
-    console.log(`Got fake Tx Status ${status}`);
+    // console.log(`Got fake Tx Status: ${status}`);
   }
-  if (nonce) {
-    console.log(`Got latest nonce for domain 2000 ${nonce}`);
+  //cover nonce being 0 which is falsy
+  if (nonce !== undefined) {
+    console.log(`Got latest nonce for domain: ${nonce}`);
   }
 }
 
