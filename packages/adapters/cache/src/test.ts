@@ -1,4 +1,4 @@
-import { CrossChainTx, CrossChainTxStatus, mkBytes32 } from "@connext/nxtp-utils";
+import { CrossChainTx, CrossChainTxStatus, mkBytes32, txDataMock } from "@connext/nxtp-utils";
 import { stat } from "fs";
 import { TransactionsCache } from "./index";
 import { StoreChannel } from "./lib/entities";
@@ -62,15 +62,31 @@ export async function main() {
   await transactions.storeStatus(fakeTxId, CrossChainTxStatus.Prepared);
   await transactions.storeTxData([fakeCrossChainTxData]);
 
-  const status = await transactions.getStatus(fakeTxId);
-  const nonce = await transactions.getLatestNonce("3000");
+  //store to different domains,
+  const secondFakeTxData = { ...fakeCrossChainTxData, originDomain: "4", transactionId: mkBytes32() };
+  await transactions.storeTxData([secondFakeTxData]);
+  await transactions.storeStatus(secondFakeTxData.transactionId,CrossChainTxStatus.Fulfilled)
 
-  if (status) {
-    // console.log(`Got fake Tx Status: ${status}`);
+  const statusFor3000 = await transactions.getStatus(fakeCrossChainTxData.transactionId);
+  const nonceFor3000 = await transactions.getLatestNonce("3000");
+
+  const statusFor4 = await transactions.getStatus(secondFakeTxData.transactionId);
+  const nonceFor4 = await transactions.getLatestNonce("4")
+
+  
+
+  if (statusFor3000) {
+    console.log(`Queried fake Tx Status for 3000: ${statusFor3000}`);
+  }
+  if (statusFor4) {
+    console.log(`Queried fake Tx Status for 4: ${statusFor4}`)
   }
   //cover nonce being 0 which is falsy
-  if (nonce !== undefined) {
-    console.log(`Got latest nonce for domain: ${nonce}`);
+  if (nonceFor3000 !== undefined) {
+    console.log(`Queried latest nonce for 3000: ${nonceFor3000}`);
+  }
+  if (nonceFor4 !== undefined) {
+    console.log(`Queried latest nonce for 4: ${nonceFor4}`);
   }
 }
 

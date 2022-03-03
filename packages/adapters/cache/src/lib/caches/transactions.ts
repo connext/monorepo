@@ -97,7 +97,7 @@ export class TransactionsCache extends Cache {
       const existing = await this.data.get(tx.transactionId);
       // Update the status, regardless of whether the transaction already exists.
       await this.data.set(tx.transactionId, tx.status);
-      await this.data.publish(StoreChannel.NewStatus, tx.status);
+      await this.data.publish(StoreChannel.NewStatus, `${tx.originDomain} : ${tx.status}`);
 
       if (!existing) {
         // Store the transaction data, since it doesn't already exist.
