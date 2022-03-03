@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## 0.1.26
+
+- [contracts] Deployments for Milkomeda
+- [utils] Gelato price estimation
+
 ## 0.1.25
 
 - [sdk] sdk subgraph active polling
