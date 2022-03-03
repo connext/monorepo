@@ -1,4 +1,4 @@
-import { ethers, waffle } from "hardhat";
+import { waffle, ethers } from "hardhat";
 import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 use(solidity);
@@ -7,29 +7,58 @@ import {
   BridgeRouter,
   Home,
   TestERC20,
-  TestStableSwap,
   TokenRegistry,
   TransactionManager,
   TestBridgeMessage,
   WETH,
+  UpgradeBeaconController,
+  XAppConnectionManager,
+  DummySwap,
 } from "../typechain-types";
 
 import {
+  asyncForEach,
   bridge,
   BridgeMessageTypes,
   deployContract,
+  deployUpgradeableProxy,
   FastTransferAction,
   formatTokenId,
   getDetailsHash,
   Message,
 } from "./utils";
 
-import { constants, Wallet } from "ethers";
+import { BigNumber, BigNumberish, constants, Contract, Wallet } from "ethers";
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
 import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
 
+const SEED = 1_000_000;
+
 const addressToBytes32 = (addr: string) => {
   return hexZeroPad(addr, 32);
+};
+
+// NOTE: for some reason, the
+const executeProxyRead = async <T extends Contract>(contract: T, fn: string, params: any[] = []) => {
+  const returned = await ethers.provider.call({
+    to: contract.address,
+    data: contract.interface.encodeFunctionData(fn, params),
+  });
+  return contract.interface.decodeFunctionResult(fn, returned)[0];
+};
+
+const executeProxyWrite = async <T extends Contract>(
+  sender: Wallet,
+  contract: T,
+  fn: string,
+  params: any[],
+  value: BigNumberish = 0,
+) => {
+  return sender.sendTransaction({
+    to: contract.address,
+    data: contract.interface.encodeFunctionData(fn, params),
+    value: BigNumber.from(value),
+  });
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
@@ -41,7 +70,7 @@ describe.only("TransactionManager", () => {
   // - user prepares in adopted on origin
   // - oTM swaps adopted for canonical
   // - router pays in local
-  // - dTM swaps local for adopted
+  // - dTM swaps local for adopted on destination
 
   // ETH scenario:
   // - user prepares in ETH
@@ -50,9 +79,13 @@ describe.only("TransactionManager", () => {
   // - dTM swaps for adopted
 
   // Declare contracts
+  let upgradeBeaconController: UpgradeBeaconController;
+  let originXappConnectionManager: XAppConnectionManager;
+  let destinationXappConnectionManager: XAppConnectionManager;
   let originTokenRegistry: TokenRegistry;
   let destinationTokenRegistry: TokenRegistry;
-  let adopted: TestERC20;
+  let originAdopted: TestERC20;
+  let destinationAdopted: TestERC20;
   let canonical: TestERC20;
   let local: TestERC20;
   let weth: WETH;
@@ -60,7 +93,7 @@ describe.only("TransactionManager", () => {
   let destinationBridge: BridgeRouter;
   let originTm: TransactionManager;
   let destinationTm: TransactionManager;
-  let stableSwap: TestStableSwap;
+  let stableSwap: DummySwap;
   let home: Home;
   let bridgeMessage: TestBridgeMessage;
 
@@ -68,22 +101,44 @@ describe.only("TransactionManager", () => {
   const destinationDomain = 2;
 
   const fixture = async () => {
-    // Deploy adopted token
-    adopted = await deployContract<TestERC20>("TestERC20");
+    // Deploy adopted tokens
+    originAdopted = await deployContract<TestERC20>("TestERC20");
+    destinationAdopted = await deployContract<TestERC20>("TestERC20");
     // Deploy canonical token
     canonical = await deployContract<TestERC20>("TestERC20");
     // Deploy local tokem
     local = await deployContract<TestERC20>("TestERC20");
     // Deploy weth token
     weth = await deployContract<WETH>("WETH");
+    // Deploy beacon controller
+    upgradeBeaconController = await deployContract<UpgradeBeaconController>("UpgradeBeaconController");
+    // Deploy xapp connection manager
+    originXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
+    destinationXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     // Deploy token registry
-    originTokenRegistry = await deployContract<TokenRegistry>("TokenRegistry");
-    destinationTokenRegistry = await deployContract<TokenRegistry>("TokenRegistry");
-    // Deploy stable swap
-    stableSwap = await deployContract<TestStableSwap>("TestStableSwap");
+    originTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+      "TokenRegistry",
+      [upgradeBeaconController.address, originXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
+    destinationTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+      "TokenRegistry",
+      [upgradeBeaconController.address, destinationXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
+    // Deploy dummy stable swap
+    stableSwap = await deployContract<DummySwap>("DummySwap");
     // Deploy bridge
-    originBridge = await deployContract<BridgeRouter>("BridgeRouter");
-    destinationBridge = await deployContract<BridgeRouter>("BridgeRouter");
+    originBridge = await deployUpgradeableProxy<BridgeRouter>(
+      "BridgeRouter",
+      [originTokenRegistry.address, originXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
+    destinationBridge = await deployUpgradeableProxy<BridgeRouter>(
+      "BridgeRouter",
+      [destinationTokenRegistry.address, destinationXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
     // Deploy transacion managers
     originTm = await deployContract<TransactionManager>(
       "TransactionManager",
@@ -114,76 +169,92 @@ describe.only("TransactionManager", () => {
     // Deploy all contracts
     await loadFixture(fixture);
 
-    // Setup token registries
-    await destinationTokenRegistry.setLocalDomain(destinationDomain).then((r) => r.wait());
-    await originTokenRegistry.setLocalDomain(originDomain).then((r) => r.wait());
-    const setupLocal = await destinationTokenRegistry.enrollCustom(
+    // Set token registry domains
+    const setOriginDomain = await executeProxyWrite(admin, originTokenRegistry, "setLocalDomain", [originDomain]);
+    await setOriginDomain.wait();
+    const setDestDomain = await executeProxyWrite(admin, destinationTokenRegistry, "setLocalDomain", [
+      destinationDomain,
+    ]);
+    await setDestDomain.wait();
+
+    // Setup token registry for token test:
+    // canonical on origin
+    // local
+    const setupLocal = await executeProxyWrite(admin, destinationTokenRegistry, "enrollCustom", [
       originDomain,
       addressToBytes32(canonical.address),
       local.address,
-    );
+    ]);
     await setupLocal.wait();
-    const setupWeth = await destinationTokenRegistry.enrollCustom(
+
+    const setupWeth = await executeProxyWrite(admin, destinationTokenRegistry, "enrollCustom", [
       originDomain,
       addressToBytes32(weth.address),
       local.address,
-    );
+    ]);
     await setupWeth.wait();
 
+    // Setup replica (should be admin)
+    const setReplica = await executeProxyWrite(admin, destinationXappConnectionManager, "ownerEnrollReplica", [
+      admin.address,
+      originDomain,
+    ]);
+    await setReplica.wait();
+
+    // Setup remote router on dest
+    const setDestRemoteRouter = await executeProxyWrite(admin, destinationBridge, "enrollRemoteRouter", [
+      originDomain,
+      addressToBytes32(originBridge.address),
+    ]);
+    await setDestRemoteRouter.wait();
+
+    // Setup remote router on origin
+    const setOriginRemoteRouter = await executeProxyWrite(admin, originBridge, "enrollRemoteRouter", [
+      destinationDomain,
+      addressToBytes32(destinationBridge.address),
+    ]);
+    await setOriginRemoteRouter.wait();
+
     // Setup home
-    const setHome = await originBridge.setHome(home.address);
+    const setHome = await executeProxyWrite(admin, originXappConnectionManager, "setHome", [home.address]);
     await setHome.wait();
 
     // Mint to admin
-    const adoptedMint = await adopted.mint(admin.address, parseEther("1000"));
-    await adoptedMint.wait();
-    const canonicalMint = await canonical.mint(admin.address, parseEther("1000"));
-    await canonicalMint.wait();
-    const localMint = await local.mint(admin.address, parseEther("2000"));
-    await localMint.wait();
-    const wethMint = await weth.mint(admin.address, parseEther("1000"));
-    await wethMint.wait();
+    await asyncForEach([originAdopted, destinationAdopted, canonical, local, weth], async (contract) => {
+      const mint = await contract.connect(admin).mint(admin.address, parseEther("1000"));
+      await mint.wait();
+    });
 
     // Mint to user
-    await adopted.mint(user.address, parseEther("10")).then((r) => r.wait());
-    await weth.mint(user.address, parseEther("10")).then((r) => r.wait());
+    await asyncForEach([originAdopted, destinationAdopted, weth], async (contract) => {
+      // User mint
+      const mint = await contract.mint(user.address, parseEther("10"));
+      await mint.wait();
+    });
     // Mint to router
     await local.mint(router.address, parseEther("20")).then((r) => r.wait());
     await weth.mint(router.address, parseEther("10")).then((r) => r.wait());
 
     // Approvals
-    const seed = 1_000_000;
     const approvals = await Promise.all([
-      adopted.approve(stableSwap.address, seed * 3),
-      delay(100).then((_) => local.approve(stableSwap.address, seed * 2)),
-      delay(200).then((_) => canonical.approve(stableSwap.address, seed)),
-      delay(300).then((_) => weth.approve(stableSwap.address, seed)),
+      originAdopted.approve(stableSwap.address, SEED * 3),
+      delay(100).then((_) => destinationAdopted.approve(stableSwap.address, SEED * 2)),
+      delay(200).then((_) => local.approve(stableSwap.address, SEED * 2)),
+      delay(300).then((_) => canonical.approve(stableSwap.address, SEED)),
+      delay(400).then((_) => weth.approve(stableSwap.address, SEED)),
     ]);
-    // Setup stable swap for adopted => local
     await Promise.all(approvals.map((a) => a.wait()));
-    const swapLocal = await stableSwap.connect(admin).setupPool(adopted.address, local.address, seed * 2, seed * 2);
-    await swapLocal.wait();
-    // Setup stable swap for canonical => adopted
-    const swapCanonical = await stableSwap.connect(admin).setupPool(adopted.address, canonical.address, seed, seed);
-    await swapCanonical.wait();
+
     // Set transaction manager on BridgeRouter
-    const setOriginTm = await originBridge.setTransactionManager(originTm.address);
+    const setOriginTm = await originBridge.connect(admin).setTransactionManager(originTm.address);
     await setOriginTm.wait();
-    const setDestinationTm = await destinationBridge.setTransactionManager(destinationTm.address);
+    const setDestinationTm = await destinationBridge.connect(admin).setTransactionManager(destinationTm.address);
     await setDestinationTm.wait();
 
-    // Set token registry
-    const setOriginTr = await originBridge.setTokenRegistry(originTokenRegistry.address);
-    await setOriginTr.wait();
-
-    const setDestinationTr = await destinationBridge.setTokenRegistry(destinationTokenRegistry.address);
-    await setDestinationTr.wait();
-
     // Set remote on BridgeRouter
-    const setRemote = await originBridge.enrollRemoteRouter(
-      destinationDomain,
-      addressToBytes32(destinationBridge.address),
-    );
+    const setRemote = await originBridge
+      .connect(admin)
+      .enrollRemoteRouter(destinationDomain, addressToBytes32(destinationBridge.address));
     await setRemote.wait();
 
     // Setup transaction manager assets
@@ -192,7 +263,7 @@ describe.only("TransactionManager", () => {
         id: addressToBytes32(canonical.address),
         domain: originDomain,
       },
-      adopted.address,
+      originAdopted.address,
       stableSwap.address,
     );
     await setupOriginAsset.wait();
@@ -211,7 +282,7 @@ describe.only("TransactionManager", () => {
         id: addressToBytes32(canonical.address),
         domain: originDomain,
       },
-      adopted.address,
+      destinationAdopted.address,
       stableSwap.address,
     );
     await setupDestAsset.wait();
@@ -220,7 +291,7 @@ describe.only("TransactionManager", () => {
         id: addressToBytes32(weth.address),
         domain: originDomain,
       },
-      adopted.address,
+      destinationAdopted.address,
       stableSwap.address,
     );
     await setupDestWeth.wait();
@@ -233,7 +304,24 @@ describe.only("TransactionManager", () => {
     await Promise.all(routers.map((r) => r.wait()));
   });
 
+  // Token scenario:
+  // - user prepares in adopted on origin
+  // - oTM swaps adopted for canonical
+  // - router pays in local
+  // - dTM swaps local for adopted
   it("should work for tokens", async () => {
+    // Setup stable swap for adopted => canonical on origin
+    const swapCanonical = await stableSwap
+      .connect(admin)
+      .setupPool(originAdopted.address, canonical.address, SEED, SEED);
+    await swapCanonical.wait();
+
+    // Setup stable swap for local => adopted on dest
+    const swapLocal = await stableSwap
+      .connect(admin)
+      .setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
+    await swapLocal.wait();
+
     // Add router liquidity
     const approveLiq = await local.connect(router).approve(destinationTm.address, parseEther("100000"));
     await approveLiq.wait();
@@ -241,11 +329,14 @@ describe.only("TransactionManager", () => {
     await addLiq.wait();
 
     // Approve user
-    const approveAmt = await adopted.connect(user).approve(originTm.address, parseEther("100000"));
+    const approveAmt = await originAdopted.connect(user).approve(originTm.address, parseEther("100000"));
     await approveAmt.wait();
 
     // Get pre-prepare balances
-    const prePrepare = await Promise.all([adopted.balanceOf(user.address), canonical.balanceOf(originBridge.address)]);
+    const prePrepare = await Promise.all([
+      originAdopted.balanceOf(user.address),
+      canonical.balanceOf(originBridge.address),
+    ]);
 
     // Prepare from the user
     const params = {
@@ -255,43 +346,51 @@ describe.only("TransactionManager", () => {
       originDomain,
       destinationDomain,
     };
-    const asset = adopted.address;
+    const transactingAssetId = originAdopted.address;
     const amount = 1000;
-    const prepare = await originTm.connect(user).prepare({ params, transactingAssetId: asset, amount });
+    const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
-    const postPrepare = await Promise.all([adopted.balanceOf(user.address), canonical.balanceOf(originBridge.address)]);
+    const postPrepare = await Promise.all([
+      originAdopted.balanceOf(user.address),
+      canonical.balanceOf(originBridge.address),
+    ]);
     expect(postPrepare[0]).to.be.eq(prePrepare[0].sub(amount));
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
     // Get the message + id from the events
-    const bridgeEvent = (await originBridge.queryFilter(originBridge.filters.Send())).find(
-      (a) => a.blockNumber === prepareReceipt.blockNumber,
-    );
+    const topics = originBridge.filters.Send().topics as string[];
+    const bridgeEvent = originBridge.interface.parseLog(prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!);
     const message = (bridgeEvent!.args as any).message;
 
-    const originTmEvent = await (
-      await originTm.queryFilter(originTm.filters.Prepared())
-    ).find((a) => a.blockNumber === prepareReceipt.blockNumber);
+    const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+      (a) => a.blockNumber === prepareReceipt.blockNumber,
+    );
     const tmNonce = (originTmEvent!.args as any).nonce;
 
     // Get pre-fulfill balances
     const preFulfill = await Promise.all([
-      adopted.balanceOf(user.address),
+      destinationAdopted.balanceOf(user.address),
       destinationTm.routerBalances(router.address, local.address),
     ]);
 
     // Fulfill with the router
     const routerAmount = amount - 500;
-    const fulfill = await destinationTm
-      .connect(router)
-      .fulfill({ params, nonce: tmNonce, local: local.address, amount: routerAmount });
+    const fulfill = await destinationTm.connect(router).fulfill({
+      params,
+      nonce: tmNonce,
+      local: local.address,
+      amount: routerAmount,
+      feePercentage: constants.Zero,
+      relayerSignature: "0x",
+      router: router.address,
+    });
     await fulfill.wait();
 
     // Check balance of user + bridge
     const postFulfill = await Promise.all([
-      adopted.balanceOf(user.address),
+      destinationAdopted.balanceOf(user.address),
       destinationTm.routerBalances(router.address, local.address),
     ]);
     expect(postFulfill[0]).to.be.eq(preFulfill[0].add(routerAmount));
@@ -299,13 +398,26 @@ describe.only("TransactionManager", () => {
 
     // Reconcile via bridge
     const preReconcile = await destinationTm.routerBalances(router.address, local.address);
-    const reconcile = await destinationBridge.handle(originDomain, 0, getRandomBytes32(), message);
+    const reconcile = await destinationBridge
+      .connect(admin)
+      .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
     await reconcile.wait();
     const postReconcile = await destinationTm.routerBalances(router.address, local.address);
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 
+  // ETH scenario:
+  // - user prepares in ETH
+  // - oTM wraps
+  // - router pays in local
+  // - dTM swaps for adopted
   it("should work with sending native assets, receiving local representation", async () => {
+    // Setup stable swap for local => adopted on dest
+    const swapLocal = await stableSwap
+      .connect(admin)
+      .setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
+    await swapLocal.wait();
+
     // Add router liquidity
     await local
       .connect(router)
@@ -314,9 +426,9 @@ describe.only("TransactionManager", () => {
     const addLiq = await destinationTm.connect(router).addLiquidity(parseEther("1"), local.address);
     await addLiq.wait();
 
-    // Approve user
-    const approveAmt = await adopted.connect(user).approve(originTm.address, parseEther("100000"));
-    await approveAmt.wait();
+    // // Approve user
+    // const approveAmt = await destinationAdopted.connect(user).approve(originTm.address, parseEther("100000"));
+    // await approveAmt.wait();
 
     // Get pre-prepare balances
     const prePrepare = await Promise.all([user.getBalance(), weth.balanceOf(originBridge.address)]);
@@ -329,11 +441,9 @@ describe.only("TransactionManager", () => {
       originDomain,
       destinationDomain,
     };
-    const asset = constants.AddressZero;
+    const transactingAssetId = constants.AddressZero;
     const amount = 1000;
-    const prepare = await originTm
-      .connect(user)
-      .prepare({ params, transactingAssetId: asset, amount }, { value: amount });
+    const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount }, { value: amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -344,9 +454,8 @@ describe.only("TransactionManager", () => {
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
     // Get the message + id from the events
-    const bridgeEvent = (await originBridge.queryFilter(originBridge.filters.Send())).find(
-      (a) => a.blockNumber === prepareReceipt.blockNumber,
-    );
+    const topics = originBridge.filters.Send().topics as string[];
+    const bridgeEvent = originBridge.interface.parseLog(prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!);
     const message = (bridgeEvent!.args as any).message;
 
     const originTmEvent = await (
@@ -356,20 +465,26 @@ describe.only("TransactionManager", () => {
 
     // Get pre-fulfill balances
     const preFulfill = await Promise.all([
-      adopted.balanceOf(user.address),
+      destinationAdopted.balanceOf(user.address),
       destinationTm.routerBalances(router.address, local.address),
     ]);
 
     // Fulfill with the router
     const routerAmount = amount - 500;
-    const fulfill = await destinationTm
-      .connect(router)
-      .fulfill({ params, nonce: tmNonce, local: local.address, amount: routerAmount });
+    const fulfill = await destinationTm.connect(router).fulfill({
+      params,
+      nonce: tmNonce,
+      local: local.address,
+      amount: routerAmount,
+      relayerSignature: "0x",
+      router: router.address,
+      feePercentage: constants.Zero,
+    });
     await fulfill.wait();
 
     // Check balance of user + bridge
     const postFulfill = await Promise.all([
-      adopted.balanceOf(user.address),
+      destinationAdopted.balanceOf(user.address),
       destinationTm.routerBalances(router.address, local.address),
     ]);
     expect(postFulfill[0]).to.be.eq(preFulfill[0].add(routerAmount));
@@ -377,7 +492,9 @@ describe.only("TransactionManager", () => {
 
     // Reconcile via bridge
     const preReconcile = await destinationTm.routerBalances(router.address, local.address);
-    const reconcile = await destinationBridge.handle(originDomain, 0, getRandomBytes32(), message);
+    const reconcile = await destinationBridge
+      .connect(admin)
+      .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
     await reconcile.wait();
     const postReconcile = await destinationTm.routerBalances(router.address, local.address);
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
