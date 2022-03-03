@@ -47,12 +47,16 @@ export class TransactionsCache extends Cache {
     const status = this.data.scanStream({
       match: `${txid}`,
     });
-    status.on("data", (txidMatch) => {
-      console.log("found txid");
-      return txidMatch as CrossChainTx;
-    });
-    console.log("no txid found");
-    return undefined;
+    return new Promise((res, rej) => {
+      status.on("data", (txidMatch) => {
+        console.log("found txid");
+        res(txidMatch);
+      });
+      status.on("end", () => {
+        rej(undefined);
+      })
+    })
+
   }
 
   /**
@@ -69,11 +73,15 @@ export class TransactionsCache extends Cache {
       match: `${domain}:*}`,
     });
     return new Promise((res, rej) => {
-      nonceStream.on("data", (data: string) => {
+      nonceStream.on("data", (data) => {
+        console.log(JSON.stringify(data))
         //strip domain name from key
-        const nonce = parseInt(data.substring(0, data.indexOf(":")));
-        //mark as highest
-        nonce > highestNonce ? (highestNonce = nonce) : highestNonce;
+        if (data[0] !== undefined) {
+          const nonceStr = data[0].substring(0, data.indexOf(":"));
+          const nonce = parseInt(nonceStr);
+          //mark as highest
+          nonce > highestNonce ? (highestNonce = nonce) : highestNonce;
+        }
       });
       //return highest
       nonceStream.on("end", () => {
