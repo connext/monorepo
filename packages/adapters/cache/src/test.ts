@@ -1,5 +1,4 @@
 import { CrossChainTx, CrossChainTxStatus, mkBytes32, txDataMock } from "@connext/nxtp-utils";
-import { stat } from "fs";
 import { TransactionsCache } from "./index";
 import { StoreChannel } from "./lib/entities";
 const RedisMock = require("ioredis-mock");
@@ -90,4 +89,4 @@ export async function main() {
   }
 }
 
-main();
+// main();
