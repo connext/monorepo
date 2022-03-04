@@ -1,6 +1,5 @@
 import * as fs from "fs";
 
-
 import { ajv, ChainData, getChainData } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 
@@ -12,7 +11,7 @@ const DEFAULT_REDIS_BASE_URL = "redis://mock";
 /**
  * Helper to allow easy mocking
  */
- export const getContractDeployments: any = () => {
+export const getContractDeployments: any = () => {
   return contractDeployments;
 };
 
@@ -66,7 +65,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
       listenPort:
-        process.env.NXTP_SERVER_PORT || configJson.server?.listenPort || configFile.server?.listenPort || 8080,
+        process.env.NXTP_SERVER_PORT || configJson.server?.listenPort || configFile.server?.listenPort || 8081,
     },
   };
 
@@ -101,7 +100,8 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
 
     const maxLag = chainConfig.subgraph.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
     // 25 blocks minimum.
-    _sequencerConfig.chains[domainId].subgraph.maxLag = maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag;
+    _sequencerConfig.chains[domainId].subgraph.maxLag =
+      maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag;
   });
 
   const validate = ajv.compile(SequencerConfigSchema);
@@ -111,7 +111,6 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   if (!valid) {
     throw new Error(validate.errors?.map((err: any) => JSON.stringify(err, null, 2)).join(","));
   }
-
 
   return _sequencerConfig;
 };
