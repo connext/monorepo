@@ -21,18 +21,6 @@ export class TransactionsCache extends Cache {
     } else {
       this.data = new Redis(`${url}`);
     }
-
-    this.startListeners();
-  }
-
-  /**
-   * Starts listeners for subscription
-   */
-  protected startListeners(): void {
-    this.data.subscribe(StoreChannel.NewPreparedTx);
-    this.data.on("message", (channel, message) => {
-      this.publish(channel, message);
-    });
   }
 
   /**
@@ -118,7 +106,7 @@ export class TransactionsCache extends Cache {
         // Store the transaction data, since it doesn't already exist.
         await this.data.set(`${tx.originDomain}:${tx.nonce}`, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
+        await this.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
       }
     }
   }
