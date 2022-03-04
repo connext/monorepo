@@ -22,7 +22,6 @@
     "packages/deployments/contracts",
     "packages/deployments/subgraph",
     "packages/adapters/txservice",
-    "packages/adapters/auctioneer",
     "packages/adapters/cache",
     "packages/adapters/subgraph",
     "packages/adapters/web3signer",

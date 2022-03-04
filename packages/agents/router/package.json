@@ -28,7 +28,6 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-adapters-auctioneer/dist",
       "../@connext/nxtp-adapters-cache/dist",
       "../@connext/nxtp-adapters-subgraph/dist",
       "../@connext/nxtp-adapters-web3signer/dist",
@@ -43,7 +42,6 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-auctioneer": "workspace:*",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",

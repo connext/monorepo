@@ -644,28 +644,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@connext/nxtp-adapters-auctioneer@workspace:*, @connext/nxtp-adapters-auctioneer@workspace:packages/adapters/auctioneer":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-adapters-auctioneer@workspace:packages/adapters/auctioneer"
-  dependencies:
-    "@connext/nxtp-utils": "workspace:*"
-    "@types/chai": ^4.3.0
-    "@types/ioredis": ^4
-    "@types/mocha": ^9
-    "@typescript-eslint/eslint-plugin": ^4.29.2
-    axios: ^0.24.0
-    chai: ^4.3.6
-    ethers: ^5.5.4
-    ioredis: ^4.28.5
-    mocha: ^9.2.1
-    nyc: ^15.1.0
-    ts-mocha: ^9.0.2
-    ts-node: ^10.2.0
-    tslib: ^2.3.1
-    typescript: 4.3.5
-  languageName: unknown
-  linkType: soft
-
 "@connext/nxtp-adapters-cache@workspace:*, @connext/nxtp-adapters-cache@workspace:packages/adapters/cache":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-cache@workspace:packages/adapters/cache"
@@ -759,7 +737,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-router@workspace:packages/agents/router"
   dependencies:
-    "@connext/nxtp-adapters-auctioneer": "workspace:*"
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-adapters-web3signer": "workspace:*"
@@ -2930,7 +2907,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^9, @types/mocha@npm:^9.1.0":
+"@types/mocha@npm:^9.1.0":
   version: 9.1.0
   resolution: "@types/mocha@npm:9.1.0"
   checksum: f9684606fe5bbbd998f6af42948bdf10047cfec47377b1d08f701d16f2ec2cf08ba542bae9e6d9a92467340e7891fd97fa9547718cb24ac4f582f0deea1c024f
@@ -13341,7 +13318,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"mocha@npm:^9.0.3, mocha@npm:^9.2.1":
+"mocha@npm:^9.0.3":
   version: 9.2.1
   resolution: "mocha@npm:9.2.1"
   dependencies:
@@ -18136,23 +18113,6 @@ resolve@1.17.0:
   bin:
     ts-mocha: bin/ts-mocha
   checksum: 32841be86aea230fa35ee1dfcade8ea3069d3a670722c2b6b2237de69653388ceb5bbbd1014046dab4225af51f25d542035170aa02fd9c46e532743609123772
-  languageName: node
-  linkType: hard
-
-"ts-mocha@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "ts-mocha@npm:9.0.2"
-  dependencies:
-    ts-node: 7.0.1
-    tsconfig-paths: ^3.5.0
-  peerDependencies:
-    mocha: ^3.X.X || ^4.X.X || ^5.X.X || ^6.X.X || ^7.X.X || ^8.X.X || ^9.X.X
-  dependenciesMeta:
-    tsconfig-paths:
-      optional: true
-  bin:
-    ts-mocha: bin/ts-mocha
-  checksum: 20f944537805e6f77a5cf74ceb62f66fc336ae015d92c65ed32a5f57075b99c1aeaaae23cb0311f53b04d5499d0872cf358018164ebdacd67f175d96833a8ea6
   languageName: node
   linkType: hard
 
