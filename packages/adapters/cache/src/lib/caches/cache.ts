@@ -28,7 +28,5 @@ export abstract class Cache {
    */
   public async subscribe(channel: StoreChannel, callback: SubscriptionCallback): Promise<void> {
     this.subscriptions.set(channel, callback);
-
-    console.log(this.subscriptions);
   }
 }
