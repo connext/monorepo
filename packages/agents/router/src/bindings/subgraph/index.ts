@@ -20,8 +20,7 @@ export const bindSubgraph = async (context: AppContext) => {
     try {
       const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
       for (const domain of Object.keys(config.chains)) {
-        // TODO. txservice currently works with chainId, not domain. It needs to be updated
-        const latestBlockNumber = await txservice.getBlockNumber(chainData.get(domain)!.chainId);
+        const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
         const safeConfirmations = DEFAULT_SAFE_CONFIRMATIONS;
         const latestNonce = await cache.transactions.getLatestNonce(domain);
         console.log({ domain, latestBlockNumber, safeConfirmations, latestNonce });

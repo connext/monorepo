@@ -1,15 +1,15 @@
 import {
   CrossChainTx,
-  getChainIdFromDomain,
   RequestContext,
   FulfilledTransaction,
   createLoggingContext,
   getExternalCallHash,
   getReconciledHash,
+  ChainData,
 } from "@connext/nxtp-utils";
 import { getTransactionManagerAddress, getTxManagerInerface } from ".";
 import { getContext } from "../../router";
-import { constants } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { SanitationCheckFailed } from "../errors";
 
@@ -27,13 +27,12 @@ export const sanitationCheck = async (
     // Check out if this transaction provides fast liquidity
     // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
     const transactionId = transactionData.transactionId;
-    const chainId = await getChainIdFromDomain(transactionData.destinationDomain);
-    const txManagerContractAddress = getTransactionManagerAddress(chainId);
+    const txManagerContractAddress = getTransactionManagerAddress(transactionData.destinationDomain);
     const encodeReconciledTransaction = getTxManagerInerface().encodeFunctionData("reconciledTransactions", [
       transactionId,
     ]);
     const reconciledTxHash = await txservice.readTx({
-      chainId,
+      chainId: parseInt(transactionData.destinationDomain),
       to: txManagerContractAddress,
       data: encodeReconciledTransaction,
     });
@@ -45,14 +44,18 @@ export const sanitationCheck = async (
     if (isFast) {
       const encodeRoutedTransaction = getTxManagerInerface().encodeFunctionData("routedTransactions", [transactionId]);
       const fulfilledTxEncoded = await txservice.readTx({
-        chainId,
+        chainId: parseInt(transactionData.destinationDomain),
         to: txManagerContractAddress,
         data: encodeRoutedTransaction,
       });
       const [fulfillTx] = getTxManagerInerface().decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
+
       const fulfillTxTyped = fulfillTx as FulfilledTransaction;
-      if (fulfillTxTyped.router != constants.AddressZero) {
-        throw new SanitationCheckFailed("fulfill", transactionId, chainId, { requestContext, methodContext });
+      if (fulfillTx != constants.AddressZero && fulfillTxTyped.router != constants.AddressZero) {
+        throw new SanitationCheckFailed("fulfill", transactionId, transactionData.destinationDomain, {
+          requestContext,
+          methodContext,
+        });
       }
     } else {
       /// TODO: Not implemented yet
@@ -153,4 +156,40 @@ export const getAmountOut = async (
 ): Promise<string> => {
   // TODO: moved to utils after everything done correctly
   return amountIn;
+};
+
+/**
+ * Returns the decimal number of `asset` on `doamin` network.
+ *
+ * @param domain The network identifier that we're getting the asset decimal on
+ * @param asset The asset address
+ * @returns The decimal number of asset
+ */
+export const getDecimalsForAsset = async (domain: string, asset: string): Promise<number> => {
+  // TODO. Not implemented yet, it should be updated once txservice is updated for domain schema
+  return 18;
+};
+
+/**
+ * Calculates total router gas fee in token.
+ *
+ * @param originDomain The origin domain
+ * @param originAssetId The asset address on origin domain network
+ * @param destinationDomain The destination domain
+ * @param destinationAssetId The asset address on destination domain network
+ * @param outputDecimals Decimal number of destination asset
+ * @param _requestContext Request context instance
+ */
+export const calculateGasFeeInReceivingToken = async (
+  originDomain: string,
+  originAssetId: string,
+  destinationDomain: string,
+  destinationAssetId: string,
+  outputDecimals: number,
+  chainData?: Map<string, ChainData>,
+  _requestContext?: RequestContext,
+): Promise<BigNumber> => {
+  // TODO. Not implemented yet
+
+  return BigNumber.from("0");
 };

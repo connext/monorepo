@@ -4,7 +4,6 @@ import {
   SignedBid,
   createLoggingContext,
   CrossChainTx,
-  getChainIdFromDomain,
   signHandleRelayerFeePayload,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
@@ -12,8 +11,11 @@ import { getContext } from "../../router";
 import { NotEnoughAmount, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
 import { SlippageInvalid } from "../errors/fulfill";
 import { getReceiverAmount } from "../helpers";
+
 import {
+  calculateGasFeeInReceivingToken,
   getAmountOut,
+  getDecimalsForAsset,
   getDestinationLocalAsset,
   getDestinationTransactingAsset,
   sanitationCheck,
@@ -37,7 +39,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     chainData,
     routerAddress,
   } = getContext();
-  logger.info("Method start", requestContext, methodContext, pendingTx);
+  logger.info("Method start", requestContext, methodContext, { pendingTx });
 
   /// sanitation check before validiation
   await sanitationCheck(pendingTx, "fulfill");
@@ -64,18 +66,15 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     destinationDomain,
   };
 
-  const sendingChainId = getChainIdFromDomain(originDomain);
-  const receivingChainId = getChainIdFromDomain(destinationDomain);
-  const trascitingInputDecimals = await txservice.getDecimalsForAsset(sendingChainId, prepareTransactingAsset);
-  const localInputDecimals = await txservice.getDecimalsForAsset(sendingChainId, prepareLocalAsset);
+  const localInputDecimals = await getDecimalsForAsset(originDomain, prepareLocalAsset);
   const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
   const fulfillTransactingAsset = await getDestinationTransactingAsset(
     originDomain,
     prepareTransactingAsset,
     destinationDomain,
   );
-  const transactingOutputDecimals = await txservice.getDecimalsForAsset(receivingChainId, fulfillTransactingAsset);
-  const localOutputDecimals = await txservice.getDecimalsForAsset(receivingChainId, fulfillLocalAsset);
+  const transactingOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillTransactingAsset);
+  const localOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillLocalAsset);
 
   let { receivingAmount: receiverAmount } = await getReceiverAmount(
     prepareLocalAmount,
@@ -113,10 +112,11 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   }
 
   const amountReceivedInBigNum = BigNumber.from(receiverAmount);
-  const gasFeeInFulfillLocalAsset = await txservice.calculateGasFeeInReceivingToken(
-    sendingChainId,
+
+  const gasFeeInFulfillLocalAsset = await calculateGasFeeInReceivingToken(
+    originDomain,
     prepareLocalAsset,
-    receivingChainId,
+    destinationDomain,
     fulfillLocalAsset,
     localOutputDecimals,
     chainData,
@@ -124,18 +124,20 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   );
 
   receiverAmount = amountReceivedInBigNum.sub(gasFeeInFulfillLocalAsset).toString();
-  const routerBalance = await subgraph.getAssetBalance(receivingChainId, routerAddress, fulfillLocalAsset);
-  if (routerBalance.lt(receiverAmount)) {
-    // TODO: need to double check balance on chain. MUST BE IMPLEMENTED
 
-    throw new NotEnoughLiquidity(
-      receivingChainId,
-      fulfillLocalAsset,
-      routerBalance.toString(),
-      receiverAmount.toString(),
-      { methodContext, requestContext },
-    );
-  }
+  // TODO: `getAssetBalance` is not implemented yet.
+  // const routerBalance = await subgraph.getAssetBalance(parseInt(destinationDomain), routerAddress, fulfillLocalAsset);
+  // if (routerBalance.lt(receiverAmount)) {
+  //   // TODO: need to double check balance on chain. MUST BE IMPLEMENTED
+
+  //   throw new NotEnoughLiquidity(
+  //     parseInt(destinationDomain),
+  //     fulfillLocalAsset,
+  //     routerBalance.toString(),
+  //     receiverAmount.toString(),
+  //     { methodContext, requestContext },
+  //   );
+  // }
 
   // make sure amount is sensible
   if (BigNumber.from(receiverAmount).lt(0)) {
@@ -169,5 +171,6 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     signature,
   };
   /// send the bid to auctioneer
+  logger.info("Sending bid to auctioneer", requestContext, methodContext, { bid });
   await sequencer.sendBid(bid);
 };
