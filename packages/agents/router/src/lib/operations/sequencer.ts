@@ -12,8 +12,8 @@ export const sendBid = async (bid: SignedBid): Promise<any> => {
   let response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
     bid,
   });
-
-  if (!response || !response.data || response.data.length === 0) {
+  
+  if (!response || !response.data) {
     throw new NxtpError("error sendBid", { response });
   } else {
     return response.data;
