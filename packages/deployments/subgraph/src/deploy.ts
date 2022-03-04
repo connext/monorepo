@@ -17,10 +17,10 @@ export type Network = {
 const run = async () => {
   const cmdArg = process.argv.slice(2);
 
-  // first argument is contract version: v0 | v1-analytics | v1-runtime
+  // first argument is contract version: amarok-runtime-v0
   const contractVersion = cmdArg[0];
 
-  // second argument is config file path: <config-file-name> local | prod | staging | v0
+  // second argument is config file path: <config-file-name> amarok-runtime-v0
   const configFile = cmdArg[1];
 
   // third argument is network: all | <network-name>

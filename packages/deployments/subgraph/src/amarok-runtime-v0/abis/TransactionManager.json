@@ -618,6 +618,19 @@
         "type": "address"
       }
     ],
+    "name": "addRelayerFees",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      }
+    ],
     "name": "addRouter",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -842,19 +855,34 @@
             "type": "tuple"
           },
           {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
             "internalType": "address",
             "name": "local",
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "router",
+            "type": "address"
+          },
+          {
+            "internalType": "uint32",
+            "name": "feePercentage",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nonce",
+            "type": "uint256"
+          },
+          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "relayerSignature",
+            "type": "bytes"
           }
         ],
         "internalType": "struct TransactionManager.FulfillArgs",
@@ -1150,6 +1178,24 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address payable",
+        "name": "recipient",
+        "type": "address"
+      }
+    ],
+    "name": "removeRelayerFees",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "router",
         "type": "address"
@@ -1274,6 +1320,25 @@
   {
     "inputs": [],
     "name": "routerOwnershipTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "routerRelayerFees",
     "outputs": [
       {
         "internalType": "uint256",
