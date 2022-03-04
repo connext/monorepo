@@ -6,7 +6,7 @@ import {
   CrossChainTx,
   signHandleRelayerFeePayload,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { getContext } from "../../router";
 import { NotEnoughAmount, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
 import { SlippageInvalid } from "../errors/fulfill";
@@ -156,7 +156,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
-    local: fulfillLocalAsset,
+    local: fulfillLocalAsset ?? constants.AddressZero,
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receiverAmount,
