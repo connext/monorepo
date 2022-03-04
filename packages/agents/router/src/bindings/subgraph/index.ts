@@ -13,25 +13,25 @@ export const bindSubgraph = async (context: AppContext) => {
     adapters: { cache, subgraph, txservice },
     logger,
     config,
-    chainData
+    chainData,
   } = context;
   const { requestContext, methodContext } = createLoggingContext("bindSubgraph");
   interval(async () => {
     try {
-      const subgraphCache: Map<string, SubgraphQueryMetaParams> = new Map();
+      const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
       for (const domain of Object.keys(config.chains)) {
         // TODO. txservice currently works with chainId, not domain. It needs to be updated
         const latestBlockNumber = await txservice.getBlockNumber(chainData.get(domain)!.chainId);
         const safeConfirmations = DEFAULT_SAFE_CONFIRMATIONS;
         const latestNonce = await cache.transactions.getLatestNonce(domain);
         console.log({ domain, latestBlockNumber, safeConfirmations, latestNonce });
-        subgraphCache.set(domain, {
+        subgraphQueryMetaParams.set(domain, {
           maxPrepareBlockNumber: latestBlockNumber - safeConfirmations,
           latestNonce,
         });
       }
 
-      const transactions = await subgraph.getPreparedTransactions(subgraphCache);
+      const transactions = await subgraph.getPreparedTransactions(subgraphQueryMetaParams);
       logger.debug("Got transactions", requestContext, methodContext, {
         transactions,
       });
