@@ -171,6 +171,6 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     signature,
   };
   /// send the bid to auctioneer
-  logger.info("Sending bid to auctioneer", requestContext, methodContext, { bid });
+  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
   await sequencer.sendBid(bid);
 };
