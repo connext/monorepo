@@ -82,9 +82,8 @@ const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
   [SubgraphDomain.TEST]: "test",
 };
 
-export type SubgraphCache = {
-  currentBlock: number;
-  safeConfirmation: number;
+export type SubgraphQueryMetaParams = {
+  maxPrepareBlockNumber: number;
   latestNonce: number;
 };
 
