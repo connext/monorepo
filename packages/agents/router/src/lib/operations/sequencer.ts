@@ -13,7 +13,7 @@ export const sendBid = async (bid: SignedBid): Promise<any> => {
     bid,
   });
   
-  if (!response || !response.data) {
+  if (!response) {
     throw new NxtpError("error sendBid", { response });
   } else {
     return response.data;
