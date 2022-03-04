@@ -11,21 +11,21 @@ import { ExternalCall, ReconciledTransaction } from "./transactions";
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
 export const SignedRelayerFeeDataEncoding = tidy(`tuple(
-  uint256 _nonce,
-  uint32 _feePct,
+  uint256 nonce,
+  uint32 feePercentage
 )`);
 
 export const ExternalCallDataEncoding = tidy(`tuple(
-  address recipient;
-  address callTo;
-  bytes callData;
+  address recipient,
+  address callTo,
+  bytes callData
 )`);
 
 export const ReconciledTransactionDataEncoding = tidy(`tuple(
   bytes32 externalHash,
   address local,
   uint256 amount,
-  address recipient,
+  address recipient
 )`);
 
 /**
