@@ -105,7 +105,7 @@ export const setupCache = async (
   });
 
   // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-  cacheInstance.subscribe(StoreManager.Channel.NewPreparedTx, fulfill);
+  cacheInstance.transactions.subscribe(StoreManager.Channel.NewPreparedTx, fulfill);
 
   logger.info("cache instance setup is done!", requestContext, methodContext, {
     redisUrl: redisUrl,

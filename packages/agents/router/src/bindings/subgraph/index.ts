@@ -37,13 +37,7 @@ export const bindSubgraph = async (context: AppContext) => {
       });
       await cache.transactions.storeTxData(transactions);
     } catch (err: any) {
-      logger.error(
-        "Error getting pending txs, waiting for next loop",
-        requestContext,
-        methodContext,
-        jsonifyError(err),
-      );
-      return;
+      logger.error("Error getting pending txs, waiting for next loop", requestContext, methodContext, err);
     }
   }, SUBGRAPH_POLL_INTERVAL);
 };

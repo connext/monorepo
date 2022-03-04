@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { CacheParams, StoreChannel } from "../entities";
+import { CacheParams, StoreChannel, SubscriptionCallback } from "../entities";
 import { Cache } from "./";
 /**
  * Redis Store Details:
@@ -21,7 +21,23 @@ export class TransactionsCache extends Cache {
     } else {
       this.data = new Redis(`${url}`);
     }
+
+    this.startListeners();
   }
+
+  /**
+   * Starts listeners for subscription
+   */
+  protected startListeners(): void {
+    this.data.subscribe(StoreChannel.NewHighestNonce);
+    this.data.subscribe(StoreChannel.NewPreparedTx);
+    this.data.subscribe(StoreChannel.NewStatus);
+
+    this.data.on("message", (channel, message) => {
+      this.publish(channel, message);
+    });
+  }
+
   /**
    *
    * @param txid TransactionId to store
@@ -94,7 +110,7 @@ export class TransactionsCache extends Cache {
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
     for (const tx of txs) {
-      const existing = await this.data.get(tx.transactionId);
+      const existing = await this.data.get(`${tx.originDomain}:${tx.nonce}`);
       // Update the status, regardless of whether the transaction already exists.
       await this.data.set(tx.transactionId, tx.status);
       await this.data.publish(StoreChannel.NewStatus, `${tx.originDomain} : ${tx.status}`);
@@ -103,7 +119,7 @@ export class TransactionsCache extends Cache {
         // Store the transaction data, since it doesn't already exist.
         await this.data.set(`${tx.originDomain}:${tx.nonce}`, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        await this.data.publish(StoreChannel.NewPreparedTx, tx.transactionId);
+        await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
       }
     }
   }

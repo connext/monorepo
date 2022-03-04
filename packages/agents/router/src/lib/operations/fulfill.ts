@@ -29,6 +29,7 @@ const RelayerFeePercentage = "1"; //  1%
  * @param pendingTx The prepared crosschain tranaction
  */
 export const fulfill = async (pendingTx: CrossChainTx) => {
+  console.log("> fulfilling.............................");
   const { requestContext, methodContext } = createLoggingContext(fulfill.name);
   const {
     logger,

@@ -1,9 +1,12 @@
+import { CrossChainTx } from "@connext/nxtp-utils";
+import Redis from "ioredis";
 import { CacheParams, StoreChannel, SubscriptionCallback, Subscriptions } from "../entities";
 /**
  * @classdesc Manages storage, updates, and retrieval of a set of data determined by use-case.
  */
 export abstract class Cache {
   public readonly subscriptions: Subscriptions;
+
   constructor({ subscriptions }: CacheParams) {
     this.subscriptions = subscriptions;
   }
@@ -16,5 +19,16 @@ export abstract class Cache {
   protected async publish(channel: StoreChannel, message: any): Promise<void> {
     const callback = this.subscriptions.get(channel);
     if (callback) callback(message);
+  }
+
+  /**
+   * Subscribes to the specified channel, callback fn is called whenever a new message arrives
+   * @param channel The channel name that publishes messages to
+   * @param callback The callback function that is called whenever a new message arrives
+   */
+  public async subscribe(channel: StoreChannel, callback: SubscriptionCallback): Promise<void> {
+    this.subscriptions.set(channel, callback);
+
+    console.log(this.subscriptions);
   }
 }

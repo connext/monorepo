@@ -40,14 +40,5 @@ export class StoreManager implements Store {
       return store;
     }
   }
-
-  /**
-   * Subscribes to the specified channel, callback fn is called whenever a new message arrives
-   * @param channel The channel name that publishes messages to
-   * @param callback The callback function that is called whenever a new message arrives
-   */
-  public async subscribe(channel: StoreChannel, callback: SubscriptionCallback): Promise<void> {
-    this.subscriptions.set(channel, callback);
-  }
 }
 export * from "./lib/caches";
