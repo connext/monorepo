@@ -10,14 +10,14 @@ export const setupHandlers = (context: AppContext, server: FastifyInstance) => {
     return res.code(200).send("pong\n");
   });
 
-  server.post("/bid", {}, async (req, res) => {
+  server.post("/bid", {}, async (request, response) => {
     try {
-      const bid = JSON.parse(req.body as string) as SignedBid;
-      const result = await handleBid(context, bid);
-      return res.code(201).send(result);
+      const { body: req } = request;
+      const result = await handleBid(context, (req as any).bid as SignedBid);
+      return response.status(200).send(result);
     } catch (e) {
       server.log.error(`Bid Post Error: ${e}`);
-      return res.code(500);
+      return response.code(500);
     }
   });
 };
