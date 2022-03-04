@@ -5,7 +5,7 @@ import { utils } from "ethers";
 
 const exec = util.promisify(_exec);
 
-const allRouters = [
+export const allRouters = [
   "0x95ce8b1c273af612cd895e6b0c633039c3572827",
   "0x55aF16Ee16B5002d5d8BAa45D59e14515Db47ACD",
   "0x6db8506a7454c5a83b9e68dfc89fd7413ce97a5d",
