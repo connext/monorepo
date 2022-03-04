@@ -1,5 +1,13 @@
 import { logger, Wallet } from "ethers";
-import { createMethodContext, createRequestContext, getChainData, Logger, RequestContext } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  createMethodContext,
+  createRequestContext,
+  getChainData,
+  jsonifyError,
+  Logger,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
@@ -91,9 +99,9 @@ export const setupCache = async (
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<StoreManager> => {
-  const methodContext = createMethodContext(setupCache.name);
   const { fulfill } = getOperations();
 
+  const methodContext = createMethodContext("setupCache");
   logger.info("cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
@@ -102,7 +110,14 @@ export const setupCache = async (
   });
 
   // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-  cacheInstance.transactions.subscribe(StoreManager.Channel.NewPreparedTx, fulfill);
+  cacheInstance.transactions.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
+    const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
+    try {
+      await fulfill(pendingTx);
+    } catch (err) {
+      logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
+    }
+  });
 
   logger.info("cache instance setup is done!", requestContext, methodContext, {
     redisUrl: redisUrl,

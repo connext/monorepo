@@ -4,7 +4,7 @@ import axios, { AxiosResponse } from "axios";
 
 export const sendBid = async (bid: SignedBid): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
-  const { logger, config, chainData, routerAddress } = getContext();
+  const { logger, config } = getContext();
 
   /// TODO don't send the signature in logs, edit bid during logging
   logger.info("Method start", requestContext, methodContext, { bid });

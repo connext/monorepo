@@ -1,5 +1,3 @@
-import { CrossChainTx } from "@connext/nxtp-utils";
-import Redis from "ioredis";
 import { CacheParams, StoreChannel, SubscriptionCallback, Subscriptions } from "../entities";
 /**
  * @classdesc Manages storage, updates, and retrieval of a set of data determined by use-case.
