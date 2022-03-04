@@ -20,6 +20,7 @@ import {
   getDestinationTransactingAsset,
   sanitationCheck,
 } from "../helpers/shared";
+import { sendBid } from "./sequencer";
 
 // fee percentage paid to relayer. need to be updated later
 const RelayerFeePercentage = "1"; //  1%
@@ -35,7 +36,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const {
     logger,
     config,
-    adapters: { sequencer, subgraph, txservice, wallet },
+    adapters: { subgraph, txservice, wallet },
     chainData,
     routerAddress,
   } = getContext();
@@ -172,5 +173,5 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   };
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
-  await sequencer.sendBid(bid);
+  await sendBid(bid);
 };
