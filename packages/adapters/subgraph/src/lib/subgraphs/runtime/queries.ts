@@ -144,8 +144,6 @@ export const getFulfilledAndReconciledTransactionsByIds = gql`
       router {
         id
       }
-      transactingAsset
-      localAsset
 
       # Prepared
       prepareCaller

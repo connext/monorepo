@@ -735,8 +735,6 @@ export type GetFulfilledAndReconciledTransactionsByIdsQuery = {
     nonce: any;
     transactionId: any;
     recipient: any;
-    transactingAsset: any;
-    localAsset: any;
     prepareCaller: any;
     prepareTransactingAmount: any;
     prepareLocalAmount: any;
@@ -788,8 +786,6 @@ export const GetPreparedTransactionsDocument = gql`
       router {
         id
       }
-      transactingAsset
-      localAsset
       prepareCaller
       prepareTransactingAmount
       prepareLocalAmount
@@ -882,8 +878,6 @@ export const GetFulfilledAndReconciledTransactionsByIdsDocument = gql`
       router {
         id
       }
-      transactingAsset
-      localAsset
       prepareCaller
       prepareTransactingAmount
       prepareLocalAmount

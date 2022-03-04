@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, logger } from "ethers";
 import { CrossChainTx, SubgraphCache } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
