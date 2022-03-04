@@ -29,10 +29,7 @@ export class TransactionsCache extends Cache {
    * Starts listeners for subscription
    */
   protected startListeners(): void {
-    this.data.subscribe(StoreChannel.NewHighestNonce);
     this.data.subscribe(StoreChannel.NewPreparedTx);
-    this.data.subscribe(StoreChannel.NewStatus);
-
     this.data.on("message", (channel, message) => {
       this.publish(channel, message);
     });
@@ -102,7 +99,9 @@ export class TransactionsCache extends Cache {
         await this.data.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
-      nonceStream.on("error", () => {
+      nonceStream.on("error", (error) => {
+        console.log(">>>>>>>>>>>>>>>>>>>>> transactionCache::error");
+        console.log(error);
         rej();
       });
     });
