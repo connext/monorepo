@@ -9,7 +9,6 @@ import { getConfig, NxtpRouterConfig } from "./config";
 import { bindFastify, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
 import { getOperations } from "./lib/operations";
-import { getSequencer } from "./adapters/sequencer";
 
 const context: AppContext = {} as any;
 
@@ -53,8 +52,6 @@ export const makeRouter = async () => {
     context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
 
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
-
-    context.adapters.sequencer = await getSequencer();
 
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
