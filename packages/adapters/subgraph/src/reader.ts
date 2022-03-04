@@ -91,7 +91,7 @@ export class SubgraphReader {
     return allPrepared;
   }
 
-  public async getPreparedTranasctions(agents: Map<string, SubgraphQueryMetaParams>): Promise<CrossChainTx[]> {
+  public async getTransactionsByStatus(agents: Map<string, SubgraphQueryMetaParams>): Promise<CrossChainTx[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
