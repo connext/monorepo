@@ -16,12 +16,14 @@ library BridgeMessage {
     // WARNING: do NOT re-write the numbers / order
     // of message types in an upgrade;
     // will cause in-flight messages to be mis-interpreted
+    // TODO: best way to handle the addition of nxtp / batching to existing types?
     enum Types {
         Invalid, // 0
         TokenId, // 1
         Message, // 2
         Transfer, // 3
-        FastTransfer // 4
+        FastTransfer, // 4
+        NxtpEnabled // 5
     }
 
     // ============ Structs ============
@@ -36,11 +38,20 @@ library BridgeMessage {
 
     // ============ Constants ============
 
-    uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
-    uint256 private constant IDENTIFIER_LEN = 1;
-    uint256 private constant TRANSFER_LEN = 161;
-    // uint256 private constant TRANSFER_LEN = 97;
-    // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes externalId + 32 bytes external hash
+    // Each message must contain the merkle root for the batched transfer and the mint info for
+    // the assets in the batch. Right now, the message restricts to 3 assets per batch. However,
+    // it is possible to not use all of the allocated space.
+
+    // Msg should consist of:
+    // 1 byte identifer + 32 bytes recipient + 32 bytes root + 3 * (4 bytes domain + 32 bytes id + 32 bytes amount + 32 bytes detailsHash)
+    // TODO: need to refine the number of assets in the batch
+    // TODO: does this delineation still make sense? (i.e. token ids then "action")
+
+    uint256 private constant TOKEN_ID_LEN = 36;
+    uint8 private constant TOKENS_IN_BATCH = 3;
+    uint256 private constant TOKEN_IDS_LEN = TOKENS_IN_BATCH * TOKEN_ID_LEN; // 108 = 3 * (4 bytes domain + 32 bytes id)
+    uint256 private constant IDENTIFIER_LEN = 1; // type of action (Types enum)
+    uint256 private constant BATCH_TRANSFER_LEN = 256; // 32 bytes recipient + 32 bytes root + 3 * (32 bytes detailsHash + 32 bytes amount)
 
     // ============ Modifiers ============
 
@@ -72,24 +83,24 @@ library BridgeMessage {
      */
     function isValidMessageLength(bytes29 _view) internal pure returns (bool) {
         uint256 _len = _view.len();
-        return _len == TOKEN_ID_LEN + TRANSFER_LEN;
+        return _len == TOKEN_IDS_LEN + BATCH_TRANSFER_LEN;
     }
 
     /**
      * @notice Formats an action message
-     * @param _tokenId The token ID
-     * @param _action The action
+     * @param _tokenIds The token IDs for batch
+     * @param _action The action for batch
      * @return The formatted message
      */
-    function formatMessage(bytes29 _tokenId, bytes29 _action)
+    function formatMessage(bytes29 _tokenIds, bytes29 _action)
         internal
         view
-        typeAssert(_tokenId, Types.TokenId)
+        typeAssert(_tokenIds, Types.TokenId)
         returns (bytes memory)
     {
         require(isValidAction(_action), "!action");
         bytes29[] memory _views = new bytes29[](2);
-        _views[0] = _tokenId;
+        _views[0] = _tokenIds;
         _views[1] = _action;
         return TypedMemView.join(_views);
     }
@@ -134,23 +145,41 @@ library BridgeMessage {
     }
 
     /**
+     * @notice Checks that the message is of type NxtpEnabled
+     * @param _action The message
+     * @return True if the message is of type NxtpEnabled
+     */
+    function isNxtpEnabled(bytes29 _action) internal pure returns (bool) {
+        return isType(_action, Types.NxtpEnabled);
+    }
+
+    /**
      * @notice Formats Transfer
      * @param _to The recipient address as bytes32
-     * @param _amnt The transfer amount
-     * @param _enableFast True to format FastTransfer, False to format regular Transfer
-     * @return
+     * @param _root The merkle root of the transfer batch
+     * @param _amnts The amount in the 
+     * @return bytes29
      */
     function formatTransfer(
         bytes32 _to,
-        uint256 _amnt,
-        bytes32 _detailsHash,
-        bool _enableFast,
-        bytes32 _externalId,
-        bytes32 _externalHash
+        bytes32 _root,
+        uint256[3] memory _amnts,
+        bytes32[3] memory _details
     ) internal pure returns (bytes29) {
-        Types _type = _enableFast ? Types.FastTransfer : Types.Transfer;
+        Types _type = Types.NxtpEnabled;
+        // TODO: this is tacky and i hate it. interface too
         return
-            abi.encodePacked(_type, _to, _amnt, _detailsHash, _externalId, _externalHash).ref(0).castTo(
+            abi.encodePacked(
+                _type,
+                _to,
+                _root,
+                _amnts[0],
+                _details[0],
+                _amnts[1],
+                _details[1],
+                _amnts[2],
+                _details[2]
+            ).ref(0).castTo(
                 uint40(_type)
             );
     }
@@ -237,30 +266,36 @@ library BridgeMessage {
     /**
      * @notice Retrieves the domain from a TokenID
      * @param _tokenId The message
+     * @param _idx The index of the desired token id
      * @return The domain
      */
-    function domain(bytes29 _tokenId)
+    function domain(bytes29 _tokenId, uint8 _idx)
         internal
         pure
         typeAssert(_tokenId, Types.TokenId)
         returns (uint32)
     {
-        return uint32(_tokenId.indexUint(0, 4));
+        // domain,   id, domain,    id, domain,     id
+        //    0-4, 4-36,  36-40, 40-72,  72-76, 76-108
+        return uint32(_tokenId.indexUint(_idx * TOKEN_ID_LEN, 4));
     }
 
     /**
      * @notice Retrieves the ID from a TokenID
      * @param _tokenId The message
+     * @param _idx The index of the desired token id
      * @return The ID
      */
-    function id(bytes29 _tokenId)
+    function id(bytes29 _tokenId, uint8 _idx)
         internal
         pure
         typeAssert(_tokenId, Types.TokenId)
         returns (bytes32)
     {
-        // before = 4 bytes domain
-        return _tokenId.index(4, 32);
+        // before = 4 bytes domain + preceeding ids
+        // domain, id  , domain, id   , domain, id
+        // 0-4   , 4-36, 36-40 , 40-72, 72-76 , 76-108
+        return _tokenId.index(_idx * TOKEN_ID_LEN + 4, 32);
     }
 
     /**
@@ -284,7 +319,7 @@ library BridgeMessage {
      * @return The message type
      */
     function msgType(bytes29 _message) internal pure returns (uint8) {
-        return uint8(_message.indexUint(TOKEN_ID_LEN, 1));
+        return uint8(_message.indexUint(TOKEN_IDS_LEN, 1));
     }
 
     /**
@@ -325,61 +360,57 @@ library BridgeMessage {
     }
 
     /**
+     * @notice Retrieves the merkle root for the batch of transfers
+     * @param _transferAction The message
+     * @return The amount
+     */
+    function batchRoot(bytes29 _transferAction) internal pure returns (bytes32) {
+        // before = 1 byte identifier + 32 recipient = 33 bytes
+        return _transferAction.index(33, 32);
+    }
+
+    /**
      * @notice Retrieves the amount from a Transfer
      * @param _transferAction The message
+     * @param _idx The index of the amount
      * @return The amount
      */
-    function amnt(bytes29 _transferAction) internal pure returns (uint256) {
-        // before = 1 byte identifier + 32 bytes ID = 33 bytes
-        return _transferAction.indexUint(33, 32);
-    }
-
-    /**
-     * @notice Retrieves the external call hash from a Transfer
-     * @param _transferAction The message
-     * @return The amount
-     */
-    function externalCallHash(bytes29 _transferAction) internal pure returns (bytes32) {
-        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash + 32 bytes external id = 129 bytes
-        return _transferAction.index(129, 32);
-    }
-
-    /**
-     * @notice Retrieves the external identifier from a Transfer
-     * @param _transferAction The message
-     * @return The amount
-     */
-    function externalId(bytes29 _transferAction) internal pure returns (bytes32) {
-        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash = 97 bytes
-        return _transferAction.index(97, 32);
+    function amnt(bytes29 _transferAction, uint8 _idx) internal pure returns (uint256) {
+        // prefix = 1 byte identifier + 32 bytes recipient + 32 bytes root = 65 bytes
+        // per-token -> 32 bytes detailsHash
+        return _transferAction.indexUint(65 + (_idx * 64) + 32, 32);
     }
 
     /**
      * @notice Retrieves the detailsHash from a Transfer
      * @param _transferAction The message
+     * @param _idx The index of the details
      * @return The detailsHash
      */
-    function detailsHash(bytes29 _transferAction)
+    function detailsHash(bytes29 _transferAction, uint8 _idx)
         internal
         pure
         returns (bytes32)
     {
-        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount = 65 bytes
-        return _transferAction.index(65, 32);
+        // prefix = 1 byte identifier + 32 bytes recipient + 32 bytes root = 65 bytes
+        // per-token -> 32 bytes detailsHash
+        return _transferAction.index(65 + (_idx * 64), 32);
     }
 
     /**
-     * @notice Retrieves the token ID from a Message
+     * @notice Retrieves the token IDs from a Message
      * @param _message The message
-     * @return The ID
+     * @return The IDs for the batch
      */
-    function tokenId(bytes29 _message)
+    function tokenIds(bytes29 _message)
         internal
         pure
         typeAssert(_message, Types.Message)
         returns (bytes29)
     {
-        return _message.slice(0, TOKEN_ID_LEN, uint40(Types.TokenId));
+        // TODO: will reusing the Types.TokenId to refer to multiple ids cause
+        // problems here? should i add a Types.TokenIds?
+        return _message.slice(0, TOKEN_IDS_LEN, uint40(Types.TokenId));
     }
 
     /**
@@ -393,9 +424,9 @@ library BridgeMessage {
         typeAssert(_message, Types.Message)
         returns (bytes29)
     {
-        uint256 _actionLen = _message.len() - TOKEN_ID_LEN;
+        uint256 _actionLen = _message.len() - TOKEN_IDS_LEN;
         uint40 _type = uint40(msgType(_message));
-        return _message.slice(TOKEN_ID_LEN, _actionLen, _type);
+        return _message.slice(TOKEN_IDS_LEN, _actionLen, _type);
     }
 
     /**
