@@ -5,9 +5,10 @@ export default task("add-liquidity", "Add liquidity for a router")
   .addParam("assetId", "Local token address")
   .addParam("amount", "Amount (real units)")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
+  .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .setAction(
     async (
-      { assetId, router, txManagerAddress: _txManagerAddress, amount },
+      { assetId, router, txManagerAddress: _txManagerAddress, amount, tokenRegistryAddress: _tokenRegistryAddress },
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();
@@ -48,7 +49,18 @@ export default task("add-liquidity", "Add liquidity for a router")
         throw new Error("Router not approved");
       }
 
-      const approvedAsset = await txManager.approvedAssets(assetId);
+      let tokenRegistryAddress = _tokenRegistryAddress;
+      if (!_tokenRegistryAddress) {
+        const tokenRegistryDeployment = await deployments.get("TokenRegistry");
+        tokenRegistryAddress = tokenRegistryDeployment.address;
+      }
+      console.log("tokenRegistryAddress: ", tokenRegistryAddress);
+      const tokenRegistry = await ethers.getContractAt("TokenRegistry", tokenRegistryAddress);
+      const [domain, canonical] = await tokenRegistry.getTokenId(assetId);
+      console.log("domain: ", domain);
+      console.log("canonical: ", canonical);
+
+      const approvedAsset = await txManager.approvedAssets(canonical);
       console.log("approvedAsset: ", approvedAsset);
       if (!approvedAsset) {
         throw new Error("Asset not approved");
