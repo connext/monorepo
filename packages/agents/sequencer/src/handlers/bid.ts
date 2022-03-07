@@ -1,17 +1,29 @@
 import { utils as ethersUtils } from "ethers";
-import { gelatoSend, isChainSupportedByGelato, SignedBid, jsonifyError } from "@connext/nxtp-utils";
+import {
+  gelatoSend,
+  isChainSupportedByGelato,
+  SignedBid,
+  jsonifyError,
+  RequestContext,
+  createLoggingContext,
+} from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain-types";
 
-import { AppContext } from "../context";
+import { getContext } from "../sequencer";
 
-export const handleBid = async (context: AppContext, signedBid: SignedBid): Promise<any> => {
+export const handleBid = async (
+  signedBid: SignedBid,
+  _requestContext: RequestContext,
+): Promise<any> => {
   const {
     logger,
     chainData,
     adapters: { chainreader },
     config,
-  } = context;
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
+  logger.info("Method start: handleBid", requestContext, methodContext, { signedBid });
 
   const { bid } = signedBid;
   const chainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
@@ -21,6 +33,7 @@ export const handleBid = async (context: AppContext, signedBid: SignedBid): Prom
   ) as TTransactionManager["interface"];
 
   const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
+  logger.info("Encoded data", requestContext, methodContext, { encodedData });
   // const destinationTransactonManagerAddress =
   //   config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
   // Validate the bid's fulfill call will succeed on chain.

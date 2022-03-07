@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { SignedBid } from "@connext/nxtp-utils";
+import { createLoggingContext, SignedBid } from "@connext/nxtp-utils";
 
 import { AppContext } from "../context";
 
@@ -12,8 +12,9 @@ export const setupHandlers = (context: AppContext, server: FastifyInstance) => {
 
   server.post("/bid", {}, async (request, response) => {
     try {
+      const { requestContext } = createLoggingContext("/bid endpoint");
       const { body: req } = request;
-      const result = await handleBid(context, (req as any).bid as SignedBid);
+      const result = await handleBid((req as any).bid as SignedBid, requestContext);
       return response.status(200).send(result);
     } catch (e) {
       server.log.error(`Bid Post Error: ${e}`);
