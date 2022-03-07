@@ -50,7 +50,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
     throw new Error("Chain not supported by gelato.");
   }
 
-  const txManagerAddress = config.chains[chainId].deployments.transactionManager;
+  const txManagerAddress = config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
   // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
   const ret = await gelatoSend(
