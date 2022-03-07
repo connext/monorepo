@@ -2,7 +2,7 @@ import { task } from "hardhat/config";
 
 export default task("add-liquidity", "Add liquidity for a router")
   .addParam("router", "Router address")
-  .addParam("assetId", "Token address")
+  .addParam("assetId", "Local token address")
   .addParam("amount", "Amount (real units)")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
   .setAction(
