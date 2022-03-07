@@ -30,7 +30,6 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   ) as TTransactionManager["interface"];
 
   const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
-  logger.info("Encoded data", requestContext, methodContext, { encodedData });
   // const destinationTransactonManagerAddress =
   //   config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
   // Validate the bid's fulfill call will succeed on chain.
@@ -52,13 +51,15 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
 
   const txManagerAddress = config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
-  // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
-  const ret = await gelatoSend(
-    chainId,
-    txManagerAddress,
+  logger.info("Sending to Gelato network", requestContext, methodContext, {
     encodedData,
-    bid.data.local,
-    bid.data.feePercentage,
-  );
-  console.log(ret);
+    txManagerAddress,
+    domain: bid.data.params.destinationDomain,
+  });
+
+  // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
+  const result = await gelatoSend(chainId, txManagerAddress, encodedData, bid.data.local, bid.data.feePercentage);
+  logger.info("Sent to Gelato network", requestContext, methodContext, {
+    result,
+  });
 };
