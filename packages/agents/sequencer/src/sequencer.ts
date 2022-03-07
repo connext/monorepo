@@ -47,7 +47,7 @@ export const makeSequencer = async () => {
 
     // Create server, set up routes, and start listening.
     const server = fastify({ logger: pino({ level: context.config.logLevel }) });
-    setupHandlers(context, server);
+    setupHandlers(server);
     await server.listen(context.config.server.listenPort);
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {

@@ -1,11 +1,9 @@
 import { FastifyInstance } from "fastify";
 import { createLoggingContext, SignedBid } from "@connext/nxtp-utils";
 
-import { AppContext } from "../context";
-
 import { handleBid } from "./bid";
 
-export const setupHandlers = (context: AppContext, server: FastifyInstance) => {
+export const setupHandlers = (server: FastifyInstance) => {
   server.get("/ping", async (req, res) => {
     return res.code(200).send("pong\n");
   });

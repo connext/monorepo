@@ -12,10 +12,7 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 
 import { getContext } from "../sequencer";
 
-export const handleBid = async (
-  signedBid: SignedBid,
-  _requestContext: RequestContext,
-): Promise<any> => {
+export const handleBid = async (signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
   const {
     logger,
     chainData,
@@ -53,10 +50,12 @@ export const handleBid = async (
     throw new Error("Chain not supported by gelato.");
   }
 
+  const txManagerAddress = config.chains[chainId].deployments.transactionManager;
+
   // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
   const ret = await gelatoSend(
     chainId,
-    bid.data.params.destinationDomain,
+    txManagerAddress,
     encodedData,
     bid.data.local,
     bid.data.feePercentage,
