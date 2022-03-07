@@ -51,7 +51,7 @@ export default task("add-liquidity", "Add liquidity for a router")
 
       let tokenRegistryAddress = _tokenRegistryAddress;
       if (!_tokenRegistryAddress) {
-        const tokenRegistryDeployment = await deployments.get("TokenRegistry");
+        const tokenRegistryDeployment = await deployments.get("TokenRegistryUpgradeBeaconProxy");
         tokenRegistryAddress = tokenRegistryDeployment.address;
       }
       console.log("tokenRegistryAddress: ", tokenRegistryAddress);

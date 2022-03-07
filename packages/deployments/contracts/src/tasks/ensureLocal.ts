@@ -11,13 +11,13 @@ export default task("ensure-local", "Ensures a local address exists for the give
   .addOptionalParam("registry", "Override token registry address")
   .setAction(
     async (
-      { domain, custom: _custom, canonical: canonicalAddress, bridgeRouter: _bridgeRouter, registry: _registry },
+      { domain, custom: _custom, canonical, bridgeRouter: _bridgeRouter, registry: _registry },
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();
 
       console.log("domain: ", domain);
-      console.log("canonical: ", canonicalAddress);
+      console.log("canonical: ", canonical);
       console.log("namedAccounts: ", namedAccounts);
 
       let tokenRegistryAddress = _registry;
@@ -37,7 +37,7 @@ export default task("ensure-local", "Ensures a local address exists for the give
       console.log("token registry beacon:", await tokenRegistry.tokenBeacon());
 
       const canonicalTokenId = {
-        id: hexlify(canonizeId(canonicalAddress)),
+        id: hexlify(canonizeId(canonical)),
         domain: +domain,
       };
       console.log("valid bytes32?", isValidBytes32(canonicalTokenId.id));
@@ -57,6 +57,6 @@ export default task("ensure-local", "Ensures a local address exists for the give
       console.log("ensureLocalToken tx mined: ", receipt.transactionHash);
 
       local = await tokenRegistry.getRepresentationAddress(canonicalTokenId.domain, canonicalTokenId.id);
-      console.log(`local representation of ${canonicalAddress} on ${domain}: ${local}`);
+      console.log(`local representation of ${canonical} on ${domain}: ${local}`);
     },
   );
