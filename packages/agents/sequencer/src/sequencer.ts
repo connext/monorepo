@@ -42,7 +42,7 @@ export const makeSequencer = async () => {
 
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader" }),
-      context.config.chains as any,
+      context.config.chains,
     );
 
     // Create server, set up routes, and start listening.
