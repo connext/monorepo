@@ -18,6 +18,7 @@ import {
 
 import {
   asyncForEach,
+  BatchMessage,
   bridge,
   BridgeMessageTypes,
   deployContract,
@@ -26,6 +27,7 @@ import {
   formatTokenId,
   getDetailsHash,
   Message,
+  NxtpEnabledAction,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, Wallet } from "ethers";
@@ -500,15 +502,26 @@ describe.only("TransactionManager", () => {
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 
-  it("the message should work", async () => {
-    // Test token id
-    const tokenId = {
-      id: addressToBytes32(canonical.address),
-      domain: originDomain,
-    };
-    const expectedToken = formatTokenId(tokenId.domain, tokenId.id);
-    const testTokenId = await bridgeMessage.testFormatTokenId(tokenId.domain, tokenId.id);
-    expect(testTokenId).to.be.eq(expectedToken);
+  it.only("the message should work", async () => {
+    // Test token ids
+    const tokenIds = Array(3)
+      .fill(0)
+      .map((_) => {
+        return {
+          id: getRandomBytes32(),
+          domain: originDomain,
+        };
+      });
+    let expectedTokens = "0x";
+    tokenIds.forEach((tokenId) => {
+      const formatted = formatTokenId(tokenId.domain, tokenId.id) as string;
+      expectedTokens += formatted.startsWith("0x") ? formatted.substring(2) : formatted;
+    });
+    const testTokenIds = await bridgeMessage.testFormatTokenIds(
+      tokenIds.map((t) => t.domain) as unknown as [BigNumberish, BigNumberish, BigNumberish],
+      tokenIds.map((t) => t.id) as unknown as [string, string, string],
+    );
+    expect(testTokenIds).to.be.eq(expectedTokens);
 
     // Test detailsHash
     const tokenDetails = {
@@ -525,46 +538,46 @@ describe.only("TransactionManager", () => {
     expect(testDetailsHash).to.be.eq(expectedDetailsHash);
 
     // Test format transfer
-    const action: FastTransferAction = {
-      type: BridgeMessageTypes.FAST_TRANSFER,
+    const action: NxtpEnabledAction = {
+      type: BridgeMessageTypes.NXTP_ENABLED,
       recipient: addressToBytes32(user.address).toLowerCase(),
-      amount: 1000,
-      detailsHash: expectedDetailsHash,
-      externalId: getRandomBytes32().toLowerCase(),
-      externalHash: getRandomBytes32().toLowerCase(),
+      amount: Array(3).fill(1000),
+      detailsHash: Array(3).fill(expectedDetailsHash),
+      batchRoot: getRandomBytes32().toLowerCase(),
     };
-    const serializedAction = bridge.serializeFastTransferAction(action);
+    const serializedAction = bridge.serializeNxtpEnabledAction(action);
     const testTransfer = await bridgeMessage.testFormatTransfer(
       action.recipient,
-      action.amount,
-      action.detailsHash,
-      true,
-      action.externalId,
-      action.externalHash,
+      action.batchRoot,
+      action.amount as unknown as [BigNumberish, BigNumberish, BigNumberish],
+      action.detailsHash as unknown as [string, string, string],
     );
     expect(testTransfer).to.be.eq(serializedAction);
 
     // Test split transfer
-    const [type, recipient, recipientAddr, amount, externalId, externalCallHash] =
-      await bridgeMessage.testSplitTransfer(testTransfer);
+    const [type, recipient, recipientAddr, root, amounts, details] = await bridgeMessage.testSplitTransfer(
+      testTransfer,
+    );
     expect(type).to.be.eq(action.type);
     expect(recipient).to.be.eq(action.recipient);
     expect(recipientAddr.toLowerCase()).to.be.eq(user.address.toLowerCase());
-    expect(externalId).to.be.eq(action.externalId);
-    expect(externalCallHash).to.be.eq(action.externalHash);
-    expect(amount.toNumber()).to.be.eq(action.amount);
+    expect(root).to.be.eq(action.batchRoot);
+    amounts.map((a, idx) => {
+      expect(a.toNumber()).to.be.eq(action.amount[idx]);
+      expect(details[idx]).to.be.eq(action.detailsHash[idx]);
+    });
 
     // Test format message
-    const transferMessage: Message = {
-      tokenId,
+    const transferMessage: BatchMessage = {
+      tokenIds,
       action,
     };
-    const serializedMessage = bridge.serializeMessage(transferMessage);
+    const serializedMessage = bridge.serializeBatchMessage(transferMessage);
     const testMessage = await bridgeMessage.testFormatMessage(
-      expectedToken,
+      expectedTokens,
       serializedAction,
-      BridgeMessageTypes.TOKEN_ID,
-      BridgeMessageTypes.FAST_TRANSFER,
+      BridgeMessageTypes.TOKEN_IDS,
+      BridgeMessageTypes.NXTP_ENABLED,
     );
     expect(testMessage).to.be.eq(serializedMessage);
   });

@@ -23,7 +23,8 @@ library BridgeMessage {
         Message, // 2
         Transfer, // 3
         FastTransfer, // 4
-        NxtpEnabled // 5
+        NxtpEnabled, // 5
+        TokenIds // 6
     }
 
     // ============ Structs ============
@@ -73,7 +74,7 @@ library BridgeMessage {
      * @return TRUE if action is valid
      */
     function isValidAction(bytes29 _action) internal pure returns (bool) {
-        return isTransfer(_action) || isFastTransfer(_action);
+        return isTransfer(_action) || isFastTransfer(_action) || isNxtpEnabled(_action);
     }
 
     /**
@@ -95,7 +96,7 @@ library BridgeMessage {
     function formatMessage(bytes29 _tokenIds, bytes29 _action)
         internal
         view
-        typeAssert(_tokenIds, Types.TokenId)
+        typeAssert(_tokenIds, Types.TokenIds)
         returns (bytes memory)
     {
         require(isValidAction(_action), "!action");
@@ -173,28 +174,15 @@ library BridgeMessage {
                 _type,
                 _to,
                 _root,
-                _amnts[0],
                 _details[0],
-                _amnts[1],
+                _amnts[0],
                 _details[1],
-                _amnts[2],
-                _details[2]
+                _amnts[1],
+                _details[2],
+                _amnts[2]
             ).ref(0).castTo(
                 uint40(_type)
             );
-    }
-
-    /**
-     * @notice Serializes a Token ID struct
-     * @param _tokenId The token id struct
-     * @return The formatted Token ID
-     */
-    function formatTokenId(TokenId memory _tokenId)
-        internal
-        pure
-        returns (bytes29)
-    {
-        return formatTokenId(_tokenId.domain, _tokenId.id);
     }
 
     /**
@@ -203,12 +191,13 @@ library BridgeMessage {
      * @param _id The ID
      * @return The formatted Token ID
      */
-    function formatTokenId(uint32 _domain, bytes32 _id)
+    function formatTokenIds(uint32[3] memory _domain, bytes32[3] memory _id)
         internal
         pure
         returns (bytes29)
     {
-        return abi.encodePacked(_domain, _id).ref(0).castTo(uint40(Types.TokenId));
+        // TODO: tacky and i hate it
+        return abi.encodePacked(_domain[0], _id[0], _domain[1], _id[1],_domain[2], _id[2]).ref(0).castTo(uint40(Types.TokenIds));
     }
 
     /**
@@ -272,7 +261,7 @@ library BridgeMessage {
     function domain(bytes29 _tokenId, uint8 _idx)
         internal
         pure
-        typeAssert(_tokenId, Types.TokenId)
+        typeAssert(_tokenId, Types.TokenIds)
         returns (uint32)
     {
         // domain,   id, domain,    id, domain,     id
@@ -289,7 +278,7 @@ library BridgeMessage {
     function id(bytes29 _tokenId, uint8 _idx)
         internal
         pure
-        typeAssert(_tokenId, Types.TokenId)
+        typeAssert(_tokenId, Types.TokenIds)
         returns (bytes32)
     {
         // before = 4 bytes domain + preceeding ids
@@ -303,14 +292,14 @@ library BridgeMessage {
      * @param _tokenId The message
      * @return The EVM ID
      */
-    function evmId(bytes29 _tokenId)
+    function evmId(bytes29 _tokenId, uint8 _idx)
         internal
         pure
-        typeAssert(_tokenId, Types.TokenId)
+        typeAssert(_tokenId, Types.TokenIds)
         returns (address)
     {
         // before = 4 bytes domain + 12 bytes empty to trim for address
-        return _tokenId.indexAddress(16);
+        return _tokenId.indexAddress((_idx * 32) + 16);
     }
 
     /**
@@ -398,6 +387,33 @@ library BridgeMessage {
     }
 
     /**
+     * @notice Serializes a Token ID struct
+     * @param _tokenId The token id struct
+     * @return The formatted Token ID
+     */
+    function formatTokenId(TokenId memory _tokenId)
+        internal
+        pure
+        returns (bytes29)
+    {
+        return formatTokenId(_tokenId.domain, _tokenId.id);
+    }
+
+    /**
+     * @notice Creates a serialized Token ID from components
+     * @param _domain The domain
+     * @param _id The ID
+     * @return The formatted Token ID
+     */
+    function formatTokenId(uint32 _domain, bytes32 _id)
+        internal
+        pure
+        returns (bytes29)
+    {
+        return abi.encodePacked(_domain, _id).ref(0).castTo(uint40(Types.TokenId));
+    }
+
+    /**
      * @notice Retrieves the token IDs from a Message
      * @param _message The message
      * @return The IDs for the batch
@@ -408,9 +424,7 @@ library BridgeMessage {
         typeAssert(_message, Types.Message)
         returns (bytes29)
     {
-        // TODO: will reusing the Types.TokenId to refer to multiple ids cause
-        // problems here? should i add a Types.TokenIds?
-        return _message.slice(0, TOKEN_IDS_LEN, uint40(Types.TokenId));
+        return _message.slice(0, TOKEN_IDS_LEN, uint40(Types.TokenIds));
     }
 
     /**
