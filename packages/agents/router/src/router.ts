@@ -41,6 +41,13 @@ export const makeRouter = async () => {
     context.chainData = chainData;
     context.config = await getConfig(chainData);
 
+    // Create adapter instances.
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
+
+    context.routerAddress = await context.adapters.wallet.getAddress();
+
     // Make logger instance.
     context.logger = new Logger({
       level: context.config.logLevel,
@@ -49,13 +56,6 @@ export const makeRouter = async () => {
     context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
       config: { ...context.config, mnemonic: "*****" },
     });
-
-    // Create adapter instances.
-    context.adapters.wallet = context.config.mnemonic
-      ? Wallet.fromMnemonic(context.config.mnemonic)
-      : new Web3Signer(context.config.web3SignerUrl!);
-
-    context.routerAddress = await context.adapters.wallet.getAddress();
 
     context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
 

@@ -20,20 +20,29 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 // TODO:
 // - decide on interface for the stable swap
-// - nomad contract packages not playing nicely
-// - make functions metatxable
-// - make upgradeable
+//   - stable swap implemented, interface changes TBD
+// - nomad contract packages not playing nicely #815
+// - make functions metatxable with any asset #816
+// - make upgradeable #817
 // - assert the router gas usage in reconcile
-// - allow multiple routers
-// - allow aave wormhole style collateral for routers
+//   - depends on feedback from pilot devs -- should user specify min? should we take on
+//     oracle dependencies? should we pass data *all the way back*? 
+// - allow multiple routers #818
+// - allow aave wormhole style collateral for routers 
+//   - needs spec #821
 // - identifier returned from nomad/bridge
+//   - may not be relevant with batching (each leaf still needs UUID)
 // - gas optimizations
+//   - dependent on batching, continuous process
 // - event finalization
+//   - dependent on feedback from pilot group, offchain processes, etc.
 // - unit tests
-// - restricted router withdrawals
+//   - setup infrastructure #822
+//   - ongoing process
+// - restricted router withdrawals #820
 // - fulfill interpreter improvements (from audit and pass through origin domain stuff)
-// - batching
-// - native metatxs (with any asset)
+//   - depends on how we decide to pass through calldata (may need rewrite)
+// - batching #812
 
 contract TransactionManager is ReentrancyGuard, ProposedOwnable {
 

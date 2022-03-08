@@ -29,6 +29,7 @@ import "./src/tasks/enrollHandler";
 import "./src/tasks/ensureLocal";
 import "./src/tasks/prepareTx";
 import "./src/tasks/setLocalDomain";
+import "./src/tasks/traceMessage";
 
 dotEnvConfig();
 
