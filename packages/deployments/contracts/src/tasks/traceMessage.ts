@@ -4,7 +4,6 @@ import { AnnotatedLifecycleEvent, MessageStatus } from "@nomad-xyz/sdk/nomad";
 import { providers, Contract } from "ethers";
 import { NOMAD_DEPLOYMENTS } from "../constants";
 
-import Home from "../../artifacts/contracts/nomad-core/contracts/Home.sol/Home.json";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import config from "../../hardhat.config";
 
@@ -45,11 +44,11 @@ function fromReceipt(
   context: NomadContext,
   domain: number,
   receipt: providers.TransactionReceipt,
-  homeAddr: string,
+  homeContract: Contract,
 ): NomadMessage[] {
   const messages: NomadMessage[] = [];
-  const home = new Contract(homeAddr, Home.abi).interface;
 
+  const home = homeContract.interface;
   for (const log of receipt.logs) {
     try {
       const parsed = home.parseLog(log);
@@ -134,7 +133,12 @@ export default task("trace-message", "See the status of a nomad message")
       }
 
       // Trace the message
-      const [message] = fromReceipt(context, originConfig.domain, receipt, originConfig.home);
+      const [message] = fromReceipt(
+        context,
+        originConfig.domain,
+        receipt,
+        await ethers.getContractAt("Home", originConfig.home),
+      );
       const status = await message.events();
       printStatus(context, status);
     },
