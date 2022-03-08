@@ -40,6 +40,7 @@ export const NOMAD_DEPLOYMENTS: Map<
       replica: string;
       domain: number;
     }[];
+    isDev: boolean;
   }
 > = new Map([
   [
@@ -59,6 +60,7 @@ export const NOMAD_DEPLOYMENTS: Map<
           domain: 3000,
         },
       ],
+      isDev: true,
     },
   ],
   [
@@ -78,6 +80,7 @@ export const NOMAD_DEPLOYMENTS: Map<
           domain: 2000,
         },
       ],
+      isDev: true,
     },
   ],
   [
@@ -91,6 +94,7 @@ export const NOMAD_DEPLOYMENTS: Map<
       wrappedEth: constants.AddressZero,
       home: constants.AddressZero,
       replicas: [] as any,
+      isDev: true,
     },
   ],
   [
@@ -104,6 +108,7 @@ export const NOMAD_DEPLOYMENTS: Map<
       wrappedEth: constants.AddressZero,
       home: constants.AddressZero,
       replicas: [] as any,
+      isDev: true,
     },
   ],
   [
@@ -117,6 +122,7 @@ export const NOMAD_DEPLOYMENTS: Map<
       wrappedEth: constants.AddressZero,
       home: constants.AddressZero,
       replicas: [] as any,
+      isDev: true,
     },
   ],
 ]);

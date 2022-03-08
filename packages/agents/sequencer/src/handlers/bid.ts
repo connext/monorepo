@@ -12,10 +12,7 @@ import { TransactionManager as TTransactionManager } from "@connext/nxtp-contrac
 
 import { getContext } from "../sequencer";
 
-export const handleBid = async (
-  signedBid: SignedBid,
-  _requestContext: RequestContext,
-): Promise<any> => {
+export const handleBid = async (signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
   const {
     logger,
     chainData,
@@ -33,33 +30,34 @@ export const handleBid = async (
   ) as TTransactionManager["interface"];
 
   const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
-  logger.info("Encoded data", requestContext, methodContext, { encodedData });
-  // const destinationTransactonManagerAddress =
-  //   config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+  const destinationTransactionManagerAddress =
+    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+
+  logger.info("Prepared data for sending", requestContext, methodContext, {
+    encodedData,
+    destinationTransactonManagerAddress: destinationTransactionManagerAddress,
+    domain: bid.data.params.destinationDomain,
+    signedBid,
+  });
+
   // Validate the bid's fulfill call will succeed on chain.
-  // try {
-  //   await chainreader.getGasEstimate(chainId, {
-  //     chainId: chainId,
-  //     to: destinationTransactonManagerAddress,
-  //     data: encodedData,
-  //   });
-  // } catch (error: any) {
-  //   // TODO: Log error.
-  //   logger.error("Error validating bid with getGasEstimate.", undefined, undefined, jsonifyError(error), { chainId });
-  //   throw error;
-  // }
+  const gas = await chainreader.getGasEstimate(Number(bid.data.params.destinationDomain), {
+    chainId: chainId,
+    to: destinationTransactionManagerAddress,
+    data: encodedData,
+  });
+
+  logger.info("Estimated gas", requestContext, methodContext, {
+    gas: gas.toString(),
+  });
 
   if (!isChainSupportedByGelato(chainId)) {
     throw new Error("Chain not supported by gelato.");
   }
 
   // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
-  const ret = await gelatoSend(
-    chainId,
-    bid.data.params.destinationDomain,
-    encodedData,
-    bid.data.local,
-    bid.data.feePercentage,
-  );
-  console.log(ret);
+  const result = await gelatoSend(chainId, destinationTransactionManagerAddress, encodedData, bid.data.local, bid.data.feePercentage);
+  logger.info("Sent to Gelato network", requestContext, methodContext, {
+    result,
+  });
 };
