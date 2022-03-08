@@ -30,20 +30,20 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   ) as TTransactionManager["interface"];
 
   const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
-  // const destinationTransactonManagerAddress =
-  //   config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+  const destinationTransactonManagerAddress =
+    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
   // Validate the bid's fulfill call will succeed on chain.
-  // try {
-  //   await chainreader.getGasEstimate(chainId, {
-  //     chainId: chainId,
-  //     to: destinationTransactonManagerAddress,
-  //     data: encodedData,
-  //   });
-  // } catch (error: any) {
-  //   // TODO: Log error.
-  //   logger.error("Error validating bid with getGasEstimate.", undefined, undefined, jsonifyError(error), { chainId });
-  //   throw error;
-  // }
+  try {
+    await chainreader.getGasEstimate(Number(bid.data.params.destinationDomain), {
+      chainId: chainId,
+      to: destinationTransactonManagerAddress,
+      data: encodedData,
+    });
+  } catch (error: any) {
+    // TODO: Log error.
+    logger.error("Error validating bid with getGasEstimate.", undefined, undefined, jsonifyError(error), { chainId });
+    throw error;
+  }
 
   if (!isChainSupportedByGelato(chainId)) {
     throw new Error("Chain not supported by gelato.");
