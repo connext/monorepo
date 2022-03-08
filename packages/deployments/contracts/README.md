@@ -212,3 +212,9 @@ yarn workspace @connext/nxtp-contracts hardhat setup-asset --canonical \<TOKEN_A
 ```sh
 yarn workspace @connext/nxtp-contracts hardhat prepare --transacting-asset-id 0xe71678794fff8846bFF855f716b0Ce9d9a78E844 --amount 10000000000000000000 --recipient 0x5A9e792143bf2708b4765C144451dCa54f559a19 --origin-domain 3000 --destination-domain 2000 --tx-manager-address 0x35Ca61d8D9da6d6F5F4B256132955A3a2723BB19 --network kovan
 ```
+
+- Track a nomad message from the origin domain (can use the `prepare` transaction hash)
+
+```sh
+yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
+```

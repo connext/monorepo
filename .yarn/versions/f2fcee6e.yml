@@ -1,6 +1,0 @@
-undecided:
-  - "@connext/nxtp"
-  - "@connext/nxtp-contracts"
-  - "@connext/nxtp-router"
-  - "@connext/nxtp-test-ui"
-  - "@connext/nxtp-txservice"
