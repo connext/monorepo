@@ -30,7 +30,7 @@ export const pollSubgraph = async (context: AppContext) => {
       console.log({ domain, latestBlockNumber, safeConfirmations, latestNonce });
       subgraphQueryMetaParams.set(domain, {
         maxPrepareBlockNumber: latestBlockNumber - safeConfirmations,
-        latestNonce,
+        latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
       });
     }
 
