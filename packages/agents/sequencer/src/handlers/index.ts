@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
-import { createLoggingContext, SignedBid } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, SignedBid } from "@connext/nxtp-utils";
 
 import { handleBid } from "./bid";
 
 export const setupHandlers = (server: FastifyInstance) => {
-  server.get("/ping", async (req, res) => {
+  server.get("/ping", async (_req, res) => {
     return res.code(200).send("pong\n");
   });
 
@@ -16,7 +16,7 @@ export const setupHandlers = (server: FastifyInstance) => {
       return response.status(200).send(result);
     } catch (e) {
       server.log.error(`Bid Post Error: ${e}`);
-      return response.code(500);
+      return response.code(500).send({ err: jsonifyError(e) });
     }
   });
 };

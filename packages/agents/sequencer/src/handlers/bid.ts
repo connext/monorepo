@@ -30,34 +30,33 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   ) as TTransactionManager["interface"];
 
   const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
-  const destinationTransactonManagerAddress =
+  const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+
+  logger.info("Prepared data for sending", requestContext, methodContext, {
+    encodedData,
+    destinationTransactonManagerAddress: destinationTransactionManagerAddress,
+    domain: bid.data.params.destinationDomain,
+    signedBid,
+  });
+
   // Validate the bid's fulfill call will succeed on chain.
-  try {
-    await chainreader.getGasEstimate(Number(bid.data.params.destinationDomain), {
-      chainId: chainId,
-      to: destinationTransactonManagerAddress,
-      data: encodedData,
-    });
-  } catch (error: any) {
-    logger.error("Error validating bid with getGasEstimate.", undefined, undefined, jsonifyError(error), { chainId });
-    throw error;
-  }
+  const gas = await chainreader.getGasEstimate(Number(bid.data.params.destinationDomain), {
+    chainId: chainId,
+    to: destinationTransactionManagerAddress,
+    data: encodedData,
+  });
+
+  logger.info("Estimated gas", requestContext, methodContext, {
+    gas: gas.toString(),
+  });
 
   if (!isChainSupportedByGelato(chainId)) {
     throw new Error("Chain not supported by gelato.");
   }
 
-  const txManagerAddress = config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
-
-  logger.info("Sending to Gelato network", requestContext, methodContext, {
-    encodedData,
-    txManagerAddress,
-    domain: bid.data.params.destinationDomain,
-  });
-
   // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
-  const result = await gelatoSend(chainId, txManagerAddress, encodedData, bid.data.local, bid.data.feePercentage);
+  const result = await gelatoSend(chainId, destinationTransactionManagerAddress, encodedData, bid.data.local, bid.data.feePercentage);
   logger.info("Sent to Gelato network", requestContext, methodContext, {
     result,
   });
