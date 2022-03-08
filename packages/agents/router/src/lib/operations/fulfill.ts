@@ -156,7 +156,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
-    local: fulfillLocalAsset ?? constants.AddressZero,
+    local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receiverAmount,
