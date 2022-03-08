@@ -6,9 +6,12 @@ import {
   jsonifyError,
   RequestContext,
   createLoggingContext,
+  formatUrl,
+  gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
 import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain-types";
+import axios from "axios";
 
 import { getContext } from "../sequencer";
 
@@ -23,7 +26,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   logger.info("Method start: handleBid", requestContext, methodContext, { signedBid });
 
   const { bid } = signedBid;
-  const chainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
+  const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
   const contractInterface = new ethersUtils.Interface(
     TransactionManagerArtifact.abi,
@@ -42,7 +45,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
 
   // Validate the bid's fulfill call will succeed on chain.
   const gas = await chainreader.getGasEstimate(Number(bid.data.params.destinationDomain), {
-    chainId: chainId,
+    chainId: destinationChainId,
     to: destinationTransactionManagerAddress,
     data: encodedData,
   });
@@ -51,13 +54,28 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
     gas: gas.toString(),
   });
 
-  if (!isChainSupportedByGelato(chainId)) {
+  if (!isChainSupportedByGelato(destinationChainId)) {
     throw new Error("Chain not supported by gelato.");
   }
 
+  logger.info("Sending to Gelato network", requestContext, methodContext, {
+    encodedData,
+    destinationTransactionManagerAddress,
+    domain: bid.data.params.destinationDomain,
+  });
+
   // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
-  const result = await gelatoSend(chainId, destinationTransactionManagerAddress, encodedData, bid.data.local, bid.data.feePercentage);
+  const result = await gelatoSend(
+    destinationChainId,
+    destinationTransactionManagerAddress,
+    encodedData,
+    bid.data.local,
+    bid.data.feePercentage,
+  );
+  const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
+
   logger.info("Sent to Gelato network", requestContext, methodContext, {
     result,
+    response: response.data,
   });
 };

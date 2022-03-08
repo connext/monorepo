@@ -1,4 +1,4 @@
-import { createLoggingContext, SignedBid, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, SignedBid, NxtpError, formatUrl } from "@connext/nxtp-utils";
 import { getContext } from "../../router";
 import axios, { AxiosResponse } from "axios";
 
@@ -18,12 +18,4 @@ export const sendBid = async (bid: SignedBid): Promise<any> => {
   } else {
     return response.data;
   }
-};
-
-export const formatUrl = (_url: string, endpoint: string, identifier?: string): string => {
-  let url = `${_url}/${endpoint}`;
-  if (identifier) {
-    url += `/${identifier}`;
-  }
-  return url;
 };

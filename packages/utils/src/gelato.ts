@@ -7,6 +7,8 @@ import { CHAIN_ID } from ".";
 
 const ACCESS_TOKEN = "4942987b-af28-4ab7-bf75-4bd383e82f80";
 
+export const gelatoRelayEndpoint = "https://relay.gelato.digital";
+
 const endpoints = {
   [CHAIN_ID.MAINNET]: "https://prod.relay.gelato.digital/mainnet/relay",
   [CHAIN_ID.RINKEBY]: "https://staging.relay.gelato.digital/rinkeby/relay",
@@ -20,7 +22,7 @@ const endpoints = {
   [CHAIN_ID.OPTIMISM]: "https://prod.relay.gelato.digital/optimism/relay",
 };
 
-const gelatoSend = async (
+export const gelatoSend = async (
   chainId: number,
   dest: string,
   data: string,
@@ -41,7 +43,7 @@ const gelatoSend = async (
   return output;
 };
 
-const gelatoFulfill = async (
+export const gelatoFulfill = async (
   chainId: number,
   address: string,
   abi: Interface,
@@ -54,8 +56,14 @@ const gelatoFulfill = async (
   return ret;
 };
 
-const isChainSupportedByGelato = (chainId: number): boolean => {
+export const isChainSupportedByGelato = (chainId: number): boolean => {
   return Object.keys(endpoints).indexOf(chainId.toString()) !== -1;
 };
 
-export { gelatoFulfill, isChainSupportedByGelato, gelatoSend };
+export const formatUrl = (_url: string, endpoint: string, identifier?: string): string => {
+  let url = `${_url}/${endpoint}`;
+  if (identifier) {
+    url += `/${identifier}`;
+  }
+  return url;
+};
