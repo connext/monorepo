@@ -7,7 +7,7 @@ import {
   getReconciledHash,
   ChainData,
 } from "@connext/nxtp-utils";
-import { getTransactionManagerAddress, getTxManagerInerface } from ".";
+import { getTransactionManagerAddress, getTxManagerInerface, getTokenRegistryInterface } from ".";
 import { getContext } from "../../router";
 import { BigNumber, constants } from "ethers";
 
@@ -118,6 +118,12 @@ export const getDestinationLocalAsset = async (
   destinationDomain: string,
 ): Promise<string> => {
   // TODO: Not implemented yet
+
+  // const encoded = getTokenRegistryInterface().encodeFunctionData("getLocalAddress(uint32,address)", [
+  //   originDomain,
+  //   originLocalAsset
+  // ]);
+
   return originLocalAsset;
 };
 
