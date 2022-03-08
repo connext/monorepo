@@ -40,7 +40,6 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
       data: encodedData,
     });
   } catch (error: any) {
-    // TODO: Log error.
     logger.error("Error validating bid with getGasEstimate.", undefined, undefined, jsonifyError(error), { chainId });
     throw error;
   }
