@@ -92,6 +92,11 @@ export type FulfillArgs = {
   relayerSignature: string;
 };
 
+export enum BidStatus {
+  Pending = "Pending",
+  Sent = "Sent",
+}
+
 export type Bid = {
   transactionId: string;
   data: FulfillArgs;
@@ -102,7 +107,8 @@ export type SignedBid = {
   signature: string;
 };
 
-export enum BidStatus {
-  Pending = "Pending",
-  Sent = "Sent",
-}
+export type StoredBid = {
+  signedBid: SignedBid;
+  status: BidStatus;
+  lastUpdate: number;
+};

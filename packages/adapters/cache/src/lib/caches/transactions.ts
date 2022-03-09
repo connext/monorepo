@@ -1,5 +1,13 @@
 import Redis from "ioredis";
-import { CrossChainTx, CrossChainTxStatus, BidStatus, SignedBid, Logger, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import {
+  CrossChainTx,
+  CrossChainTxStatus,
+  BidStatus,
+  SignedBid,
+  StoredBid,
+  Logger,
+  getNtpTimeSeconds,
+} from "@connext/nxtp-utils";
 import { CacheParams, StoreChannel } from "../entities";
 import { Cache } from "./";
 /**
@@ -164,37 +172,15 @@ export class TransactionsCache extends Cache {
   }
 
   /**
-   * Gets the auction bids by txid
+   * Gets the bids by status
    *
-   * @param txid The txid that we're going to get the bids for
-   * @returns Auctino bids that were stored for the txid
+   * @param status The status of the bids that we're going to get
+   * @returns Auction bids that were stored for the status
    */
 
-  public async getBids(txid: string): Promise<SignedBid[]> {
-    const bidArray: SignedBid[] = [];
+  public async getBids(status?: BidStatus): Promise<StoredBid[]> {
+    const storedBids: StoredBid[] = [];
 
-    const bidStream = await this.data.scanStream({
-      //search all records for the domain across all nonces.
-      match: `${txid}:bid:*`,
-    });
-
-    return new Promise((res, rej) => {
-      bidStream.on("data", async (data: string) => {
-        //strip domain name + "bid" from key
-        if (data[0] !== undefined) {
-          const bid = JSON.parse(data);
-          const bidCast = bid as SignedBid;
-          //publish new bid
-          bidArray.push(bid);
-        }
-      });
-      bidStream.on("end", async () => {
-        res(bidArray);
-      });
-      bidStream.on("error", (error: string) => {
-        this.logger.debug(error);
-        rej(error);
-      });
-    });
+    return storedBids;
   }
 }
