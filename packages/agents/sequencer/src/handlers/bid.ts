@@ -9,8 +9,8 @@ import {
   formatUrl,
   gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
-import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
-import { TransactionManager as TTransactionManager } from "@connext/nxtp-contracts/typechain-types";
+
+import { getTxManagerInerface } from "../lib/helpers";
 import axios from "axios";
 
 import { getContext } from "../sequencer";
@@ -28,11 +28,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   const { bid } = signedBid;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const contractInterface = new ethersUtils.Interface(
-    TransactionManagerArtifact.abi,
-  ) as TTransactionManager["interface"];
-
-  const encodedData = contractInterface.encodeFunctionData("fulfill", [bid.data]);
+  const encodedData = getTxManagerInerface().encodeFunctionData("fulfill", [bid.data]);
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
