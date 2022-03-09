@@ -85,7 +85,7 @@ export class TransactionsCache extends Cache {
       });
       //return highest
       nonceStream.on("end", async () => {
-        await this.data.publish(StoreChannel.NewHighestNonce, domain);
+        await this.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
       nonceStream.on("error", (error: string) => {
@@ -100,7 +100,7 @@ export class TransactionsCache extends Cache {
       const existing = await this.data.get(`${tx.originDomain}:${tx.nonce}`);
       // Update the status, regardless of whether the transaction already exists.
       await this.data.set(tx.transactionId, tx.status);
-      await this.data.publish(StoreChannel.NewStatus, `${tx.originDomain} : ${tx.status}`);
+      await this.publish(StoreChannel.NewStatus, `${tx.originDomain} : ${tx.status}`);
 
       if (!existing) {
         // Store the transaction data, since it doesn't already exist.
@@ -122,7 +122,7 @@ export class TransactionsCache extends Cache {
       const uuid = getRandomBytes32();
       const stored = await this.data.set(`${txid}:bid:${uuid}`, JSON.stringify(bid));
 
-      await this.data.publish(StoreChannel.NewBid, `${txid}:bid ${bid}`);
+      await this.publish(StoreChannel.NewBid, `${txid}:bid ${bid}`);
 
       if (stored !== "OK") {
         this.logger.debug("error saving bid");
@@ -159,7 +159,6 @@ export class TransactionsCache extends Cache {
         res(bidArray);
       });
       bidStream.on("error", (error: string) => {
-        this.logger.debug(">>>>>>>>>>>>>>>>>>>>> error getting bids");
         this.logger.debug(error);
         rej(error);
       });
