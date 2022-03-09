@@ -1,6 +1,7 @@
 import { CrossChainTxStatus, mkBytes32, CrossChainTx } from "@connext/nxtp-utils";
 
 export const fakeTxId = "0xdeadbeefdeadbeefdeadbeefdeadbeef";
+
 export const fakeCrossChainTxData: CrossChainTx = {
   originDomain: "3000",
   destinationDomain: "2000",

@@ -1,9 +1,4 @@
-import {
-  BidStatus,
-  SignedBid,
-  StoredBid,
-  getNtpTimeSeconds,
-} from "@connext/nxtp-utils";
+import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { Cache } from ".";
@@ -15,7 +10,7 @@ export class AuctionsCache extends Cache {
    * @param bid The signed bid we're going to store
    * @returns success - true, failure - false
    */
-   public async storeBid(bid: SignedBid): Promise<boolean> {
+  public async storeBid(bid: SignedBid): Promise<boolean> {
     const txid = bid.bid.transactionId;
     const router = bid.bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
@@ -68,7 +63,6 @@ export class AuctionsCache extends Cache {
    * @param status The status of the bids that we're going to get
    * @returns Auction bids that were stored with the status
    */
-
   public async getBids(status?: BidStatus): Promise<StoredBid[]> {
     const storedBids: StoredBid[] = [];
 
