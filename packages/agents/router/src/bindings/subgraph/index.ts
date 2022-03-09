@@ -24,6 +24,7 @@ export const pollSubgraph = async (context: AppContext) => {
   try {
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
     for (const domain of Object.keys(config.chains)) {
+      // TODO: Convert domain to chainID ??
       const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
       const latestNonce = await cache.transactions.getLatestNonce(domain);

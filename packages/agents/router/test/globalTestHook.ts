@@ -1,8 +1,16 @@
 import { TransactionService } from "@connext/nxtp-txservice";
 import { StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { txReceiptMock, sigMock, Logger, mkAddress } from "@connext/nxtp-utils";
-import { Wallet, BigNumber } from "ethers";
+import {
+  txReceiptMock,
+  sigMock,
+  Logger,
+  mkAddress,
+  CrossChainTx,
+  CrossChainTxStatus,
+  getRandomBytes32,
+} from "@connext/nxtp-utils";
+import { Wallet, BigNumber, utils } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { createStubInstance } from "sinon";
 import { routerAddrMock, chainDataMock } from "./utils";
@@ -78,5 +86,62 @@ export const createMockContext = (): AppContext => {
     chainData: chainDataMock,
     routerAddress: routerAddrMock,
     logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+  };
+};
+
+export const createMockCrossChainTx = (
+  origin: string,
+  destination: string,
+  status: CrossChainTxStatus = CrossChainTxStatus.Prepared,
+): CrossChainTx => {
+  return {
+    // Meta
+    originDomain: origin,
+    destinationDomain: destination,
+    status,
+
+    // Transfer Data
+    nonce: 1234,
+    transactionId: getRandomBytes32(),
+    recipient: mkAddress("0xcbacba"),
+    router: routerAddrMock,
+
+    // Prepared
+    prepareCaller: mkAddress("0xcbacba"),
+    prepareTransactingAmount: "1000",
+    prepareLocalAmount: "1000",
+    prepareTransactingAsset: mkAddress("0x321321"),
+    prepareLocalAsset: mkAddress("0x321321"),
+    callTo: mkAddress("0x0"),
+    callData: "0x0",
+
+    // TransactionPrepared
+    prepareTransactionHash: getRandomBytes32(),
+    prepareTimestamp: Math.floor(Date.now() / 1000 - 30),
+    prepareGasPrice: utils.parseUnits("5", "gwei").toString(),
+    prepareGasLimit: "80000",
+    prepareBlockNumber: 7654321,
+
+    // Fulfill
+    fulfillCaller: "0x0",
+    fulfillTransactingAmount: "0",
+    fulfillLocalAmount: "0",
+    fulfillTransactingAsset: mkAddress("0x321321"),
+    fulfillLocalAsset: mkAddress("0x321321"),
+
+    // TransactionFulfilled
+    fulfillTransactionHash: "0x0",
+    fulfillTimestamp: "0x0",
+    fulfillGasPrice: "0",
+    fulfillGasLimit: "0",
+    fulfillBlockNumber: 0,
+
+    // Reconciled
+    externalCallHash: "0x0",
+    reconciledTransactionHash: "0x0",
+    reconciledTimestamp: "0x0",
+    reconciledGasPrice: "0",
+    reconciledGasLimit: "0",
+    reconciledBlockNumber: 0,
   };
 };
