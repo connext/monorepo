@@ -136,7 +136,7 @@ export class TransactionsCache extends Cache {
       "status",
       BidStatus.Pending,
       "lastUpdate",
-      curTimeInSecs.toString(),
+      curTimeInSecs,
     );
 
     await this.publish(StoreChannel.NewBid, bid);
@@ -164,7 +164,7 @@ export class TransactionsCache extends Cache {
       "status",
       bidStatus,
       "lastUpdate",
-      curTimeInSecs.toString(),
+      curTimeInSecs,
     );
 
     if (updated === 1) return true;
@@ -175,12 +175,45 @@ export class TransactionsCache extends Cache {
    * Gets the bids by status
    *
    * @param status The status of the bids that we're going to get
-   * @returns Auction bids that were stored for the status
+   * @returns Auction bids that were stored with the status
    */
 
   public async getBids(status?: BidStatus): Promise<StoredBid[]> {
     const storedBids: StoredBid[] = [];
 
-    return storedBids;
+    const bidStream = await this.data.scanStream({
+      match: "*:bid:*",
+    });
+
+    return new Promise((res, rej) => {
+      bidStream.on("data", async (resultKeys: string) => {
+        for (const key of resultKeys) {
+          // 1 - "data" - key
+          // 2 - value for the `data`
+          // 3 - "status" - key
+          // 4 - value for the `status`
+          // 5 - `lastUpdate` - key
+          // 6 - value for the `lastUpdate`
+          const record = await this.data.hgetall(key);
+          const bidStatus = record["status"];
+          const lastUpdate = Number(record["lastUpdate"]);
+
+          if ((bidStatus && status && status == (bidStatus as BidStatus)) || !status) {
+            storedBids.push({
+              signedBid: JSON.parse(record["data"]) as SignedBid,
+              status: bidStatus as BidStatus,
+              lastUpdate,
+            });
+          }
+        }
+      });
+      bidStream.on("end", async () => {
+        res(storedBids);
+      });
+      bidStream.on("error", (error: string) => {
+        this.logger.debug(error);
+        rej(error);
+      });
+    });
   }
 }
