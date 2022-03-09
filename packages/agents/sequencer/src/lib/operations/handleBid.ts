@@ -44,7 +44,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   // TODO: getPrepareTransaction to add prepareBlockNumber for validation and sanity check before choosing the best bid
   // const prepareTransaction = await subgraph.getTransaction(originChainId, bid.transactionId);
 
-  await cache.transactions.storeBid(bid.transactionId, { signedBid, encodedData });
+  await cache.transactions.storeBid(signedBid);
 
   logger.info("stored in cache", requestContext, methodContext, {
     signedBid,

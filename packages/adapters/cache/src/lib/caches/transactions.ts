@@ -131,7 +131,7 @@ export class TransactionsCache extends Cache {
 
     const stored = await this.data.hset(
       `${txid}:bid:${router}`,
-      "data",
+      "signedBid",
       JSON.stringify(bid),
       "status",
       BidStatus.Pending,
@@ -159,7 +159,7 @@ export class TransactionsCache extends Cache {
 
     const updated = await this.data.hset(
       `${txid}:bid:${router}`,
-      "data",
+      "signedBid",
       JSON.stringify(bid),
       "status",
       bidStatus,
@@ -200,7 +200,7 @@ export class TransactionsCache extends Cache {
 
           if ((bidStatus && status && status == (bidStatus as BidStatus)) || !status) {
             storedBids.push({
-              signedBid: JSON.parse(record["data"]) as SignedBid,
+              signedBid: JSON.parse(record["signedBid"]) as SignedBid,
               status: bidStatus as BidStatus,
               lastUpdate,
             });
