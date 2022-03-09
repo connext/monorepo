@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
+import { CrossChainTx, TransactionData, CrossChainTxStatus, getRandomBytes32 } from "@connext/nxtp-utils";
 import { CacheParams, StoreChannel, SubscriptionCallback } from "../entities";
 import { AuctionBid, Logger } from "@connext/nxtp-utils";
 import { Cache } from "./";
@@ -89,7 +89,6 @@ export class TransactionsCache extends Cache {
         res(highestNonce);
       });
       nonceStream.on("error", (error: string) => {
-        this.logger.debug(">>>>>>>>>>>>>>>>>>>>> transactionCache::error");
         this.logger.debug(error);
         rej();
       });
@@ -120,9 +119,8 @@ export class TransactionsCache extends Cache {
    */
   public async storeBid(txid: string, bids: AuctionBid[]) {
     for (const bid of bids) {
-      //bid identifier
-      //todo:random string insert after ':bid:*'
-      const stored = await this.data.set(`${txid}:bid`, JSON.stringify(bid));
+      const uuid = getRandomBytes32();
+      const stored = await this.data.set(`${txid}:bid:${uuid}`, JSON.stringify(bid));
 
       await this.data.publish(StoreChannel.NewBid, `${txid}:bid ${bid}`);
 
