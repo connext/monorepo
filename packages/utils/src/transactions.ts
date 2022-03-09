@@ -101,3 +101,8 @@ export type SignedBid = {
   bid: Bid;
   signature: string;
 };
+
+export enum BidStatus {
+  Pending = "Pending",
+  Sent = "Sent",
+}

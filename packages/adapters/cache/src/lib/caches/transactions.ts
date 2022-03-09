@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { CrossChainTx, CrossChainTxStatus, getRandomBytes32, SignedBid, Logger } from "@connext/nxtp-utils";
+import { CrossChainTx, CrossChainTxStatus, BidStatus, SignedBid, Logger, getNtpTimeSeconds } from "@connext/nxtp-utils";
 import { CacheParams, StoreChannel } from "../entities";
 import { Cache } from "./";
 /**
@@ -111,22 +111,56 @@ export class TransactionsCache extends Cache {
   }
 
   /**
-   * Stores array of  bids by transaction id
+   * Stores bid to redis
    *
-   * @param txid The txid that we're going to store the bids for
-   * @param bids The auction bids we're going to store
+   * @param bid The signed bid we're going to store
+   * @returns success - true, failure - false
    */
-  public async storeBid(txid: string, bids: SignedBid[]) {
-    for (const bid of bids) {
-      const uuid = getRandomBytes32();
-      const stored = await this.data.set(`${txid}:bid:${uuid}`, JSON.stringify(bid));
+  public async storeBid(bid: SignedBid): Promise<boolean> {
+    const txid = bid.bid.transactionId;
+    const router = bid.bid.data.router;
+    const curTimeInSecs = await getNtpTimeSeconds();
 
-      await this.publish(StoreChannel.NewBid, bid);
+    const stored = await this.data.hset(
+      `${txid}:bid:${router}`,
+      "data",
+      JSON.stringify(bid),
+      "status",
+      BidStatus.Pending,
+      "lastUpdate",
+      curTimeInSecs.toString(),
+    );
 
-      if (stored !== "OK") {
-        this.logger.debug("error saving bid");
-      }
-    }
+    await this.publish(StoreChannel.NewBid, bid);
+
+    if (stored === 1) return true;
+    else return false;
+  }
+
+  /**
+   * Updates the status of bid
+   *
+   * @param bid The signed bid we're going to update
+   * @param bidStatus The status of bid
+   * @returns success - true, failure - false
+   */
+  public async updateBid(bid: SignedBid, bidStatus: BidStatus): Promise<boolean> {
+    const txid = bid.bid.transactionId;
+    const router = bid.bid.data.router;
+    const curTimeInSecs = await getNtpTimeSeconds();
+
+    const updated = await this.data.hset(
+      `${txid}:bid:${router}`,
+      "data",
+      JSON.stringify(bid),
+      "status",
+      bidStatus,
+      "lastUpdate",
+      curTimeInSecs.toString(),
+    );
+
+    if (updated === 1) return true;
+    else return false;
   }
 
   /**
