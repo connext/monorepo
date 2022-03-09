@@ -44,10 +44,11 @@ export const allRouters = [
   "0xae1e59402a3f483f0bbb663800ff21a0f2b1701d",
   "0x1F6853bC0cc4DCCd2ebF7B36c3b34dac0C1b1096",
   "0x5898252DC60c7d113776720Efca744c00324Ba53",
+  "0x3582ec1c312819246fc1820475e3daa251a159ef",
 ];
 
 const networks: string[] = [
-  // "mainnet",
+  "mainnet",
   "moonbeam",
   "optimism",
   "bsc",
@@ -61,7 +62,7 @@ const networks: string[] = [
   "milkomeda-cardano",
 ];
 
-const routers: string[] = [];
+const routers: string[] = ["0x3582ec1c312819246fc1820475e3daa251a159ef"];
 // const routers = allRouters;
 
 const run = async () => {
@@ -75,13 +76,17 @@ const run = async () => {
   for (const n of networks) {
     for (const r of routerAddresses) {
       console.log("Running add router script for", n);
-      const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${r}`);
+      try {
+        const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${r}`);
 
-      if (out) {
-        console.log(`stdout: ${n} ${out}`);
-      }
-      if (err) {
-        console.error(`stderr: ${n} ${err}`);
+        if (out) {
+          console.log(`stdout: ${n} ${out}`);
+        }
+        if (err) {
+          console.error(`stderr: ${n} ${err}`);
+        }
+      } catch (e) {
+        console.log(`Failed: ${e}`);
       }
     }
   }
