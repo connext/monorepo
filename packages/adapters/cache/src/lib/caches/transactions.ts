@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
-
 import { CacheParams, StoreChannel, SubscriptionCallback } from "../entities";
+import { AuctionBid, Logger } from "@connext/nxtp-utils";
 import { Cache } from "./";
 /**
  * Redis Store Details:
@@ -12,6 +12,7 @@ import { Cache } from "./";
  */
 export class TransactionsCache extends Cache {
   private readonly data!: Redis.Redis;
+  public readonly logger = new Logger({ level: "debug" });
 
   public constructor({ url, subscriptions }: CacheParams) {
     super({ url, subscriptions });
@@ -48,8 +49,8 @@ export class TransactionsCache extends Cache {
       match: `${txid}`,
     });
     return new Promise((res, rej) => {
-      status.on("data", (txidMatch) => {
-        console.log("found txid");
+      status.on("data", (txidMatch:string) => {
+        this.logger.debug("found txid");
         const val = this.data.get(txidMatch);
         res(val as unknown as CrossChainTxStatus);
       });
@@ -73,7 +74,7 @@ export class TransactionsCache extends Cache {
       match: `${domain}:*`,
     });
     return new Promise((res, rej) => {
-      nonceStream.on("data", (data) => {
+      nonceStream.on("data", (data:string) => {
         //strip domain name from key
         if (data[0] !== undefined) {
           const nonceStr = data[0].substring(data[0].indexOf(":") + 1, data[0].length);
@@ -87,9 +88,9 @@ export class TransactionsCache extends Cache {
         await this.data.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
-      nonceStream.on("error", (error) => {
-        console.log(">>>>>>>>>>>>>>>>>>>>> transactionCache::error");
-        console.log(error);
+      nonceStream.on("error", (error:string) => {
+        this.logger.debug(">>>>>>>>>>>>>>>>>>>>> transactionCache::error");
+        this.logger.debug(error);
         rej();
       });
     });
@@ -110,4 +111,50 @@ export class TransactionsCache extends Cache {
       }
     }
   }
+
+  public async storeBid(txid: string, bids: AuctionBid[]) {
+    for (const bid of bids) {
+      //bid identifier
+      const stored = await this.data.set(`${txid}:bid`, JSON.stringify(bid));
+
+      await this.data.publish(StoreChannel.NewBid, `${txid}:bid ${bid}`);
+
+      if (stored !== "OK") {
+        this.logger.debug("error saving bid");
+      }
+    }
+  }
+  
+  public async getBids(txid: string): Promise<AuctionBid[]> {
+    const bidArray: AuctionBid[] = [];
+
+    const bidStream = await this.data.scanStream({
+      //search all records for the domain across all nonces.
+      match: `${txid}:bid:*`,
+    });
+
+    return new Promise((res, rej) => {
+      bidStream.on("data", async(data: string) => {
+        //strip domain name + "bid" from key
+        if (data[0] !== undefined) {
+          
+          const bid = JSON.parse(data);
+          const bidCast = bid as unknown as AuctionBid
+          //publish new bid
+          bidArray.push(bid);
+        }
+      });
+      bidStream.on("end", async () => {
+        res(bidArray);
+      });
+      bidStream.on("error", (error:string) => {
+        this.logger.debug(">>>>>>>>>>>>>>>>>>>>> error getting bids");
+        this.logger.debug(error);
+        rej(error);
+      });
+    
+    })
+  }
+
+  
 }
