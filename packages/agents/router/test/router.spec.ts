@@ -5,7 +5,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { getSwapPoolMap } from "../src/router";
 import { constants } from "ethers";
 
-describe("Config", () => {
+describe("Router", () => {
   describe("#getSwapPoolMap", () => {
     it("should error if router contract not present for a chain", async () => {
       const txService = createStubInstance(TransactionService);

@@ -1,15 +1,6 @@
 import { mkAddress, variantDataMock, invariantDataMock, mkBytes32, chainDataToMap } from "@connext/nxtp-utils";
 
-import { TransactionStatus as SdkTransactionStatus } from "../src/adapters/subgraph/runtime/graphqlsdk";
 import { NxtpRouterConfig } from "../src/config";
-import {
-  ActiveTransaction,
-  CancelInput,
-  SingleChainTransaction,
-  CrosschainTransactionStatus,
-  FulfillInput,
-  PrepareInput,
-} from "../src/lib/entities";
 
 export const routerAddrMock = mkAddress("0xb");
 export const routerContractAddressMock = mkAddress("0xccc");
@@ -19,91 +10,93 @@ export const MUTATED_BUFFER = 123400;
 export const BID_EXPIRY = 123401;
 
 export const configMock: NxtpRouterConfig = {
-  adminToken: "foo",
-  authUrl: "http://example.com",
-  chainConfig: {
-    1337: {
+  chains: {
+    "1337": {
+      assets: [
+        {
+          name: "TEST",
+          address: mkAddress("0xbeefbeefbeef"),
+        },
+      ],
       confirmations: 1,
       providers: ["http://example.com"],
-      subgraph: ["http://example.com"],
-      transactionManagerAddress: mkAddress("0xaaa"),
-      priceOracleAddress: mkAddress("0x0"),
-      multicallAddress: mkAddress("0x1"),
-      minGas: "100",
-      relayerFeeThreshold: 10,
-      subgraphSyncBuffer: 10,
+      subgraph: {
+        runtime: ["http://example.com"],
+        analytics: ["http://example.com"],
+        maxLag: 10,
+      },
+      deployments: {
+        transactionManager: mkAddress("0xaaa"),
+      },
       gasStations: [],
-      allowRelay: true,
-      analyticsSubgraph: ["http://example.com"],
     },
-    1338: {
+    "1338": {
+      assets: [
+        {
+          name: "TEST",
+          address: mkAddress("0xbeefbeefbeef"),
+        },
+      ],
       confirmations: 1,
       providers: ["http://example.com"],
-      subgraph: ["http://example.com"],
-      transactionManagerAddress: mkAddress("0xbbb"),
-      priceOracleAddress: mkAddress("0x0"),
-      multicallAddress: mkAddress("0x1"),
-      minGas: "100",
-      relayerFeeThreshold: 10,
-      subgraphSyncBuffer: 10,
+      subgraph: {
+        runtime: ["http://example.com"],
+        analytics: ["http://example.com"],
+        maxLag: 10,
+      },
+      deployments: {
+        transactionManager: mkAddress("0xaaa"),
+      },
       gasStations: [],
-      allowRelay: true,
-      analyticsSubgraph: ["http://example.com"],
     },
   },
-  priceCacheMode: true,
-  routerContractAddress: routerContractAddressMock,
   mnemonic: "hello world",
-  natsUrl: "http://example.com",
   logLevel: "info",
-  swapPools: [
-    {
-      name: "TEST",
-      assets: [
-        { assetId: mkAddress("0xc"), chainId: 1337 },
-        { assetId: mkAddress("0xf"), chainId: 1338 },
-      ],
-      mainnetEquivalent: mkAddress("0xd"),
-    },
-  ],
-  allowedTolerance: 10,
-  allowRelay: true,
-  host: "0.0.0.0",
-  port: 8080,
-  requestLimit: 2000,
-  cleanUpMode: false,
-  diagnosticMode: false,
-  overbidAllowance: 150,
+  redisUrl: "",
+  sequencerUrl: "",
+  server: {
+    host: "0.0.0.0",
+    port: 3000,
+    requestLimit: 2000,
+    adminToken: "blahblahblah",
+  },
+  network: "testnet",
+  maxSlippage: 0,
+  mode: {
+    diagnostic: false,
+    cleanup: false,
+    priceCaching: false,
+  },
 };
 
-export const prepareInputMock: PrepareInput = {
-  senderAmount: variantDataMock.amount,
-  senderExpiry: variantDataMock.expiry,
-  encryptedCallData: "0xabc",
-  encodedBid: "0xdef",
-  bidSignature: "0xcba",
-};
+// export const prepareInputMock: PrepareInput = {
+//   senderAmount: variantDataMock.amount,
+//   senderExpiry: variantDataMock.expiry,
+//   encryptedCallData: "0xabc",
+//   encodedBid: "0xdef",
+//   bidSignature: "0xcba",
+// };
 
-export const fulfillInputMock: FulfillInput = {
-  amount: variantDataMock.amount,
-  expiry: variantDataMock.expiry,
-  preparedBlockNumber: variantDataMock.preparedBlockNumber,
-  signature: "0xabcd",
-  relayerFee: "10",
-  callData: "0x",
-};
+// export const fulfillInputMock: FulfillInput = {
+//   amount: variantDataMock.amount,
+//   expiry: variantDataMock.expiry,
+//   preparedBlockNumber: variantDataMock.preparedBlockNumber,
+//   signature: "0xabcd",
+//   relayerFee: "10",
+//   callData: "0x",
+// };
 
 export const mockHashes = {
   prepareHash: mkBytes32("0xa"),
 };
 
-export const cancelInputMock: CancelInput = {
-  amount: variantDataMock.amount,
-  expiry: variantDataMock.expiry,
-  preparedBlockNumber: variantDataMock.preparedBlockNumber,
-  preparedTransactionHash: mockHashes.prepareHash,
-  side: "sender",
-};
+// export const cancelInputMock: CancelInput = {
+//   amount: variantDataMock.amount,
+//   expiry: variantDataMock.expiry,
+//   preparedBlockNumber: variantDataMock.preparedBlockNumber,
+//   preparedTransactionHash: mockHashes.prepareHash,
+//   side: "sender",
+// };
 
 export const sendingMock = variantDataMock;
 export const receivingMock = {
@@ -112,37 +105,37 @@ export const receivingMock = {
   preparedBlockNumber: 1221,
 };
 
-export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> = {
-  crosschainTx: { sending: sendingMock, invariant: invariantDataMock },
-  payload: {
-    bidSignature: "0xdbc",
-    encodedBid: "0xdef",
-    encryptedCallData: "0xabc",
-    hashes: { sending: mockHashes },
-  },
-  status: CrosschainTransactionStatus.SenderPrepared,
-};
+// export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> = {
+//   crosschainTx: { sending: sendingMock, invariant: invariantDataMock },
+//   payload: {
+//     bidSignature: "0xdbc",
+//     encodedBid: "0xdef",
+//     encryptedCallData: "0xabc",
+//     hashes: { sending: mockHashes },
+//   },
+//   status: CrosschainTransactionStatus.SenderPrepared,
+// };
 
-export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"> = {
-  crosschainTx: { sending: sendingMock, invariant: invariantDataMock, receiving: receivingMock },
-  payload: {
-    callData: "0x",
-    relayerFee: "100000",
-    signature: "0xabc",
-    hashes: { sending: mockHashes, receiving: { ...mockHashes, fulfillHash: mkBytes32("0xb") } },
-  },
-  status: CrosschainTransactionStatus.ReceiverFulfilled,
-};
+// export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"> = {
+//   crosschainTx: { sending: sendingMock, invariant: invariantDataMock, receiving: receivingMock },
+//   payload: {
+//     callData: "0x",
+//     relayerFee: "100000",
+//     signature: "0xabc",
+//     hashes: { sending: mockHashes, receiving: { ...mockHashes, fulfillHash: mkBytes32("0xb") } },
+//   },
+//   status: CrosschainTransactionStatus.ReceiverFulfilled,
+// };
 
-export const singleChainTransactionMock: SingleChainTransaction = {
-  bidSignature: "0xdbc",
-  signature: "0xfee",
-  relayerFee: "100000",
-  encodedBid: "0xdef",
-  encryptedCallData: "0xabc",
-  status: SdkTransactionStatus.Fulfilled,
-  txData: { ...invariantDataMock, ...variantDataMock },
-};
+// export const singleChainTransactionMock: SingleChainTransaction = {
+//   bidSignature: "0xdbc",
+//   signature: "0xfee",
+//   relayerFee: "100000",
+//   encodedBid: "0xdef",
+//   encryptedCallData: "0xabc",
+//   status: SdkTransactionStatus.Fulfilled,
+//   txData: { ...invariantDataMock, ...variantDataMock },
+// };
 
 export const chainDataMock = chainDataToMap([
   {

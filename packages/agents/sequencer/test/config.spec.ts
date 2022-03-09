@@ -155,7 +155,7 @@ describe("Config", () => {
       });
 
       const env = getEnvConfig(chainDataMock);
-      const config = await getConfig(chainDataMock);
+      const config = await getConfig();
       expect(config).to.be.deep.eq(env);
     });
   });
