@@ -1,7 +1,6 @@
 import Redis from "ioredis";
-import { CrossChainTx, TransactionData, CrossChainTxStatus, getRandomBytes32 } from "@connext/nxtp-utils";
-import { CacheParams, StoreChannel, SubscriptionCallback } from "../entities";
-import { AuctionBid, Logger } from "@connext/nxtp-utils";
+import { CrossChainTx, CrossChainTxStatus, getRandomBytes32, SignedBid, Logger } from "@connext/nxtp-utils";
+import { CacheParams, StoreChannel } from "../entities";
 import { Cache } from "./";
 /**
  * Redis Store Details:
@@ -117,12 +116,12 @@ export class TransactionsCache extends Cache {
    * @param txid The txid that we're going to store the bids for
    * @param bids The auction bids we're going to store
    */
-  public async storeBid(txid: string, bids: AuctionBid[]) {
+  public async storeBid(txid: string, bids: SignedBid[]) {
     for (const bid of bids) {
       const uuid = getRandomBytes32();
       const stored = await this.data.set(`${txid}:bid:${uuid}`, JSON.stringify(bid));
 
-      await this.publish(StoreChannel.NewBid, `${txid}:bid ${bid}`);
+      await this.publish(StoreChannel.NewBid, bid);
 
       if (stored !== "OK") {
         this.logger.debug("error saving bid");
@@ -137,8 +136,8 @@ export class TransactionsCache extends Cache {
    * @returns Auctino bids that were stored for the txid
    */
 
-  public async getBids(txid: string): Promise<AuctionBid[]> {
-    const bidArray: AuctionBid[] = [];
+  public async getBids(txid: string): Promise<SignedBid[]> {
+    const bidArray: SignedBid[] = [];
 
     const bidStream = await this.data.scanStream({
       //search all records for the domain across all nonces.
@@ -150,7 +149,7 @@ export class TransactionsCache extends Cache {
         //strip domain name + "bid" from key
         if (data[0] !== undefined) {
           const bid = JSON.parse(data);
-          const bidCast = bid as unknown as AuctionBid;
+          const bidCast = bid as SignedBid;
           //publish new bid
           bidArray.push(bid);
         }
