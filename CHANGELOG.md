@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.27
+
+- [utils] Fix Gelato price estimation
+
 ## 0.1.26
 
 - [contracts] Deployments for Milkomeda
