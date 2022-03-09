@@ -49,7 +49,7 @@ export class TransactionsCache extends Cache {
       match: `${txid}`,
     });
     return new Promise((res, rej) => {
-      status.on("data", (txidMatch:string) => {
+      status.on("data", (txidMatch: string) => {
         this.logger.debug("found txid");
         const val = this.data.get(txidMatch);
         res(val as unknown as CrossChainTxStatus);
@@ -74,7 +74,7 @@ export class TransactionsCache extends Cache {
       match: `${domain}:*`,
     });
     return new Promise((res, rej) => {
-      nonceStream.on("data", (data:string) => {
+      nonceStream.on("data", (data: string) => {
         //strip domain name from key
         if (data[0] !== undefined) {
           const nonceStr = data[0].substring(data[0].indexOf(":") + 1, data[0].length);
@@ -88,7 +88,7 @@ export class TransactionsCache extends Cache {
         await this.data.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
-      nonceStream.on("error", (error:string) => {
+      nonceStream.on("error", (error: string) => {
         this.logger.debug(">>>>>>>>>>>>>>>>>>>>> transactionCache::error");
         this.logger.debug(error);
         rej();
@@ -112,9 +112,16 @@ export class TransactionsCache extends Cache {
     }
   }
 
+  /**
+   * Stores array of  bids by transaction id
+   *
+   * @param txid The txid that we're going to store the bids for
+   * @param bids The auction bids we're going to store
+   */
   public async storeBid(txid: string, bids: AuctionBid[]) {
     for (const bid of bids) {
       //bid identifier
+      //todo:random string insert after ':bid:*'
       const stored = await this.data.set(`${txid}:bid`, JSON.stringify(bid));
 
       await this.data.publish(StoreChannel.NewBid, `${txid}:bid ${bid}`);
@@ -124,7 +131,14 @@ export class TransactionsCache extends Cache {
       }
     }
   }
-  
+
+  /**
+   * Gets the auction bids by txid
+   *
+   * @param txid The txid that we're going to get the bids for
+   * @returns Auctino bids that were stored for the txid
+   */
+
   public async getBids(txid: string): Promise<AuctionBid[]> {
     const bidArray: AuctionBid[] = [];
 
@@ -134,12 +148,11 @@ export class TransactionsCache extends Cache {
     });
 
     return new Promise((res, rej) => {
-      bidStream.on("data", async(data: string) => {
+      bidStream.on("data", async (data: string) => {
         //strip domain name + "bid" from key
         if (data[0] !== undefined) {
-          
           const bid = JSON.parse(data);
-          const bidCast = bid as unknown as AuctionBid
+          const bidCast = bid as unknown as AuctionBid;
           //publish new bid
           bidArray.push(bid);
         }
@@ -147,14 +160,11 @@ export class TransactionsCache extends Cache {
       bidStream.on("end", async () => {
         res(bidArray);
       });
-      bidStream.on("error", (error:string) => {
+      bidStream.on("error", (error: string) => {
         this.logger.debug(">>>>>>>>>>>>>>>>>>>>> error getting bids");
         this.logger.debug(error);
         rej(error);
       });
-    
-    })
+    });
   }
-
-  
 }
