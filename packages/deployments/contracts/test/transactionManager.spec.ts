@@ -26,9 +26,13 @@ import {
   formatTokenId,
   getDetailsHash,
   Message,
+  MAX_FEE_PER_GAS,
+  assertReceiptEvent,
+  ZERO_ADDRESS,
+  assertObject,
 } from "./utils";
 
-import { BigNumber, BigNumberish, constants, Contract, Wallet } from "ethers";
+import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
 import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
 
@@ -106,7 +110,7 @@ describe.only("TransactionManager", () => {
     destinationAdopted = await deployContract<TestERC20>("TestERC20");
     // Deploy canonical token
     canonical = await deployContract<TestERC20>("TestERC20");
-    // Deploy local tokem
+    // Deploy local token
     local = await deployContract<TestERC20>("TestERC20");
     // Deploy weth token
     weth = await deployContract<WETH>("WETH");
@@ -302,6 +306,392 @@ describe.only("TransactionManager", () => {
       delay(100).then((_) => destinationTm.addRouter(router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
+  });
+
+  describe("constructor", async () => {
+    it("should deploy", async () => {
+      expect(originTm.address).to.be.a("string");
+    });
+
+    it("should set domain for original TransactionManager", async () => {
+      expect(await originTm.domain()).to.eq(originDomain);
+    });
+
+    it("should set Bridge Router", async () => {
+      const addr = await originTm.bridgeRouter();
+      expect(utils.isAddress(addr)).to.be.true;
+    });
+
+    it("should set Token Registry", async () => {
+      const addr = await originTm.tokenRegistry();
+      expect(utils.isAddress(addr)).to.be.true;
+    });
+
+    it("should set Wrapped Asset", async () => {
+      const addr = await originTm.wrapper();
+      expect(utils.isAddress(addr)).to.be.true;
+    });
+  });
+
+  describe("addRouter", () => {
+    it("should fail if not called by owner", async () => {
+      const toAdd = Wallet.createRandom().address;
+      await expect(originTm.connect(user).addRouter(toAdd)).to.be.revertedWith("#OO:029");
+    });
+
+    it("should fail if it is adding address0", async () => {
+      const toAdd = constants.AddressZero;
+      await expect(originTm.addRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#AR:001");
+    });
+
+    it("should fail if its already added", async () => {
+      await expect(originTm.addRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#AR:032");
+    });
+
+    it("should work", async () => {
+      const toAdd = Wallet.createRandom().address;
+      const tx = await originTm.addRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "RouterAdded", { caller: receipt.from, router: toAdd });
+      expect(await originTm.approvedRouters(toAdd)).to.be.true;
+    });
+  });
+
+  describe("removeRouter", () => {
+    it("should fail if not called by owner", async () => {
+      const toAdd = Wallet.createRandom().address;
+      await expect(originTm.connect(user).removeRouter(toAdd)).to.be.revertedWith("#OO:029");
+    });
+
+    it("should fail if it is adding address0", async () => {
+      const toAdd = constants.AddressZero;
+      await expect(originTm.removeRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#RR:001");
+    });
+
+    it("should fail if its already removed", async () => {
+      const tx = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      await tx.wait();
+
+      await expect(originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith(
+        "#RR:033",
+      );
+    });
+
+    it("should work", async () => {
+      const tx = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "RouterRemoved", { caller: receipt.from, router: router.address });
+      expect(await originTm.approvedRouters(router.address)).to.be.false;
+    });
+  });
+
+  describe("addStableSwapPool", () => {
+    it("should fail if not called by owner", async () => {
+      await expect(
+        originTm.connect(user).addStableSwapPool(
+          {
+            id: addressToBytes32(canonical.address),
+            domain: originDomain,
+          },
+          stableSwap.address,
+        ),
+      ).to.be.revertedWith("#OO:029");
+    });
+
+    it("should work", async () => {
+      const tx = await originTm.addStableSwapPool(
+        {
+          id: addressToBytes32(canonical.address),
+          domain: originDomain,
+        },
+        stableSwap.address,
+        { maxFeePerGas: MAX_FEE_PER_GAS },
+      );
+      const receipt = await tx.wait();
+      await assertReceiptEvent(receipt, "StableSwapAdded", {
+        caller: receipt.from,
+        canonicalId: addressToBytes32(canonical.address).toLowerCase(),
+        domain: originDomain,
+        swapPool: stableSwap.address,
+      });
+      expect(await originTm.adoptedToLocalPools(addressToBytes32(canonical.address))).to.be.equal(stableSwap.address);
+    });
+  });
+
+  describe("setupAsset", () => {
+    it("should fail if not called by owner", async () => {
+      await expect(
+        originTm
+          .connect(user)
+          .setupAsset(
+            { id: addressToBytes32(canonical.address), domain: originDomain },
+            originAdopted.address,
+            stableSwap.address,
+          ),
+      ).to.be.revertedWith("#OO:029");
+    });
+
+    it("should fail if it is already approved canonical", async () => {
+      const toAdd = Wallet.createRandom().address;
+      const tx = await originTm.setupAsset(
+        {
+          id: addressToBytes32(toAdd),
+          domain: originDomain,
+        },
+        originAdopted.address,
+        stableSwap.address,
+        { maxFeePerGas: MAX_FEE_PER_GAS },
+      );
+      await tx.wait();
+
+      await expect(
+        originTm.setupAsset(
+          {
+            id: addressToBytes32(toAdd),
+            domain: originDomain,
+          },
+          originAdopted.address,
+          stableSwap.address,
+          { maxFeePerGas: MAX_FEE_PER_GAS },
+        ),
+      ).to.be.revertedWith("#AA:032");
+    });
+
+    it("should work", async () => {
+      const toAdd = Wallet.createRandom().address;
+      const tx = await originTm.setupAsset(
+        { id: addressToBytes32(toAdd), domain: originDomain },
+        originAdopted.address,
+        stableSwap.address,
+        {
+          maxFeePerGas: MAX_FEE_PER_GAS,
+        },
+      );
+      const receipt = await tx.wait();
+      const supported = originAdopted.address == ZERO_ADDRESS ? weth.address : originAdopted.address;
+      await assertReceiptEvent(receipt, "AssetAdded", {
+        caller: receipt.from,
+        canonicalId: addressToBytes32(toAdd).toLowerCase(),
+        domain: originDomain,
+        adoptedAsset: originAdopted.address,
+        supportedAsset: supported,
+      });
+
+      expect(await originTm.approvedAssets(addressToBytes32(toAdd))).to.be.true;
+    });
+  });
+
+  describe("removeAssetId", () => {
+    it("should fail if not called by owner", async () => {
+      await expect(
+        originTm.connect(user).removeAssetId(addressToBytes32(canonical.address), originAdopted.address),
+      ).to.be.revertedWith("#OO:029");
+    });
+
+    it("should fail if it is not approved canonical", async () => {
+      const toRemove = Wallet.createRandom().address;
+      await expect(
+        originTm.removeAssetId(addressToBytes32(toRemove), originAdopted.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
+      ).to.be.revertedWith("#RA:033");
+    });
+
+    it("should work", async () => {
+      const toRemove = Wallet.createRandom().address;
+      const addTx = await originTm.setupAsset(
+        { id: addressToBytes32(toRemove), domain: originDomain },
+        originAdopted.address,
+        stableSwap.address,
+        {
+          maxFeePerGas: MAX_FEE_PER_GAS,
+        },
+      );
+      await addTx.wait();
+
+      const tx = await originTm.removeAssetId(addressToBytes32(toRemove), originAdopted.address, {
+        maxFeePerGas: MAX_FEE_PER_GAS,
+      });
+      const receipt = await tx.wait();
+
+      await assertReceiptEvent(receipt, "AssetRemoved", {
+        caller: receipt.from,
+        canonicalId: addressToBytes32(toRemove).toLowerCase(),
+      });
+
+      expect(await originTm.approvedAssets(addressToBytes32(toRemove))).to.be.false;
+      expect(await originTm.adoptedToLocalPools(addressToBytes32(toRemove))).to.be.eq(ZERO_ADDRESS);
+    });
+  });
+
+  describe("addRelayerFees", () => {
+    it("should work", async () => {
+      const beforeRouterFee = await originTm.routerRelayerFees(router.address);
+      const tx = await originTm.addRelayerFees(router.address, {
+        maxFeePerGas: MAX_FEE_PER_GAS,
+        value: parseEther("1"),
+      });
+      await tx.wait();
+
+      expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("1")));
+    });
+  });
+
+  describe("removeRelayerFees", () => {
+    it("should work", async () => {
+      const beforeRouterFee = await originTm.routerRelayerFees(router.address);
+      const addTx = await originTm.addRelayerFees(router.address, {
+        maxFeePerGas: MAX_FEE_PER_GAS,
+        value: parseEther("1"),
+      });
+      await addTx.wait();
+
+      const beforeBalance = await user.getBalance();
+      const removeTx = await originTm.connect(router).removeRelayerFees(parseEther("0.5"), user.address);
+      await removeTx.wait();
+
+      expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("0.5")));
+      expect(await user.getBalance()).to.be.eq(beforeBalance.add(parseEther("0.5")));
+    });
+  });
+
+  describe("addLiquidity / addLiquidityFor", () => {
+    it("should revert if router address is empty", async () => {
+      const amount = "1";
+      const assetId = ZERO_ADDRESS;
+
+      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
+        "#AL:001",
+      );
+      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
+    it("should fail if amount is 0", async () => {
+      const amount = "0";
+      const assetId = ZERO_ADDRESS;
+
+      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+        "#AL:002",
+      );
+    });
+
+    it("should fail if it is an unapproved router && ownership isnt renounced", async () => {
+      const amount = "10";
+      const assetId = ZERO_ADDRESS;
+
+      // Remove router
+      const remove = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      await remove.wait();
+      expect(await originTm.approvedRouters(router.address)).to.be.false;
+
+      await expect(
+        originTm.addLiquidityFor(amount, assetId, router.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
+      ).to.be.revertedWith("#AL:003");
+    });
+
+    it("should fail if its an unapproved asset && ownership isnt renounced", async () => {
+      const amount = "10";
+      const assetId = Wallet.createRandom().address;
+      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+        "#AL:004",
+      );
+    });
+
+    it("should fail if if msg.value == 0 for native asset", async () => {
+      const amount = "1";
+      const assetId = ZERO_ADDRESS;
+
+      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+        "!amount",
+      );
+      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
+    it("should fail if msg.value != amount for native asset", async () => {
+      const amount = "1";
+      const falseValue = "2";
+      const assetId = ZERO_ADDRESS;
+
+      await expect(
+        originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
+      ).to.be.revertedWith("!amount");
+      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
+
+    // it("should fail if msg.value != 0 for ERC20 token", async () => {
+    //   // addLiquidity: ETH_WITH_ERC_TRANSFER;
+    //   const amount = "1";
+    //   const assetId = local.address;
+    //   await expect(
+    //     originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
+    //   ).to.be.revertedWith("#TA:006");
+    //   expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    // });
+
+    // it("should fail if transferFromERC20 fails", async () => {
+    //   const amount = "1";
+    //   const assetId = originAdopted.address;
+    //   await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+    //     "ERC20: transfer amount exceeds allowance",
+    //   );
+    //   expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    // });
+
+    // it("should work if it is renounced && using an unapproved router", async () => {
+    //   const amount = "1";
+    //   const assetId = ZERO_ADDRESS;
+
+    //   // Remove asset
+    //   const remove = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+    //   await remove.wait();
+    //   expect(await originTm.approvedRouters(router.address)).to.be.false;
+
+    //   // Renounce ownership
+    //   await transferOwnership();
+
+    //   await addAndAssertLiquidity(amount, assetId, router);
+    // });
+
+    // it("should work if it is renounced && using an unapproved assetId", async () => {
+    //   const amount = "1";
+    //   const assetId = ZERO_ADDRESS;
+
+    //   // Remove asset
+    //   const remove = await originTm.connect(wallet).removeAssetId(assetId);
+    //   await remove.wait();
+    //   expect(await originTm.approvedAssets(assetId)).to.be.false;
+
+    //   // Renounce ownership
+    //   await transferOwnership();
+
+    //   await addAndAssertLiquidity(amount, assetId);
+    // });
+
+    // it("should work for an approved router in approved native asset", async () => {
+    //   const amount = "1";
+    //   const assetId = ZERO_ADDRESS;
+    //   await addAndAssertLiquidity(amount, assetId);
+    // });
+
+    // it("should work for an approved router in approved erc20", async () => {
+    //   const amount = "1";
+    //   const assetId = tokenA.address;
+    //   await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
+    //   await addAndAssertLiquidity(amount, assetId);
+    // });
+
+    // it("addLiqudity should add funds for msg.sender", async () => {
+    //   const amount = "1";
+    //   const assetId = tokenA.address;
+    //   await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
+    //   await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true);
+    // });
+
+    // it("should work for fee on transfer tokens", async () => {
+    //   const amount = "10";
+    //   const assetId = feeToken.address;
+    //   await approveTokens(amount, router, transactionManagerReceiverSide.address, feeToken);
+
+    //   await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true, await feeToken.fee());
+    // });
   });
 
   // Token scenario:

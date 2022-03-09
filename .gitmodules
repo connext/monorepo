@@ -1,3 +1,3 @@
-[submodule "packages/contracts/lib/forge-std"]
-	path = packages/contracts/lib/forge-std
+[submodule "packages/deployments/contracts/lib/forge-std"]
+	path = packages/deployments/contracts/lib/forge-std
 	url = https://github.com/brockelmore/forge-std
