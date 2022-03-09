@@ -51,7 +51,6 @@
     "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "axios": "^0.26.0",
     "ethers": "^5.5.4",
     "fastify": "^3.27.2",
     "fastify-plugin": "^3.0.1",
