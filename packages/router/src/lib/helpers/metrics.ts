@@ -66,6 +66,7 @@ export const getAssetName = (assetId: string, chainId: number): string | undefin
   const { config, chainData } = getContext();
 
   // Find matching swap pool
+  // @ts-ignore
   const match = config.swapPools.find((pool) => {
     const idx = pool.assets.findIndex((asset) => chainId === asset.chainId && asset.assetId === assetId.toLowerCase());
     return idx !== -1;

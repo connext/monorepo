@@ -88,6 +88,7 @@ export class RpcProviderAggregator {
     // Register a provider for each url.
     // Make sure all providers are ready()
     const providerConfigs = this.config.providers;
+    // @ts-ignore
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {

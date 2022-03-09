@@ -100,6 +100,7 @@ export const newAuction = async (
 
   const allowedSwap = config.swapPools.find(
     (pool) =>
+      // @ts-ignore
       pool.assets.find((a) => getAddress(a.assetId) === getAddress(sendingAssetId) && a.chainId === sendingChainId) &&
       pool.assets.find((a) => getAddress(a.assetId) === getAddress(receivingAssetId) && a.chainId === receivingChainId),
   );

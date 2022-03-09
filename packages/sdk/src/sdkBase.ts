@@ -594,6 +594,7 @@ export class NxtpSdkBase {
     const auctionBidsPromise = new Promise<AuctionResponse[]>(async (resolve, reject) => {
       if (dryRun) {
         try {
+          // @ts-ignore
           const result = await this.auctionResponseEvt
             .pipe((data) => data.inbox === inbox)
             .pipe((data) => !!data.data)
