@@ -1,4 +1,15 @@
-import { mkAddress, variantDataMock, invariantDataMock, mkBytes32, chainDataToMap } from "@connext/nxtp-utils";
+import {
+  mkAddress,
+  variantDataMock,
+  invariantDataMock,
+  mkBytes32,
+  chainDataToMap,
+  Bid,
+  FulfillArgs,
+  CallParams,
+  SignedBid,
+} from "@connext/nxtp-utils";
+import { parseEther } from "ethers/lib/utils";
 
 import { NxtpRouterConfig } from "../src/config";
 
@@ -52,8 +63,8 @@ export const configMock: NxtpRouterConfig = {
   },
   mnemonic: "hello world",
   logLevel: "info",
-  redisUrl: "",
-  sequencerUrl: "",
+  redisUrl: "redis://localhost:6379",
+  sequencerUrl: "http://localhost:8081",
   server: {
     host: "0.0.0.0",
     port: 3000,
@@ -69,73 +80,37 @@ export const configMock: NxtpRouterConfig = {
   },
 };
 
-// export const prepareInputMock: PrepareInput = {
-//   senderAmount: variantDataMock.amount,
-//   senderExpiry: variantDataMock.expiry,
-//   encryptedCallData: "0xabc",
-//   encodedBid: "0xdef",
-//   bidSignature: "0xcba",
-// };
-
-// export const fulfillInputMock: FulfillInput = {
-//   amount: variantDataMock.amount,
-//   expiry: variantDataMock.expiry,
-//   preparedBlockNumber: variantDataMock.preparedBlockNumber,
-//   signature: "0xabcd",
-//   relayerFee: "10",
-//   callData: "0x",
-// };
-
 export const mockHashes = {
   prepareHash: mkBytes32("0xa"),
 };
 
-// export const cancelInputMock: CancelInput = {
-//   amount: variantDataMock.amount,
-//   expiry: variantDataMock.expiry,
-//   preparedBlockNumber: variantDataMock.preparedBlockNumber,
-//   preparedTransactionHash: mockHashes.prepareHash,
-//   side: "sender",
-// };
-
-export const sendingMock = variantDataMock;
-export const receivingMock = {
-  amount: "900000",
-  expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 2,
-  preparedBlockNumber: 1221,
+export const callParamsMock: CallParams = {
+  recipient: mkAddress("0xrecipient"),
+  callTo: mkAddress("0xcallTo"),
+  callData: "0x",
+  originDomain: "1337",
+  destinationDomain: "1338",
 };
 
-// export const activeTransactionPrepareMock: ActiveTransaction<"SenderPrepared"> = {
-//   crosschainTx: { sending: sendingMock, invariant: invariantDataMock },
-//   payload: {
-//     bidSignature: "0xdbc",
-//     encodedBid: "0xdef",
-//     encryptedCallData: "0xabc",
-//     hashes: { sending: mockHashes },
-//   },
-//   status: CrosschainTransactionStatus.SenderPrepared,
-// };
+export const fulfillArgsMock: FulfillArgs = {
+  params: callParamsMock,
+  local: mkAddress("0xlocal"),
+  router: mkAddress("0xrouter"),
+  feePercentage: "1",
+  nonce: "0",
+  amount: parseEther("1").toString(),
+  relayerSignature: "0xsig",
+};
 
-// export const activeTransactionFulfillMock: ActiveTransaction<"ReceiverFulfilled"> = {
-//   crosschainTx: { sending: sendingMock, invariant: invariantDataMock, receiving: receivingMock },
-//   payload: {
-//     callData: "0x",
-//     relayerFee: "100000",
-//     signature: "0xabc",
-//     hashes: { sending: mockHashes, receiving: { ...mockHashes, fulfillHash: mkBytes32("0xb") } },
-//   },
-//   status: CrosschainTransactionStatus.ReceiverFulfilled,
-// };
+export const bidDataMock: Bid = {
+  transactionId: "0xtxid",
+  data: fulfillArgsMock,
+};
 
-// export const singleChainTransactionMock: SingleChainTransaction = {
-//   bidSignature: "0xdbc",
-//   signature: "0xfee",
-//   relayerFee: "100000",
-//   encodedBid: "0xdef",
-//   encryptedCallData: "0xabc",
-//   status: SdkTransactionStatus.Fulfilled,
-//   txData: { ...invariantDataMock, ...variantDataMock },
-// };
+export const signedBidDataMock: SignedBid = {
+  bid: bidDataMock,
+  signature: "0xsig",
+};
 
 export const chainDataMock = chainDataToMap([
   {
@@ -152,6 +127,6 @@ export const chainDataMock = chainDataToMap([
   },
 ]);
 
-export const relayerFeeMock = "1234";
+export const relayerFeePercentageMock = "1"; // 1%
 
 export const callDataMock = "0xabc";
