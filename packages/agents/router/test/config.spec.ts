@@ -6,7 +6,10 @@ import {
   getDeployedTransactionManagerContract,
 } from "../src/config";
 import * as ConfigFns from "../src/config";
-import { configMock, chainDataMock } from "./utils";
+import { mock } from "./mock";
+
+const mockConfig = mock.config();
+const mockChainData = mock.chainData();
 
 describe("Config", () => {
   let testChainId = 1336;
@@ -65,10 +68,10 @@ describe("Config", () => {
         ...process.env,
         NXTP_CONFIG_FILE: "buggypath",
         NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify(configMock),
+        NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
-      expect(() => getEnvConfig(chainDataMock)).not.throw();
+      expect(() => getEnvConfig(mockChainData)).not.throw();
     });
 
     it("should error if transaction manager address is missing", () => {
@@ -76,7 +79,7 @@ describe("Config", () => {
         ...process.env,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
-          ...configMock,
+          ...mockConfig,
           chainConfig: {
             1337: {},
             1338: {},
@@ -84,7 +87,7 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(chainDataMock)).throw("No transactionManager address");
+      expect(() => getEnvConfig(mockChainData)).throw("No transactionManager address");
     });
 
     it("should error if validation fails", () => {
@@ -92,7 +95,7 @@ describe("Config", () => {
         ...process.env,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
-          ...configMock,
+          ...mockConfig,
           chainConfig: {
             1337: { transactionManagerAddress: mkAddress("0xaaa"), subgraph: "http://example.com" },
             1338: { transactionManagerAddress: mkAddress("0xbbb"), subgraph: "http://example.com" },
@@ -100,21 +103,21 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(chainDataMock)).throw("must have required property");
+      expect(() => getEnvConfig(mockChainData)).throw("must have required property");
     });
 
     it("should read config from NXTP Config with local network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify(configMock),
+        NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
       let res;
       let error;
 
       try {
-        res = getEnvConfig(chainDataMock);
+        res = getEnvConfig(mockChainData);
       } catch (e) {
         error = e;
       }
@@ -125,22 +128,22 @@ describe("Config", () => {
     it("should read config from default filepath", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG: JSON.stringify(configMock),
+        NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
-      expect(() => getEnvConfig(chainDataMock)).not.throw();
+      expect(() => getEnvConfig(mockChainData)).not.throw();
     });
 
     it("should getEnvConfig", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_MNEMONIC: mockConfig.mnemonic,
         // NXTP_ADMIN_TOKEN: configMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chains),
-        NXTP_LOG_LEVEL: configMock.logLevel,
+        NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
+        NXTP_LOG_LEVEL: mockConfig.logLevel,
       });
 
-      expect(() => getEnvConfig(chainDataMock)).not.throw();
+      expect(() => getEnvConfig(mockChainData)).not.throw();
     });
   });
 
@@ -148,14 +151,14 @@ describe("Config", () => {
     it("should work", async () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_MNEMONIC: mockConfig.mnemonic,
         // NXTP_ADMIN_TOKEN: configMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chains),
-        NXTP_LOG_LEVEL: configMock.logLevel,
+        NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
+        NXTP_LOG_LEVEL: mockConfig.logLevel,
       });
 
-      const env = getEnvConfig(chainDataMock);
-      const config = await getConfig(chainDataMock);
+      const env = getEnvConfig(mockChainData);
+      const config = await getConfig(mockChainData);
       expect(config).to.be.deep.eq(env);
     });
   });

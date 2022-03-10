@@ -12,7 +12,7 @@ import {
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { getContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindServer, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
@@ -60,6 +60,8 @@ export const makeRouter = async () => {
       context.config.chains,
       context.adapters.wallet,
     );
+
+    context.adapters.contracts = getContractInterfaces();
 
     context.logger.info("Router config generated", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),

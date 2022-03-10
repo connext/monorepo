@@ -1,5 +1,5 @@
 import { utils, BigNumber, Wallet } from "ethers";
-import { createStubInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
@@ -53,11 +53,12 @@ export const mock = {
     redisUrl: "redis://localhost:6379",
     server: {
       port: 3000,
+      host: "localhost",
     },
     network: "testnet",
   }),
   adapter: {
-    cache: (): StoreManager => {
+    cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
       const transactions = createStubInstance(TransactionsCache);
       const auctions = createStubInstance(AuctionsCache);
@@ -68,13 +69,13 @@ export const mock = {
       transactions.getLatestNonce.resolves(0);
       return cache;
     },
-    subgraph: (): SubgraphReader => {
+    subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
       subgraph.getPreparedTransactions.resolves([]);
       subgraph.getTransactionsWithStatuses.resolves([]);
       return subgraph;
     },
-    chainreader: (): ChainReader => {
+    chainreader: (): SinonStubbedInstance<ChainReader> => {
       const chainreader = createStubInstance(ChainReader);
       chainreader.getBalance.resolves(utils.parseEther("1"));
 

@@ -1,12 +1,16 @@
 import { utils, BigNumber, Wallet } from "ethers";
-import { createStubInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
 
 import { NxtpRouterConfig } from "../src/config";
 import { AppContext } from "../src/context";
+import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain-types/TransactionManager";
+import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
+import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
+import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
 
 // export const MUTATED_AMOUNT = "100000000000000000000";
 // export const MUTATED_BUFFER = 123400;
@@ -21,6 +25,7 @@ export const mock = {
         subgraph: mock.adapter.subgraph(),
         cache: mock.adapter.cache(),
         txservice: mock.adapter.txservice(),
+        contracts: mock.adapter.contracts(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -89,7 +94,7 @@ export const mock = {
       },
     }),
   adapter: {
-    wallet: (): Wallet => {
+    wallet: (): SinonStubbedInstance<Wallet> => {
       const wallet = createStubInstance(Wallet);
       // need to do this differently bc the function doesnt exist on the interface
       (wallet as any).address = mock.address.router;
@@ -97,7 +102,7 @@ export const mock = {
       wallet.signMessage.resolves(mock.signature);
       return wallet;
     },
-    cache: (): StoreManager => {
+    cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
       const transactions = createStubInstance(TransactionsCache);
       const auctions = createStubInstance(AuctionsCache);
@@ -108,13 +113,13 @@ export const mock = {
       transactions.getLatestNonce.resolves(0);
       return cache;
     },
-    subgraph: (): SubgraphReader => {
+    subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
       subgraph.getPreparedTransactions.resolves([]);
       subgraph.getTransactionsWithStatuses.resolves([]);
       return subgraph;
     },
-    txservice: (): TransactionService => {
+    txservice: (): SinonStubbedInstance<TransactionService> => {
       const txservice = createStubInstance(TransactionService);
       txservice.getBalance.resolves(utils.parseEther("1"));
 
@@ -131,5 +136,31 @@ export const mock = {
       txservice.getTransactionReceipt.resolves(mockReceipt);
       return txservice;
     },
+    contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
+      const encodedDataMock = "0xabcde";
+
+      const transactionManager = createStubInstance(utils.Interface);
+      transactionManager.encodeFunctionData.returns(encodedDataMock);
+      transactionManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const priceOracle = createStubInstance(utils.Interface);
+      priceOracle.encodeFunctionData.returns(encodedDataMock);
+      priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const tokenRegistry = createStubInstance(utils.Interface);
+      tokenRegistry.encodeFunctionData.returns(encodedDataMock);
+      tokenRegistry.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const stableSwap = createStubInstance(utils.Interface);
+      stableSwap.encodeFunctionData.returns(encodedDataMock);
+      stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      return {
+        transactionManager: transactionManager as unknown as TransactionManagerInterface,
+        priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
+        tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
+        stableSwap: stableSwap as unknown as StableSwapInterface,
+      };
+    }
   },
 };

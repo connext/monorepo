@@ -60,19 +60,34 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+
 /**
- * Convenience method for initializing an Interface object for the Connext
- * Price Oracle contract ABI.
+ * Convenience methods for initializing Interface objects for the Connext
+ * contracts' ABIs.
  *
- * @returns An ethers Interface object initialized with the Connext Price
- * Oracle ABI.
+ * @returns An ethers Interface object initialized for the corresponding ABI.
  */
+
+export const getTransactionManagerInterface = () =>
+  new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+
 export const getPriceOracleInterface = () =>
   new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
-
-export const getTxManagerInterface = () =>
-  new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
 export const getTokenRegistryInterface = () => new Interface(TokenRegistryArtifact.abi) as TTokenRegistry["interface"];
 
 export const getStableSwapInterface = () => new Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
+
+export type ConnextContractInterfaces = {
+  transactionManager: TTransactionManager["interface"],
+  priceOracle: TConnextPriceOracle["interface"],
+  tokenRegistry: TTokenRegistry["interface"],
+  stableSwap: TStableSwap["interface"],
+};
+
+export const getContractInterfaces = (): ConnextContractInterfaces => ({
+  transactionManager: getTransactionManagerInterface(),
+  priceOracle: getPriceOracleInterface(),
+  tokenRegistry: getTokenRegistryInterface(),
+  stableSwap: getStableSwapInterface(),
+});
