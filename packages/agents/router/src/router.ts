@@ -87,11 +87,11 @@ export const makeRouter = async () => {
   }
 };
 
-export const setupCache = async (
-  context: AppContext,
-  requestContext: RequestContext,
-): Promise<StoreManager> => {
-  const { config: { redisUrl }, logger } = context;
+export const setupCache = async (context: AppContext, requestContext: RequestContext): Promise<StoreManager> => {
+  const {
+    config: { redisUrl },
+    logger,
+  } = context;
   const { fulfill } = getOperations();
 
   const methodContext = createMethodContext("setupCache");
@@ -103,7 +103,7 @@ export const setupCache = async (
   });
 
   // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-  cacheInstance.transactions.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
+  cacheInstance.consumers.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
     try {
       await fulfill(context, pendingTx);
