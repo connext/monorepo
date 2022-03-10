@@ -887,6 +887,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-utils@workspace:packages/utils"
   dependencies:
+    "@connext/nxtp-adapters-cache": "workspace:*"
+    "@connext/nxtp-adapters-subgraph": "workspace:*"
+    "@connext/nxtp-adapters-web3signer": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
     "@sinclair/typebox": ^0.18.1
     "@types/chai": ^4.3.0
     "@types/chai-as-promised": ^7.1.4

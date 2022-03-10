@@ -1,7 +1,5 @@
 import {
   mkAddress,
-  variantDataMock,
-  invariantDataMock,
   mkBytes32,
   chainDataToMap,
   Bid,
@@ -14,7 +12,6 @@ import { parseEther } from "ethers/lib/utils";
 import { NxtpRouterConfig } from "../src/config";
 
 export const routerAddrMock = mkAddress("0xb");
-export const routerContractAddressMock = mkAddress("0xccc");
 
 export const MUTATED_AMOUNT = "100000000000000000000";
 export const MUTATED_BUFFER = 123400;

@@ -21,6 +21,10 @@
     "src/**/*"
   ],
   "dependencies": {
+    "@connext/nxtp-adapters-cache": "workspace:*",
+    "@connext/nxtp-adapters-subgraph": "workspace:*",
+    "@connext/nxtp-adapters-web3signer": "workspace:*",
+    "@connext/nxtp-txservice": "workspace:*",
     "@sinclair/typebox": "^0.18.1",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "ajv": "^8.6.2",

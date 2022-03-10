@@ -1,7 +1,6 @@
-import { Logger, CrossChainTxStatus, mkBytes32, expect } from "@connext/nxtp-utils";
+import { Logger, CrossChainTxStatus, expect, mock } from "@connext/nxtp-utils";
 import { AuctionsCache, TransactionsCache } from "../src/index";
 import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
-import { fakeCrossChainTxData, fakeTxId } from "./helpers";
 
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
@@ -9,7 +8,10 @@ let subscriptions: Map<string, SubscriptionCallback>;
 let transactions: TransactionsCache;
 let auctions: AuctionsCache;
 
-const secondFakeTxData = { ...fakeCrossChainTxData, originDomain: "4", transactionId: mkBytes32() };
+const fakeTxs = [
+  mock.entity.crossChainTx("3000", "4000"),
+  mock.entity.crossChainTx("4", "4000")
+]
 
 describe("Redis Mocks", () => {
   before(async () => {

@@ -41,7 +41,7 @@ export type CrossChainTx = {
 
   // TransactionFulfilled
   fulfillTransactionHash: string;
-  fulfillTimestamp: string;
+  fulfillTimestamp: number;
   fulfillGasPrice: string;
   fulfillGasLimit: string;
   fulfillBlockNumber: number;
@@ -49,7 +49,7 @@ export type CrossChainTx = {
   // Reconciled
   externalCallHash: string;
   reconciledTransactionHash: string;
-  reconciledTimestamp: string;
+  reconciledTimestamp: number;
   reconciledGasPrice: string;
   reconciledGasLimit: string;
   reconciledBlockNumber: number;
