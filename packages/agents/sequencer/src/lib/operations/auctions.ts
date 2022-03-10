@@ -7,11 +7,13 @@ import {
   createLoggingContext,
   formatUrl,
   gelatoRelayEndpoint,
+  BidStatus,
+  StoredBid,
 } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../context";
 
-export const postBid = async (
+export const fulfillBid = async (
   context: AppContext,
   signedBid: SignedBid,
   encodedData: string,
@@ -23,8 +25,8 @@ export const postBid = async (
     adapters: { chainreader },
     config,
   } = context;
-  const { requestContext, methodContext } = createLoggingContext(postBid.name, _requestContext);
-  logger.info(`Method start: ${postBid.name}`, requestContext, methodContext, { signedBid });
+  const { requestContext, methodContext } = createLoggingContext(fulfillBid.name, _requestContext);
+  logger.info(`Method start: ${fulfillBid.name}`, requestContext, methodContext, { signedBid });
 
   const { bid } = signedBid;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
@@ -67,5 +69,20 @@ export const postBid = async (
   logger.info("Sent to Gelato network", requestContext, methodContext, {
     result,
     response: response.data,
+  });
+};
+
+export const selectBestBid = async (context: AppContext): Promise<any> => {
+  const {
+    logger,
+    adapters: { cache },
+  } = context;
+  const { requestContext, methodContext } = createLoggingContext(selectBestBid.name);
+  logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, {});
+
+  const records = await cache.auctions.getBids(BidStatus.Pending);
+
+  records.map((record: StoredBid) => {
+    // TODO: For each record select bestBid and call postBid();
   });
 };
