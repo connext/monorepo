@@ -37,6 +37,9 @@
     "src/**/*"
   ],
   "dependencies": {
+    "@connext/nxtp-adapters-cache": "workspace:*",
+    "@connext/nxtp-adapters-subgraph": "workspace:*",
+    "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",

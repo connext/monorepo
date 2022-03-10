@@ -4,7 +4,6 @@ import { createStubInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { TransactionService } from "@connext/nxtp-txservice";
-
 import {
   mkAddress,
   mkBytes32,
@@ -13,7 +12,7 @@ import {
   CrossChainTx,
   CrossChainTxStatus,
   getRandomBytes32,
-} from ".";
+} from "@connext/nxtp-utils";
 
 export const mock = {
   chain: {

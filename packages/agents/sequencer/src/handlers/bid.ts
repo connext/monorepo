@@ -1,9 +1,8 @@
-import { utils as ethersUtils } from "ethers";
+import axios from "axios";
 import {
   gelatoSend,
   isChainSupportedByGelato,
   SignedBid,
-  jsonifyError,
   RequestContext,
   createLoggingContext,
   formatUrl,
@@ -11,8 +10,6 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getTxManagerInerface } from "../lib/helpers";
-import axios from "axios";
-
 import { getContext } from "../sequencer";
 
 export const handleBid = async (signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
