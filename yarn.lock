@@ -891,7 +891,6 @@ __metadata:
     "@types/chai": ^4.3.0
     "@types/chai-as-promised": ^7.1.4
     "@types/chai-subset": ^1.3.3
-    "@types/eth-sig-util": ^2.1.1
     "@types/mocha": ^9.1.0
     "@types/pino": ^6.3.11
     "@types/secp256k1": ^4
@@ -906,7 +905,6 @@ __metadata:
     chai-subset: ^1.6.0
     eccrypto-js: ^5.4.0
     eslint: ^7.32.0
-    eth-sig-util: ^2.5.3
     ethers: ^5.5.4
     graphql-request: ^3.5.0
     hyperid: ^2.3.1
@@ -2119,8 +2117,8 @@ __metadata:
   linkType: hard
 
 "@graphql-tools/url-loader@npm:^7.0.11, @graphql-tools/url-loader@npm:^7.4.2, @graphql-tools/url-loader@npm:^7.7.2":
-  version: 7.8.0
-  resolution: "@graphql-tools/url-loader@npm:7.8.0"
+  version: 7.9.0
+  resolution: "@graphql-tools/url-loader@npm:7.9.0"
   dependencies:
     "@graphql-tools/delegate": ^8.5.1
     "@graphql-tools/utils": ^8.6.2
@@ -2143,7 +2141,7 @@ __metadata:
     ws: ^8.3.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 9282143e333cb4736d28163614d221e4e0d5b45a6cee92fc38c0926c94794172b4c3560955e0721a769beef8c7fe806544d233a4ad038cced9d9bedb1bef14c2
+  checksum: b27f3136d546583086a86c8e540348d5933ffae61547f552a930369d05898306d203d0badccb5f46ef07befc73dc9942e4fe2b4f148431c05e8f36a62296a849
   languageName: node
   linkType: hard
 
@@ -2838,15 +2836,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: fe81351470f2d3165e8b12ce33542eef89ea893e36dd62e8f7d72566dfb7e448376ae962f9f3ea888547ce8b55a40020ca0e01d637fab5d99567673084542641
-  languageName: node
-  linkType: hard
-
-"@types/eth-sig-util@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "@types/eth-sig-util@npm:2.1.1"
-  dependencies:
-    "@types/node": "*"
-  checksum: 19d9ee0927030145fc34e3da8742e820e6cc1bc2147695105256f87aa05e1225bf3232f29ad515a0917f26bd9f5670ba868586a7a2a665bf88ffd34777603e6e
   languageName: node
   linkType: hard
 
@@ -7069,9 +7058,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.76":
-  version: 1.4.80
-  resolution: "electron-to-chromium@npm:1.4.80"
-  checksum: 3dc3d1504b991243759c633b42b0f0a88860d91c23af0b3b5d510f277d2b1fb73de0b25c502f00717f4c67386a3d599f596a6eb9ecdc95414ff8b559636b4f64
+  version: 1.4.81
+  resolution: "electron-to-chromium@npm:1.4.81"
+  checksum: 25284319767536f57b72dc3929e5cea13603dc2ff8e4e2adbb057fa6484b81ca6b8437066cc9f1272af369dd29d550b492bd1c08bb7fc546c25ed3f4bfedce5d
   languageName: node
   linkType: hard
 
@@ -7767,18 +7756,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eth-sig-util@npm:^2.5.3":
-  version: 2.5.4
-  resolution: "eth-sig-util@npm:2.5.4"
-  dependencies:
-    ethereumjs-abi: 0.6.8
-    ethereumjs-util: ^5.1.1
-    tweetnacl: ^1.0.3
-    tweetnacl-util: ^0.15.0
-  checksum: 727ff2ec7859d9609fa3b43d1652eb40740f075e0196cacd67d5bcf50f8fb17fdbf6f384ad457785684d86a0e8155375aece42ad8393487eb8f665adb640b340
-  languageName: node
-  linkType: hard
-
 "eth-tx-summary@npm:^3.1.2":
   version: 3.2.4
   resolution: "eth-tx-summary@npm:3.2.4"
@@ -7876,7 +7853,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -9250,10 +9227,9 @@ __metadata:
   linkType: hard
 
 "gauge@npm:^4.0.0":
-  version: 4.0.2
-  resolution: "gauge@npm:4.0.2"
+  version: 4.0.3
+  resolution: "gauge@npm:4.0.3"
   dependencies:
-    ansi-regex: ^5.0.1
     aproba: ^1.0.3 || ^2.0.0
     color-support: ^1.1.3
     console-control-strings: ^1.1.0
@@ -9262,7 +9238,7 @@ __metadata:
     string-width: ^4.2.3
     strip-ansi: ^6.0.1
     wide-align: ^1.1.5
-  checksum: 65077b87a7138bf465c7ea9541a81cdaeba42224f8650427529d47dda99c0a9273b596a8ee54a62af2a04a31682fa49de9b35ef7dd52ed8da5f0436d288ead23
+  checksum: baf982238a5270def90a4895f2e083b5cf8e6f7df20b53b24a932845aec363a6cf411f88b33dcb016a43c9334fdfccd956e4514ee875d70af016bf6fead3d3ae
   languageName: node
   linkType: hard
 
@@ -9663,15 +9639,15 @@ __metadata:
   linkType: hard
 
 "graphql-request@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "graphql-request@npm:4.0.0"
+  version: 4.1.0
+  resolution: "graphql-request@npm:4.1.0"
   dependencies:
     cross-fetch: ^3.0.6
     extract-files: ^9.0.0
     form-data: ^3.0.0
   peerDependencies:
     graphql: 14 - 16
-  checksum: 0d16c7f06360679c022faaa19554c2693e200263beae0dec920b0668f6c48b0d08de6e1155a50a050283a58a878b29b04db129a2d932a645bfadbe8d55530243
+  checksum: 347f3bb943d8f734f152765cbe507a287333d0f477b6912f4745addd4d1160cd171db3d629c7bac5c8ec627cd989c7bdf0407b32e3545808397fc791e65bfbcf
   languageName: node
   linkType: hard
 
@@ -12821,9 +12797,9 @@ __metadata:
   linkType: hard
 
 "lru-cache@npm:^7.4.1":
-  version: 7.4.2
-  resolution: "lru-cache@npm:7.4.2"
-  checksum: 389b3b13b3a0406087b5ff3a913358161aa0b17e55e5a2626c343fa701026ce176483043ed6062ea188edbcd9ffab47a136a0f6e6d9b42b4236c8c49523a6ac5
+  version: 7.4.4
+  resolution: "lru-cache@npm:7.4.4"
+  checksum: c042ac73b48c1eddd22cc061eb41c4738c2eb71818ba503f625df4b3199d789281d7a2da18a017095a1304b5808f9d91fff7a77d69e3fefecef2b460460ed6d6
   languageName: node
   linkType: hard
 
