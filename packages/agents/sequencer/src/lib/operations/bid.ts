@@ -1,13 +1,4 @@
-import axios from "axios";
-import {
-  gelatoSend,
-  isChainSupportedByGelato,
-  Bid,
-  RequestContext,
-  createLoggingContext,
-  formatUrl,
-  gelatoRelayEndpoint,
-} from "@connext/nxtp-utils";
+import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
 import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
 import { sendToRelayer } from "./relayer";
@@ -54,27 +45,25 @@ export const handleBid = async (context: AppContext, bid: Bid, _requestContext: 
       transactionId: bid.transactionId,
     });
 
-    // selectBestBid(context, bid.transactionId, requestContext);
+    await selectBestBid(context, bid.transactionId, requestContext);
   }
-
-  await sendToRelayer(context, bid, requestContext);
 };
 
-// export const selectBestBid = async (context: AppContext, transactionId: string, _requestContext: RequestContext) => {
-//   const {
-//     logger,
-//     adapters: { chainreader, cache },
-//   } = context;
+export const selectBestBid = async (context: AppContext, transactionId: string, _requestContext: RequestContext) => {
+  const {
+    logger,
+    adapters: { chainreader, cache },
+  } = context;
 
-//   const { requestContext, methodContext } = createLoggingContext(selectBestBid.name, _requestContext);
-//   logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, { transactionId });
+  const { requestContext, methodContext } = createLoggingContext(selectBestBid.name, _requestContext);
+  logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, { transactionId });
 
-//   // this is the first bid
-//   setTimeout(async () => {
-//     const records = await cache.auctions.getBidsByTransactionId(transactionId);
-//     const random = Math.floor(Math.random() * records.length);
-//     const selectedBid = records[random];
+  // this is the first bid
+  setTimeout(async () => {
+    const records = await cache.auctions.getBidsByTransactionId(transactionId);
+    const random = Math.floor(Math.random() * records.length);
+    const selectedBid = records[random];
 
-//     await sendToRelayer(context, selectedBid, requestContext);
-//   });
-// };
+    await sendToRelayer(context, selectedBid.payload, requestContext);
+  });
+};

@@ -5,8 +5,6 @@ import {
   Bid,
   RequestContext,
   createLoggingContext,
-  formatUrl,
-  gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
 import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
@@ -45,12 +43,13 @@ export const sendToRelayer = async (context: AppContext, bid: Bid, _requestConte
     bid.data.local,
     bid.data.feePercentage,
   );
-  const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
+
+  // const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
   // TODO: check response, if it didn't work, send the next!
 
   logger.info("Sent to Gelato network", requestContext, methodContext, {
     result,
     taskId: result.taskId,
-    response: response.data,
+    // response: response.data,
   });
 };
