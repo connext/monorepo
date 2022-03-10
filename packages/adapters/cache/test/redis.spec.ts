@@ -35,13 +35,13 @@ describe("Redis Mocks", () => {
   describe("TransactionsCache", () => {
     describe("#storeStatus", () => {
       it("happy: should store status", async () => {
-        const res = await transactions.storeStatus(fakeTxId, CrossChainTxStatus.Prepared);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
         // TODO:
         expect(res).to.not.be(undefined);
       });
 
       it("should store a different domain's status", async () => {
-        const res = await transactions.storeStatus(secondFakeTxData.transactionId, CrossChainTxStatus.Prepared);
+        const res = await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.Prepared);
         // TODO:
         expect(res).to.not.be(undefined);
       });
@@ -49,13 +49,13 @@ describe("Redis Mocks", () => {
 
     describe("#getStatus", () => {
       it("happy: should get status of transaction by ID", async () => {
-        const status = await transactions.getStatus(fakeCrossChainTxData.transactionId);
+        const status = await transactions.getStatus(fakeTxs[0].transactionId);
         // TODO:
         expect(status).to.not.be(undefined);
       });
 
       it("should retrieve different domain's transaction status", async () => {
-        const status = await transactions.getStatus(secondFakeTxData.transactionId);
+        const status = await transactions.getStatus(fakeTxs[1].transactionId);
         // TODO:
         expect(status).to.not.be(undefined);
       });
@@ -64,13 +64,13 @@ describe("Redis Mocks", () => {
     describe("#storeTxData", () => {
       it("happy: should store transaction data", async () => {
         //add fake txid's status, should fire off event.
-        const res = await transactions.storeTxData([fakeCrossChainTxData]);
+        const res = await transactions.storeTxData([fakeTxs[0]]);
         // TODO:
         expect(res).to.not.be(undefined);
       });
 
       it("should store different transaction's data", async () => {
-        const res = await transactions.storeTxData([secondFakeTxData]);
+        const res = await transactions.storeTxData([fakeTxs[1]]);
         // TODO:
         expect(res).to.not.be(undefined);
       });
@@ -78,15 +78,15 @@ describe("Redis Mocks", () => {
 
     describe("#getLatestNonce", () => {
       it("should get domain's latest nonce according to the cache", async () => {
-        await transactions.storeTxData([fakeCrossChainTxData]);
+        await transactions.storeTxData([fakeTxs[0]]);
         const latestNonce = await transactions.getLatestNonce("4");
-        expect(latestNonce).to.be.equal(fakeCrossChainTxData.nonce);
+        expect(latestNonce).to.be.equal(fakeTxs[0].nonce);
       });
 
       it("should get different domain's nonce", async () => {
-        await transactions.storeTxData([secondFakeTxData]);
+        await transactions.storeTxData([fakeTxs[1]]);
         const latestNonce = await transactions.getLatestNonce("3000");
-        expect(latestNonce).to.be.equal(secondFakeTxData.nonce);
+        expect(latestNonce).to.be.equal(fakeTxs[1].nonce);
       });
     });
   });
