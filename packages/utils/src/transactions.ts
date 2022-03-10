@@ -108,7 +108,7 @@ export type SignedBid = {
 };
 
 export type StoredBid = {
-  signedBid: SignedBid;
+  payload: Bid;
   status: BidStatus;
   lastUpdate: number;
 };

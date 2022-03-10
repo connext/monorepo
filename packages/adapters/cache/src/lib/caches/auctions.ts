@@ -8,7 +8,7 @@ export class AuctionsCache extends Cache {
    * Stores bid to redis
    *
    * @param bid The signed bid we're going to store
-   * @returns success - true, failure - false
+   * @returns Returns the number of bids for a txId
    */
   public async storeBid(bid: Bid): Promise<number> {
     const txid = bid.transactionId;
@@ -17,7 +17,7 @@ export class AuctionsCache extends Cache {
 
     const stored = await this.data.hset(
       `${txid}:bid:${router}`,
-      "signedBid",
+      "payload",
       JSON.stringify(bid),
       "status",
       BidStatus.Pending,
@@ -25,12 +25,11 @@ export class AuctionsCache extends Cache {
       curTimeInSecs,
     );
 
+    const count = (await this.data.keys(`${txid}:bid:*`)).length;
+
     await this.publish(StoreChannel.NewBid, bid);
 
-    if (stored !== 1) {
-      throw new Error("Failed to store bid");
-    };
-    // TODO: return number of bids for a txId
+    return count;
   }
 
   /**
@@ -40,14 +39,14 @@ export class AuctionsCache extends Cache {
    * @param bidStatus The status of bid
    * @returns success - true, failure - false
    */
-  public async updateBid(bid: SignedBid, bidStatus: BidStatus): Promise<boolean> {
-    const txid = bid.bid.transactionId;
-    const router = bid.bid.data.router;
+  public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<boolean> {
+    const txid = bid.transactionId;
+    const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
     const updated = await this.data.hset(
       `${txid}:bid:${router}`,
-      "signedBid",
+      "payload",
       JSON.stringify(bid),
       "status",
       bidStatus,
@@ -86,7 +85,7 @@ export class AuctionsCache extends Cache {
           const lastUpdate = Number(record["lastUpdate"]);
 
           storedBids.push({
-            signedBid: JSON.parse(record["signedBid"]) as SignedBid,
+            signedBid: JSON.parse(record["payload"]) as Bid,
             status: bidStatus as BidStatus,
             lastUpdate,
           });
