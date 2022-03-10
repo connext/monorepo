@@ -1,7 +1,7 @@
 import { SignedBid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
+import { getTxManagerInterface } from "@connext/nxtp-contracts/src";
 
 import { AppContext } from "../../context";
-import { getTxManagerInterface } from "../helpers";
 
 export const handleBid = async (context: AppContext, signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
   const {

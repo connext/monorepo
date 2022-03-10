@@ -1,3 +1,4 @@
+import { BigNumber, constants } from "ethers";
 import {
   CrossChainTx,
   RequestContext,
@@ -7,8 +8,7 @@ import {
   getReconciledHash,
   ChainData,
 } from "@connext/nxtp-utils";
-import { getTxManagerInterface, getTokenRegistryInterface } from ".";
-import { BigNumber, constants } from "ethers";
+import { getTxManagerInterface, getTokenRegistryInterface } from "@connext/nxtp-contracts/src";
 
 import { SanitationCheckFailed } from "../errors";
 import { AppContext } from "../../context";

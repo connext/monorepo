@@ -24,7 +24,8 @@
   "main": "dist/index.js",
   "types": "typechain/index.ts",
   "files": [
-    "src",
+    "dist/**/*",
+    "src/**/*",
     "typechain-types",
     "artifacts",
     "deployments.json",

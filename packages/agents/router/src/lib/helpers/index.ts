@@ -1,2 +1,2 @@
 export * from "./fulfill";
-export * from "./interface";
+export * from "./shared";

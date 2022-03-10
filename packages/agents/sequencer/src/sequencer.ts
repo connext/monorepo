@@ -1,5 +1,3 @@
-import { fastify } from "fastify";
-import pino from "pino";
 import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
@@ -8,7 +6,7 @@ import { ChainReader } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./context";
-import { setupHandlers } from "./handlers";
+import { bindServer } from "./bindings/server";
 
 const context: AppContext = {} as any;
 
@@ -39,9 +37,7 @@ export const makeSequencer = async () => {
     );
 
     // Create server, set up routes, and start listening.
-    const server = fastify({ logger: pino({ level: context.config.logLevel }) });
-    setupHandlers(server);
-    await server.listen(context.config.server.port);
+    await bindServer(context);
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
       port: context.config.server.port,
