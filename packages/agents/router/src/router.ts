@@ -133,7 +133,7 @@ export const setupSubgraphReader = async (
 ): Promise<SubgraphReader> => {
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("subgrah reader setup in progress...", requestContext, methodContext, {});
+  logger.info("subgraph reader setup in progress...", requestContext, methodContext, {});
   const subgraphReader = await SubgraphReader.create({
     // Separate out relevant subgraph chain config.
     chains: Object.entries(routerConfig.chains).reduce(
@@ -145,7 +145,7 @@ export const setupSubgraphReader = async (
     ),
   });
 
-  logger.info("subgrah reader setup is done!", requestContext, methodContext, {});
+  logger.info("subgraph reader setup is done!", requestContext, methodContext, {});
 
   return subgraphReader;
 };

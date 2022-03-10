@@ -48,10 +48,10 @@ export const makeSequencer = async () => {
     // Create server, set up routes, and start listening.
     const server = fastify({ logger: pino({ level: context.config.logLevel }) });
     setupHandlers(server);
-    await server.listen(context.config.server.listenPort);
+    await server.listen(context.config.server.port);
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
-      listenPort: context.config.server.listenPort,
+      port: context.config.server.port,
     });
   } catch (error: any) {
     console.error("Error starting sequencer :'(", error);
@@ -87,7 +87,7 @@ export const setupSubgraphReader = async (
 ): Promise<SubgraphReader> => {
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("subgrah reader setup in progress...", requestContext, methodContext, {});
+  logger.info("subgraph reader setup in progress...", requestContext, methodContext, {});
   const subgraphReader = await SubgraphReader.create({
     // Separate out relevant subgraph chain config.
     chains: Object.entries(sequencerConfig.chains).reduce(
@@ -99,7 +99,7 @@ export const setupSubgraphReader = async (
     ),
   });
 
-  logger.info("subgrah reader setup is done!", requestContext, methodContext, {});
+  logger.info("subgraph reader setup is done!", requestContext, methodContext, {});
 
   return subgraphReader;
 };

@@ -1,5 +1,17 @@
 import { providers, constants, BigNumber, utils } from "ethers";
-import { mkAddress, mkBytes32, mkSig, chainDataToMap, CrossChainTx, CrossChainTxStatus, getRandomBytes32 } from ".";
+import {
+  mkAddress,
+  mkBytes32,
+  mkSig,
+  chainDataToMap,
+  CrossChainTx,
+  CrossChainTxStatus,
+  getRandomBytes32,
+  Bid,
+  CallParams,
+  FulfillArgs,
+  SignedBid,
+} from ".";
 
 /**
  * General mock toolset used for testing globally.
@@ -26,10 +38,34 @@ export const mock = {
     ]),
   signature: mkSig("0xabcdef1c"),
   address: {
-    router:  mkAddress("0xc0ffeebabe"),
-    sequencer: mkAddress("0xdad"),
+    router: mkAddress("0xc0ffeebabe"),
+    relayer: mkAddress("0xdad"),
   },
   entity: {
+    callParams: (): CallParams => ({
+      recipient: mkAddress("0xrecipient"),
+      callTo: mkAddress("0xcallTo"),
+      callData: "0x",
+      originDomain: "1337",
+      destinationDomain: "1338",
+    }),
+    fulfillArgs: (): FulfillArgs => ({
+      params: mock.entity.callParams(),
+      local: mkAddress("0xlocal"),
+      router: mkAddress("0xrouter"),
+      feePercentage: "1",
+      nonce: "0",
+      amount: utils.parseEther("1").toString(),
+      relayerSignature: "0xsig",
+    }),
+    bid: (): Bid => ({
+      transactionId: "0xtxid",
+      data: mock.entity.fulfillArgs(),
+    }),
+    signedBid: (): SignedBid => ({
+      bid: mock.entity.bid(),
+      signature: "0xsig",
+    }),
     crossChainTx: (
       origin: string,
       destination: string,
@@ -106,7 +142,7 @@ export const mock = {
           status === CrossChainTxStatus.Fulfilled
           ? {
               // Fulfill
-              fulfillCaller: mock.address.sequencer,
+              fulfillCaller: mock.address.relayer,
               fulfillTransactingAmount: "1000",
               fulfillLocalAmount: "1000",
               fulfillTransactingAsset: asset,
@@ -130,7 +166,7 @@ export const mock = {
           : // Finally, if status is reconciled, we should have all fields defined.
             {
               // Fulfill
-              fulfillCaller: mock.address.sequencer,
+              fulfillCaller: mock.address.relayer,
               fulfillTransactingAmount: "1000",
               fulfillLocalAmount: "1000",
               fulfillTransactingAsset: asset,

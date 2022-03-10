@@ -64,7 +64,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
-      listenPort:
+      port:
         process.env.NXTP_SERVER_PORT || configJson.server?.listenPort || configFile.server?.listenPort || 8081,
     },
   };

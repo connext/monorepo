@@ -3,13 +3,18 @@ import { createStubInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
 
 import { NxtpRouterConfig } from "../src/config";
+import { AppContext } from "../src/context";
+
+// export const MUTATED_AMOUNT = "100000000000000000000";
+// export const MUTATED_BUFFER = 123400;
+// export const BID_EXPIRY = 123401;
 
 export const mock = {
   ..._mock,
-  context: () => {
+  context: (): AppContext => {
     return {
       adapters: {
         wallet: mock.adapter.wallet(),
@@ -23,7 +28,7 @@ export const mock = {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
     };
   },
-  config: () =>
+  config: (): NxtpRouterConfig =>
     ({
       chains: {
         [mock.chain.A]: {
@@ -82,7 +87,7 @@ export const mock = {
         cleanup: false,
         priceCaching: false,
       },
-    } as NxtpRouterConfig),
+    }),
   adapter: {
     wallet: (): Wallet => {
       const wallet = createStubInstance(Wallet);
