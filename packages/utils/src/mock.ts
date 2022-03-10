@@ -1,19 +1,9 @@
-import { providers, constants, BigNumber, utils, Wallet } from "ethers";
-import { createStubInstance } from "sinon";
+import { providers, constants, BigNumber, utils } from "ethers";
+import { mkAddress, mkBytes32, mkSig, chainDataToMap, CrossChainTx, CrossChainTxStatus, getRandomBytes32 } from ".";
 
-import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { TransactionService } from "@connext/nxtp-txservice";
-import {
-  mkAddress,
-  mkBytes32,
-  mkSig,
-  chainDataToMap,
-  CrossChainTx,
-  CrossChainTxStatus,
-  getRandomBytes32,
-} from "@connext/nxtp-utils";
-
+/**
+ * General mock toolset used for testing globally.
+ */
 export const mock = {
   chain: {
     A: "1337",
@@ -35,29 +25,27 @@ export const mock = {
       },
     ]),
   signature: mkSig("0xabcdef1c"),
-  router: {
-    address: mkAddress("0xc0ffeebabe"),
-  },
-  sequencer: {
-    address: mkAddress("0xdad")
+  address: {
+    router:  mkAddress("0xc0ffeebabe"),
+    sequencer: mkAddress("0xdad"),
   },
   entity: {
     crossChainTx: (
       origin: string,
       destination: string,
       alt: {
-        status: CrossChainTxStatus,
-        asset: string,
-        transactionId: string,
-        nonce: number,
-        user: string,
+        status: CrossChainTxStatus;
+        asset: string;
+        transactionId: string;
+        nonce: number;
+        user: string;
       } = {
         status: CrossChainTxStatus.Prepared,
         asset: mkAddress("0x2faced"),
         transactionId: getRandomBytes32(),
         nonce: 1234,
         user: mkAddress("0xfaded"),
-      }
+      },
     ): CrossChainTx => {
       const { status, asset, transactionId, nonce, user } = alt;
       return Object.assign(
@@ -71,7 +59,7 @@ export const mock = {
           nonce,
           transactionId,
           recipient: user,
-          router: mock.router.address,
+          router: mock.address.router,
 
           // Prepared
           prepareCaller: user,
@@ -118,7 +106,7 @@ export const mock = {
           status === CrossChainTxStatus.Fulfilled
           ? {
               // Fulfill
-              fulfillCaller: mock.sequencer.address,
+              fulfillCaller: mock.address.sequencer,
               fulfillTransactingAmount: "1000",
               fulfillLocalAmount: "1000",
               fulfillTransactingAsset: asset,
@@ -142,7 +130,7 @@ export const mock = {
           : // Finally, if status is reconciled, we should have all fields defined.
             {
               // Fulfill
-              fulfillCaller: mock.sequencer.address,
+              fulfillCaller: mock.address.sequencer,
               fulfillTransactingAmount: "1000",
               fulfillLocalAmount: "1000",
               fulfillTransactingAsset: asset,
@@ -184,50 +172,6 @@ export const mock = {
         logsBloom: "",
         transactionIndex: 1,
       } as unknown as providers.TransactionReceipt),
-  },
-  adapter: {
-    wallet: (): Wallet => {
-      const wallet = createStubInstance(Wallet);
-      // need to do this differently bc the function doesnt exist on the interface
-      (wallet as any).address = mock.router.address;
-      wallet.getAddress.resolves(mock.router.address);
-      wallet.signMessage.resolves(mock.signature);
-      return wallet;
-    },
-    cache: (): StoreManager => {
-      const cache = createStubInstance(StoreManager);
-      const transactions = createStubInstance(TransactionsCache);
-      const auctions = createStubInstance(AuctionsCache);
-      // NOTE: if this override doesn't work, we should resort to just making a mock object with
-      // these caches as properties.
-      (cache as any).transactions = transactions;
-      (cache as any).auctions = auctions;
-      transactions.getLatestNonce.resolves(0);
-      return cache;
-    },
-    subgraph: (): SubgraphReader => {
-      const subgraph = createStubInstance(SubgraphReader);
-      subgraph.getPreparedTransactions.resolves([]);
-      subgraph.getTransactionsWithStatuses.resolves([]);
-      return subgraph;
-    },
-    txservice: (): TransactionService => {
-      const txservice = createStubInstance(TransactionService);
-      txservice.getBalance.resolves(utils.parseEther("1"));
-
-      txservice.getDecimalsForAsset.resolves(18);
-      txservice.getBlockTime.resolves(Math.floor(Date.now() / 1000));
-      txservice.calculateGasFee.resolves(BigNumber.from(100));
-      txservice.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
-      txservice.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
-      txservice.getTokenPrice.resolves(BigNumber.from(1));
-      txservice.getGasEstimate.resolves(BigNumber.from(24001));
-
-      const mockReceipt = mock.ethers.receipt();
-      txservice.sendTx.resolves(mockReceipt);
-      txservice.getTransactionReceipt.resolves(mockReceipt);
-      return txservice;
-    },
   },
 };
 
