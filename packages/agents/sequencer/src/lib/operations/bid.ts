@@ -52,32 +52,34 @@ export const handleBid = async (
     gas: gas.toString(),
   });
 
-  const numBids = await cache.auctions.storeBid(signedBid);
-  if (numBids === 1) {
-    logger.info("First bid for transaction, waiting before sending", requestContext, methodContext, {
-      numBids,
-      transactionId: bid.transactionId,
-    });
+  // const numBids = await cache.auctions.storeBid(signedBid);
+  // if (numBids === 1) {
+  //   logger.info("First bid for transaction, waiting before sending", requestContext, methodContext, {
+  //     numBids,
+  //     transactionId: bid.transactionId,
+  //   });
 
-    selectBestBid(context, bid.transactionId, requestContext);
-  }
+  //   selectBestBid(context, bid.transactionId, requestContext);
+  // }
+
+  await sendToRelayer(context, signedBid, requestContext);
 };
 
-export const selectBestBid = async (context: AppContext, transactionId: string, _requestContext: RequestContext) => {
-  const {
-    logger,
-    adapters: { chainreader, cache },
-  } = context;
+// export const selectBestBid = async (context: AppContext, transactionId: string, _requestContext: RequestContext) => {
+//   const {
+//     logger,
+//     adapters: { chainreader, cache },
+//   } = context;
 
-  const { requestContext, methodContext } = createLoggingContext(selectBestBid.name, _requestContext);
-  logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, { transactionId });
+//   const { requestContext, methodContext } = createLoggingContext(selectBestBid.name, _requestContext);
+//   logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, { transactionId });
 
-  // this is the first bid
-  setTimeout(async () => {
-    const records = await cache.auctions.getBidsByTransactionId(transactionId);
-    const random = Math.floor(Math.random() * records.length);
-    const selectedBid = records[random];
+//   // this is the first bid
+//   setTimeout(async () => {
+//     const records = await cache.auctions.getBidsByTransactionId(transactionId);
+//     const random = Math.floor(Math.random() * records.length);
+//     const selectedBid = records[random];
 
-    await sendToRelayer(context, selectedBid, requestContext);
-  });
-};
+//     await sendToRelayer(context, selectedBid, requestContext);
+//   });
+// };
