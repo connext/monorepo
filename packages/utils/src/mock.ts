@@ -37,10 +37,10 @@ export const mock = {
     ]),
   signature: mkSig("0xabcdef1c"),
   router: {
-    address: mkAddress("0xb"),
+    address: mkAddress("0xc0ffeebabe"),
   },
   sequencer: {
-    address: mkAddress("0xfeedface")
+    address: mkAddress("0xdad")
   },
   entity: {
     crossChainTx: (
@@ -51,15 +51,16 @@ export const mock = {
         asset: string,
         transactionId: string,
         nonce: number,
+        user: string,
       } = {
         status: CrossChainTxStatus.Prepared,
-        asset: mkAddress("0x321321"),
+        asset: mkAddress("0x2faced"),
         transactionId: getRandomBytes32(),
         nonce: 1234,
+        user: mkAddress("0xfaded"),
       }
     ): CrossChainTx => {
-      const user = mkAddress("0xcbacba");
-      const { status, asset, transactionId, nonce } = alt;
+      const { status, asset, transactionId, nonce, user } = alt;
       return Object.assign(
         {
           // Meta
