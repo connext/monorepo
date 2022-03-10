@@ -14,18 +14,11 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { bindFastify, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
+import { bindServer, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
 import { getOperations } from "./lib/operations";
 
 const context: AppContext = {} as any;
-
-export const getContext = (): AppContext => {
-  if (!context || Object.keys(context).length === 0) {
-    throw new Error("Context not created");
-  }
-  return context;
-};
 
 export const makeRouter = async () => {
   const requestContext = createRequestContext("makeRouter");
@@ -57,7 +50,7 @@ export const makeRouter = async () => {
       config: { ...context.config, mnemonic: "*****" },
     });
 
-    context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
+    context.adapters.cache = await setupCache(context, requestContext);
 
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
@@ -83,7 +76,7 @@ export const makeRouter = async () => {
     } else {
       logger.warn("Running router without price caching.");
     }
-    await bindFastify(context);
+    await bindServer(context);
     await bindMetrics(context);
     await bindSubgraph(context);
 
@@ -95,10 +88,10 @@ export const makeRouter = async () => {
 };
 
 export const setupCache = async (
-  redisUrl: string,
-  logger: Logger,
+  context: AppContext,
   requestContext: RequestContext,
 ): Promise<StoreManager> => {
+  const { config: { redisUrl }, logger } = context;
   const { fulfill } = getOperations();
 
   const methodContext = createMethodContext("setupCache");
@@ -113,7 +106,7 @@ export const setupCache = async (
   cacheInstance.transactions.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
     try {
-      await fulfill(pendingTx);
+      await fulfill(context, pendingTx);
     } catch (err: any) {
       logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }

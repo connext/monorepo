@@ -9,9 +9,10 @@ import {
   gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
 
-import { getContext } from "../../sequencer";
+import { AppContext } from "../../context";
 
 export const postBid = async (
+  context: AppContext,
   signedBid: SignedBid,
   encodedData: string,
   _requestContext: RequestContext,
@@ -21,7 +22,7 @@ export const postBid = async (
     chainData,
     adapters: { chainreader },
     config,
-  } = getContext();
+  } = context;
   const { requestContext, methodContext } = createLoggingContext(postBid.name, _requestContext);
   logger.info(`Method start: ${postBid.name}`, requestContext, methodContext, { signedBid });
 

@@ -12,13 +12,6 @@ import { setupHandlers } from "./handlers";
 
 const context: AppContext = {} as any;
 
-export const getContext = (): AppContext => {
-  if (!context || Object.keys(context).length === 0) {
-    throw new Error("Context not created");
-  }
-  return context;
-};
-
 export const makeSequencer = async () => {
   const requestContext = createRequestContext("makeSequencer");
   const methodContext = createMethodContext(makeSequencer.name);

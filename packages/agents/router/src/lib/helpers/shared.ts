@@ -7,27 +7,29 @@ import {
   getReconciledHash,
   ChainData,
 } from "@connext/nxtp-utils";
-import { getTransactionManagerAddress, getTxManagerInterface, getTokenRegistryInterface } from ".";
-import { getContext } from "../../router";
+import { getTxManagerInterface, getTokenRegistryInterface } from ".";
 import { BigNumber, constants } from "ethers";
 
 import { SanitationCheckFailed } from "../errors";
+import { AppContext } from "../../context";
 
 export const sanitationCheck = async (
+  context: AppContext,
   transactionData: CrossChainTx,
   functionCall: "prepare" | "fulfill" | "reconcile",
   _requestContext?: RequestContext<string>,
 ) => {
   const {
     adapters: { txservice },
-  } = getContext();
+    config,
+  } = context;
   const { requestContext, methodContext } = createLoggingContext(sanitationCheck.name);
 
   if (functionCall === "fulfill") {
     // Check out if this transaction provides fast liquidity
     // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
     const transactionId = transactionData.transactionId;
-    const txManagerContractAddress = getTransactionManagerAddress(transactionData.destinationDomain);
+    const txManagerContractAddress = config.chains[transactionData.destinationDomain].deployments.transactionManager;
     const encodeReconciledTransaction = getTxManagerInterface().encodeFunctionData("reconciledTransactions", [
       transactionId,
     ]);

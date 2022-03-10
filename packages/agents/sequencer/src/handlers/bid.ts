@@ -10,15 +10,15 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getTxManagerInterface } from "../lib/helpers";
-import { getContext } from "../sequencer";
+import { AppContext } from "../context";
 
-export const handleBid = async (signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
+export const handleBid = async (context: AppContext, signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
   const {
     logger,
     chainData,
     adapters: { chainreader },
     config,
-  } = getContext();
+  } = context;
   const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
   logger.info("Method start: handleBid", requestContext, methodContext, { signedBid });
 

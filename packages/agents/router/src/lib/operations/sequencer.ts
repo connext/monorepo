@@ -1,10 +1,11 @@
 import { createLoggingContext, SignedBid, NxtpError, formatUrl } from "@connext/nxtp-utils";
-import { getContext } from "../../router";
 import axios, { AxiosResponse } from "axios";
 
-export const sendBid = async (bid: SignedBid): Promise<any> => {
+import { AppContext } from "../../context";
+
+export const sendBid = async (context: AppContext, bid: SignedBid): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
-  const { logger, config } = getContext();
+  const { logger, config } = context;
 
   /// TODO don't send the signature in logs, edit bid during logging
   logger.info("Method start", requestContext, methodContext, { bid });

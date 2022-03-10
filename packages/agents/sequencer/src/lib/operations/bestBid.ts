@@ -10,15 +10,14 @@ import {
   BidStatus,
   StoredBid,
 } from "@connext/nxtp-utils";
-import { getContext } from "../../sequencer";
 
-export const bestBid = async (): Promise<any> => {
+import { AppContext } from "../../context";
+
+export const bestBid = async (context: AppContext): Promise<any> => {
   const {
     logger,
-    chainData,
-    adapters: { chainreader, cache },
-    config,
-  } = getContext();
+    adapters: { cache },
+  } = context;
   const { requestContext, methodContext } = createLoggingContext(bestBid.name);
   logger.info(`Method start: ${bestBid.name}`, requestContext, methodContext, {});
 

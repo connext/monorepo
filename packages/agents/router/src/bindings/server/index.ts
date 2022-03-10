@@ -16,7 +16,7 @@ import {
   MigrateLiquidityResponseSchema,
 } from "./schema";
 
-export const bindFastify = (context: AppContext) =>
+export const bindServer = (context: AppContext) =>
   new Promise<void>((res) => {
     const {
       adapters: { wallet },
