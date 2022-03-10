@@ -66,7 +66,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     server: {
       port:
         process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
-      host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host,
+      host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
     },
   };
 
