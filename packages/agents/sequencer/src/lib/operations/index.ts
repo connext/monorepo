@@ -1,2 +1,1 @@
-export * from "./auctions";
-export * from "./server";
+export { handleBid } from "./bid";

@@ -20,7 +20,7 @@ export const handleBid = async (
   const {
     logger,
     chainData,
-    adapters: { chainreader },
+    adapters: { chainreader, cache },
     config,
   } = context;
   const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
@@ -61,18 +61,34 @@ export const handleBid = async (
     domain: bid.data.params.destinationDomain,
   });
 
-  // TODO: In the future, this should update the cache with the bid, and we should be sending with gelato in a separate handler!
-  const result = await gelatoSend(
-    destinationChainId,
-    destinationTransactionManagerAddress,
-    encodedData,
-    bid.data.local,
-    bid.data.feePercentage,
-  );
-  const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
+  const numBids = await cache.auctions.storeBid(bid);
+  if (numBids === 1) {
+    logger.info("First bid for transaction, waiting before sending", requestContext, methodContext, {
+      numBids, 
+      transactionId: bid.transactionId
+    });
+    // this is the first bid
+    setTimeout(async () => {
+      const records = await cache.auctions.getBidsByTransactionId(bid.transactionId);
+      const random = Math.floor(Math.random() * records.length);
+      const selectedBid = records[random];
+      const _encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
+      
+      const result = await gelatoSend(
+        destinationChainId,
+        destinationTransactionManagerAddress,
+        _encodedData,
+        selectedBid.data.local,
+        selectedBid.data.feePercentage,
+      );
+      const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
+      // TODO: check response, if it didn't work, send the next!
 
-  logger.info("Sent to Gelato network", requestContext, methodContext, {
-    result,
-    response: response.data,
-  });
+      logger.info("Sent to Gelato network", requestContext, methodContext, {
+        result,
+        taskId: result.taskId,
+        response: response.data,
+      });
+    });
+  }
 };

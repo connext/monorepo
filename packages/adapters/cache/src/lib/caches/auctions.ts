@@ -1,4 +1,4 @@
-import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { Cache } from ".";
@@ -10,9 +10,9 @@ export class AuctionsCache extends Cache {
    * @param bid The signed bid we're going to store
    * @returns success - true, failure - false
    */
-  public async storeBid(bid: SignedBid): Promise<boolean> {
-    const txid = bid.bid.transactionId;
-    const router = bid.bid.data.router;
+  public async storeBid(bid: Bid): Promise<number> {
+    const txid = bid.transactionId;
+    const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
     const stored = await this.data.hset(
@@ -27,8 +27,10 @@ export class AuctionsCache extends Cache {
 
     await this.publish(StoreChannel.NewBid, bid);
 
-    if (stored === 1) return true;
-    else return false;
+    if (stored !== 1) {
+      throw new Error("Failed to store bid");
+    };
+    // TODO: return number of bids for a txId
   }
 
   /**
@@ -58,16 +60,16 @@ export class AuctionsCache extends Cache {
   }
 
   /**
-   * Gets the bids by status
+   * Gets the bids by transactionId
    *
-   * @param status The status of the bids that we're going to get
+   * @param transactionId The transactionId of the bids that we're going to get
    * @returns Auction bids that were stored with the status
    */
-  public async getBids(status?: BidStatus): Promise<StoredBid[]> {
+  public async getBidsByTransactionId(transactionId: string): Promise<StoredBid[]> {
     const storedBids: StoredBid[] = [];
 
-    const bidStream = await this.data.scanStream({
-      match: "*:bid:*",
+    const bidStream = this.data.scanStream({
+      match: `${transactionId}:bid:*`,
     });
 
     return new Promise((res, rej) => {
@@ -83,13 +85,11 @@ export class AuctionsCache extends Cache {
           const bidStatus = record["status"];
           const lastUpdate = Number(record["lastUpdate"]);
 
-          if ((bidStatus && status && status == (bidStatus as BidStatus)) || !status) {
-            storedBids.push({
-              signedBid: JSON.parse(record["signedBid"]) as SignedBid,
-              status: bidStatus as BidStatus,
-              lastUpdate,
-            });
-          }
+          storedBids.push({
+            signedBid: JSON.parse(record["signedBid"]) as SignedBid,
+            status: bidStatus as BidStatus,
+            lastUpdate,
+          });
         }
       });
       bidStream.on("end", async () => {
