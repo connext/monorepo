@@ -102,7 +102,7 @@ export const setupCache = async (
   const { fulfill } = getOperations();
 
   const methodContext = createMethodContext("setupCache");
-  logger.info("cache instance setup in progress...", requestContext, methodContext, {});
+  logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
     redis: { url: redisUrl },
@@ -114,12 +114,12 @@ export const setupCache = async (
     const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
     try {
       await fulfill(pendingTx);
-    } catch (err) {
+    } catch (err: any) {
       logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }
   });
 
-  logger.info("cache instance setup is done!", requestContext, methodContext, {
+  logger.info("Cache instance setup is done!", requestContext, methodContext, {
     redisUrl: redisUrl,
   });
 
@@ -127,25 +127,22 @@ export const setupCache = async (
 };
 
 export const setupSubgraphReader = async (
-  routerConfig: NxtpRouterConfig,
+  sequencerConfig: NxtpRouterConfig,
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<SubgraphReader> => {
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("subgraph reader setup in progress...", requestContext, methodContext, {});
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
+  // Separate out relevant subgraph chain config.
+  const chains: { [chain: string]: any } = {};
+  Object.entries(sequencerConfig.chains).forEach(([chainId, config]) => {
+    chains[chainId] = config.subgraph;
+  });
   const subgraphReader = await SubgraphReader.create({
-    // Separate out relevant subgraph chain config.
-    chains: Object.entries(routerConfig.chains).reduce(
-      (obj, [chainId, config]) => ({
-        ...obj,
-        [chainId]: config.subgraph,
-      }),
-      {},
-    ),
+    chains,
   });
 
-  logger.info("subgraph reader setup is done!", requestContext, methodContext, {});
-
+  logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
   return subgraphReader;
 };

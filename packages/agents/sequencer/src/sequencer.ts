@@ -66,17 +66,16 @@ export const setupCache = async (
 ): Promise<StoreManager> => {
   const methodContext = createMethodContext(setupCache.name);
 
-  logger.info("cache instance setup in progress...", requestContext, methodContext, {});
+  logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
     redis: { url: redisUrl },
     logger: logger.child({ module: "StoreManager" }),
   });
 
-  logger.info("cache instance setup is done!", requestContext, methodContext, {
+  logger.info("Cache instance setup is done!", requestContext, methodContext, {
     redisUrl: redisUrl,
   });
-
   return cacheInstance;
 };
 
@@ -87,19 +86,16 @@ export const setupSubgraphReader = async (
 ): Promise<SubgraphReader> => {
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("subgraph reader setup in progress...", requestContext, methodContext, {});
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
+  // Separate out relevant subgraph chain config.
+  const chains: { [chain: string]: any } = {};
+  Object.entries(sequencerConfig.chains).forEach(([chainId, config]) => {
+    chains[chainId] = config.subgraph;
+  });
   const subgraphReader = await SubgraphReader.create({
-    // Separate out relevant subgraph chain config.
-    chains: Object.entries(sequencerConfig.chains).reduce(
-      (obj, [chainId, config]) => ({
-        ...obj,
-        [chainId]: config.subgraph,
-      }),
-      {},
-    ),
+    chains,
   });
 
-  logger.info("subgraph reader setup is done!", requestContext, methodContext, {});
-
+  logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
   return subgraphReader;
 };
