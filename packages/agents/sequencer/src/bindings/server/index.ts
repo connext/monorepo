@@ -1,10 +1,6 @@
 import fastify from "fastify";
 import pino from "pino";
-import {
-  SignedBid,
-  createLoggingContext,
-  jsonifyError,
-} from "@connext/nxtp-utils";
+import { Bid, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../context";
 import { handleBid } from "../../lib/operations";
@@ -22,7 +18,7 @@ export const bindServer = (context: AppContext) =>
       try {
         const { requestContext } = createLoggingContext("/bid endpoint");
         const { body: req } = request;
-        const result = await handleBid(context, (req as any).bid as SignedBid, requestContext);
+        const result = await handleBid(context, (req as any).bid as Bid, requestContext);
         return response.status(200).send(result);
       } catch (error: any) {
         logger.error(`Bid Post Error: ${error}`);

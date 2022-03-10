@@ -2,7 +2,7 @@ import axios from "axios";
 import {
   gelatoSend,
   isChainSupportedByGelato,
-  SignedBid,
+  Bid,
   RequestContext,
   createLoggingContext,
   formatUrl,
@@ -12,7 +12,7 @@ import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
 import { AppContext } from "../../context";
 
-export const sendToRelayer = async (context: AppContext, signedBid: SignedBid, _requestContext: RequestContext) => {
+export const sendToRelayer = async (context: AppContext, bid: Bid, _requestContext: RequestContext) => {
   const {
     logger,
     chainData,
@@ -20,9 +20,8 @@ export const sendToRelayer = async (context: AppContext, signedBid: SignedBid, _
     config,
   } = context;
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
-  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { signedBid });
+  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { bid });
 
-  const { bid } = signedBid;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;

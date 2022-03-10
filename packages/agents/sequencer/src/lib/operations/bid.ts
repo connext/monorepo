@@ -2,7 +2,7 @@ import axios from "axios";
 import {
   gelatoSend,
   isChainSupportedByGelato,
-  SignedBid,
+  Bid,
   RequestContext,
   createLoggingContext,
   formatUrl,
@@ -13,11 +13,7 @@ import { getTxManagerInterface } from "@connext/nxtp-txservice";
 import { sendToRelayer } from "./relayer";
 import { AppContext } from "../../context";
 
-export const handleBid = async (
-  context: AppContext,
-  signedBid: SignedBid,
-  _requestContext: RequestContext,
-): Promise<any> => {
+export const handleBid = async (context: AppContext, bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const {
     logger,
     chainData,
@@ -25,9 +21,8 @@ export const handleBid = async (
     config,
   } = context;
   const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
-  logger.info(`Method start: ${handleBid.name}`, requestContext, methodContext, { signedBid });
+  logger.info(`Method start: ${handleBid.name}`, requestContext, methodContext, { bid });
 
-  const { bid } = signedBid;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
   const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
@@ -38,7 +33,7 @@ export const handleBid = async (
     encodedData,
     destinationTransactonManagerAddress: destinationTransactionManagerAddress,
     domain: bid.data.params.destinationDomain,
-    signedBid,
+    bid,
   });
 
   // Validate the bid's fulfill call will succeed on chain.
@@ -62,7 +57,7 @@ export const handleBid = async (
   //   selectBestBid(context, bid.transactionId, requestContext);
   // }
 
-  await sendToRelayer(context, signedBid, requestContext);
+  await sendToRelayer(context, bid, requestContext);
 };
 
 // export const selectBestBid = async (context: AppContext, transactionId: string, _requestContext: RequestContext) => {

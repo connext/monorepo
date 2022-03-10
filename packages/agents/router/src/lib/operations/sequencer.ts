@@ -1,9 +1,9 @@
-import { createLoggingContext, SignedBid, NxtpError, formatUrl } from "@connext/nxtp-utils";
+import { createLoggingContext, Bid, NxtpError, formatUrl } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
 import { AppContext } from "../../context";
 
-export const sendBid = async (context: AppContext, bid: SignedBid): Promise<any> => {
+export const sendBid = async (context: AppContext, bid: Bid): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
   const { logger, config } = context;
 
@@ -13,7 +13,7 @@ export const sendBid = async (context: AppContext, bid: SignedBid): Promise<any>
   let response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
     bid,
   });
-  
+
   if (!response) {
     throw new NxtpError("error sendBid", { response });
   } else {

@@ -1,7 +1,7 @@
 import {
   CallParams,
   FulfillArgs,
-  SignedBid,
+  Bid,
   createLoggingContext,
   CrossChainTx,
   signHandleRelayerFeePayload,
@@ -165,12 +165,9 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
     relayerSignature: signature,
   };
 
-  const bid: SignedBid = {
-    bid: {
-      transactionId,
-      data: fulfillArguments,
-    },
-    signature,
+  const bid: Bid = {
+    transactionId,
+    data: fulfillArguments,
   };
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });

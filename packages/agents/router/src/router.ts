@@ -3,6 +3,7 @@ import {
   createLoggingContext,
   createMethodContext,
   createRequestContext,
+  CrossChainTx,
   getChainData,
   jsonifyError,
   Logger,
@@ -76,7 +77,7 @@ export const makeRouter = async () => {
     } else {
       logger.warn("Running router without price caching.");
     }
-    await bindServer(context);
+    // await bindServer(context);
     await bindMetrics(context);
     await bindSubgraph(context);
 
@@ -106,7 +107,7 @@ export const setupCache = async (context: AppContext, requestContext: RequestCon
   cacheInstance.consumers.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
     try {
-      await fulfill(context, pendingTx);
+      await fulfill(context, JSON.parse(pendingTx) as CrossChainTx);
     } catch (err: any) {
       logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }
