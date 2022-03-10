@@ -1,5 +1,4 @@
 import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
-import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
 import { sendToRelayer } from "./relayer";
 import { AppContext } from "../../context";
@@ -8,7 +7,7 @@ export const handleBid = async (context: AppContext, bid: Bid, _requestContext: 
   const {
     logger,
     chainData,
-    adapters: { chainreader, cache },
+    adapters: { chainreader, cache, contracts },
     config,
   } = context;
   const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
@@ -16,7 +15,7 @@ export const handleBid = async (context: AppContext, bid: Bid, _requestContext: 
 
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
+  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 

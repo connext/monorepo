@@ -1,7 +1,7 @@
 import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
@@ -35,6 +35,8 @@ export const makeSequencer = async () => {
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
+
+    context.adapters.contracts = getContractInterfaces();
 
     // Create server, set up routes, and start listening.
     await bindServer(context);

@@ -4,13 +4,13 @@ import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-ad
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
-
-import { NxtpRouterConfig } from "../src/config";
-import { AppContext } from "../src/context";
 import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain-types/TransactionManager";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
+
+import { NxtpRouterConfig } from "../src/config";
+import { AppContext } from "../src/context";
 
 // export const MUTATED_AMOUNT = "100000000000000000000";
 // export const MUTATED_BUFFER = 123400;
@@ -33,66 +33,65 @@ export const mock = {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
     };
   },
-  config: (): NxtpRouterConfig =>
-    ({
-      chains: {
-        [mock.chain.A]: {
-          assets: [
-            {
-              name: "TEST",
-              address: mkAddress("0xbeefbeefbeef"),
-            },
-          ],
-          confirmations: 1,
-          providers: ["http://example.com"],
-          subgraph: {
-            runtime: ["http://example.com"],
-            analytics: ["http://example.com"],
-            maxLag: 10,
+  config: (): NxtpRouterConfig => ({
+    chains: {
+      [mock.chain.A]: {
+        assets: [
+          {
+            name: "TEST",
+            address: mkAddress("0xbeefbeefbeef"),
           },
-          deployments: {
-            transactionManager: mkAddress("0xabcdef123"),
-          },
-          gasStations: [],
+        ],
+        confirmations: 1,
+        providers: ["http://example.com"],
+        subgraph: {
+          runtime: ["http://example.com"],
+          analytics: ["http://example.com"],
+          maxLag: 10,
         },
-        [mock.chain.B]: {
-          assets: [
-            {
-              name: "TEST",
-              address: mkAddress("0xbeefbeefbeef"),
-            },
-          ],
-          confirmations: 1,
-          providers: ["http://example.com"],
-          subgraph: {
-            runtime: ["http://example.com"],
-            analytics: ["http://example.com"],
-            maxLag: 10,
-          },
-          deployments: {
-            transactionManager: mkAddress("0xabcdef123"),
-          },
-          gasStations: [],
+        deployments: {
+          transactionManager: mkAddress("0xabcdef123"),
         },
+        gasStations: [],
       },
-      mnemonic: "hello world",
-      logLevel: "info",
-      redisUrl: "redis://localhost:6379",
-      sequencerUrl: "http://localhost:8081",
-      server: {
-        host: "0.0.0.0",
-        port: 3000,
-        requestLimit: 2000,
-        adminToken: "blahblahblah",
+      [mock.chain.B]: {
+        assets: [
+          {
+            name: "TEST",
+            address: mkAddress("0xbeefbeefbeef"),
+          },
+        ],
+        confirmations: 1,
+        providers: ["http://example.com"],
+        subgraph: {
+          runtime: ["http://example.com"],
+          analytics: ["http://example.com"],
+          maxLag: 10,
+        },
+        deployments: {
+          transactionManager: mkAddress("0xabcdef123"),
+        },
+        gasStations: [],
       },
-      network: "testnet",
-      maxSlippage: 0,
-      mode: {
-        diagnostic: false,
-        cleanup: false,
-        priceCaching: false,
-      },
-    }),
+    },
+    mnemonic: "hello world",
+    logLevel: "info",
+    redisUrl: "redis://localhost:6379",
+    sequencerUrl: "http://localhost:8081",
+    server: {
+      host: "0.0.0.0",
+      port: 3000,
+      requestLimit: 2000,
+      adminToken: "blahblahblah",
+    },
+    network: "testnet",
+    maxSlippage: 0,
+    mode: {
+      diagnostic: false,
+      cleanup: false,
+      priceCaching: false,
+    },
+  }),
   adapter: {
     wallet: (): SinonStubbedInstance<Wallet> => {
       const wallet = createStubInstance(Wallet);
@@ -161,6 +160,6 @@ export const mock = {
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
       };
-    }
+    },
   },
 };

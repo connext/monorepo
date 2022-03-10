@@ -1,9 +1,13 @@
-import { utils, BigNumber, Wallet } from "ethers";
+import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
+import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain-types/TransactionManager";
+import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
+import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
+import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/context";
@@ -16,6 +20,7 @@ export const mock = {
         subgraph: mock.adapter.subgraph(),
         cache: mock.adapter.cache(),
         chainreader: mock.adapter.chainreader(),
+        contracts: mock.adapter.contracts(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -90,6 +95,32 @@ export const mock = {
       const mockReceipt = mock.ethers.receipt();
       chainreader.getTransactionReceipt.resolves(mockReceipt);
       return chainreader;
+    },
+    contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
+      const encodedDataMock = "0xabcde";
+
+      const transactionManager = createStubInstance(utils.Interface);
+      transactionManager.encodeFunctionData.returns(encodedDataMock);
+      transactionManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const priceOracle = createStubInstance(utils.Interface);
+      priceOracle.encodeFunctionData.returns(encodedDataMock);
+      priceOracle.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const tokenRegistry = createStubInstance(utils.Interface);
+      tokenRegistry.encodeFunctionData.returns(encodedDataMock);
+      tokenRegistry.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      const stableSwap = createStubInstance(utils.Interface);
+      stableSwap.encodeFunctionData.returns(encodedDataMock);
+      stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
+      return {
+        transactionManager: transactionManager as unknown as TransactionManagerInterface,
+        priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
+        tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
+        stableSwap: stableSwap as unknown as StableSwapInterface,
+      };
     },
   },
 };

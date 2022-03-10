@@ -5,7 +5,6 @@ import {
   RequestContext,
   createLoggingContext,
 } from "@connext/nxtp-utils";
-import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
 import { AppContext } from "../../context";
 
@@ -13,7 +12,7 @@ export const sendToRelayer = async (context: AppContext, bid: Bid, _requestConte
   const {
     logger,
     chainData,
-    adapters: { chainreader, cache },
+    adapters: { chainreader, cache, contracts },
     config,
   } = context;
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
@@ -23,7 +22,7 @@ export const sendToRelayer = async (context: AppContext, bid: Bid, _requestConte
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
-  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
+  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
 
   if (!isChainSupportedByGelato(destinationChainId)) {
     throw new Error("Chain not supported by gelato.");
