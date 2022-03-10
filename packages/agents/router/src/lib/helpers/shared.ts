@@ -7,7 +7,7 @@ import {
   getReconciledHash,
   ChainData,
 } from "@connext/nxtp-utils";
-import { getTransactionManagerAddress, getTxManagerInerface, getTokenRegistryInterface } from ".";
+import { getTransactionManagerAddress, getTxManagerInterface, getTokenRegistryInterface } from ".";
 import { getContext } from "../../router";
 import { BigNumber, constants } from "ethers";
 
@@ -28,7 +28,7 @@ export const sanitationCheck = async (
     // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
     const transactionId = transactionData.transactionId;
     const txManagerContractAddress = getTransactionManagerAddress(transactionData.destinationDomain);
-    const encodeReconciledTransaction = getTxManagerInerface().encodeFunctionData("reconciledTransactions", [
+    const encodeReconciledTransaction = getTxManagerInterface().encodeFunctionData("reconciledTransactions", [
       transactionId,
     ]);
     const reconciledTxHash = await txservice.readTx({
@@ -42,13 +42,13 @@ export const sanitationCheck = async (
     // If the transaction provides fast liquidity, ensure it has not been fulfilled already
     // If not, check the reconciled transactions to ensur it is the right data
     if (isFast) {
-      const encodeRoutedTransaction = getTxManagerInerface().encodeFunctionData("routedTransactions", [transactionId]);
+      const encodeRoutedTransaction = getTxManagerInterface().encodeFunctionData("routedTransactions", [transactionId]);
       const fulfilledTxEncoded = await txservice.readTx({
         chainId: parseInt(transactionData.destinationDomain),
         to: txManagerContractAddress,
         data: encodeRoutedTransaction,
       });
-      const [fulfillTx] = getTxManagerInerface().decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
+      const [fulfillTx] = getTxManagerInterface().decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
 
       const fulfillTxTyped = fulfillTx as FulfilledTransaction;
       if (fulfillTx != constants.AddressZero && fulfillTxTyped.router != constants.AddressZero) {
@@ -70,7 +70,7 @@ export const sanitationCheck = async (
       //   amount: transactionData.fulfillLocalAsset,
       //   recipient: transactionData.recipient,
       // });
-      // const [decodedReconciledTxHash] = getTxManagerInerface().decodeFunctionResult(
+      // const [decodedReconciledTxHash] = getTxManagerInterface().decodeFunctionResult(
       //   "reconciledTransactions",
       //   reconciledTxHash,
       // );

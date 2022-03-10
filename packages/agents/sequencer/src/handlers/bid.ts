@@ -9,7 +9,7 @@ import {
   gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
 
-import { getTxManagerInerface } from "../lib/helpers";
+import { getTxManagerInterface } from "../lib/helpers";
 import { getContext } from "../sequencer";
 
 export const handleBid = async (signedBid: SignedBid, _requestContext: RequestContext): Promise<any> => {
@@ -25,7 +25,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   const { bid } = signedBid;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const encodedData = getTxManagerInerface().encodeFunctionData("fulfill", [bid.data]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 

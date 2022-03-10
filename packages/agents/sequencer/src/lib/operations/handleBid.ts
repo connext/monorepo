@@ -1,6 +1,6 @@
 import { SignedBid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
 
-import { getTxManagerInerface } from "../helpers";
+import { getTxManagerInterface } from "../helpers";
 
 import { getContext } from "../../sequencer";
 
@@ -19,7 +19,7 @@ export const handleBid = async (signedBid: SignedBid, _requestContext: RequestCo
   const originChainId = chainData.get(bid.data.params.originDomain)!.chainId;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const encodedData = getTxManagerInerface().encodeFunctionData("fulfill", [bid.data]);
+  const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 

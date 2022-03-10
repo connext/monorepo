@@ -12,7 +12,7 @@ import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/Con
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
 
-export const getTxManagerInerface = () =>
+export const getTxManagerInterface = () =>
   new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
 
 export const getTokenRegistryInterface = () => new Interface(TokenRegistryArtifact.abi) as TTokenRegistry["interface"];

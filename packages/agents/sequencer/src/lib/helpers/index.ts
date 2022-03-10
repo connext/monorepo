@@ -1,1 +1,1 @@
-export { getTxManagerInerface, getPriceOracleInterface, getTokenRegistryInterface } from "./interface";
+export { getTxManagerInterface, getPriceOracleInterface, getTokenRegistryInterface } from "./interface";

@@ -1,16 +1,13 @@
+import axios from "axios";
 import {
   gelatoSend,
   isChainSupportedByGelato,
   SignedBid,
-  jsonifyError,
   RequestContext,
   createLoggingContext,
   formatUrl,
   gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
-
-import { getTxManagerInerface } from "../helpers";
-import axios from "axios";
 
 import { getContext } from "../../sequencer";
 
@@ -31,7 +28,7 @@ export const postBid = async (
   const { bid } = signedBid;
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  // const encodedData = getTxManagerInerface().encodeFunctionData("fulfill", [bid.data]);
+  // const encodedData = getTxManagerInterface().encodeFunctionData("fulfill", [bid.data]);
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
