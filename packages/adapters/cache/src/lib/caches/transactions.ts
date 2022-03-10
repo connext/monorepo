@@ -1,7 +1,4 @@
-import {
-  CrossChainTx,
-  CrossChainTxStatus,
-} from "@connext/nxtp-utils";
+import { CrossChainTx, CrossChainTxStatus } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { Cache } from ".";
@@ -75,7 +72,7 @@ export class TransactionsCache extends Cache {
       });
       //return highest
       nonceStream.on("end", async () => {
-        await this.publish(StoreChannel.NewHighestNonce, domain);
+        await this.data.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
       nonceStream.on("error", (error: string) => {
@@ -90,13 +87,13 @@ export class TransactionsCache extends Cache {
       const existing = await this.data.get(`${tx.originDomain}:${tx.nonce}`);
       // Update the status, regardless of whether the transaction already exists.
       await this.data.set(tx.transactionId, tx.status);
-      await this.publish(StoreChannel.NewStatus, `${tx.originDomain} : ${tx.status}`);
+      await this.data.publish(StoreChannel.NewStatus, `${tx.originDomain} : ${tx.status}`);
 
       if (!existing) {
         // Store the transaction data, since it doesn't already exist.
         await this.data.set(`${tx.originDomain}:${tx.nonce}`, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        await this.publish(StoreChannel.NewPreparedTx, tx);
+        await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
       }
     }
   }

@@ -45,7 +45,7 @@ export const getAddressError = (value: any): string | undefined => {
     if (hexError) return hexError;
     utils.getAddress(value);
     return undefined;
-  } catch (e) {
+  } catch (e: any) {
     return e.message;
   }
 };

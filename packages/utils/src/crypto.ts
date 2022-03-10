@@ -33,7 +33,7 @@ export const ethereumRequest = async (method: string, params: string[]): Promise
 export const getAddressFromPublicKey = (publicKey: string): string => {
   try {
     return utils.computeAddress(compressPublicKey(publicKey));
-  } catch (e) {
+  } catch (e: any) {
     if (
       e.message === "public key length is invalid" ||
       e.message === "Expected public key to be an Uint8Array with length [33, 65]" ||

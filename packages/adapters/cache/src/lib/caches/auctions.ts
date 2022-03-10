@@ -27,7 +27,7 @@ export class AuctionsCache extends Cache {
 
     const count = (await this.data.keys(`${txid}:bid:*`)).length;
 
-    await this.publish(StoreChannel.NewBid, bid);
+    await this.data.publish(StoreChannel.NewBid, JSON.stringify(bid));
 
     return count;
   }
@@ -85,7 +85,7 @@ export class AuctionsCache extends Cache {
           const lastUpdate = Number(record["lastUpdate"]);
 
           storedBids.push({
-            signedBid: JSON.parse(record["payload"]) as Bid,
+            payload: JSON.parse(record["payload"]) as Bid,
             status: bidStatus as BidStatus,
             lastUpdate,
           });
