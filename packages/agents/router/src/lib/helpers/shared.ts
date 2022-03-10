@@ -8,7 +8,7 @@ import {
   getReconciledHash,
   ChainData,
 } from "@connext/nxtp-utils";
-import { getTxManagerInterface, getTokenRegistryInterface } from "@connext/nxtp-contracts/src";
+import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
 import { SanitationCheckFailed } from "../errors";
 import { AppContext } from "../../context";

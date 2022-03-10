@@ -8,7 +8,7 @@ import {
   formatUrl,
   gelatoRelayEndpoint,
 } from "@connext/nxtp-utils";
-import { getTxManagerInterface } from "@connext/nxtp-contracts/src";
+import { getTxManagerInterface } from "@connext/nxtp-txservice";
 
 import { AppContext } from "../../context";
 
