@@ -1,7 +1,17 @@
 import { utils } from "ethers";
 import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { Interface } from "ethers/lib/utils";
+import {
+  TransactionManager as TTransactionManager,
+  ConnextPriceOracle as TConnextPriceOracle,
+  TokenRegistry as TTokenRegistry,
+  StableSwap as TStableSwap,
+} from "@connext/nxtp-contracts/typechain-types";
+
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain-types";
+import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
+import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
+import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
 
 /**
  * Helper to allow easy mocking
@@ -57,4 +67,12 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
  * @returns An ethers Interface object initialized with the Connext Price
  * Oracle ABI.
  */
-export const getPriceOracleInterface = () => new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
+export const getPriceOracleInterface = () =>
+  new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
+
+export const getTxManagerInterface = () =>
+  new Interface(TransactionManagerArtifact.abi) as TTransactionManager["interface"];
+
+export const getTokenRegistryInterface = () => new Interface(TokenRegistryArtifact.abi) as TTokenRegistry["interface"];
+
+export const getStableSwapInterface = () => new Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
