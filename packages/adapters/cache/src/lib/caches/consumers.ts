@@ -30,7 +30,6 @@ export class ConsumersCache extends Cache {
     );
 
     this.data.on("message", (channel: string, message: string) => {
-      console.log(`Received ${message} from ${channel}`);
       const callback = this.subscriptions.get(channel);
       if (callback) callback(message);
     });

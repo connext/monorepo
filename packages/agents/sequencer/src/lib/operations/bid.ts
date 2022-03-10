@@ -47,15 +47,15 @@ export const handleBid = async (context: AppContext, bid: Bid, _requestContext: 
     gas: gas.toString(),
   });
 
-  // const numBids = await cache.auctions.storeBid(signedBid);
-  // if (numBids === 1) {
-  //   logger.info("First bid for transaction, waiting before sending", requestContext, methodContext, {
-  //     numBids,
-  //     transactionId: bid.transactionId,
-  //   });
+  const numBids = await cache.auctions.storeBid(bid);
+  if (numBids === 1) {
+    logger.info("First bid for transaction, waiting before sending", requestContext, methodContext, {
+      numBids,
+      transactionId: bid.transactionId,
+    });
 
-  //   selectBestBid(context, bid.transactionId, requestContext);
-  // }
+    // selectBestBid(context, bid.transactionId, requestContext);
+  }
 
   await sendToRelayer(context, bid, requestContext);
 };
