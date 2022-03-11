@@ -23,7 +23,9 @@ contract WETH is TestERC20 {
     }
     
     function withdraw(uint wad) public {
+        require(balanceOf(msg.sender) >= wad);
         _burn(msg.sender, wad);
+        payable(msg.sender).transfer(wad);
         emit Withdrawal(msg.sender, wad);
     }
 }
