@@ -89,7 +89,7 @@ const config: HardhatUserConfig = {
     bob: { default: 2 },
     rando: { default: 3 },
     routerfactory: {
-      default: "0xFD8c6Ebe0D284f9D2C9665f17BbA47032259E907",
+      default: process.env.MNEMONIC_ROUTER_FACTORY ? "0xFD8c6Ebe0D284f9D2C9665f17BbA47032259E907" : 4,
     },
   },
   networks: {
@@ -226,7 +226,7 @@ const config: HardhatUserConfig = {
     gather: {
       accounts,
       chainId: 192837465,
-      url: "https://mainnet.gather.network/",
+      url: urlOverride || process.env.GATHER_PROVIDER_URL || "https://mainnet.gather.network/",
     },
   },
   etherscan: {
