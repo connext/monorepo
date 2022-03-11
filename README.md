@@ -148,7 +148,7 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 Information about common integration flows.
 
-### Setup Router for TransactionManager
+### Setup Router for `TransactionManager`
 
 There's an easy hardhat script to run that sets up a router, adds assets, and adds liquidity. Run it by calling:
 
