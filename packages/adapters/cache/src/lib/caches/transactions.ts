@@ -187,8 +187,8 @@ export class TransactionsCache extends Cache {
 
     return new Promise((res, rej) => {
       bidStream.on("data", async (kv: string) => {
-        const bidVal = await this.data.get(kv)
-  
+        const bidVal = await this.data.get(kv);
+
         if (bidVal) {
           const bidIntermdiate = JSON.parse(bidVal);
           storedBids.push({
@@ -197,9 +197,6 @@ export class TransactionsCache extends Cache {
             lastUpdate: bidIntermdiate.lastUpdate,
           });
         }
-        
-
-     
       });
       bidStream.on("end", async () => {
         res(storedBids);
