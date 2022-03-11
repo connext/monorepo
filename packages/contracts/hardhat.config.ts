@@ -6,11 +6,13 @@ import "hardhat-deploy";
 import "solidity-coverage";
 import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
+import path from "path";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 import { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } from "hardhat/builtin-tasks/task-names";
 import { subtask } from "hardhat/config";
+import { Wallet } from "ethers";
 
 import "./src/tasks/addRouter";
 import "./src/tasks/addAsset";
@@ -38,7 +40,16 @@ const mnemonic =
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
-const path = require("path");
+const baseAccounts = Array(4)
+  .fill(0)
+  .map((_, index) => {
+    console.log("index: ", index);
+    console.log("path", `m/44'/60'/0'/0/${index}`);
+    return Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${index}`).privateKey;
+  });
+const accounts = process.env.MNEMONIC_ROUTER_FACTORY
+  ? baseAccounts.concat([Wallet.fromMnemonic(process.env.MNEMONIC_ROUTER_FACTORY).privateKey])
+  : baseAccounts;
 
 subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) => {
   if (args.solcVersion === "0.8.4") {
@@ -79,6 +90,9 @@ const config: HardhatUserConfig = {
     alice: { default: 1 },
     bob: { default: 2 },
     rando: { default: 3 },
+    routerfactory: {
+      default: "0xFD8c6Ebe0D284f9D2C9665f17BbA47032259E907",
+    },
   },
   networks: {
     localhost: {
@@ -101,115 +115,120 @@ const config: HardhatUserConfig = {
       url: urlOverride || "http://localhost:8546",
     },
     mainnet: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 1,
       url: urlOverride || process.env.MAINNET_ETH_PROVIDER_URL || "https://cloudflare-eth.com",
     },
     ropsten: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 3,
       url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     rinkeby: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     goerli: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     optimism: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 10,
       url: "https://mainnet.optimism.io",
     },
     kovan: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 42,
       url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     "optimism-kovan": {
-      accounts: { mnemonic },
+      accounts,
       chainId: 69,
       url: "https://kovan.optimism.io",
     },
     bsc: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 56,
       url: urlOverride || process.env.BSC_PROVIDER_URL || "https://bsc-dataseed.binance.org/",
     },
     chapel: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 97,
       url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
     },
     xdai: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 100,
       url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
     },
     fuse: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 122,
       url: "https://rpc.fuse.io/",
     },
     matic: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 137,
       url: urlOverride || process.env.MATIC_PROVIDER_URL || "https://polygon-rpc.com",
     },
     ftm: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 250,
       url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
     },
     moonriver: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 1285,
       url: "https://rpc.moonriver.moonbeam.network",
       gasPrice: 5000000000,
     },
     moonbeam: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 1284,
       url: "https://rpc.api.moonbeam.network",
     },
     mbase: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
     },
     "milkomeda-cardano": {
-      accounts: { mnemonic },
+      accounts,
       chainId: 2001,
       url: "https://rpc.c1.milkomeda.com:8545",
     },
     "arbitrum-one": {
-      accounts: { mnemonic },
+      accounts,
       chainId: 42161,
       url: "https://arb1.arbitrum.io/rpc",
     },
     fuji: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 43113,
       url: "https://api.avax-test.network/ext/bc/C/rpc",
     },
     avalanche: {
       url: "https://api.avax.network/ext/bc/C/rpc",
       chainId: 43114,
-      accounts: { mnemonic },
+      accounts,
     },
     mumbai: {
-      accounts: { mnemonic },
+      accounts,
       chainId: 80001,
       url: "https://matic-testnet-archive-rpc.bwarelabs.com",
     },
     "arbitrum-rinkeby": {
-      accounts: { mnemonic },
+      accounts,
       chainId: 421611,
       url: urlOverride || process.env.ARB_RINK_ETH_PROVIDER_URL || "https://rinkeby.arbitrum.io/rpc",
+    },
+    gather: {
+      accounts,
+      chainId: 192837465,
+      url: "https://mainnet.gather.network/",
     },
   },
   etherscan: {
