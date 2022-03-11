@@ -1,9 +1,9 @@
 import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
-import { Cache } from ".";
+import { TransactionsCache } from ".";
 
-export class AuctionsCache extends Cache {
+export class AuctionsCache extends TransactionsCache {
   /**
    * Stores bid to redis
    *
