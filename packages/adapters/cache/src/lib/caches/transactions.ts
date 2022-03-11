@@ -53,7 +53,7 @@ export class TransactionsCache extends Cache {
    * @returns latest nonce for that domain
    */
   public async getLatestNonce(domain: string): Promise<number> {
-    const res = await this.data.hget(domain, "latestNonce");
+    const res = await this.data.hget(`transactions:${domain}`, "latestNonce");
     if (res) {
       return parseInt(res);
     }
@@ -67,7 +67,7 @@ export class TransactionsCache extends Cache {
    * @returns Transaction data
    */
   public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<CrossChainTx> {
-    const txDataStream = await this.data.hscanStream(domain, {
+    const txDataStream = await this.data.hscanStream(`transactions:${domain}`, {
       match: `*:${txid}`,
     });
     let txData: CrossChainTx;
@@ -87,7 +87,7 @@ export class TransactionsCache extends Cache {
   }
 
   public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<CrossChainTx> {
-    const txDataStream = await this.data.hscanStream(domain, {
+    const txDataStream = await this.data.hscanStream(`transactions:${domain}`, {
       match: `${nonce}:*`,
     });
     let txData: CrossChainTx;
@@ -109,17 +109,17 @@ export class TransactionsCache extends Cache {
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
     for (const tx of txs) {
       //set transaction data at domain field in hash
-      const resSet = await this.data.hset(tx.originDomain, `${tx.nonce}:${tx.transactionId}`, JSON.stringify(tx));
+      const resSet = await this.data.hset(`transactions:${tx.originDomain}`, `${tx.nonce}:${tx.transactionId}`, JSON.stringify(tx));
       if (resSet !== 0) {
         console.log(`successfully set the txdata`);
       } else {
         return;
       }
       //move pointer to latest Nonce
-      const latestNonce = (await this.data.hget(tx.originDomain, "latestNonce")) ?? "0";
+      const latestNonce = (await this.data.hget(`transactions:${tx.originDomain}`, "latestNonce")) ?? "0";
       if (tx.nonce > parseInt(latestNonce)) {
         //if this txns nonce is > the current pointer to latest nonce point to this one now
-        await this.data.hset(tx.originDomain, "latestNonce", tx.nonce);
+        await this.data.hset(`transactions:${tx.originDomain}`, "latestNonce", tx.nonce);
       }
       //dont think we need to set the status anymore.
 
@@ -140,14 +140,16 @@ export class TransactionsCache extends Cache {
     //update by router per txid and update current time global per router as well
     const stored = await this.data.hset(
       `bids:${txid}`,
-      "txdata",
-      JSON.stringify({ bid: bid, status: BidStatus.Pending }),
+      `biddata`,
+      JSON.stringify(bid),
+      `status`,
+      BidStatus.Pending,
       "lastUpdate",
       curTimeInSecs,
     );
 
-    //hkeys is expensive
-    const count = (await this.data.hkeys("bids")).length;
+    //keys is expensive
+    const count = (await this.data.keys("bids*")).length;
 
     await this.data.publish(StoreChannel.NewBid, JSON.stringify(bid));
 
@@ -163,14 +165,15 @@ export class TransactionsCache extends Cache {
    */
   public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<boolean> {
     const txid = bid.transactionId;
-    const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
     const updated = await this.data.hset(
       `bids:${txid}`,
-      "txdata",
-      JSON.stringify({ bid: bid, status: bidStatus, lastUpdate: curTimeInSecs }),
-      "lastUpdate",
+      `biddata`,
+      JSON.stringify(bid),
+      `status`,
+      bidStatus,
+      `lastUpdate`,
       curTimeInSecs,
     );
 
@@ -181,36 +184,28 @@ export class TransactionsCache extends Cache {
   /**
    * Gets the bids by transactionId
    *
-   * @param transactionId The transactionId of the bids that we're going to get
+   * @param transactionId The transactionId of the bid that we're going to get
    * @returns Auction bids that were stored with the status
    */
+
+  //keeping the f() signature the same but shouldn't return array
   public async getBidsByTransactionId(transactionId: string): Promise<StoredBid[]> {
-    const storedBids: StoredBid[] = [];
 
-    const bidStream = this.data.hscanStream(`bids:${transactionId}`, {
-      match: `bids:${transactionId}`
-    });
+    return new Promise(async (res, rej) => {
+      try {
+        const result = await this.data.hgetall(`bids:${transactionId}`);
+        const biddata = result.biddata;
+        const status = result.status;
+        const lastUpdate = result.lastUpdate;
 
-    return new Promise((res, rej) => {
-      bidStream.on("data", async (k: string) => {
-        const bidVal = await this.data.hget(k,"txdata");
-
-        if (bidVal) {
-          const bidIntermdiate = JSON.parse(bidVal);
-          storedBids.push({
-            payload: bidIntermdiate.bid as Bid,
-            status: bidIntermdiate.bidStatus as BidStatus,
-            lastUpdate: bidIntermdiate.lastUpdate,
-          });
+        if (biddata) {
+          const bidIntermdiate = JSON.parse(biddata);
+          if (lastUpdate)
+            res([{ payload: bidIntermdiate, status: status as BidStatus, lastUpdate: parseInt(lastUpdate) }]);
         }
-      });
-      bidStream.on("end", async () => {
-        res(storedBids);
-      });
-      bidStream.on("error", (error: string) => {
-        this.logger.debug(error);
-        rej(error);
-      });
+      } catch (e) {
+        rej(e);
+      }
     });
   }
 }
