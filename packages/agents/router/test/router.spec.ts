@@ -1,5 +1,8 @@
 import { mock } from "./mock";
 
+const mockConfig = mock.config();
+const mockChainData = mock.chainData();
+
 describe("Router", () => {
   describe("#setupCache", () => {
     it("should error if fulfill fails", async () => {});
