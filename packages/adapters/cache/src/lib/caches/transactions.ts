@@ -122,6 +122,8 @@ export class TransactionsCache extends Cache {
         await this.data.hset(tx.originDomain, "latestNonce", tx.nonce);
       }
       //dont think we need to set the status anymore.
+
+      await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
     }
   }
   /**
