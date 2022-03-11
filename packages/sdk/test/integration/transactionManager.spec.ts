@@ -11,6 +11,8 @@ import {
   Logger,
 } from "@connext/nxtp-utils";
 import { utils, constants } from "ethers";
+import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { ChainReader } from "@connext/nxtp-txservice";
 
 import { TransactionManager as TransactionManagerTypechain, TestERC20 } from "@connext/nxtp-contracts/typechain";
 import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/TransactionManager.sol/TransactionManager.json";
@@ -25,8 +27,6 @@ import {
 } from "../../src/transactionManager/transactionManager";
 import { ChainNotConfigured } from "../../src/error";
 import { deployContract } from "../../../contracts/test/utils";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
-import { ChainReader } from "../../../txservice/dist";
 
 const { AddressZero } = constants;
 const logger = new Logger({ level: process.env.LOG_LEVEL ?? "silent" });
@@ -174,7 +174,7 @@ describe("Transaction Manager", function () {
 
   describe("#getDeployedTransactionManagerContract", () => {
     it("should return undefined if no transaction manager", async () => {
-      const chainId = sendingChainId;
+      const chainId = Math.floor(Date.now() / 1000);
       const res = getDeployedTransactionManagerContract(chainId);
       expect(res).to.be.undefined;
     });
