@@ -186,20 +186,20 @@ export class TransactionsCache extends Cache {
     const bidStream = this.data.hscanStream(`bids:${transactionId}`);
 
     return new Promise((res, rej) => {
-      bidStream.on("data", async (bid: string) => {
-        // 1 - "data" - key
-        // 2 - value for the `data`
-        // 3 - "status" - key
-        // 4 - value for the `status`
-        // 5 - `lastUpdate` - key
-        // 6 - value for the `lastUpdate`
-        const bidIntermdiate = JSON.parse(bid);
+      bidStream.on("data", async (kv: string) => {
+        const bidVal = await this.data.get(kv)
+  
+        if (bidVal) {
+          const bidIntermdiate = JSON.parse(bidVal);
+          storedBids.push({
+            payload: bidIntermdiate.bid as Bid,
+            status: bidIntermdiate.bidStatus as BidStatus,
+            lastUpdate: bidIntermdiate.lastUpdate,
+          });
+        }
+        
 
-        storedBids.push({
-          payload: bidIntermdiate.bid as Bid,
-          status: bidIntermdiate.bidStatus as BidStatus,
-          lastUpdate: bidIntermdiate.lastUpdate,
-        });
+     
       });
       bidStream.on("end", async () => {
         res(storedBids);
