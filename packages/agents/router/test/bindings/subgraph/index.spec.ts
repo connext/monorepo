@@ -2,7 +2,7 @@ import { stub } from "sinon";
 import { expect } from "chai";
 
 import { AppContext } from "../../../src/context";
-import { createMockContext, createMockCrossChainTx } from "../../globalTestHook";
+
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { CrossChainTxStatus } from "@connext/nxtp-utils";
 

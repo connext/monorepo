@@ -1,10 +1,6 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import Sinon, { stub, restore, reset, SinonStub } from "sinon";
-import {
-  getEnvConfig,
-  getConfig,
-  getDeployedTransactionManagerContract,
-} from "../src/config";
+import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { mock } from "./mock";
 

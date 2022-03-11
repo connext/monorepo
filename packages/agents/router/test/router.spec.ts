@@ -1,8 +1,4 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
-import { createStubInstance } from "sinon";
-import { TransactionService } from "@connext/nxtp-txservice";
-
-import { constants } from "ethers";
+import { mock } from "./mock";
 
 describe("Router", () => {
   describe("#setupCache", () => {

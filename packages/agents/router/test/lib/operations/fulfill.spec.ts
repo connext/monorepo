@@ -10,7 +10,6 @@ import { constants, BigNumber } from "ethers";
 import { SinonStub, stub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
-import { contractWriterMock, ctxMock, isRouterContractMock, txServiceMock } from "../../globalTestHook";
 import * as SharedFns from "../../../src/lib/helpers/shared";
 import { fulfillInputMock, routerAddrMock } from "../../utils";
 
