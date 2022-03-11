@@ -1184,4 +1184,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable {
       _sig
     );
   }
+
+  receive() external payable {}
 }
