@@ -43,8 +43,6 @@ const mnemonic =
 const baseAccounts = Array(4)
   .fill(0)
   .map((_, index) => {
-    console.log("index: ", index);
-    console.log("path", `m/44'/60'/0'/0/${index}`);
     return Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${index}`).privateKey;
   });
 const accounts = process.env.MNEMONIC_ROUTER_FACTORY
