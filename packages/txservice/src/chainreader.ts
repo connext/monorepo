@@ -457,7 +457,9 @@ export class ChainReader {
     let gelatoEstimatedFee: BigNumber | undefined;
     if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
       gelatoEstimatedFee = await this.calculateGelatoFee(chainIdForGasPrice, assetId, gasLimit.toNumber());
-      gelatoEstimatedFee = gelatoEstimatedFee ? gelatoEstimatedFee.div(BigNumber.from(10).pow(18 - decimals)) : undefined;
+      gelatoEstimatedFee = gelatoEstimatedFee
+        ? gelatoEstimatedFee.div(BigNumber.from(10).pow(18 - decimals))
+        : undefined;
     }
 
     this.logger.info("Calculated gas fee.", requestContext, methodContext, {
@@ -484,7 +486,7 @@ export class ChainReader {
       gelatoEstimatedFee: gelatoEstimatedFee ? gelatoEstimatedFee.toString() : "N/A",
     });
 
-    return gelatoEstimatedFee ? gelatoEstimatedFee : tokenAmountForGasFee;
+    return gelatoEstimatedFee && gelatoEstimatedFee.gt(0) ? gelatoEstimatedFee : tokenAmountForGasFee;
   }
 
   /**
