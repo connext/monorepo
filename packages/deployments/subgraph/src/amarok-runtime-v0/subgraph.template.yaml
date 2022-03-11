@@ -43,3 +43,24 @@ dataSources:
         - event: Reconciled(indexed bytes32,indexed address,indexed address,address,uint256,bytes32,(address,uint256,bytes32),address)
           handler: handleReconciled
       file: ./src/amarok-runtime-v0/mapping.ts
+  # - kind: ethereum/contract
+  #   name: TokenRegistry
+  #   network: "{{network}}"
+  #   source:
+  #     address: "{{address}}"
+  #     abi: TokenRegistry
+  #     # prettier-ignore
+  #     startBlock: {{startBlock}}
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.6
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Token
+  #     abis:
+  #       - name: TokenRegistry
+  #         file: ./src/amarok-runtime-v0/abis/TokenRegistry.json
+  #     eventHandlers:
+  #       - event: TokenDeployed(indexed uint32,indexed bytes32,indexed address)
+  #         handler: handleTokenDeployed
+  #     file: ./src/amarok-runtime-v0/mapping.ts

@@ -15,7 +15,8 @@ export const TChainConfig = Type.Object({
 export type ChainConfig = Static<typeof TChainConfig>;
 
 export const TServerConfig = Type.Object({
-  listenPort: Type.Integer({ minimum: 1, maximum: 65535 }),
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
 });
 
 export const SequencerConfigSchema = Type.Object({

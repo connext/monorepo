@@ -1,3 +1,3 @@
-import { Subscriptions } from "./channel";
+import { Logger } from "@connext/nxtp-utils";
 
-export type CacheParams = { url: string; subscriptions: Subscriptions };
+export type CacheParams = { url: string; mock: boolean; logger: Logger };

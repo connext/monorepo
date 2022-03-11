@@ -41,7 +41,7 @@ export type CrossChainTx = {
 
   // TransactionFulfilled
   fulfillTransactionHash: string;
-  fulfillTimestamp: string;
+  fulfillTimestamp: number;
   fulfillGasPrice: string;
   fulfillGasLimit: string;
   fulfillBlockNumber: number;
@@ -49,7 +49,7 @@ export type CrossChainTx = {
   // Reconciled
   externalCallHash: string;
   reconciledTransactionHash: string;
-  reconciledTimestamp: string;
+  reconciledTimestamp: number;
   reconciledGasPrice: string;
   reconciledGasLimit: string;
   reconciledBlockNumber: number;
@@ -92,6 +92,11 @@ export type FulfillArgs = {
   relayerSignature: string;
 };
 
+export enum BidStatus {
+  Pending = "Pending",
+  Sent = "Sent",
+}
+
 export type Bid = {
   transactionId: string;
   data: FulfillArgs;
@@ -100,4 +105,10 @@ export type Bid = {
 export type SignedBid = {
   bid: Bid;
   signature: string;
+};
+
+export type StoredBid = {
+  payload: Bid;
+  status: BidStatus;
+  lastUpdate: number;
 };

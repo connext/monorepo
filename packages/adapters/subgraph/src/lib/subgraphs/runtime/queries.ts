@@ -49,22 +49,8 @@ export const getPreparedTransactions = gql`
 `;
 
 export const getTransaction = gql`
-  query GetTransaction(
-    $originDomain: BigInt!
-    $destinationDomain: BigInt!
-    $nonce: BigInt!
-    $maxPrepareBlockNumber: BigInt!
-  ) {
-    transactions(
-      where: {
-        originDomain: $originDomain
-        destinationDomain: $destinationDomain
-        nonce: $nonce
-        prepareBlockNumber_lte: $maxPrepareBlockNumber
-      }
-      orderBy: prepareBlockNumber
-      orderDirection: desc
-    ) {
+  query GetTransaction($transactionId: Bytes!) {
+    transactions(where: { transactionId: $transactionId }) {
       id
       # Meta
       originDomain

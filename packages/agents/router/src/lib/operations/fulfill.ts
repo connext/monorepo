@@ -1,17 +1,17 @@
 import {
   CallParams,
   FulfillArgs,
-  SignedBid,
+  Bid,
   createLoggingContext,
   CrossChainTx,
   signHandleRelayerFeePayload,
 } from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
-import { getContext } from "../../router";
+import { BigNumber } from "ethers";
+
+import { AppContext } from "../../context";
 import { NotEnoughAmount, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
 import { SlippageInvalid } from "../errors/fulfill";
 import { getReceiverAmount } from "../helpers";
-
 import {
   calculateGasFeeInReceivingToken,
   getAmountOut,
@@ -29,9 +29,10 @@ const RelayerFeePercentage = "1"; //  1%
  * Router creates a new bid and sends it to auctioneer.
  * should be subsribed to NewPreparedTransaction channel of redis.
  *
- * @param pendingTx The prepared crosschain tranaction
+ * @param context - AppContext instance used for interacting with adapters, config, etc.
+ * @param pendingTx - The prepared crosschain tranaction
  */
-export const fulfill = async (pendingTx: CrossChainTx) => {
+export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name);
   const {
     logger,
@@ -39,11 +40,11 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     adapters: { subgraph, txservice, wallet },
     chainData,
     routerAddress,
-  } = getContext();
+  } = context;
   logger.info("Method start", requestContext, methodContext, { pendingTx });
 
   /// sanitation check before validiation
-  await sanitationCheck(pendingTx, "fulfill");
+  await sanitationCheck(context, pendingTx, "fulfill");
 
   /// create a bid
   const {
@@ -156,7 +157,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
-    local: fulfillLocalAsset ?? constants.AddressZero,
+    local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receiverAmount,
@@ -164,14 +165,11 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     relayerSignature: signature,
   };
 
-  const bid: SignedBid = {
-    bid: {
-      transactionId,
-      data: fulfillArguments,
-    },
-    signature,
+  const bid: Bid = {
+    transactionId,
+    data: fulfillArguments,
   };
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
-  await sendBid(bid);
+  await sendBid(context, bid);
 };

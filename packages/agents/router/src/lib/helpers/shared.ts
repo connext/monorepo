@@ -1,34 +1,33 @@
+import { BigNumber, constants } from "ethers";
 import {
   CrossChainTx,
   RequestContext,
   FulfilledTransaction,
   createLoggingContext,
-  getExternalCallHash,
-  getReconciledHash,
   ChainData,
 } from "@connext/nxtp-utils";
-import { getTransactionManagerAddress, getTxManagerInerface } from ".";
-import { getContext } from "../../router";
-import { BigNumber, constants } from "ethers";
 
 import { SanitationCheckFailed } from "../errors";
+import { AppContext } from "../../context";
 
 export const sanitationCheck = async (
+  context: AppContext,
   transactionData: CrossChainTx,
   functionCall: "prepare" | "fulfill" | "reconcile",
   _requestContext?: RequestContext<string>,
 ) => {
   const {
-    adapters: { txservice },
-  } = getContext();
+    adapters: { txservice, contracts },
+    config,
+  } = context;
   const { requestContext, methodContext } = createLoggingContext(sanitationCheck.name);
 
   if (functionCall === "fulfill") {
     // Check out if this transaction provides fast liquidity
     // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
     const transactionId = transactionData.transactionId;
-    const txManagerContractAddress = getTransactionManagerAddress(transactionData.destinationDomain);
-    const encodeReconciledTransaction = getTxManagerInerface().encodeFunctionData("reconciledTransactions", [
+    const txManagerContractAddress = config.chains[transactionData.destinationDomain].deployments.transactionManager;
+    const encodeReconciledTransaction = contracts.transactionManager.encodeFunctionData("reconciledTransactions", [
       transactionId,
     ]);
     const reconciledTxHash = await txservice.readTx({
@@ -42,13 +41,13 @@ export const sanitationCheck = async (
     // If the transaction provides fast liquidity, ensure it has not been fulfilled already
     // If not, check the reconciled transactions to ensur it is the right data
     if (isFast) {
-      const encodeRoutedTransaction = getTxManagerInerface().encodeFunctionData("routedTransactions", [transactionId]);
+      const encodeRoutedTransaction = contracts.transactionManager.encodeFunctionData("routedTransactions", [transactionId]);
       const fulfilledTxEncoded = await txservice.readTx({
         chainId: parseInt(transactionData.destinationDomain),
         to: txManagerContractAddress,
         data: encodeRoutedTransaction,
       });
-      const [fulfillTx] = getTxManagerInerface().decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
+      const [fulfillTx] = contracts.transactionManager.decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
 
       const fulfillTxTyped = fulfillTx as FulfilledTransaction;
       if (fulfillTx != constants.AddressZero && fulfillTxTyped.router != constants.AddressZero) {
@@ -70,7 +69,7 @@ export const sanitationCheck = async (
       //   amount: transactionData.fulfillLocalAsset,
       //   recipient: transactionData.recipient,
       // });
-      // const [decodedReconciledTxHash] = getTxManagerInerface().decodeFunctionResult(
+      // const [decodedReconciledTxHash] = contracts.transactionManager.decodeFunctionResult(
       //   "reconciledTransactions",
       //   reconciledTxHash,
       // );
@@ -118,6 +117,12 @@ export const getDestinationLocalAsset = async (
   destinationDomain: string,
 ): Promise<string> => {
   // TODO: Not implemented yet
+
+  // const encoded = getTokenRegistryInterface().encodeFunctionData("getLocalAddress(uint32,address)", [
+  //   originDomain,
+  //   originLocalAsset
+  // ]);
+
   return originLocalAsset;
 };
 

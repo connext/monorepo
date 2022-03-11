@@ -1,8 +1,8 @@
-import Redis from "ioredis";
-import { CrossChainTx, TransactionData, CrossChainTxStatus } from "@connext/nxtp-utils";
+import { CrossChainTx, CrossChainTxStatus } from "@connext/nxtp-utils";
 
-import { CacheParams, StoreChannel, SubscriptionCallback } from "../entities";
-import { Cache } from "./";
+import { StoreChannel } from "../entities";
+import { Cache } from ".";
+
 /**
  * Redis Store Details:
  * Transaction Data by Domain & Nonce
@@ -11,18 +11,6 @@ import { Cache } from "./";
    key: $txid | value CrossChainTxStatus as string
  */
 export class TransactionsCache extends Cache {
-  private readonly data!: Redis.Redis;
-
-  public constructor({ url, subscriptions }: CacheParams) {
-    super({ url, subscriptions });
-    if (url.split("//").pop() === "mock") {
-      const IoRedisMock = require("ioredis-mock");
-      this.data = new IoRedisMock();
-    } else {
-      this.data = new Redis(`${url}`);
-    }
-  }
-
   /**
    *
    * @param txid TransactionId to store
@@ -48,8 +36,8 @@ export class TransactionsCache extends Cache {
       match: `${txid}`,
     });
     return new Promise((res, rej) => {
-      status.on("data", (txidMatch) => {
-        console.log("found txid");
+      status.on("data", (txidMatch: string) => {
+        this.logger.debug("found txid");
         const val = this.data.get(txidMatch);
         res(val as unknown as CrossChainTxStatus);
       });
@@ -73,7 +61,7 @@ export class TransactionsCache extends Cache {
       match: `${domain}:*`,
     });
     return new Promise((res, rej) => {
-      nonceStream.on("data", (data) => {
+      nonceStream.on("data", (data: string) => {
         //strip domain name from key
         if (data[0] !== undefined) {
           const nonceStr = data[0].substring(data[0].indexOf(":") + 1, data[0].length);
@@ -87,9 +75,8 @@ export class TransactionsCache extends Cache {
         await this.data.publish(StoreChannel.NewHighestNonce, domain);
         res(highestNonce);
       });
-      nonceStream.on("error", (error) => {
-        console.log(">>>>>>>>>>>>>>>>>>>>> transactionCache::error");
-        console.log(error);
+      nonceStream.on("error", (error: string) => {
+        this.logger.debug(error);
         rej();
       });
     });
@@ -106,7 +93,7 @@ export class TransactionsCache extends Cache {
         // Store the transaction data, since it doesn't already exist.
         await this.data.set(`${tx.originDomain}:${tx.nonce}`, JSON.stringify(tx));
         // If it's a new pending tx, we should call `publish` to notify the subscribers.
-        await this.publish(StoreChannel.NewPreparedTx, tx);
+        await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
       }
     }
   }

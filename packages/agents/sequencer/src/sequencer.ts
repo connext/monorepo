@@ -1,23 +1,14 @@
-import { fastify } from "fastify";
-import pino from "pino";
 import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./context";
-import { setupHandlers } from "./handlers";
+import { bindServer } from "./bindings/server";
 
 const context: AppContext = {} as any;
-
-export const getContext = (): AppContext => {
-  if (!context || Object.keys(context).length === 0) {
-    throw new Error("Context not created");
-  }
-  return context;
-};
 
 export const makeSequencer = async () => {
   const requestContext = createRequestContext("makeSequencer");
@@ -42,16 +33,16 @@ export const makeSequencer = async () => {
 
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader" }),
-      context.config.chains as any,
+      context.config.chains,
     );
 
+    context.adapters.contracts = getContractInterfaces();
+
     // Create server, set up routes, and start listening.
-    const server = fastify({ logger: pino({ level: context.config.logLevel }) });
-    setupHandlers(server);
-    await server.listen(context.config.server.listenPort);
+    await bindServer(context);
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
-      listenPort: context.config.server.listenPort,
+      port: context.config.server.port,
     });
   } catch (error: any) {
     console.error("Error starting sequencer :'(", error);
@@ -66,17 +57,16 @@ export const setupCache = async (
 ): Promise<StoreManager> => {
   const methodContext = createMethodContext(setupCache.name);
 
-  logger.info("cache instance setup in progress...", requestContext, methodContext, {});
+  logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
     redis: { url: redisUrl },
     logger: logger.child({ module: "StoreManager" }),
   });
 
-  logger.info("cache instance setup is done!", requestContext, methodContext, {
+  logger.info("Cache instance setup is done!", requestContext, methodContext, {
     redisUrl: redisUrl,
   });
-
   return cacheInstance;
 };
 
@@ -87,19 +77,16 @@ export const setupSubgraphReader = async (
 ): Promise<SubgraphReader> => {
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("subgrah reader setup in progress...", requestContext, methodContext, {});
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
+  // Separate out relevant subgraph chain config.
+  const chains: { [chain: string]: any } = {};
+  Object.entries(sequencerConfig.chains).forEach(([chainId, config]) => {
+    chains[chainId] = config.subgraph;
+  });
   const subgraphReader = await SubgraphReader.create({
-    // Separate out relevant subgraph chain config.
-    chains: Object.entries(sequencerConfig.chains).reduce(
-      (obj, [chainId, config]) => ({
-        ...obj,
-        [chainId]: config.subgraph,
-      }),
-      {},
-    ),
+    chains,
   });
 
-  logger.info("subgrah reader setup is done!", requestContext, methodContext, {});
-
+  logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
   return subgraphReader;
 };
