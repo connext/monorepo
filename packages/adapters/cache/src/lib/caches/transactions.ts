@@ -140,6 +140,7 @@ export class TransactionsCache extends Cache {
     //update by router per txid and update current time global per router as well
     const stored = await this.data.hset(
       `bids:${txid}`,
+      "txdata",
       JSON.stringify({ bid: bid, status: BidStatus.Pending }),
       "lastUpdate",
       curTimeInSecs,
@@ -167,6 +168,7 @@ export class TransactionsCache extends Cache {
 
     const updated = await this.data.hset(
       `bids:${txid}`,
+      "txdata",
       JSON.stringify({ bid: bid, status: bidStatus, lastUpdate: curTimeInSecs }),
       "lastUpdate",
       curTimeInSecs,
@@ -185,11 +187,13 @@ export class TransactionsCache extends Cache {
   public async getBidsByTransactionId(transactionId: string): Promise<StoredBid[]> {
     const storedBids: StoredBid[] = [];
 
-    const bidStream = this.data.hscanStream(`bids:${transactionId}`);
+    const bidStream = this.data.hscanStream(`bids:${transactionId}`, {
+      match: `bids:${transactionId}`
+    });
 
     return new Promise((res, rej) => {
-      bidStream.on("data", async (kv: string) => {
-        const bidVal = await this.data.get(kv);
+      bidStream.on("data", async (k: string) => {
+        const bidVal = await this.data.hget(k,"txdata");
 
         if (bidVal) {
           const bidIntermdiate = JSON.parse(bidVal);
