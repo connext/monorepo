@@ -14,6 +14,7 @@ import {
   UpgradeBeaconController,
   XAppConnectionManager,
   DummySwap,
+  ProposedOwnable,
 } from "../typechain-types";
 
 import {
@@ -30,11 +31,12 @@ import {
   assertReceiptEvent,
   ZERO_ADDRESS,
   assertObject,
+  transferOwnershipOnContract,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
-import { delay, getRandomBytes32 } from "@connext/nxtp-utils";
+import { delay, getOnchainBalance, getRandomBytes32 } from "@connext/nxtp-utils";
 
 const SEED = 1_000_000;
 
@@ -602,7 +604,7 @@ describe.only("TransactionManager", () => {
       await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
         "!amount",
       );
-      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
     it("should fail if msg.value != amount for native asset", async () => {
@@ -613,85 +615,169 @@ describe.only("TransactionManager", () => {
       await expect(
         originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
       ).to.be.revertedWith("!amount");
-      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
-    // it("should fail if msg.value != 0 for ERC20 token", async () => {
-    //   // addLiquidity: ETH_WITH_ERC_TRANSFER;
-    //   const amount = "1";
-    //   const assetId = local.address;
-    //   await expect(
-    //     originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-    //   ).to.be.revertedWith("#TA:006");
-    //   expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
-    // });
+    it("should fail if msg.value != 0 for ERC20 token", async () => {
+      // addLiquidity: ETH_WITH_ERC_TRANSFER;
+      const amount = "1";
+      const assetId = local.address;
+      await expect(
+        destinationTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
+      ).to.be.revertedWith("#TA:006");
+      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
 
-    // it("should fail if transferFromERC20 fails", async () => {
-    //   const amount = "1";
-    //   const assetId = originAdopted.address;
-    //   await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-    //     "ERC20: transfer amount exceeds allowance",
-    //   );
-    //   expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
-    // });
+    it("should fail if transferFromERC20 fails", async () => {
+      const amount = SEED * 5;
+      const assetId = local.address;
+      await expect(destinationTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+        "ERC20: insufficient allowance",
+      );
+      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+    });
 
-    // it("should work if it is renounced && using an unapproved router", async () => {
-    //   const amount = "1";
-    //   const assetId = ZERO_ADDRESS;
+    it("should work if it is renounced && using an unapproved router", async () => {
+      const amount = "1";
+      const assetId = ZERO_ADDRESS;
 
-    //   // Remove asset
-    //   const remove = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
-    //   await remove.wait();
-    //   expect(await originTm.approvedRouters(router.address)).to.be.false;
+      // Remove asset
+      const remove = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      await remove.wait();
+      expect(await originTm.approvedRouters(router.address)).to.be.false;
 
-    //   // Renounce ownership
-    //   await transferOwnership();
+      // Renounce ownership
+      await transferOwnershipOnContract(ZERO_ADDRESS, admin, originTm as unknown as ProposedOwnable, admin);
 
-    //   await addAndAssertLiquidity(amount, assetId, router);
-    // });
+      await originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
+      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));
+    });
 
-    // it("should work if it is renounced && using an unapproved assetId", async () => {
-    //   const amount = "1";
-    //   const assetId = ZERO_ADDRESS;
+    it("should work for an approved router in approved native asset", async () => {
+      const amount = "1";
+      const assetId = ZERO_ADDRESS;
+      await originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
+      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));
+    });
 
-    //   // Remove asset
-    //   const remove = await originTm.connect(wallet).removeAssetId(assetId);
-    //   await remove.wait();
-    //   expect(await originTm.approvedAssets(assetId)).to.be.false;
+    it("should work for an approved router in approved erc20", async () => {
+      const amount = SEED;
+      const assetId = local.address;
 
-    //   // Renounce ownership
-    //   await transferOwnership();
+      const approveLiq = await local.connect(router).approve(destinationTm.address, amount);
+      await approveLiq.wait();
+      const addLiq = await destinationTm.connect(router).addLiquidity(amount, assetId);
+      await addLiq.wait();
 
-    //   await addAndAssertLiquidity(amount, assetId);
-    // });
+      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
+    });
+  });
 
-    // it("should work for an approved router in approved native asset", async () => {
-    //   const amount = "1";
-    //   const assetId = ZERO_ADDRESS;
-    //   await addAndAssertLiquidity(amount, assetId);
-    // });
+  describe("removeLiquidity", () => {
+    it("should revert if param recipient address is empty", async () => {
+      const amount = "1";
+      const assetId = ZERO_ADDRESS;
 
-    // it("should work for an approved router in approved erc20", async () => {
-    //   const amount = "1";
-    //   const assetId = tokenA.address;
-    //   await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
-    //   await addAndAssertLiquidity(amount, assetId);
-    // });
+      await expect(originTm.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
+        "#RL:007",
+      );
+    });
 
-    // it("addLiqudity should add funds for msg.sender", async () => {
-    //   const amount = "1";
-    //   const assetId = tokenA.address;
-    //   await approveTokens(amount, router, transactionManagerReceiverSide.address, tokenA);
-    //   await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true);
-    // });
+    it("should revert if amount is 0", async () => {
+      const amount = "0";
+      const assetId = ZERO_ADDRESS;
 
-    // it("should work for fee on transfer tokens", async () => {
-    //   const amount = "10";
-    //   const assetId = feeToken.address;
-    //   await approveTokens(amount, router, transactionManagerReceiverSide.address, feeToken);
+      await expect(originTm.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
+        "#RL:002",
+      );
+    });
 
-    //   await addAndAssertLiquidity(amount, assetId, router, transactionManagerReceiverSide, true, await feeToken.fee());
-    // });
+    it("should revert if router balance is lower than amount", async () => {
+      const amount = "1";
+      const assetId = ZERO_ADDRESS;
+
+      await expect(originTm.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
+        "#RL:008",
+      );
+    });
+
+    it("happy case: removeLiquidity native token", async () => {
+      const amount = "1";
+      const assetId = weth.address;
+
+      await originTm.connect(router).addLiquidityFor(amount, ZERO_ADDRESS, router.address, { value: amount });
+      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
+
+      // Get starting + expected  balance
+      const startingBalance = await getOnchainBalance(ZERO_ADDRESS, router.address, ethers.provider);
+      const expectedBalance = startingBalance.add(amount);
+
+      const startingLiquidity = await originTm.routerBalances(router.address, assetId);
+      const expectedLiquidity = startingLiquidity.sub(amount);
+
+      const tx = await originTm.connect(router).removeLiquidity(amount, assetId, router.address);
+
+      const receipt = await tx.wait();
+      expect(receipt.status).to.be.eq(1);
+
+      // Verify receipt events
+      await assertReceiptEvent(receipt, "LiquidityRemoved", {
+        router: router.address,
+        local: assetId,
+        caller: router.address,
+        amount,
+        recipient: router.address,
+      });
+
+      // Check liquidity
+      const liquidity = await originTm.routerBalances(router.address, assetId);
+      expect(liquidity).to.be.eq(expectedLiquidity);
+
+      // Check balance
+      const finalBalance = await getOnchainBalance(ZERO_ADDRESS, router.address, ethers.provider);
+      expect(finalBalance).to.be.eq(expectedBalance.sub(receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice)));
+    });
+
+    it("happy case: removeLiquidity erc20 token", async () => {
+      const amount = "1";
+      const assetId = local.address;
+
+      const approveLiq = await local.connect(router).approve(destinationTm.address, amount);
+      await approveLiq.wait();
+      const addLiq = await destinationTm.connect(router).addLiquidity(amount, assetId);
+      await addLiq.wait();
+
+      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
+
+      // Get starting + expected  balance
+      const startingBalance = await getOnchainBalance(assetId, router.address, ethers.provider);
+      const expectedBalance = startingBalance.add(amount);
+
+      const startingLiquidity = await destinationTm.routerBalances(router.address, assetId);
+      const expectedLiquidity = startingLiquidity.sub(amount);
+
+      const tx = await destinationTm.connect(router).removeLiquidity(amount, assetId, router.address);
+
+      const receipt = await tx.wait();
+      expect(receipt.status).to.be.eq(1);
+
+      // Verify receipt events
+      await assertReceiptEvent(receipt, "LiquidityRemoved", {
+        router: router.address,
+        local: assetId,
+        caller: router.address,
+        amount,
+        recipient: router.address,
+      });
+
+      // Check liquidity
+      const liquidity = await destinationTm.routerBalances(router.address, assetId);
+      expect(liquidity).to.be.eq(expectedLiquidity);
+
+      // Check balance
+      const finalBalance = await getOnchainBalance(assetId, router.address, ethers.provider);
+      expect(finalBalance).to.be.eq(expectedBalance);
+    });
   });
 
   // Token scenario:
