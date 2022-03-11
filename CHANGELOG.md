@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [contracts] Cleanup deployment process
+
 ## 0.1.28
 
 - [txservice] Fix gelato price estimation when it returns zero
