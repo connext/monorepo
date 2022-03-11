@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [txservice] Fix gelato price estimation when it returns zero
+
 ## 0.1.27
 
 - [utils] Fix Gelato price estimation
