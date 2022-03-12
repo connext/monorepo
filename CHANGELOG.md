@@ -2,6 +2,7 @@
 
 ## Next Release
 
+- [contracts] Gather network deployments
 - [contracts] Cleanup deployment process
 
 ## 0.1.28
