@@ -1,12 +1,13 @@
+import { Wallet } from "ethers";
 import { task } from "hardhat/config";
 
 export default task("mint", "Mint test tokens")
   .addParam("amount", "Amount (real units)")
-  .addParam("mintTo", "Override address to mint to")
-  .addOptionalParam("assetId", "Override token address")
+  .addParam("mintto", "Override address to mint to")
+  .addOptionalParam("assetid", "Override token address")
   .setAction(
     async (
-      { mintTo, assetId: _assetId, amount },
+      { "mintto": mintTo, "assetid": _assetId, amount },
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();
@@ -17,8 +18,8 @@ export default task("mint", "Mint test tokens")
         const assetIdDeployment = await deployments.get("TestERC20");
         assetIdAddress = assetIdDeployment.address;
       }
-      console.log("assetIdAddress: ", assetIdAddress);
-      console.log("mintTo: ", mintTo);
+      console.log("asset address: ", assetIdAddress);
+      console.log("mint to: ", mintTo);
 
       const erc20 = await ethers.getContractAt("TestERC20", assetIdAddress);
       const tx = await erc20.mint(mintTo, amount, { from: namedAccounts.deployer });
