@@ -1,7 +1,7 @@
 import { Logger } from "@connext/nxtp-utils";
 
 import { TransactionsCache, AuctionsCache, ConsumersCache } from "./lib/caches";
-import { StoreManagerParams, Subscriptions, StoreChannel, SubscriptionCallback } from "./lib/entities";
+import { StoreManagerParams, StoreChannel } from "./lib/entities";
 
 export interface Store {
   readonly transactions: TransactionsCache;
@@ -25,7 +25,7 @@ export class StoreManager implements Store {
 
   private constructor({ redis, logger, mock }: StoreManagerParams) {
     this.logger = logger;
-    const { url } = redis;
+    const { url } = redis ?? {};
     this.transactions = new TransactionsCache({
       url,
       mock: !!mock,

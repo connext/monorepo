@@ -1,4 +1,10 @@
-import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
+import {
+  Logger,
+  getChainData,
+  createRequestContext,
+  createMethodContext,
+  RequestContext,
+} from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
@@ -51,7 +57,7 @@ export const makeSequencer = async () => {
 };
 
 export const setupCache = async (
-  redisUrl: string,
+  redisUrl: string | undefined,
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<StoreManager> => {
@@ -60,7 +66,8 @@ export const setupCache = async (
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
-    redis: { url: redisUrl },
+    redis: redisUrl ? { url: redisUrl } : undefined,
+    mock: redisUrl ? false : true,
     logger: logger.child({ module: "StoreManager" }),
   });
 

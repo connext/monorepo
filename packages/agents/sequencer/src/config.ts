@@ -6,7 +6,6 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
-const DEFAULT_REDIS_BASE_URL = "redis://mock";
 
 /**
  * Helper to allow easy mocking
@@ -55,7 +54,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   // return configFile;
 
   const _sequencerConfig: SequencerConfig = {
-    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl || DEFAULT_REDIS_BASE_URL,
+    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains

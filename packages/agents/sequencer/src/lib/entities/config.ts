@@ -31,7 +31,7 @@ export const SequencerConfigSchema = Type.Object({
     Type.Literal("silent"),
   ]),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  redisUrl: Type.String({ format: "uri" }),
+  redisUrl: Type.Optional(Type.String({ format: "uri" })),
   server: TServerConfig,
 });
 

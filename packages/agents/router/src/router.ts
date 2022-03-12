@@ -15,7 +15,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "./config";
-import { bindServer, bindMetrics, bindPrices, bindSubgraph } from "./bindings";
+import { bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./context";
 import { getOperations } from "./lib/operations";
 
@@ -101,7 +101,8 @@ export const setupCache = async (context: AppContext, requestContext: RequestCon
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
-    redis: { url: redisUrl },
+    redis: redisUrl ? { url: redisUrl } : undefined,
+    mock: redisUrl ? false : true,
     logger: logger.child({ module: "StoreManager" }),
   });
 

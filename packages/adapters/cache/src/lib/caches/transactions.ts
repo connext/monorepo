@@ -67,7 +67,7 @@ export class TransactionsCache extends Cache {
    * @returns Transaction data
    */
   public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<CrossChainTx> {
-    const txDataStream = await this.data.hscanStream(`transactions:${domain}`, {
+    const txDataStream = this.data.hscanStream(`transactions:${domain}`, {
       match: `*:${txid}`,
     });
     let txData: CrossChainTx;
@@ -87,7 +87,7 @@ export class TransactionsCache extends Cache {
   }
 
   public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<CrossChainTx> {
-    const txDataStream = await this.data.hscanStream(`transactions:${domain}`, {
+    const txDataStream = this.data.hscanStream(`transactions:${domain}`, {
       match: `${nonce}:*`,
     });
     let txData: CrossChainTx;
