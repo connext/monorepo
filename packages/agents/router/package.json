@@ -12,7 +12,7 @@
     "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build --watch --preserveWatchOutput'",
     "start": "node --enable-source-maps dist/index.js'",
     "lint": "eslint ./src --ext .ts --env node",
-    "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
+    "test": "nyc ts-mocha --require 'test/mock.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -93,7 +93,7 @@
     "ts-mocha": "^8.0.0",
     "ts-node": "^10.2.0",
     "tslib": "^2.3.1",
-    "typescript": "4.3.5"
+    "typescript": "^4.6.2"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
 }

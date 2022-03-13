@@ -1259,4 +1259,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
       _sig
     );
   }
+
+  receive() external payable {}
 }

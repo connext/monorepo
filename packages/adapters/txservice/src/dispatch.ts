@@ -143,7 +143,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
             await this.mine(transaction);
             this.minedBuffer.push(transaction);
             break;
-          } catch (error) {
+          } catch (error: any) {
             this.logger.debug("Received error waiting for transaction to be mined.", requestContext, methodContext, {
               chainId: this.chainId,
               txsId: transaction.uuid,
@@ -226,7 +226,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           await this.fail(transaction);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error), {
         handlingTransaction: transaction ? transaction.loggable : undefined,
       });
@@ -442,7 +442,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
                 }
               }
               await this.submit(transaction);
-            } catch (error) {
+            } catch (error: any) {
               if (error.type === BadNonce.type) {
                 lastErrorReceived = error.reason;
                 ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
@@ -465,7 +465,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // Increment the successful nonce, and assign our local nonce to that value.
           this.nonce = nonce + 1;
           return { value: transaction, success: true };
-        } catch (error) {
+        } catch (error: any) {
           return { value: error, success: false };
         }
       },
@@ -553,7 +553,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
         transaction: transaction.loggable,
       });
       this.callbacks.onSubmit(transaction);
-    } catch (error) {
+    } catch (error: any) {
       // If we end up with an error, it should be thrown here. But first, log loudly if we get an insufficient
       // funds error.
       if (
@@ -621,7 +621,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
 
       // Set transaction's receipt.
       transaction.receipt = receipt;
-    } catch (_error) {
+    } catch (_error: any) {
       if (_error.type === TransactionReplaced.type) {
         const error = _error as TransactionReplaced;
         this.logger.debug(
@@ -713,7 +713,7 @@ export class TransactionDispatch extends RpcProviderAggregator {
     let receipt: providers.TransactionReceipt;
     try {
       receipt = await this.confirmTransaction(transaction, this.config.confirmations, timeout);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         "Did not get enough confirmations for a *mined* transaction! Did a re-org occur?",
         requestContext,

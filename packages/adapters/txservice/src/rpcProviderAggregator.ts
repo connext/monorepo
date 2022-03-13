@@ -88,6 +88,7 @@ export class RpcProviderAggregator {
     // Register a provider for each url.
     // Make sure all providers are ready()
     const providerConfigs = this.config.providers;
+    // @ts-ignore
     const filteredConfigs = providerConfigs.filter((config) => {
       const valid = validateProviderConfig(config);
       if (!valid) {
@@ -213,7 +214,7 @@ export class RpcProviderAggregator {
         async (response: any) => {
           try {
             return await this.getTransactionReceipt(response.hash);
-          } catch (error) {
+          } catch (error: any) {
             errors.push(error);
             return null;
           }
@@ -311,7 +312,7 @@ export class RpcProviderAggregator {
           return this.execute<providers.TransactionResponse | null>(false, async (provider: SyncProvider) => {
             return await provider.getTransaction(response.hash);
           });
-        } catch (error) {
+        } catch (error: any) {
           errors.push(error);
           return null;
         }
@@ -348,7 +349,7 @@ export class RpcProviderAggregator {
       const result = await provider.send(args[0], args[1]);
       try {
         return BigNumber.from(result).add(gasLimitInflation ? BigNumber.from(gasLimitInflation) : 0);
-      } catch (error) {
+      } catch (error: any) {
         throw new GasEstimateInvalid(result, {
           error: error.message,
         });
@@ -405,7 +406,7 @@ export class RpcProviderAggregator {
           uri,
           data: response.data,
         });
-      } catch (e) {
+      } catch (e: any) {
         this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
           uri,
           res: response ? (response?.data ? response.data : response) : undefined,

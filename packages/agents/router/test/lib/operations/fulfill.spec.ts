@@ -1,98 +1,41 @@
-import {
-  invariantDataMock,
-  txReceiptMock,
-  expect,
-  createLoggingContext,
-  mkBytes32,
-  sigMock,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, CrossChainTxStatus, mkAddress, mkBytes32, expect } from "@connext/nxtp-utils";
 import { constants, BigNumber } from "ethers";
 import { SinonStub, stub } from "sinon";
 
 import { getOperations } from "../../../src/lib/operations";
-import { contractWriterMock, ctxMock, isRouterContractMock, txServiceMock } from "../../globalTestHook";
-import * as SharedFns from "../../../src/lib/helpers/shared";
-import { fulfillInputMock, routerAddrMock } from "../../utils";
+import * as SharedHelperFns from "../../../src/lib/helpers/shared";
+import * as FullfillFns from "../../../src/lib/helpers/fulfill";
+import { mock } from "../../mock";
+import { parseEther } from "ethers/lib/utils";
 
 const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
 
 const { fulfill } = getOperations();
+const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, {
+  status: CrossChainTxStatus.Prepared,
+  asset: mkAddress("0xaaa"),
+  transactionId: mkBytes32(),
+  nonce: 0,
+  user: mkAddress("0xa"),
+});
+
+const mockAppContext = mock.context();
 
 describe("Fulfill Receiver Operation", () => {
-  beforeEach(() => {
-    stub(SharedFns, "getMainnetEquivalent").resolves(constants.AddressZero);
-    Object.values(contractWriterMock).forEach((method: any) => (method as SinonStub).resetHistory());
-  });
+  beforeEach(() => {});
 
-  describe("#fulfillReceiver", () => {
-    it("should error if invariant data validation fails", async () => {
-      const _invariantDataMock = { ...invariantDataMock, user: "abc" };
-      await expect(fulfill(_invariantDataMock, fulfillInputMock, requestContext)).to.eventually.be.rejectedWith(
-        "Params invalid",
-      );
+  describe("#fulfill", () => {
+    beforeEach(() => {
+      stub(SharedHelperFns, "sanitationCheck").resolves();
+      stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
+      stub(FullfillFns, "getReceiverAmount").resolves({
+        receivingAmount: parseEther("100").toString(),
+        routerFee: parseEther("1").toString(),
+        amountAfterSwapRate: "1",
+      });
     });
-
-    it("should error if prepare input validation fails", async () => {
-      const _fulfillInputMock = { ...fulfillInputMock, signature: "abc" };
-      await expect(fulfill(invariantDataMock, _fulfillInputMock, requestContext)).to.eventually.be.rejectedWith(
-        "Params invalid",
-      );
-    });
-
-    it("should error if no config available for sending chain", async () => {
-      await expect(
-        fulfill({ ...invariantDataMock, sendingChainId: 1234 }, fulfillInputMock, requestContext),
-      ).to.eventually.be.rejectedWith("No chain config for chainId");
-    });
-
-    it("happy: should fulfill on sender chain with router contract", async () => {
-      isRouterContractMock.value(true);
-      const routerRelayerFee = BigNumber.from("1");
-      txServiceMock.calculateGasFee.resolves(routerRelayerFee);
-      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
-      expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfillRouterContract).to.be.calledOnceWithExactly(
-        invariantDataMock.sendingChainId,
-        {
-          relayerFee: fulfillInputMock.relayerFee,
-          signature: fulfillInputMock.signature,
-          callData: fulfillInputMock.callData,
-          txData: {
-            ...invariantDataMock,
-            amount: fulfillInputMock.amount,
-            expiry: fulfillInputMock.expiry,
-            preparedBlockNumber: fulfillInputMock.preparedBlockNumber,
-          },
-        },
-        routerAddrMock,
-        sigMock,
-        constants.AddressZero,
-        routerRelayerFee.toString(),
-        true,
-        requestContext,
-      );
-    });
-
-    it("happy: should fulfill on sender chain", async () => {
-      ctxMock.isRouterContract = false;
-      const receipt = await fulfill(invariantDataMock, { ...fulfillInputMock }, requestContext);
-
-      expect(receipt).to.deep.eq(txReceiptMock);
-      expect(contractWriterMock.fulfillTransactionManager).to.be.calledOnceWith(
-        invariantDataMock.sendingChainId,
-        {
-          relayerFee: fulfillInputMock.relayerFee,
-          signature: fulfillInputMock.signature,
-          callData: fulfillInputMock.callData,
-          txData: {
-            ...invariantDataMock,
-            amount: fulfillInputMock.amount,
-            expiry: fulfillInputMock.expiry,
-            preparedBlockNumber: fulfillInputMock.preparedBlockNumber,
-          },
-        },
-        requestContext,
-      );
+    it("should error if slippage invalid ", async () => {
+      await expect(fulfill(mockAppContext, mockCrossChainTx)).to.eventually.be.rejectedWith("Slippage invalid");
     });
   });
 });

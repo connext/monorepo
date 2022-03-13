@@ -1,10 +1,12 @@
 import { Logger } from "@connext/nxtp-utils";
 
-import { TransactionsCache } from "./lib/caches";
-import { StoreManagerParams, Subscriptions, StoreChannel, SubscriptionCallback } from "./lib/entities";
+import { TransactionsCache, AuctionsCache, ConsumersCache } from "./lib/caches";
+import { StoreManagerParams, StoreChannel } from "./lib/entities";
 
 export interface Store {
   readonly transactions: TransactionsCache;
+  readonly auctions: AuctionsCache;
+  readonly consumers: ConsumersCache;
 }
 
 /**
@@ -15,15 +17,30 @@ export class StoreManager implements Store {
   public static readonly Channel = StoreChannel;
   private static instance: StoreManager | undefined;
 
-  private readonly subscriptions: Subscriptions = new Map();
   private readonly logger: Logger;
 
   public readonly transactions: TransactionsCache;
+  public readonly auctions: AuctionsCache;
+  public readonly consumers: ConsumersCache;
 
-  private constructor({ redis, logger }: StoreManagerParams) {
+  private constructor({ redis, logger, mock }: StoreManagerParams) {
     this.logger = logger;
-    const { url } = redis;
-    this.transactions = new TransactionsCache({ url, subscriptions: this.subscriptions });
+    const { url } = redis ?? {};
+    this.transactions = new TransactionsCache({
+      url,
+      mock: !!mock,
+      logger: this.logger.child({ name: "TransactionsCache" }),
+    });
+    this.auctions = new AuctionsCache({
+      url,
+      mock: !!mock,
+      logger: this.logger.child({ name: "AuctionsCache" }),
+    });
+    this.consumers = new ConsumersCache({
+      url,
+      mock: !!mock,
+      logger: this.logger.child({ name: "ConsumersCache" }),
+    });
   }
 
   /**

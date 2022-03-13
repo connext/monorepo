@@ -1,34 +1,25 @@
+import { Wallet } from "ethers";
 import { task } from "hardhat/config";
 
 export default task("mint", "Mint test tokens")
   .addParam("amount", "Amount (real units)")
-  .addOptionalParam("mintTo", "Override address to mint to")
-  .addOptionalParam("assetId", "Override token address")
-  .addOptionalParam("txManagerAddress", "Override tx manager address")
+  .addParam("mintto", "Override address to mint to")
+  .addOptionalParam("assetid", "Override token address")
   .setAction(
     async (
-      { mintTo: _mintTo, assetId: _assetId, txManagerAddress: _txManagerAddress, amount },
+      { "mintto": mintTo, "assetid": _assetId, amount },
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();
       console.log("namedAccounts: ", namedAccounts);
-
-      let txManagerAddress = _txManagerAddress;
-      if (!txManagerAddress) {
-        const txManagerDeployment = await deployments.get("TransactionManager");
-        txManagerAddress = txManagerDeployment.address;
-      }
-      console.log("txManagerAddress: ", txManagerAddress);
 
       let assetIdAddress = _assetId;
       if (!assetIdAddress) {
         const assetIdDeployment = await deployments.get("TestERC20");
         assetIdAddress = assetIdDeployment.address;
       }
-      console.log("assetIdAddress: ", assetIdAddress);
-
-      const mintTo = _mintTo ?? namedAccounts.deployer;
-      console.log("mintTo: ", mintTo);
+      console.log("asset address: ", assetIdAddress);
+      console.log("mint to: ", mintTo);
 
       const erc20 = await ethers.getContractAt("TestERC20", assetIdAddress);
       const tx = await erc20.mint(mintTo, amount, { from: namedAccounts.deployer });

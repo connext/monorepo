@@ -8,7 +8,6 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-const DEFAULT_REDIS_BASE_URL = "redis://mock";
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 dotenvConfig();
@@ -83,7 +82,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
-  redisUrl: Type.String({ format: "uri" }),
+  redisUrl: Type.Optional(Type.String({ format: "uri" })),
   sequencerUrl: Type.String({ format: "uri" }),
   server: TServerConfig,
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
@@ -124,7 +123,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
-    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl || DEFAULT_REDIS_BASE_URL,
+    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains

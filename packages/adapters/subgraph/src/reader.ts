@@ -64,6 +64,8 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
+  // public async getTransaction(domain: string, transactionId: string): Promise<CrossChainTx> {}
+
   public async getPreparedTransactions(agents: Map<string, SubgraphQueryMetaParams>): Promise<CrossChainTx[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const { parser } = getHelpers();
@@ -77,7 +79,7 @@ export class SubgraphReader {
 
             return client.GetPreparedTransactions({
               destinationDomains,
-              maxPrepareBlockNumber: (agents.get(domain)!.maxPrepareBlockNumber).toString(),
+              maxPrepareBlockNumber: agents.get(domain)!.maxPrepareBlockNumber.toString(),
               nonce,
             });
           });
@@ -105,7 +107,7 @@ export class SubgraphReader {
 
             return client.GetPreparedTransactions({
               destinationDomains,
-              maxPrepareBlockNumber: (agents.get(domain)!.maxPrepareBlockNumber).toString(),
+              maxPrepareBlockNumber: agents.get(domain)!.maxPrepareBlockNumber.toString(),
               nonce,
             }); // TODO: nonce + maxPrepareBlockNumber
           });
@@ -137,7 +139,7 @@ export class SubgraphReader {
           (client) =>
             client.GetFulfilledAndReconciledTransactionsByIds({
               transactionIds,
-              maxPrepareBlockNumber: (agents.get(destinationDomain)!.maxPrepareBlockNumber).toString(),
+              maxPrepareBlockNumber: agents.get(destinationDomain)!.maxPrepareBlockNumber.toString(),
             }), // TODO: maxPrepareBlockNumber
         );
         transactions.forEach((_tx) => {

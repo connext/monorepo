@@ -139,7 +139,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
               : [],
           ),
         );
-      } catch (error) {
+      } catch (error: any) {
         this.updateMetrics(false, sendTimestamp, i, method, params, {
           type: error.type.toString(),
           context: error.context,
