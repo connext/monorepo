@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.30
+
+- [utils] Fix bug in gas fee calc
+
 ## 0.1.29
 
 - [contracts] Gather network deployments
