@@ -298,8 +298,15 @@ export class ChainReader {
         requestContext,
       ),
     ]);
+    const total = senderFulfillGasFee.add(receiverPrepareGasFee);
 
-    return senderFulfillGasFee.add(receiverPrepareGasFee);
+    this.logger.info("Calculated fees", requestContext, methodContext, {
+      senderFulfillGasFee: senderFulfillGasFee.toString(),
+      receiverPrepareGasFee: receiverPrepareGasFee.toString(),
+      total: total.toString(),
+    });
+
+    return total;
   }
 
   /**
@@ -456,9 +463,12 @@ export class ChainReader {
     // Use Gelato Oracle if it's configured and available for the chain id
     let gelatoEstimatedFee: BigNumber | undefined;
     if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
+      const inputDecimals = await this.getDecimalsForAsset(chainId, assetId);
       gelatoEstimatedFee = await this.calculateGelatoFee(chainIdForGasPrice, assetId, gasLimit.toNumber());
       gelatoEstimatedFee = gelatoEstimatedFee
-        ? gelatoEstimatedFee.div(BigNumber.from(10).pow(18 - decimals))
+        ? decimals > inputDecimals
+          ? gelatoEstimatedFee.mul(BigNumber.from(10).pow(decimals - inputDecimals))
+          : gelatoEstimatedFee.div(BigNumber.from(10).pow(inputDecimals - decimals))
         : undefined;
     }
 
