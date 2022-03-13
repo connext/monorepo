@@ -61,6 +61,7 @@ export const mock = {
       host: "localhost",
     },
     network: "testnet",
+    auctionWaitTime: 1_000,
   }),
   adapter: {
     cache: (): SinonStubbedInstance<StoreManager> => {

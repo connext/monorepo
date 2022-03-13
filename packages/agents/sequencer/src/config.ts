@@ -6,6 +6,7 @@ import contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 
 /**
  * Helper to allow easy mocking
@@ -63,10 +64,14 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
-      port:
-        process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
+      port: process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
       host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
     },
+    auctionWaitTime:
+      process.env.NXTP_AUCTION_WAIT_TIME ||
+      configJson.auctionWaitTime ||
+      configFile.auctionWaitTime ||
+      DEFAULT_AUCTION_WAIT_TIME,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);

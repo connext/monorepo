@@ -1,20 +1,14 @@
-import {
-  gelatoSend,
-  isChainSupportedByGelato,
-  Bid,
-  RequestContext,
-  createLoggingContext,
-} from "@connext/nxtp-utils";
+import { gelatoSend, isChainSupportedByGelato, Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
 
-import { AppContext } from "../../context";
+import { getContext } from "../../sequencer";
 
-export const sendToRelayer = async (context: AppContext, bid: Bid, _requestContext: RequestContext) => {
+export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) => {
   const {
     logger,
     chainData,
-    adapters: { chainreader, cache, contracts },
+    adapters: { contracts },
     config,
-  } = context;
+  } = getContext();
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
   logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { bid });
 

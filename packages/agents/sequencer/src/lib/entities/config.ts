@@ -33,6 +33,7 @@ export const SequencerConfigSchema = Type.Object({
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   redisUrl: Type.Optional(Type.String({ format: "uri" })),
   server: TServerConfig,
+  auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

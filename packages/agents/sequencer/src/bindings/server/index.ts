@@ -4,11 +4,12 @@ import { Bid, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { AppContext } from "../../context";
 import { handleBid } from "../../lib/operations";
+import { getContext } from "../../sequencer";
 
-export const bindServer = (context: AppContext) =>
+export const bindServer = () =>
   new Promise<void>((res) => {
-    const { config, logger } = context;
-    const server = fastify({ logger: pino({ level: context.config.logLevel }) });
+    const { config, logger } = getContext();
+    const server = fastify({ logger: pino({ level: config.logLevel }) });
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");
@@ -18,7 +19,7 @@ export const bindServer = (context: AppContext) =>
       try {
         const { requestContext } = createLoggingContext("/bid endpoint");
         const { body: req } = request;
-        const result = await handleBid(context, (req as any).bid as Bid, requestContext);
+        const result = await handleBid((req as any).bid as Bid, requestContext);
         return response.status(200).send(result);
       } catch (error: any) {
         logger.error(`Bid Post Error: ${error}`);

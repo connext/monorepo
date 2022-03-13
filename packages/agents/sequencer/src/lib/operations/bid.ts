@@ -2,14 +2,15 @@ import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
 
 import { sendToRelayer } from "./relayer";
 import { AppContext } from "../../context";
+import { getContext } from "../../sequencer";
 
-export const handleBid = async (context: AppContext, bid: Bid, _requestContext: RequestContext): Promise<any> => {
+export const handleBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const {
     logger,
     chainData,
     adapters: { chainreader, cache, contracts },
     config,
-  } = context;
+  } = getContext();
   const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
   logger.info(`Method start: ${handleBid.name}`, requestContext, methodContext, { bid });
 
@@ -44,15 +45,16 @@ export const handleBid = async (context: AppContext, bid: Bid, _requestContext: 
       transactionId: bid.transactionId,
     });
 
-    await selectBestBid(context, bid.transactionId, requestContext);
+    await selectBestBid(bid.transactionId, requestContext);
   }
 };
 
-export const selectBestBid = async (context: AppContext, transactionId: string, _requestContext: RequestContext) => {
+export const selectBestBid = async (transactionId: string, _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { chainreader, cache },
-  } = context;
+    adapters: { cache },
+    config,
+  } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(selectBestBid.name, _requestContext);
   logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, { transactionId });
@@ -63,6 +65,6 @@ export const selectBestBid = async (context: AppContext, transactionId: string, 
     const random = Math.floor(Math.random() * records.length);
     const selectedBid = records[random];
 
-    await sendToRelayer(context, selectedBid.payload, requestContext);
-  });
+    await sendToRelayer(selectedBid.payload, requestContext);
+  }, config.auctionWaitTime);
 };

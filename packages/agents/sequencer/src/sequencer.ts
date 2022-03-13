@@ -1,10 +1,4 @@
-import {
-  Logger,
-  getChainData,
-  createRequestContext,
-  createMethodContext,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
@@ -15,6 +9,7 @@ import { AppContext } from "./context";
 import { bindServer } from "./bindings/server";
 
 const context: AppContext = {} as any;
+export const getContext = () => context;
 
 export const makeSequencer = async () => {
   const requestContext = createRequestContext("makeSequencer");
@@ -45,7 +40,7 @@ export const makeSequencer = async () => {
     context.adapters.contracts = getContractInterfaces();
 
     // Create server, set up routes, and start listening.
-    await bindServer(context);
+    await bindServer();
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
       port: context.config.server.port,
