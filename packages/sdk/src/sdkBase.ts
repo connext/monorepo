@@ -580,6 +580,14 @@ export class NxtpSdkBase {
       relayerFee,
     });
 
+    this.logger.info("Calculated fees", requestContext, methodContext, {
+      receiverAmount,
+      totalFee,
+      metaTxRelayerFee,
+      routerFee,
+      gasFee,
+    });
+
     if (BigNumber.from(receiverAmount).lt(0)) {
       throw new NotEnoughAmount({ receiverAmount, totalFee, routerFee, gasFee, relayerFee: metaTxRelayerFee });
     }
