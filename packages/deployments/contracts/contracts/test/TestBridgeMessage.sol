@@ -49,7 +49,7 @@ contract TestBridgeMessage {
 
     function testIsValidMessageLength(bytes memory _message)
         external
-        pure
+        view
         returns (bool)
     {
         uint40 _t = getMessageType(_message);

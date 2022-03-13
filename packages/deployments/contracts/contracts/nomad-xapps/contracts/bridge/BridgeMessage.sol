@@ -48,11 +48,11 @@ library BridgeMessage {
     // TODO: need to refine the number of assets in the batch
     // TODO: does this delineation still make sense? (i.e. token ids then "action")
 
-    uint256 private constant TOKEN_ID_LEN = 36;
-    uint8 private constant TOKENS_IN_BATCH = 3;
+    uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
+    uint256 public constant TOKENS_IN_BATCH = 3;
     uint256 private constant TOKEN_IDS_LEN = TOKENS_IN_BATCH * TOKEN_ID_LEN; // 108 = 3 * (4 bytes domain + 32 bytes id)
     uint256 private constant IDENTIFIER_LEN = 1; // type of action (Types enum)
-    uint256 private constant BATCH_TRANSFER_LEN = 256; // 32 bytes recipient + 32 bytes root + 3 * (32 bytes detailsHash + 32 bytes amount)
+    uint256 private constant BATCH_TRANSFER_LEN = 257; // 1 byte identifier + 32 bytes recipient + 32 bytes root + 3 * (32 bytes detailsHash + 32 bytes amount)
 
     // ============ Modifiers ============
 
@@ -258,7 +258,7 @@ library BridgeMessage {
      * @param _idx The index of the desired token id
      * @return The domain
      */
-    function domain(bytes29 _tokenId, uint8 _idx)
+    function domain(bytes29 _tokenId, uint256 _idx)
         internal
         pure
         typeAssert(_tokenId, Types.TokenIds)
@@ -275,7 +275,7 @@ library BridgeMessage {
      * @param _idx The index of the desired token id
      * @return The ID
      */
-    function id(bytes29 _tokenId, uint8 _idx)
+    function id(bytes29 _tokenId, uint256 _idx)
         internal
         pure
         typeAssert(_tokenId, Types.TokenIds)
@@ -292,7 +292,7 @@ library BridgeMessage {
      * @param _tokenId The message
      * @return The EVM ID
      */
-    function evmId(bytes29 _tokenId, uint8 _idx)
+    function evmId(bytes29 _tokenId, uint256 _idx)
         internal
         pure
         typeAssert(_tokenId, Types.TokenIds)
@@ -364,7 +364,7 @@ library BridgeMessage {
      * @param _idx The index of the amount
      * @return The amount
      */
-    function amnt(bytes29 _transferAction, uint8 _idx) internal pure returns (uint256) {
+    function amnt(bytes29 _transferAction, uint256 _idx) internal pure returns (uint256) {
         // prefix = 1 byte identifier + 32 bytes recipient + 32 bytes root = 65 bytes
         // per-token -> 32 bytes detailsHash
         return _transferAction.indexUint(65 + (_idx * 64) + 32, 32);
@@ -376,7 +376,7 @@ library BridgeMessage {
      * @param _idx The index of the details
      * @return The detailsHash
      */
-    function detailsHash(bytes29 _transferAction, uint8 _idx)
+    function detailsHash(bytes29 _transferAction, uint256 _idx)
         internal
         pure
         returns (bytes32)
