@@ -33,7 +33,7 @@ export const makeSequencer = async () => {
     context.config = await getConfig();
 
     // Set up adapters.
-    context.adapters.cache = await setupCache(context.config.redisUrl!, context.logger, requestContext);
+    context.adapters.cache = await setupCache(context.config.redisUrl, context.logger, requestContext);
 
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
