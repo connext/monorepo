@@ -17,7 +17,6 @@ import {
   getDecimalsForAsset,
   getDestinationLocalAsset,
   getDestinationTransactingAsset,
-  sanitationCheck,
 } from "../helpers/shared";
 import { sendBid } from "./sequencer";
 import { context } from "../../router";
@@ -43,9 +42,6 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     routerAddress,
   } = context;
   logger.info("Method start", requestContext, methodContext, { pendingTx });
-
-  /// sanitation check before validiation
-  await sanitationCheck(pendingTx, "fulfill");
 
   /// create a bid
   const {

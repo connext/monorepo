@@ -10,82 +10,50 @@ import {
 import { SanitationCheckFailed } from "../errors";
 import { context } from "../../router";
 
-export const sanitationCheck = async (
-  transactionData: CrossChainTx,
-  functionCall: "prepare" | "fulfill" | "reconcile",
-  _requestContext?: RequestContext<string>,
-) => {
-  const {
-    adapters: { txservice, contracts },
-    config,
-  } = context;
-  const { requestContext, methodContext } = createLoggingContext(sanitationCheck.name);
+// export const sanitationCheck = async (transactionData: CrossChainTx, _requestContext?: RequestContext<string>) => {
+//   const {
+//     adapters: { txservice, contracts },
+//     config,
+//   } = context;
+//   const { requestContext, methodContext } = createLoggingContext(sanitationCheck.name);
 
-  if (functionCall === "fulfill") {
-    // Check out if this transaction provides fast liquidity
-    // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
-    const transactionId = transactionData.transactionId;
-    const txManagerContractAddress = config.chains[transactionData.destinationDomain].deployments.transactionManager;
-    const encodeReconciledTransaction = contracts.transactionManager.encodeFunctionData("reconciledTransactions", [
-      transactionId,
-    ]);
-    const reconciledTxHash = await txservice.readTx({
-      chainId: parseInt(transactionData.destinationDomain),
-      to: txManagerContractAddress,
-      data: encodeReconciledTransaction,
-    });
+//   // Check out if this transaction provides fast liquidity
+//   // TransactionManager.sol:  bool _isFast = reconciledTransactions[_transactionId] == bytes32(0);
+//   const transactionId = transactionData.transactionId;
+//   const txManagerContractAddress = config.chains[transactionData.destinationDomain].deployments.transactionManager;
+//   const encodeReconciledTransaction = contracts.transactionManager.encodeFunctionData("reconciledTransactions", [
+//     transactionId,
+//   ]);
+//   const reconciledTxHash = await txservice.readTx({
+//     chainId: parseInt(transactionData.destinationDomain),
+//     to: txManagerContractAddress,
+//     data: encodeReconciledTransaction,
+//   });
 
-    const isFast = reconciledTxHash == constants.HashZero;
+//   const isFast = reconciledTxHash == constants.HashZero;
 
-    // If the transaction provides fast liquidity, ensure it has not been fulfilled already
-    // If not, check the reconciled transactions to ensur it is the right data
-    if (isFast) {
-      const encodeRoutedTransaction = contracts.transactionManager.encodeFunctionData("routedTransactions", [
-        transactionId,
-      ]);
-      const fulfilledTxEncoded = await txservice.readTx({
-        chainId: parseInt(transactionData.destinationDomain),
-        to: txManagerContractAddress,
-        data: encodeRoutedTransaction,
-      });
-      const [fulfillTx] = contracts.transactionManager.decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
+//   // If the transaction provides fast liquidity, ensure it has not been fulfilled already
+//   // If not, check the reconciled transactions to ensur it is the right data
+//   if (isFast) {
+//     const encodeRoutedTransaction = contracts.transactionManager.encodeFunctionData("routedTransactions", [
+//       transactionId,
+//     ]);
+//     const fulfilledTxEncoded = await txservice.readTx({
+//       chainId: parseInt(transactionData.destinationDomain),
+//       to: txManagerContractAddress,
+//       data: encodeRoutedTransaction,
+//     });
+//     const [fulfillTx] = contracts.transactionManager.decodeFunctionResult("routedTransactions", fulfilledTxEncoded);
 
-      const fulfillTxTyped = fulfillTx as FulfilledTransaction;
-      if (fulfillTx != constants.AddressZero && fulfillTxTyped.router != constants.AddressZero) {
-        throw new SanitationCheckFailed("fulfill", transactionId, transactionData.destinationDomain, {
-          requestContext,
-          methodContext,
-        });
-      }
-    } else {
-      /// TODO: Not implemented yet
-      // const externalCallHash = getExternalCallHash({
-      //   recipient: transactionData.recipient,
-      //   callData: transactionData.callData,
-      //   callTo: transactionData.callTo,
-      // });
-      // const _reconciledTxHash = getReconciledHash({
-      //   externalHash: externalCallHash,
-      //   local: transactionData.fulfillLocalAsset,
-      //   amount: transactionData.fulfillLocalAsset,
-      //   recipient: transactionData.recipient,
-      // });
-      // const [decodedReconciledTxHash] = contracts.transactionManager.decodeFunctionResult(
-      //   "reconciledTransactions",
-      //   reconciledTxHash,
-      // );
-      // if (_reconciledTxHash !== decodedReconciledTxHash) {
-      //   throw new SanitationCheckFailed("fulfill", transactionId, chainId, {
-      //     requestContext,
-      //     methodContext,
-      //     message: "Reconciled TxHash doesn't match",
-      //   });
-      // }
-    }
-  } else if (functionCall == "reconcile") {
-    // This function is called by the bridge router to pass through the information provided by the user on prepare.
-  }
-};
+//     const fulfillTxTyped = fulfillTx as FulfilledTransaction;
+//     if (fulfillTx != constants.AddressZero && fulfillTxTyped.router != constants.AddressZero) {
+//       throw new SanitationCheckFailed("fulfill", transactionId, transactionData.destinationDomain, {
+//         requestContext,
+//         methodContext,
+//       });
+//     }
+//   }
+// };
 
 /**
  * Returns transacting asset address on destination domain corresponding to transacting asset on origin domain
