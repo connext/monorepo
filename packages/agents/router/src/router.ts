@@ -14,12 +14,12 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 
-import { getConfig, NxtpRouterConfig } from "./config";
+import { getConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph } from "./bindings";
-import { AppContext } from "./context";
+import { AppContext } from "./lib/entities";
 import { getOperations } from "./lib/operations";
 
-const context: AppContext = {} as any;
+export const context: AppContext = {} as any;
 
 export const makeRouter = async () => {
   const requestContext = createRequestContext("makeRouter");
@@ -51,9 +51,9 @@ export const makeRouter = async () => {
       config: { ...context.config, mnemonic: "*****" },
     });
 
-    context.adapters.cache = await setupCache(context, requestContext);
+    context.adapters.cache = await setupCache(requestContext);
 
-    context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(requestContext);
 
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService" }, context.config.logLevel),
@@ -75,13 +75,13 @@ export const makeRouter = async () => {
     // Set up bindings.
     // TODO: New diagnostic mode / cleanup mode?
     if (context.config.mode.priceCaching) {
-      await bindPrices(context);
+      await bindPrices();
     } else {
       logger.warn("Running router without price caching.");
     }
     // await bindServer(context);
-    await bindMetrics(context);
-    await bindSubgraph(context);
+    await bindMetrics();
+    await bindSubgraph();
 
     logger.info("Router ready!");
   } catch (e) {
@@ -90,7 +90,7 @@ export const makeRouter = async () => {
   }
 };
 
-export const setupCache = async (context: AppContext, requestContext: RequestContext): Promise<StoreManager> => {
+export const setupCache = async (requestContext: RequestContext): Promise<StoreManager> => {
   const {
     config: { redisUrl },
     logger,
@@ -110,7 +110,7 @@ export const setupCache = async (context: AppContext, requestContext: RequestCon
   cacheInstance.consumers.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
     try {
-      await fulfill(context, JSON.parse(pendingTx) as CrossChainTx);
+      await fulfill(JSON.parse(pendingTx) as CrossChainTx);
     } catch (err: any) {
       logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }
@@ -123,11 +123,8 @@ export const setupCache = async (context: AppContext, requestContext: RequestCon
   return cacheInstance;
 };
 
-export const setupSubgraphReader = async (
-  sequencerConfig: NxtpRouterConfig,
-  logger: Logger,
-  requestContext: RequestContext,
-): Promise<SubgraphReader> => {
+export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
+  const { config: sequencerConfig, logger } = context;
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});

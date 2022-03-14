@@ -5,7 +5,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
 import { NxtpRouterConfig } from "../src/config";
-import { AppContext } from "../src/context";
+import { AppContext } from "../src/lib/entities/context";
 
 // export const MUTATED_AMOUNT = "100000000000000000000";
 // export const MUTATED_BUFFER = 123400;
