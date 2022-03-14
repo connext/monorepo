@@ -28,7 +28,6 @@
       ".env",
       "./dist",
       "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-contracts/dist",
       "../@connext/nxtp-utils/dist"
     ]
   },
