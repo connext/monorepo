@@ -8,10 +8,7 @@ let subscriptions: Map<string, SubscriptionCallback>;
 let transactions: TransactionsCache;
 let auctions: AuctionsCache;
 
-const fakeTxs = [
-  mock.entity.crossChainTx("3000", "4000"),
-  mock.entity.crossChainTx("4", "4000")
-]
+const fakeTxs = [mock.entity.crossChainTx("3000", "4000"), mock.entity.crossChainTx("4", "4000")];
 
 describe("Redis Mocks", () => {
   before(async () => {
@@ -37,13 +34,13 @@ describe("Redis Mocks", () => {
       it("happy: should store status", async () => {
         const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
         // TODO:
-        expect(res).to.not.be(undefined);
+        expect(res).to.be.eq(true);
       });
 
       it("should store a different domain's status", async () => {
         const res = await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.Prepared);
         // TODO:
-        expect(res).to.not.be(undefined);
+        expect(res).to.be.eq(true);
       });
     });
 
@@ -51,13 +48,13 @@ describe("Redis Mocks", () => {
       it("happy: should get status of transaction by ID", async () => {
         const status = await transactions.getStatus(fakeTxs[0].transactionId);
         // TODO:
-        expect(status).to.not.be(undefined);
+        expect(status).not.undefined;
       });
 
       it("should retrieve different domain's transaction status", async () => {
         const status = await transactions.getStatus(fakeTxs[1].transactionId);
         // TODO:
-        expect(status).to.not.be(undefined);
+        expect(status).not.undefined;
       });
     });
 
@@ -66,13 +63,13 @@ describe("Redis Mocks", () => {
         //add fake txid's status, should fire off event.
         const res = await transactions.storeTxData([fakeTxs[0]]);
         // TODO:
-        expect(res).to.not.be(undefined);
+        expect(res).to.be.undefined;
       });
 
       it("should store different transaction's data", async () => {
         const res = await transactions.storeTxData([fakeTxs[1]]);
         // TODO:
-        expect(res).to.not.be(undefined);
+        expect(res).to.be.undefined;
       });
     });
 
