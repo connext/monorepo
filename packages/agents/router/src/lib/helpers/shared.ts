@@ -8,10 +8,9 @@ import {
 } from "@connext/nxtp-utils";
 
 import { SanitationCheckFailed } from "../errors";
-import { AppContext } from "../../context";
+import { context } from "../../router";
 
 export const sanitationCheck = async (
-  context: AppContext,
   transactionData: CrossChainTx,
   functionCall: "prepare" | "fulfill" | "reconcile",
   _requestContext?: RequestContext<string>,
@@ -41,7 +40,9 @@ export const sanitationCheck = async (
     // If the transaction provides fast liquidity, ensure it has not been fulfilled already
     // If not, check the reconciled transactions to ensur it is the right data
     if (isFast) {
-      const encodeRoutedTransaction = contracts.transactionManager.encodeFunctionData("routedTransactions", [transactionId]);
+      const encodeRoutedTransaction = contracts.transactionManager.encodeFunctionData("routedTransactions", [
+        transactionId,
+      ]);
       const fulfilledTxEncoded = await txservice.readTx({
         chainId: parseInt(transactionData.destinationDomain),
         to: txManagerContractAddress,

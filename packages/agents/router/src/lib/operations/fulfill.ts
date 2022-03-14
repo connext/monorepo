@@ -21,6 +21,7 @@ import {
   sanitationCheck,
 } from "../helpers/shared";
 import { sendBid } from "./sequencer";
+import { context } from "../../router";
 
 // fee percentage paid to relayer. need to be updated later
 const RelayerFeePercentage = "1"; //  1%
@@ -32,19 +33,20 @@ const RelayerFeePercentage = "1"; //  1%
  * @param context - AppContext instance used for interacting with adapters, config, etc.
  * @param pendingTx - The prepared crosschain tranaction
  */
-export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
+export const fulfill = async (pendingTx: CrossChainTx) => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name);
+
   const {
     logger,
     config,
-    adapters: { subgraph, txservice, wallet },
+    adapters: { wallet },
     chainData,
     routerAddress,
   } = context;
   logger.info("Method start", requestContext, methodContext, { pendingTx });
 
   /// sanitation check before validiation
-  await sanitationCheck(context, pendingTx, "fulfill");
+  await sanitationCheck(pendingTx, "fulfill");
 
   /// create a bid
   const {
@@ -171,5 +173,5 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
   };
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
-  await sendBid(context, bid);
+  await sendBid(bid);
 };

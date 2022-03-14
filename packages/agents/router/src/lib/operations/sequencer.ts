@@ -1,9 +1,9 @@
 import { createLoggingContext, Bid, NxtpError, formatUrl } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
-import { AppContext } from "../../context";
+import { context } from "../../router";
 
-export const sendBid = async (context: AppContext, bid: Bid): Promise<any> => {
+export const sendBid = async (bid: Bid): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
   const { logger, config } = context;
 
