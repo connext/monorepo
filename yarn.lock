@@ -1918,8 +1918,8 @@ __metadata:
   linkType: hard
 
 "@graphql-tools/delegate@npm:^8.5.1":
-  version: 8.5.2
-  resolution: "@graphql-tools/delegate@npm:8.5.2"
+  version: 8.5.3
+  resolution: "@graphql-tools/delegate@npm:8.5.3"
   dependencies:
     "@graphql-tools/batch-execute": ^8.3.2
     "@graphql-tools/schema": ^8.3.2
@@ -1930,7 +1930,7 @@ __metadata:
     value-or-promise: 1.0.11
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 0025b6ecbefcdcd59d1f29b16e8d50f4c2ae789e46ef61cc3683da975ae0464c3df1c920f6f16507447d2cdb809eb6f4d9c73aa2f6afa7a7dfe2b8f89aa2795a
+  checksum: 2df1b47df8de824aad61868789408836b9551b320783cbe1e28d4d047090fd7f6f903cb0d75587282727a381964bae7f79a8b535124ab234d4bda1bfa6cbc0f5
   languageName: node
   linkType: hard
 
@@ -5484,9 +5484,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001313":
-  version: 1.0.30001314
-  resolution: "caniuse-lite@npm:1.0.30001314"
-  checksum: d82e1b8b287b1b2d2ed25c4495fe293276853dd9c77553c722929a6142fc49b3dd5ea21a95f6410d93319434a5bd071c304ea92e93debbcf292a9156cf08b35d
+  version: 1.0.30001316
+  resolution: "caniuse-lite@npm:1.0.30001316"
+  checksum: 8a96ee89f5e64f42f684475905c73c67f995abd6d9b111ab8a9d2e0a5d3b871f1a600ff42e4ffe7f7f3498d0243beeafc11cf7b4dbe3e022a2e5cdf639564152
   languageName: node
   linkType: hard
 
@@ -7852,7 +7852,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -9671,11 +9671,11 @@ __metadata:
   linkType: hard
 
 "graphql-ws@npm:^5.4.1":
-  version: 5.6.2
-  resolution: "graphql-ws@npm:5.6.2"
+  version: 5.6.3
+  resolution: "graphql-ws@npm:5.6.3"
   peerDependencies:
     graphql: ">=0.11 <=16"
-  checksum: 976134edce52b1a4f381f3411760c6e8ed1a431a9c80456f99c71663fad9d39e15a434a965095ae5512967f31b2fa5a86d6abd519e2b1fff6b0999b9261d52cf
+  checksum: 046399c886dfd8b0daecc1c96ba4e3700e391d59c6fac6e2a4ae8523537ba78cccc3503300071c163165b3f686136bfafe3d01e13cb2104086ad7867182a8e27
   languageName: node
   linkType: hard
 
@@ -12796,9 +12796,9 @@ __metadata:
   linkType: hard
 
 "lru-cache@npm:^7.4.1":
-  version: 7.4.4
-  resolution: "lru-cache@npm:7.4.4"
-  checksum: c042ac73b48c1eddd22cc061eb41c4738c2eb71818ba503f625df4b3199d789281d7a2da18a017095a1304b5808f9d91fff7a77d69e3fefecef2b460460ed6d6
+  version: 7.5.0
+  resolution: "lru-cache@npm:7.5.0"
+  checksum: 6d12de6cfc39b06e58e755c936af819b6e4aea0b5ca98dcf2a99a708874e03dbde4690096189f2df455f67c0b95ea5eac30181ff32dc5444cdb39acbd3d195c7
   languageName: node
   linkType: hard
 
@@ -13113,19 +13113,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-db@npm:1.51.0":
-  version: 1.51.0
-  resolution: "mime-db@npm:1.51.0"
-  checksum: 613b1ac9d6e725cc24444600b124a7f1ce6c60b1baa654f39a3e260d0995a6dffc5693190217e271af7e2a5612dae19f2a73f3e316707d797a7391165f7ef423
+"mime-db@npm:1.52.0":
+  version: 1.52.0
+  resolution: "mime-db@npm:1.52.0"
+  checksum: 0d99a03585f8b39d68182803b12ac601d9c01abfa28ec56204fa330bc9f3d1c5e14beb049bafadb3dbdf646dfb94b87e24d4ec7b31b7279ef906a8ea9b6a513f
   languageName: node
   linkType: hard
 
 "mime-types@npm:^2.1.12, mime-types@npm:^2.1.16, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
-  version: 2.1.34
-  resolution: "mime-types@npm:2.1.34"
+  version: 2.1.35
+  resolution: "mime-types@npm:2.1.35"
   dependencies:
-    mime-db: 1.51.0
-  checksum: 67013de9e9d6799bde6d669d18785b7e18bcd212e710d3e04a4727f92f67a8ad4e74aee24be28b685adb794944814bde649119b58ee3282ffdbee58f9278d9f3
+    mime-db: 1.52.0
+  checksum: 89a5b7f1def9f3af5dad6496c5ed50191ae4331cc5389d7c521c8ad28d5fdad2d06fd81baf38fed813dc4e46bb55c8145bb0ff406330818c9cf712fb2e9b3836
   languageName: node
   linkType: hard
 
@@ -18329,14 +18329,14 @@ __metadata:
   linkType: hard
 
 "tsconfig-paths@npm:^3.5.0":
-  version: 3.13.0
-  resolution: "tsconfig-paths@npm:3.13.0"
+  version: 3.14.0
+  resolution: "tsconfig-paths@npm:3.14.0"
   dependencies:
     "@types/json5": ^0.0.29
     json5: ^1.0.1
     minimist: ^1.2.0
     strip-bom: ^3.0.0
-  checksum: 64f0de3c882c016cdfe34d5261087fcf0c75048c4206ee32540e36df9f99d82d2caa5872135d3b6704324f5fd7d9032131caf316c1da83c2ac465d5dfb2aafd4
+  checksum: edd81e8f053a67e4a308037d2668c1fff06b01d4c3989170b90eb7eae5bdbebcc4910a8b7fbe0af3c21c62b68f67c1a9b9de5d9fe96cfe15ca45f7a198ee2c0c
   languageName: node
   linkType: hard
 
