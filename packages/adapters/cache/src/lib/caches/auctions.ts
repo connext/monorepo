@@ -1,9 +1,10 @@
-import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
+import { BidStatus, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
-import { TransactionsCache } from ".";
+import { Cache } from "./cache";
 
-export class AuctionsCache extends TransactionsCache {
+export class AuctionsCache extends Cache {
+  private readonly prefix = "bids";
   /**
    * Stores bid to redis
    *
@@ -25,7 +26,7 @@ export class AuctionsCache extends TransactionsCache {
       curTimeInSecs,
     );
 
-    const count = (await this.data.keys(`${txid}:bid:*`)).length;
+    const count = (await this.data.keys(`${this.prefix}:${txid}:*`)).length;
 
     await this.data.publish(StoreChannel.NewBid, JSON.stringify(bid));
 
@@ -45,7 +46,7 @@ export class AuctionsCache extends TransactionsCache {
     const curTimeInSecs = await getNtpTimeSeconds();
 
     const updated = await this.data.hset(
-      `bids:${txid}:${router}`,
+      `${this.prefix}:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
       "status",
@@ -68,7 +69,7 @@ export class AuctionsCache extends TransactionsCache {
     const storedBids: StoredBid[] = [];
 
     const bidStream = this.data.scanStream({
-      match: `bids:${transactionId}:*`,
+      match: `${this.prefix}:${transactionId}:*`,
     });
 
     return new Promise((res, rej) => {

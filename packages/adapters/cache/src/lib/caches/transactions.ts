@@ -11,6 +11,7 @@ import { Cache } from ".";
    key: $txid | value CrossChainTxStatus as string
  */
 export class TransactionsCache extends Cache {
+  private readonly prefix = "transactions";
   /**
    *
    * @param txid TransactionId to store
@@ -56,7 +57,7 @@ export class TransactionsCache extends Cache {
    * @returns latest nonce for that domain
    */
   public async getLatestNonce(domain: string): Promise<number> {
-    const res = await this.data.hget(`transactions:${domain}`, "latestNonce");
+    const res = await this.data.hget(`${this.prefix}:${domain}`, "latestNonce");
     if (res) {
       return parseInt(res);
     }
@@ -70,7 +71,7 @@ export class TransactionsCache extends Cache {
    * @returns Transaction data
    */
   public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<CrossChainTx> {
-    const txDataStream = this.data.hscanStream(`transactions:${domain}`, {
+    const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
       match: `*:${txid}`,
     });
     let txData: CrossChainTx;
@@ -90,7 +91,7 @@ export class TransactionsCache extends Cache {
   }
 
   public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<CrossChainTx> {
-    const txDataStream = this.data.hscanStream(`transactions:${domain}`, {
+    const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
       match: `${nonce}:*`,
     });
     let txData: CrossChainTx;
@@ -113,7 +114,7 @@ export class TransactionsCache extends Cache {
     for (const tx of txs) {
       //set transaction data at domain field in hash
       const resSet = await this.data.hset(
-        `transactions:${tx.originDomain}`,
+        `${this.prefix}:${tx.originDomain}`,
         `${tx.nonce}:${tx.transactionId}`,
         JSON.stringify(tx),
       );
@@ -123,10 +124,10 @@ export class TransactionsCache extends Cache {
         return;
       }
       //move pointer to latest Nonce
-      const latestNonce = (await this.data.hget(`transactions:${tx.originDomain}`, "latestNonce")) ?? "0";
+      const latestNonce = (await this.data.hget(`${this.prefix}:${tx.originDomain}`, "latestNonce")) ?? "0";
       if (tx.nonce > parseInt(latestNonce)) {
         //if this txns nonce is > the current pointer to latest nonce point to this one now
-        await this.data.hset(`transactions:${tx.originDomain}`, "latestNonce", tx.nonce);
+        await this.data.hset(`${this.prefix}:${tx.originDomain}`, "latestNonce", tx.nonce);
       }
       //dont think we need to set the status anymore.
 
