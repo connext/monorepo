@@ -9,7 +9,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build'",
+    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
     "start": "node --enable-source-maps dist/index.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/mock.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",

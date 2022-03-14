@@ -5,7 +5,7 @@
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build'",
+    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
     "docker:redis:up": "docker-compose -f ops/start-redis.docker-compose.yml up -d",
     "start": "node dist/index.js",
     "lint": "eslint ./src --ext .ts --env node",
