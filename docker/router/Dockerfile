@@ -77,5 +77,4 @@ WORKDIR /home/node/packages/agents/router
 
 EXPOSE 8001
 
-CMD ["ls", "-la", "/home/node/packages"]
-# CMD ["node", "--trace-warnings", "dist/index.js"]
+CMD ["node", "--trace-warnings", "dist/index.js"]
