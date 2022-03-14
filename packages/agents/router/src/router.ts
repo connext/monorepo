@@ -14,9 +14,9 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 
-import { getConfig, NxtpRouterConfig } from "./config";
+import { getConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph } from "./bindings";
-import { AppContext } from "./context";
+import { AppContext } from "./lib/entities";
 import { getOperations } from "./lib/operations";
 
 export const context: AppContext = {} as any;

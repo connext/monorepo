@@ -8,8 +8,7 @@ import {
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { AppContext } from "../../context";
-import { NotEnoughAmount, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
+import { NotEnoughAmount } from "../errors";
 import { SlippageInvalid } from "../errors/fulfill";
 import { getReceiverAmount } from "../helpers";
 import {
