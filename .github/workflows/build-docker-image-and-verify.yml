@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: router
+  IMAGE_NAME: connext/router
 
 jobs:
   build-and-push-router-image:
