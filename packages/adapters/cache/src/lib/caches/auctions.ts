@@ -15,8 +15,8 @@ export class AuctionsCache extends TransactionsCache {
     const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
-    const stored = await this.data.hset(
-      `${txid}:bid:${router}`,
+    await this.data.hset(
+      `bids:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
       "status",
@@ -45,7 +45,7 @@ export class AuctionsCache extends TransactionsCache {
     const curTimeInSecs = await getNtpTimeSeconds();
 
     const updated = await this.data.hset(
-      `${txid}:bid:${router}`,
+      `bids:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
       "status",
@@ -68,7 +68,7 @@ export class AuctionsCache extends TransactionsCache {
     const storedBids: StoredBid[] = [];
 
     const bidStream = this.data.scanStream({
-      match: `${transactionId}:bid:*`,
+      match: `bids:${transactionId}:*`,
     });
 
     return new Promise((res, rej) => {
