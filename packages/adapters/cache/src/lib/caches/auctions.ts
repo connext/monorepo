@@ -17,7 +17,7 @@ export class AuctionsCache extends Cache {
     const curTimeInSecs = await getNtpTimeSeconds();
 
     await this.data.hset(
-      `bids:${txid}:${router}`,
+      `${this.prefix}:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
       "status",

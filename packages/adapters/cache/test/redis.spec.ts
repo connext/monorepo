@@ -1,4 +1,4 @@
-import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32 } from "@connext/nxtp-utils";
+import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
 import { randomBytes } from "crypto";
 import { AuctionsCache, TransactionsCache } from "../src/index";
 import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
@@ -9,7 +9,16 @@ let subscriptions: Map<string, SubscriptionCallback>;
 let transactions: TransactionsCache;
 let auctions: AuctionsCache;
 
-const fakeTxs = [mock.entity.crossChainTx("3000", "4000"), mock.entity.crossChainTx("4", "4000")];
+const fakeTxs = [
+  mock.entity.crossChainTx("3000", "4000"),
+  mock.entity.crossChainTx("3000", "4000", {
+    status: CrossChainTxStatus.Prepared,
+    asset: mkAddress("0xaaa"),
+    transactionId: getRandomBytes32(),
+    nonce: 1234,
+    user: mkAddress("0xa"),
+  }),
+];
 
 describe("Redis Mocks", () => {
   before(async () => {
@@ -64,13 +73,13 @@ describe("Redis Mocks", () => {
     });
 
     describe("#getLatestNonce", () => {
-      it("should get domain's latest nonce according to the cache", async () => {
-        await transactions.storeTxData([fakeTxs[0]]);
-        const latestNonce = await transactions.getLatestNonce("4");
-        expect(latestNonce).to.be.equal(fakeTxs[0].nonce);
+      it("should get default nonce if no exists", async () => {
+        await transactions.storeTxData([fakeTxs[1]]);
+        const latestNonce = await transactions.getLatestNonce("1");
+        expect(latestNonce).to.be.equal(0);
       });
 
-      it("should get different domain's nonce", async () => {
+      it("should get domain's latest nonce according to the cache", async () => {
         await transactions.storeTxData([fakeTxs[1]]);
         const latestNonce = await transactions.getLatestNonce("3000");
         expect(latestNonce).to.be.equal(fakeTxs[1].nonce);
@@ -95,12 +104,6 @@ describe("Redis Mocks", () => {
         expect(res).to.be.undefined;
       });
     });
-
-    describe("#storeBid", () => {});
-
-    describe("#updateBid", () => {});
-
-    describe("#getBidsByTransactionId", () => {});
   });
 
   describe("AuctionsCache", () => {
