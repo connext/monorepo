@@ -6,7 +6,7 @@ import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
-import { getDeployedTransactionManagerContract } from "@connext/nxtp-txservice";
+import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
@@ -75,7 +75,10 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfig => {
+export const getEnvConfig = (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -149,7 +152,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.deployments?.transactionManager) {
-      const res = chainDataForChain ? getDeployedTransactionManagerContract(chainDataForChain.chainId) : undefined;
+      const res = chainDataForChain ? deployments.transactionManager(chainDataForChain.chainId) : undefined;
       if (!res) {
         throw new Error(`No transactionManager address for domain ${domainId}`);
       }
@@ -194,9 +197,12 @@ let nxtpConfig: NxtpRouterConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (chainData: Map<string, ChainData>): Promise<NxtpRouterConfig> => {
+export const getConfig = async (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): Promise<NxtpRouterConfig> => {
   if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig(chainData);
+    nxtpConfig = getEnvConfig(chainData, deployments);
   }
   return nxtpConfig;
 };

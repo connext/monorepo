@@ -2,8 +2,8 @@ import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
+import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
+import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
 import { NxtpRouterConfig } from "../src/config";
 import { AppContext } from "../src/lib/entities/context";
 
@@ -20,7 +20,7 @@ export const mock = {
         subgraph: mock.adapter.subgraph(),
         cache: mock.adapter.cache(),
         txservice: mock.adapter.txservice(),
-        contracts: mock.adapter.contracts(),
+        contracts: mock.contracts.interfaces(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -130,7 +130,9 @@ export const mock = {
       txservice.getTransactionReceipt.resolves(mockReceipt);
       return txservice;
     },
-    contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
+  },
+  contracts: {
+    interfaces: (): SinonStubbedInstance<ConnextContractInterfaces> => {
       const encodedDataMock = "0xabcde";
 
       const transactionManager = createStubInstance(utils.Interface);
@@ -150,10 +152,19 @@ export const mock = {
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        transactionManager: transactionManager as unknown as ConnextContractInterfaces.transactionManager,
-        priceOracle: priceOracle as unknown as ConnextContractInterfaces.priceOracle,
-        tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces.tokenRegistry,
-        stableSwap: stableSwap as unknown as ConnextContractInterfaces.stableSwap,
+        transactionManager: transactionManager as unknown as ConnextContractInterfaces["transactionManager"],
+        priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
+        tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
+        stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
+      };
+    },
+    deployments: (): ConnextContractDeployments => {
+      return {
+        transactionManager: (_: number) => ({
+          address: mkAddress("0xbadcab"),
+          abi: {},
+        }),
+        priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
       };
     },
   },

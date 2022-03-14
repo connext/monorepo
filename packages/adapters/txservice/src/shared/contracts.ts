@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import { Interface } from "ethers/lib/utils";
 import {
   TransactionManager as TTransactionManager,
@@ -13,11 +13,12 @@ import TransactionManagerArtifact from "@connext/nxtp-contracts/artifacts/contra
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
 
+/// MARK - CONTRACT DEPLOYMENTS
 /**
  * Helper to allow easy mocking
  */
-export const getContractDeployments: any = () => {
-  return contractDeployments;
+export const _getContractDeployments: any = () => {
+  return _contractDeployments;
 };
 
 /**
@@ -27,7 +28,7 @@ export const getContractDeployments: any = () => {
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
 export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
@@ -42,7 +43,7 @@ export const getDeployedTransactionManagerContract = (chainId: number): { addres
  */
 export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
   const chainIdsForGasFee: number[] = [];
-  const _contractDeployments = getContractDeployments();
+  const _contractDeployments = _getContractDeployments();
   Object.keys(_contractDeployments).forEach((chainId) => {
     const record = _contractDeployments[chainId];
     const chainName = Object.keys(record)[0];
@@ -66,7 +67,7 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
  * deployed.
  */
 export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const _contractDeployments = getContractDeployments();
+  const _contractDeployments = _getContractDeployments();
   const record = _contractDeployments[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
@@ -76,6 +77,22 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export type ConnextContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+
+export type ConnextContractDeployments = {
+  transactionManager: ConnextContractDeploymentGetter;
+  priceOracle: ConnextContractDeploymentGetter;
+  // TODO:
+  // tokenRegistry: ConnextContractDeploymentGetter;
+  // stableSwap: ConnextContractDeploymentGetter;
+};
+
+export const contractDeployments: ConnextContractDeployments = {
+  transactionManager: getDeployedTransactionManagerContract,
+  priceOracle: getDeployedPriceOracleContract,
+};
+
+/// MARK - CONTRACT INTERFACES
 /**
  * Convenience methods for initializing Interface objects for the Connext
  * contracts' ABIs.
