@@ -4,36 +4,14 @@ import * as fs from "fs";
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
+import { getDeployedTransactionManagerContract } from "@connext/nxtp-txservice";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 dotenvConfig();
-
-/**
- * Helper to allow easy mocking
- */
-export const getContractDeployments: any = () => {
-  return contractDeployments;
-};
-
-/**
- * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.TransactionManager;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
 
 export const TAssetDescription = Type.Object({
   name: Type.String(),

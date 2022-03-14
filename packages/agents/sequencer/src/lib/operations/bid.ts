@@ -1,7 +1,6 @@
 import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
 
 import { sendToRelayer } from "./relayer";
-import { AppContext } from "../../context";
 import { getContext } from "../../sequencer";
 
 export const handleBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {

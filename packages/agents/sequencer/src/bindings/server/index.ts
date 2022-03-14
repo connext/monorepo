@@ -2,7 +2,6 @@ import fastify from "fastify";
 import pino from "pino";
 import { Bid, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
-import { AppContext } from "../../context";
 import { handleBid } from "../../lib/operations";
 import { getContext } from "../../sequencer";
 

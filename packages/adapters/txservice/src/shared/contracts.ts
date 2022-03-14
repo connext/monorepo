@@ -21,6 +21,22 @@ export const getContractDeployments: any = () => {
 };
 
 /**
+ * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+ *
+ * @param chainId - The chain you want the address on
+ * @returns The deployed address or `undefined` if it has not been deployed yet
+ */
+export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+  const record = getContractDeployments()[chainId.toString()] ?? {};
+  const name = Object.keys(record)[0];
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts?.TransactionManager;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+/**
  * A number[] list of all chain IDs on which a Connext Price Oracle Contracts
  * have been deployed.
  */
@@ -60,7 +76,6 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-
 /**
  * Convenience methods for initializing Interface objects for the Connext
  * contracts' ABIs.
@@ -79,10 +94,10 @@ export const getTokenRegistryInterface = () => new Interface(TokenRegistryArtifa
 export const getStableSwapInterface = () => new Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
 
 export type ConnextContractInterfaces = {
-  transactionManager: TTransactionManager["interface"],
-  priceOracle: TConnextPriceOracle["interface"],
-  tokenRegistry: TTokenRegistry["interface"],
-  stableSwap: TStableSwap["interface"],
+  transactionManager: TTransactionManager["interface"];
+  priceOracle: TConnextPriceOracle["interface"];
+  tokenRegistry: TTokenRegistry["interface"];
+  stableSwap: TStableSwap["interface"];
 };
 
 export const getContractInterfaces = (): ConnextContractInterfaces => ({

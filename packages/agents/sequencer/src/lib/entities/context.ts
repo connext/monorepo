@@ -3,7 +3,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 
-import { SequencerConfig } from "./lib/entities";
+import { SequencerConfig } from ".";
 
 export type AppContext = {
   logger: Logger;

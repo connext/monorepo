@@ -1,35 +1,12 @@
 import * as fs from "fs";
 
 import { ajv, ChainData, getChainData } from "@connext/nxtp-utils";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+import { getDeployedTransactionManagerContract } from "@connext/nxtp-txservice";
 
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
-
-/**
- * Helper to allow easy mocking
- */
-export const getContractDeployments: any = () => {
-  return contractDeployments;
-};
-
-/**
- * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.TransactionManager;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
 
 export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig => {
   let configJson: Record<string, any> = {};

@@ -4,11 +4,6 @@ import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-ad
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
-import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain-types/TransactionManager";
-import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
-import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
-import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
-
 import { NxtpRouterConfig } from "../src/config";
 import { AppContext } from "../src/context";
 
@@ -155,10 +150,10 @@ export const mock = {
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        transactionManager: transactionManager as unknown as TransactionManagerInterface,
-        priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
-        tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
-        stableSwap: stableSwap as unknown as StableSwapInterface,
+        transactionManager: transactionManager as unknown as ConnextContractInterfaces.transactionManager,
+        priceOracle: priceOracle as unknown as ConnextContractInterfaces.priceOracle,
+        tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces.tokenRegistry,
+        stableSwap: stableSwap as unknown as ConnextContractInterfaces.stableSwap,
       };
     },
   },

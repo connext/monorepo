@@ -5,7 +5,7 @@
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build --watch --preserveWatchOutput'",
+    "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build'",
     "docker:redis:up": "docker-compose -f ops/start-redis.docker-compose.yml up -d",
     "start": "node dist/index.js",
     "lint": "eslint ./src --ext .ts --env node",
@@ -33,7 +33,6 @@
       "../@connext/nxtp-adapters-cache",
       "../@connext/nxtp-adapters-subgraph",
       "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-contracts/dist",
       "../@connext/nxtp-utils/dist"
     ]
   },
@@ -48,7 +47,6 @@
   "dependencies": {
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "^5.5.4",
