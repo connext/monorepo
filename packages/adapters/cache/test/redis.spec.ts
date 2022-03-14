@@ -1,4 +1,5 @@
-import { Logger, CrossChainTxStatus, expect, mock } from "@connext/nxtp-utils";
+import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32 } from "@connext/nxtp-utils";
+import { randomBytes } from "crypto";
 import { AuctionsCache, TransactionsCache } from "../src/index";
 import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
 
@@ -25,51 +26,40 @@ describe("Redis Mocks", () => {
     });
 
     subscriptions = new Map();
-    transactions = new TransactionsCache({ url: "mock", subscriptions: subscriptions, mock: true, logger });
-    auctions = new AuctionsCache({ url: "mock", subscriptions: subscriptions, mock: true, logger });
+    transactions = new TransactionsCache({ url: "mock", mock: true, logger });
+    auctions = new AuctionsCache({ url: "mock", mock: true, logger });
   });
 
   describe("TransactionsCache", () => {
     describe("#storeStatus", () => {
-      it("happy: should store status", async () => {
+      it("happy: should return true if `set` returns OK", async () => {
         const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
-        // TODO:
         expect(res).to.be.eq(true);
       });
 
-      it("should store a different domain's status", async () => {
-        const res = await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.Prepared);
-        // TODO:
+      it("should return false if the new status is different from the previous one", async () => {
+        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Fulfilled);
         expect(res).to.be.eq(true);
+      });
+
+      it("should return false if the new status is same as the previous one", async () => {
+        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        expect(res).to.be.eq(false);
       });
     });
 
     describe("#getStatus", () => {
       it("happy: should get status of transaction by ID", async () => {
-        const status = await transactions.getStatus(fakeTxs[0].transactionId);
-        // TODO:
-        expect(status).not.undefined;
-      });
-
-      it("should retrieve different domain's transaction status", async () => {
+        await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.Prepared);
         const status = await transactions.getStatus(fakeTxs[1].transactionId);
-        // TODO:
-        expect(status).not.undefined;
-      });
-    });
-
-    describe("#storeTxData", () => {
-      it("happy: should store transaction data", async () => {
-        //add fake txid's status, should fire off event.
-        const res = await transactions.storeTxData([fakeTxs[0]]);
-        // TODO:
-        expect(res).to.be.undefined;
+        expect(status).to.be.eq(CrossChainTxStatus.Prepared);
       });
 
-      it("should store different transaction's data", async () => {
-        const res = await transactions.storeTxData([fakeTxs[1]]);
-        // TODO:
-        expect(res).to.be.undefined;
+      it("should return undefined if no exists", async () => {
+        const status = await transactions.getStatus("0x111");
+        expect(status).to.be.eq(undefined);
       });
     });
 
@@ -86,6 +76,31 @@ describe("Redis Mocks", () => {
         expect(latestNonce).to.be.equal(fakeTxs[1].nonce);
       });
     });
+
+    describe("#getTxDataByDomainAndTxID", () => {});
+
+    describe("#getTxDataByDomainAndNonce", () => {});
+
+    describe("#storeTxData", () => {
+      it("happy: should store transaction data", async () => {
+        //add fake txid's status, should fire off event.
+        const res = await transactions.storeTxData([fakeTxs[0]]);
+        // TODO:
+        expect(res).to.be.undefined;
+      });
+
+      it("should store different transaction's data", async () => {
+        const res = await transactions.storeTxData([fakeTxs[1]]);
+        // TODO:
+        expect(res).to.be.undefined;
+      });
+    });
+
+    describe("#storeBid", () => {});
+
+    describe("#updateBid", () => {});
+
+    describe("#getBidsByTransactionId", () => {});
   });
 
   describe("AuctionsCache", () => {

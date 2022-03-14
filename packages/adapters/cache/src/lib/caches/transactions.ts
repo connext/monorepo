@@ -19,11 +19,14 @@ export class TransactionsCache extends Cache {
    * todo://getStatus() to verify that it's not already in the DB
    */
   public async storeStatus(txid: string, status: CrossChainTxStatus): Promise<boolean> {
-    const stored = await this.data.set(txid, status);
-    if (stored === "OK") {
-      return true;
-    } else {
+    const prevStatus = await this.getStatus(txid);
+    if (prevStatus == status) {
       return false;
+    } else {
+      // Return value is OK if SET was executed correctly
+      // if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+      await this.data.set(txid, status);
+      return true;
     }
   }
   /**
@@ -109,7 +112,11 @@ export class TransactionsCache extends Cache {
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
     for (const tx of txs) {
       //set transaction data at domain field in hash
-      const resSet = await this.data.hset(`transactions:${tx.originDomain}`, `${tx.nonce}:${tx.transactionId}`, JSON.stringify(tx));
+      const resSet = await this.data.hset(
+        `transactions:${tx.originDomain}`,
+        `${tx.nonce}:${tx.transactionId}`,
+        JSON.stringify(tx),
+      );
       if (resSet !== 0) {
         console.log(`successfully set the txdata`);
       } else {
@@ -190,7 +197,6 @@ export class TransactionsCache extends Cache {
 
   //keeping the f() signature the same but shouldn't return array
   public async getBidsByTransactionId(transactionId: string): Promise<StoredBid[]> {
-
     return new Promise(async (res, rej) => {
       try {
         const result = await this.data.hgetall(`bids:${transactionId}`);
