@@ -668,7 +668,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-subgraph@workspace:packages/adapters/subgraph"
   dependencies:
-    "@connext/nxtp-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": ^2.0.1
     "@graphql-codegen/typescript": ^2.0.0
@@ -745,7 +744,6 @@ __metadata:
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": ^2.0.1
@@ -801,7 +799,6 @@ __metadata:
   dependencies:
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
-    "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@types/ioredis": ^4
@@ -828,11 +825,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-subgraph@workspace:*, @connext/nxtp-subgraph@workspace:packages/deployments/subgraph":
+"@connext/nxtp-subgraph@workspace:packages/deployments/subgraph":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-subgraph@workspace:packages/deployments/subgraph"
   dependencies:
-    "@connext/nxtp-contracts": "workspace:*"
     "@graphprotocol/graph-cli": =0.25.0
     "@graphprotocol/graph-ts": ^0.24.1
     "@types/js-yaml": ^4.0.5
@@ -2117,12 +2113,12 @@ __metadata:
   linkType: hard
 
 "@graphql-tools/url-loader@npm:^7.0.11, @graphql-tools/url-loader@npm:^7.4.2, @graphql-tools/url-loader@npm:^7.7.2":
-  version: 7.9.1
-  resolution: "@graphql-tools/url-loader@npm:7.9.1"
+  version: 7.9.2
+  resolution: "@graphql-tools/url-loader@npm:7.9.2"
   dependencies:
     "@graphql-tools/delegate": ^8.5.1
     "@graphql-tools/utils": ^8.6.2
-    "@graphql-tools/wrap": ^8.4.2
+    "@graphql-tools/wrap": ^8.4.4
     "@n1ru4l/graphql-live-query": ^0.9.0
     "@types/websocket": ^1.0.4
     "@types/ws": ^8.0.0
@@ -2140,7 +2136,7 @@ __metadata:
     ws: ^8.3.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 9c0bd5e6cb1455932a5591bb290ea2f912d1c0d38fed507497ae13c7cd50520829ad87950a1a7554c1387f6b9d49f35eacc1ca241e90187812793863d0926663
+  checksum: be5b9e5accf0afeea8b7a9dfdeaa69f5e0f34f4dbae4c28a6962c9af33c0172d5868417b257b2eb558f68380b2fa72591dcc8a03b5393834a02ed015c50ba5f6
   languageName: node
   linkType: hard
 
@@ -2155,9 +2151,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/wrap@npm:^8.4.2":
-  version: 8.4.3
-  resolution: "@graphql-tools/wrap@npm:8.4.3"
+"@graphql-tools/wrap@npm:^8.4.4":
+  version: 8.4.4
+  resolution: "@graphql-tools/wrap@npm:8.4.4"
   dependencies:
     "@graphql-tools/delegate": ^8.5.1
     "@graphql-tools/schema": ^8.3.2
@@ -2166,7 +2162,7 @@ __metadata:
     value-or-promise: 1.0.11
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 6b1ebd84e05899240bb0e79763b851ce778ea1869b55ae990c74ff0c356fd44919de8b49540db3eeeec58dc49a01b59e7d80116ea426da28425196deb67bcca9
+  checksum: ba9d98c1f0eea9c97d8cd872dcd3224d1d5836fd1a8e7b1c1616b7e54caecbe2088c72b43af01be7d5dca74d36f9361335dfc16fb58f83231b9cc9d0f93739b2
   languageName: node
   linkType: hard
 
@@ -7852,7 +7848,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
