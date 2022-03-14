@@ -1,7 +1,7 @@
 schema: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
-documents: "./src/runtime/queries.ts"
+documents: "./src/lib/subgraphs/runtime/queries.ts"
 generates:
-  ./src/runtime/graphqlsdk.ts:
+  ./src/lib/subgraphs/runtime/graphqlsdk.ts:
     plugins:
       - typescript
       - typescript-operations
