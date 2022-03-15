@@ -6,6 +6,7 @@ import "hardhat-deploy";
 import "solidity-coverage";
 import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
+import "@openzeppelin/hardhat-upgrades";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
