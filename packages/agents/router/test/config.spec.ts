@@ -1,4 +1,4 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";

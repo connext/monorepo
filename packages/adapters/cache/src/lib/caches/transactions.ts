@@ -112,17 +112,10 @@ export class TransactionsCache extends Cache {
 
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
     for (const tx of txs) {
-      //set transaction data at domain field in hash
-      const resSet = await this.data.hset(
-        `${this.prefix}:${tx.originDomain}`,
-        `${tx.nonce}:${tx.transactionId}`,
-        JSON.stringify(tx),
-      );
-      if (resSet !== 0) {
-        console.log(`successfully set the txdata`);
-      } else {
-        return;
-      }
+      // set transaction data at domain field in hash, hset returns the number of field that were added
+      // 1 => added, 0 => updated,
+      // reference: https://redis.io/commands/hset
+      await this.data.hset(`${this.prefix}:${tx.originDomain}`, `${tx.nonce}:${tx.transactionId}`, JSON.stringify(tx));
       //move pointer to latest Nonce
       const latestNonce = (await this.data.hget(`${this.prefix}:${tx.originDomain}`, "latestNonce")) ?? "0";
       if (tx.nonce > parseInt(latestNonce)) {
@@ -130,7 +123,6 @@ export class TransactionsCache extends Cache {
         await this.data.hset(`${this.prefix}:${tx.originDomain}`, "latestNonce", tx.nonce);
       }
       //dont think we need to set the status anymore.
-
       await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
     }
   }

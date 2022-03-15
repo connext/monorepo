@@ -5,29 +5,29 @@ use(solidity);
 
 import { constants, providers, Wallet } from "ethers";
 
-import { ProposedOwnable } from "../typechain-types";
+import { ProposedOwnableUpgradeable, TestProposedOwnable } from "../typechain-types";
 import {
   assertReceiptEvent,
-  deployContract,
+  deployBeaconProxy,
   proposeNewOwnerOnContract,
   setBlockTime,
   transferOwnershipOnContract,
+  upgradeBeaconProxy,
 } from "./utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("ProposedOwnable.sol", () => {
+describe.only("ProposedOwnableUpgradeable.sol", () => {
   const [wallet, other] = waffle.provider.getWallets() as Wallet[];
-  let proposedOwnable: ProposedOwnable;
+  let proposedOwnable: TestProposedOwnable, beaconAddress: string;
 
   const fixture = async () => {
-    // Deploy transaction manager because it inherits the contract
     // we want to test
-    proposedOwnable = await deployContract<ProposedOwnable>("TransactionManager", 1337);
+    [proposedOwnable, beaconAddress] = await deployBeaconProxy<TestProposedOwnable>("TestProposedOwnable", [5]);
   };
 
   const proposeNewOwner = async (newOwner: string = constants.AddressZero) => {
     // Propose new owner
-    return await proposeNewOwnerOnContract(newOwner, wallet, proposedOwnable);
+    return await proposeNewOwnerOnContract(newOwner, wallet, proposedOwnable as unknown as ProposedOwnableUpgradeable);
   };
 
   const proposeRouterOwnershipRenunciation = async () => {
@@ -50,7 +50,12 @@ describe("ProposedOwnable.sol", () => {
   };
 
   const transferOwnership = async (newOwner: string = constants.AddressZero, caller = other) => {
-    await transferOwnershipOnContract(newOwner, caller, proposedOwnable, wallet);
+    await transferOwnershipOnContract(
+      newOwner,
+      caller,
+      proposedOwnable as unknown as ProposedOwnableUpgradeable,
+      wallet,
+    );
   };
 
   const renounceAssetOwnership = async () => {
@@ -86,6 +91,18 @@ describe("ProposedOwnable.sol", () => {
 
   beforeEach(async () => {
     await loadFixture(fixture);
+  });
+
+  describe("upgradeable", () => {
+    it("should work", async () => {
+      await proposedOwnable.setValue(10);
+      const upgraded = await upgradeBeaconProxy("TestProposedOwnable", beaconAddress);
+      expect(upgraded).to.be.true;
+      const upgradedInstance = (await ethers.getContractFactory("TestProposedOwnable")).attach(proposedOwnable.address);
+      expect(await upgradedInstance.getValue()).to.be.eq(10);
+      await proposedOwnable.setValue(15);
+      expect(await upgradedInstance.getValue()).to.be.eq(15);
+    });
   });
 
   describe("owner", () => {

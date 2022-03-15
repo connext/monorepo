@@ -8,7 +8,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { SanitationCheckFailed } from "../errors";
-import { context } from "../../router";
+import { getContext } from "../../router";
 
 // export const sanitationCheck = async (transactionData: CrossChainTx, _requestContext?: RequestContext<string>) => {
 //   const {

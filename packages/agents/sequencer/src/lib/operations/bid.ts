@@ -44,7 +44,7 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
       transactionId: bid.transactionId,
     });
 
-    await selectBestBid(bid.transactionId, requestContext);
+    selectBestBid(bid.transactionId, requestContext);
   }
 };
 

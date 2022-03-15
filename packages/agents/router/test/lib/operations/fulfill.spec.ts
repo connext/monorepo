@@ -1,41 +1,78 @@
-import { createLoggingContext, CrossChainTxStatus, mkAddress, mkBytes32, expect } from "@connext/nxtp-utils";
-import { constants, BigNumber } from "ethers";
+import axios from "axios";
+import { BigNumber, utils } from "ethers";
 import { SinonStub, stub } from "sinon";
+import { expect, formatUrl } from "@connext/nxtp-utils";
 
-import { getOperations } from "../../../src/lib/operations";
-import * as SharedHelperFns from "../../../src/lib/helpers/shared";
-import * as FullfillFns from "../../../src/lib/helpers/fulfill";
-import { mock } from "../../mock";
-import { parseEther } from "ethers/lib/utils";
+import { fulfill, sendBid } from "../../../src/lib/operations/fulfill";
+import { NotEnoughAmount, SlippageInvalid, SequencerResponseInvalid } from "../../../src/lib/errors";
+import { mock, stubContext, stubHelpers } from "../../mock";
 
-const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
+const mockTransactingAmount = utils.parseEther("1");
+const mockRouterFee = BigNumber.from(mockTransactingAmount).mul(5).div(100);
+const mockGasFee = BigNumber.from("10000");
+const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
 
-const { fulfill } = getOperations();
-const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, {
-  status: CrossChainTxStatus.Prepared,
-  asset: mkAddress("0xaaa"),
-  transactionId: mkBytes32(),
-  nonce: 0,
-  user: mkAddress("0xa"),
-});
+describe("Operations:Fulfill", () => {
+  const mockContext = stubContext();
 
-const mockAppContext = mock.context();
-
-describe("Fulfill Receiver Operation", () => {
-  beforeEach(() => {});
+  before(() => {
+    stubHelpers();
+  });
 
   describe("#fulfill", () => {
     beforeEach(() => {
-      stub(SharedHelperFns, "sanitationCheck").resolves();
-      stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
-      stub(FullfillFns, "getReceiverAmount").resolves({
-        receivingAmount: parseEther("100").toString(),
-        routerFee: parseEther("1").toString(),
+      mock.helpers.fulfill.getReceiverAmount.resolves({
+        receivingAmount: mockTransactingAmount.sub(mockRouterFee).toString(),
+        routerFee: mockRouterFee.toString(),
         amountAfterSwapRate: "1",
       });
+
+      mock.helpers.shared.getAmountOut.resolves(mockTransactingAmount.toString());
+      mock.helpers.shared.getDecimalsForAsset.resolves(18);
+      mock.helpers.shared.calculateGasFeeInReceivingToken.resolves(mockGasFee);
+      mock.helpers.shared.getDestinationLocalAsset.resolves(mock.asset.A.address);
+      mock.helpers.shared.getDestinationTransactingAsset.resolves(mock.asset.B.address);
     });
-    it("should error if slippage invalid ", async () => {
-      await expect(fulfill(mockAppContext, mockCrossChainTx)).to.eventually.be.rejectedWith("Slippage invalid");
+
+    it("happy", async () => {});
+
+    it("should throw NotEnoughAmount if final receiving amount < 0", async () => {
+      const tooMuchGasFee = BigNumber.from(mockTransactingAmount).add(1);
+      mock.helpers.shared.calculateGasFeeInReceivingToken.resolves(tooMuchGasFee);
+      await expect(fulfill(mockCrossChainTx)).to.be.rejectedWith(NotEnoughAmount);
+    });
+
+    it("should error if slippage invalid", async () => {
+      mockContext.config.maxSlippage = "0";
+      await expect(fulfill(mockCrossChainTx)).to.be.rejectedWith(SlippageInvalid);
+    });
+  });
+
+  describe("#sendBid", () => {
+    const mockSequencerUrl = "http://mockUrl:1234";
+    let axiosPostStub: SinonStub;
+    const mockBid = mock.entity.bid();
+    beforeEach(() => {
+      mockContext.config.sequencerUrl = mockSequencerUrl;
+      axiosPostStub = stub(axios, "post").resolves({ data: "ok" });
+    });
+
+    it("happy", async () => {
+      const result = await sendBid(mockBid);
+      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "bid"), {
+        bid: mockBid,
+      });
+      expect(result).to.equal("ok");
+    });
+
+    it("throws if no response", async () => {
+      axiosPostStub.resolves();
+      await expect(sendBid(mockBid)).to.be.rejectedWith(SequencerResponseInvalid);
+    });
+
+    it("throws SequencerResponseInvalid if no response.data", async () => {
+      axiosPostStub.resolves({ data: undefined });
+      await expect(sendBid(mockBid)).to.be.rejectedWith(SequencerResponseInvalid);
     });
   });
 });
