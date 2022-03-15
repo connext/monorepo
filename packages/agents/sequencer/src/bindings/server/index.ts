@@ -18,8 +18,9 @@ export const bindServer = () =>
       try {
         const { requestContext } = createLoggingContext("/bid endpoint");
         const { body: req } = request;
-        const result = await handleBid((req as any).bid as Bid, requestContext);
-        return response.status(200).send(result);
+        const bid = (req as any).bid as Bid;
+        await handleBid(bid, requestContext);
+        return response.status(200).send({ message: "Sent bid to auctioneer", bid });
       } catch (error: any) {
         logger.error(`Bid Post Error: ${error}`);
         return response.code(500).send({ err: jsonifyError(error) });
