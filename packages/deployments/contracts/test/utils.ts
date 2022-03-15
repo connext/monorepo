@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { expect, assert } from "chai";
 
 import {
@@ -14,7 +14,7 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnable, GenericERC20, UpgradeBeaconProxy, Home__factory } from "../typechain-types";
+import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, Home__factory } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -50,6 +50,33 @@ export const deployContractWithLibs = async <T extends Contract = Contract>(
   })) as ContractFactory;
 
   return deployFromFactory(factory, ...args);
+};
+
+export const deployBeaconProxy = async <T extends Contract = Contract>(
+  name: string,
+  initArgs: any[],
+): Promise<[T, string]> => {
+  // Get init data
+  const factory = (await ethers.getContractFactory(name)) as ContractFactory;
+
+  // Deploy Beacon
+  const beacon = await upgrades.deployBeacon(factory);
+  await beacon.deployed();
+
+  // Deploy proxy
+  const proxy = await upgrades.deployBeaconProxy(beacon, factory, initArgs);
+  await proxy.deployed();
+
+  return [proxy as T, beacon.address];
+};
+
+export const upgradeBeaconProxy = async (name: string, beaconAddress: string): Promise<boolean> => {
+  const factory = (await ethers.getContractFactory(name)) as ContractFactory;
+
+  // Upgrade proxy
+  await upgrades.upgradeBeacon(beaconAddress, factory);
+
+  return true;
 };
 
 export const deployUpgradeableProxy = async <T extends Contract = Contract>(
@@ -109,7 +136,11 @@ export const assertReceiptEvent = async (receipt: ContractReceipt, eventName: st
   assertObject(expected, decoded);
 };
 
-export const proposeNewOwnerOnContract = async (newOwner: string, owner: Wallet, contract: ProposedOwnable) => {
+export const proposeNewOwnerOnContract = async (
+  newOwner: string,
+  owner: Wallet,
+  contract: ProposedOwnableUpgradeable,
+) => {
   // Propose new owner
   const proposeTx = await contract.connect(owner).proposeNewOwner(newOwner);
   const proposeReceipt = await proposeTx.wait();
@@ -121,7 +152,7 @@ export const proposeNewOwnerOnContract = async (newOwner: string, owner: Wallet,
 export const transferOwnershipOnContract = async (
   newOwner: string,
   caller: Wallet,
-  contract: ProposedOwnable,
+  contract: ProposedOwnableUpgradeable,
   owner: Wallet,
 ) => {
   // Get current owner

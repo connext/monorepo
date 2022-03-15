@@ -5,7 +5,7 @@
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "dev": "yarn build --watch --preserveWatchOutput",
+    "dev": "yarn build",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",

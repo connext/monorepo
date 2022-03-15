@@ -4,36 +4,14 @@ import * as fs from "fs";
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
-import contractDeployments from "@connext/nxtp-contracts/deployments.json";
+
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
+import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 dotenvConfig();
-
-/**
- * Helper to allow easy mocking
- */
-export const getContractDeployments: any = () => {
-  return contractDeployments;
-};
-
-/**
- * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
- *
- * @param chainId - The chain you want the address on
- * @returns The deployed address or `undefined` if it has not been deployed yet
- */
-export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.TransactionManager;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
 
 export const TAssetDescription = Type.Object({
   name: Type.String(),
@@ -97,7 +75,10 @@ export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfig => {
+export const getEnvConfig = (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): NxtpRouterConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -171,7 +152,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): NxtpRouterConfi
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.deployments?.transactionManager) {
-      const res = chainDataForChain ? getDeployedTransactionManagerContract(chainDataForChain.chainId) : undefined;
+      const res = chainDataForChain ? deployments.transactionManager(chainDataForChain.chainId) : undefined;
       if (!res) {
         throw new Error(`No transactionManager address for domain ${domainId}`);
       }
@@ -216,9 +197,12 @@ let nxtpConfig: NxtpRouterConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (chainData: Map<string, ChainData>): Promise<NxtpRouterConfig> => {
+export const getConfig = async (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): Promise<NxtpRouterConfig> => {
   if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig(chainData);
+    nxtpConfig = getEnvConfig(chainData, deployments);
   }
   return nxtpConfig;
 };

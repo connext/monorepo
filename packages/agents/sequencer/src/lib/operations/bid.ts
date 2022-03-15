@@ -1,10 +1,9 @@
 import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
 
 import { sendToRelayer } from "./relayer";
-import { AppContext } from "../../context";
 import { getContext } from "../../sequencer";
 
-export const handleBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
+export const handleBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     chainData,
@@ -45,7 +44,7 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
       transactionId: bid.transactionId,
     });
 
-    await selectBestBid(bid.transactionId, requestContext);
+    selectBestBid(bid.transactionId, requestContext);
   }
 };
 

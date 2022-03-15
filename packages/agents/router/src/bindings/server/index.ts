@@ -2,7 +2,7 @@ import { jsonifyError } from "@connext/nxtp-utils";
 import fastify from "fastify";
 import { register } from "prom-client";
 
-import { AppContext } from "../../context";
+import { getContext } from "../../router";
 
 import {
   RemoveLiquidityRequest,
@@ -11,18 +11,15 @@ import {
   AddLiquidityForRequest,
   AddLiquidityForRequestSchema,
   AddLiquidityForResponseSchema,
-  MigrateLiquidityRequest,
-  MigrateLiquidityRequestSchema,
-  MigrateLiquidityResponseSchema,
 } from "./schema";
 
-export const bindServer = (context: AppContext) =>
+export const bindServer = () =>
   new Promise<void>((res) => {
     const {
       adapters: { wallet },
       config,
       logger,
-    } = context;
+    } = getContext();
 
     const server = fastify();
 
@@ -65,19 +62,6 @@ export const bindServer = (context: AppContext) =>
       { schema: { body: AddLiquidityForRequestSchema, response: { "2xx": AddLiquidityForResponseSchema } } },
       async (req, res) => {
         // const requestContext = createRequestContext("/add-liquidity-for");
-        const { adminToken } = req.body;
-        if (adminToken !== config.server.adminToken) {
-          return res.code(401).send("Unauthorized to perform this operation");
-        }
-        return res.code(500).send("Not implemented");
-      },
-    );
-
-    server.post<{ Body: MigrateLiquidityRequest }>(
-      "/migrate-liquidity",
-      { schema: { body: MigrateLiquidityRequestSchema, response: { "2xx": MigrateLiquidityResponseSchema } } },
-      async (req, res) => {
-        // const requestContext = createRequestContext("/migrate-liquidity");
         const { adminToken } = req.body;
         if (adminToken !== config.server.adminToken) {
           return res.code(401).send("Unauthorized to perform this operation");

@@ -1,122 +1,55 @@
-# A GitHub Actions workflow to build a docker image for an app.
-#
-# One-time setup to use this workflow:
-# 1. Move this file into ./.github/workflows
-# 2. Change APP_NAME variable below to the name of the app.
-#
-# The image will be built on each push to or pull request on main.
-# It will be pushed to the current GitHub repo's Packages.
-
-name: Build and Push Docker Image - Router
+name: Create and publish Docker images
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  create:
-    tag:
-      - "v*"
+    branches: [amarok]
 
 env:
-  # These variables are used by build.sh.
-
-  # Comment out the following line to skip pushing the image to your GitHub repo.
-  DOCKER_REPO: ghcr.io
+  REGISTRY: ghcr.io
+  IMAGE_NAME: connext/router
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  build-and-push-router-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Add COMMIT_HASH env property with commit short sha
-        run: echo "COMMIT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
-
-      - name: Build and push docker image to GitHub repo
-        run: |
-          echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          chmod +x ./docker/build-router.sh
-          ./docker/build-router.sh
-
-  verify:
-    runs-on: ubuntu-20.04
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up node
-        uses: actions/setup-node@v1
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
-          node-version: 14.x
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-
-      - name: Cache yarn cache
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install dependencies
-        run: yarn --immutable
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
 
-      - name: Build
-        run: yarn build:all
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/router/Dockerfile
 
-      - name: Test
-        run: yarn test:all
-
-      - name: Get Docker image
-        run: |
-          yarn workspace @connext/nxtp-router build
-          echo "${{ secrets.SUPER_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ghcr.io/connext/nxtp-router:latest
-          docker tag ghcr.io/connext/nxtp-router:latest nxtp-router:latest
-
-      - name: Test Integration
-        run: yarn test:integration
-
-      - name: Print router logs
-        if: failure()
-        run: docker container ls && docker container logs --tail 250 router-test
-
-      - name: Print graph logs
-        if: failure()
-        run: docker container ls && docker container logs --tail 250 graph-node-1337-test && docker container logs --tail 250 graph-node-1338-test
-
-      - name: Lint
-        run: yarn lint:all --max-warnings 0
-
-      # -------------------------------------------------------------------------
-      # PUBLISHING TO NPM
-      # -------------------------------------------------------------------------
-      # One-time steps to setup publishing:
-      # 1. Uncomment the Publish step below and change __PACKAGE_NAME__ to the name of
-      #    the package you want to publish. (Include the @scope, if any.)
-      # 2. Create a secret in your github repo named NPM_TOKEN to authenticate to npm.
-      #
-      # To publish a version (replace "1.2.3" with your version number), run:
-      #     yarn version:all 1.2.3
-      #     git push --follow-tags
-      #
-      # See https://github.com/jtbennett/create-ts-project/blob/main/docs/publishing-to-npm.md
-      # for details.
-      # -------------------------------------------------------------------------
-      - name: Publish
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      - name: Terraform Docker Image onto AWS instance
         env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
-          yarn workspace @connext/nxtp-utils npm publish --access public
-          yarn workspace @connext/nxtp-contracts npm publish --access public
-          yarn workspace @connext/nxtp-txservice npm publish --access public
-          yarn workspace @connext/nxtp-sdk npm publish --access public
+          cd ops && terraform init && terraform plan && terraform apply -auto-approve
+
+
+        
+      

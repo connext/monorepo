@@ -10,7 +10,7 @@ import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
 
 import { SequencerConfig } from "../src/lib/entities";
-import { AppContext } from "../src/context";
+import { AppContext } from "../src/lib/entities/context";
 
 export const mock = {
   ..._mock,

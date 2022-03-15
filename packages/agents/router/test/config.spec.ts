@@ -1,11 +1,12 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
-import Sinon, { stub, restore, reset, SinonStub } from "sinon";
-import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
-import * as ConfigFns from "../src/config";
+import { expect } from "@connext/nxtp-utils";
+import { stub, restore, reset } from "sinon";
+
+import { getEnvConfig, getConfig } from "../src/config";
 import { mock } from "./mock";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
+const mockDeployments = mock.contracts.deployments();
 
 describe("Config", () => {
   let testChainId = 1336;
@@ -42,23 +43,19 @@ describe("Config", () => {
     reset();
   });
 
-  describe("#getDeployedTransactionManagerContract", () => {
-    beforeEach(() => {
-      Sinon.stub(ConfigFns, "getContractDeployments").returns(contractDeployment);
-    });
-
-    it("should undefined if no transaction manager", () => {
-      const res = getDeployedTransactionManagerContract(0);
-      expect(res).to.be.undefined;
-    });
-
-    it("happy func", () => {
-      const res = getDeployedTransactionManagerContract(testChainId);
-      expect(res).to.be.ok;
-    });
-  });
-
   describe("getEnvConfig", () => {
+    it("happy: should parse out configuration", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_MNEMONIC: mockConfig.mnemonic,
+        // NXTP_ADMIN_TOKEN: configMock.adminToken,
+        NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
+        NXTP_LOG_LEVEL: mockConfig.logLevel,
+      });
+
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
+    });
+
     it("should read config from NXTP Config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
@@ -67,7 +64,7 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
-      expect(() => getEnvConfig(mockChainData)).not.throw();
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
     });
 
     it("should error if transaction manager address is missing", () => {
@@ -76,14 +73,33 @@ describe("Config", () => {
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
           ...mockConfig,
-          chainConfig: {
+          chains: {
             1337: {},
             1338: {},
           },
         }),
       });
 
-      expect(() => getEnvConfig(mockChainData)).throw("No transactionManager address");
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw("No transactionManager address");
+    });
+
+    it("should substitute contract deployments with deployments argument if none exist in config", () => {
+      const alteredMockChain = parseInt(mock.chain.A);
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_NETWORK: "local",
+        NXTP_CONFIG: JSON.stringify({
+          ...mockConfig,
+          chains: {
+            ...mockConfig.chains,
+            [alteredMockChain]: { deployments: { transactionManager: null } },
+          },
+        }),
+      });
+
+      const expectedDeployment = mockDeployments.transactionManager(alteredMockChain);
+      const config = getEnvConfig(mockChainData, mockDeployments);
+      expect(config.chains[alteredMockChain].deployments.transactionManager).to.deep.equal(expectedDeployment);
     });
 
     it("should error if validation fails", () => {
@@ -92,14 +108,14 @@ describe("Config", () => {
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
           ...mockConfig,
-          chainConfig: {
-            1337: { transactionManagerAddress: mkAddress("0xaaa"), subgraph: "http://example.com" },
-            1338: { transactionManagerAddress: mkAddress("0xbbb"), subgraph: "http://example.com" },
+          chains: {
+            1337: { subgraph: "http://example.com" },
+            1338: { subgraph: "http://example.com" },
           },
         }),
       });
 
-      expect(() => getEnvConfig(mockChainData)).throw("must have required property");
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw("must have required property");
     });
 
     it("should read config from NXTP Config with local network values overridden", () => {
@@ -113,7 +129,7 @@ describe("Config", () => {
       let error;
 
       try {
-        res = getEnvConfig(mockChainData);
+        res = getEnvConfig(mockChainData, mockDeployments);
       } catch (e) {
         error = e;
       }
@@ -127,19 +143,7 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
-      expect(() => getEnvConfig(mockChainData)).not.throw();
-    });
-
-    it("should getEnvConfig", () => {
-      stub(process, "env").value({
-        ...process.env,
-        NXTP_MNEMONIC: mockConfig.mnemonic,
-        // NXTP_ADMIN_TOKEN: configMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
-        NXTP_LOG_LEVEL: mockConfig.logLevel,
-      });
-
-      expect(() => getEnvConfig(mockChainData)).not.throw();
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
     });
   });
 
@@ -153,8 +157,8 @@ describe("Config", () => {
         NXTP_LOG_LEVEL: mockConfig.logLevel,
       });
 
-      const env = getEnvConfig(mockChainData);
-      const config = await getConfig(mockChainData);
+      const env = getEnvConfig(mockChainData, mockDeployments);
+      const config = await getConfig(mockChainData, mockDeployments);
       expect(config).to.be.deep.eq(env);
     });
   });

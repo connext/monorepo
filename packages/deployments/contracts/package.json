@@ -13,7 +13,7 @@
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
-    "dev": "yarn build --watch --preserveWatchOutput",
+    "dev": "yarn build",
     "lint": "eslint ./src --ext .ts --env node",
     "clean": "hardhat clean && forge clean && rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@openzeppelin/hardhat-upgrades": "^1.16.0",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "adv": "^0.1.5",
     "ajv": "^8.6.2",

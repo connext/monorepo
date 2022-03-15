@@ -9,7 +9,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "yarn build && concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon' 'yarn build --watch --preserveWatchOutput'",
+    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
     "start": "node --enable-source-maps dist/index.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/mock.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
@@ -32,7 +32,6 @@
       "../@connext/nxtp-adapters-subgraph/dist",
       "../@connext/nxtp-adapters-web3signer/dist",
       "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-contracts/dist",
       "../@connext/nxtp-utils/dist"
     ]
   },
@@ -45,7 +44,6 @@
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "^0.18.1",

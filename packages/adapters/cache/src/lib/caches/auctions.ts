@@ -1,9 +1,10 @@
-import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
+import { BidStatus, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
-import { TransactionsCache } from ".";
+import { Cache } from "./cache";
 
-export class AuctionsCache extends TransactionsCache {
+export class AuctionsCache extends Cache {
+  private readonly prefix = "bids";
   /**
    * Stores bid to redis
    *
@@ -15,8 +16,8 @@ export class AuctionsCache extends TransactionsCache {
     const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
-    const stored = await this.data.hset(
-      `${txid}:bid:${router}`,
+    await this.data.hset(
+      `${this.prefix}:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
       "status",
@@ -25,7 +26,7 @@ export class AuctionsCache extends TransactionsCache {
       curTimeInSecs,
     );
 
-    const count = (await this.data.keys(`${txid}:bid:*`)).length;
+    const count = (await this.data.keys(`${this.prefix}:${txid}:*`)).length;
 
     await this.data.publish(StoreChannel.NewBid, JSON.stringify(bid));
 
@@ -37,15 +38,15 @@ export class AuctionsCache extends TransactionsCache {
    *
    * @param bid The signed bid we're going to update
    * @param bidStatus The status of bid
-   * @returns success - true, failure - false
+   * @returns 1 - added, 0 - updated
    */
-  public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<boolean> {
+  public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<number> {
     const txid = bid.transactionId;
     const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
-    const updated = await this.data.hset(
-      `${txid}:bid:${router}`,
+    const res = await this.data.hset(
+      `${this.prefix}:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
       "status",
@@ -54,8 +55,8 @@ export class AuctionsCache extends TransactionsCache {
       curTimeInSecs,
     );
 
-    if (updated === 1) return true;
-    else return false;
+    if (res >= 1) return 1;
+    else return res;
   }
 
   /**
@@ -68,14 +69,14 @@ export class AuctionsCache extends TransactionsCache {
     const storedBids: StoredBid[] = [];
 
     const bidStream = this.data.scanStream({
-      match: `${transactionId}:bid:*`,
+      match: `${this.prefix}:${transactionId}:*`,
     });
 
     return new Promise((res, rej) => {
       bidStream.on("data", async (resultKeys: string) => {
         for (const key of resultKeys) {
-          // 1 - "data" - key
-          // 2 - value for the `data`
+          // 1 - "payload" - key
+          // 2 - value for the `payload`
           // 3 - "status" - key
           // 4 - value for the `status`
           // 5 - `lastUpdate` - key
@@ -93,10 +94,6 @@ export class AuctionsCache extends TransactionsCache {
       });
       bidStream.on("end", async () => {
         res(storedBids);
-      });
-      bidStream.on("error", (error: string) => {
-        this.logger.debug(error);
-        rej(error);
       });
     });
   }

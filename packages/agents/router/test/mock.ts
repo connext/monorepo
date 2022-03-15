@@ -1,20 +1,15 @@
 import { utils, BigNumber, Wallet } from "ethers";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, FulfillArgs, CallParams } from "@connext/nxtp-utils";
-import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain-types/TransactionManager";
-import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
-import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
-import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
-
+import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
+import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
 import { NxtpRouterConfig } from "../src/config";
-import { AppContext } from "../src/context";
-
-// export const MUTATED_AMOUNT = "100000000000000000000";
-// export const MUTATED_BUFFER = 123400;
-// export const BID_EXPIRY = 123401;
+import { AppContext } from "../src/lib/entities/context";
+// Used for stubbing functions at the bottom of this file:
+import * as router from "../src/router";
+import * as helpers from "../src/lib/helpers";
+import * as operations from "../src/lib/operations";
 
 export const mock = {
   ..._mock,
@@ -25,7 +20,7 @@ export const mock = {
         subgraph: mock.adapter.subgraph(),
         cache: mock.adapter.cache(),
         txservice: mock.adapter.txservice(),
-        contracts: mock.adapter.contracts(),
+        contracts: mock.contracts.interfaces(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -36,12 +31,7 @@ export const mock = {
   config: (): NxtpRouterConfig => ({
     chains: {
       [mock.chain.A]: {
-        assets: [
-          {
-            name: "TEST",
-            address: mkAddress("0xbeefbeefbeef"),
-          },
-        ],
+        assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
@@ -55,12 +45,7 @@ export const mock = {
         gasStations: [],
       },
       [mock.chain.B]: {
-        assets: [
-          {
-            name: "TEST",
-            address: mkAddress("0xbeefbeefbeef"),
-          },
-        ],
+        assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
@@ -135,7 +120,9 @@ export const mock = {
       txservice.getTransactionReceipt.resolves(mockReceipt);
       return txservice;
     },
-    contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
+  },
+  contracts: {
+    interfaces: (): SinonStubbedInstance<ConnextContractInterfaces> => {
       const encodedDataMock = "0xabcde";
 
       const transactionManager = createStubInstance(utils.Interface);
@@ -155,11 +142,51 @@ export const mock = {
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        transactionManager: transactionManager as unknown as TransactionManagerInterface,
-        priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
-        tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
-        stableSwap: stableSwap as unknown as StableSwapInterface,
+        transactionManager: transactionManager as unknown as ConnextContractInterfaces["transactionManager"],
+        priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
+        tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
+        stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
+      };
+    },
+    deployments: (): ConnextContractDeployments => {
+      return {
+        transactionManager: (_: number) => ({
+          address: mkAddress("0xbadcab"),
+          abi: {},
+        }),
+        priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
       };
     },
   },
+  helpers: {
+    fulfill: {
+      getReceiverAmount: stub(),
+    },
+    shared: {
+      getDestinationTransactingAsset: stub(),
+      getDestinationLocalAsset: stub(),
+      getAmountIn: stub(),
+      getAmountOut: stub(),
+      getDecimalsForAsset: stub(),
+      calculateGasFeeInReceivingToken: stub(),
+    },
+  },
+  operations: {
+    fulfill: stub(),
+  },
+};
+
+// Stub getContext to return the mock context above.
+export const stubContext = () => {
+  const context = mock.context();
+  stub(router, "getContext").returns(context);
+  return context;
+};
+
+export const stubHelpers = () => {
+  stub(helpers, "getHelpers").returns(mock.helpers);
+};
+
+export const stubOperations = () => {
+  stub(operations, "getOperations").returns(mock.operations);
 };

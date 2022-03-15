@@ -5,22 +5,14 @@ import {
   createLoggingContext,
   CrossChainTx,
   signHandleRelayerFeePayload,
+  formatUrl,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import axios, { AxiosResponse } from "axios";
 
-import { AppContext } from "../../context";
-import { NotEnoughAmount, NotEnoughLiquidity, SenderChainDataInvalid } from "../errors";
-import { SlippageInvalid } from "../errors/fulfill";
-import { getReceiverAmount } from "../helpers";
-import {
-  calculateGasFeeInReceivingToken,
-  getAmountOut,
-  getDecimalsForAsset,
-  getDestinationLocalAsset,
-  getDestinationTransactingAsset,
-  sanitationCheck,
-} from "../helpers/shared";
-import { sendBid } from "./sequencer";
+import { NotEnoughAmount, SlippageInvalid, SequencerResponseInvalid } from "../errors";
+import { getHelpers } from "../helpers";
+import { getContext } from "../../router";
 
 // fee percentage paid to relayer. need to be updated later
 const RelayerFeePercentage = "1"; //  1%
@@ -29,22 +21,30 @@ const RelayerFeePercentage = "1"; //  1%
  * Router creates a new bid and sends it to auctioneer.
  * should be subsribed to NewPreparedTransaction channel of redis.
  *
- * @param context - AppContext instance used for interacting with adapters, config, etc.
  * @param pendingTx - The prepared crosschain tranaction
  */
-export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
+export const fulfill = async (pendingTx: CrossChainTx) => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name);
+
   const {
     logger,
     config,
-    adapters: { subgraph, txservice, wallet },
+    adapters: { wallet, txservice, contracts },
     chainData,
     routerAddress,
-  } = context;
-  logger.info("Method start", requestContext, methodContext, { pendingTx });
+  } = getContext();
+  const {
+    fulfill: { getReceiverAmount },
+    shared: {
+      getAmountOut,
+      getDecimalsForAsset,
+      getDestinationLocalAsset,
+      getDestinationTransactingAsset,
+      calculateGasFeeInReceivingToken,
+    },
+  } = getHelpers();
 
-  /// sanitation check before validiation
-  await sanitationCheck(context, pendingTx, "fulfill");
+  logger.info("Method start", requestContext, methodContext, { pendingTx });
 
   /// create a bid
   const {
@@ -78,13 +78,9 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
   const transactingOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillTransactingAsset);
   const localOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillLocalAsset);
 
-  let { receivingAmount: receiverAmount } = await getReceiverAmount(
-    prepareLocalAmount,
-    localInputDecimals,
-    localOutputDecimals,
-  );
+  let { receivingAmount } = await getReceiverAmount(prepareLocalAmount, localInputDecimals, localOutputDecimals);
   const fulfillTransactingAmount = await getAmountOut(
-    receiverAmount,
+    receivingAmount,
     destinationDomain,
     fulfillTransactingAsset,
     fulfillLocalAsset,
@@ -113,8 +109,6 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
     });
   }
 
-  const amountReceivedInBigNum = BigNumber.from(receiverAmount);
-
   const gasFeeInFulfillLocalAsset = await calculateGasFeeInReceivingToken(
     originDomain,
     prepareLocalAsset,
@@ -125,7 +119,7 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
     requestContext,
   );
 
-  receiverAmount = amountReceivedInBigNum.sub(gasFeeInFulfillLocalAsset).toString();
+  receivingAmount = BigNumber.from(receivingAmount).sub(gasFeeInFulfillLocalAsset).toString();
 
   // TODO: `getAssetBalance` is not implemented yet.
   // const routerBalance = await subgraph.getAssetBalance(parseInt(destinationDomain), routerAddress, fulfillLocalAsset);
@@ -141,10 +135,10 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
   //   );
   // }
 
-  // make sure amount is sensible
-  if (BigNumber.from(receiverAmount).lt(0)) {
+  // Make sure amount is sensible.
+  if (BigNumber.from(receivingAmount).lt(0)) {
     throw new NotEnoughAmount({
-      receiverAmount,
+      receiverAmount: receivingAmount,
       prepareTransactingAmount: prepareTransactingAmount.toString(),
       prepareLocalAmount: prepareLocalAmount.toString(),
       transactionId,
@@ -160,7 +154,7 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
     local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
-    amount: receiverAmount,
+    amount: receivingAmount,
     nonce: pendingTx.nonce.toString(),
     relayerSignature: signature,
   };
@@ -169,7 +163,43 @@ export const fulfill = async (context: AppContext, pendingTx: CrossChainTx) => {
     transactionId,
     data: fulfillArguments,
   };
+
+  const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
+
+  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
+  const destinationTransactionManagerAddress =
+    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+
+  // Validate the bid's fulfill call will succeed on chain.
+  try {
+    await txservice.getGasEstimate(Number(bid.data.params.destinationDomain), {
+      chainId: destinationChainId,
+      to: destinationTransactionManagerAddress,
+      data: encodedData,
+    });
+  } catch {
+    // console.log("transaction already fulfilled");
+    return;
+  }
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
-  await sendBid(context, bid);
+  await sendBid(bid);
+};
+
+export const sendBid = async (bid: Bid): Promise<any> => {
+  const { requestContext, methodContext } = createLoggingContext(sendBid.name);
+  const { logger, config } = getContext();
+
+  /// TODO don't send the signature in logs, edit bid during logging
+  logger.info("Method start", requestContext, methodContext, { bid });
+
+  let response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
+    bid,
+  });
+
+  if (!response || !response.data) {
+    throw new SequencerResponseInvalid({ response });
+  } else {
+    return response.data;
+  }
 };

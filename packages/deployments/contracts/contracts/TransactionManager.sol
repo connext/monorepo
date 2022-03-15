@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "./ProposedOwnable.sol";
+import "./ProposedOwnableUpgradeable.sol";
 import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/IWrapped.sol";
 import "./interfaces/IStableSwap.sol";
@@ -11,8 +11,10 @@ import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
 import "./nomad-core/contracts/Merkle.sol";
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 // Open questions:
 // 1. How to account for fees/specify amount used on receiving chain?
@@ -24,7 +26,6 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 //   - stable swap implemented, interface changes TBD
 // - nomad contract packages not playing nicely #815
 // - make functions metatxable with any asset #816
-// - make upgradeable #817
 // - assert the router gas usage in reconcile
 //   - depends on feedback from pilot devs -- should user specify min? should we take on
 //     oracle dependencies? should we pass data *all the way back*? 
@@ -47,7 +48,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 // - relayer restrictions
 // - allowing fees for transfer to be paid using subsidies
 
-contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManager {
+contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, MerkleTreeManager {
 
   // TODO: why is this breaking the build
   // uint256 internal constant 3 = 3;
@@ -354,7 +355,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
    * @notice Nonce for the contract, used to keep unique transaction ids.
    * @dev Assigned at first interaction (prepare on origin domain);
    */
-  uint256 public nonce = 0;
+  uint256 public nonce ;
 
   /**
    * @notice The external contract that will execute crosschain calldata
@@ -388,7 +389,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
    * @notice The domain this contract exists on
    * @dev Must match the nomad domain, which is distinct from the "chainId"
    */
-  uint256 public immutable domain;
+  uint256 public domain;
 
   /**
    * @notice Mapping of router to available balance of an asset
@@ -453,12 +454,16 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
     _;
   }
 
-  constructor(
+  function initialize(
     uint256 _domain,
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative
-  ) {
+  ) public initializer {
+    __ProposedOwnable_init();
+    __ReentrancyGuard_init();
+
+    nonce = 0;
     domain = _domain;
     bridgeRouter = BridgeRouter(_bridgeRouter);
     interpreter = new FulfillInterpreter(address(this));
@@ -577,7 +582,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
   function removeRelayerFees(uint256 amount, address payable recipient) external {
     routerRelayerFees[msg.sender] -= amount;
     
-    Address.sendValue(recipient, amount);
+    AddressUpgradeable.sendValue(recipient, amount);
   }
 
   /**
@@ -728,7 +733,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
       address batch = _tokens[i];
       if (batch != address(0)) {
         SafeERC20.safeIncreaseAllowance(
-          IERC20(batch),
+          IERC20Upgradeable(batch),
           address(bridgeRouter),
           _amounts[i]
         );
@@ -888,7 +893,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
 
     // Approve pool
     IStableSwap pool = adoptedToLocalPools[canonical.id];
-    SafeERC20.safeApprove(IERC20(_asset), address(pool), _amount);
+    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
 
     // Swap the asset to the proper local asset
     return (
@@ -921,7 +926,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
 
     // Approve pool
     IStableSwap pool = adoptedToLocalPools[id];
-    SafeERC20.safeApprove(IERC20(_asset), address(pool), _amount);
+    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
 
     // Otherwise, swap to adopted asset
     return (
@@ -1044,11 +1049,11 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
       _assetId = address(wrapper);
     } else {
       // Validate correct amounts are transferred
-      uint256 starting = IERC20(_assetId).balanceOf(address(this));
+      uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
       require(msg.value == 0, "#TA:006");
-      SafeERC20.safeTransferFrom(IERC20(_assetId), msg.sender, address(this), _specifiedAmount);
+      SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
       // Calculate the *actual* amount that was sent here
-      trueAmount = IERC20(_assetId).balanceOf(address(this)) - starting;
+      trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
     }
 
     return (_assetId, trueAmount);
@@ -1069,10 +1074,10 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
       // If dealing with wrapped assets, make sure they are properly unwrapped
       // before sending from contract
       wrapper.withdraw(_amount);
-      Address.sendValue(payable(_to), _amount);
+      AddressUpgradeable.sendValue(payable(_to), _amount);
     } else {
       // Transfer ERC20 asset
-      SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
+      SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(_assetId), _to, _amount);
     }
   }
 
@@ -1184,7 +1189,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
     routerRelayerFees[_router] -= fee;
 
     // Pay sender
-    Address.sendValue(payable(msg.sender), fee);
+    AddressUpgradeable.sendValue(payable(msg.sender), fee);
   }
 
   function getLeaf(
@@ -1220,7 +1225,6 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
     // Create a leaf
     bytes32 _leaf = getLeaf(_transactionId, _amount, _asset, _params);
 
-    // Insert into tree
     // TODO: do we ever need to clear out tree?
     tree.insert(_leaf);
 
@@ -1243,7 +1247,7 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
 
     // Should have added the asset and amount in for loop and exited.
     // If here, then the batch is full
-    require(false, "batch full");    
+    require(false, "batch full");
   }
 
   /**
@@ -1254,11 +1258,19 @@ contract TransactionManager is ReentrancyGuard, ProposedOwnable, MerkleTreeManag
    */
   function recoverSignature(bytes memory _encoded, bytes calldata _sig) internal pure returns (address) {
     // Recover
-    return ECDSA.recover(
-      ECDSA.toEthSignedMessageHash(keccak256(_encoded)),
+    return ECDSAUpgradeable.recover(
+      ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)),
       _sig
     );
   }
 
   receive() external payable {}
+
+
+  /**
+    * @dev This empty reserved space is put in place to allow future versions to add new
+    * variables without shifting down storage in the inheritance chain.
+    * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+    */
+  uint256[49] private __gap;
 }

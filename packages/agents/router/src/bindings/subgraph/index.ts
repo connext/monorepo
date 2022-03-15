@@ -1,25 +1,25 @@
 import { createLoggingContext, jsonifyError, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { AppContext } from "../../context";
+import { getContext } from "../../router";
 
 const SUBGRAPH_POLL_INTERVAL = 15_000;
 
 // Ought to be configured properly for each network; we consult the chain config below.
 const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (context: AppContext, _pollInterval = SUBGRAPH_POLL_INTERVAL) => {
+export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL) => {
   interval(async () => {
-    await pollSubgraph(context);
+    await pollSubgraph();
   }, _pollInterval);
 };
 
-export const pollSubgraph = async (context: AppContext) => {
+export const pollSubgraph = async () => {
   const {
     adapters: { cache, subgraph, txservice },
     logger,
     config,
-  } = context;
+  } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
   try {
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
@@ -41,11 +41,6 @@ export const pollSubgraph = async (context: AppContext) => {
     });
     await cache.transactions.storeTxData(transactions);
   } catch (err: any) {
-    logger.error(
-      "Error getting pending txs, waiting for next loop",
-      requestContext,
-      methodContext,
-      jsonifyError(err),
-    );
+    logger.error("Error getting pending txs, waiting for next loop", requestContext, methodContext, jsonifyError(err));
   }
-}
+};

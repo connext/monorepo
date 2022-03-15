@@ -14,7 +14,7 @@ import {
   UpgradeBeaconController,
   XAppConnectionManager,
   DummySwap,
-  ProposedOwnable,
+  ProposedOwnableUpgradeable,
 } from "../typechain-types";
 
 import {
@@ -31,6 +31,8 @@ import {
   assertReceiptEvent,
   ZERO_ADDRESS,
   transferOwnershipOnContract,
+  deployBeaconProxy,
+  upgradeBeaconProxy,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
@@ -92,16 +94,22 @@ describe.only("TransactionManager", () => {
   let originXappConnectionManager: XAppConnectionManager;
   let destinationXappConnectionManager: XAppConnectionManager;
   let originTokenRegistry: TokenRegistry;
+  let originTokenRegistryBeacon: string;
   let destinationTokenRegistry: TokenRegistry;
+  let destinationTokenRegistryBeacon: string;
   let originAdopted: TestERC20;
   let destinationAdopted: TestERC20;
   let canonical: TestERC20;
   let local: TestERC20;
   let weth: WETH;
   let originBridge: BridgeRouter;
+  let originBridgeBeacon: string;
   let destinationBridge: BridgeRouter;
+  let destinationBridgeBeacon: string;
   let originTm: TransactionManager;
+  let originTmBeacon: string;
   let destinationTm: TransactionManager;
+  let destinationTmBeacon: string;
   let stableSwap: DummySwap;
   let home: Home;
   let bridgeMessage: TestBridgeMessage;
@@ -125,44 +133,61 @@ describe.only("TransactionManager", () => {
     originXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     destinationXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     // Deploy token registry
-    originTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
-      "TokenRegistry",
-      [upgradeBeaconController.address, originXappConnectionManager.address],
+    // originTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+    //   "TokenRegistry",
+    //   [upgradeBeaconController.address, originXappConnectionManager.address],
+    //   upgradeBeaconController.address,
+    // );
+    // destinationTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+    //   "TokenRegistry",
+    //   [upgradeBeaconController.address, destinationXappConnectionManager.address],
+    //   upgradeBeaconController.address,
+    // );
+    [originTokenRegistry, originTokenRegistryBeacon] = await deployBeaconProxy<TokenRegistry>("TokenRegistry", [
       upgradeBeaconController.address,
-    );
-    destinationTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
-      "TokenRegistry",
-      [upgradeBeaconController.address, destinationXappConnectionManager.address],
+      originXappConnectionManager.address,
+    ]);
+    [destinationTokenRegistry, destinationBridgeBeacon] = await deployBeaconProxy<TokenRegistry>("TokenRegistry", [
       upgradeBeaconController.address,
-    );
+      destinationXappConnectionManager.address,
+    ]);
+
     // Deploy dummy stable swap
     stableSwap = await deployContract<DummySwap>("DummySwap");
+
     // Deploy bridge
-    originBridge = await deployUpgradeableProxy<BridgeRouter>(
-      "BridgeRouter",
-      [originTokenRegistry.address, originXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-    destinationBridge = await deployUpgradeableProxy<BridgeRouter>(
-      "BridgeRouter",
-      [destinationTokenRegistry.address, destinationXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
+    // originBridge = await deployUpgradeableProxy<BridgeRouter>(
+    //   "BridgeRouter",
+    //   [originTokenRegistry.address, originXappConnectionManager.address],
+    //   upgradeBeaconController.address,
+    // );
+    // destinationBridge = await deployUpgradeableProxy<BridgeRouter>(
+    //   "BridgeRouter",
+    //   [destinationTokenRegistry.address, destinationXappConnectionManager.address],
+    //   upgradeBeaconController.address,
+    // );
+    [originBridge, originBridgeBeacon] = await deployBeaconProxy<BridgeRouter>("BridgeRouter", [
+      originTokenRegistry.address,
+      originXappConnectionManager.address,
+    ]);
+    [destinationBridge, destinationBridgeBeacon] = await deployBeaconProxy<BridgeRouter>("BridgeRouter", [
+      destinationTokenRegistry.address,
+      destinationXappConnectionManager.address,
+    ]);
+
     // Deploy transacion managers
-    originTm = await deployContract<TransactionManager>(
-      "TransactionManager",
+    [originTm, originTmBeacon] = await deployBeaconProxy<TransactionManager>("TransactionManager", [
       originDomain,
       originBridge.address,
       originTokenRegistry.address,
       weth.address,
-    );
-    destinationTm = await deployContract<TransactionManager>(
-      "TransactionManager",
+    ]);
+    [destinationTm, destinationTmBeacon] = await deployBeaconProxy<TransactionManager>("TransactionManager", [
       destinationDomain,
       destinationBridge.address,
       destinationTokenRegistry.address,
       weth.address,
-    );
+    ]);
     // Deploy home
     home = await deployContract<Home>("Home", originDomain);
     // Deploy test bridge message
@@ -316,6 +341,13 @@ describe.only("TransactionManager", () => {
   describe("constructor", async () => {
     it("should deploy", async () => {
       expect(originTm.address).to.be.a("string");
+    });
+
+    it("should upgradeable", async () => {
+      expect(await upgradeBeaconProxy("TransactionManager", originTmBeacon)).to.be.true;
+      expect(await upgradeBeaconProxy("TransactionManager", destinationTmBeacon)).to.be.true;
+      expect(await upgradeBeaconProxy("BridgeRouter", originBridgeBeacon)).to.be.true;
+      expect(await upgradeBeaconProxy("BridgeRouter", destinationBridgeBeacon)).to.be.true;
     });
 
     it("should set domain for original TransactionManager", async () => {
@@ -650,7 +682,7 @@ describe.only("TransactionManager", () => {
       expect(await originTm.approvedRouters(router.address)).to.be.false;
 
       // Renounce ownership
-      await transferOwnershipOnContract(ZERO_ADDRESS, admin, originTm as unknown as ProposedOwnable, admin);
+      await transferOwnershipOnContract(ZERO_ADDRESS, admin, originTm as unknown as ProposedOwnableUpgradeable, admin);
 
       await originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
       expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));

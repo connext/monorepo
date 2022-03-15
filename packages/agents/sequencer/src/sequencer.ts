@@ -5,7 +5,7 @@ import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
-import { AppContext } from "./context";
+import { AppContext } from "./lib/entities/context";
 import { bindServer } from "./bindings/server";
 
 const context: AppContext = {} as any;
