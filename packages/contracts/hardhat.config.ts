@@ -185,6 +185,11 @@ const config: HardhatUserConfig = {
       chainId: 250,
       url: urlOverride || process.env.FTM_PROVIDER_URL || "https://rpcapi.fantom.network/",
     },
+    boba: {
+      accounts,
+      chainId: 288,
+      url: "https://mainnet.boba.network/",
+    },
     moonriver: {
       accounts,
       chainId: 1285,
