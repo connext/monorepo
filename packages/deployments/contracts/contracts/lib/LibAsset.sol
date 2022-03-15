@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 /**
 * @title LibAsset
@@ -38,7 +38,7 @@ library LibAsset {
     return
       isNativeAsset(assetId)
         ? address(this).balance
-        : IERC20(assetId).balanceOf(address(this));
+        : IERC20Upgradeable(assetId).balanceOf(address(this));
   }
 
   /** 
@@ -50,7 +50,7 @@ library LibAsset {
   function transferNativeAsset(address payable recipient, uint256 amount)
       internal
   {
-    Address.sendValue(recipient, amount);
+    AddressUpgradeable.sendValue(recipient, amount);
   }
 
   /** 
@@ -65,7 +65,7 @@ library LibAsset {
       address recipient,
       uint256 amount
   ) internal {
-    SafeERC20.safeTransfer(IERC20(assetId), recipient, amount);
+    SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(assetId), recipient, amount);
   }
 
   /** 
@@ -81,7 +81,7 @@ library LibAsset {
     address to,
     uint256 amount
   ) external {
-    SafeERC20.safeTransferFrom(IERC20(assetId), from, to, amount);
+    SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(assetId), from, to, amount);
   }
 
   /** 
@@ -96,7 +96,7 @@ library LibAsset {
     uint256 amount
   ) internal {
     require(!isNativeAsset(assetId), "#IA:034");
-    SafeERC20.safeIncreaseAllowance(IERC20(assetId), spender, amount);
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(assetId), spender, amount);
   }
 
   /**
@@ -111,7 +111,7 @@ library LibAsset {
     uint256 amount
   ) internal {
     require(!isNativeAsset(assetId), "#DA:034");
-    SafeERC20.safeDecreaseAllowance(IERC20(assetId), spender, amount);
+    SafeERC20Upgradeable.safeDecreaseAllowance(IERC20Upgradeable(assetId), spender, amount);
   }
 
   /**
