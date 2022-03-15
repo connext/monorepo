@@ -58,3 +58,10 @@ export class NotEnoughAmount extends NxtpError {
     super(`Not enough amount for swap`, context, "NotEnoughAmount");
   }
 }
+
+export class SequencerResponseInvalid extends NxtpError {
+  cancellable = true;
+  constructor(context: any = {}) {
+    super("sendBid: POST request returned invalid response", context, SequencerResponseInvalid.name);
+  }
+}

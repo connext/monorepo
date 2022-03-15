@@ -5,12 +5,13 @@ import {
   createLoggingContext,
   CrossChainTx,
   signHandleRelayerFeePayload,
+  formatUrl,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import axios, { AxiosResponse } from "axios";
 
-import { NotEnoughAmount, SlippageInvalid } from "../errors";
+import { NotEnoughAmount, SlippageInvalid, SequencerResponseInvalid } from "../errors";
 import { getHelpers } from "../helpers";
-import { sendBid } from "./sequencer";
 import { getContext } from "../../router";
 
 // fee percentage paid to relayer. need to be updated later
@@ -183,4 +184,22 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
   await sendBid(bid);
+};
+
+export const sendBid = async (bid: Bid): Promise<any> => {
+  const { requestContext, methodContext } = createLoggingContext(sendBid.name);
+  const { logger, config } = getContext();
+
+  /// TODO don't send the signature in logs, edit bid during logging
+  logger.info("Method start", requestContext, methodContext, { bid });
+
+  let response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
+    bid,
+  });
+
+  if (!response || !response.data) {
+    throw new SequencerResponseInvalid({ response });
+  } else {
+    return response.data;
+  }
 };
