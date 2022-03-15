@@ -134,16 +134,20 @@
         ],
         "types": {
           "t_address": {
-            "label": "address"
+            "label": "address",
+            "numberOfBytes": "20"
           },
           "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
           },
           "t_bool": {
-            "label": "bool"
+            "label": "bool",
+            "numberOfBytes": "1"
           },
           "t_uint256": {
-            "label": "uint256"
+            "label": "uint256",
+            "numberOfBytes": "32"
           }
         }
       }
@@ -252,47 +256,62 @@
         ],
         "types": {
           "t_address": {
-            "label": "address"
+            "label": "address",
+            "numberOfBytes": "20"
           },
           "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
           },
           "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
           },
           "t_bool": {
-            "label": "bool"
+            "label": "bool",
+            "numberOfBytes": "1"
           },
           "t_bytes32": {
-            "label": "bytes32"
+            "label": "bytes32",
+            "numberOfBytes": "32"
           },
           "t_contract(XAppConnectionManager)14854": {
-            "label": "contract XAppConnectionManager"
+            "label": "contract XAppConnectionManager",
+            "numberOfBytes": "20"
           },
           "t_mapping(t_address,t_struct(TokenId)19868_storage)": {
-            "label": "mapping(address => struct BridgeMessage.TokenId)"
+            "label": "mapping(address => struct BridgeMessage.TokenId)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_address)": {
-            "label": "mapping(bytes32 => address)"
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
           },
           "t_struct(TokenId)19868_storage": {
             "label": "struct BridgeMessage.TokenId",
             "members": [
               {
                 "label": "domain",
-                "type": "t_uint32"
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
               },
               {
                 "label": "id",
-                "type": "t_bytes32"
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
               }
-            ]
+            ],
+            "numberOfBytes": "64"
           },
           "t_uint256": {
-            "label": "uint256"
+            "label": "uint256",
+            "numberOfBytes": "32"
           },
           "t_uint32": {
-            "label": "uint32"
+            "label": "uint32",
+            "numberOfBytes": "4"
           }
         }
       }
@@ -409,40 +428,52 @@
         ],
         "types": {
           "t_address": {
-            "label": "address"
+            "label": "address",
+            "numberOfBytes": "20"
           },
           "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
           },
           "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
           },
           "t_bool": {
-            "label": "bool"
+            "label": "bool",
+            "numberOfBytes": "1"
           },
           "t_bytes32": {
-            "label": "bytes32"
+            "label": "bytes32",
+            "numberOfBytes": "32"
           },
           "t_contract(ITokenRegistry)23395": {
-            "label": "contract ITokenRegistry"
+            "label": "contract ITokenRegistry",
+            "numberOfBytes": "20"
           },
           "t_contract(ITransactionManager)23411": {
-            "label": "contract ITransactionManager"
+            "label": "contract ITransactionManager",
+            "numberOfBytes": "20"
           },
           "t_contract(XAppConnectionManager)14854": {
-            "label": "contract XAppConnectionManager"
+            "label": "contract XAppConnectionManager",
+            "numberOfBytes": "20"
           },
           "t_mapping(t_bytes32,t_address)": {
-            "label": "mapping(bytes32 => address)"
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_uint32,t_bytes32)": {
-            "label": "mapping(uint32 => bytes32)"
+            "label": "mapping(uint32 => bytes32)",
+            "numberOfBytes": "32"
           },
           "t_uint256": {
-            "label": "uint256"
+            "label": "uint256",
+            "numberOfBytes": "32"
           },
           "t_uint32": {
-            "label": "uint32"
+            "label": "uint32",
+            "numberOfBytes": "4"
           }
         }
       }
@@ -687,110 +718,148 @@
         ],
         "types": {
           "t_address": {
-            "label": "address"
+            "label": "address",
+            "numberOfBytes": "20"
           },
           "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
           },
           "t_bool": {
-            "label": "bool"
+            "label": "bool",
+            "numberOfBytes": "1"
           },
           "t_bytes32": {
-            "label": "bytes32"
+            "label": "bytes32",
+            "numberOfBytes": "32"
           },
           "t_contract(BridgeRouter)21251": {
-            "label": "contract BridgeRouter"
+            "label": "contract BridgeRouter",
+            "numberOfBytes": "20"
           },
           "t_contract(IFulfillInterpreter)8921": {
-            "label": "contract IFulfillInterpreter"
+            "label": "contract IFulfillInterpreter",
+            "numberOfBytes": "20"
           },
           "t_contract(IStableSwap)9193": {
-            "label": "contract IStableSwap"
+            "label": "contract IStableSwap",
+            "numberOfBytes": "20"
           },
           "t_contract(IWrapped)9204": {
-            "label": "contract IWrapped"
+            "label": "contract IWrapped",
+            "numberOfBytes": "20"
           },
           "t_contract(TokenRegistry)22579": {
-            "label": "contract TokenRegistry"
+            "label": "contract TokenRegistry",
+            "numberOfBytes": "20"
           },
           "t_mapping(t_address,t_bool)": {
-            "label": "mapping(address => bool)"
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-            "label": "mapping(address => mapping(address => uint256))"
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_struct(TokenId)19868_storage)": {
-            "label": "mapping(address => struct BridgeMessage.TokenId)"
+            "label": "mapping(address => struct BridgeMessage.TokenId)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)"
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_address)": {
-            "label": "mapping(bytes32 => address)"
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_bool)": {
-            "label": "mapping(bytes32 => bool)"
+            "label": "mapping(bytes32 => bool)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_bytes32)": {
-            "label": "mapping(bytes32 => bytes32)"
+            "label": "mapping(bytes32 => bytes32)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_contract(IStableSwap)9193)": {
-            "label": "mapping(bytes32 => contract IStableSwap)"
+            "label": "mapping(bytes32 => contract IStableSwap)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_struct(FulfilledTransaction)6904_storage)": {
-            "label": "mapping(bytes32 => struct TransactionManager.FulfilledTransaction)"
+            "label": "mapping(bytes32 => struct TransactionManager.FulfilledTransaction)",
+            "numberOfBytes": "32"
           },
           "t_mapping(t_bytes32,t_struct(GasInfo)6909_storage)": {
-            "label": "mapping(bytes32 => struct TransactionManager.GasInfo)"
+            "label": "mapping(bytes32 => struct TransactionManager.GasInfo)",
+            "numberOfBytes": "32"
           },
           "t_struct(FulfilledTransaction)6904_storage": {
             "label": "struct TransactionManager.FulfilledTransaction",
             "members": [
               {
                 "label": "router",
-                "type": "t_address"
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
               },
               {
                 "label": "amount",
-                "type": "t_uint256"
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
               },
               {
                 "label": "externalHash",
-                "type": "t_bytes32"
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "2"
               }
-            ]
+            ],
+            "numberOfBytes": "96"
           },
           "t_struct(GasInfo)6909_storage": {
             "label": "struct TransactionManager.GasInfo",
             "members": [
               {
                 "label": "gasUsed",
-                "type": "t_uint256"
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
               },
               {
                 "label": "gasPrice",
-                "type": "t_uint256"
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
               }
-            ]
+            ],
+            "numberOfBytes": "64"
           },
           "t_struct(TokenId)19868_storage": {
             "label": "struct BridgeMessage.TokenId",
             "members": [
               {
                 "label": "domain",
-                "type": "t_uint32"
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
               },
               {
                 "label": "id",
-                "type": "t_bytes32"
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
               }
-            ]
+            ],
+            "numberOfBytes": "64"
           },
           "t_uint256": {
-            "label": "uint256"
+            "label": "uint256",
+            "numberOfBytes": "32"
           },
           "t_uint32": {
-            "label": "uint32"
+            "label": "uint32",
+            "numberOfBytes": "4"
           }
         }
       }
