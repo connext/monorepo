@@ -5513,9 +5513,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001313":
-  version: 1.0.30001316
-  resolution: "caniuse-lite@npm:1.0.30001316"
-  checksum: 8a96ee89f5e64f42f684475905c73c67f995abd6d9b111ab8a9d2e0a5d3b871f1a600ff42e4ffe7f7f3498d0243beeafc11cf7b4dbe3e022a2e5cdf639564152
+  version: 1.0.30001317
+  resolution: "caniuse-lite@npm:1.0.30001317"
+  checksum: 0a5fc7fb8c54dde515c2d468e5fc9e0cf2e82dd40d596cdffed90f64c50b5dadd0ab0c25e04769d86488b3115f949abd31d54d1f74d0029b45fa8206a031f47a
   languageName: node
   linkType: hard
 
@@ -7102,9 +7102,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.76":
-  version: 1.4.83
-  resolution: "electron-to-chromium@npm:1.4.83"
-  checksum: fab4c992f190fc54d8eb029c8e2161e57a9d61bf6e0d2cbc34b65c1f0f9e890e235b2cb7d43810b5206a0cd5f5460ec7da4ccc7afe5cff58a7d4bae59ab08dcf
+  version: 1.4.84
+  resolution: "electron-to-chromium@npm:1.4.84"
+  checksum: f38c3694465705f698094f3228c81237d00da9baba627a4b258195a2c136f30f1204cb4a651f870e05aeed71e0f77069c124554b2ee15372e06c275e0b24978d
   languageName: node
   linkType: hard
 
@@ -7897,7 +7897,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
