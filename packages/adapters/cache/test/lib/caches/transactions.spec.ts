@@ -29,7 +29,6 @@ describe("TransactionCache", () => {
     RedisSub.subscribe(StoreChannel.NewHighestNonce);
     RedisSub.subscribe(StoreChannel.NewPreparedTx);
     RedisSub.subscribe(StoreChannel.NewStatus);
-    RedisSub.subscribe(StoreChannel.NewBid);
 
     RedisSub.on("message", (chan: any, msg: any) => {
       console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);

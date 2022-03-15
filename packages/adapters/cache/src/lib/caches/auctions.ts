@@ -38,14 +38,14 @@ export class AuctionsCache extends Cache {
    *
    * @param bid The signed bid we're going to update
    * @param bidStatus The status of bid
-   * @returns success - true, failure - false
+   * @returns 1 - added, 0 - updated
    */
-  public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<boolean> {
+  public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<number> {
     const txid = bid.transactionId;
     const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
-    const updated = await this.data.hset(
+    const res = await this.data.hset(
       `${this.prefix}:${txid}:${router}`,
       "payload",
       JSON.stringify(bid),
@@ -55,8 +55,8 @@ export class AuctionsCache extends Cache {
       curTimeInSecs,
     );
 
-    if (updated === 1) return true;
-    else return false;
+    if (res >= 1) return 1;
+    else return res;
   }
 
   /**
@@ -75,8 +75,8 @@ export class AuctionsCache extends Cache {
     return new Promise((res, rej) => {
       bidStream.on("data", async (resultKeys: string) => {
         for (const key of resultKeys) {
-          // 1 - "data" - key
-          // 2 - value for the `data`
+          // 1 - "payload" - key
+          // 2 - value for the `payload`
           // 3 - "status" - key
           // 4 - value for the `status`
           // 5 - `lastUpdate` - key
