@@ -1,4 +1,12 @@
-import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress, FulfillArgs } from "@connext/nxtp-utils";
+import {
+  Logger,
+  CrossChainTxStatus,
+  expect,
+  mock,
+  getRandomBytes32,
+  mkAddress,
+  FulfillArgs,
+} from "@connext/nxtp-utils";
 import { randomBytes } from "crypto";
 import { AuctionsCache, TransactionsCache } from "../src/index";
 import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
@@ -22,15 +30,19 @@ const fakeTxs = [
 
 const fakeFulfill: FulfillArgs = {
   params: {
-    recipient: "0xbeefdead", callTo: "0x", callData: "0x0", originDomain: "2000", destinationDomain: "3000"
+    recipient: "0xbeefdead",
+    callTo: "0x",
+    callData: "0x0",
+    originDomain: "2000",
+    destinationDomain: "3000",
   },
   local: "0xdedddddddddddddd",
   router: mkAddress("0xa"),
   feePercentage: "0.1",
   nonce: "1",
   amount: "10",
-  relayerSignature: "0xsigsigsig"
-}
+  relayerSignature: "0xsigsigsig",
+};
 
 describe("Redis Mocks", () => {
   before(async () => {
@@ -146,7 +158,26 @@ describe("Redis Mocks", () => {
       });
     });
 
-    describe("#getTxDataByDomainAndNonce", () => {});
+    describe("#getTxDataByDomainAndNonce", () => {
+      it("should return nil if no exists", async () => {
+        const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
+        expect(res).to.be.undefined;
+      });
+      it("happy case: should return data", async () => {
+        const transactionId = getRandomBytes32();
+        const mockCrossChainTx = mock.entity.crossChainTx("102", "202", {
+          status: CrossChainTxStatus.Prepared,
+          asset: mkAddress("0xaaa"),
+          transactionId,
+          nonce: 1234,
+          user: mkAddress("0xa"),
+        });
+        await transactions.storeTxData([mockCrossChainTx]);
+
+        const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
+        expect(res.transactionId).to.eq(transactionId);
+      });
+    });
   });
 
   describe("AuctionsCache", () => {

@@ -70,42 +70,48 @@ export class TransactionsCache extends Cache {
    * @param txid TransactionId
    * @returns Transaction data
    */
-  public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<CrossChainTx> {
+  public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<CrossChainTx | undefined> {
     const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
       match: `*:${txid}`,
+      count: 1,
     });
     let txData: CrossChainTx;
     return new Promise((res, rej) => {
-      txDataStream.on("data", (data: string) => {
-        //should only be one txid,
-        txData = JSON.parse(data) as CrossChainTx;
+      txDataStream.on("data", async (data: string) => {
+        const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
+        if (crossChainData) {
+          txData = JSON.parse(crossChainData) as CrossChainTx;
+        }
       });
       txDataStream.on("end", async () => {
         res(txData);
       });
-      txDataStream.on("error", (e: string) => {
+      txDataStream.on("error", (e) => {
         this.logger.debug(`Error getting txdata by domain and txid`);
-        rej();
+        res(undefined);
       });
     });
   }
 
-  public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<CrossChainTx> {
+  public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<CrossChainTx | undefined> {
     const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
       match: `${nonce}:*`,
     });
+
     let txData: CrossChainTx;
     return new Promise((res, rej) => {
-      txDataStream.on("data", (data: string) => {
-        //should only be one txid,
-        txData = JSON.parse(data) as CrossChainTx;
+      txDataStream.on("data", async (data: string) => {
+        const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
+        if (crossChainData) {
+          txData = JSON.parse(crossChainData) as CrossChainTx;
+        }
       });
       txDataStream.on("end", async () => {
         res(txData);
       });
-      txDataStream.on("error", (e: string) => {
+      txDataStream.on("error", (e) => {
         this.logger.debug(`Error getting txdata by domain and nonce`);
-        rej();
+        res(undefined);
       });
     });
   }
