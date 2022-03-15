@@ -1,7 +1,7 @@
 import { createLoggingContext, jsonifyError, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { context } from "../../router";
+import { getContext } from "../../router";
 
 const SUBGRAPH_POLL_INTERVAL = 15_000;
 
@@ -19,7 +19,7 @@ export const pollSubgraph = async () => {
     adapters: { cache, subgraph, txservice },
     logger,
     config,
-  } = context;
+  } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
   try {
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();

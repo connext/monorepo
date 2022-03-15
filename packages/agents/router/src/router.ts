@@ -19,7 +19,9 @@ import { bindMetrics, bindPrices, bindSubgraph } from "./bindings";
 import { AppContext } from "./lib/entities";
 import { getOperations } from "./lib/operations";
 
-export const context: AppContext = {} as any;
+// AppContext instance used for interacting with adapters, config, etc.
+const context: AppContext = {} as any;
+export const getContext = () => context;
 
 export const makeRouter = async () => {
   const requestContext = createRequestContext("makeRouter");

@@ -8,18 +8,10 @@ import {
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { NotEnoughAmount } from "../errors";
-import { SlippageInvalid } from "../errors/fulfill";
-import { getReceiverAmount } from "../helpers";
-import {
-  calculateGasFeeInReceivingToken,
-  getAmountOut,
-  getDecimalsForAsset,
-  getDestinationLocalAsset,
-  getDestinationTransactingAsset,
-} from "../helpers/shared";
+import { NotEnoughAmount, SlippageInvalid } from "../errors";
+import { getHelpers } from "../helpers";
 import { sendBid } from "./sequencer";
-import { context } from "../../router";
+import { getContext } from "../../router";
 
 // fee percentage paid to relayer. need to be updated later
 const RelayerFeePercentage = "1"; //  1%
@@ -28,7 +20,6 @@ const RelayerFeePercentage = "1"; //  1%
  * Router creates a new bid and sends it to auctioneer.
  * should be subsribed to NewPreparedTransaction channel of redis.
  *
- * @param context - AppContext instance used for interacting with adapters, config, etc.
  * @param pendingTx - The prepared crosschain tranaction
  */
 export const fulfill = async (pendingTx: CrossChainTx) => {
@@ -40,7 +31,18 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     adapters: { wallet },
     chainData,
     routerAddress,
-  } = context;
+  } = getContext();
+  const {
+    fulfill: { getReceiverAmount },
+    shared: {
+      calculateGasFeeInReceivingToken,
+      getAmountOut,
+      getDecimalsForAsset,
+      getDestinationLocalAsset,
+      getDestinationTransactingAsset,
+    },
+  } = getHelpers();
+
   logger.info("Method start", requestContext, methodContext, { pendingTx });
 
   /// create a bid
@@ -75,13 +77,9 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const transactingOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillTransactingAsset);
   const localOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillLocalAsset);
 
-  let { receivingAmount: receiverAmount } = await getReceiverAmount(
-    prepareLocalAmount,
-    localInputDecimals,
-    localOutputDecimals,
-  );
+  let { receivingAmount } = await getReceiverAmount(prepareLocalAmount, localInputDecimals, localOutputDecimals);
   const fulfillTransactingAmount = await getAmountOut(
-    receiverAmount,
+    receivingAmount,
     destinationDomain,
     fulfillTransactingAsset,
     fulfillLocalAsset,
@@ -110,8 +108,6 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     });
   }
 
-  const amountReceivedInBigNum = BigNumber.from(receiverAmount);
-
   const gasFeeInFulfillLocalAsset = await calculateGasFeeInReceivingToken(
     originDomain,
     prepareLocalAsset,
@@ -122,7 +118,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     requestContext,
   );
 
-  receiverAmount = amountReceivedInBigNum.sub(gasFeeInFulfillLocalAsset).toString();
+  receivingAmount = BigNumber.from(receivingAmount).sub(gasFeeInFulfillLocalAsset).toString();
 
   // TODO: `getAssetBalance` is not implemented yet.
   // const routerBalance = await subgraph.getAssetBalance(parseInt(destinationDomain), routerAddress, fulfillLocalAsset);
@@ -138,10 +134,10 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   //   );
   // }
 
-  // make sure amount is sensible
-  if (BigNumber.from(receiverAmount).lt(0)) {
+  // Make sure amount is sensible.
+  if (BigNumber.from(receivingAmount).lt(0)) {
     throw new NotEnoughAmount({
-      receiverAmount,
+      receiverAmount: receivingAmount,
       prepareTransactingAmount: prepareTransactingAmount.toString(),
       prepareLocalAmount: prepareLocalAmount.toString(),
       transactionId,
@@ -157,7 +153,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
-    amount: receiverAmount,
+    amount: receivingAmount,
     nonce: pendingTx.nonce.toString(),
     relayerSignature: signature,
   };

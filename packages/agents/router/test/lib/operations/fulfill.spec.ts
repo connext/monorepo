@@ -1,41 +1,47 @@
-import { createLoggingContext, CrossChainTxStatus, mkAddress, mkBytes32, expect } from "@connext/nxtp-utils";
-import { constants, BigNumber } from "ethers";
-import { SinonStub, stub } from "sinon";
+import { expect } from "@connext/nxtp-utils";
+import { BigNumber, utils } from "ethers";
 
 import { getOperations } from "../../../src/lib/operations";
-import * as SharedHelperFns from "../../../src/lib/helpers/shared";
-import * as FullfillFns from "../../../src/lib/helpers/fulfill";
-import { mock } from "../../mock";
-import { parseEther } from "ethers/lib/utils";
-
-const { requestContext } = createLoggingContext("TEST", undefined, mkBytes32());
+import { mock, stubContext, stubHelpers } from "../../mock";
+import { NotEnoughAmount } from "../../../src/lib/errors";
 
 const { fulfill } = getOperations();
-const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, {
-  status: CrossChainTxStatus.Prepared,
-  asset: mkAddress("0xaaa"),
-  transactionId: mkBytes32(),
-  nonce: 0,
-  user: mkAddress("0xa"),
-});
 
-const mockAppContext = mock.context();
+const mockTransactingAmount = utils.parseEther("1");
+const mockRouterFee = BigNumber.from(mockTransactingAmount).mul(5).div(100);
+const mockGasFee = BigNumber.from("10000");
+const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
 
-describe("Fulfill Receiver Operation", () => {
+describe("Operations", () => {
+  before(() => {
+    stubContext();
+    stubHelpers();
+  });
+
   beforeEach(() => {});
 
   describe("#fulfill", () => {
     beforeEach(() => {
-      stub(SharedHelperFns, "sanitationCheck").resolves();
-      stub(SharedHelperFns, "getDecimalsForAsset").resolves(18);
-      stub(FullfillFns, "getReceiverAmount").resolves({
-        receivingAmount: parseEther("100").toString(),
-        routerFee: parseEther("1").toString(),
+      // stub(SharedHelperFns, "sanitationCheck").resolves();
+      mock.helpers.shared.getDecimalsForAsset.resolves(18);
+      mock.helpers.fulfill.getReceiverAmount.resolves({
+        receivingAmount: mockTransactingAmount.sub(mockRouterFee).toString(),
+        routerFee: mockRouterFee.toString(),
         amountAfterSwapRate: "1",
       });
+      mock.helpers.shared.calculateGasFeeInReceivingToken.resolves(mockGasFee);
     });
+
+    it("happy", async () => {});
+
+    it("should throw NotEnoughAmount if final receiving amount < 0", async () => {
+      const tooMuchGasFee = BigNumber.from(mockTransactingAmount).add(1);
+      mock.helpers.shared.calculateGasFeeInReceivingToken.resolves(tooMuchGasFee);
+      await expect(fulfill(mockCrossChainTx)).to.eventually.be.rejectedWith(NotEnoughAmount);
+    });
+
     it("should error if slippage invalid ", async () => {
-      await expect(fulfill(mockAppContext, mockCrossChainTx)).to.eventually.be.rejectedWith("Slippage invalid");
+      await expect(fulfill(mockCrossChainTx)).to.eventually.be.rejectedWith("Slippage invalid");
     });
   });
 });

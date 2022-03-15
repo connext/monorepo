@@ -1,11 +1,15 @@
 import { utils, BigNumber, Wallet } from "ethers";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
 import { NxtpRouterConfig } from "../src/config";
 import { AppContext } from "../src/lib/entities/context";
+// Used for stubbing functions at the bottom of this file:
+import * as router from "../src/router";
+import * as helpers from "../src/lib/helpers";
+import * as operations from "../src/lib/operations";
 
 // export const MUTATED_AMOUNT = "100000000000000000000";
 // export const MUTATED_BUFFER = 123400;
@@ -168,4 +172,33 @@ export const mock = {
       };
     },
   },
+  helpers: {
+    fulfill: {
+      getReceiverAmount: stub(),
+    },
+    shared: {
+      getDestinationTransactingAsset: stub(),
+      getDestinationLocalAsset: stub(),
+      getAmountIn: stub(),
+      getAmountOut: stub(),
+      getDecimalsForAsset: stub(),
+      calculateGasFeeInReceivingToken: stub(),
+    },
+  },
+  operations: {
+    fulfill: stub(),
+  },
+};
+
+// Stub getContext to return the mock context above.
+export const stubContext = () => {
+  stub(router, "getContext").returns(mock.context());
+};
+
+export const stubHelpers = () => {
+  stub(helpers, "getHelpers").returns(mock.helpers);
+};
+
+export const stubOperations = () => {
+  stub(operations, "getOperations").returns(mock.operations);
 };

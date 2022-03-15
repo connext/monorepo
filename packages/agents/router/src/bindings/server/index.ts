@@ -2,7 +2,7 @@ import { jsonifyError } from "@connext/nxtp-utils";
 import fastify from "fastify";
 import { register } from "prom-client";
 
-import { context } from "../../router";
+import { getContext } from "../../router";
 
 import {
   RemoveLiquidityRequest,
@@ -19,7 +19,7 @@ export const bindServer = () =>
       adapters: { wallet },
       config,
       logger,
-    } = context;
+    } = getContext();
 
     const server = fastify();
 

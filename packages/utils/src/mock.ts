@@ -11,6 +11,7 @@ import {
   CallParams,
   FulfillArgs,
   SignedBid,
+  createLoggingContext,
 } from ".";
 
 /**
@@ -41,6 +42,7 @@ export const mock = {
     router: mkAddress("0xc0ffeebabe"),
     relayer: mkAddress("0xdad"),
   },
+  loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (): CallParams => ({
       recipient: mkAddress("0xrecipient"),
@@ -69,21 +71,13 @@ export const mock = {
     crossChainTx: (
       origin: string,
       destination: string,
-      alt: {
-        status: CrossChainTxStatus;
-        asset: string;
-        transactionId: string;
-        nonce: number;
-        user: string;
-      } = {
-        status: CrossChainTxStatus.Prepared,
-        asset: mkAddress("0x2faced"),
-        transactionId: getRandomBytes32(),
-        nonce: 1234,
-        user: mkAddress("0xfaded"),
-      },
+      amount = "1000",
+      status: CrossChainTxStatus = CrossChainTxStatus.Prepared,
+      asset: string = mkAddress("0x2faced"),
+      transactionId: string = getRandomBytes32(),
+      nonce = 1234,
+      user: string = mkAddress("0xfaded"),
     ): CrossChainTx => {
-      const { status, asset, transactionId, nonce, user } = alt;
       return Object.assign(
         {
           // Meta
@@ -99,8 +93,8 @@ export const mock = {
 
           // Prepared
           prepareCaller: user,
-          prepareTransactingAmount: "1000",
-          prepareLocalAmount: "1000",
+          prepareTransactingAmount: amount,
+          prepareLocalAmount: amount,
           prepareTransactingAsset: asset,
           prepareLocalAsset: asset,
           callTo: mkAddress("0x0"),
