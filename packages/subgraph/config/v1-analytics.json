@@ -42,6 +42,12 @@
     "startBlock": 1628753
   },
   {
+    "subgraphName": "connext/nxtp-kava-alphanet-v1-analytics",
+    "network": "kava-alphanet",
+    "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
+    "startBlock": 127531
+  },
+  {
     "subgraphName": "connext/nxtp-matic-v1-analytics",
     "network": "matic",
     "address": "0x6090De2EC76eb1Dc3B5d632734415c93c44Fd113",
