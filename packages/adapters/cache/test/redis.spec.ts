@@ -1,4 +1,4 @@
-import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress, FulfillArgs } from "@connext/nxtp-utils";
 import { randomBytes } from "crypto";
 import { AuctionsCache, TransactionsCache } from "../src/index";
 import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
@@ -19,6 +19,18 @@ const fakeTxs = [
     user: mkAddress("0xa"),
   }),
 ];
+
+const fakeFulfill: FulfillArgs = {
+  params: {
+    recipient: "0xbeefdead", callTo: "0x", callData: "0x0", originDomain: "2000", destinationDomain: "3000"
+  },
+  local: "0xdedddddddddddddd",
+  router: mkAddress("0xa"),
+  feePercentage: "0.1",
+  nonce: "1",
+  amount: "10",
+  relayerSignature: "0xsigsigsig"
+}
 
 describe("Redis Mocks", () => {
   before(async () => {
