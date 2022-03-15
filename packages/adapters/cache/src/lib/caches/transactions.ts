@@ -86,10 +86,6 @@ export class TransactionsCache extends Cache {
       txDataStream.on("end", async () => {
         res(txData);
       });
-      txDataStream.on("error", (e) => {
-        this.logger.debug(`Error getting txdata by domain and txid`);
-        res(undefined);
-      });
     });
   }
 
@@ -108,10 +104,6 @@ export class TransactionsCache extends Cache {
       });
       txDataStream.on("end", async () => {
         res(txData);
-      });
-      txDataStream.on("error", (e) => {
-        this.logger.debug(`Error getting txdata by domain and nonce`);
-        res(undefined);
       });
     });
   }

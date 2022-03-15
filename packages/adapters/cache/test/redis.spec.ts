@@ -7,7 +7,6 @@ import {
   mkAddress,
   FulfillArgs,
 } from "@connext/nxtp-utils";
-import { randomBytes } from "crypto";
 import { AuctionsCache, TransactionsCache } from "../src/index";
 import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
 
@@ -19,13 +18,16 @@ let auctions: AuctionsCache;
 
 const fakeTxs = [
   mock.entity.crossChainTx("3000", "4000"),
-  mock.entity.crossChainTx("3000", "4000", {
-    status: CrossChainTxStatus.Prepared,
-    asset: mkAddress("0xaaa"),
-    transactionId: getRandomBytes32(),
-    nonce: 1234,
-    user: mkAddress("0xa"),
-  }),
+  mock.entity.crossChainTx(
+    "3000",
+    "4000",
+    "1000",
+    CrossChainTxStatus.Prepared,
+    mkAddress("0xaaa"),
+    getRandomBytes32(),
+    1234,
+    mkAddress("0xa"),
+  ),
 ];
 
 const fakeFulfill: FulfillArgs = {
@@ -114,25 +116,28 @@ describe("Redis Mocks", () => {
       it("happy: should store transaction data", async () => {
         const mockCrossChainTx = mock.entity.crossChainTx("100", "200");
         //add fake txid's status, should fire off event.
-        const res = await transactions.storeTxData([mockCrossChainTx]);
-        expect(res).to.be.undefined;
+        await transactions.storeTxData([mockCrossChainTx]);
+        let latestNonce = await transactions.getLatestNonce("100");
+        expect(latestNonce).to.be.eq(1234);
       });
 
       it("should update latest nonce", async () => {
         let latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1234);
 
-        const mockCrossChainTx = mock.entity.crossChainTx("100", "200", {
-          status: CrossChainTxStatus.Prepared,
-          asset: mkAddress("0xaaa"),
-          transactionId: getRandomBytes32(),
-          nonce: 1235,
-          user: mkAddress("0xa"),
-        });
+        const mockCrossChainTx = mock.entity.crossChainTx(
+          "100",
+          "200",
+          "1000",
+          CrossChainTxStatus.Prepared,
+          mkAddress("0xaaa"),
+          getRandomBytes32(),
+          1235,
+          mkAddress("0xa"),
+        );
         const res = await transactions.storeTxData([mockCrossChainTx]);
         latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1235);
-        expect(res).to.be.undefined;
       });
     });
 
@@ -144,13 +149,16 @@ describe("Redis Mocks", () => {
 
       it("happy case: should return data", async () => {
         const transactionId = getRandomBytes32();
-        const mockCrossChainTx = mock.entity.crossChainTx("101", "201", {
-          status: CrossChainTxStatus.Prepared,
-          asset: mkAddress("0xaaa"),
+        const mockCrossChainTx = mock.entity.crossChainTx(
+          "101",
+          "201",
+          "1000",
+          CrossChainTxStatus.Prepared,
+          mkAddress("0xaaa"),
           transactionId,
-          nonce: 1234,
-          user: mkAddress("0xa"),
-        });
+          1234,
+          mkAddress("0xa"),
+        );
         await transactions.storeTxData([mockCrossChainTx]);
 
         const res = await transactions.getTxDataByDomainAndTxID("101", transactionId);
@@ -159,19 +167,23 @@ describe("Redis Mocks", () => {
     });
 
     describe("#getTxDataByDomainAndNonce", () => {
-      it("should return nil if no exists", async () => {
+      it("should return null if no exists", async () => {
         const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
         expect(res).to.be.undefined;
       });
+
       it("happy case: should return data", async () => {
         const transactionId = getRandomBytes32();
-        const mockCrossChainTx = mock.entity.crossChainTx("102", "202", {
-          status: CrossChainTxStatus.Prepared,
-          asset: mkAddress("0xaaa"),
+        const mockCrossChainTx = mock.entity.crossChainTx(
+          "102",
+          "202",
+          "1000",
+          CrossChainTxStatus.Prepared,
+          mkAddress("0xaaa"),
           transactionId,
-          nonce: 1234,
-          user: mkAddress("0xa"),
-        });
+          1234,
+          mkAddress("0xa"),
+        );
         await transactions.storeTxData([mockCrossChainTx]);
 
         const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
