@@ -1,7 +1,8 @@
-import { createLoggingContext, Bid, NxtpError, formatUrl } from "@connext/nxtp-utils";
+import { createLoggingContext, Bid, formatUrl } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
 import { getContext } from "../../router";
+import { SequencerResponseInvalid } from "../errors";
 
 export const sendBid = async (bid: Bid): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
@@ -14,8 +15,8 @@ export const sendBid = async (bid: Bid): Promise<any> => {
     bid,
   });
 
-  if (!response) {
-    throw new NxtpError("error sendBid", { response });
+  if (!response || !response.data) {
+    throw new SequencerResponseInvalid({ response });
   } else {
     return response.data;
   }

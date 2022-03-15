@@ -11,10 +11,6 @@ import * as router from "../src/router";
 import * as helpers from "../src/lib/helpers";
 import * as operations from "../src/lib/operations";
 
-// export const MUTATED_AMOUNT = "100000000000000000000";
-// export const MUTATED_BUFFER = 123400;
-// export const BID_EXPIRY = 123401;
-
 export const mock = {
   ..._mock,
   context: (): AppContext => {
@@ -182,7 +178,9 @@ export const mock = {
 
 // Stub getContext to return the mock context above.
 export const stubContext = () => {
-  stub(router, "getContext").returns(mock.context());
+  const context = mock.context();
+  stub(router, "getContext").returns(context);
+  return context;
 };
 
 export const stubHelpers = () => {
