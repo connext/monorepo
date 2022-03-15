@@ -18,7 +18,7 @@
     "startBlock": 5285668
   },
   {
-    "subgraphName": "connext/nxtp-boba-v1-runtime",
+    "subgraphName": "connext/nxtp-boba-v1-analytics",
     "network": "boba",
     "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
     "startBlock": 399502
