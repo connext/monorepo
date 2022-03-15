@@ -1,20 +1,11 @@
-import {
-  Logger,
-  CrossChainTxStatus,
-  expect,
-  mock,
-  getRandomBytes32,
-  mkAddress,
-  FulfillArgs,
-} from "@connext/nxtp-utils";
-import { AuctionsCache, TransactionsCache } from "../src/index";
-import { StoreChannel, SubscriptionCallback } from "../src/lib/entities";
+import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+import { TransactionsCache } from "../../../src/index";
+import { StoreChannel, SubscriptionCallback } from "../../../src/lib/entities";
 
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
 let subscriptions: Map<string, SubscriptionCallback>;
 let transactions: TransactionsCache;
-let auctions: AuctionsCache;
 
 const fakeTxs = [
   mock.entity.crossChainTx("3000", "4000"),
@@ -30,23 +21,7 @@ const fakeTxs = [
   ),
 ];
 
-const fakeFulfill: FulfillArgs = {
-  params: {
-    recipient: "0xbeefdead",
-    callTo: "0x",
-    callData: "0x0",
-    originDomain: "2000",
-    destinationDomain: "3000",
-  },
-  local: "0xdedddddddddddddd",
-  router: mkAddress("0xa"),
-  feePercentage: "0.1",
-  nonce: "1",
-  amount: "10",
-  relayerSignature: "0xsigsigsig",
-};
-
-describe("Redis Mocks", () => {
+describe("TransactionCache", () => {
   before(async () => {
     logger.debug(`Subscribing to Channels for Redis Pub/Sub`);
     const RedisSub = new RedisMock();
@@ -62,7 +37,6 @@ describe("Redis Mocks", () => {
 
     subscriptions = new Map();
     transactions = new TransactionsCache({ url: "mock", mock: true, logger });
-    auctions = new AuctionsCache({ url: "mock", mock: true, logger });
   });
 
   describe("TransactionsCache", () => {
@@ -189,21 +163,6 @@ describe("Redis Mocks", () => {
         const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
         expect(res.transactionId).to.eq(transactionId);
       });
-    });
-  });
-
-  describe("AuctionsCache", () => {
-    describe("#storeBid", () => {
-      it("should store bid by transaction ID and domain", async () => {
-        // needs fake Bid object
-        // const latestNonce = await transactions.storeBid(fakeTxId, );
-      });
-    });
-
-    describe("#updateBid", () => {});
-
-    describe("#getBids", () => {
-      it("should get bids by status", async () => {});
     });
   });
 });

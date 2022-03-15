@@ -79,9 +79,7 @@ export class TransactionsCache extends Cache {
     return new Promise((res, rej) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
-        if (crossChainData) {
-          txData = JSON.parse(crossChainData) as CrossChainTx;
-        }
+        txData = JSON.parse(crossChainData!) as CrossChainTx;
       });
       txDataStream.on("end", async () => {
         res(txData);
@@ -98,9 +96,7 @@ export class TransactionsCache extends Cache {
     return new Promise((res, rej) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
-        if (crossChainData) {
-          txData = JSON.parse(crossChainData) as CrossChainTx;
-        }
+        txData = JSON.parse(crossChainData!) as CrossChainTx;
       });
       txDataStream.on("end", async () => {
         res(txData);
