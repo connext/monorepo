@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@openzeppelin/hardhat-upgrades": "^1.16.0",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "adv": "^0.1.5",
     "ajv": "^8.6.2",

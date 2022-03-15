@@ -28,7 +28,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const {
     logger,
     config,
-    adapters: { wallet },
+    adapters: { wallet, txservice, contracts },
     chainData,
     routerAddress,
   } = getContext();
@@ -162,6 +162,24 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     transactionId,
     data: fulfillArguments,
   };
+
+  const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
+
+  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
+  const destinationTransactionManagerAddress =
+    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+
+  // Validate the bid's fulfill call will succeed on chain.
+  try {
+    await txservice.getGasEstimate(Number(bid.data.params.destinationDomain), {
+      chainId: destinationChainId,
+      to: destinationTransactionManagerAddress,
+      data: encodedData,
+    });
+  } catch {
+    // console.log("transaction already fulfilled");
+    return;
+  }
   /// send the bid to auctioneer
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
   await sendBid(bid);
