@@ -40,14 +40,22 @@ const mnemonic =
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
-const baseAccounts = Array(4)
-  .fill(0)
-  .map((_, index) => {
-    return Wallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${index}`).privateKey;
-  });
-const accounts = process.env.MNEMONIC_ROUTER_FACTORY
-  ? baseAccounts.concat([Wallet.fromMnemonic(process.env.MNEMONIC_ROUTER_FACTORY).privateKey])
-  : baseAccounts;
+const getAccounts = (_mnemonic: string) =>
+  Array(4)
+    .fill(0)
+    .map((_, index) => {
+      return Wallet.fromMnemonic(_mnemonic, `m/44'/60'/0'/0/${index}`).privateKey;
+    });
+
+const routerFactoryAccount = process.env.MNEMONIC_ROUTER_FACTORY
+  ? [Wallet.fromMnemonic(process.env.MNEMONIC_ROUTER_FACTORY).privateKey]
+  : [];
+
+const accounts = getAccounts(mnemonic).concat(routerFactoryAccount);
+
+const testnetAccounts = process.env.MNEMONIC_TESTNET
+  ? getAccounts(process.env.MNEMONIC_TESTNET).concat(routerFactoryAccount)
+  : accounts;
 
 subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args: any, hre, runSuper) => {
   if (args.solcVersion === "0.8.4") {
@@ -197,6 +205,11 @@ const config: HardhatUserConfig = {
       accounts,
       chainId: 2001,
       url: "https://rpc.c1.milkomeda.com:8545",
+    },
+    "kava-alphanet": {
+      accounts: testnetAccounts,
+      chainId: 2221,
+      url: "https://evm.evm-alpha.kava.io",
     },
     "arbitrum-one": {
       accounts,
