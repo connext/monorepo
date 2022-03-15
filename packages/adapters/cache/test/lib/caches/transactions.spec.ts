@@ -1,10 +1,9 @@
 import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
 import { TransactionsCache } from "../../../src/index";
-import { StoreChannel, SubscriptionCallback } from "../../../src/lib/entities";
+import { StoreChannel } from "../../../src/lib/entities";
 
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
-let subscriptions: Map<string, SubscriptionCallback>;
 let transactions: TransactionsCache;
 
 const fakeTxs = [
@@ -34,7 +33,6 @@ describe("TransactionCache", () => {
       console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
     });
 
-    subscriptions = new Map();
     transactions = new TransactionsCache({ url: "mock", mock: true, logger });
   });
 

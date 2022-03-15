@@ -1,11 +1,10 @@
 import { Logger, expect, mock, mkAddress, FulfillArgs, BidStatus } from "@connext/nxtp-utils";
-import { AuctionsCache, TransactionsCache } from "../../../src/index";
-import { StoreChannel, SubscriptionCallback } from "../../../src/lib/entities";
+import { AuctionsCache } from "../../../src/index";
+import { StoreChannel } from "../../../src/lib/entities";
 
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
 let auctions: AuctionsCache;
-let subscriptions: Map<string, SubscriptionCallback>;
 
 const mockFulfillArgs: FulfillArgs[] = [
   {
@@ -57,7 +56,6 @@ describe("AuctionCache", () => {
       console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
     });
 
-    subscriptions = new Map();
     auctions = new AuctionsCache({ url: "mock", mock: true, logger });
   });
 

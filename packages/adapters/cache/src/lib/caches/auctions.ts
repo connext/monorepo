@@ -95,10 +95,6 @@ export class AuctionsCache extends Cache {
       bidStream.on("end", async () => {
         res(storedBids);
       });
-      bidStream.on("error", (error: string) => {
-        this.logger.debug(error);
-        rej(error);
-      });
     });
   }
 }

@@ -1,5 +1,4 @@
 import { CrossChainTx, CrossChainTxStatus } from "@connext/nxtp-utils";
-import { BidStatus, SignedBid, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
 import { StoreChannel } from "../entities";
 import { Cache } from ".";
 
@@ -27,6 +26,7 @@ export class TransactionsCache extends Cache {
       // Return value is OK if SET was executed correctly
       // if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
       await this.data.set(txid, status);
+      this.data.publish(StoreChannel.NewStatus, `${txid}:${status}`);
       return true;
     }
   }
@@ -107,7 +107,7 @@ export class TransactionsCache extends Cache {
   public async storeTxData(txs: CrossChainTx[]): Promise<void> {
     for (const tx of txs) {
       // set transaction data at domain field in hash, hset returns the number of field that were added
-      // 1 => added, 0 => updated,
+      // gte(1) => added, 0 => updated,
       // reference: https://redis.io/commands/hset
       await this.data.hset(`${this.prefix}:${tx.originDomain}`, `${tx.nonce}:${tx.transactionId}`, JSON.stringify(tx));
       //move pointer to latest Nonce
@@ -115,6 +115,7 @@ export class TransactionsCache extends Cache {
       if (tx.nonce > parseInt(latestNonce)) {
         //if this txns nonce is > the current pointer to latest nonce point to this one now
         await this.data.hset(`${this.prefix}:${tx.originDomain}`, "latestNonce", tx.nonce);
+        await this.data.publish(StoreChannel.NewHighestNonce, tx.nonce.toString());
       }
       //dont think we need to set the status anymore.
       await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
