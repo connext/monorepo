@@ -35,7 +35,7 @@ import {
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
-import { delay, getOnchainBalance, getRandomBytes32 } from "@connext/nxtp-utils";
+import { CallParams, delay, getOnchainBalance, getRandomBytes32 } from "@connext/nxtp-utils";
 
 const SEED = 1_000_000;
 
@@ -781,6 +781,152 @@ describe.only("TransactionManager", () => {
       const finalBalance = await getOnchainBalance(assetId, router.address, ethers.provider);
       expect(finalBalance).to.be.eq(expectedBalance);
     });
+  });
+
+  it("should batch", async () => {
+    // When creating a transfer, you:
+    // 1. prepare - for each
+    // 2. fulfill - for each
+    // 3. dispatch - per batch
+    // 4. handle/reconcile - per batch
+    // 5. process - for each
+
+    // must test gas with varying assets (1, 2, 3) and transfers in a batch
+    const transfersInBatch = 75;
+    const assetsInBatch = 1;
+
+    // Do global setup (add routers, funding, etc.).
+    const originAssets: TestERC20[] = [];
+    const destinationAssets: TestERC20[] = [];
+    for (const _ of Array(assetsInBatch).fill(0)) {
+      // You will need at least a canonical token and a local token.
+      // For this setup, the local and canonical token will be the adopted
+      // tokens on the destination and origin domains, respectively, so no
+      // stable swap pools needed.
+
+      // Deploy the canonical + local tokens
+      const origin = await deployContract<TestERC20>("TestERC20"); // canonical
+      const destination = await deployContract<TestERC20>("TestERC20"); // local
+      originAssets.push(origin);
+      destinationAssets.push(destination);
+
+      // Setup asset on the token registries
+      const setupRegistry = await destinationTokenRegistry
+        .connect(admin)
+        .enrollCustom(originDomain, addressToBytes32(origin.address), destination.address);
+      await setupRegistry.wait();
+
+      // Setup asset on the transaction managers
+      const setupOriginTm = await originTm
+        .connect(admin)
+        .setupAsset(
+          { id: addressToBytes32(origin.address), domain: originDomain },
+          origin.address,
+          constants.AddressZero,
+        );
+      const setupDestTm = await destinationTm
+        .connect(admin)
+        .setupAsset(
+          { id: addressToBytes32(origin.address), domain: originDomain },
+          destination.address,
+          constants.AddressZero,
+        );
+      await Promise.all([setupOriginTm.wait(), setupDestTm.wait()]);
+
+      // Add router liquidity on dest
+      await (await destination.approve(destinationTm.address, parseEther("10000"))).wait();
+      await (
+        await destinationTm.connect(admin).addLiquidityFor(parseEther("10"), destination.address, router.address)
+      ).wait();
+
+      // Approve user usage on prepare
+      await (await origin.mint(user.address, parseEther("10"))).wait();
+      await (await origin.connect(user).approve(originTm.address, parseEther("10000"))).wait();
+    }
+
+    // Prepare + fulfill all the transfers
+    const transfers: {
+      transactionId: string;
+      amount: BigNumberish;
+      local: string;
+      index: string;
+      params: CallParams;
+    }[] = [];
+    for (const _ of Array(transfersInBatch).fill(0)) {
+      const assetIdx = Math.floor(Math.random() * assetsInBatch);
+      const params: CallParams = {
+        recipient: user.address,
+        callTo: constants.AddressZero,
+        callData: "0x",
+        originDomain: `${originDomain}`,
+        destinationDomain: `${destinationDomain}`,
+      };
+      const transactingAssetId = originAssets[assetIdx].address;
+      const amount = 1000;
+      // check balance of user
+      const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount });
+      const prepareReceipt = await prepare.wait();
+
+      // Get event data from prepare receipt
+      const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+        (a) => a.blockNumber === prepareReceipt.blockNumber,
+      );
+      const transactionId = (originTmEvent!.args as any).transactionId;
+      const leafIndex = (originTmEvent!.args as any).idx;
+      const bridgedAmt = (originTmEvent!.args as any).localAmount;
+      transfers.push({
+        transactionId,
+        index: leafIndex,
+        amount: bridgedAmt,
+        local: destinationAdopted.address,
+        params,
+      });
+
+      // fulfill
+      const fulfill = await destinationTm.connect(router).fulfill({
+        params,
+        transactionId,
+        local: destinationAssets[assetIdx].address,
+        amount: bridgedAmt,
+        feePercentage: constants.Zero,
+        relayerSignature: "0x",
+        router: router.address,
+        index: leafIndex,
+        proof: getEmptyMerkleProof(),
+      });
+      await fulfill.wait();
+    }
+
+    // Dispatch the root
+    const dispatch = await originTm.dispatch(destinationDomain);
+    const dispatchReceipt = await dispatch.wait();
+
+    // Get the message
+    const topics = originBridge.filters.Send().topics as string[];
+    const bridgeEvent = originBridge.interface.parseLog(
+      dispatchReceipt.logs.find((l) => l.topics.includes(topics[0]))!,
+    );
+    const message = (bridgeEvent!.args as any)[5];
+
+    // Reconcile the root
+    const reconcile = await destinationBridge
+      .connect(admin)
+      .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
+    await reconcile.wait();
+
+    // Process all the transfers
+    for (const transfer of transfers) {
+      await (
+        await destinationTm.process(
+          transfer.transactionId,
+          transfer.amount,
+          transfer.local,
+          transfer.index,
+          getEmptyMerkleProof(),
+          transfer.params,
+        )
+      ).wait();
+    }
   });
 
   // Token scenario:
