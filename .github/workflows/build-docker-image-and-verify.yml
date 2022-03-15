@@ -44,7 +44,6 @@ jobs:
           file: docker/router/Dockerfile
 
       - name: Terraform Docker Image onto AWS instance
-        uses: hashicorp/setup-terraform@v1
         env:
           AWS_SECRET = ${{ secrets.AWS_SECRET }}
           AWS_KEY = ${{ secrets.AWS_KEY }}
