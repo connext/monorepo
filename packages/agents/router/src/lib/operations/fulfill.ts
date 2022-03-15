@@ -35,11 +35,11 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   const {
     fulfill: { getReceiverAmount },
     shared: {
-      calculateGasFeeInReceivingToken,
       getAmountOut,
       getDecimalsForAsset,
       getDestinationLocalAsset,
       getDestinationTransactingAsset,
+      calculateGasFeeInReceivingToken,
     },
   } = getHelpers();
 

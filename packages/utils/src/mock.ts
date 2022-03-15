@@ -17,10 +17,20 @@ import {
 /**
  * General mock toolset used for testing globally.
  */
-export const mock = {
+export const mock: any = {
   chain: {
     A: "1337",
     B: "1338",
+  },
+  asset: {
+    A: {
+      name: "TEST-A",
+      address: mkAddress("0xbeefbeefbeef"),
+    },
+    B: {
+      name: "TEST-B",
+      address: mkAddress("0x2faced"),
+    },
   },
   chainData: () =>
     chainDataToMap([
@@ -73,7 +83,7 @@ export const mock = {
       destination: string,
       amount = "1000",
       status: CrossChainTxStatus = CrossChainTxStatus.Prepared,
-      asset: string = mkAddress("0x2faced"),
+      asset: string = mock.asset.A.address,
       transactionId: string = getRandomBytes32(),
       nonce = 1234,
       user: string = mkAddress("0xfaded"),

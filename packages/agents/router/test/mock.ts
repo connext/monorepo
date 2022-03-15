@@ -35,12 +35,7 @@ export const mock = {
   config: (): NxtpRouterConfig => ({
     chains: {
       [mock.chain.A]: {
-        assets: [
-          {
-            name: "TEST",
-            address: mkAddress("0xbeefbeefbeef"),
-          },
-        ],
+        assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
@@ -54,12 +49,7 @@ export const mock = {
         gasStations: [],
       },
       [mock.chain.B]: {
-        assets: [
-          {
-            name: "TEST",
-            address: mkAddress("0xbeefbeefbeef"),
-          },
-        ],
+        assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
