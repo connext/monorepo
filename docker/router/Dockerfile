@@ -1,4 +1,4 @@
-FROM node:14-alpine3.15 as node
+FROM node:16.3.0-alpine as node
 
 # ----------------------------------------
 # Builds Docker container for nxtp-router package.
