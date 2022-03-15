@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import type {
-  ProposedOwnable,
-  ProposedOwnableInterface,
-} from "../ProposedOwnable";
+  ProposedOwnableUpgradeable,
+  ProposedOwnableUpgradeableInterface,
+} from "../ProposedOwnableUpgradeable";
 
 const _abi = [
   {
@@ -268,15 +268,19 @@ const _abi = [
   },
 ];
 
-export class ProposedOwnable__factory {
+export class ProposedOwnableUpgradeable__factory {
   static readonly abi = _abi;
-  static createInterface(): ProposedOwnableInterface {
-    return new utils.Interface(_abi) as ProposedOwnableInterface;
+  static createInterface(): ProposedOwnableUpgradeableInterface {
+    return new utils.Interface(_abi) as ProposedOwnableUpgradeableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): ProposedOwnable {
-    return new Contract(address, _abi, signerOrProvider) as ProposedOwnable;
+  ): ProposedOwnableUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ProposedOwnableUpgradeable;
   }
 }

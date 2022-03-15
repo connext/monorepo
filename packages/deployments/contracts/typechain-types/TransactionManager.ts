@@ -126,6 +126,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "domain()": FunctionFragment;
     "fulfill(((address,address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes))": FunctionFragment;
+    "initialize(uint256,address,address,address)": FunctionFragment;
     "interpreter()": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
@@ -211,6 +212,10 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "fulfill",
     values: [TransactionManager.FulfillArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [BigNumberish, string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "interpreter",
@@ -366,6 +371,7 @@ export interface TransactionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "interpreter",
     data: BytesLike
@@ -796,6 +802,14 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    initialize(
+      _domain: BigNumberish,
+      _bridgeRouter: string,
+      _tokenRegistry: string,
+      _wrappedNative: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     interpreter(overrides?: CallOverrides): Promise<[string]>;
 
     isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
@@ -988,6 +1002,14 @@ export interface TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  initialize(
+    _domain: BigNumberish,
+    _bridgeRouter: string,
+    _tokenRegistry: string,
+    _wrappedNative: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   interpreter(overrides?: CallOverrides): Promise<string>;
 
   isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
@@ -1174,6 +1196,14 @@ export interface TransactionManager extends BaseContract {
       _args: TransactionManager.FulfillArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    initialize(
+      _domain: BigNumberish,
+      _bridgeRouter: string,
+      _tokenRegistry: string,
+      _wrappedNative: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     interpreter(overrides?: CallOverrides): Promise<string>;
 
@@ -1554,6 +1584,14 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    initialize(
+      _domain: BigNumberish,
+      _bridgeRouter: string,
+      _tokenRegistry: string,
+      _wrappedNative: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     interpreter(overrides?: CallOverrides): Promise<BigNumber>;
 
     isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1744,6 +1782,14 @@ export interface TransactionManager extends BaseContract {
 
     fulfill(
       _args: TransactionManager.FulfillArgsStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      _domain: BigNumberish,
+      _bridgeRouter: string,
+      _tokenRegistry: string,
+      _wrappedNative: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
