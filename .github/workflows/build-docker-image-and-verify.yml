@@ -49,7 +49,7 @@ jobs:
           AWS_SECRET = ${{ secrets.AWS_SECRET }}
           AWS_KEY = ${{ secrets.AWS_KEY }}
         run: |
-        cd ops && terraform init && terraform plan && terraform apply -auto-approve
+          cd ops && terraform init && terraform plan && terraform apply -auto-approve
 
 
         
