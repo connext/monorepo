@@ -246,6 +246,11 @@ const config: HardhatUserConfig = {
       chainId: 192837465,
       url: urlOverride || process.env.GATHER_PROVIDER_URL || "https://mainnet.gather.network/",
     },
+    harmonyone: {
+      accounts,
+      chainId: 1666600000,
+      url: "https://api.harmony.one",
+    },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

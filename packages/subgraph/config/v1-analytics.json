@@ -18,7 +18,7 @@
     "startBlock": 5285668
   },
   {
-    "subgraphName": "connext/nxtp-boba-v1-runtime",
+    "subgraphName": "connext/nxtp-boba-v1-analytics",
     "network": "boba",
     "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
     "startBlock": 399502
@@ -48,6 +48,12 @@
     "startBlock": 1628753
   },
   {
+    "subgraphName": "connext/nxtp-harmonyone-v1-analytics",
+    "network": "harmonyone",
+    "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+    "startBlock": 24127251
+  },
+  {
     "subgraphName": "connext/nxtp-kava-alphanet-v1-analytics",
     "network": "kava-alphanet",
     "address": "0xBA3171e092705A09ef68DEaeC86F184B92026236",
@@ -60,7 +66,7 @@
     "startBlock": 19835794
   },
   {
-    "subgraphName": "connext/nxtp-milkomeda-cardano-v1-runtime",
+    "subgraphName": "connext/nxtp-milkomeda-cardano-v1-analytics",
     "network": "milkomeda-cardano",
     "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
     "startBlock": 1353482
