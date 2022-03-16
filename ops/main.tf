@@ -82,7 +82,7 @@ resource "aws_instance" "terraformed-router" {
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name}"
-    sudo docker run "${var.full_image_name}" >> /root/dockerout
+    sudo docker run -d "${var.full_image_name}" >> /root/dockerout
     sudo touch /root/touch.txt
   EOF
   
