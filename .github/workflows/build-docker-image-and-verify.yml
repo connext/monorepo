@@ -49,7 +49,7 @@ jobs:
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
           cd ops && terraform init && terraform plan && terraform apply -auto-approve &&
-          docker run ${{steps.meta.outputs.tags}} -d
+          docker run ${{steps.meta.outputs.tags}}
 
 
         
