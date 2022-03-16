@@ -43,7 +43,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           file: docker/router/Dockerfile
 
-      - name: Terraform Docker Image onto AWS instance
+      - name: Terraform Docker Image onto AWS
         env:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
