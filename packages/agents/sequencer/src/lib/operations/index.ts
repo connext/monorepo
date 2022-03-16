@@ -1,1 +1,1 @@
-export { handleBid } from "./bid";
+export * from "./bid";
