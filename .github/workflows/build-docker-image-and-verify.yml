@@ -48,7 +48,7 @@ jobs:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
-          cd ops && terraform init && terraform plan && terraform apply -var 'full_image_name=router:latest' -auto-approve
+          cd ops && terraform init && terraform plan && terraform apply -var full_image_name='router:latest' -auto-approve
 
 
         
