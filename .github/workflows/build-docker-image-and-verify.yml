@@ -26,30 +26,47 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata (tags, labels) for Docker - router
+        id: meta-router
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=long
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image - router
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-router.outputs.tags }}
+          labels: ${{ steps.meta-router.outputs.labels }}
           file: docker/router/Dockerfile
+
+      - name: Extract metadata (tags, labels) for Docker - sequencer
+        id: meta-sequencer
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+
+      - name: Build and push Docker image - sequencer
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta-sequencer.outputs.tags }}
+          labels: ${{ steps.meta-sequencer.outputs.labels }}
+          file: docker/sequencer/Dockerfile
 
       - name: Terraform Docker Image onto AWS
         env:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
-          cd ops && terraform init && terraform plan -var full_image_name='${{steps.meta.outputs.tags}}' && terraform apply -var full_image_name='${{steps.meta.outputs.tags}}' -auto-approve
-
-
-        
-      
+          cd ops && terraform init && \
+          terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}} \
+          full_image_name_sequener='${{steps.meta-sequener.outputs.tags}}' && \
+          terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}} \
+          full_image_name_sequener='${{steps.meta-sequener.outputs.tags' -auto-approve
