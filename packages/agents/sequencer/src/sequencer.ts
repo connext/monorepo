@@ -6,7 +6,7 @@ import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindServer } from "./bindings/server";
+import { bindServer, bindBidSelection } from "./bindings";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -41,6 +41,8 @@ export const makeSequencer = async () => {
 
     // Create server, set up routes, and start listening.
     await bindServer();
+
+    await bindBidSelection();
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
       port: context.config.server.port,
