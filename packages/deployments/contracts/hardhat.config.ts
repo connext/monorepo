@@ -44,13 +44,26 @@ const mnemonic =
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.11",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
+    compilers: [
+      {
+        version: "0.8.11",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
-    },
+      {
+        version: "0.8.2",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
   },
   paths: {
     artifacts: "./artifacts",

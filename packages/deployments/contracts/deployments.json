@@ -86,7 +86,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0xc59E0E24a428312BC195a5B4B609e1E6b5E4E36f",
+          "address": "0x8679BBE3B29e700a3368bbD2e83BBd4982019Dd3",
           "abi": [
             {
               "anonymous": false,
@@ -533,73 +533,6 @@
               ],
               "stateMutability": "view",
               "type": "function"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
-            }
-          ]
-        },
-        "BridgeRouterUpgradeBeacon": {
-          "address": "0x8B78445Cc9d61797DF5d6D62d0fBf3CED594aECB",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_initialImplementation",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_controller",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "Upgrade",
-              "type": "event"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            }
-          ]
-        },
-        "BridgeRouterUpgradeBeaconProxy": {
-          "address": "0x89A845D8a9aa70e4455f8849d29C813610b20993",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_upgradeBeacon",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "_initializationCalldata",
-                  "type": "bytes"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
             },
             {
               "stateMutability": "payable",
@@ -3089,7 +3022,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x8D4051de6B75596fBA2d5BF3a8Dcca8fc0C37DC1",
+          "address": "0x999eFC45CBB3b0c4A2A4845A36113054C70742E0",
           "abi": [
             {
               "anonymous": false,
@@ -3512,102 +3445,9 @@
             }
           ]
         },
-        "TokenRegistryUpgradeBeacon": {
-          "address": "0x4745533456704323EB4C416693e586715814ed23",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_initialImplementation",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_controller",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "Upgrade",
-              "type": "event"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            }
-          ]
-        },
-        "TokenRegistryUpgradeBeaconProxy": {
-          "address": "0xD1A03b736cDE6a0b2278E7d9B0B4f21cF635C1a4",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_upgradeBeacon",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "_initializationCalldata",
-                  "type": "bytes"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "constructor"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
-            }
-          ]
-        },
         "TransactionManager": {
-          "address": "0xf60c06638aA134441cBBB19fFeb6F7aCb828995e",
+          "address": "0x1b9cB9280383325A57Ec8968237105BEb7b7afa7",
           "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_domain",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address payable",
-                  "name": "_bridgeRouter",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_tokenRegistry",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "_wrappedNative",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
             {
               "anonymous": false,
               "inputs": [
@@ -4485,6 +4325,34 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_domain",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_bridgeRouter",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_tokenRegistry",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_wrappedNative",
+                  "type": "address"
+                }
+              ],
+              "name": "initialize",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "interpreter",
               "outputs": [
@@ -4992,6 +4860,10 @@
               ],
               "stateMutability": "view",
               "type": "function"
+            },
+            {
+              "stateMutability": "payable",
+              "type": "receive"
             }
           ]
         },
@@ -5090,7 +4962,7 @@
           ]
         },
         "XAppConnectionManager": {
-          "address": "0x373ba9aa0f48b27A977F73423039E6dE341a0C7C",
+          "address": "0x3dd9BD00487b2B9639F888c3BC00f3453b62A34b",
           "abi": [
             {
               "inputs": [],
