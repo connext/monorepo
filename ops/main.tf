@@ -7,6 +7,10 @@ variable "AWS_KEY" {
   type = string
   description = "aws key"
 }
+variable "full_image_name" {
+  type = string
+  description = "image name"
+}
 
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
