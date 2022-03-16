@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## 0.1.31
+
+- [contracts] Boba network deployments
+- [contracts] Harmony One network deployments
+
 ## 0.1.30
 
 - [utils] Fix bug in gas fee calc
