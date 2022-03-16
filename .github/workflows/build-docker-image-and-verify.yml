@@ -65,8 +65,4 @@ jobs:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
-          cd ops && terraform init && \
-          terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}} \
-          full_image_name_sequener='${{steps.meta-sequener.outputs.tags}}' && \
-          terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}} \
-          full_image_name_sequener='${{steps.meta-sequener.outputs.tags' -auto-approve
+          cd ops && terraform init && terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}} full_image_name_sequener='${{steps.meta-sequener.outputs.tags}}' && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}} full_image_name_sequener='${{steps.meta-sequener.outputs.tags' -auto-approve
