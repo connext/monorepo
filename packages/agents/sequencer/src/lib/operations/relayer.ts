@@ -43,7 +43,7 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
   } else {
     logger.info("Sent to Gelato network", requestContext, methodContext, {
       result,
-      taskId: (result as AxiosResponse).data.taskId,
+      taskId: result.taskId,
       // response: response.data,
     });
   }
