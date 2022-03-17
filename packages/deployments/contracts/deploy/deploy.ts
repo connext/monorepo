@@ -15,15 +15,7 @@ const saveDeployment = async (
   const deploymentSubmission: DeploymentSubmission = {
     address: address,
     args: args,
-    abi: artifact.abi,
-    bytecode: artifact.bytecode,
-    deployedBytecode: artifact.deployedBytecode,
-    metadata: artifact.metadata,
-    solcInput: artifact.solcInput,
-    solcInputHash: artifact.solcInputHash,
-    storageLayout: artifact.storageLayout,
-    userdoc: artifact.userdoc,
-    devdoc: artifact.devdoc,
+    ...artifact,
   };
 
   hre.deployments.save(`${name}`, deploymentSubmission);
@@ -92,7 +84,7 @@ const deployBeaconProxy = async <T extends Contract = Contract>(
     console.log("Errow while verify implementation");
   }
 
-  return proxy as T;
+  return (await hre.ethers.getContractAt(factory.interface.format(), proxy.address)) as T;
 };
 
 /**

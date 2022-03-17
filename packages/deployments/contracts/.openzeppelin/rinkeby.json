@@ -67,7 +67,7 @@
             "label": "xAppConnectionManager",
             "offset": 0,
             "slot": "101",
-            "type": "t_contract(XAppConnectionManager)15304",
+            "type": "t_contract(XAppConnectionManager)3623",
             "contract": "XAppConnectionClient",
             "src": "contracts\\nomad-xapps\\contracts\\XAppConnectionClient.sol:13"
           },
@@ -99,7 +99,7 @@
             "label": "representationToCanonical",
             "offset": 0,
             "slot": "152",
-            "type": "t_mapping(t_address,t_struct(TokenId)20318_storage)",
+            "type": "t_mapping(t_address,t_struct(TokenId)6681_storage)",
             "contract": "TokenRegistry",
             "src": "contracts\\nomad-xapps\\contracts\\bridge\\TokenRegistry.sol:48"
           },
@@ -141,11 +141,11 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(XAppConnectionManager)15304": {
+          "t_contract(XAppConnectionManager)3623": {
             "label": "contract XAppConnectionManager",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_address,t_struct(TokenId)20318_storage)": {
+          "t_mapping(t_address,t_struct(TokenId)6681_storage)": {
             "label": "mapping(address => struct BridgeMessage.TokenId)",
             "numberOfBytes": "32"
           },
@@ -153,7 +153,7 @@
             "label": "mapping(bytes32 => address)",
             "numberOfBytes": "32"
           },
-          "t_struct(TokenId)20318_storage": {
+          "t_struct(TokenId)6681_storage": {
             "label": "struct BridgeMessage.TokenId",
             "members": [
               {
@@ -451,7 +451,7 @@
             "slot": "107",
             "type": "t_contract(BridgeRouter)21701",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:336"
+            "src": "contracts\\TransactionManager.sol:320"
           },
           {
             "label": "wrapper",
@@ -459,7 +459,7 @@
             "slot": "108",
             "type": "t_contract(IWrapped)9654",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:342"
+            "src": "contracts\\TransactionManager.sol:326"
           },
           {
             "label": "nonce",
@@ -467,7 +467,7 @@
             "slot": "109",
             "type": "t_uint256",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:348"
+            "src": "contracts\\TransactionManager.sol:332"
           },
           {
             "label": "interpreter",
@@ -475,7 +475,7 @@
             "slot": "110",
             "type": "t_contract(IFulfillInterpreter)9371",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:353"
+            "src": "contracts\\TransactionManager.sol:337"
           },
           {
             "label": "tokenRegistry",
@@ -483,7 +483,7 @@
             "slot": "111",
             "type": "t_contract(TokenRegistry)23029",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:358"
+            "src": "contracts\\TransactionManager.sol:342"
           },
           {
             "label": "adoptedToLocalPools",
@@ -491,7 +491,7 @@
             "slot": "112",
             "type": "t_mapping(t_bytes32,t_contract(IStableSwap)9643)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:364"
+            "src": "contracts\\TransactionManager.sol:348"
           },
           {
             "label": "routedTransactions",
@@ -499,7 +499,7 @@
             "slot": "113",
             "type": "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7354_storage)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:370"
+            "src": "contracts\\TransactionManager.sol:354"
           },
           {
             "label": "routedTransactionsGas",
@@ -507,7 +507,7 @@
             "slot": "114",
             "type": "t_mapping(t_bytes32,t_struct(GasInfo)7359_storage)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:376"
+            "src": "contracts\\TransactionManager.sol:360"
           },
           {
             "label": "reconciledTransactions",
@@ -515,7 +515,7 @@
             "slot": "115",
             "type": "t_mapping(t_bytes32,t_bytes32)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:383"
+            "src": "contracts\\TransactionManager.sol:367"
           },
           {
             "label": "domain",
@@ -523,7 +523,7 @@
             "slot": "116",
             "type": "t_uint256",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:389"
+            "src": "contracts\\TransactionManager.sol:373"
           },
           {
             "label": "routerBalances",
@@ -531,7 +531,7 @@
             "slot": "117",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:396"
+            "src": "contracts\\TransactionManager.sol:380"
           },
           {
             "label": "routerRelayerFees",
@@ -539,7 +539,7 @@
             "slot": "118",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:403"
+            "src": "contracts\\TransactionManager.sol:387"
           },
           {
             "label": "approvedRouters",
@@ -547,7 +547,7 @@
             "slot": "119",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:408"
+            "src": "contracts\\TransactionManager.sol:392"
           },
           {
             "label": "approvedAssets",
@@ -555,7 +555,7 @@
             "slot": "120",
             "type": "t_mapping(t_bytes32,t_bool)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:415"
+            "src": "contracts\\TransactionManager.sol:399"
           },
           {
             "label": "adoptedToCanonical",
@@ -563,7 +563,7 @@
             "slot": "121",
             "type": "t_mapping(t_address,t_struct(TokenId)20318_storage)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:422"
+            "src": "contracts\\TransactionManager.sol:406"
           },
           {
             "label": "canonicalToAdopted",
@@ -571,7 +571,7 @@
             "slot": "122",
             "type": "t_mapping(t_bytes32,t_address)",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:429"
+            "src": "contracts\\TransactionManager.sol:413"
           },
           {
             "label": "__gap",
@@ -579,7 +579,7 @@
             "slot": "123",
             "type": "t_array(t_uint256)49_storage",
             "contract": "TransactionManager",
-            "src": "contracts\\TransactionManager.sol:1201"
+            "src": "contracts\\TransactionManager.sol:1185"
           }
         ],
         "types": {
