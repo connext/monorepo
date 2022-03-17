@@ -34,7 +34,6 @@ export const newAuction = async (
 ): Promise<AuctionResponse> => {
   const { requestContext, methodContext } = createLoggingContext(newAuction.name, _requestContext);
   receivedAuction.inc({
-    transactionId: data.transactionId,
     sendingAssetId: data.sendingAssetId,
     receivingAssetId: data.receivingAssetId,
     sendingChainId: data.receivingChainId,

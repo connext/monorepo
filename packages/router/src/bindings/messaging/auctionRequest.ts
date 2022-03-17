@@ -46,7 +46,6 @@ export const auctionRequestBinding = async (
     receivingAssetId: bid.receivingAssetId,
   });
   attemptedAuction.inc({
-    transactionId: bid.transactionId,
     sendingAssetId: bid.sendingAssetId,
     receivingAssetId: bid.receivingAssetId,
     sendingChainId: bid.sendingChainId,
