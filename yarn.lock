@@ -6456,8 +6456,8 @@ __metadata:
   linkType: hard
 
 "cross-undici-fetch@npm:^0.1.19":
-  version: 0.1.25
-  resolution: "cross-undici-fetch@npm:0.1.25"
+  version: 0.1.27
+  resolution: "cross-undici-fetch@npm:0.1.27"
   dependencies:
     abort-controller: ^3.0.0
     form-data-encoder: ^1.7.1
@@ -6465,7 +6465,7 @@ __metadata:
     node-fetch: ^2.6.7
     undici: ^4.9.3
     web-streams-polyfill: ^3.2.0
-  checksum: 7dc93b7480a75251429309d8222a19f2f6145cc78fb0ec3740d9dd662247c8e0401c1c47b149d1ae263eaa2d401a9732786323b57a7fde0334c1cf47c65b8289
+  checksum: 2f421b8fbbd223bd281c3f2ca7c05000ddad4d93215e5d58d624aed0a4bf79be15252e24dde2ed6ea3896d171371bdd02de599845f5c55bd3f29d8be69a6b802
   languageName: node
   linkType: hard
 
@@ -6581,7 +6581,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.3.3, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3":
+"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3":
+  version: 4.3.4
+  resolution: "debug@npm:4.3.4"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 3dbad3f94ea64f34431a9cbf0bafb61853eda57bff2880036153438f50fb5a84f27683ba0d8e5426bf41a8c6ff03879488120cf5b3a761e77953169c0600a708
+  languageName: node
+  linkType: hard
+
+"debug@npm:4.3.3":
   version: 4.3.3
   resolution: "debug@npm:4.3.3"
   dependencies:
@@ -7897,7 +7909,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
