@@ -34,7 +34,6 @@ export const gelatoSend = async (
     const res = await axios.post(server, params);
     output = res.data;
   } catch (error) {
-    console.error(error);
     output = error;
   }
   return output;
