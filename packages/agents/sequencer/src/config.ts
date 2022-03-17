@@ -1,12 +1,14 @@
 import * as fs from "fs";
 
 import { ajv, ChainData, getChainData } from "@connext/nxtp-utils";
-import { getDeployedTransactionManagerContract } from "@connext/nxtp-txservice";
+import { getDeployedTransactionManagerContract as _getDeployedTransactionManagerContract } from "@connext/nxtp-txservice";
 
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
+
+export const getDeployedTransactionManagerContract = _getDeployedTransactionManagerContract;
 
 export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig => {
   let configJson: Record<string, any> = {};
@@ -97,7 +99,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   return _sequencerConfig;
 };
 
-let sequencerConfig: SequencerConfig | undefined;
+export let sequencerConfig: SequencerConfig | undefined;
 
 /**
  * Gets and validates the router config from the environment.
