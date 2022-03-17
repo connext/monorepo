@@ -306,7 +306,6 @@ export const collectSubgraphHeads = async (): Promise<Record<number, number>> =>
 };
 
 export const incrementFees = async (
-  transactionId: string,
   sendingAssetId: string,
   sendingChainId: number,
   receivingAssetId: string,
@@ -473,7 +472,6 @@ export const incrementRelayerFeesPaid = async (
 
   const { requestContext, methodContext } = createLoggingContext(incrementTotalTransferredVolume.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
-    transactionId,
     sendingAssetId,
     sendingChainId,
     receivingAssetId,

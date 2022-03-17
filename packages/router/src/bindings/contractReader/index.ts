@@ -474,6 +474,7 @@ export const handleSingle = async (
       );
       // Update total transferred volume (denominated in receiving asset)
       incrementTotalTransferredVolume(
+        _transaction.crosschainTx.invariant.transactionId,
         _transaction.crosschainTx.invariant.sendingAssetId,
         _transaction.crosschainTx.invariant.sendingChainId,
         _transaction.crosschainTx.invariant.receivingAssetId,
