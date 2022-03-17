@@ -33,7 +33,7 @@ export class AuctionsCache extends Cache {
     return count;
   }
 
-  public async getAllTransactionsIdsWithPendingBids(): Promise<string[] | null> {
+  public async getAllTransactionsIdsWithPendingBids(): Promise<string[]> {
     const pendingTxids: string[] = [];
 
     const bidStream = this.data.scanStream({
