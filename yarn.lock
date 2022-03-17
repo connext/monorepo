@@ -1433,9 +1433,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.6.0, @ethersproject/providers@npm:^5.4.4":
-  version: 5.6.0
-  resolution: "@ethersproject/providers@npm:5.6.0"
+"@ethersproject/providers@npm:5.6.1, @ethersproject/providers@npm:^5.4.4":
+  version: 5.6.1
+  resolution: "@ethersproject/providers@npm:5.6.1"
   dependencies:
     "@ethersproject/abstract-provider": ^5.6.0
     "@ethersproject/abstract-signer": ^5.6.0
@@ -1456,7 +1456,7 @@ __metadata:
     "@ethersproject/web": ^5.6.0
     bech32: 1.1.4
     ws: 7.4.6
-  checksum: 2f3020edd130da84c4544ba8d14a804ec18fe75b4abb452e307bbb9bb0fa93c16394e3c42b0072ca1e49a8d27ec83538844c734cd3318d4511eedfd938bba328
+  checksum: c6d6ab73064ee4a7793d4cb599e2b0ff7d61b510c2ffece249a95c60043e07ef40c7c55f097569141a7f50fd82f7bb3956d44e1715997ec91da25216a5ce51b6
   languageName: node
   linkType: hard
 
@@ -2433,8 +2433,8 @@ __metadata:
   linkType: hard
 
 "@openzeppelin/hardhat-upgrades@npm:^1.16.0":
-  version: 1.16.0
-  resolution: "@openzeppelin/hardhat-upgrades@npm:1.16.0"
+  version: 1.16.1
+  resolution: "@openzeppelin/hardhat-upgrades@npm:1.16.1"
   dependencies:
     "@openzeppelin/upgrades-core": ^1.13.1
     chalk: ^4.1.0
@@ -2444,13 +2444,13 @@ __metadata:
     hardhat: ^2.0.2
   bin:
     migrate-oz-cli-project: dist/scripts/migrate-oz-cli-project.js
-  checksum: 173bd5ee82dda22b9326fcb95ea0d71f503739f5b0b914f8cc09022b0ae36d11a13cf1999882069802e9f99d7b3511c886ad84d959f8d6c444fa40e37454c28c
+  checksum: e9fb526b9bd278dea5e0f86d0b85008499bf753598507826ac1b6bc704da9214888e68a4c40dddd12ce86e944ae5023a31ec173fc88a299c85a6518ab26c54da
   languageName: node
   linkType: hard
 
 "@openzeppelin/upgrades-core@npm:^1.13.1":
-  version: 1.14.0
-  resolution: "@openzeppelin/upgrades-core@npm:1.14.0"
+  version: 1.14.1
+  resolution: "@openzeppelin/upgrades-core@npm:1.14.1"
   dependencies:
     bn.js: ^5.1.2
     cbor: ^8.0.0
@@ -2460,7 +2460,7 @@ __metadata:
     ethereumjs-util: ^7.0.3
     proper-lockfile: ^4.1.1
     solidity-ast: ^0.4.15
-  checksum: 9678896620b49414fe87821aa409329f689b6785f845827a31327e23ddc17349d95cb750552f1709df5bc197b3a0773885cfe8509b361b0c7c8ba35bf6d391c1
+  checksum: b6dfb36bc7f83a85a5e072768e98649f5a9895971bd2f81d0c7405fb9a0200bc8ade406aea1ccc3108181be758629c676962c0714b567dc5dccd68536e42eb09
   languageName: node
   linkType: hard
 
@@ -5210,17 +5210,17 @@ __metadata:
   linkType: hard
 
 "browserslist@npm:^4.17.5":
-  version: 4.20.0
-  resolution: "browserslist@npm:4.20.0"
+  version: 4.20.2
+  resolution: "browserslist@npm:4.20.2"
   dependencies:
-    caniuse-lite: ^1.0.30001313
-    electron-to-chromium: ^1.4.76
+    caniuse-lite: ^1.0.30001317
+    electron-to-chromium: ^1.4.84
     escalade: ^3.1.1
     node-releases: ^2.0.2
     picocolors: ^1.0.0
   bin:
     browserslist: cli.js
-  checksum: 6d77f54bd43e7e1b86c3f10a3aa84b6c198f2ecc8b345ebd42cb9feb1c143554ad62a0eaf1365f28d14589a4d1fb12b367ade3798fa493dab5cff4ca525384aa
+  checksum: 18e09beeae32e69fea45fc3642240fb63027b1460d90e24da86377177dca3d82c80f8fa44469d95109e3962f08eb2a23e03037bd5e1f1ec38e4866e2a8572435
   languageName: node
   linkType: hard
 
@@ -5378,17 +5378,17 @@ __metadata:
   linkType: hard
 
 "cacache@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "cacache@npm:16.0.0"
+  version: 16.0.1
+  resolution: "cacache@npm:16.0.1"
   dependencies:
     "@npmcli/fs": ^1.0.0
     "@npmcli/move-file": ^1.1.2
     chownr: ^2.0.0
     fs-minipass: ^2.1.0
-    glob: ^7.1.4
+    glob: ^7.2.0
     infer-owner: ^1.0.4
-    lru-cache: ^6.0.0
-    minipass: ^3.1.1
+    lru-cache: ^7.5.1
+    minipass: ^3.1.6
     minipass-collect: ^1.0.2
     minipass-flush: ^1.0.5
     minipass-pipeline: ^1.2.4
@@ -5399,7 +5399,7 @@ __metadata:
     ssri: ^8.0.1
     tar: ^6.1.11
     unique-filename: ^1.1.1
-  checksum: 1a5404958f60b1dc7c484e00ac5bb0466d8163cda77d20f827875c4fb6043cfedba852340291e96bfbf5995fc5ea8258c31be7a292e92008081d822902ddf22b
+  checksum: 7f461244a6ed30b8e34a1c8d598712035135b5489152cc6458642858ebd8075f39bf0998b768cc29e41263524632af93b41987f8debb703d9a2f29f37cc0552b
   languageName: node
   linkType: hard
 
@@ -5512,7 +5512,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001313":
+"caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001317":
   version: 1.0.30001317
   resolution: "caniuse-lite@npm:1.0.30001317"
   checksum: 0a5fc7fb8c54dde515c2d468e5fc9e0cf2e82dd40d596cdffed90f64c50b5dadd0ab0c25e04769d86488b3115f949abd31d54d1f74d0029b45fa8206a031f47a
@@ -7101,10 +7101,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.76":
-  version: 1.4.84
-  resolution: "electron-to-chromium@npm:1.4.84"
-  checksum: f38c3694465705f698094f3228c81237d00da9baba627a4b258195a2c136f30f1204cb4a651f870e05aeed71e0f77069c124554b2ee15372e06c275e0b24978d
+"electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.84":
+  version: 1.4.85
+  resolution: "electron-to-chromium@npm:1.4.85"
+  checksum: 87cea37f0aeb7aead8ddbc9c2b308eac4537eb50095b45faaf6d75b72d599392833ed12d777baf908550df4a090b250af2e4176c130c291e28e83a930f1e84f8
   languageName: node
   linkType: hard
 
@@ -8169,8 +8169,8 @@ __metadata:
   linkType: hard
 
 "ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.6, ethers@npm:^5.5.2, ethers@npm:^5.5.4, ethers@npm:^5.6.0":
-  version: 5.6.0
-  resolution: "ethers@npm:5.6.0"
+  version: 5.6.1
+  resolution: "ethers@npm:5.6.1"
   dependencies:
     "@ethersproject/abi": 5.6.0
     "@ethersproject/abstract-provider": 5.6.0
@@ -8190,7 +8190,7 @@ __metadata:
     "@ethersproject/networks": 5.6.0
     "@ethersproject/pbkdf2": 5.6.0
     "@ethersproject/properties": 5.6.0
-    "@ethersproject/providers": 5.6.0
+    "@ethersproject/providers": 5.6.1
     "@ethersproject/random": 5.6.0
     "@ethersproject/rlp": 5.6.0
     "@ethersproject/sha2": 5.6.0
@@ -8202,7 +8202,7 @@ __metadata:
     "@ethersproject/wallet": 5.6.0
     "@ethersproject/web": 5.6.0
     "@ethersproject/wordlists": 5.6.0
-  checksum: 8a3f46bca7a383c43b20941515b970a6a7c03b96128e2073c2c9e0e0881d7e92cc823a816cd66aba7173b9bd26428389e2c9ec39cd508214c4a1dff560688eff
+  checksum: f04079034d4c7f51e5c69a3ee55c38ca70bd5bd9b2680a5e6b594c92a09c8a88882e7d57991eb0ff9d0a95f900511cdccbccedbfc829f3995d01ad5d6f85156d
   languageName: node
   linkType: hard
 
@@ -9425,7 +9425,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:7.2.0, glob@npm:^7.0.0, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:~7.2.0":
+"glob@npm:7.2.0, glob@npm:^7.0.0, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:^7.2.0, glob@npm:~7.2.0":
   version: 7.2.0
   resolution: "glob@npm:7.2.0"
   dependencies:
@@ -9499,11 +9499,11 @@ __metadata:
   linkType: hard
 
 "globals@npm:^13.6.0, globals@npm:^13.9.0":
-  version: 13.12.1
-  resolution: "globals@npm:13.12.1"
+  version: 13.13.0
+  resolution: "globals@npm:13.13.0"
   dependencies:
     type-fest: ^0.20.2
-  checksum: cf7877629c8f2a293b0a7d09d1dcce7f2d426ec2528600c481c5b3f3d070b0a120eb2499439ac0404990fb8a5742c0165b1bf1f52603364001ddc89bea3dda24
+  checksum: c55ea8fd3afecb72567bac41605577e19e68476993dfb0ca4c49b86075af5f0ae3f0f5502525f69010f7c5ea5db6a1c540a80a4f80ebdfb2f686d87b0f05d7e9
   languageName: node
   linkType: hard
 
@@ -15218,11 +15218,11 @@ __metadata:
   linkType: hard
 
 "prettier@npm:^2.1.2, prettier@npm:^2.3.2":
-  version: 2.5.1
-  resolution: "prettier@npm:2.5.1"
+  version: 2.6.0
+  resolution: "prettier@npm:2.6.0"
   bin:
     prettier: bin-prettier.js
-  checksum: 21b9408476ea1c544b0e45d51ceb94a84789ff92095abb710942d780c862d0daebdb29972d47f6b4d0f7ebbfb0ffbf56cc2cfa3e3e9d1cca54864af185b15b66
+  checksum: 3e527ad62279676778a8404d18174d7ca2365ada4caba6eebbcdd9907d1187afd3bc6ade5b4e5f5d4549bb9fb71e45ca8930d71500017635524f8fc05bc52e93
   languageName: node
   linkType: hard
 

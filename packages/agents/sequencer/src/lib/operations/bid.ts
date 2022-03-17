@@ -37,33 +37,38 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
     gas: gas.toString(),
   });
 
-  const numBids = await cache.auctions.storeBid(bid);
-  if (numBids === 1) {
-    logger.info("First bid for transaction, waiting before sending", requestContext, methodContext, {
-      numBids,
-      transactionId: bid.transactionId,
-    });
+  await cache.auctions.storeBid(bid);
 
-    selectBestBid(bid.transactionId, requestContext);
-  }
+  return;
 };
 
-export const selectBestBid = async (transactionId: string, _requestContext: RequestContext) => {
+let bidSelectionRound = 0;
+
+export const bidSelection = async (_requestContext: RequestContext) => {
   const {
     logger,
     adapters: { cache },
     config,
   } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(bidSelection.name, _requestContext);
 
-  const { requestContext, methodContext } = createLoggingContext(selectBestBid.name, _requestContext);
-  logger.info(`Method start: ${selectBestBid.name}`, requestContext, methodContext, { transactionId });
+  bidSelectionRound++;
+  logger.info(`Method start: ${bidSelection.name}`, requestContext, methodContext, { bidSelectionRound });
 
-  // this is the first bid
-  setTimeout(async () => {
+  // TODO: Fetch all the pending transactionIds from the cache.
+  // const transactionIds: string[] = await cache.auctions.getPendingTransactions();
+  const transactionIds: string[] = [];
+
+  logger.info(`Transactions for selection`, requestContext, methodContext, {
+    transactionIds,
+    transactionIdsLength: transactionIds.length,
+  });
+
+  transactionIds.map(async (transactionId) => {
     const records = await cache.auctions.getBidsByTransactionId(transactionId);
     const random = Math.floor(Math.random() * records.length);
     const selectedBid = records[random];
 
     await sendToRelayer(selectedBid.payload, requestContext);
-  }, config.auctionWaitTime);
+  });
 };
