@@ -60,7 +60,9 @@ const networks: string[] = [
   // "arbitrum-one",
   // "avalanche",
   // "milkomeda-cardano",
-  "kava-alphanet",
+  // "kava-alphanet",
+  "harmonyone",
+  // "boba",
 ];
 
 // const routers: string[] = ["0x3582ec1c312819246fc1820475e3daa251a159ef"];
