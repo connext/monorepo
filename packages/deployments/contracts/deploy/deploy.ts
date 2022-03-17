@@ -4,6 +4,30 @@ import { Contract, Signer } from "ethers";
 
 import { NOMAD_DEPLOYMENTS, SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 
+const saveDeployment = async (
+  address: string,
+  name: string,
+  args: any[],
+  artifactName: string,
+  hre: HardhatRuntimeEnvironment,
+) => {
+  const artifact = await hre.deployments.getExtendedArtifact(artifactName);
+  const deploymentSubmission: DeploymentSubmission = {
+    address: address,
+    args: args,
+    abi: artifact.abi,
+    bytecode: artifact.bytecode,
+    deployedBytecode: artifact.deployedBytecode,
+    metadata: artifact.metadata,
+    solcInput: artifact.solcInput,
+    solcInputHash: artifact.solcInputHash,
+    storageLayout: artifact.storageLayout,
+    userdoc: artifact.userdoc,
+    devdoc: artifact.devdoc,
+  };
+
+  hre.deployments.save(`${name}`, deploymentSubmission);
+};
 // Helper function
 const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
@@ -13,48 +37,60 @@ const deployBeaconProxy = async <T extends Contract = Contract>(
 ): Promise<T> => {
   const factory = await hre.ethers.getContractFactory(name, deployer.address);
   const proxyName = `${name}UpgradeBeaconProxy`;
+  const initData = factory.interface.encodeFunctionData("initialize", args);
 
   // Check if already deployed. then upgrade
   const proxyDeployment = await hre.deployments.getOrNull(proxyName);
+
+  let proxy: Contract;
+  let implementation: string;
+  let beaconAddress: string;
+
   if (proxyDeployment) {
     console.log(`${name} proxy deployed. upgrading........`);
-    const beaconAddress = await hre.upgrades.erc1967.getBeaconAddress(proxyDeployment.address);
+    beaconAddress = await hre.upgrades.erc1967.getBeaconAddress(proxyDeployment.address);
     await hre.upgrades.upgradeBeacon(beaconAddress, factory);
-    const newImplAddress = await hre.upgrades.beacon.getImplementationAddress(beaconAddress);
 
-    console.log(`${name} proxy upgraded. new implementation: ${newImplAddress}`);
+    console.log(`${name} proxy upgraded.`);
 
-    // await hre.run("verify:verify", {
-    //   address: newImplAddress,
-    //   constructorArguments: [],
-    // });
+    implementation = await hre.upgrades.beacon.getImplementationAddress(beaconAddress);
+    proxy = await hre.ethers.getContractAt(proxyDeployment.abi, proxyDeployment.address);
+  } else {
+    // Deploy new implementation
+    const beacon = await hre.upgrades.deployBeacon(factory);
+    await beacon.deployed();
+    beaconAddress = beacon.address;
+    console.log(`${name} beaconAddress:`, beaconAddress);
 
-    return hre.ethers.getContractAt(proxyDeployment.abi, proxyDeployment.address);
+    // Deploy new proxy
+    proxy = await hre.upgrades.deployBeaconProxy(beacon, factory, args);
+    await proxy.deployed();
+
+    const proxyAddress = proxy.address;
+    console.log(`${name} proxyAddress:`, proxyAddress);
+
+    implementation = await hre.upgrades.beacon.getImplementationAddress(beaconAddress);
+
+    // Save to deployments
+    await saveDeployment(beaconAddress, `${name}UpgradeableBeacon`, [implementation], "UpgradeableBeacon", hre);
+    await saveDeployment(proxyAddress, `${name}UpgradeBeaconProxy`, [beaconAddress, initData], "BeaconProxy", hre);
   }
 
-  // Deploy implementation
-  const beacon = await hre.upgrades.deployBeacon(factory);
-  await beacon.deployed();
-  const beaconAddress = beacon.address;
-  console.log(`${name} beaconAddress:`, beaconAddress);
+  // Save Implementation
+  await saveDeployment(implementation, `${name}`, [], name, hre);
 
-  // Deploy proxy
-  const proxy = await hre.upgrades.deployBeaconProxy(beacon, factory, args);
-  await proxy.deployed();
+  // Verify contracts
+  try {
+    //verify implementation
+    console.log(`Verify new implementation ${implementation} ...`);
 
-  const proxyAddress = proxy.address;
-  console.log(`${name} proxyAddress:`, proxyAddress);
-
-  // Save to deployments
-  const proxyArtifact = await hre.deployments.getArtifact(name);
-  const deploymentSubmission: DeploymentSubmission = {
-    address: proxyAddress,
-    abi: proxyArtifact.abi,
-    args: args,
-    bytecode: proxyArtifact.bytecode,
-  };
-
-  hre.deployments.save(proxyName, deploymentSubmission);
+    await hre.run("verify:verify", {
+      address: implementation,
+      constructorArguments: [],
+    });
+  } catch (e) {
+    console.log("Errow while verify implementation", e);
+  }
 
   return proxy as T;
 };
@@ -92,6 +128,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const xappConnectionManagerAddress = xappDeployment.address;
   console.log("xappConnectionManagerAddress:", xappConnectionManagerAddress);
 
+  if (xappDeployment.newlyDeployed) {
+    try {
+      //verify XAppConnectionManager contract
+      await hre.run("verify:verify", {
+        address: xappConnectionManagerAddress,
+        constructorArguments: [],
+      });
+    } catch (e) {
+      console.log("Errow while verify xappConnectionManager contract", xappConnectionManagerAddress, e);
+    }
+  }
   const xappConnectionManager = (
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)
   ).connect(deployer);
@@ -190,6 +237,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
       console.log("setV1PriceOracle tx: ", tx);
       await tx.wait();
+
+      try {
+        //verify priceOracle contract
+        await hre.run("verify:verify", {
+          address: newPriceOracleAddress,
+          constructorArguments: [WRAPPED_ETH_MAP.get(+chainId)],
+        });
+      } catch (e) {
+        console.log("Errow while verify priceOracle contract", newPriceOracleAddress, e);
+      }
     }
   }
 
@@ -199,7 +256,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
     skipIfAlreadyDeployed: true,
   });
-  // await dep.deploy();
+
+  if (deployment.newlyDeployed) {
+    try {
+      //verify multicall contract
+      await hre.run("verify:verify", {
+        address: deployment.address,
+        constructorArguments: [],
+      });
+    } catch (e) {
+      console.log("Errow while verify multicall contract", deployment.address, e);
+    }
+  }
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");
