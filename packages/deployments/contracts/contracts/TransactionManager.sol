@@ -15,35 +15,19 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
+// TODOs:
 // Open questions:
-// 1. How to account for fees/specify amount used on receiving chain?
+// 1. How to account for fees/specify amount used on receiving chain? How to specify slippage in prepare and in AMM?
 // 2. Callback interface?
-// 3. Best way to preserve "originator" for some permissioning on the receiving chain?
+// 3. Is the transaction sufficiently observable offchain if the subgraph isn't working?
 
-// TODO:
-// - decide on interface for the stable swap
-//   - stable swap implemented, interface changes TBD
-// - nomad contract packages not playing nicely #815
-// - make functions metatxable with any asset #816
-// - assert the router gas usage in reconcile
-//   - depends on feedback from pilot devs -- should user specify min? should we take on
-//     oracle dependencies? should we pass data *all the way back*? 
-// - allow multiple routers #818
-// - allow aave wormhole style collateral for routers 
-//   - needs spec #821
-// - identifier returned from nomad/bridge
-//   - may not be relevant with batching (each leaf still needs UUID)
-// - gas optimizations
-//   - dependent on batching, continuous process
-// - event finalization
-//   - dependent on feedback from pilot group, offchain processes, etc.
-// - unit tests
-//   - setup infrastructure #822
-//   - ongoing process
-// - restricted router withdrawals #820
-// - fulfill interpreter improvements (from audit and pass through origin domain stuff)
-//   - depends on how we decide to pass through calldata (may need rewrite)
-// - batching #812
+// Specs needed:
+// 1. Relayer fees -> https://www.notion.so/connext/Cross-Domain-Gas-Fees-7914f10ac441439ca3841495c1b89f6b
+// 2. Aave wormhole-style collateral spec -> https://github.com/connext/nxtp/issues/821
+
+// Nomad side:
+// 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
+// 2. Gas optimizations
 
 contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable {
 
