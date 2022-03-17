@@ -17,7 +17,7 @@ export default task("setup-test-router", "Add router and test assets")
 
       let txManagerAddress = _txManagerAddress;
       if (!txManagerAddress) {
-        const txManagerDeployment = await deployments.get("TransactionManager");
+        const txManagerDeployment = await deployments.get("TransactionManagerUpgradeBeaconProxy");
         txManagerAddress = txManagerDeployment.address;
       }
       console.log("txManagerAddress: ", txManagerAddress);
