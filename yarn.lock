@@ -5378,8 +5378,8 @@ __metadata:
   linkType: hard
 
 "cacache@npm:^16.0.0":
-  version: 16.0.1
-  resolution: "cacache@npm:16.0.1"
+  version: 16.0.2
+  resolution: "cacache@npm:16.0.2"
   dependencies:
     "@npmcli/fs": ^1.0.0
     "@npmcli/move-file": ^1.1.2
@@ -5399,7 +5399,7 @@ __metadata:
     ssri: ^8.0.1
     tar: ^6.1.11
     unique-filename: ^1.1.1
-  checksum: 7f461244a6ed30b8e34a1c8d598712035135b5489152cc6458642858ebd8075f39bf0998b768cc29e41263524632af93b41987f8debb703d9a2f29f37cc0552b
+  checksum: dced60dc532ed6a6da3feeb7736c5cb38bbbc900e273a04e68e510cc9bd1acab8e61ee86df7b4fe959ef35e39fd74abb4cb4834d221a9a59afa8029f3773eab3
   languageName: node
   linkType: hard
 
@@ -7909,7 +7909,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -15129,8 +15129,8 @@ __metadata:
   linkType: hard
 
 "pino@npm:^7.8.0":
-  version: 7.9.0
-  resolution: "pino@npm:7.9.0"
+  version: 7.9.1
+  resolution: "pino@npm:7.9.1"
   dependencies:
     fast-redact: ^3.0.0
     on-exit-leak-free: ^0.2.0
@@ -15144,7 +15144,7 @@ __metadata:
     thread-stream: ^0.13.0
   bin:
     pino: bin.js
-  checksum: 5e38f110cb168db8dedb958b539f6d3c66f184dfa91d8ad3efad4646d206cbf1000fe52e8593edfb6ace91ddfa5c16a4c5c1f1fb65c785230a38eaa4b50bb13d
+  checksum: 08084c1d790bcfa89a7a1e7d2310a0a35883316d56744a33ff8e19cebd8e73d032b253078a3ca8ccd2d72b7d7948dac55dc55eff7478962e385a6a1b6e8087bf
   languageName: node
   linkType: hard
 
