@@ -128,17 +128,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const xappConnectionManagerAddress = xappDeployment.address;
   console.log("xappConnectionManagerAddress:", xappConnectionManagerAddress);
 
-  if (xappDeployment.newlyDeployed) {
-    try {
-      //verify XAppConnectionManager contract
-      await hre.run("verify:verify", {
-        address: xappConnectionManagerAddress,
-        constructorArguments: [],
-      });
-    } catch (e) {
-      console.log("Errow while verify xappConnectionManager contract", xappConnectionManagerAddress, e);
-    }
-  }
   const xappConnectionManager = (
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)
   ).connect(deployer);
@@ -237,16 +226,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
       console.log("setV1PriceOracle tx: ", tx);
       await tx.wait();
-
-      try {
-        //verify priceOracle contract
-        await hre.run("verify:verify", {
-          address: newPriceOracleAddress,
-          constructorArguments: [WRAPPED_ETH_MAP.get(+chainId)],
-        });
-      } catch (e) {
-        console.log("Errow while verify priceOracle contract", newPriceOracleAddress, e);
-      }
     }
   }
 
@@ -256,18 +235,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
     skipIfAlreadyDeployed: true,
   });
-
-  if (deployment.newlyDeployed) {
-    try {
-      //verify multicall contract
-      await hre.run("verify:verify", {
-        address: deployment.address,
-        constructorArguments: [],
-      });
-    } catch (e) {
-      console.log("Errow while verify multicall contract", deployment.address, e);
-    }
-  }
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain");
