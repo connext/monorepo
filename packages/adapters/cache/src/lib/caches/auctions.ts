@@ -33,7 +33,7 @@ export class AuctionsCache extends Cache {
     return count;
   }
 
-  public async getAllTransactionsIdsWithPendingBids(txid: string): Promise<string[] | null> {
+  public async getAllTransactionsIdsWithPendingBids(): Promise<string[] | null> {
     const pendingTxids: string[] = [];
 
     const bidStream = this.data.scanStream({
@@ -49,7 +49,7 @@ export class AuctionsCache extends Cache {
           if (bidStatus === BidStatus.Pending) {
             //get txid from longer key
             const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
-            pendingTxids.push(txid);
+            if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
           }
         }
       });
@@ -59,11 +59,11 @@ export class AuctionsCache extends Cache {
     });
   }
 
-  public async updateAllBidsWithTransactionId(txid: string, status: BidStatus): Promise<number[] | void>{
+  public async updateAllBidsWithTransactionId(txid: string, status: BidStatus): Promise<number[] | void> {
     //gets all the keys that match for the txid (all bids)
     const statusSetResults: number[] = [];
     const bidStream = this.data.scanStream({
-      match: `${this.prefix}:${txid}:*`
+      match: `${this.prefix}:${txid}:*`,
     });
 
     return new Promise((res, rej) => {
@@ -77,8 +77,6 @@ export class AuctionsCache extends Cache {
         res(statusSetResults);
       });
     });
-
-
   }
 
   /**
