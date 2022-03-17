@@ -212,6 +212,9 @@ describe("FallbackSubgraph", () => {
       // getOrderedSubgraphsStub.restore();
       // syncStub.restore();
     });
+    afterEach(async () => {
+      axiosGetStub.restore();
+    });
 
     it("happy: should use health endpoint; should update sync records", async () => {
       expect(fallbackSubgraph.records.length).to.eq(0);
