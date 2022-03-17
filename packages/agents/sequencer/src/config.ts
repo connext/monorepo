@@ -104,10 +104,10 @@ let sequencerConfig: SequencerConfig | undefined;
  * @param useDefaultLocal - (optional) If true, use the default local config.
  * @returns The router config with sensible defaults
  */
-export const getConfig = async (): Promise<SequencerConfig> => {
+export const getConfig = async (chainData?: Map<string, ChainData>): Promise<SequencerConfig> => {
   if (!sequencerConfig) {
-    const chainData = await getChainData();
-    sequencerConfig = getEnvConfig(chainData!);
+    const _chainData = chainData ?? (await getChainData());
+    sequencerConfig = getEnvConfig(_chainData!);
   }
   return sequencerConfig;
 };

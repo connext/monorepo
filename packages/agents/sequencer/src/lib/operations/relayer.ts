@@ -1,5 +1,7 @@
 import { gelatoSend, isChainSupportedByGelato, Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
+import { AxiosResponse, AxiosError } from "axios";
 
+import { GelatoSendFailed } from "../errors";
 import { getContext } from "../../sequencer";
 
 export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) => {
@@ -36,12 +38,16 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
     bid.data.feePercentage,
   );
 
+  if ((result as AxiosError).isAxiosError) {
+    throw new GelatoSendFailed({ result });
+  } else {
+    logger.info("Sent to Gelato network", requestContext, methodContext, {
+      result,
+      taskId: result.taskId,
+      // response: response.data,
+    });
+  }
+
   // const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
   // TODO: check response, if it didn't work, send the next!
-
-  logger.info("Sent to Gelato network", requestContext, methodContext, {
-    result,
-    taskId: result.taskId,
-    // response: response.data,
-  });
 };

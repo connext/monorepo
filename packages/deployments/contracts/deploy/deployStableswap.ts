@@ -55,7 +55,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  StableSwap
   /////////////////////////////////////////////////////////////////////////////////
-  await deployments.deploy("StableSwap", {
+  const stableSwapDeployment = await deployments.deploy("StableSwap", {
     from: deployer,
     log: true,
     libraries: {
@@ -64,6 +64,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
     skipIfAlreadyDeployed: true,
   });
+
+  try {
+    //verify stable swap contract
+    await hre.run("verify:verify", {
+      address: stableSwapDeployment.address,
+      constructorArguments: [],
+      libraries: {
+        SwapUtils: (await deployments.get("SwapUtils")).address,
+        AmplificationUtils: (await deployments.get("AmplificationUtils")).address,
+      },
+    });
+  } catch (e) {
+    console.log("Errow while verify stableswap contract", stableSwapDeployment.address);
+  }
 };
 
 export default func;

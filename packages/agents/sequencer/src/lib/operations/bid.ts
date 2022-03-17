@@ -1,4 +1,4 @@
-import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
+import { Bid, RequestContext, createLoggingContext, BidStatus } from "@connext/nxtp-utils";
 
 import { sendToRelayer } from "./relayer";
 import { getContext } from "../../sequencer";
@@ -56,8 +56,7 @@ export const bidSelection = async (_requestContext: RequestContext) => {
   logger.info(`Method start: ${bidSelection.name}`, requestContext, methodContext, { bidSelectionRound });
 
   // TODO: Fetch all the pending transactionIds from the cache.
-  // const transactionIds: string[] = await cache.auctions.getPendingTransactions();
-  const transactionIds: string[] = [];
+  const transactionIds: string[] = await cache.auctions.getAllTransactionsIdsWithPendingBids();
 
   logger.info(`Transactions for selection`, requestContext, methodContext, {
     transactionIds,
@@ -70,5 +69,7 @@ export const bidSelection = async (_requestContext: RequestContext) => {
     const selectedBid = records[random];
 
     await sendToRelayer(selectedBid.payload, requestContext);
+
+    cache.auctions.updateAllBidsWithTransactionId(transactionId, BidStatus.Sent);
   });
 };

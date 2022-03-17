@@ -93,5 +93,22 @@ describe("AuctionCache", () => {
         expect(res[1].payload.transactionId).to.be.eq("0xtx111");
       });
     });
+    describe("#getAllTransactionsIdsWithPendingBids", () => {
+      it("should return transacionIds with pending bids", async () => {
+        const res = await auctions.getAllTransactionsIdsWithPendingBids();
+        expect(res[0]).to.be.eq("0xtx111");
+        expect(res.length).to.be.eq(1);
+      });
+    });
+    describe("#updateAllBidsWithTransactionId", () => {
+      it("should be ok", async () => {
+        let txids = await auctions.getAllTransactionsIdsWithPendingBids();
+        expect(txids[0]).to.be.eq("0xtx111");
+        expect(txids.length).to.be.eq(1);
+        const res = await auctions.updateAllBidsWithTransactionId("0xtx111", BidStatus.Sent);
+        txids = await auctions.getAllTransactionsIdsWithPendingBids();
+        expect(txids.length).to.be.eq(0);
+      });
+    });
   });
 });

@@ -3,6 +3,7 @@ import Sinon, { stub, restore, reset, SinonStub } from "sinon";
 import { getEnvConfig, getConfig, getDeployedTransactionManagerContract } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { configMock, chainDataMock } from "./utils";
+import { mock } from "./mock";
 
 describe("Config", () => {
   let testChainId = 1336;
@@ -141,18 +142,10 @@ describe("Config", () => {
   });
 
   describe("getConfig", () => {
-    it("should work", async () => {
-      stub(process, "env").value({
-        ...process.env,
-        NXTP_MNEMONIC: configMock.mnemonic,
-        // NXTP_ADMIN_TOKEN: configMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chains),
-        NXTP_LOG_LEVEL: configMock.logLevel,
-      });
-
-      const env = getEnvConfig(chainDataMock);
-      const config = await getConfig();
-      expect(config).to.be.deep.eq(env);
+    it("should generate sequencer config from chainData in arguments", async () => {
+      expect(() => getConfig(mock.chainData())).not.throw();
     });
+    it("should generate sequencer config from external chainData", async () => {});
+    it("should return sequencer config already created", async () => {});
   });
 });

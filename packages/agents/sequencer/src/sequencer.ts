@@ -25,7 +25,7 @@ export const makeSequencer = async () => {
       throw new Error("Could not get chain data");
     }
     context.chainData = chainData;
-    context.config = await getConfig();
+    context.config = await getConfig(chainData);
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redisUrl, context.logger, requestContext);

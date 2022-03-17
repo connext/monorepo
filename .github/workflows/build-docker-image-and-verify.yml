@@ -2,7 +2,7 @@ name: Create and publish Docker images
 
 on:
   push:
-    branches: [amarok]
+    branches: []
 
 env:
   REGISTRY: ghcr.io

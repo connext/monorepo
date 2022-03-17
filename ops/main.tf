@@ -10,11 +10,13 @@ variable "AWS_KEY" {
 variable "full_image_name_router" {
   type = string
   description = "router image name"
+  default = "connext/router"
 }
 
 variable "full_image_name_sequencer" {
   type = string
   description = "sequencer image name"
+  default = "connext/sequencer"
 }
 
 data "aws_ami" "amazon_linux_2" {
@@ -56,7 +58,7 @@ ingress {
     cidr_blocks = [
       "0.0.0.0/0"
     ]
-from_port = 22
+    from_port = 22
     to_port = 22
     protocol = "tcp"
   }

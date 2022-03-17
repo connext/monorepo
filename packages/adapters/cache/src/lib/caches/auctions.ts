@@ -33,6 +33,52 @@ export class AuctionsCache extends Cache {
     return count;
   }
 
+  public async getAllTransactionsIdsWithPendingBids(): Promise<string[]> {
+    const pendingTxids: string[] = [];
+
+    const bidStream = this.data.scanStream({
+      match: `${this.prefix}:*`,
+    });
+
+    return new Promise((res, rej) => {
+      bidStream.on("data", async (resultKeys: string) => {
+        for (const key of resultKeys) {
+          const record = await this.data.hgetall(key);
+          const bidStatus: BidStatus = record["status"] as BidStatus;
+          //found pending txid;
+          if (bidStatus === BidStatus.Pending) {
+            //get txid from longer key
+            const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
+            if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
+          }
+        }
+      });
+      bidStream.on("end", async () => {
+        res(pendingTxids);
+      });
+    });
+  }
+
+  public async updateAllBidsWithTransactionId(txid: string, status: BidStatus): Promise<number[] | void> {
+    //gets all the keys that match for the txid (all bids)
+    const statusSetResults: number[] = [];
+    const bidStream = this.data.scanStream({
+      match: `${this.prefix}:${txid}:*`,
+    });
+
+    return new Promise((res, rej) => {
+      bidStream.on("data", async (resultKeys: string) => {
+        for (const key of resultKeys) {
+          const fieldUpdated = await this.data.hset(key, "status", status);
+          statusSetResults.push(fieldUpdated);
+        }
+      });
+      bidStream.on("end", async () => {
+        res(statusSetResults);
+      });
+    });
+  }
+
   /**
    * Updates the status of bid
    *
