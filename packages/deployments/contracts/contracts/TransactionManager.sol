@@ -15,6 +15,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 // TODOs:
 // Open questions:
@@ -26,6 +28,9 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 // 1. Relayer fees -> https://www.notion.so/connext/Cross-Domain-Gas-Fees-7914f10ac441439ca3841495c1b89f6b
 // 2. Aave wormhole-style collateral spec -> https://github.com/connext/nxtp/issues/821
 // 3. Subsidies
+
+// - relayer restrictions
+// - allowing fees for transfer to be paid using subsidies
 
 // Nomad side:
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
@@ -715,7 +720,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     for (uint256 i; i < _tokens.length; i++) {
       address batch = _tokens[i];
       if (batch != address(0)) {
-        SafeERC20.safeIncreaseAllowance(
+        SafeERC20Upgradeable.safeIncreaseAllowance(
           IERC20Upgradeable(batch),
           address(bridgeRouter),
           _amounts[i]
