@@ -306,6 +306,7 @@ export const collectSubgraphHeads = async (): Promise<Record<number, number>> =>
 };
 
 export const incrementFees = async (
+  transactionId: string,
   sendingAssetId: string,
   sendingChainId: number,
   receivingAssetId: string,
@@ -322,6 +323,7 @@ export const incrementFees = async (
 
   const { requestContext, methodContext } = createLoggingContext(incrementFees.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
+    transactionId,
     sendingAssetId,
     sendingChainId,
     receivingAssetId,
@@ -333,6 +335,7 @@ export const incrementFees = async (
 
   if (amount.isNegative()) {
     logger.warn("Got negative fees, doing nothing", requestContext, methodContext, {
+      transactionId,
       sendingAssetId,
       sendingChainId,
       receivingAssetId,
@@ -347,6 +350,7 @@ export const incrementFees = async (
   const fees = await convertToUsd(assetId, chainId, amount.toString(), requestContext);
 
   logger.debug("Got fees in usd", requestContext, methodContext, {
+    transactionId,
     sendingAssetId,
     sendingChainId,
     receivingAssetId,
@@ -455,6 +459,7 @@ export const incrementGasConsumed = async (
  * @returns void
  */
 export const incrementRelayerFeesPaid = async (
+  transactionId: string,
   sendingAssetId: string,
   sendingChainId: number,
   receivingAssetId: string,

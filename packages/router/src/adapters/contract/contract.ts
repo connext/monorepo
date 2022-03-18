@@ -323,6 +323,7 @@ export const prepareRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
         txData.sendingAssetId,
         txData.sendingChainId,
         txData.receivingAssetId,
@@ -371,6 +372,7 @@ export const prepareRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
         txData.sendingAssetId,
         txData.sendingChainId,
         txData.receivingAssetId,
@@ -559,6 +561,7 @@ export const fulfillRouterContract = async (
       if (chainId === txData.sendingChainId) {
         // increment router fees when sending on sending chain. it doesn't take fee from router for ReceiverFulfill transactions.
         incrementRelayerFeesPaid(
+          txData.transactionId,
           txData.sendingAssetId,
           txData.sendingChainId,
           txData.receivingAssetId,
@@ -779,6 +782,7 @@ export const cancelRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
         txData.sendingAssetId,
         txData.sendingChainId,
         txData.receivingAssetId,
@@ -827,6 +831,7 @@ export const cancelRouterContract = async (
 
       // increment router fees
       incrementRelayerFeesPaid(
+        txData.transactionId,
         txData.sendingAssetId,
         txData.sendingChainId,
         txData.receivingAssetId,

@@ -508,6 +508,7 @@ export const handleSingle = async (
 
         // Add difference between sending and receiving amount
         await incrementFees(
+          _transaction.crosschainTx.invariant.transactionId,
           _transaction.crosschainTx.invariant.sendingAssetId,
           _transaction.crosschainTx.invariant.sendingChainId,
           _transaction.crosschainTx.invariant.receivingAssetId,
