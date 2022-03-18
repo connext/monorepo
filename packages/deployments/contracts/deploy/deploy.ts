@@ -13,8 +13,8 @@ const saveDeployment = async (
 ) => {
   const artifact = await hre.deployments.getExtendedArtifact(artifactName);
   const deploymentSubmission: DeploymentSubmission = {
-    address: address,
-    args: args,
+    address,
+    args,
     ...artifact,
   };
 
@@ -41,11 +41,19 @@ const deployBeaconProxy = async <T extends Contract = Contract>(
   if (proxyDeployment) {
     console.log(`${name} proxy deployed. upgrading........`);
     beaconAddress = await hre.upgrades.erc1967.getBeaconAddress(proxyDeployment.address);
-    await hre.upgrades.upgradeBeacon(beaconAddress, factory);
-
-    console.log(`${name} proxy upgraded.`);
-
     implementation = await hre.upgrades.beacon.getImplementationAddress(beaconAddress);
+
+    const deployedImpl = await hre.upgrades.prepareUpgrade(beaconAddress, factory);
+    //check if need to be upgraded.
+    if (deployedImpl.toLowerCase() !== implementation.toLowerCase()) {
+      await hre.upgrades.upgradeBeacon(beaconAddress, factory);
+      implementation = deployedImpl;
+
+      console.log(`${name} Implementation should be upgraded to ${implementation}.  proxy upgraded.`);
+    } else {
+      console.log(`${name} No changes in the current implementation`);
+    }
+
     proxy = await hre.ethers.getContractAt(proxyDeployment.abi, proxyDeployment.address);
   } else {
     // Deploy new implementation
@@ -69,7 +77,7 @@ const deployBeaconProxy = async <T extends Contract = Contract>(
   }
 
   // Save Implementation
-  await saveDeployment(implementation, `${name}`, [], name, hre);
+  await saveDeployment(implementation, name, [], name, hre);
 
   // Verify contracts
   try {
