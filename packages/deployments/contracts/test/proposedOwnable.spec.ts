@@ -16,7 +16,7 @@ import {
 } from "./utils";
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe.only("ProposedOwnableUpgradeable.sol", () => {
+describe("ProposedOwnableUpgradeable.sol", () => {
   const [wallet, other] = waffle.provider.getWallets() as Wallet[];
   let proposedOwnable: TestProposedOwnable, beaconAddress: string;
 
