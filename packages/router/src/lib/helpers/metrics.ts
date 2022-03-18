@@ -474,6 +474,7 @@ export const incrementRelayerFeesPaid = async (
 
   const { requestContext, methodContext } = createLoggingContext(incrementTotalTransferredVolume.name, _requestContext);
   logger.debug("Method start", requestContext, methodContext, {
+    transactionId,
     sendingAssetId,
     sendingChainId,
     receivingAssetId,
