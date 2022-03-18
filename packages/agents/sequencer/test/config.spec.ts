@@ -1,5 +1,5 @@
-import { expect, mkAddress } from "@connext/nxtp-utils";
 import Sinon, { stub, restore, reset, SinonStub } from "sinon";
+import { chainDataToMap, expect, mkAddress } from "@connext/nxtp-utils";
 import { getEnvConfig, getConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { mock } from "./mock";
@@ -58,34 +58,33 @@ describe("Config", () => {
   });
 
   describe("#getEnvConfig", () => {
-    it("should read config from NXTP config with testnet network values overridden", () => {
+    beforeEach(() => {
       stub(ConfigFns, "getDeployedTransactionManagerContract").returns({
         address: mkAddress("0xaaa"),
         abi: ["fakeAbi()"],
       });
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("should read config from NXTP config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
         NXTP_NETWORK: "testnet",
         NXTP_CONFIG: JSON.stringify(mock.config()),
       });
       expect(() => getEnvConfig(mock.chainData())).not.throw();
     });
-    it("should error if transaction manager address is missing", () => {
-      stub(ConfigFns, "getDeployedTransactionManagerContract").returns(undefined);
+    it("should error if no config ", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
         NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify(mock.config()),
       });
-      expect(() => getEnvConfig(mock.chainData())).throw("No transactionManager address for domain");
+
+      expect(() => getEnvConfig(mock.chainData())).throw();
     });
-    it("should error if validation fails", () => {
-      stub(ConfigFns, "getDeployedTransactionManagerContract").returns({
-        address: mkAddress("0xaaa"),
-        abi: ["fakeAbi()"],
-      });
+    it("should error if transaction manager address is missing", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_CONFIG_FILE: "buggypath",
@@ -96,6 +95,164 @@ describe("Config", () => {
             [mock.chain.A]: { confirmations: 1, providers: ["http://example.com"] },
             [mock.chain.B]: { confirmations: 1, providers: ["http://example.com"] },
           },
+        }),
+      });
+      const chainData = chainDataToMap([
+        {
+          name: "Unit Test Chain 1",
+          chainId: parseInt(mock.chain.A),
+          domainId: "2000",
+          confirmations: 1,
+          assetId: {},
+        },
+        {
+          name: "Unit Test Chain 2",
+          chainId: parseInt(mock.chain.B),
+          domainId: "3000",
+          confirmations: 1,
+          assetId: {},
+        },
+      ]);
+      expect(() => getEnvConfig(chainData)).throw("No transactionManager address for domain");
+    });
+    it("should read transactionManager from contract", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: JSON.stringify({
+          ...mock.config(),
+          chains: {
+            [mock.chain.A]: {
+              confirmations: 1,
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                runtime: ["http://example.com"],
+                analytics: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+            [mock.chain.B]: {
+              confirmations: 1,
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                runtime: ["http://example.com"],
+                analytics: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+          },
+        }),
+      });
+
+      expect(() => getEnvConfig(mock.chainData())).not.throw();
+    });
+    it("should read runtime subgraph from chainData", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: JSON.stringify({
+          ...mock.config(),
+          chains: {
+            [mock.chain.A]: {
+              confirmations: 1,
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                analytics: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+            [mock.chain.B]: {
+              confirmations: 1,
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                analytics: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+          },
+        }),
+      });
+
+      expect(() => getEnvConfig(mock.chainData())).not.throw();
+    });
+    it("should read analytics subgraph from chainData", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: JSON.stringify({
+          ...mock.config(),
+          chains: {
+            [mock.chain.A]: {
+              confirmations: 1,
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                runtime: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+            [mock.chain.B]: {
+              confirmations: 1,
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                runtime: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+          },
+        }),
+      });
+
+      expect(() => getEnvConfig(mock.chainData())).not.throw();
+    });
+    it("should read recommended confirmations", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: JSON.stringify({
+          ...mock.config(),
+          chains: {
+            [mock.chain.A]: {
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                runtime: ["http://example.com"],
+                analytics: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+            [mock.chain.B]: {
+              providers: ["http://example.com"],
+              deployments: {},
+              subgraph: {
+                runtime: ["http://example.com"],
+                analytics: ["http://example.com"],
+                maxLag: 10,
+              },
+            },
+          },
+        }),
+      });
+
+      expect(() => getEnvConfig(mock.chainData())).not.throw();
+    });
+    it("should error if validation fails", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: JSON.stringify({
+          ...mock.config(),
+          auctionWaitTime: "ABCDEF",
         }),
       });
       expect(() => getEnvConfig(mock.chainData())).throw();

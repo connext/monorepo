@@ -31,7 +31,6 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     console.error("Error reading config file!");
     process.exit(1);
   }
-  // return configFile;
 
   const _sequencerConfig: SequencerConfig = {
     redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
@@ -59,7 +58,6 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   Object.entries(_sequencerConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
-
     // allow passed in address to override
     // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
     if (!chainConfig.deployments?.transactionManager) {
@@ -75,7 +73,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     }
 
     if (!chainConfig.subgraph.analytics) {
-      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.analyticsSubgraph ?? [];
+      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.analyticsSubgraph ?? [];
     }
 
     if (!chainConfig.confirmations) {
@@ -91,7 +89,6 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   const validate = ajv.compile(SequencerConfigSchema);
 
   const valid = validate(_sequencerConfig);
-
   if (!valid) {
     throw new Error(validate.errors?.map((err: any) => JSON.stringify(err, null, 2)).join(","));
   }
