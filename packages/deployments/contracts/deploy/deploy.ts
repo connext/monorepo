@@ -69,7 +69,7 @@ const deployBeaconProxy = async <T extends Contract = Contract>(
   }
 
   // Save Implementation
-  await saveDeployment(implementation, `${name}`, [], name, hre);
+  await saveDeployment(implementation, name, [], name, hre);
 
   // Verify contracts
   try {
