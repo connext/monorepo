@@ -13,8 +13,8 @@ const saveDeployment = async (
 ) => {
   const artifact = await hre.deployments.getExtendedArtifact(artifactName);
   const deploymentSubmission: DeploymentSubmission = {
-    address: address,
-    args: args,
+    address,
+    args,
     ...artifact,
   };
 
