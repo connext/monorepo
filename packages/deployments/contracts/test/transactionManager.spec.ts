@@ -824,7 +824,7 @@ describe.only("TransactionManager", () => {
     // 5. process - for each
 
     // must test gas with varying assets (1, 2, 3) and transfers in a batch
-    const transfersInBatch = 75;
+    const transfersInBatch = 15;
     const assetsInBatch = 1;
 
     // Do global setup (add routers, funding, etc.).
