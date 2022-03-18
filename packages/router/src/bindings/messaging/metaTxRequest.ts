@@ -69,7 +69,6 @@ export const metaTxRequestBinding = async (
       await messaging.publishMetaTxResponse(from, inbox, { chainId, transactionHash: tx.transactionHash });
       // Increment collected fees + gas used on relayer fee
       incrementFees(
-        transactionId,
         txData.sendingAssetId,
         txData.sendingChainId,
         txData.receivingAssetId,
