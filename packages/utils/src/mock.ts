@@ -37,12 +37,14 @@ export const mock: any = {
       {
         name: "Unit Test Chain 1",
         chainId: parseInt(mock.chain.A),
+        domainId: mock.chain.A,
         confirmations: 1,
         assetId: {},
       },
       {
         name: "Unit Test Chain 2",
         chainId: parseInt(mock.chain.B),
+        domainId: mock.chain.B,
         confirmations: 1,
         assetId: {},
       },

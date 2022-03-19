@@ -612,7 +612,7 @@
             "label": "xAppConnectionManager",
             "offset": 0,
             "slot": "101",
-            "type": "t_contract(XAppConnectionManager)15460",
+            "type": "t_contract(XAppConnectionManager)15304",
             "contract": "XAppConnectionClient",
             "src": "contracts/nomad-xapps/contracts/XAppConnectionClient.sol:13"
           },
@@ -644,7 +644,7 @@
             "label": "representationToCanonical",
             "offset": 0,
             "slot": "152",
-            "type": "t_mapping(t_address,t_struct(TokenId)20477_storage)",
+            "type": "t_mapping(t_address,t_struct(TokenId)20318_storage)",
             "contract": "TokenRegistry",
             "src": "contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol:48"
           },
@@ -686,11 +686,11 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(XAppConnectionManager)15460": {
+          "t_contract(XAppConnectionManager)15304": {
             "label": "contract XAppConnectionManager",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_address,t_struct(TokenId)20477_storage)": {
+          "t_mapping(t_address,t_struct(TokenId)20318_storage)": {
             "label": "mapping(address => struct BridgeMessage.TokenId)",
             "numberOfBytes": "32"
           },
@@ -698,7 +698,7 @@
             "label": "mapping(bytes32 => address)",
             "numberOfBytes": "32"
           },
-          "t_struct(TokenId)20477_storage": {
+          "t_struct(TokenId)20318_storage": {
             "label": "struct BridgeMessage.TokenId",
             "members": [
               {
@@ -776,7 +776,7 @@
             "label": "xAppConnectionManager",
             "offset": 0,
             "slot": "101",
-            "type": "t_contract(XAppConnectionManager)15460",
+            "type": "t_contract(XAppConnectionManager)15304",
             "contract": "XAppConnectionClient",
             "src": "contracts/nomad-xapps/contracts/XAppConnectionClient.sol:13"
           },
@@ -808,7 +808,7 @@
             "label": "tokenRegistry",
             "offset": 0,
             "slot": "201",
-            "type": "t_contract(ITokenRegistry)24140",
+            "type": "t_contract(ITokenRegistry)23845",
             "contract": "BridgeRouter",
             "src": "contracts/nomad-xapps/contracts/bridge/BridgeRouter.sol:42"
           },
@@ -824,7 +824,7 @@
             "label": "transactionManager",
             "offset": 0,
             "slot": "203",
-            "type": "t_contract(ITransactionManager)24148",
+            "type": "t_contract(ITransactionManager)23861",
             "contract": "BridgeRouter",
             "src": "contracts/nomad-xapps/contracts/bridge/BridgeRouter.sol:46"
           },
@@ -858,15 +858,15 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(ITokenRegistry)24140": {
+          "t_contract(ITokenRegistry)23845": {
             "label": "contract ITokenRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(ITransactionManager)24148": {
+          "t_contract(ITransactionManager)23861": {
             "label": "contract ITransactionManager",
             "numberOfBytes": "20"
           },
-          "t_contract(XAppConnectionManager)15460": {
+          "t_contract(XAppConnectionManager)15304": {
             "label": "contract XAppConnectionManager",
             "numberOfBytes": "20"
           },
@@ -889,9 +889,9 @@
         }
       }
     },
-    "5181b027931b0ac2b39773bed6cf92ed9eb8b6effb89d5437a51d1fd6057a945": {
-      "address": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
-      "txHash": "0x3f15d0dae0dc44e7f135082f52947bebe560c76e7f2dfddca1266041bcfb1641",
+    "061e581a075eb5b2e58e9ed6cb5e01c9c00f4792f8ce9157caaa052dd89f5dbb": {
+      "address": "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+      "txHash": "0xb2998c4de7ad21eb3bc4f8dc308ee602f798b70ff7841ef1058eb0f3a7635234",
       "layout": {
         "storage": [
           {
@@ -994,33 +994,17 @@
             "label": "tree",
             "offset": 0,
             "slot": "107",
-            "type": "t_struct(Tree)17502_storage",
-            "contract": "MerkleTreeManager",
-            "src": "contracts/nomad-core/contracts/Merkle.sol:17"
-          },
-          {
-            "label": "__GAP",
-            "offset": 0,
-            "slot": "140",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "MerkleTreeManager",
-            "src": "contracts/nomad-core/contracts/Merkle.sol:22"
-          },
-          {
-            "label": "bridgeRouter",
-            "offset": 0,
-            "slot": "189",
-            "type": "t_contract(BridgeRouter)22018",
+            "type": "t_contract(BridgeRouter)21701",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:336"
+            "src": "contracts\\TransactionManager.sol:320"
           },
           {
             "label": "wrapper",
             "offset": 0,
-            "slot": "190",
-            "type": "t_contract(IWrapped)9810",
+            "slot": "108",
+            "type": "t_contract(IWrapped)9654",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:342"
+            "src": "contracts\\TransactionManager.sol:326"
           },
           {
             "label": "nonce",
@@ -1028,47 +1012,55 @@
             "slot": "191",
             "type": "t_uint256",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:348"
+            "src": "contracts\\TransactionManager.sol:332"
           },
           {
             "label": "interpreter",
             "offset": 0,
-            "slot": "192",
-            "type": "t_contract(IFulfillInterpreter)9527",
+            "slot": "110",
+            "type": "t_contract(IFulfillInterpreter)9371",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:353"
+            "src": "contracts\\TransactionManager.sol:337"
           },
           {
             "label": "tokenRegistry",
             "offset": 0,
-            "slot": "193",
-            "type": "t_contract(TokenRegistry)23324",
+            "slot": "111",
+            "type": "t_contract(TokenRegistry)23029",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:358"
+            "src": "contracts\\TransactionManager.sol:342"
           },
           {
             "label": "adoptedToLocalPools",
             "offset": 0,
-            "slot": "194",
-            "type": "t_mapping(t_bytes32,t_contract(IStableSwap)9799)",
+            "slot": "112",
+            "type": "t_mapping(t_bytes32,t_contract(IStableSwap)9643)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:364"
+            "src": "contracts\\TransactionManager.sol:348"
           },
           {
             "label": "routedTransactions",
             "offset": 0,
-            "slot": "195",
-            "type": "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7364_storage)",
+            "slot": "113",
+            "type": "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7354_storage)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:370"
+            "src": "contracts\\TransactionManager.sol:354"
           },
           {
             "label": "routedTransactionsGas",
             "offset": 0,
-            "slot": "196",
-            "type": "t_mapping(t_bytes32,t_struct(GasInfo)7369_storage)",
+            "slot": "114",
+            "type": "t_mapping(t_bytes32,t_struct(GasInfo)7359_storage)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:376"
+            "src": "contracts\\TransactionManager.sol:360"
+          },
+          {
+            "label": "reconciledTransactions",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_mapping(t_bytes32,t_bytes32)",
+            "contract": "TransactionManager",
+            "src": "contracts\\TransactionManager.sol:367"
           },
           {
             "label": "domain",
@@ -1076,7 +1068,7 @@
             "slot": "197",
             "type": "t_uint256",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:382"
+            "src": "contracts\\TransactionManager.sol:373"
           },
           {
             "label": "routerBalances",
@@ -1084,7 +1076,15 @@
             "slot": "198",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:389"
+            "src": "contracts\\TransactionManager.sol:380"
+          },
+          {
+            "label": "routerRelayerFees",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "TransactionManager",
+            "src": "contracts\\TransactionManager.sol:387"
           },
           {
             "label": "approvedRouters",
@@ -1092,7 +1092,7 @@
             "slot": "199",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:401"
+            "src": "contracts\\TransactionManager.sol:392"
           },
           {
             "label": "approvedAssets",
@@ -1100,15 +1100,15 @@
             "slot": "200",
             "type": "t_mapping(t_bytes32,t_bool)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:408"
+            "src": "contracts\\TransactionManager.sol:399"
           },
           {
             "label": "adoptedToCanonical",
             "offset": 0,
-            "slot": "201",
-            "type": "t_mapping(t_address,t_struct(TokenId)20477_storage)",
+            "slot": "121",
+            "type": "t_mapping(t_address,t_struct(TokenId)20318_storage)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:415"
+            "src": "contracts\\TransactionManager.sol:406"
           },
           {
             "label": "canonicalToAdopted",
@@ -1116,31 +1116,7 @@
             "slot": "202",
             "type": "t_mapping(t_bytes32,t_address)",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:422"
-          },
-          {
-            "label": "batchAssets",
-            "offset": 0,
-            "slot": "203",
-            "type": "t_mapping(t_uint32,t_array(t_address)3_storage)",
-            "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:426"
-          },
-          {
-            "label": "batchAmounts",
-            "offset": 0,
-            "slot": "204",
-            "type": "t_mapping(t_uint32,t_array(t_uint256)3_storage)",
-            "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:430"
-          },
-          {
-            "label": "incomingRoot",
-            "offset": 0,
-            "slot": "205",
-            "type": "t_bytes32",
-            "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:435"
+            "src": "contracts\\TransactionManager.sol:413"
           },
           {
             "label": "__gap",
@@ -1148,25 +1124,13 @@
             "slot": "206",
             "type": "t_array(t_uint256)49_storage",
             "contract": "TransactionManager",
-            "src": "contracts/TransactionManager.sol:1268"
+            "src": "contracts\\TransactionManager.sol:1185"
           }
         ],
         "types": {
           "t_address": {
             "label": "address",
             "numberOfBytes": "20"
-          },
-          "t_array(t_address)3_storage": {
-            "label": "address[3]",
-            "numberOfBytes": "96"
-          },
-          "t_array(t_bytes32)32_storage": {
-            "label": "bytes32[32]",
-            "numberOfBytes": "1024"
-          },
-          "t_array(t_uint256)3_storage": {
-            "label": "uint256[3]",
-            "numberOfBytes": "96"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]",
@@ -1180,23 +1144,23 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(BridgeRouter)22018": {
+          "t_contract(BridgeRouter)21701": {
             "label": "contract BridgeRouter",
             "numberOfBytes": "20"
           },
-          "t_contract(IFulfillInterpreter)9527": {
+          "t_contract(IFulfillInterpreter)9371": {
             "label": "contract IFulfillInterpreter",
             "numberOfBytes": "20"
           },
-          "t_contract(IStableSwap)9799": {
+          "t_contract(IStableSwap)9643": {
             "label": "contract IStableSwap",
             "numberOfBytes": "20"
           },
-          "t_contract(IWrapped)9810": {
+          "t_contract(IWrapped)9654": {
             "label": "contract IWrapped",
             "numberOfBytes": "20"
           },
-          "t_contract(TokenRegistry)23324": {
+          "t_contract(TokenRegistry)23029": {
             "label": "contract TokenRegistry",
             "numberOfBytes": "20"
           },
@@ -1208,7 +1172,7 @@
             "label": "mapping(address => mapping(address => uint256))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(TokenId)20477_storage)": {
+          "t_mapping(t_address,t_struct(TokenId)20318_storage)": {
             "label": "mapping(address => struct BridgeMessage.TokenId)",
             "numberOfBytes": "32"
           },
@@ -1224,27 +1188,23 @@
             "label": "mapping(bytes32 => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_contract(IStableSwap)9799)": {
+          "t_mapping(t_bytes32,t_bytes32)": {
+            "label": "mapping(bytes32 => bytes32)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_contract(IStableSwap)9643)": {
             "label": "mapping(bytes32 => contract IStableSwap)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7364_storage)": {
+          "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7354_storage)": {
             "label": "mapping(bytes32 => struct TransactionManager.FulfilledTransaction)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(GasInfo)7369_storage)": {
+          "t_mapping(t_bytes32,t_struct(GasInfo)7359_storage)": {
             "label": "mapping(bytes32 => struct TransactionManager.GasInfo)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint32,t_array(t_address)3_storage)": {
-            "label": "mapping(uint32 => address[3])",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_uint32,t_array(t_uint256)3_storage)": {
-            "label": "mapping(uint32 => uint256[3])",
-            "numberOfBytes": "32"
-          },
-          "t_struct(FulfilledTransaction)7364_storage": {
+          "t_struct(FulfilledTransaction)7354_storage": {
             "label": "struct TransactionManager.FulfilledTransaction",
             "members": [
               {
@@ -1268,7 +1228,7 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(GasInfo)7369_storage": {
+          "t_struct(GasInfo)7359_storage": {
             "label": "struct TransactionManager.GasInfo",
             "members": [
               {
@@ -1286,7 +1246,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(TokenId)20477_storage": {
+          "t_struct(TokenId)20318_storage": {
             "label": "struct BridgeMessage.TokenId",
             "members": [
               {
@@ -1303,24 +1263,6 @@
               }
             ],
             "numberOfBytes": "64"
-          },
-          "t_struct(Tree)17502_storage": {
-            "label": "struct MerkleLib.Tree",
-            "members": [
-              {
-                "label": "branch",
-                "type": "t_array(t_bytes32)32_storage",
-                "offset": 0,
-                "slot": "0"
-              },
-              {
-                "label": "count",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "32"
-              }
-            ],
-            "numberOfBytes": "1056"
           },
           "t_uint256": {
             "label": "uint256",

@@ -58,7 +58,7 @@ export const mock = {
     redisUrl: "redis://localhost:6379",
     server: {
       port: 3000,
-      host: "localhost",
+      host: "0.0.0.0",
     },
     network: "testnet",
     auctionWaitTime: 1_000,

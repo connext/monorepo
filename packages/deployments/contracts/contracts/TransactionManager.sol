@@ -29,9 +29,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 2. Aave wormhole-style collateral spec -> https://github.com/connext/nxtp/issues/821
 // 3. Subsidies
 
-// - relayer restrictions
-// - allowing fees for transfer to be paid using subsidies
-
 // Nomad side:
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
