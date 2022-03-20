@@ -195,7 +195,14 @@ export const bindFastify = () =>
       },
     );
 
-    server.listen(config.port, config.host, (err, address) => {
+  });
+
+export const bindFastifyMetrics = () =>
+  new Promise<void>((res) => {
+
+    const server = fastify();
+
+     server.listen(config.port_metrics, config.host_metrics, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
@@ -204,3 +211,5 @@ export const bindFastify = () =>
       res();
     });
   });
+
+
