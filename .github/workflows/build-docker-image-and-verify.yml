@@ -86,9 +86,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    needs: build-and-push-router-image
 
     steps:
-      needs: job1
       - uses: hashicorp/setup-terraform@v1
 
       - name: Checkout repository
