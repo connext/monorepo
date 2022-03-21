@@ -7,15 +7,15 @@ terraform {
 }
 
 variable "full_image_name_router" {
-  type = string
+  type        = string
   description = "router image name"
-  default = "ghcr.io/connext/router"
+  default     = "ghcr.io/connext/router"
 }
 
 variable "full_image_name_sequencer" {
-  type = string
+  type        = string
   description = "sequencer image name"
-  default = "ghcr.io/connext/sequencer"
+  default     = "ghcr.io/connext/sequencer"
 }
 
 data "aws_ami" "amazon_linux_2" {
@@ -34,46 +34,46 @@ provider "aws" {
 
 
 resource "aws_vpc" "test-env" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
-  enable_dns_support = true
+  enable_dns_support   = true
   tags = {
     Name = "MARS"
   }
 }
 
 resource "aws_subnet" "subnet-uno" {
-  cidr_block = "${cidrsubnet(aws_vpc.test-env.cidr_block, 3, 1)}"
-  vpc_id = "${aws_vpc.test-env.id}"
+  cidr_block        = cidrsubnet(aws_vpc.test-env.cidr_block, 3, 1)
+  vpc_id            = aws_vpc.test-env.id
   availability_zone = "us-east-1a"
 }
 
 resource "aws_security_group" "ingress-all-test" {
-name = "allow-all-sg"
-vpc_id = "${aws_vpc.test-env.id}"
-ingress {
+  name   = "allow-all-sg"
+  vpc_id = aws_vpc.test-env.id
+  ingress {
     cidr_blocks = [
       "0.0.0.0/0"
     ]
     from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    to_port   = 22
+    protocol  = "tcp"
   }
-// Terraform removes the default rule
+  // Terraform removes the default rule
   egress {
-   from_port = 0
-   to_port = 0
-   protocol = "-1"
-   cidr_blocks = ["0.0.0.0/0"]
- }
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_instance" "terraformed-router" {
-  ami = data.aws_ami.amazon_linux_2.id
-  instance_type = "t3.large"
-  key_name = "Terraform"
+  ami             = data.aws_ami.amazon_linux_2.id
+  instance_type   = "t3.large"
+  key_name        = "Terraform"
   security_groups = ["${aws_security_group.ingress-all-test.id}"]
-  subnet_id = "${aws_subnet.subnet-uno.id}"
+  subnet_id       = aws_subnet.subnet-uno.id
   tags = {
     Name = "Router"
   }
@@ -93,15 +93,15 @@ resource "aws_instance" "terraformed-router" {
     sudo docker pull "${var.full_image_name_router}"
     sudo docker run -d "${var.full_image_name_router}" >> /root/dockerout
   EOF
-  
+
 }
 
 resource "aws_instance" "terraformed-sequencer" {
-  ami = data.aws_ami.amazon_linux_2.id
-  instance_type = "t3.large"
-  key_name = "Terraform"
+  ami             = data.aws_ami.amazon_linux_2.id
+  instance_type   = "t3.large"
+  key_name        = "Terraform"
   security_groups = ["${aws_security_group.ingress-all-test.id}"]
-  subnet_id = "${aws_subnet.subnet-uno.id}"
+  subnet_id       = aws_subnet.subnet-uno.id
   tags = {
     Name = "Sequencer"
   }
@@ -121,38 +121,38 @@ resource "aws_instance" "terraformed-sequencer" {
     sudo docker pull "${var.full_image_name_sequencer}"
     sudo docker run -d "${var.full_image_name_sequencer}" >> /root/dockerout
   EOF
-  
+
 }
 
 resource "aws_eip" "ip-test-env-router" {
-  instance = "${aws_instance.terraformed-router.id}"
+  instance = aws_instance.terraformed-router.id
   vpc      = true
 }
 
 resource "aws_eip" "ip-test-env-sequencer" {
-  instance = "${aws_instance.terraformed-sequencer.id}"
+  instance = aws_instance.terraformed-sequencer.id
   vpc      = true
 }
 
 resource "aws_internet_gateway" "test-env-gw" {
-  vpc_id = "${aws_vpc.test-env.id}"
+  vpc_id = aws_vpc.test-env.id
   tags = {
     Name = "test-env-gw"
   }
 }
 
 resource "aws_route_table" "route-table-test-env" {
-  vpc_id = "${aws_vpc.test-env.id}"
-route {
+  vpc_id = aws_vpc.test-env.id
+  route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.test-env-gw.id}"
+    gateway_id = aws_internet_gateway.test-env-gw.id
   }
-tags = {
+  tags = {
     Name = "test-env-route-table"
   }
 }
 
 resource "aws_route_table_association" "subnet-association" {
-  subnet_id      = "${aws_subnet.subnet-uno.id}"
-  route_table_id = "${aws_route_table.route-table-test-env.id}"
+  subnet_id      = aws_subnet.subnet-uno.id
+  route_table_id = aws_route_table.route-table-test-env.id
 }
