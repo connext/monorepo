@@ -123,19 +123,5 @@ describe("Helpers:Shared", () => {
   //   // });
   // });
 
-  describe("#getDestinationTransactingAsset", () => {});
-
   describe("#getDestinationLocalAsset", () => {});
-
-  describe("#getAmountIn", () => {});
-
-  describe("#getAmountOut", () => {});
-
-  describe("#getDecimalsForAsset", () => {
-    beforeEach(() => {
-      mockContext.adapters.txservice.getDecimalsForAsset.resolves(18);
-    });
-  });
-
-  describe("#calculateGasFeeInReceivingToken", () => {});
 });
