@@ -16,7 +16,7 @@ import { contractWriter, ContractWriter } from "./adapters/contract";
 import { createRouterCache, RouterCache } from "./adapters/cache";
 import { bindContractReader } from "./bindings/contractReader";
 import { bindMessaging } from "./bindings/messaging";
-import { bindFastify } from "./bindings/fastify";
+import { bindFastify, bindFastifyMetrics } from "./bindings/fastify";
 import { bindMetrics } from "./bindings/metrics";
 import { Web3Signer } from "./adapters/web3signer";
 import { bindPrices } from "./bindings/prices";
