@@ -26,7 +26,6 @@ jobs:
       packages: write
 
     steps:
-      - uses: hashicorp/setup-terraform@v1
       - name: Checkout repository
         uses: actions/checkout@v2
 
