@@ -184,15 +184,6 @@ export const bindFastify = () =>
       },
     );
 
-  });
-
-export const bindFastifyMetrics = () =>
-  new Promise<void>((res) => {
-
-    const { wallet, contractWriter, config, logger, contractReader, isRouterContract, routerAddress } = getContext();
-
-    const server = fastify();
-
     server.listen(config.metrics_port, config.metrics_host, (err, address) => {
       if (err) {
         console.error(err);
@@ -212,6 +203,6 @@ export const bindFastifyMetrics = () =>
         return response.status(500).send(json);
       }
     });
-  });
 
+  });
 
