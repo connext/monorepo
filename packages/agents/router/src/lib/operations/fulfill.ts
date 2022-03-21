@@ -40,7 +40,7 @@ export const fulfill = async (params: CrossChainTx) => {
 
   logger.info("Method start", requestContext, methodContext, { params });
 
-  // Validate Prepare Input schema
+  // Validate Input schema
   const validateInput = ajv.compile(CrossChainTxSchema);
   const validInput = validateInput(params);
   if (!validInput) {
@@ -85,7 +85,7 @@ export const fulfill = async (params: CrossChainTx) => {
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receivingAmount,
-    nonce: nonce.toString(),
+    nonce: nonce,
     relayerSignature: signature,
   };
 
