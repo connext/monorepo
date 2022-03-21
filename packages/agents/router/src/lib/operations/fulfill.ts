@@ -4,13 +4,15 @@ import {
   Bid,
   createLoggingContext,
   CrossChainTx,
+  CrossChainTxSchema,
   signHandleRelayerFeePayload,
   formatUrl,
+  ajv,
 } from "@connext/nxtp-utils";
 
 import axios, { AxiosResponse } from "axios";
 
-import { SequencerResponseInvalid } from "../errors";
+import { SequencerResponseInvalid, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -21,9 +23,9 @@ const RelayerFeePercentage = "1"; //  1%
  * Router creates a new bid and sends it to auctioneer.
  * should be subsribed to NewPreparedTransaction channel of redis.
  *
- * @param pendingTx - The prepared crosschain tranaction
+ * @param params - The prepared crosschain tranaction
  */
-export const fulfill = async (pendingTx: CrossChainTx) => {
+export const fulfill = async (params: CrossChainTx) => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name);
 
   const {
@@ -36,10 +38,22 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     shared: { getDestinationLocalAsset },
   } = getHelpers();
 
-  logger.info("Method start", requestContext, methodContext, { pendingTx });
+  logger.info("Method start", requestContext, methodContext, { params });
+
+  // Validate Prepare Input schema
+  const validateInput = ajv.compile(CrossChainTxSchema);
+  const validInput = validateInput(params);
+  if (!validInput) {
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    throw new ParamsInvalid({
+      paramsError: msg,
+      params,
+    });
+  }
 
   /// create a bid
   const {
+    nonce,
     originDomain,
     destinationDomain,
     transactionId,
@@ -48,7 +62,7 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     prepareLocalAmount,
     callTo,
     callData,
-  } = pendingTx;
+  } = params;
   // generate bid params
   const callParams: CallParams = {
     recipient,
@@ -64,14 +78,14 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
   let receivingAmount = prepareLocalAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
+  const signature = await signHandleRelayerFeePayload(nonce.toString(), RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
     local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receivingAmount,
-    nonce: pendingTx.nonce.toString(),
+    nonce: nonce.toString(),
     relayerSignature: signature,
   };
 
