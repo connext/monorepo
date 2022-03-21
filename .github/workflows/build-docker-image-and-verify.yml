@@ -120,11 +120,11 @@ jobs:
         id: plan
         working-directory: ./ops
         run: |
-          terraform plan -no-color -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}'
+          terraform plan -no-color -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -var router_config='${{ secrets.ROUTER_CONFIG }}' -var sequencer_config='${{ secrets.SEQUENCER_CONFIG }}'
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops
         run: |
-          terraform apply -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -auto-approve
+          terraform apply -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -var router_config='${{ secrets.ROUTER_CONFIG }}' -var sequencer_config='${{ secrets.SEQUENCER_CONFIG }}' -auto-approve
