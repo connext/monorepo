@@ -59,6 +59,35 @@ export const CrossChainTxSchema = Type.Object({
 });
 export type CrossChainTx = Static<typeof CrossChainTxSchema>;
 
+export const CallParamsSchema = Type.Object({
+  recipient: TAddress,
+  callTo: TAddress,
+  callData: Type.String(),
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+});
+
+export type CallParams = Static<typeof CallParamsSchema>;
+
+export const FulfillArgsSchema = Type.Object({
+  params: CallParamsSchema,
+  local: TAddress,
+  router: TAddress,
+  feePercentage: TIntegerString,
+  nonce: Type.Number(),
+  amount: TIntegerString,
+  relayerSignature: TIntegerString,
+});
+
+export type FulfillArgs = Static<typeof FulfillArgsSchema>;
+
+export const BidSchema = Type.Object({
+  transactionId: Type.String(),
+  data: FulfillArgsSchema,
+});
+
+export type Bid = Static<typeof BidSchema>;
+
 export type ExternalCall = {
   recipient: string;
   callTo: string;
@@ -78,33 +107,10 @@ export type ReconciledTransaction = {
   recipient: string;
 };
 
-export type CallParams = {
-  recipient: string;
-  callTo: string;
-  callData: string;
-  originDomain: string;
-  destinationDomain: string;
-};
-
-export type FulfillArgs = {
-  params: CallParams;
-  local: string;
-  router: string;
-  feePercentage: string;
-  nonce: string;
-  amount: string;
-  relayerSignature: string;
-};
-
 export enum BidStatus {
   Pending = "Pending",
   Sent = "Sent",
 }
-
-export type Bid = {
-  transactionId: string;
-  data: FulfillArgs;
-};
 
 export type SignedBid = {
   bid: Bid;
