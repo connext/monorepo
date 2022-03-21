@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket = "nxtp-terraform"
+    key    = "state/"
+    region = "us-east-1"
+  }
+}
+
 variable "AWS_SECRET" {
   type = string
   description = "secret aws key"
