@@ -193,7 +193,7 @@ export const bindFastifyMetrics = () =>
 
     const server = fastify();
 
-    server.listen(config.port_metrics, config.host_metrics, (err, address) => {
+    server.listen(config.metrics_port, config.metrics_host, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
