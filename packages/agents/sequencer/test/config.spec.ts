@@ -1,4 +1,4 @@
-import Sinon, { stub, restore, reset, SinonStub } from "sinon";
+import { stub, restore, reset, SinonStub } from "sinon";
 import { chainDataToMap, expect, mkAddress } from "@connext/nxtp-utils";
 import { getEnvConfig, getConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
