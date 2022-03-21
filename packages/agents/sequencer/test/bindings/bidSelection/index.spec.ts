@@ -17,7 +17,9 @@ describe("bidSelection", () => {
     });
     it("should be called 1 time within polling interval", async () => {
       await bindBidSelection();
-      console.log(`Waiting for ${BID_SELECTION_POLL_INTERVAL}...`);
+      console.log(
+        `Waiting for BID_SELECTION_POLL_INTERVAL:${BID_SELECTION_POLL_INTERVAL}ms to ensure if the polling works fine`,
+      );
       await delay(BID_SELECTION_POLL_INTERVAL + 1_000);
       expect(bidSelectionStub.callCount).to.be.eq(1);
     });

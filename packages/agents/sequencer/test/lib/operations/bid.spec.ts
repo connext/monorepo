@@ -58,7 +58,7 @@ describe("Bid", () => {
       expect(handleBid(_bid, loggingContext.requestContext)).to.eventually.be.rejectedWith("Params invalid");
     });
     it("happy case: should store bid to auction cache", async () => {
-      expect(handleBid(mockBids[0], loggingContext.requestContext)).to.eventually.be.ok;
+      await handleBid(mockBids[0], loggingContext.requestContext);
     });
   });
   describe("#bidSelection", () => {
