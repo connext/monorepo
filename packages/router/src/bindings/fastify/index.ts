@@ -200,9 +200,11 @@ export const bindFastify = () =>
 export const bindFastifyMetrics = () =>
   new Promise<void>((res) => {
 
+    const { wallet, contractWriter, config, logger, contractReader, isRouterContract, routerAddress } = getContext();
+
     const server = fastify();
 
-     server.listen(config.port_metrics, config.host_metrics, (err, address) => {
+    server.listen(config.port_metrics, config.host_metrics, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
