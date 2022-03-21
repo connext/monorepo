@@ -2,11 +2,12 @@ name: Create and publish Docker images
 
 on:
   push:
-    branches: []
+    branches: [amarok]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: connext/router
+  ROUTER_IMAGE_NAME: connext/router
+  SEQUENCER_IMAGE_NAME: connext/sequencer
 
 jobs:
   build-and-push-router-image:
@@ -60,9 +61,9 @@ jobs:
           labels: ${{ steps.meta-sequencer.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
-      - name: Terraform Docker Image onto AWS
-        env:
-          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
-          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
-        run: |
-          cd ops && terraform init && terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' -auto-approve
+      # - name: Terraform Docker Image onto AWS
+      #   env:
+      #     TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
+      #     TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
+      #   run: |
+      #     cd ops && terraform init && terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' -auto-approve
