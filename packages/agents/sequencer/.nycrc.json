@@ -7,6 +7,9 @@
     "src/lib/entities/*.ts",
     "src/lib/errors/*.ts",
     "src/lib/operation/index.ts",
+    "src/bindings/server/index.ts",
+    "src/lib/entities/*.ts",
+    "src/lib/errors/*.ts",
     "test/**/*.ts"
   ],
   "all": true
