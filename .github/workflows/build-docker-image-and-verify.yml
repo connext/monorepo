@@ -75,6 +75,25 @@ jobs:
           labels: ${{ steps.meta-sequencer.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
+    outputs:
+      router-tags: ${{ steps.meta-router.outputs.tags }}
+      router-labels: ${{ steps.meta-router.outputs.labels }}
+      sequencer-tags: ${{ steps.meta-sequencer.outputs.tags }}
+      sequencer-labels: ${{ steps.meta-sequencer.outputs.labels }}
+
+  terraform-resources:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      needs: job1
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Terraform fmt
         id: fmt
         working-directory: ./ops
@@ -94,10 +113,12 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: ./ops
-        run: terraform plan -no-color  -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}'
+        run: |
+          terraform plan -no-color -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}'
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops
-        run: terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' -auto-approve
+        run: |
+          terraform apply -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -auto-approve
