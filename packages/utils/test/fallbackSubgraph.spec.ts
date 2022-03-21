@@ -9,8 +9,6 @@ type MockSubgraphSdk = {
   MockSubgraphSdkMethod: () => {};
 };
 
-let axiosGetStub: SinonStub = stub(axios, "get");
-
 describe("FallbackSubgraph", () => {
   const mockChainId = 1337;
   const mockMaxLag = 20;
@@ -187,8 +185,9 @@ describe("FallbackSubgraph", () => {
 
   describe("#sync", () => {
     const mockChainBlockNumber = 42069;
-    let MockSubgraphGetBlockNumber: SinonStub;
-    let SubgraphSdkGetBlockNumberStub: SinonStub;
+    let mockSubgraphGetBlockNumber: SinonStub;
+    let subgraphSdkGetBlockNumberStub: SinonStub;
+    let axiosGetStub: SinonStub;
 
     const mockSubgraphHealth = {
       data: {
@@ -205,13 +204,12 @@ describe("FallbackSubgraph", () => {
     };
 
     beforeEach(async () => {
-      MockSubgraphGetBlockNumber = stub().resolves(mockChainBlockNumber);
-      SubgraphSdkGetBlockNumberStub = stub().resolves(MockSubgraphGetBlockNumber);
-      axiosGetStub.resetHistory();
+      mockSubgraphGetBlockNumber = stub().resolves(mockChainBlockNumber);
+      subgraphSdkGetBlockNumberStub = stub().resolves(mockSubgraphGetBlockNumber);
+      axiosGetStub = stub(axios, "get");
       axiosGetStub.resolves({ data: [mockSubgraphHealth] });
-      // getOrderedSubgraphsStub.restore();
-      // syncStub.restore();
     });
+
     afterEach(async () => {
       axiosGetStub.restore();
     });
@@ -238,14 +236,14 @@ describe("FallbackSubgraph", () => {
     it("should use getBlockNumber if health point doesn't work; should update sync records", async () => {
       const mockLag = mockMaxLag - 7;
       const mockSubgraphSyncBlockNumber = mockChainBlockNumber - mockLag;
-      MockSubgraphGetBlockNumber.resolves({ _meta: { block: { number: mockSubgraphSyncBlockNumber } } });
+      mockSubgraphGetBlockNumber.resolves({ _meta: { block: { number: mockSubgraphSyncBlockNumber } } });
 
       const mockSubgraphMap = new Map();
       mockSubgraphMap.set(mockSubgraph.url, {
         ...mockSubgraph,
         client: {
           MockSubgraphSdkMethod: MockSubgraphSdkMethod,
-          GetBlockNumber: MockSubgraphGetBlockNumber,
+          GetBlockNumber: mockSubgraphGetBlockNumber,
         } as any,
       });
       (fallbackSubgraph as any).subgraphs = mockSubgraphMap;

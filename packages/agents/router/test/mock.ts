@@ -1,6 +1,6 @@
 import { utils, BigNumber, Wallet } from "ethers";
-import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
+import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { AuctionsCache, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
@@ -86,16 +86,14 @@ export const mock = {
       wallet.signMessage.resolves(mock.signature);
       return wallet;
     },
-    cache: (): SinonStubbedInstance<StoreManager> => {
-      const cache = createStubInstance(StoreManager);
+    cache: (): any => {
       const transactions = createStubInstance(TransactionsCache);
       const auctions = createStubInstance(AuctionsCache);
-      // NOTE: if this override doesn't work, we should resort to just making a mock object with
-      // these caches as properties.
-      (cache as any).transactions = transactions;
-      (cache as any).auctions = auctions;
       transactions.getLatestNonce.resolves(0);
-      return cache;
+      return {
+        transactions,
+        auctions,
+      };
     },
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
@@ -177,16 +175,31 @@ export const mock = {
 };
 
 // Stub getContext to return the mock context above.
+let getContextStub: SinonStub;
 export const stubContext = () => {
   const context = mock.context();
-  stub(router, "getContext").returns(context);
+  if (!getContextStub) {
+    getContextStub = stub(router, "getContext");
+  }
+  getContextStub.resetHistory();
+  getContextStub.returns(context);
   return context;
 };
 
+let getHelpersStub: SinonStub;
 export const stubHelpers = () => {
-  stub(helpers, "getHelpers").returns(mock.helpers);
+  if (!getHelpersStub) {
+    getHelpersStub = stub(helpers, "getHelpers");
+  }
+  getHelpersStub.resetHistory();
+  getHelpersStub.returns(mock.helpers);
 };
 
+let getOperationsStub: SinonStub;
 export const stubOperations = () => {
-  stub(operations, "getOperations").returns(mock.operations);
+  if (!getOperationsStub) {
+    getOperationsStub = stub(operations, "getOperations");
+  }
+  getOperationsStub.resetHistory();
+  getOperationsStub.returns(mock.operations);
 };
