@@ -24,8 +24,10 @@ jobs:
       packages: write
 
     steps:
+      - uses: hashicorp/setup-terraform@v1
+      - uses: actions/checkout@v2
+
       - name: Checkout repository
-        uses: actions/checkout@v2
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -72,9 +74,31 @@ jobs:
           labels: ${{ steps.meta-sequencer.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
+      - name: Terraform fmt
+        id: fmt
+        run: cd ops && terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: cd ops && terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: cd ops && terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        env:
+          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
+        run: cd ops && terraform plan -no-color  -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}'
+        continue-on-error: true
+
       - name: Terraform Docker Image onto AWS
+        id: apply
         env:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
-          cd ops && terraform init && terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' -auto-approve
+          cd ops && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' -auto-approve
