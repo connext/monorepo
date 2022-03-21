@@ -2,11 +2,19 @@ name: Create and publish Docker images
 
 on:
   push:
-    branches: []
+    branches:
+      - amarok
+  pull_request:
+    branches:
+      - amarok
+  create:
+    tag:
+      - "v*"
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: connext/router
+  ROUTER_IMAGE_NAME: connext/router
+  SEQUENCER_IMAGE_NAME: connext/sequencer
 
 jobs:
   build-and-push-router-image:
@@ -16,8 +24,10 @@ jobs:
       packages: write
 
     steps:
+      - uses: hashicorp/setup-terraform@v1
+      - uses: actions/checkout@v2
+
       - name: Checkout repository
-        uses: actions/checkout@v2
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -30,9 +40,11 @@ jobs:
         id: meta-router
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.ROUTER_IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image - router
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -47,9 +59,11 @@ jobs:
         id: meta-sequencer
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.SEQUENCER_IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image - sequencer
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -60,9 +74,31 @@ jobs:
           labels: ${{ steps.meta-sequencer.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
+      - name: Terraform fmt
+        id: fmt
+        run: cd ops && terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: cd ops && terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: cd ops && terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        env:
+          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
+        run: cd ops && terraform plan -no-color  -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}'
+        continue-on-error: true
+
       - name: Terraform Docker Image onto AWS
+        id: apply
         env:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
           TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
         run: |
-          cd ops && terraform init && terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' -auto-approve
+          cd ops && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' -auto-approve

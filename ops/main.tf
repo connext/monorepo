@@ -1,22 +1,21 @@
-variable "AWS_SECRET" {
-  type = string
-  description = "secret aws key"
+terraform {
+  backend "s3" {
+    bucket = "nxtp-terraform"
+    key    = "state/"
+    region = "us-east-1"
+  }
 }
 
-variable "AWS_KEY" {
-  type = string
-  description = "aws key"
-}
 variable "full_image_name_router" {
   type = string
   description = "router image name"
-  default = "connext/router"
+  default = "ghcr.io/connext/router"
 }
 
 variable "full_image_name_sequencer" {
   type = string
   description = "sequencer image name"
-  default = "connext/sequencer"
+  default = "ghcr.io/connext/sequencer"
 }
 
 data "aws_ami" "amazon_linux_2" {
@@ -31,8 +30,6 @@ data "aws_ami" "amazon_linux_2" {
 
 provider "aws" {
   region = "us-east-1"
-  access_key = var.AWS_KEY
-  secret_key = var.AWS_SECRET
 }
 
 
@@ -77,11 +74,16 @@ resource "aws_instance" "terraformed-router" {
   key_name = "Terraform"
   security_groups = ["${aws_security_group.ingress-all-test.id}"]
   subnet_id = "${aws_subnet.subnet-uno.id}"
+  tags = {
+    Name = "Router"
+  }
 
   user_data = <<EOF
   #!/bin/bash -xe
-    echo "RUNNING INITIAL SCRIPT"
     set -ex
+    sudo touch /root/touch.txt
+    sudo echo "RUNNING INITIAL SCRIPT" > /root/touch.txt
+    sudo echo "${var.full_image_name_router}" > /root/touch.txt
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
@@ -90,7 +92,6 @@ resource "aws_instance" "terraformed-router" {
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_router}"
     sudo docker run -d "${var.full_image_name_router}" >> /root/dockerout
-    sudo touch /root/touch.txt
   EOF
   
 }
@@ -101,11 +102,16 @@ resource "aws_instance" "terraformed-sequencer" {
   key_name = "Terraform"
   security_groups = ["${aws_security_group.ingress-all-test.id}"]
   subnet_id = "${aws_subnet.subnet-uno.id}"
+  tags = {
+    Name = "Sequencer"
+  }
 
   user_data = <<EOF
   #!/bin/bash -xe
-    echo "RUNNING INITIAL SCRIPT"
     set -ex
+    sudo touch /root/touch.txt
+    sudo echo "RUNNING INITIAL SCRIPT" > /root/touch.txt
+    sudo echo "${var.full_image_name_sequencer}" > /root/touch.txt
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
@@ -114,7 +120,6 @@ resource "aws_instance" "terraformed-sequencer" {
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_sequencer}"
     sudo docker run -d "${var.full_image_name_sequencer}" >> /root/dockerout
-    sudo touch /root/touch.txt
   EOF
   
 }
