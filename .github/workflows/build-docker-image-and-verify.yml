@@ -2,7 +2,14 @@ name: Create and publish Docker images
 
 on:
   push:
-    branches: [amarok]
+    branches:
+      - amarok
+  pull_request:
+    branches:
+      - amarok
+  create:
+    tag:
+      - "v*"
 
 env:
   REGISTRY: ghcr.io
@@ -33,7 +40,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.ROUTER_IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image - router
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -50,7 +59,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.SEQUENCER_IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image - sequencer
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
