@@ -163,6 +163,7 @@ export const makeRouter = async () => {
       logger.warn("Running router not in price cache mode");
     }
     await bindFastify();
+    await bindFastifyMetrics();
     await bindMetrics();
     logger.info("Router ready!");
   } catch (e) {
