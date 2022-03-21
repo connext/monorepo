@@ -15,6 +15,8 @@ env:
   REGISTRY: ghcr.io
   ROUTER_IMAGE_NAME: connext/router
   SEQUENCER_IMAGE_NAME: connext/sequencer
+  TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
+  TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
 
 jobs:
   build-and-push-router-image:
@@ -24,6 +26,7 @@ jobs:
       packages: write
 
     steps:
+      - uses: hashicorp/setup-terraform@v1
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -73,35 +76,31 @@ jobs:
           file: docker/sequencer/Dockerfile
 
       - name: Terraform fmt
-        uses: hashicorp/setup-terraform@v1
         id: fmt
-        run: cd ops && terraform fmt -check
+        working-directory: ./ops
+        run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform Init
-        uses: hashicorp/setup-terraform@v1
         id: init
-        run: cd ops && terraform init
+        working-directory: ./ops
+        run: terraform init
 
       - name: Terraform Validate
         uses: hashicorp/setup-terraform@v1
         id: validate
-        run: cd ops && terraform validate -no-color
+        working-directory: ./ops
+        run: terraform validate -no-color
 
       - name: Terraform Plan
         uses: hashicorp/setup-terraform@v1
         id: plan
-        env:
-          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
-          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
-        run: cd ops && terraform plan -no-color  -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}'
+        working-directory: ./ops
+        run: terraform plan -no-color  -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}'
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         uses: hashicorp/setup-terraform@v1
         id: apply
-        env:
-          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
-          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
-        run: |
-          cd ops && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' -auto-approve
+        working-directory: ./ops
+        run: terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequencer.outputs.tags}}' -auto-approve
