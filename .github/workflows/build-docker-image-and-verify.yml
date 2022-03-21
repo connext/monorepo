@@ -24,10 +24,8 @@ jobs:
       packages: write
 
     steps:
-      - uses: hashicorp/setup-terraform@v1
-      - uses: actions/checkout@v2
-
       - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -75,19 +73,23 @@ jobs:
           file: docker/sequencer/Dockerfile
 
       - name: Terraform fmt
+        uses: hashicorp/setup-terraform@v1
         id: fmt
         run: cd ops && terraform fmt -check
         continue-on-error: true
 
       - name: Terraform Init
+        uses: hashicorp/setup-terraform@v1
         id: init
         run: cd ops && terraform init
 
       - name: Terraform Validate
+        uses: hashicorp/setup-terraform@v1
         id: validate
         run: cd ops && terraform validate -no-color
 
       - name: Terraform Plan
+        uses: hashicorp/setup-terraform@v1
         id: plan
         env:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
@@ -96,6 +98,7 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        uses: hashicorp/setup-terraform@v1
         id: apply
         env:
           TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
