@@ -31,7 +31,7 @@ jobs:
         id: meta-router
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.ROUTER_IMAGE_NAME }}
           tags: |
             type=sha,format=long
 
@@ -48,7 +48,7 @@ jobs:
         id: meta-sequencer
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.SEQUENCER_IMAGE_NAME }}
           tags: |
             type=sha,format=long
 
