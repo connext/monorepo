@@ -72,7 +72,9 @@ jobs:
           labels: ${{ steps.meta-sequencer.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
-      # - name: Terraform Docker Image onto AWS
+      - name: Terraform Docker Image onto AWS
+        run: |
+          echo '${{steps.meta-router.outputs.tags}}'
       #   env:
       #     TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
       #     TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
