@@ -7,10 +7,10 @@ import {
   signHandleRelayerFeePayload,
   formatUrl,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+
 import axios, { AxiosResponse } from "axios";
 
-import { NotEnoughAmount, SlippageInvalid, SequencerResponseInvalid } from "../errors";
+import { SequencerResponseInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -28,20 +28,12 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
 
   const {
     logger,
-    config,
-    adapters: { wallet, txservice, contracts },
-    chainData,
+    adapters: { wallet },
     routerAddress,
   } = getContext();
   const {
-    fulfill: { getReceiverAmount },
-    shared: {
-      getAmountOut,
-      getDecimalsForAsset,
-      getDestinationLocalAsset,
-      getDestinationTransactingAsset,
-      calculateGasFeeInReceivingToken,
-    },
+    fulfill: { sanityCheck },
+    shared: { getDestinationLocalAsset },
   } = getHelpers();
 
   logger.info("Method start", requestContext, methodContext, { pendingTx });
@@ -52,8 +44,6 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     destinationDomain,
     transactionId,
     recipient,
-    prepareTransactingAmount,
-    prepareTransactingAsset,
     prepareLocalAsset,
     prepareLocalAmount,
     callTo,
@@ -68,84 +58,10 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     destinationDomain,
   };
 
-  const localInputDecimals = await getDecimalsForAsset(originDomain, prepareLocalAsset);
+  // TODO:  get local Asset from onChain call and later switch to subgraph
   const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
-  const fulfillTransactingAsset = await getDestinationTransactingAsset(
-    originDomain,
-    prepareTransactingAsset,
-    destinationDomain,
-  );
-  const transactingOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillTransactingAsset);
-  const localOutputDecimals = await getDecimalsForAsset(destinationDomain, fulfillLocalAsset);
 
-  let { receivingAmount } = await getReceiverAmount(prepareLocalAmount, localInputDecimals, localOutputDecimals);
-  const fulfillTransactingAmount = await getAmountOut(
-    receivingAmount,
-    destinationDomain,
-    fulfillTransactingAsset,
-    fulfillLocalAsset,
-  );
-
-  // check maxSlippage here
-  const thresholdPct = Number(config.maxSlippage.toString().split(".")[0]);
-  const convertedPrepareTransactingAmount = BigNumber.from(prepareTransactingAmount).div(
-    BigNumber.from(10).pow(18 - transactingOutputDecimals),
-  );
-  const highThreshold = convertedPrepareTransactingAmount.mul(100 + thresholdPct).div(100);
-  const lowThreshold = convertedPrepareTransactingAmount.mul(100 - thresholdPct).div(100);
-  const convertedFulfillTxAmount = BigNumber.from(fulfillTransactingAmount).div(
-    BigNumber.from(10).pow(18 - transactingOutputDecimals),
-  );
-
-  if (convertedFulfillTxAmount.gt(highThreshold) || convertedFulfillTxAmount.lt(lowThreshold)) {
-    throw new SlippageInvalid({
-      requestContext,
-      methodContext,
-      lowThreshold: lowThreshold.toString(),
-      highThreshold: highThreshold.toString(),
-      prepareTransactingAmount: convertedPrepareTransactingAmount.toString(),
-      fulfillTransactingAmount: convertedPrepareTransactingAmount.toString(),
-      pendingTx,
-    });
-  }
-
-  const gasFeeInFulfillLocalAsset = await calculateGasFeeInReceivingToken(
-    originDomain,
-    prepareLocalAsset,
-    destinationDomain,
-    fulfillLocalAsset,
-    localOutputDecimals,
-    chainData,
-    requestContext,
-  );
-
-  receivingAmount = BigNumber.from(receivingAmount).sub(gasFeeInFulfillLocalAsset).toString();
-
-  // TODO: `getAssetBalance` is not implemented yet.
-  // const routerBalance = await subgraph.getAssetBalance(parseInt(destinationDomain), routerAddress, fulfillLocalAsset);
-  // if (routerBalance.lt(receiverAmount)) {
-  //   // TODO: need to double check balance on chain. MUST BE IMPLEMENTED
-
-  //   throw new NotEnoughLiquidity(
-  //     parseInt(destinationDomain),
-  //     fulfillLocalAsset,
-  //     routerBalance.toString(),
-  //     receiverAmount.toString(),
-  //     { methodContext, requestContext },
-  //   );
-  // }
-
-  // Make sure amount is sensible.
-  if (BigNumber.from(receivingAmount).lt(0)) {
-    throw new NotEnoughAmount({
-      receiverAmount: receivingAmount,
-      prepareTransactingAmount: prepareTransactingAmount.toString(),
-      prepareLocalAmount: prepareLocalAmount.toString(),
-      transactionId,
-      methodContext,
-      requestContext,
-    });
-  }
+  let receivingAmount = prepareLocalAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(pendingTx.nonce.toString(), RelayerFeePercentage, wallet);
@@ -164,26 +80,15 @@ export const fulfill = async (pendingTx: CrossChainTx) => {
     data: fulfillArguments,
   };
 
-  const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
+  const res = await sanityCheck(bid, requestContext);
 
-  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
-  const destinationTransactionManagerAddress =
-    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
-
-  // Validate the bid's fulfill call will succeed on chain.
-  try {
-    await txservice.getGasEstimate(Number(bid.data.params.destinationDomain), {
-      chainId: destinationChainId,
-      to: destinationTransactionManagerAddress,
-      data: encodedData,
-    });
-  } catch {
-    // console.log("transaction already fulfilled");
-    return;
+  if (res) {
+    /// send the bid to auctioneer
+    logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
+    await sendBid(bid);
+  } else {
+    // sanity check failed
   }
-  /// send the bid to auctioneer
-  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
-  await sendBid(bid);
 };
 
 export const sendBid = async (bid: Bid): Promise<any> => {
