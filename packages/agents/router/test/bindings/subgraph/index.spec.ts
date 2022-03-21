@@ -1,21 +1,36 @@
-import { stub } from "sinon";
+import { SinonStub, stub } from "sinon";
 import { expect } from "chai";
-import { CrossChainTxStatus } from "@connext/nxtp-utils";
+import { CrossChainTxStatus, delay } from "@connext/nxtp-utils";
 
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
 
 describe("SubgraphBinding", () => {
-  const mockContext = stubContext();
+  let mockContext: any;
 
-  beforeEach(() => {});
+  beforeEach(() => {
+    mockContext = stubContext();
+  });
 
   describe("#bindSubgraph", async () => {
+    let pollStub: SinonStub;
+    before(() => {
+      pollStub = stub(bindSubgraphFns, "pollSubgraph").resolves();
+    });
+
+    after(() => {
+      pollStub.restore();
+    });
+
     it("should start an interval loop that calls polling fn", async () => {
-      const pollStub = stub(bindSubgraphFns, "pollSubgraph").resolves();
+      let done = false;
       // Override the poll interval to 10ms so we can test the interval loop
-      bindSubgraphFns.bindSubgraph(10);
-      await expect(pollStub.callCount).to.eventually.be.gte(1);
+      bindSubgraphFns.bindSubgraph(10, () => done);
+      // TODO: slight race here?
+      await delay(20);
+      expect(pollStub.callCount).to.be.gte(1);
+      done = true;
+      await delay(30);
     });
   });
 
@@ -33,10 +48,10 @@ describe("SubgraphBinding", () => {
           safeConfirmations: 28,
         },
       };
-      mockContext.adapters.txservice.getBlockNumber = stub().callsFake(
-        (domain: string) => mockInfo[domain].latestBlockNumber,
-      );
-      mockContext.adapters.cache.transactions.getLatestNonce = stub().callsFake(
+      mockContext.adapters.txservice.getBlockNumber.callsFake((domain: string) => {
+        return mockInfo[domain].latestBlockNumber;
+      });
+      mockContext.adapters.cache.transactions.getLatestNonce.callsFake(
         (domain: string) => mockInfo[domain].latestNonce,
       );
       mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
@@ -45,12 +60,13 @@ describe("SubgraphBinding", () => {
         mock.entity.crossChainTx(mock.chain.A, mock.chain.B, undefined, CrossChainTxStatus.Prepared),
         mock.entity.crossChainTx(mock.chain.B, mock.chain.A, undefined, CrossChainTxStatus.Prepared),
       ];
-      mockContext.adapters.subgraph.getPreparedTransactions = stub().resolves(mockSubgraphResponse);
+      mockContext.adapters.subgraph.getPreparedTransactions.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();
-      expect(mockContext.adapters.txservice.getBlockNumber).to.have.been.calledOnce;
-      expect(mockContext.adapters.cache.transactions.getLatestNonce).to.have.been.calledOnce;
-      expect(mockContext.adapters.subgraph.getPreparedTransactions).to.have.been.calledOnceWithExactly(
+      // Should have been called once per available/configured chain.
+      expect(mockContext.adapters.txservice.getBlockNumber.callCount).to.be.eq(Object.keys(mockInfo).length);
+      expect(mockContext.adapters.cache.transactions.getLatestNonce.callCount).to.be.eq(Object.keys(mockInfo).length);
+      expect(mockContext.adapters.subgraph.getPreparedTransactions.getCall(0).args[0]).to.be.deep.eq(
         new Map(
           Object.entries({
             [mock.chain.A]: {
@@ -66,7 +82,7 @@ describe("SubgraphBinding", () => {
           }),
         ),
       );
-      expect(mockContext.adapters.cache.transactions.storeTxData).to.have.been.calledOnceWithExactly(
+      expect(mockContext.adapters.cache.transactions.storeTxData.getCall(0).args[0]).to.be.deep.eq(
         mockSubgraphResponse,
       );
     });
