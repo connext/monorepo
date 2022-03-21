@@ -39,17 +39,6 @@ export const bindFastify = () =>
       };
     });
 
-    server.get("/metrics", async (request, response) => {
-      try {
-        const res = await register.metrics();
-        return response.status(200).send(res);
-      } catch (e: any) {
-        const json = jsonifyError(e);
-        logger.error("Failed to collect metrics", undefined, undefined, json);
-        return response.status(500).send(json);
-      }
-    });
-
     server.post<{ Body: RemoveLiquidityRequest }>(
       "/remove-liquidity",
       { schema: { body: RemoveLiquidityRequestSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
@@ -211,6 +200,17 @@ export const bindFastifyMetrics = () =>
       }
       logger.info(`Server listening at ${address}`);
       res();
+    });
+
+    server.get("/metrics", async (request, response) => {
+      try {
+        const res = await register.metrics();
+        return response.status(200).send(res);
+      } catch (e: any) {
+        const json = jsonifyError(e);
+        logger.error("Failed to collect metrics", undefined, undefined, json);
+        return response.status(500).send(json);
+      }
     });
   });
 
