@@ -9,7 +9,6 @@ export const BID_SELECTION_POLL_INTERVAL = 15 * 1_000;
 export const bindBidSelection = async () => {
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindBidSelection.name);
-
   logger.info("Starting Bid Selection", requestContext, methodContext, {});
 
   interval(async () => {

@@ -1,6 +1,6 @@
-import { AuctionsCache, ConsumersCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import { ChainReader } from "@connext/nxtp-txservice";
 import { mkAddress } from "@connext/nxtp-utils";
 import { parseEther } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
@@ -12,6 +12,7 @@ export let ctxMock: AppContext;
 export let subgraphMock: SinonStubbedInstance<SubgraphReader>;
 
 export let cacheMock: SinonStubbedInstance<StoreManager>;
+
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 
 export const mochaHooks = {
@@ -31,6 +32,7 @@ export const mochaHooks = {
 
     // setup cache
     cacheMock = createStubInstance(StoreManager);
+
     chainReaderMock = createStubInstance(ChainReader);
     ctxMock = {
       adapters: {
