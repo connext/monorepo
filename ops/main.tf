@@ -18,6 +18,16 @@ variable "full_image_name_sequencer" {
   default     = "ghcr.io/connext/sequencer"
 }
 
+variable "router_config" {
+  type        = string
+  description = "router config"
+}
+
+variable "sequencer_config" {
+  type        = string
+  description = "sequencer config"
+}
+
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
   owners      = ["amazon"]
@@ -91,7 +101,7 @@ resource "aws_instance" "terraformed-router" {
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_router}"
-    sudo docker run -d "${var.full_image_name_router}" >> /root/dockerout
+    sudo docker run -e NXTP_CONFIG=${var.router_config} -d "${var.full_image_name_router}" >> /root/dockerout
   EOF
 
 }
@@ -119,7 +129,7 @@ resource "aws_instance" "terraformed-sequencer" {
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_sequencer}"
-    sudo docker run -d "${var.full_image_name_sequencer}" >> /root/dockerout
+    sudo docker run -e NXTP_CONFIG=${var.sequencer_config} -d "${var.full_image_name_sequencer}" >> /root/dockerout
   EOF
 
 }
