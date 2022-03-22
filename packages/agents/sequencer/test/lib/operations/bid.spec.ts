@@ -1,4 +1,4 @@
-import { mkAddress, FulfillArgs, Bid, expect, BidStatus } from "@connext/nxtp-utils";
+import { mkAddress, FulfillArgs, Bid, expect, BidStatus, getRandomBytes32 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { bidSelection, handleBid } from "../../../src/lib/operations";
 import { ctxMock } from "../../globalTestHook";
@@ -17,7 +17,9 @@ const mockFulfillArgs: FulfillArgs[] = [
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xa"),
     feePercentage: "0.1",
-    nonce: 1,
+    index: 0,
+    transactionId: getRandomBytes32(),
+    proof: ["0x"],
     amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
@@ -32,7 +34,9 @@ const mockFulfillArgs: FulfillArgs[] = [
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xb"),
     feePercentage: "0.1",
-    nonce: 1,
+    index: 1,
+    transactionId: getRandomBytes32(),
+    proof: ["0x"],
     amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
@@ -79,10 +83,10 @@ describe("Bid", () => {
         "getAllTransactionsIdsWithPendingBids",
       );
       getBidsByTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId");
+      getBidsByTransactionIdStub.resolves([mockBids[0].transactionId]);
       updateAllBidsWithTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "updateAllBidsWithTransactionId");
 
       sendToRelayerStub = stub(RelayerFns, "sendToRelayer");
-      stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId").resolves([mockBids[0].transactionId]);
     });
     afterEach(() => {
       restore();
