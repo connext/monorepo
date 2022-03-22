@@ -3,7 +3,7 @@ pragma solidity >=0.6.11;
 
 // ============ Internal Imports ============
 import {ITokenRegistry} from "../../interfaces/bridge/ITokenRegistry.sol";
-import {IConnext} from "../../interfaces/bridge/IConnext.sol";
+import {IConnext} from "../../../interfaces/IConnext.sol";
 import {Router} from "../Router.sol";
 import {XAppConnectionClient} from "../XAppConnectionClient.sol";
 import {BridgeMessage} from "./BridgeMessage.sol";
