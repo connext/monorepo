@@ -19,18 +19,17 @@ import {
 
 import {
   asyncForEach,
+  BatchMessage,
   bridge,
   BridgeMessageTypes,
   deployContract,
   deployUpgradeableProxy,
-  FastTransferAction,
   formatTokenId,
   getDetailsHash,
-  Message,
+  NxtpEnabledAction,
   MAX_FEE_PER_GAS,
   assertReceiptEvent,
   ZERO_ADDRESS,
-  assertObject,
   transferOwnershipOnContract,
   deployBeaconProxy,
   upgradeBeaconProxy,
@@ -38,12 +37,16 @@ import {
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
-import { delay, getOnchainBalance, getRandomBytes32 } from "@connext/nxtp-utils";
+import { CallParams, delay, getOnchainBalance, getRandomBytes32 } from "@connext/nxtp-utils";
 
 const SEED = 1_000_000;
 
 const addressToBytes32 = (addr: string) => {
   return hexZeroPad(addr, 32);
+};
+
+const getEmptyMerkleProof = () => {
+  return Array(32).fill(constants.HashZero);
 };
 
 // NOTE: for some reason, the
@@ -812,6 +815,152 @@ describe.only("TransactionManager", () => {
     });
   });
 
+  it("should batch", async () => {
+    // When creating a transfer, you:
+    // 1. prepare - for each
+    // 2. fulfill - for each
+    // 3. dispatch - per batch
+    // 4. handle/reconcile - per batch
+    // 5. process - for each
+
+    // must test gas with varying assets (1, 2, 3) and transfers in a batch
+    const transfersInBatch = 15;
+    const assetsInBatch = 1;
+
+    // Do global setup (add routers, funding, etc.).
+    const originAssets: TestERC20[] = [];
+    const destinationAssets: TestERC20[] = [];
+    for (const _ of Array(assetsInBatch).fill(0)) {
+      // You will need at least a canonical token and a local token.
+      // For this setup, the local and canonical token will be the adopted
+      // tokens on the destination and origin domains, respectively, so no
+      // stable swap pools needed.
+
+      // Deploy the canonical + local tokens
+      const origin = await deployContract<TestERC20>("TestERC20"); // canonical
+      const destination = await deployContract<TestERC20>("TestERC20"); // local
+      originAssets.push(origin);
+      destinationAssets.push(destination);
+
+      // Setup asset on the token registries
+      const setupRegistry = await destinationTokenRegistry
+        .connect(admin)
+        .enrollCustom(originDomain, addressToBytes32(origin.address), destination.address);
+      await setupRegistry.wait();
+
+      // Setup asset on the transaction managers
+      const setupOriginTm = await originTm
+        .connect(admin)
+        .setupAsset(
+          { id: addressToBytes32(origin.address), domain: originDomain },
+          origin.address,
+          constants.AddressZero,
+        );
+      const setupDestTm = await destinationTm
+        .connect(admin)
+        .setupAsset(
+          { id: addressToBytes32(origin.address), domain: originDomain },
+          destination.address,
+          constants.AddressZero,
+        );
+      await Promise.all([setupOriginTm.wait(), setupDestTm.wait()]);
+
+      // Add router liquidity on dest
+      await (await destination.approve(destinationTm.address, parseEther("10000"))).wait();
+      await (
+        await destinationTm.connect(admin).addLiquidityFor(parseEther("10"), destination.address, router.address)
+      ).wait();
+
+      // Approve user usage on prepare
+      await (await origin.mint(user.address, parseEther("10"))).wait();
+      await (await origin.connect(user).approve(originTm.address, parseEther("10000"))).wait();
+    }
+
+    // Prepare + fulfill all the transfers
+    const transfers: {
+      transactionId: string;
+      amount: BigNumberish;
+      local: string;
+      index: string;
+      params: CallParams;
+    }[] = [];
+    for (const _ of Array(transfersInBatch).fill(0)) {
+      const assetIdx = Math.floor(Math.random() * assetsInBatch);
+      const params: CallParams = {
+        recipient: user.address,
+        callTo: constants.AddressZero,
+        callData: "0x",
+        originDomain: `${originDomain}`,
+        destinationDomain: `${destinationDomain}`,
+      };
+      const transactingAssetId = originAssets[assetIdx].address;
+      const amount = 1000;
+      // check balance of user
+      const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount });
+      const prepareReceipt = await prepare.wait();
+
+      // Get event data from prepare receipt
+      const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+        (a) => a.blockNumber === prepareReceipt.blockNumber,
+      );
+      const transactionId = (originTmEvent!.args as any).transactionId;
+      const leafIndex = (originTmEvent!.args as any).idx;
+      const bridgedAmt = (originTmEvent!.args as any).localAmount;
+      transfers.push({
+        transactionId,
+        index: leafIndex,
+        amount: bridgedAmt,
+        local: destinationAdopted.address,
+        params,
+      });
+
+      // fulfill
+      const fulfill = await destinationTm.connect(router).fulfill({
+        params,
+        transactionId,
+        local: destinationAssets[assetIdx].address,
+        amount: bridgedAmt,
+        feePercentage: constants.Zero,
+        relayerSignature: "0x",
+        router: router.address,
+        index: leafIndex,
+        proof: getEmptyMerkleProof(),
+      });
+      await fulfill.wait();
+    }
+
+    // Dispatch the root
+    const dispatch = await originTm.dispatch(destinationDomain);
+    const dispatchReceipt = await dispatch.wait();
+
+    // Get the message
+    const topics = originBridge.filters.Send().topics as string[];
+    const bridgeEvent = originBridge.interface.parseLog(
+      dispatchReceipt.logs.find((l) => l.topics.includes(topics[0]))!,
+    );
+    const message = (bridgeEvent!.args as any)[5];
+
+    // Reconcile the root
+    const reconcile = await destinationBridge
+      .connect(admin)
+      .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
+    await reconcile.wait();
+
+    // Process all the transfers
+    for (const transfer of transfers) {
+      await (
+        await destinationTm.process(
+          transfer.transactionId,
+          transfer.amount,
+          transfer.local,
+          transfer.index,
+          getEmptyMerkleProof(),
+          transfer.params,
+        )
+      ).wait();
+    }
+  });
+
   // Token scenario:
   // - user prepares in adopted on origin
   // - oTM swaps adopted for canonical
@@ -843,7 +992,7 @@ describe.only("TransactionManager", () => {
     // Get pre-prepare balances
     const prePrepare = await Promise.all([
       originAdopted.balanceOf(user.address),
-      canonical.balanceOf(originBridge.address),
+      canonical.balanceOf(originTm.address),
     ]);
 
     // Prepare from the user
@@ -862,20 +1011,25 @@ describe.only("TransactionManager", () => {
     // Check balance of user + bridge
     const postPrepare = await Promise.all([
       originAdopted.balanceOf(user.address),
-      canonical.balanceOf(originBridge.address),
+      canonical.balanceOf(originTm.address),
     ]);
     expect(postPrepare[0]).to.be.eq(prePrepare[0].sub(amount));
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
-    // Get the message + id from the events
-    const topics = originBridge.filters.Send().topics as string[];
-    const bridgeEvent = originBridge.interface.parseLog(prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!);
-    const message = (bridgeEvent!.args as any).message;
-
+    // Get the transaction id + leaf idx
     const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
       (a) => a.blockNumber === prepareReceipt.blockNumber,
     );
-    const tmNonce = (originTmEvent!.args as any).nonce;
+    const transactionId = (originTmEvent!.args as any).transactionId;
+    const leafIndex = (originTmEvent!.args as any).idx;
+    const bridgedAmt = (originTmEvent!.args as any).localAmount;
+    const bridgedAsset = (originTmEvent!.args as any).localAsset;
+
+    // Check the batch assets and amounts
+    const batchAsset = await originTm.batchAssets(params.destinationDomain, 0);
+    expect(batchAsset).to.be.eq(bridgedAsset);
+    const batchAmount = await originTm.batchAmounts(params.destinationDomain, 0);
+    expect(batchAmount).to.be.eq(bridgedAmt);
 
     // Get pre-fulfill balances
     const preFulfill = await Promise.all([
@@ -884,15 +1038,17 @@ describe.only("TransactionManager", () => {
     ]);
 
     // Fulfill with the router
-    const routerAmount = amount - 500;
+    const routerAmount = bridgedAmt;
     const fulfill = await destinationTm.connect(router).fulfill({
       params,
-      nonce: tmNonce,
+      transactionId,
       local: local.address,
       amount: routerAmount,
       feePercentage: constants.Zero,
       relayerSignature: "0x",
       router: router.address,
+      index: leafIndex,
+      proof: getEmptyMerkleProof(),
     });
     await fulfill.wait();
 
@@ -904,14 +1060,36 @@ describe.only("TransactionManager", () => {
     expect(postFulfill[0]).to.be.eq(preFulfill[0].add(routerAmount));
     expect(postFulfill[1]).to.be.eq(preFulfill[1].sub(routerAmount));
 
+    // Dispatch the transfer
+    const dispatch = await originTm.dispatch(params.destinationDomain);
+    const dispatchReceipt = await dispatch.wait();
+
+    // Get the message + id from the events
+    const topics = originBridge.filters.Send().topics as string[];
+    const bridgeEvent = originBridge.interface.parseLog(
+      dispatchReceipt.logs.find((l) => l.topics.includes(topics[0]))!,
+    );
+    const message = (bridgeEvent!.args as any)[5];
+
     // Reconcile via bridge
-    const preReconcile = await destinationTm.routerBalances(router.address, local.address);
     const reconcile = await destinationBridge
       .connect(admin)
       .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
     await reconcile.wait();
-    const postReconcile = await destinationTm.routerBalances(router.address, local.address);
-    expect(postReconcile).to.be.eq(preReconcile.add(amount));
+
+    // Process the transaction to reimburse the router
+    const preProcess = await destinationTm.routerBalances(router.address, local.address);
+    const processTx = await destinationTm.process(
+      transactionId,
+      bridgedAmt,
+      local.address,
+      leafIndex,
+      getEmptyMerkleProof(), // TODO: proper root!
+      params,
+    );
+    await processTx.wait();
+    const postProcess = await destinationTm.routerBalances(router.address, local.address);
+    expect(postProcess).to.be.eq(preProcess.add(amount));
   });
 
   // ETH scenario:
@@ -934,12 +1112,8 @@ describe.only("TransactionManager", () => {
     const addLiq = await destinationTm.connect(router).addLiquidity(parseEther("1"), local.address);
     await addLiq.wait();
 
-    // // Approve user
-    // const approveAmt = await destinationAdopted.connect(user).approve(originTm.address, parseEther("100000"));
-    // await approveAmt.wait();
-
     // Get pre-prepare balances
-    const prePrepare = await Promise.all([user.getBalance(), weth.balanceOf(originBridge.address)]);
+    const prePrepare = await Promise.all([user.getBalance(), weth.balanceOf(originTm.address)]);
 
     // Prepare from the user
     const params = {
@@ -955,21 +1129,26 @@ describe.only("TransactionManager", () => {
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
-    const postPrepare = await Promise.all([user.getBalance(), weth.balanceOf(originBridge.address)]);
+    const postPrepare = await Promise.all([user.getBalance(), weth.balanceOf(originTm.address)]);
     expect(postPrepare[0]).to.be.eq(
       prePrepare[0].sub(amount).sub(prepareReceipt.cumulativeGasUsed.mul(prepareReceipt.effectiveGasPrice)),
     );
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
-    // Get the message + id from the events
-    const topics = originBridge.filters.Send().topics as string[];
-    const bridgeEvent = originBridge.interface.parseLog(prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!);
-    const message = (bridgeEvent!.args as any).message;
+    // Get the transaction id + leaf idx
+    const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+      (a) => a.blockNumber === prepareReceipt.blockNumber,
+    );
+    const transactionId = (originTmEvent!.args as any).transactionId;
+    const leafIndex = (originTmEvent!.args as any).idx;
+    const bridgedAmt = (originTmEvent!.args as any).localAmount;
+    const bridgedAsset = (originTmEvent!.args as any).localAsset;
 
-    const originTmEvent = await (
-      await originTm.queryFilter(originTm.filters.Prepared())
-    ).find((a) => a.blockNumber === prepareReceipt.blockNumber);
-    const tmNonce = (originTmEvent!.args as any).nonce;
+    // Check the batch assets and amounts
+    const batchAsset = await originTm.batchAssets(params.destinationDomain, 0);
+    expect(batchAsset).to.be.eq(bridgedAsset);
+    const batchAmount = await originTm.batchAmounts(params.destinationDomain, 0);
+    expect(batchAmount).to.be.eq(bridgedAmt);
 
     // Get pre-fulfill balances
     const preFulfill = await Promise.all([
@@ -978,15 +1157,17 @@ describe.only("TransactionManager", () => {
     ]);
 
     // Fulfill with the router
-    const routerAmount = amount - 500;
+    const routerAmount = bridgedAmt;
     const fulfill = await destinationTm.connect(router).fulfill({
       params,
-      nonce: tmNonce,
+      transactionId,
       local: local.address,
       amount: routerAmount,
       relayerSignature: "0x",
       router: router.address,
       feePercentage: constants.Zero,
+      index: leafIndex,
+      proof: getEmptyMerkleProof(),
     });
     await fulfill.wait();
 
@@ -998,25 +1179,58 @@ describe.only("TransactionManager", () => {
     expect(postFulfill[0]).to.be.eq(preFulfill[0].add(routerAmount));
     expect(postFulfill[1]).to.be.eq(preFulfill[1].sub(routerAmount));
 
+    // Dispatch the transfer
+    const dispatch = await originTm.dispatch(params.destinationDomain);
+    const dispatchReceipt = await dispatch.wait();
+
+    // Get the message + id from the events
+    const topics = originBridge.filters.Send().topics as string[];
+    const bridgeEvent = originBridge.interface.parseLog(
+      dispatchReceipt.logs.find((l) => l.topics.includes(topics[0]))!,
+    );
+    const message = (bridgeEvent!.args as any)[5];
+
     // Reconcile via bridge
-    const preReconcile = await destinationTm.routerBalances(router.address, local.address);
     const reconcile = await destinationBridge
       .connect(admin)
       .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
     await reconcile.wait();
-    const postReconcile = await destinationTm.routerBalances(router.address, local.address);
-    expect(postReconcile).to.be.eq(preReconcile.add(amount));
+
+    // Process the transaction to reimburse the router
+    const preProcess = await destinationTm.routerBalances(router.address, local.address);
+    const processTx = await destinationTm.process(
+      transactionId,
+      bridgedAmt,
+      local.address,
+      leafIndex,
+      getEmptyMerkleProof(), // TODO: proper root!
+      params,
+    );
+    await processTx.wait();
+    const postProcess = await destinationTm.routerBalances(router.address, local.address);
+    expect(postProcess).to.be.eq(preProcess.add(amount));
   });
 
   it("the message should work", async () => {
-    // Test token id
-    const tokenId = {
-      id: addressToBytes32(canonical.address),
-      domain: originDomain,
-    };
-    const expectedToken = formatTokenId(tokenId.domain, tokenId.id);
-    const testTokenId = await bridgeMessage.testFormatTokenId(tokenId.domain, tokenId.id);
-    expect(testTokenId).to.be.eq(expectedToken);
+    // Test token ids
+    const tokenIds = Array(3)
+      .fill(0)
+      .map((_) => {
+        return {
+          id: getRandomBytes32(),
+          domain: originDomain,
+        };
+      });
+    let expectedTokens = "0x";
+    tokenIds.forEach((tokenId) => {
+      const formatted = formatTokenId(tokenId.domain, tokenId.id) as string;
+      expectedTokens += formatted.startsWith("0x") ? formatted.substring(2) : formatted;
+    });
+    const testTokenIds = await bridgeMessage.testFormatTokenIds(
+      tokenIds.map((t) => t.domain) as unknown as [BigNumberish, BigNumberish, BigNumberish],
+      tokenIds.map((t) => t.id) as unknown as [string, string, string],
+    );
+    expect(testTokenIds).to.be.eq(expectedTokens);
 
     // Test detailsHash
     const tokenDetails = {
@@ -1033,46 +1247,46 @@ describe.only("TransactionManager", () => {
     expect(testDetailsHash).to.be.eq(expectedDetailsHash);
 
     // Test format transfer
-    const action: FastTransferAction = {
-      type: BridgeMessageTypes.FAST_TRANSFER,
+    const action: NxtpEnabledAction = {
+      type: BridgeMessageTypes.NXTP_ENABLED,
       recipient: addressToBytes32(user.address).toLowerCase(),
-      amount: 1000,
-      detailsHash: expectedDetailsHash,
-      externalId: getRandomBytes32().toLowerCase(),
-      externalHash: getRandomBytes32().toLowerCase(),
+      amount: Array(3).fill(1000),
+      detailsHash: Array(3).fill(expectedDetailsHash),
+      batchRoot: getRandomBytes32().toLowerCase(),
     };
-    const serializedAction = bridge.serializeFastTransferAction(action);
+    const serializedAction = bridge.serializeNxtpEnabledAction(action);
     const testTransfer = await bridgeMessage.testFormatTransfer(
       action.recipient,
-      action.amount,
-      action.detailsHash,
-      true,
-      action.externalId,
-      action.externalHash,
+      action.batchRoot,
+      action.amount as unknown as [BigNumberish, BigNumberish, BigNumberish],
+      action.detailsHash as unknown as [string, string, string],
     );
     expect(testTransfer).to.be.eq(serializedAction);
 
     // Test split transfer
-    const [type, recipient, recipientAddr, amount, externalId, externalCallHash] =
-      await bridgeMessage.testSplitTransfer(testTransfer);
+    const [type, recipient, recipientAddr, root, amounts, details] = await bridgeMessage.testSplitTransfer(
+      testTransfer,
+    );
     expect(type).to.be.eq(action.type);
     expect(recipient).to.be.eq(action.recipient);
     expect(recipientAddr.toLowerCase()).to.be.eq(user.address.toLowerCase());
-    expect(externalId).to.be.eq(action.externalId);
-    expect(externalCallHash).to.be.eq(action.externalHash);
-    expect(amount.toNumber()).to.be.eq(action.amount);
+    expect(root).to.be.eq(action.batchRoot);
+    amounts.map((a, idx) => {
+      expect(a.toNumber()).to.be.eq(action.amount[idx]);
+      expect(details[idx]).to.be.eq(action.detailsHash[idx]);
+    });
 
     // Test format message
-    const transferMessage: Message = {
-      tokenId,
+    const transferMessage: BatchMessage = {
+      tokenIds,
       action,
     };
-    const serializedMessage = bridge.serializeMessage(transferMessage);
+    const serializedMessage = bridge.serializeBatchMessage(transferMessage);
     const testMessage = await bridgeMessage.testFormatMessage(
-      expectedToken,
+      expectedTokens,
       serializedAction,
-      BridgeMessageTypes.TOKEN_ID,
-      BridgeMessageTypes.FAST_TRANSFER,
+      BridgeMessageTypes.TOKEN_IDS,
+      BridgeMessageTypes.NXTP_ENABLED,
     );
     expect(testMessage).to.be.eq(serializedMessage);
   });

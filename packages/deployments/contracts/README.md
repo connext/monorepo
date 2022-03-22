@@ -48,21 +48,23 @@ nxtp$ yarn workspace @connext/nxtp-contracts build
 
 ### Running the tests
 
-To run the contract tests, run the following from the root directory:
+This repository uses [foundry](https://github.com/gakonst/foundry) for unit tests and [hardhat](https://hardhat.org) for integration tests.
+
+To run the contract tests, run the appropriate command:
 
 ```sh
-nxtp$ yarn workspace @connext/nxtp-contracts test
+$ yarn workspace @connext/nxtp-contracts test:forge # runs unit tests
+$ yarn workspace @connext/nxtp-contracts test:hardhat # runs integration tests
+$ yarn workspace @connext/nxtp-contracts test # runs both tests
 ```
 
-This command will output the gas estimates, as well as test coverage of the suites by default. There is no need to deploy or build the repo before running the tests, which will run against a local [hardhat](https://hardhat.org) network.
+Running the hardhat tests will output the gas estimates for the integration tests. You can generate a coverage output as well, but as it is not supported by foundry it is not considered to be accurate.
 
 To run the coverage tests, run the following from the root directory:
 
 ```sh
 nxtp$ yarn workspace @connext/nxtp-contracts coverage
 ```
-
-This command will output the coverage status instead of the gas estimates.
 
 ### Contract Deployment
 
