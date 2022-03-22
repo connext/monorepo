@@ -50,7 +50,6 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   });
 
   await cache.auctions.storeBid(bid);
-
   return;
 };
 

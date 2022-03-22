@@ -2,7 +2,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mkAddress } from "@connext/nxtp-utils";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { AppContext } from "../src/lib/entities/context";
 import * as SequencerFns from "../src/sequencer";
@@ -10,9 +10,6 @@ import { mock } from "./mock";
 
 export let ctxMock: AppContext;
 export let subgraphMock: SinonStubbedInstance<SubgraphReader>;
-
-export let cacheMock: SinonStubbedInstance<StoreManager>;
-
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 
 export const mochaHooks = {
@@ -31,13 +28,15 @@ export const mochaHooks = {
     ]);
 
     // setup cache
-    cacheMock = createStubInstance(StoreManager);
+    const cacheParams = { url: "mock", mock: true, logger: mock.context().logger };
+    const cacheInstance = StoreManager.getInstance(cacheParams);
 
     chainReaderMock = createStubInstance(ChainReader);
+    chainReaderMock.getGasEstimate.resolves(parseUnits("1", 9));
     ctxMock = {
       adapters: {
         subgraph: subgraphMock,
-        cache: cacheMock,
+        cache: cacheInstance,
         chainreader: chainReaderMock,
         contracts: mock.context().adapters.contracts,
       },
