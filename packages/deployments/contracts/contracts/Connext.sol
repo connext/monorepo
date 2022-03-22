@@ -47,14 +47,13 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * two chains. They are supplied on `xcall` and should be asserted on `execute`
    * @property to - The account that receives funds, in the event of a crosschain call,
    * will receive funds if the call fails.
-   * @param callTo - The address of the receiving chain to execute the `callData` on. If no crosschain call is needed, then leave empty.
+   * @param to - The address you are sending funds (and potentially data) to
    * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
    * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
    * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
    */
   struct CallParams {
     address to;
-    address callTo;
     bytes callData;
     uint32 originDomain;
     uint32 destinationDomain;
@@ -65,12 +64,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @dev Used to create a hash to pass the external call information through the bridge
    * @param to - The address that should receive the funds on the destination domain if no call is
    * specified, or the fallback if an external call fails
-   * @param callTo - The address of the receiving chain to execute the `callData` on
    * @param callData - The data to execute on the receiving chain
    */
   struct ExternalCall {
     address to;
-    address callTo;
     bytes callData;
   }
 
@@ -321,6 +318,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address caller
   );
 
+  // ============ Constants =============
+
+  bytes32 internal immutable EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+
   // ============ Properties ============
 
   /**
@@ -338,7 +339,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain);
    */
-  uint256 public nonce ;
+  uint256 public nonce;
 
   /**
    * @notice The external contract that will execute crosschain calldata
@@ -436,6 +437,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     require(msg.sender == address(bridgeRouter), "!bridge");
     _;
   }
+
+  // ========== Initializer ============
 
   function initialize(
     uint256 _domain,
@@ -553,6 +556,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param router - The router to credit
    */
   function addRelayerFees(address router) external payable {
+    require(msg.value > 0, "!value");
     routerRelayerFees[router] += msg.value;
   }
 
@@ -768,7 +772,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // If this is a mad* asset, then swap on local AMM
     (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_args.local, _args.amount);
 
-    if (_args.params.callTo == address(0)) {
+    if (keccak256(_args.params.callData) == EMPTY) {
       // Send funds to the user
       _transferAssetFromContract(adopted, _args.params.to, amount);
     } else {
@@ -776,9 +780,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       _transferAssetFromContract(adopted, address(executor), amount);
       executor.execute(
         _args.transferId,
-        payable(_args.params.callTo),
-        adopted,
         payable(_args.params.to),
+        adopted,
         amount,
         _args.params.callData
       );
@@ -934,14 +937,12 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
   /**
    * @notice Calculates the hash of the executed calldata and to on execute
-   * @param _to - The address that will receive funds on the destination domain
-   * @param _callTo - The contract address to execute the call data on
+   * @param _to - The address to execute the calldata on
    * @param _callData - The data to execute
    * @return The computed hash
    */
-  function _getExternalHash(address _to, address _callTo, bytes memory _callData) internal pure returns (bytes32) {
+  function _getExternalHash(address _to, bytes memory _callData) internal pure returns (bytes32) {
     return keccak256(abi.encode(ExternalCall({
-      callTo: _callTo,
       callData: _callData,
       to: _to
     })));
@@ -1117,7 +1118,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   ) internal {
     // Determine if it is fast (i.e. happened before reconcile called, needs
     // a router to front)
-    bytes32 _externalHash = _getExternalHash(_params.to, _params.callTo, _params.callData);
+    bytes32 _externalHash = _getExternalHash(_params.to, _params.callData);
 
     if (_isFast) {
       // Ensure it has not been executed already
@@ -1187,7 +1188,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
         _amount,
         _asset,
         _params.to,
-        _params.callTo,
         _params.callData,
         _params.originDomain,
         _params.destinationDomain
@@ -1208,7 +1208,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Create a leaf
     bytes32 _leaf = getLeaf(_transferId, _amount, _asset, _params);
 
-    // TODO: do we ever need to clear out tree?
     tree.insert(_leaf);
 
     // Update the batch asset
@@ -1251,9 +1250,9 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
 
   /**
-    * @dev This empty reserved space is put in place to allow future versions to add new
-    * variables without shifting down storage in the inheritance chain.
-    * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    */
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * variables without shifting down storage in the inheritance chain.
+   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+   */
   uint256[49] private __gap;
 }
