@@ -78,16 +78,16 @@ export const fulfill = async (params: CrossChainTx) => {
   let receivingAmount = prepareLocalAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signHandleRelayerFeePayload(nonce.toString(), RelayerFeePercentage, wallet);
+  const signature = await signHandleRelayerFeePayload(transactionId, RelayerFeePercentage, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
     local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receivingAmount,
-    index: 0, // must be updated
-    proof: ["0x"], // must be updated
-    transactionId,
+    index: 0,
+    transactionId: transactionId,
+    proof: [],
     relayerSignature: signature,
   };
 
