@@ -19,6 +19,7 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   const validInput = validateInput(bid);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    console.log("Invalid params, msg:", msg);
     throw new ParamsInvalid({
       paramsError: msg,
       bid,
