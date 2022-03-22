@@ -1,4 +1,4 @@
-import { TAddress, TIntegerString } from "./basic";
+import { TAddress, TDecimalString, TIntegerString } from "./basic";
 import { Type, Static } from "@sinclair/typebox";
 
 export enum CrossChainTxStatus {
@@ -73,10 +73,10 @@ export const FulfillArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   router: TAddress,
-  feePercentage: TIntegerString,
+  feePercentage: TDecimalString,
   nonce: Type.Number(),
-  amount: TIntegerString,
-  relayerSignature: TIntegerString,
+  amount: TDecimalString,
+  relayerSignature: Type.String(),
 });
 
 export type FulfillArgs = Static<typeof FulfillArgsSchema>;
