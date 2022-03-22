@@ -8,9 +8,13 @@ const SUBGRAPH_POLL_INTERVAL = 15_000;
 // Ought to be configured properly for each network; we consult the chain config below.
 const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL) => {
-  interval(async () => {
-    await pollSubgraph();
+export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL, _stop: () => boolean = () => false) => {
+  interval(async (_, stop) => {
+    if (_stop()) {
+      stop();
+    } else {
+      await pollSubgraph();
+    }
   }, _pollInterval);
 };
 
@@ -28,7 +32,12 @@ export const pollSubgraph = async () => {
       const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
       const latestNonce = await cache.transactions.getLatestNonce(domain);
-      console.log({ domain, latestBlockNumber, safeConfirmations, latestNonce });
+      logger.debug("Retrieved domain information for subgraph polling", undefined, undefined, {
+        domain,
+        latestBlockNumber,
+        safeConfirmations,
+        latestNonce,
+      });
       subgraphQueryMetaParams.set(domain, {
         maxPrepareBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache

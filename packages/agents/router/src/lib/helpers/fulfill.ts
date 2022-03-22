@@ -1,22 +1,31 @@
-import { getReceiverAmount as _getReceiverAmount } from "@connext/nxtp-utils";
-import { AmountInvalid } from "../errors";
+import { Bid, RequestContext } from "@connext/nxtp-utils";
+import { getContext } from "../../router";
 
-/**
- * Returns the amount * swapRate to deduct fees when going from sending -> recieving chain to incentivize routing.
- *
- * @param amount The amount of the transaction on the sending chain
- * @returns The amount, less fees as determined by the swapRate
- *
- * @remarks
- * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * swapRate`
- */
-export const getReceiverAmount = async (
-  amount: string,
-  inputDecimals: number,
-  outputDecimals: number,
-): Promise<{ receivingAmount: string; routerFee: string; amountAfterSwapRate: string }> => {
-  if (amount.includes(".")) {
-    throw new AmountInvalid(amount);
+export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Promise<Boolean> => {
+  console.log("HELLO??");
+  console.log(getContext());
+  const {
+    config,
+    adapters: { txservice, contracts },
+    chainData,
+  } = getContext();
+
+  const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
+
+  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
+  const destinationTransactionManagerAddress =
+    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+
+  // Validate the bid's fulfill call will succeed on chain.
+  try {
+    await txservice.getGasEstimate(Number(bid.data.params.destinationDomain), {
+      chainId: destinationChainId,
+      to: destinationTransactionManagerAddress,
+      data: encodedData,
+    });
+
+    return true;
+  } catch {
+    return false;
   }
-  return await _getReceiverAmount(amount, inputDecimals, outputDecimals);
 };

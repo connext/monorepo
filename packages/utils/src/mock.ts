@@ -68,7 +68,7 @@ export const mock: any = {
       local: mkAddress("0xlocal"),
       router: mkAddress("0xrouter"),
       feePercentage: "1",
-      nonce: "0",
+      nonce: 0,
       amount: utils.parseEther("1").toString(),
       relayerSignature: "0xsig",
     }),
@@ -81,8 +81,8 @@ export const mock: any = {
       signature: "0xsig",
     }),
     crossChainTx: (
-      origin: string,
-      destination: string,
+      originDomain: string,
+      destinationDomain: string,
       amount = "1000",
       status: CrossChainTxStatus = CrossChainTxStatus.Prepared,
       asset: string = mock.asset.A.address,
@@ -93,8 +93,8 @@ export const mock: any = {
       return Object.assign(
         {
           // Meta
-          originDomain: origin,
-          destinationDomain: destination,
+          originDomain: originDomain,
+          destinationDomain: destinationDomain,
           status,
 
           // Transfer Data

@@ -13,10 +13,11 @@ const mockGasFee = BigNumber.from("10000");
 const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
 
 describe("Operations:Fulfill", () => {
-  const mockContext = stubContext();
+  let mockContext: any;
 
   before(() => {
     stubHelpers();
+    mockContext = stubContext();
   });
 
   describe("#fulfill", () => {
@@ -34,7 +35,7 @@ describe("Operations:Fulfill", () => {
       mock.helpers.shared.getDestinationTransactingAsset.resolves(mock.asset.B.address);
     });
 
-    it("happy", async () => {});
+    it.skip("happy", async () => {});
 
     it("should throw NotEnoughAmount if final receiving amount < 0", async () => {
       const tooMuchGasFee = BigNumber.from(mockTransactingAmount).add(1);

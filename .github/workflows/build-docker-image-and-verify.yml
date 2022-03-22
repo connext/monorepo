@@ -2,11 +2,21 @@ name: Create and publish Docker images
 
 on:
   push:
-    branches: []
+    branches:
+      - amarok
+  pull_request:
+    branches:
+      - amarok
+  create:
+    tag:
+      - "v*"
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: connext/router
+  ROUTER_IMAGE_NAME: connext/router
+  SEQUENCER_IMAGE_NAME: connext/sequencer
+  TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
+  TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
 
 jobs:
   build-and-push-router-image:
@@ -30,9 +40,11 @@ jobs:
         id: meta-router
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.ROUTER_IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image - router
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -47,9 +59,11 @@ jobs:
         id: meta-sequencer
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.SEQUENCER_IMAGE_NAME }}
           tags: |
-            type=sha,format=long
+            type=sha,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image - sequencer
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -60,9 +74,57 @@ jobs:
           labels: ${{ steps.meta-sequencer.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
-      - name: Terraform Docker Image onto AWS
-        env:
-          TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
-          TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
+    outputs:
+      router-tags: ${{ steps.meta-router.outputs.tags }}
+      router-labels: ${{ steps.meta-router.outputs.labels }}
+      sequencer-tags: ${{ steps.meta-sequencer.outputs.tags }}
+      sequencer-labels: ${{ steps.meta-sequencer.outputs.labels }}
+
+  terraform-resources:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs: build-and-push-router-image
+
+    steps:
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-region: eu-central-1
+
+      - name: Terraform fmt
+        id: fmt
+        working-directory: ./ops
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: ./ops
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops
         run: |
-          cd ops && terraform init && terraform plan -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' && terraform apply -var full_image_name_router='${{steps.meta-router.outputs.tags}}' -var full_image_name_sequencer='${{steps.meta-sequener.outputs.tags}}' -auto-approve
+          terraform plan -no-color -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -var router_config='${{ secrets.ROUTER_CONFIG }}' -var sequencer_config='${{ secrets.SEQUENCER_CONFIG }}'
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops
+        run: |
+          terraform apply -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -var router_config='${{ secrets.ROUTER_CONFIG }}' -var sequencer_config='${{ secrets.SEQUENCER_CONFIG }}' -auto-approve

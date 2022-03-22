@@ -149,34 +149,34 @@ export const getEnvConfig = (
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
     const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
 
+    // Make sure deployments is filled out correctly.
     // allow passed in address to override
-    // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    if (!chainConfig.deployments?.transactionManager) {
-      const res = chainDataForChain ? deployments.transactionManager(chainDataForChain.chainId) : undefined;
-      if (!res) {
-        throw new Error(`No transactionManager address for domain ${domainId}`);
-      }
-      nxtpConfig.chains[domainId].deployments.transactionManager = res.address;
-    }
+    // format: { [domainId]: { { "deployments": { "transactionManager": <address>, ... } }
+    nxtpConfig.chains[domainId].deployments = {
+      transactionManager:
+        chainConfig.deployments?.transactionManager ??
+        (() => {
+          const res = chainDataForChain ? deployments.transactionManager(chainDataForChain.chainId) : undefined;
+          if (!res) {
+            throw new Error(`No transactionManager address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+    };
 
-    if (!chainConfig.subgraph.runtime) {
-      nxtpConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraph ?? [];
-    }
+    const maxLag = chainConfig.subgraph?.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
+    nxtpConfig.chains[domainId].subgraph = {
+      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraph ?? [],
+      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.analyticsSubgraph ?? [],
+      // 25 blocks minimum.
+      maxLag: maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag,
+    };
 
-    if (!chainConfig.subgraph.analytics) {
-      nxtpConfig.chains[domainId].subgraph.runtime = chainDataForChain?.analyticsSubgraph ?? [];
-    }
+    nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
 
-    if (!chainConfig.confirmations) {
-      nxtpConfig.chains[domainId].confirmations = chainRecommendedConfirmations;
-    }
-
-    const maxLag = chainConfig.subgraph.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
-    // 25 blocks minimum.
-    nxtpConfig.chains[domainId].subgraph.maxLag = maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag;
-
-    const addedStations = nxtpConfig.chains[domainId].gasStations ?? [];
-    nxtpConfig.chains[domainId].gasStations = addedStations.concat(chainRecommendedGasStations);
+    nxtpConfig.chains[domainId].gasStations = (nxtpConfig.chains[domainId].gasStations ?? []).concat(
+      chainRecommendedGasStations,
+    );
   });
 
   const validate = ajv.compile(NxtpRouterConfigSchema);

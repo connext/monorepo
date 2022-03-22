@@ -43,6 +43,10 @@ export class StoreManager implements Store {
     });
   }
 
+  public getLogger(): Logger {
+    return this.logger;
+  }
+
   /**
    * Get the singleton instance used for interfacing with Redis caches.
    * @param params - store manager configuration params

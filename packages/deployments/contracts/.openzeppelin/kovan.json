@@ -1,0 +1,398 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x6BE532041b5A9352f07B77c9Ca851e876E2e841C",
+      "txHash": "0x03e2405261cffa1d9c3606142bda307857a4e05c62ff040dcaff8fb7ed47afed",
+      "kind": "beacon"
+    }
+  ],
+  "impls": {
+    "dc74918e83977a1d43318c733cd424b9e2f4e4d7c0a64738c30de5e3603f6fec": {
+      "address": "0x9F929643db56eaf747131CB4FA1126612b30Eb7F",
+      "txHash": "0x096b5463962d5cd0209f85ed939e608e3dde32433f365c1ed1d3ed6604e7c985",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:27"
+          },
+          {
+            "label": "_proposed",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_address",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:29"
+          },
+          {
+            "label": "_proposedOwnershipTimestamp",
+            "offset": 0,
+            "slot": "53",
+            "type": "t_uint256",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:30"
+          },
+          {
+            "label": "_routerOwnershipRenounced",
+            "offset": 0,
+            "slot": "54",
+            "type": "t_bool",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:32"
+          },
+          {
+            "label": "_routerOwnershipTimestamp",
+            "offset": 0,
+            "slot": "55",
+            "type": "t_uint256",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:33"
+          },
+          {
+            "label": "_assetOwnershipRenounced",
+            "offset": 0,
+            "slot": "56",
+            "type": "t_bool",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:35"
+          },
+          {
+            "label": "_assetOwnershipTimestamp",
+            "offset": 0,
+            "slot": "57",
+            "type": "t_uint256",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "58",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ProposedOwnableUpgradeable",
+            "src": "contracts/ProposedOwnableUpgradeable.sol:303"
+          },
+          {
+            "label": "bridgeRouter",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_contract(BridgeRouter)21701",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:320"
+          },
+          {
+            "label": "wrapper",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_contract(IWrapped)9654",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:326"
+          },
+          {
+            "label": "nonce",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint256",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:332"
+          },
+          {
+            "label": "interpreter",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_contract(IFulfillInterpreter)9371",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:337"
+          },
+          {
+            "label": "tokenRegistry",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_contract(TokenRegistry)23029",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:342"
+          },
+          {
+            "label": "adoptedToLocalPools",
+            "offset": 0,
+            "slot": "112",
+            "type": "t_mapping(t_bytes32,t_contract(IStableSwap)9643)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:348"
+          },
+          {
+            "label": "routedTransactions",
+            "offset": 0,
+            "slot": "113",
+            "type": "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7354_storage)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:354"
+          },
+          {
+            "label": "routedTransactionsGas",
+            "offset": 0,
+            "slot": "114",
+            "type": "t_mapping(t_bytes32,t_struct(GasInfo)7359_storage)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:360"
+          },
+          {
+            "label": "reconciledTransactions",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_mapping(t_bytes32,t_bytes32)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:367"
+          },
+          {
+            "label": "domain",
+            "offset": 0,
+            "slot": "116",
+            "type": "t_uint256",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:373"
+          },
+          {
+            "label": "routerBalances",
+            "offset": 0,
+            "slot": "117",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:380"
+          },
+          {
+            "label": "routerRelayerFees",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:387"
+          },
+          {
+            "label": "approvedRouters",
+            "offset": 0,
+            "slot": "119",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:392"
+          },
+          {
+            "label": "approvedAssets",
+            "offset": 0,
+            "slot": "120",
+            "type": "t_mapping(t_bytes32,t_bool)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:399"
+          },
+          {
+            "label": "adoptedToCanonical",
+            "offset": 0,
+            "slot": "121",
+            "type": "t_mapping(t_address,t_struct(TokenId)20318_storage)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:406"
+          },
+          {
+            "label": "canonicalToAdopted",
+            "offset": 0,
+            "slot": "122",
+            "type": "t_mapping(t_bytes32,t_address)",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:413"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "123",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "TransactionManager",
+            "src": "contracts/TransactionManager.sol:1185"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(BridgeRouter)21701": {
+            "label": "contract BridgeRouter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IFulfillInterpreter)9371": {
+            "label": "contract IFulfillInterpreter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IStableSwap)9643": {
+            "label": "contract IStableSwap",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWrapped)9654": {
+            "label": "contract IWrapped",
+            "numberOfBytes": "20"
+          },
+          "t_contract(TokenRegistry)23029": {
+            "label": "contract TokenRegistry",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(TokenId)20318_storage)": {
+            "label": "mapping(address => struct BridgeMessage.TokenId)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_address)": {
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_bool)": {
+            "label": "mapping(bytes32 => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_bytes32)": {
+            "label": "mapping(bytes32 => bytes32)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_contract(IStableSwap)9643)": {
+            "label": "mapping(bytes32 => contract IStableSwap)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(FulfilledTransaction)7354_storage)": {
+            "label": "mapping(bytes32 => struct TransactionManager.FulfilledTransaction)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(GasInfo)7359_storage)": {
+            "label": "mapping(bytes32 => struct TransactionManager.GasInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(FulfilledTransaction)7354_storage": {
+            "label": "struct TransactionManager.FulfilledTransaction",
+            "members": [
+              {
+                "label": "router",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "externalHash",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(GasInfo)7359_storage": {
+            "label": "struct TransactionManager.GasInfo",
+            "members": [
+              {
+                "label": "gasUsed",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "gasPrice",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(TokenId)20318_storage": {
+            "label": "struct BridgeMessage.TokenId",
+            "members": [
+              {
+                "label": "domain",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "id",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        }
+      }
+    }
+  }
+}

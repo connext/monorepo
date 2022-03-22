@@ -1,6 +1,7 @@
-import { Bid, RequestContext, createLoggingContext, BidStatus } from "@connext/nxtp-utils";
+import { Bid, BidSchema, RequestContext, createLoggingContext, BidStatus, ajv } from "@connext/nxtp-utils";
 
 import { sendToRelayer } from "./relayer";
+import { ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 
 export const handleBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
@@ -12,6 +13,17 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(handleBid.name, _requestContext);
   logger.info(`Method start: ${handleBid.name}`, requestContext, methodContext, { bid });
+
+  // Validate Input schema
+  const validateInput = ajv.compile(BidSchema);
+  const validInput = validateInput(bid);
+  if (!validInput) {
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    throw new ParamsInvalid({
+      paramsError: msg,
+      bid,
+    });
+  }
 
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
