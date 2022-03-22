@@ -6,8 +6,6 @@ import {
   BigNumber,
   BytesLike,
   CallOverrides,
-  ContractTransaction,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -16,29 +14,32 @@ import { FunctionFragment, Result } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface ITransactionManagerInterface extends utils.Interface {
-  contractName: "ITransactionManager";
+export interface BridgeMessageInterface extends utils.Interface {
+  contractName: "BridgeMessage";
   functions: {
-    "reconcile(bytes32)": FunctionFragment;
+    "TOKENS_IN_BATCH()": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "reconcile",
-    values: [BytesLike]
+    functionFragment: "TOKENS_IN_BATCH",
+    values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "reconcile", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "TOKENS_IN_BATCH",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
 
-export interface ITransactionManager extends BaseContract {
-  contractName: "ITransactionManager";
+export interface BridgeMessage extends BaseContract {
+  contractName: "BridgeMessage";
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ITransactionManagerInterface;
+  interface: BridgeMessageInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -60,34 +61,22 @@ export interface ITransactionManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    reconcile(
-      _batchRoot: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    TOKENS_IN_BATCH(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  reconcile(
-    _batchRoot: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  TOKENS_IN_BATCH(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    reconcile(_batchRoot: BytesLike, overrides?: CallOverrides): Promise<void>;
+    TOKENS_IN_BATCH(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    reconcile(
-      _batchRoot: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    TOKENS_IN_BATCH(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    reconcile(
-      _batchRoot: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    TOKENS_IN_BATCH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

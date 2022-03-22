@@ -5,7 +5,6 @@ import { expect } from "@connext/nxtp-utils";
 
 import { getHelpers } from "../../../src/lib/helpers";
 import { stubContext, mock } from "../../mock";
-import { AmountInvalid } from "../../../src/lib/errors";
 
 const { fulfill } = getHelpers();
 
@@ -13,16 +12,30 @@ const mockTransactingAmount = utils.parseEther("1");
 const mockRouterFee = BigNumber.from(mockTransactingAmount).mul(5).div(100);
 const mockReceivingAmount = BigNumber.from(mockTransactingAmount).sub(mockRouterFee);
 
+let mockContext: any;
+
 describe("Helpers:Fulfill", () => {
-  let mockContext: any;
-  beforeEach(() => {
+  before(() => {
+    console.log("beforeEach 1");
     mockContext = stubContext();
+    console.log(mockContext.adapters.txservice);
+    console.log("beforeEach 2");
   });
 
   describe("#sanityCheck", () => {
+    beforeEach(() => {
+      console.log("beforeEach 3", mockContext.adapters.txservice);
+      mockContext.adapters.txservice.getGasEstimate.resetHistory();
+      mockContext.adapters.txservice.getGasEstimate.resolves(BigNumber.from(200_000));
+      console.log("beforeEach 4", mockContext.adapters.txservice);
+    });
+
     it("happy", async () => {
-      const mockBid = mock.entity.bid(mock.chain.A, mock.chain.B, mockTransactingAmount);
-      await fulfill.sanityCheck(mockBid, mock.createLoggingContext().requestContext);
+      console.log("happy test 1", mockContext.adapters.txservice);
+      const mockBid = mock.entity.bid();
+      console.log("happy test 2", mockContext.adapters.txservice);
+      await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      console.log("happy test 3");
     });
   });
 

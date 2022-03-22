@@ -174,16 +174,18 @@ export const mock = {
   },
 };
 
+export let mockContext: any;
+export let getContextStub: SinonStub;
 // Stub getContext to return the mock context above.
-let getContextStub: SinonStub;
 export const stubContext = () => {
-  const context = mock.context();
-  if (!getContextStub) {
-    getContextStub = stub(router, "getContext");
-  }
-  getContextStub.resetHistory();
-  getContextStub.returns(context);
-  return context;
+  mockContext = mock.context();
+  try {
+    getContextStub = stub(router, "getContext").callsFake(() => {
+      return mockContext;
+    });
+  } catch (e) {}
+  // getContextStub.resetHistory();
+  return mockContext;
 };
 
 let getHelpersStub: SinonStub;

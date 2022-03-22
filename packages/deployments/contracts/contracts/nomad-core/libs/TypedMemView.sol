@@ -125,12 +125,14 @@ library TypedMemView {
         }
 
         // abusing underflow here =_=
-        for (uint8 i = 15; i < 255 ; i -= 1) {
-            uint8 _byte = uint8(_b >> (i * 8));
-            second |= byteHex(_byte);
-            if (i != 0) {
-                second <<= 16;
-            }
+        unchecked {
+            for (uint8 i = 15; i < 255 ; i -= 1) {
+                uint8 _byte = uint8(_b >> (i * 8));
+                second |= byteHex(_byte);
+                if (i != 0) {
+                    second <<= 16;
+                }
+            }  
         }
     }
 

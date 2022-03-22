@@ -44,6 +44,7 @@ export type { XAppConnectionManager } from "./XAppConnectionManager";
 export type { IMessageRecipient } from "./IMessageRecipient";
 export type { IUpdaterManager } from "./IUpdaterManager";
 export type { TypedMemView } from "./TypedMemView";
+export type { BridgeMessage } from "./BridgeMessage";
 export type { BridgeRouter } from "./BridgeRouter";
 export type { BridgeToken } from "./BridgeToken";
 export type { ETHHelper } from "./ETHHelper";
@@ -117,6 +118,7 @@ export { XAppConnectionManager__factory } from "./factories/XAppConnectionManage
 export { IMessageRecipient__factory } from "./factories/IMessageRecipient__factory";
 export { IUpdaterManager__factory } from "./factories/IUpdaterManager__factory";
 export { TypedMemView__factory } from "./factories/TypedMemView__factory";
+export { BridgeMessage__factory } from "./factories/BridgeMessage__factory";
 export { BridgeRouter__factory } from "./factories/BridgeRouter__factory";
 export { BridgeToken__factory } from "./factories/BridgeToken__factory";
 export { ETHHelper__factory } from "./factories/ETHHelper__factory";
