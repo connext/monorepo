@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../interfaces/IFulfillInterpreter.sol";
+import "../interfaces/IExecutor.sol";
 import "../lib/LibAsset.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
-  * @title FulfillInterpreter
+  * @title Executor
   * @author Connext <support@connext.network>
   * @notice This library contains an `execute` function that is callabale by
   *         an associated TransactionManager contract. This is used to execute
   *         arbitrary calldata on a receiving chain.
   */
-contract FulfillInterpreter is ReentrancyGuard, IFulfillInterpreter {
+contract Executor is ReentrancyGuard, IExecutor {
   address private immutable _transactionManager;
 
   constructor(address transactionManager) {

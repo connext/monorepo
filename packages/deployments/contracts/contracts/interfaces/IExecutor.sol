@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-interface IFulfillInterpreter {
+interface IExecutor {
 
   event Executed(
     bytes32 indexed transactionId,
