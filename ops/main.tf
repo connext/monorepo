@@ -94,6 +94,8 @@ resource "aws_instance" "terraformed-router" {
     sudo touch /root/touch.txt
     sudo echo "RUNNING INITIAL SCRIPT" > /root/touch.txt
     sudo echo "${var.full_image_name_router}" > /root/touch.txt
+    sudo echo "${var.router_config}" > /root/touch.txt
+    sudo echo ${var.router_config} > /root/touch.txt
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
@@ -102,6 +104,7 @@ resource "aws_instance" "terraformed-router" {
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_router}"
     sudo docker run "${var.full_image_name_router}" >> /root/dockerout
+    sudo docker run -e NXTP_CONFIG='${var.router_config}' -d "${var.full_image_name_router}" >> /root/dockerout
   EOF
 
 }
@@ -122,6 +125,8 @@ resource "aws_instance" "terraformed-sequencer" {
     sudo touch /root/touch.txt
     sudo echo "RUNNING INITIAL SCRIPT" > /root/touch.txt
     sudo echo "${var.full_image_name_sequencer}" > /root/touch.txt
+    sudo echo "${var.sequencer_config}" > /root/touch.txt
+    sudo echo ${var.sequencer_config} > /root/touch.txt
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
@@ -129,7 +134,7 @@ resource "aws_instance" "terraformed-sequencer" {
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_sequencer}"
-    sudo docker run -e NXTP_CONFIG=${var.sequencer_config} -d "${var.full_image_name_sequencer}" >> /root/dockerout
+    sudo docker run -e NXTP_CONFIG='${var.sequencer_config}' -d "${var.full_image_name_sequencer}" >> /root/dockerout
   EOF
 
 }
