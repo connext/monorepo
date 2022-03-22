@@ -68,8 +68,10 @@ export const mock: any = {
       local: mkAddress("0xlocal"),
       router: mkAddress("0xrouter"),
       feePercentage: "1",
-      nonce: 0,
+      index: 0,
       amount: utils.parseEther("1").toString(),
+      transactionId: "0x",
+      proof: ["0x"],
       relayerSignature: "0xsig",
     }),
     bid: (transactionId = "0xtxid", data = mock.entity.fulfillArgs()): Bid => ({

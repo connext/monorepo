@@ -85,7 +85,9 @@ export const fulfill = async (params: CrossChainTx) => {
     router: routerAddress,
     feePercentage: RelayerFeePercentage,
     amount: receivingAmount,
-    nonce: nonce,
+    index: 0, // must be updated
+    proof: ["0x"], // must be updated
+    transactionId,
     relayerSignature: signature,
   };
 
