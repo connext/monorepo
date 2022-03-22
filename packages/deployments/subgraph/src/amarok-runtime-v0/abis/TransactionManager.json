@@ -1,31 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_domain",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_bridgeRouter",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_tokenRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_wrappedNative",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -902,6 +876,34 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_domain",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_bridgeRouter",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_tokenRegistry",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_wrappedNative",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "interpreter",
     "outputs": [
@@ -1409,5 +1411,9 @@
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
