@@ -15,8 +15,6 @@ env:
   REGISTRY: ghcr.io
   ROUTER_IMAGE_NAME: connext/router
   SEQUENCER_IMAGE_NAME: connext/sequencer
-  TF_VAR_AWS_SECRET: ${{ secrets.AWS_SECRET }}
-  TF_VAR_AWS_KEY: ${{ secrets.AWS_KEY }}
 
 jobs:
   build-and-push-router-image:
@@ -81,6 +79,11 @@ jobs:
       sequencer-labels: ${{ steps.meta-sequencer.outputs.labels }}
 
   terraform-resources:
+    env:
+      TF_VAR_full_image_name_router: ${{ needs.build-and-push-router-image.outputs.router-tags }}
+      TF_VAR_full_image_name_sequencer: ${{ needs.build-and-push-router-image.outputs.sequencer-tags }}
+      TF_VAR_mnemonic_testnet: ${{ secrets.MNEMONIC_TESTNET }}
+      TF_VAR_admin_token_router_testnet: ${{ secrets.ADMIN_TOKEN_ROUTER_TESTNET }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -120,11 +123,11 @@ jobs:
         id: plan
         working-directory: ./ops
         run: |
-          terraform plan -no-color -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -var router_config='${{ secrets.ROUTER_CONFIG }}' -var sequencer_config='${{ secrets.SEQUENCER_CONFIG }}'
+          terraform plan -no-color
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops
         run: |
-          terraform apply -var full_image_name_router='${{needs.build-and-push-router-image.outputs.router-tags}}' -var full_image_name_sequencer='${{needs.build-and-push-router-image.outputs.sequencer-tags}}' -var router_config='${{ secrets.ROUTER_CONFIG }}' -var sequencer_config='${{ secrets.SEQUENCER_CONFIG }}' -auto-approve
+          terraform apply -auto-approve

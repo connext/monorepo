@@ -23,12 +23,17 @@ variable "mnemonic_testnet" {
   description = "mnemonic"
 }
 
+variable "admin_token_router_testnet" {
+  type = string
+  description = "admin token"
+}
+
 locals {
   local_router_config = jsonencode({
     "logLevel"     = "debug"
-    "sequencerUrl" = "http://localhost:8081"
+    "sequencerUrl" = "http://3.225.28.122:8081"
     "server" = {
-      "adminToken" = "blahblah"
+      "adminToken" = var.admin_token_router_testnet
     }
     "chains" = {
       "2000" = {
