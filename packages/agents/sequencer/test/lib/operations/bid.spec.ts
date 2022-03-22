@@ -1,4 +1,13 @@
-import { mkAddress, FulfillArgs, Bid, expect, BidStatus, getRandomBytes32 } from "@connext/nxtp-utils";
+import {
+  mkAddress,
+  FulfillArgs,
+  Bid,
+  expect,
+  BidStatus,
+  getRandomBytes32,
+  getNtpTimeSeconds,
+  delay,
+} from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { bidSelection, handleBid } from "../../../src/lib/operations";
 import { ctxMock } from "../../globalTestHook";
@@ -48,6 +57,14 @@ const mockBids = [
   mock.entity.bid(),
 ];
 
+const storedBids = [
+  {
+    payload: mockBids[0],
+    status: BidStatus.Pending,
+    lastUpdate: getNtpTimeSeconds(),
+  },
+];
+
 const loggingContext = mock.loggingContext("BID-TEST");
 describe("Bid", () => {
   describe("#handleBid", () => {
@@ -82,9 +99,12 @@ describe("Bid", () => {
         ctxMock.adapters.cache.auctions,
         "getAllTransactionsIdsWithPendingBids",
       );
+      getAllTransactionsIdsWithPendingBidsStub.resolves([mockBids[0].transactionId]);
+
       getBidsByTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId");
-      getBidsByTransactionIdStub.resolves([mockBids[0].transactionId]);
+      getBidsByTransactionIdStub.resolves(storedBids);
       updateAllBidsWithTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "updateAllBidsWithTransactionId");
+      updateAllBidsWithTransactionIdStub.resolves();
 
       sendToRelayerStub = stub(RelayerFns, "sendToRelayer");
     });
@@ -96,7 +116,11 @@ describe("Bid", () => {
       sendToRelayerStub.resolves();
       await handleBid(mockBids[0], loggingContext.requestContext);
       await bidSelection(loggingContext);
-      expect(sendToRelayerStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
+      await delay(1000);
+      expect(getBidsByTransactionIdStub.callCount).to.be.eq(1);
+      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
+      // expect(updateAllBidsWithTransactionIdStub.callCount).to.be.eq(1);
     });
   });
 });
