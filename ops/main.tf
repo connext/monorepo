@@ -101,7 +101,7 @@ resource "aws_instance" "terraformed-router" {
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_router}"
-    sudo docker run -e NXTP_CONFIG=${var.router_config} -d "${var.full_image_name_router}" >> /root/dockerout
+    sudo docker run -e NXTP_CONFIG="${var.router_config}" -d "${var.full_image_name_router}" >> /root/dockerout
   EOF
 
 }
