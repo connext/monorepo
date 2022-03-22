@@ -49,7 +49,7 @@ contract ETHHelper {
         // wrap ETH to WETH
         weth.deposit{value: msg.value}();
         // send WETH via bridge
-        bridge.send(address(weth), msg.value, _domain, _to, _enableFast, bytes32(0), bytes32(0));
+        // bridge.send([address(weth), address(0), address(0)], [msg.value, 0, 0], _domain, _to, _enableFast, bytes32(0), bytes32(0));
         // emit event indicating the original sender of tokens
         emit Send(msg.sender);
     }

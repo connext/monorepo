@@ -14,27 +14,7 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "_id",
-        type: "bytes32",
-      },
-      {
-        internalType: "address",
-        name: "_local",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_externalCallHash",
+        name: "_batchRoot",
         type: "bytes32",
       },
     ],

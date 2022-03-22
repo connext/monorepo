@@ -14,7 +14,7 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, Home__factory } from "../typechain-types";
+import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -196,7 +196,15 @@ export type FastTransferAction = {
   externalHash: BytesLike;
 };
 
-export type Action = TransferAction | FastTransferAction;
+export type NxtpEnabledAction = {
+  type: BridgeMessageTypes.NXTP_ENABLED;
+  recipient: BytesLike;
+  amount: (number | BytesLike)[];
+  detailsHash: BytesLike[];
+  batchRoot: BytesLike;
+};
+
+export type Action = TransferAction | FastTransferAction | NxtpEnabledAction;
 
 export interface TokenIdentifier {
   domain: string | number;
@@ -205,6 +213,11 @@ export interface TokenIdentifier {
 
 export type Message = {
   tokenId: TokenIdentifier;
+  action: Action;
+};
+
+export type BatchMessage = {
+  tokenIds: TokenIdentifier[];
   action: Action;
 };
 
@@ -218,6 +231,8 @@ export enum BridgeMessageTypes {
   MESSAGE,
   TRANSFER,
   FAST_TRANSFER,
+  NXTP_ENABLED,
+  TOKEN_IDS,
 }
 
 const typeToByte = (type: number): string => `0x0${type}`;
@@ -273,6 +288,18 @@ export function serializeFastTransferAction(transferAction: FastTransferAction):
   return formatTransfer(recipient, amount, detailsHash, true, externalId, externalHash);
 }
 
+export function serializeNxtpEnabledAction(transferAction: NxtpEnabledAction): BytesLike {
+  const { type, recipient, amount, detailsHash, batchRoot } = transferAction;
+  assert(type === BridgeMessageTypes.NXTP_ENABLED);
+  const vals: any[] = [];
+  const types: string[] = [];
+  detailsHash.forEach((hash, idx) => {
+    types.push("bytes32", "uint256");
+    return vals.push(hash, amount[idx]);
+  });
+  return ethers.utils.solidityPack(["uint8", "bytes32", "bytes32", ...types], [type, recipient, batchRoot, ...vals]);
+}
+
 export function serializeAction(action: Action): BytesLike {
   let actionBytes: BytesLike = [];
   switch (action.type) {
@@ -282,6 +309,10 @@ export function serializeAction(action: Action): BytesLike {
     }
     case BridgeMessageTypes.FAST_TRANSFER: {
       actionBytes = serializeFastTransferAction(action);
+      break;
+    }
+    case BridgeMessageTypes.NXTP_ENABLED: {
+      actionBytes = serializeNxtpEnabledAction(action);
       break;
     }
     default: {
@@ -305,15 +336,32 @@ export function serializeMessage(message: Message): BytesLike {
   return formatMessage(tokenId, action);
 }
 
+export function serializeBatchMessage(message: BatchMessage): BytesLike {
+  let tokenIds: BytesLike = "0x";
+  message.tokenIds.forEach((t: TokenIdentifier) => {
+    const serialized = serializeTokenId(t);
+    if (typeof serialized === "string") {
+      const toAdd = serialized.startsWith("0x") ? serialized.substring(2) : serialized;
+      tokenIds += toAdd;
+    } else {
+      throw new Error("Implement: buffer concat");
+    }
+  });
+  const action = serializeAction(message.action);
+  return formatMessage(tokenIds, action);
+}
+
 export const bridge = {
   BridgeMessageTypes,
   typeToByte,
   MESSAGE_LEN,
   serializeTransferAction,
   serializeFastTransferAction,
+  serializeNxtpEnabledAction,
   serializeAction,
   serializeTokenId,
   serializeMessage,
+  serializeBatchMessage,
   getDetailsHash,
 };
 

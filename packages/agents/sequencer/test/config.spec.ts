@@ -257,5 +257,7 @@ describe("Config", () => {
       });
       expect(() => getEnvConfig(mock.chainData())).throw();
     });
+    it("should generate sequencer config from external chainData", async () => {});
+    it("should return sequencer config already created", async () => {});
   });
 });
