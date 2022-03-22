@@ -173,6 +173,14 @@ resource "aws_instance" "terraformed-router" {
     Name = "Router"
   }
 
+variable "nxtp_config_json" {
+  type        = string
+  description = "nxtpcofig"
+  default     = jsonencode("${var.router_config}")
+}
+  
+
+
   user_data = <<EOF
   #!/bin/bash -xe
     set -ex

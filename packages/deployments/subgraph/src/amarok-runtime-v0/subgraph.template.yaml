@@ -36,7 +36,7 @@ dataSources:
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleLiquidityRemoved
-        - event: Prepared(indexed bytes32,indexed address,(address,address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
+        - event: Prepared(indexed bytes32,indexed uint256,indexed address,(address,address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
           handler: handlePrepared
         - event: Fulfilled(indexed bytes32,indexed address,indexed address,(address,address,bytes,uint32,uint32),uint256,address,address,uint256,uint256,address)
           handler: handleFulfilled

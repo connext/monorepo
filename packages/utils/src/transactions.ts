@@ -74,8 +74,10 @@ export const FulfillArgsSchema = Type.Object({
   local: TAddress,
   router: TAddress,
   feePercentage: TDecimalString,
-  nonce: Type.Number(),
   amount: TDecimalString,
+  index: Type.Number(),
+  transactionId: Type.String(),
+  proof: Type.Array(Type.String()),
   relayerSignature: Type.String(),
 });
 

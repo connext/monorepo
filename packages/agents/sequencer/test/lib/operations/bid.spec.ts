@@ -1,4 +1,13 @@
-import { mkAddress, FulfillArgs, Bid, expect, BidStatus } from "@connext/nxtp-utils";
+import {
+  mkAddress,
+  FulfillArgs,
+  Bid,
+  expect,
+  BidStatus,
+  getRandomBytes32,
+  getNtpTimeSeconds,
+  delay,
+} from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { bidSelection, handleBid } from "../../../src/lib/operations";
 import { ctxMock } from "../../globalTestHook";
@@ -17,7 +26,9 @@ const mockFulfillArgs: FulfillArgs[] = [
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xa"),
     feePercentage: "0.1",
-    nonce: 1,
+    index: 0,
+    transactionId: getRandomBytes32(),
+    proof: ["0x"],
     amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
@@ -32,7 +43,9 @@ const mockFulfillArgs: FulfillArgs[] = [
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xb"),
     feePercentage: "0.1",
-    nonce: 1,
+    index: 1,
+    transactionId: getRandomBytes32(),
+    proof: ["0x"],
     amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
@@ -42,6 +55,14 @@ const mockBids = [
   mock.entity.bid("0xtx111", mockFulfillArgs[0]),
   mock.entity.bid("0xtx111", mockFulfillArgs[1]),
   mock.entity.bid(),
+];
+
+const storedBids = [
+  {
+    payload: mockBids[0],
+    status: BidStatus.Pending,
+    lastUpdate: getNtpTimeSeconds(),
+  },
 ];
 
 const loggingContext = mock.loggingContext("BID-TEST");
@@ -78,11 +99,14 @@ describe("Bid", () => {
         ctxMock.adapters.cache.auctions,
         "getAllTransactionsIdsWithPendingBids",
       );
+      getAllTransactionsIdsWithPendingBidsStub.resolves([mockBids[0].transactionId]);
+
       getBidsByTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId");
+      getBidsByTransactionIdStub.resolves(storedBids);
       updateAllBidsWithTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "updateAllBidsWithTransactionId");
+      updateAllBidsWithTransactionIdStub.resolves();
 
       sendToRelayerStub = stub(RelayerFns, "sendToRelayer");
-      stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId").resolves([mockBids[0].transactionId]);
     });
     afterEach(() => {
       restore();
@@ -92,7 +116,11 @@ describe("Bid", () => {
       sendToRelayerStub.resolves();
       await handleBid(mockBids[0], loggingContext.requestContext);
       await bidSelection(loggingContext);
-      expect(sendToRelayerStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
+      await delay(1000);
+      expect(getBidsByTransactionIdStub.callCount).to.be.eq(1);
+      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
+      // expect(updateAllBidsWithTransactionIdStub.callCount).to.be.eq(1);
     });
   });
 });
