@@ -1,5 +1,5 @@
 import { sanityCheck } from "./fulfill";
-import { getDestinationLocalAsset } from "./shared";
+import { getDestinationLocalAsset, getTransactionId } from "./shared";
 
 export const getHelpers = () => {
   return {
@@ -8,6 +8,7 @@ export const getHelpers = () => {
     },
     shared: {
       getDestinationLocalAsset,
+      getTransactionId,
     },
   };
 };
