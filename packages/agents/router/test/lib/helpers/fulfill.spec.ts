@@ -16,26 +16,18 @@ let mockContext: any;
 
 describe("Helpers:Fulfill", () => {
   before(() => {
-    console.log("beforeEach 1");
     mockContext = stubContext();
-    console.log(mockContext.adapters.txservice);
-    console.log("beforeEach 2");
   });
 
   describe("#sanityCheck", () => {
     beforeEach(() => {
-      console.log("beforeEach 3", mockContext.adapters.txservice);
       mockContext.adapters.txservice.getGasEstimate.resetHistory();
       mockContext.adapters.txservice.getGasEstimate.resolves(BigNumber.from(200_000));
-      console.log("beforeEach 4", mockContext.adapters.txservice);
     });
 
     it("happy", async () => {
-      console.log("happy test 1", mockContext.adapters.txservice);
       const mockBid = mock.entity.bid();
-      console.log("happy test 2", mockContext.adapters.txservice);
       await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
-      console.log("happy test 3");
     });
   });
 

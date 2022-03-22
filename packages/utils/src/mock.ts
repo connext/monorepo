@@ -125,7 +125,7 @@ export const mock: any = {
         status === CrossChainTxStatus.Prepared
           ? {
               // Fulfill
-              fulfillCaller: "0x0",
+              fulfillCaller: mkAddress("0x0"),
               fulfillTransactingAmount: "0",
               fulfillLocalAmount: "0",
               fulfillTransactingAsset: asset,
