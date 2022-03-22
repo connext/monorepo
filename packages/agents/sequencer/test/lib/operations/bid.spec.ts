@@ -1,8 +1,9 @@
-import { mkAddress, FulfillArgs, Bid, expect } from "@connext/nxtp-utils";
+import { mkAddress, FulfillArgs, Bid, expect, BidStatus } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
-import { handleBid } from "../../../src/lib/operations";
+import { bidSelection, handleBid } from "../../../src/lib/operations";
 import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
+import * as RelayerFns from "../../../src/lib/operations/relayer";
 
 const mockFulfillArgs: FulfillArgs[] = [
   {
@@ -67,11 +68,31 @@ describe("Bid", () => {
     });
   });
   describe("#bidSelection", () => {
-    beforeEach(async () => {});
+    let getAllTransactionsIdsWithPendingBidsStub: SinonStub;
+    let getBidsByTransactionIdStub: SinonStub;
+    let updateAllBidsWithTransactionIdStub: SinonStub;
+    let sendToRelayerStub: SinonStub;
+
+    beforeEach(async () => {
+      getAllTransactionsIdsWithPendingBidsStub = stub(
+        ctxMock.adapters.cache.auctions,
+        "getAllTransactionsIdsWithPendingBids",
+      );
+      getBidsByTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId");
+      updateAllBidsWithTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "updateAllBidsWithTransactionId");
+
+      sendToRelayerStub = stub(RelayerFns, "sendToRelayer");
+      stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId").resolves([mockBids[0].transactionId]);
+    });
     afterEach(() => {
       restore();
       reset();
     });
-    it("happy case: should send best bid to the relayer", async () => {});
+    it("happy case: should send best bid to the relayer", async () => {
+      sendToRelayerStub.resolves();
+      await handleBid(mockBids[0], loggingContext.requestContext);
+      await bidSelection(loggingContext);
+      expect(sendToRelayerStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
+    });
   });
 });

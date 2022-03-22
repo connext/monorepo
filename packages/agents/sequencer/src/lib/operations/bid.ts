@@ -69,6 +69,7 @@ export const bidSelection = async (_requestContext: RequestContext) => {
   // TODO: Fetch all the pending transactionIds from the cache.
   const transactionIds: string[] = await cache.auctions.getAllTransactionsIdsWithPendingBids();
 
+  console.log({ transactionIds });
   logger.info(`Transactions for selection`, requestContext, methodContext, {
     transactionIds,
     transactionIdsLength: transactionIds.length,
