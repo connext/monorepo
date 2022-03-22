@@ -106,18 +106,6 @@ locals {
   })
 }
 
-variable "router_config" {
-  type        = string
-  description = "router config"
-  default     = ""
-}
-
-variable "sequencer_config" {
-  type        = string
-  description = "sequencer config"
-  default     = ""
-}
-
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
   owners      = ["amazon"]
@@ -177,14 +165,6 @@ resource "aws_instance" "terraformed-router" {
   tags = {
     Name = "Router"
   }
-
-variable "nxtp_config_json" {
-  type        = string
-  description = "nxtpcofig"
-  default     = jsonencode("${var.router_config}")
-}
-  
-
 
   user_data = <<EOF
   #!/bin/bash -xe
