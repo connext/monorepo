@@ -57,8 +57,7 @@ export const mock: any = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (): CallParams => ({
-      recipient: mkAddress("0xrecipient"),
-      callTo: mkAddress("0xcallTo"),
+      to: mkAddress("0xrecipient"),
       callData: "0x",
       originDomain: "1337",
       destinationDomain: "1338",
@@ -100,7 +99,7 @@ export const mock: any = {
           // Transfer Data
           nonce,
           transactionId,
-          recipient: user,
+          to: user,
           router: mock.address.router,
 
           // Prepared
@@ -109,7 +108,6 @@ export const mock: any = {
           prepareLocalAmount: amount,
           prepareTransactingAsset: asset,
           prepareLocalAsset: asset,
-          callTo: mkAddress("0x0"),
           callData: "0x0",
 
           // TransactionPrepared

@@ -113,13 +113,13 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   /**
    * @notice The arguments you supply to the `xcall` function called by user on origin domain
    * @param params - The CallParams. These are consistent across sending and receiving chains
-   * @param transferringAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
+   * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param amount - The amount of transferring asset the tx called xcall with
    */
   struct XCallArgs {
     CallParams params;
-    address transferringAssetId; // Could be adopted, local, or wrapped
+    address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
   }
 
@@ -320,7 +320,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
   // ============ Constants =============
 
-  bytes32 internal immutable EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+  bytes32 internal EMPTY;
 
   // ============ Properties ============
 
@@ -455,6 +455,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     executor = new Executor(address(this));
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
+    EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
   }
 
   // ============ Owner Functions ============
@@ -651,16 +652,16 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // );
 
     require(
-      adoptedToCanonical[_args.transferringAssetId == address(0) ? address(wrapper) : _args.transferringAssetId].id != bytes32(0),
+      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id != bytes32(0),
       "!supported_asset"
     );
 
     // Transfer funds to the contract
-    (address _transferringAssetId, uint256 _amount) = _transferAssetToContract(_args.transferringAssetId, _args.amount);
+    (address _transactingAssetId, uint256 _amount) = _transferAssetToContract(_args.transactingAssetId, _args.amount);
 
     // Swap to the local asset from the adopted
     // TODO: do we want to swap per call or per batch?
-    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transferringAssetId, _amount);
+    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
     // Compute the transfer id
     bytes32 _transferId = _getTransferId(nonce, domain);
@@ -676,7 +677,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       count() - 1, // leaf inserted
       _args.params.to,
       _args.params,
-      _transferringAssetId, // NOTE: this will switch from input to wrapper if native used
+      _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
       _bridged,
       _amount,
       _bridgedAmt,

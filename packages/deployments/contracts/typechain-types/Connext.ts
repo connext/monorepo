@@ -69,7 +69,7 @@ export declare namespace Connext {
 
   export type XCallArgsStruct = {
     params: Connext.CallParamsStruct;
-    transferringAssetId: string;
+    transactingAssetId: string;
     amount: BigNumberish;
   };
 
@@ -79,7 +79,7 @@ export declare namespace Connext {
     BigNumber
   ] & {
     params: Connext.CallParamsStructOutput;
-    transferringAssetId: string;
+    transactingAssetId: string;
     amount: BigNumber;
   };
 }

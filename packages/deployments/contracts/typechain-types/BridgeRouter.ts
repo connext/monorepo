@@ -24,6 +24,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     "PRE_FILL_FEE_DENOMINATOR()": FunctionFragment;
     "PRE_FILL_FEE_NUMERATOR()": FunctionFragment;
     "VERSION()": FunctionFragment;
+    "connext()": FunctionFragment;
     "enrollCustom(uint32,bytes32,address)": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
     "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
@@ -34,10 +35,9 @@ export interface BridgeRouterInterface extends utils.Interface {
     "remotes(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "send(address[3],uint256[3],uint32,bytes32)": FunctionFragment;
-    "setTransactionManager(address)": FunctionFragment;
+    "setConnext(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
-    "transactionManager()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "xAppConnectionManager()": FunctionFragment;
   };
@@ -55,6 +55,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
+  encodeFunctionData(functionFragment: "connext", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "enrollCustom",
     values: [BigNumberish, BytesLike, string]
@@ -94,20 +95,13 @@ export interface BridgeRouterInterface extends utils.Interface {
       BytesLike
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setTransactionManager",
-    values: [string]
-  ): string;
+  encodeFunctionData(functionFragment: "setConnext", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setXAppConnectionManager",
     values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenRegistry",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transactionManager",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -132,6 +126,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "connext", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "enrollCustom",
     data: BytesLike
@@ -154,20 +149,13 @@ export interface BridgeRouterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setTransactionManager",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setConnext", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setXAppConnectionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "tokenRegistry",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transactionManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -268,6 +256,8 @@ export interface BridgeRouter extends BaseContract {
 
     VERSION(overrides?: CallOverrides): Promise<[number]>;
 
+    connext(overrides?: CallOverrides): Promise<[string]>;
+
     enrollCustom(
       _domain: BigNumberish,
       _id: BytesLike,
@@ -321,8 +311,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setTransactionManager(
-      _transactionManager: string,
+    setConnext(
+      _connext: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -332,8 +322,6 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<[string]>;
-
-    transactionManager(overrides?: CallOverrides): Promise<[string]>;
 
     transferOwnership(
       newOwner: string,
@@ -350,6 +338,8 @@ export interface BridgeRouter extends BaseContract {
   PRE_FILL_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
   VERSION(overrides?: CallOverrides): Promise<number>;
+
+  connext(overrides?: CallOverrides): Promise<string>;
 
   enrollCustom(
     _domain: BigNumberish,
@@ -404,8 +394,8 @@ export interface BridgeRouter extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setTransactionManager(
-    _transactionManager: string,
+  setConnext(
+    _connext: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -415,8 +405,6 @@ export interface BridgeRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
-  transactionManager(overrides?: CallOverrides): Promise<string>;
 
   transferOwnership(
     newOwner: string,
@@ -433,6 +421,8 @@ export interface BridgeRouter extends BaseContract {
     PRE_FILL_FEE_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     VERSION(overrides?: CallOverrides): Promise<number>;
+
+    connext(overrides?: CallOverrides): Promise<string>;
 
     enrollCustom(
       _domain: BigNumberish,
@@ -482,10 +472,7 @@ export interface BridgeRouter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTransactionManager(
-      _transactionManager: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setConnext(_connext: string, overrides?: CallOverrides): Promise<void>;
 
     setXAppConnectionManager(
       _xAppConnectionManager: string,
@@ -493,8 +480,6 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<void>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
-    transactionManager(overrides?: CallOverrides): Promise<string>;
 
     transferOwnership(
       newOwner: string,
@@ -556,6 +541,8 @@ export interface BridgeRouter extends BaseContract {
 
     VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
+    connext(overrides?: CallOverrides): Promise<BigNumber>;
+
     enrollCustom(
       _domain: BigNumberish,
       _id: BytesLike,
@@ -609,8 +596,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setTransactionManager(
-      _transactionManager: string,
+    setConnext(
+      _connext: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -620,8 +607,6 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transactionManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
@@ -643,6 +628,8 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    connext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     enrollCustom(
       _domain: BigNumberish,
@@ -700,8 +687,8 @@ export interface BridgeRouter extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTransactionManager(
-      _transactionManager: string,
+    setConnext(
+      _connext: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -711,10 +698,6 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transactionManager(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,

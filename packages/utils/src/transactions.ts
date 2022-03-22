@@ -16,7 +16,6 @@ export const CrossChainTxSchema = Type.Object({
   // Transfer Data
   nonce: Type.Number(),
   transactionId: Type.String(),
-  recipient: TAddress,
   router: TAddress,
 
   // Prepared
@@ -25,7 +24,7 @@ export const CrossChainTxSchema = Type.Object({
   prepareLocalAmount: TIntegerString,
   prepareTransactingAsset: TAddress,
   prepareLocalAsset: TAddress,
-  callTo: TAddress,
+  to: TAddress,
   callData: Type.String(),
 
   // TransactionPrepared
@@ -60,8 +59,7 @@ export const CrossChainTxSchema = Type.Object({
 export type CrossChainTx = Static<typeof CrossChainTxSchema>;
 
 export const CallParamsSchema = Type.Object({
-  recipient: TAddress,
-  callTo: TAddress,
+  to: TAddress,
   callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
@@ -89,8 +87,7 @@ export const BidSchema = Type.Object({
 export type Bid = Static<typeof BidSchema>;
 
 export type ExternalCall = {
-  recipient: string;
-  callTo: string;
+  to: string;
   callData: string;
 };
 

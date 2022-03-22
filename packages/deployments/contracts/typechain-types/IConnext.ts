@@ -16,8 +16,8 @@ import { FunctionFragment, Result } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface ITransactionManagerInterface extends utils.Interface {
-  contractName: "ITransactionManager";
+export interface IConnextInterface extends utils.Interface {
+  contractName: "IConnext";
   functions: {
     "reconcile(bytes32)": FunctionFragment;
   };
@@ -32,13 +32,13 @@ export interface ITransactionManagerInterface extends utils.Interface {
   events: {};
 }
 
-export interface ITransactionManager extends BaseContract {
-  contractName: "ITransactionManager";
+export interface IConnext extends BaseContract {
+  contractName: "IConnext";
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ITransactionManagerInterface;
+  interface: IConnextInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
