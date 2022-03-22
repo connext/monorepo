@@ -87,9 +87,13 @@ resource "aws_instance" "terraformed-router" {
   tags = {
     Name = "Router"
   }
-  locals {
-    nxtp_config_json = jsonencode("${var.router_config}")
-  }
+
+variable "nxtp_config_json" {
+  type        = string
+  description = "nxtpcofig"
+  default     = jsonencode("${var.router_config}")
+}
+  
 
 
   user_data = <<EOF
@@ -107,7 +111,7 @@ resource "aws_instance" "terraformed-router" {
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_router}"
-    sudo echo "${local.nxtp_config_json}" > /root/config.txt
+    sudo echo "${nxtp_config_json}" > /root/config.txt
   EOF
 
 }
