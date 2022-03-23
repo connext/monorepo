@@ -72,8 +72,8 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       relayerSignature: "0xsig",
     }),
-    bid: (transactionId = "0xtxid", data = mock.entity.fulfillArgs()): Bid => ({
-      transactionId,
+    bid: (transferId = "0xtxid", data = mock.entity.fulfillArgs()): Bid => ({
+      transferId,
       data,
     }),
     signedBid: (): SignedBid => ({

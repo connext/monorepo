@@ -97,7 +97,7 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
     config: { redisUrl },
     logger,
   } = context;
-  const { fulfill } = getOperations();
+  const { execute } = getOperations();
 
   const methodContext = createMethodContext("setupCache");
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
@@ -110,9 +110,9 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
 
   // Subscribe to `NewPreparedTx` channel and attach prepare handler.
   cacheInstance.consumers.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
-    const { requestContext, methodContext } = createLoggingContext("NewPreparedTx");
+    const { requestContext, methodContext } = createLoggingContext("NewXcalledTx");
     try {
-      await fulfill(JSON.parse(pendingTx) as CrossChainTx);
+      await execute(JSON.parse(pendingTx) as CrossChainTx);
     } catch (err: any) {
       logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }

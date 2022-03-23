@@ -1,7 +1,7 @@
-import { fulfill } from "./fulfill";
+import { execute } from "./execute";
 
 export const getOperations = () => {
   return {
-    fulfill,
+    execute,
   };
 };

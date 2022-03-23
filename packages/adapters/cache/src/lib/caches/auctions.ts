@@ -12,7 +12,7 @@ export class AuctionsCache extends Cache {
    * @returns Returns the number of bids for a txId
    */
   public async storeBid(bid: Bid): Promise<number> {
-    const txid = bid.transactionId;
+    const txid = bid.transferId;
     const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 
@@ -87,7 +87,7 @@ export class AuctionsCache extends Cache {
    * @returns 1 - added, 0 - updated
    */
   public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<number> {
-    const txid = bid.transactionId;
+    const txid = bid.transferId;
     const router = bid.data.router;
     const curTimeInSecs = await getNtpTimeSeconds();
 

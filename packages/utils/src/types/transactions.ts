@@ -76,7 +76,7 @@ export const ExecuteArgsSchema = Type.Object({
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
 
 export const BidSchema = Type.Object({
-  transactionId: Type.String(),
+  transferId: Type.String(),
   data: ExecuteArgsSchema,
 });
 

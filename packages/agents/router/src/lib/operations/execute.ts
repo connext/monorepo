@@ -1,6 +1,6 @@
 import {
   CallParams,
-  FulfillArgs,
+  ExecuteArgs,
   Bid,
   createLoggingContext,
   CrossChainTx,
@@ -24,8 +24,8 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
  *
  * @param params - The prepared crosschain tranaction
  */
-export const fulfill = async (params: CrossChainTx): Promise<void> => {
-  const { requestContext, methodContext } = createLoggingContext(fulfill.name);
+export const execute = async (params: CrossChainTx): Promise<void> => {
+  const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
     logger,
@@ -33,7 +33,7 @@ export const fulfill = async (params: CrossChainTx): Promise<void> => {
     routerAddress,
   } = getContext();
   const {
-    fulfill: { sanityCheck },
+    execute: { sanityCheck },
     shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
   } = getHelpers();
 
@@ -51,47 +51,38 @@ export const fulfill = async (params: CrossChainTx): Promise<void> => {
   }
 
   /// create a bid
-  const {
-    originDomain,
-    destinationDomain,
-    transactionId,
-    recipient,
-    prepareLocalAsset,
-    prepareLocalAmount,
-    callTo,
-    callData,
-  } = params;
+  const { originDomain, destinationDomain, transferId, to, xcalledLocalAsset, xcalledLocalAmount, callTo, callData } =
+    params;
   // generate bid params
   const callParams: CallParams = {
-    recipient,
-    callTo,
+    to,
     callData,
     originDomain,
     destinationDomain,
   };
 
   // TODO:  get local Asset from onChain call and later switch to subgraph
-  const fulfillLocalAsset = await getDestinationLocalAsset(originDomain, prepareLocalAsset, destinationDomain);
+  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcalledLocalAsset, destinationDomain);
 
-  let receivingAmount = prepareLocalAmount;
+  let receivingAmount = xcalledLocalAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signHandleRelayerFeePayload(transactionId, RELAYER_FEE_PERCENTAGE, wallet);
-  const fulfillArguments: FulfillArgs = {
+  const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
+  const executeArguments: ExecuteArgs = {
     params: callParams,
-    local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
+    local: executeLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
     feePercentage: RELAYER_FEE_PERCENTAGE,
     amount: receivingAmount,
     index: 0,
-    transactionId: transactionId,
+    transferId,
     proof: [],
     relayerSignature: signature,
   };
 
   const bid: Bid = {
-    transactionId,
-    data: fulfillArguments,
+    transferId,
+    data: executeArguments,
   };
 
   const res = await sanityCheck(bid, requestContext);
