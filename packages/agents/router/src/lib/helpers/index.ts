@@ -1,9 +1,9 @@
-import { sanityCheck } from "./fulfill";
+import { sanityCheck } from "./execute";
 import { getDestinationLocalAsset, getTransactionId, signHandleRelayerFeePayload } from "./shared";
 
 export const getHelpers = () => {
   return {
-    fulfill: {
+    execute: {
       sanityCheck,
     },
     shared: {

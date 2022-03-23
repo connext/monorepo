@@ -10,7 +10,7 @@ export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Pro
 
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const encodedData = contracts.transactionManager.encodeFunctionData("fulfill", [bid.data]);
+  const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
