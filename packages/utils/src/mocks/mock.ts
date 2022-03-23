@@ -1,8 +1,5 @@
 import { providers, constants, BigNumber, utils } from "ethers";
 import {
-  mkAddress,
-  mkBytes32,
-  mkSig,
   chainDataToMap,
   CrossChainTx,
   CrossChainTxStatus,
@@ -12,7 +9,8 @@ import {
   FulfillArgs,
   SignedBid,
   createLoggingContext,
-} from ".";
+} from "..";
+import { mkAddress, mkBytes32, mkSig } from ".";
 
 /**
  * General mock toolset used for testing globally.

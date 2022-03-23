@@ -1,4 +1,12 @@
 /**
+ * Gets the current time in seconds.
+ * @returns The current time in seconds.
+ */
+export const getNtpTimeSeconds = async () => {
+  return Math.floor(Date.now() / 1000);
+};
+
+/**
  * Creates a promise that resolves after a specified period
  *
  * @param ms - Time to wait for resolution

@@ -1,7 +1,6 @@
 import { providers, BigNumber, Contract, constants, utils } from "ethers";
 
-import { ERC20Abi } from "./basic";
-import { ChainData, getChainData } from "./chainData";
+import { ChainData, getChainData, ERC20Abi } from "..";
 
 export const getOnchainBalance = async (
   assetId: string,

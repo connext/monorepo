@@ -1,4 +1,4 @@
-import { TAddress, TDecimalString, TIntegerString } from "./basic";
+import { TAddress, TDecimalString, TIntegerString } from ".";
 import { Type, Static } from "@sinclair/typebox";
 
 export enum CrossChainTxStatus {

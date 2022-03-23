@@ -78,6 +78,20 @@ export const getBytes32Error = (value: any): string | undefined => {
  */
 export const isValidBytes32 = (value: any): boolean => !getBytes32Error(value);
 
+/**
+ * Validates an address and returns the parsed (checksummed) version of that address
+ *
+ * @param address the unchecksummed hex address
+ * @returns The checksummed address
+ */
+export function validateAndParseAddress(address: string): string {
+  try {
+    return utils.getAddress(address);
+  } catch (error) {
+    throw new Error(`${address} is not a valid address.`);
+  }
+}
+
 ////////////////////////////////////////
 // Generators
 

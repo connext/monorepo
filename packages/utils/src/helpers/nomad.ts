@@ -1,4 +1,4 @@
-import { ChainData, getChainData } from ".";
+import { ChainData, getChainData } from "..";
 
 /**
  * Gets chain id from domain with `chainData`

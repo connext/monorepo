@@ -1,7 +1,7 @@
 import { Signer, Wallet, BigNumber, providers } from "ethers";
 import { arrayify, solidityKeccak256, splitSignature, verifyMessage } from "ethers/lib/utils";
 
-import { encodeHandleRelayerFeeData } from "./encode";
+import { encodeHandleRelayerFeeData } from ".";
 
 /**
  * Occasionally have seen metamask return signatures with v = 00 or v = 01.

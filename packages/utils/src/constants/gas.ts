@@ -1,4 +1,4 @@
-import { ChainData, getChainData } from ".";
+import { ChainData, getChainData } from "..";
 
 export const DEFAULT_GAS_ESTIMATES = {
   prepare: "190000",

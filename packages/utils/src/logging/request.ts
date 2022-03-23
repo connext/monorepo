@@ -1,4 +1,5 @@
 import hyperid from "hyperid";
+
 const hId = hyperid();
 
 /**

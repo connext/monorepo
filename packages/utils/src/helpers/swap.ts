@@ -1,7 +1,6 @@
 import { BigNumber } from "ethers";
 
-import { getRateFromPercentage } from "./util";
-import { calculateExchangeAmount, calculateExchangeWad } from "./math";
+import { getRateFromPercentage, calculateExchangeAmount, calculateExchangeWad } from ".";
 
 const ROUTER_FEE = "0.05"; // 0.05%
 

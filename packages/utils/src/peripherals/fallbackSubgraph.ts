@@ -2,8 +2,8 @@ import axios, { AxiosResponse } from "axios";
 import { request as graphQLRequest } from "graphql-request";
 import PriorityQueue from "p-queue";
 
-import { ChainData } from "./chainData";
-import { NxtpError } from "./error";
+import { ChainData } from ".";
+import { NxtpError } from "../types";
 
 // TODO: This is a great starting point for moving implementations of graphqlsdk-generated
 // code based on use-case:
