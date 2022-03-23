@@ -5,7 +5,7 @@ import { Cache } from ".";
 /**
  * Redis Store Details:
  * Transaction Data by Domain & Nonce
-   key: $domain:$nonce | value: JSON.stringify(CrossChainTx);
+   key: $domain:$nonce | value: JSON.stringify(XTransfer);
  * Transaction Status by TransactionId
    key: $txid | value XTransferStatus as string
  */

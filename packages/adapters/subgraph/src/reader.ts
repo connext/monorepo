@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { XTransfer as CrossChainTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
@@ -64,14 +64,14 @@ export class SubgraphReader {
     throw new Error("Not implemented");
   }
 
-  // public async getTransaction(domain: string, transactionId: string): Promise<CrossChainTx> {}
+  // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
 
-  public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<CrossChainTransfer[]> {
+  public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const { parser } = getHelpers();
 
     // first get prepared transactions on all chains
-    const allPrepared: CrossChainTransfer[] = (
+    const allPrepared: XTransfer[] = (
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
           const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) => {
@@ -93,15 +93,13 @@ export class SubgraphReader {
     return allPrepared;
   }
 
-  public async getTransactionsWithStatuses(
-    agents: Map<string, SubgraphQueryMetaParams>,
-  ): Promise<CrossChainTransfer[]> {
+  public async getTransactionsWithStatuses(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
 
     // first get prepared transactions on all chains
-    const allOrigin: [string, CrossChainTransfer][] = (
+    const allOrigin: [string, XTransfer][] = (
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
           const { transactions } = await subgraph.runtime.request<GetPreparedTransactionsQuery>((client) => {
@@ -130,7 +128,7 @@ export class SubgraphReader {
         return [s.transactionId as string, tx];
       });
 
-    const allTxById = new Map<string, CrossChainTransfer>(allOrigin);
+    const allTxById = new Map<string, XTransfer>(allOrigin);
 
     // use prepared IDs to get all receiving txs
     await Promise.all(

@@ -85,9 +85,9 @@ describe("TransactionCache", () => {
 
     describe("#storeTxData", () => {
       it("happy: should store transaction data", async () => {
-        const mockCrossChainTx = mock.entity.xtransfer("100", "200");
+        const mockXTransfer = mock.entity.xtransfer("100", "200");
         //add fake txid's status, should fire off event.
-        await transactions.storeTxData([mockCrossChainTx]);
+        await transactions.storeTxData([mockXTransfer]);
         let latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1234);
       });
@@ -96,7 +96,7 @@ describe("TransactionCache", () => {
         let latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1234);
 
-        const mockCrossChainTx = mock.entity.xtransfer(
+        const mockXTransfer = mock.entity.xtransfer(
           "100",
           "200",
           "1000",
@@ -106,7 +106,7 @@ describe("TransactionCache", () => {
           1235,
           mkAddress("0xa"),
         );
-        const res = await transactions.storeTxData([mockCrossChainTx]);
+        const res = await transactions.storeTxData([mockXTransfer]);
         latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1235);
       });
@@ -120,7 +120,7 @@ describe("TransactionCache", () => {
 
       it("happy case: should return data", async () => {
         const transactionId = getRandomBytes32();
-        const mockCrossChainTx = mock.entity.xtransfer(
+        const mockXTransfer = mock.entity.xtransfer(
           "101",
           "201",
           "1000",
@@ -130,7 +130,7 @@ describe("TransactionCache", () => {
           1234,
           mkAddress("0xa"),
         );
-        await transactions.storeTxData([mockCrossChainTx]);
+        await transactions.storeTxData([mockXTransfer]);
 
         const res = await transactions.getTxDataByDomainAndTxID("101", transactionId);
         expect(res.transferId).to.eq(transactionId);
@@ -145,7 +145,7 @@ describe("TransactionCache", () => {
 
       it("happy case: should return data", async () => {
         const transactionId = getRandomBytes32();
-        const mockCrossChainTx = mock.entity.xtransfer(
+        const mockXTransfer = mock.entity.xtransfer(
           "102",
           "202",
           "1000",
@@ -155,7 +155,7 @@ describe("TransactionCache", () => {
           1234,
           mkAddress("0xa"),
         );
-        await transactions.storeTxData([mockCrossChainTx]);
+        await transactions.storeTxData([mockXTransfer]);
 
         const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
         expect(res.transferId).to.eq(transactionId);
