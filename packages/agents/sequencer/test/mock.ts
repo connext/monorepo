@@ -1,5 +1,5 @@
 import { utils, BigNumber } from "ethers";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
@@ -62,6 +62,9 @@ export const mock = {
     },
     network: "testnet",
     auctionWaitTime: 1_000,
+    mode: {
+      cleanup: false,
+    },
   }),
   adapter: {
     cache: (): SinonStubbedInstance<StoreManager> => {

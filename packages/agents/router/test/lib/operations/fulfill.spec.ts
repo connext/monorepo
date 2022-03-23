@@ -1,15 +1,15 @@
 import axios from "axios";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import { expect, formatUrl } from "@connext/nxtp-utils";
 
-import { fulfill, sendBid } from "../../../src/lib/operations/fulfill";
-import { NotEnoughAmount, SlippageInvalid, SequencerResponseInvalid } from "../../../src/lib/errors";
+import * as FulfillFns from "../../../src/lib/operations/fulfill";
+import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
+const { fulfill, sendBid } = FulfillFns;
+
 const mockTransactingAmount = utils.parseEther("1");
-const mockRouterFee = BigNumber.from(mockTransactingAmount).mul(5).div(100);
-const mockGasFee = BigNumber.from("10000");
 const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
 
 describe("Operations:Fulfill", () => {
@@ -21,31 +21,78 @@ describe("Operations:Fulfill", () => {
   });
 
   describe("#fulfill", () => {
+    const mockFulfillLocalAsset = mock.asset.A.address;
+    let sendBidStub: SinonStub;
     beforeEach(() => {
-      mock.helpers.fulfill.getReceiverAmount.resolves({
-        receivingAmount: mockTransactingAmount.sub(mockRouterFee).toString(),
-        routerFee: mockRouterFee.toString(),
-        amountAfterSwapRate: "1",
-      });
-
-      mock.helpers.shared.getAmountOut.resolves(mockTransactingAmount.toString());
-      mock.helpers.shared.getDecimalsForAsset.resolves(18);
-      mock.helpers.shared.calculateGasFeeInReceivingToken.resolves(mockGasFee);
-      mock.helpers.shared.getDestinationLocalAsset.resolves(mock.asset.A.address);
-      mock.helpers.shared.getDestinationTransactingAsset.resolves(mock.asset.B.address);
+      mock.helpers.fulfill.sanityCheck.resolves(true);
+      mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
+      mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
+      sendBidStub = stub(FulfillFns, "sendBid").resolves();
     });
 
-    it.skip("happy", async () => {});
-
-    it("should throw NotEnoughAmount if final receiving amount < 0", async () => {
-      const tooMuchGasFee = BigNumber.from(mockTransactingAmount).add(1);
-      mock.helpers.shared.calculateGasFeeInReceivingToken.resolves(tooMuchGasFee);
-      await expect(fulfill(mockCrossChainTx)).to.be.rejectedWith(NotEnoughAmount);
+    afterEach(() => {
+      sendBidStub.restore();
     });
 
-    it("should error if slippage invalid", async () => {
+    it("happy", async () => {
+      const expectedBid = {
+        transactionId: mockCrossChainTx.transactionId,
+        data: {
+          params: {
+            recipient: mockCrossChainTx.recipient,
+            callTo: mockCrossChainTx.callTo,
+            callData: mockCrossChainTx.callData,
+            originDomain: mockCrossChainTx.originDomain,
+            destinationDomain: mockCrossChainTx.destinationDomain,
+          },
+          local: mockFulfillLocalAsset,
+          router: mockCrossChainTx.router,
+          feePercentage: FulfillFns.RELAYER_FEE_PERCENTAGE,
+          amount: mockCrossChainTx.prepareLocalAmount,
+          index: 0,
+          transactionId: mockCrossChainTx.transactionId,
+          proof: [],
+          relayerSignature: mock.signature,
+        },
+      };
+
+      await expect(fulfill(mockCrossChainTx)).to.be.fulfilled;
+
+      expect(mock.helpers.shared.getDestinationLocalAsset.callCount).to.equal(1);
+      expect(mock.helpers.shared.getDestinationLocalAsset.getCall(0).args).to.deep.eq([
+        mockCrossChainTx.originDomain,
+        mockCrossChainTx.prepareLocalAsset,
+        mockCrossChainTx.destinationDomain,
+      ]);
+      expect(mock.helpers.shared.signHandleRelayerFeePayload.callCount).to.equal(1);
+      expect(mock.helpers.fulfill.sanityCheck.callCount).to.equal(1);
+      expect(mock.helpers.fulfill.sanityCheck.getCall(0).args[0]).to.deep.equal(expectedBid);
+      expect(sendBidStub.getCall(0).args[0]).to.deep.equal(expectedBid);
+    });
+
+    it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
+      const invalidParams = {
+        ...mockCrossChainTx,
+        recipient: "0x0",
+        callTo: "0x0",
+        callData: "0x0",
+        originDomain: "-1",
+        destinationDomain: "-2",
+      };
+      await expect(fulfill(invalidParams)).to.be.rejectedWith(ParamsInvalid);
+    });
+
+    it.skip("should throw NotEnoughAmount if final receiving amount < 0", async () => {});
+
+    it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";
       await expect(fulfill(mockCrossChainTx)).to.be.rejectedWith(SlippageInvalid);
+    });
+
+    it("should not sendBid if sanityCheck returns false", async () => {
+      mock.helpers.fulfill.sanityCheck.resolves(false);
+      await expect(fulfill(mockCrossChainTx)).to.be.fulfilled;
+      expect(sendBidStub.callCount).to.equal(0);
     });
   });
 
@@ -58,6 +105,10 @@ describe("Operations:Fulfill", () => {
       axiosPostStub = stub(axios, "post").resolves({ data: "ok" });
     });
 
+    afterEach(() => {
+      axiosPostStub.restore();
+    });
+
     it("happy", async () => {
       const result = await sendBid(mockBid);
       expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "bid"), {
@@ -66,7 +117,7 @@ describe("Operations:Fulfill", () => {
       expect(result).to.equal("ok");
     });
 
-    it("throws if no response", async () => {
+    it("throws SequencerResponseInvalid if no response", async () => {
       axiosPostStub.resolves();
       await expect(sendBid(mockBid)).to.be.rejectedWith(SequencerResponseInvalid);
     });

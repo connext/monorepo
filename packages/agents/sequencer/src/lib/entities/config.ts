@@ -19,6 +19,10 @@ export const TServerConfig = Type.Object({
   host: Type.String({ format: "ipv4" }),
 });
 
+export const TModeConfig = Type.Object({
+  cleanup: Type.Boolean(),
+});
+
 export const SequencerConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
@@ -33,6 +37,7 @@ export const SequencerConfigSchema = Type.Object({
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   redisUrl: Type.Optional(Type.String({ format: "uri" })),
   server: TServerConfig,
+  mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
 });
 

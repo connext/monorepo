@@ -4,6 +4,7 @@ import { AuctionsCache, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
+
 import { NxtpRouterConfig } from "../src/config";
 import { AppContext } from "../src/lib/entities/context";
 // Used for stubbing functions at the bottom of this file:
@@ -158,15 +159,12 @@ export const mock = {
   },
   helpers: {
     fulfill: {
-      getReceiverAmount: stub(),
+      sanityCheck: stub(),
     },
     shared: {
-      getDestinationTransactingAsset: stub(),
       getDestinationLocalAsset: stub(),
-      getAmountIn: stub(),
-      getAmountOut: stub(),
-      getDecimalsForAsset: stub(),
-      calculateGasFeeInReceivingToken: stub(),
+      getTransactionId: stub(),
+      signHandleRelayerFeePayload: stub(),
     },
   },
   operations: {
@@ -179,6 +177,9 @@ export let getContextStub: SinonStub;
 // Stub getContext to return the mock context above.
 export const stubContext = () => {
   mockContext = mock.context();
+  try {
+    getContextStub.restore();
+  } catch (e) {}
   try {
     getContextStub = stub(router, "getContext").callsFake(() => {
       return mockContext;

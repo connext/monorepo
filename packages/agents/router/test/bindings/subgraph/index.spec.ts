@@ -5,7 +5,7 @@ import { CrossChainTxStatus, delay } from "@connext/nxtp-utils";
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
 
-describe("SubgraphBinding", () => {
+describe("Bindings:Subgraph", () => {
   let mockContext: any;
 
   beforeEach(() => {
@@ -22,15 +22,14 @@ describe("SubgraphBinding", () => {
       pollStub.restore();
     });
 
-    it("should start an interval loop that calls polling fn", async () => {
-      let done = false;
+    it("happy: should start an interval loop that calls polling fn", async () => {
       // Override the poll interval to 10ms so we can test the interval loop
-      bindSubgraphFns.bindSubgraph(10, () => done);
+      bindSubgraphFns.bindSubgraph(10);
       // TODO: slight race here?
       await delay(20);
+      mockContext.config.mode.cleanup = true;
+      await delay(10);
       expect(pollStub.callCount).to.be.gte(1);
-      done = true;
-      await delay(30);
     });
   });
 

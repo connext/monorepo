@@ -5,7 +5,6 @@ import {
   createLoggingContext,
   CrossChainTx,
   CrossChainTxSchema,
-  signHandleRelayerFeePayload,
   formatUrl,
   ajv,
 } from "@connext/nxtp-utils";
@@ -17,7 +16,7 @@ import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
 // fee percentage paid to relayer. need to be updated later
-const RelayerFeePercentage = "1"; //  1%
+export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 
 /**
  * Router creates a new bid and sends it to auctioneer.
@@ -25,7 +24,7 @@ const RelayerFeePercentage = "1"; //  1%
  *
  * @param params - The prepared crosschain tranaction
  */
-export const fulfill = async (params: CrossChainTx) => {
+export const fulfill = async (params: CrossChainTx): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(fulfill.name);
 
   const {
@@ -35,7 +34,7 @@ export const fulfill = async (params: CrossChainTx) => {
   } = getContext();
   const {
     fulfill: { sanityCheck },
-    shared: { getDestinationLocalAsset },
+    shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
   } = getHelpers();
 
   logger.info("Method start", requestContext, methodContext, { params });
@@ -53,7 +52,6 @@ export const fulfill = async (params: CrossChainTx) => {
 
   /// create a bid
   const {
-    nonce,
     originDomain,
     destinationDomain,
     transactionId,
@@ -78,14 +76,16 @@ export const fulfill = async (params: CrossChainTx) => {
   let receivingAmount = prepareLocalAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signHandleRelayerFeePayload(nonce.toString(), RelayerFeePercentage, wallet);
+  const signature = await signHandleRelayerFeePayload(transactionId, RELAYER_FEE_PERCENTAGE, wallet);
   const fulfillArguments: FulfillArgs = {
     params: callParams,
     local: fulfillLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
     router: routerAddress,
-    feePercentage: RelayerFeePercentage,
+    feePercentage: RELAYER_FEE_PERCENTAGE,
     amount: receivingAmount,
-    nonce: nonce,
+    index: 0,
+    transactionId: transactionId,
+    proof: [],
     relayerSignature: signature,
   };
 

@@ -1,8 +1,9 @@
-import { delay, mock } from "@connext/nxtp-utils";
+import { delay } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { stub, restore, reset, SinonStub } from "sinon";
+
+import { ctxMock } from "../../globalTestHook";
 import { bindBidSelection } from "../../../src/bindings";
-import { BID_SELECTION_POLL_INTERVAL } from "../../../src/bindings/bidSelection";
 import * as BidFns from "../../../src/lib/operations/bid";
 
 describe("bidSelection", () => {
@@ -11,17 +12,20 @@ describe("bidSelection", () => {
     beforeEach(() => {
       bidSelectionStub = stub(BidFns, "bidSelection").resolves(null);
     });
+
     after(() => {
       restore();
       reset();
     });
-    it("should be called 1 time within polling interval", async () => {
-      await bindBidSelection();
-      console.log(
-        `Waiting for BID_SELECTION_POLL_INTERVAL:${BID_SELECTION_POLL_INTERVAL}ms to ensure if the polling works fine`,
-      );
-      await delay(BID_SELECTION_POLL_INTERVAL + 1_000);
-      expect(bidSelectionStub.callCount).to.be.eq(1);
+
+    it("happy: should start an interval loop that calls polling fn", async () => {
+      // Override the poll interval to 10ms so we can test the interval loop
+      await bindBidSelection(10);
+      // TODO: slight race here?
+      await delay(20);
+      ctxMock.config.mode.cleanup = true;
+      await delay(10);
+      expect(bidSelectionStub.callCount).to.be.gte(1);
     });
   });
 });

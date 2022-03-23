@@ -43,7 +43,7 @@ describe("Config", () => {
     reset();
   });
 
-  describe("getEnvConfig", () => {
+  describe("#getEnvConfig", () => {
     it("happy: should parse out configuration", () => {
       stub(process, "env").value({
         ...process.env,

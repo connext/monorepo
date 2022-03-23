@@ -78,9 +78,7 @@ export const bidSelection = async (_requestContext: RequestContext) => {
     const records = await cache.auctions.getBidsByTransactionId(transactionId);
     const random = Math.floor(Math.random() * records.length);
     const selectedBid = records[random];
-
     await sendToRelayer(selectedBid.payload, requestContext);
-
-    cache.auctions.updateAllBidsWithTransactionId(transactionId, BidStatus.Sent);
+    await cache.auctions.updateAllBidsWithTransactionId(transactionId, BidStatus.Sent);
   });
 };

@@ -2,8 +2,6 @@ import { Bid, RequestContext } from "@connext/nxtp-utils";
 import { getContext } from "../../router";
 
 export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Promise<Boolean> => {
-  console.log("HELLO??");
-  console.log(getContext());
   const {
     config,
     adapters: { txservice, contracts },
