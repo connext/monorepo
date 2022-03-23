@@ -20,20 +20,20 @@ variable "full_image_name_sequencer" {
 
 variable "mnemonic_testnet" {
   type        = string
-  default     = "tilt valley candy crush interest illness rifle quarter genius current damp legal"
   description = "mnemonic"
 }
 
 variable "admin_token_router_testnet" {
   type        = string
   description = "admin token"
+  default     = "blahblah"
 }
 variable "logdna_key" {
   type = string
 }
 
 locals {
-  docker_compose = <<-EOT
+  docker_compose_router = <<-EOT
   version: \"3.3\"
   networks:
     nxtp:
@@ -41,12 +41,12 @@ locals {
   services:
     router:
       container_name: router
-      image: \$ROUTER_VERSION
+      environment:
+        NXTP_CONFIG: "${local.local_router_config}"
+      image: ${var.full_image_name_router}
       restart: always
       ports:
         - 8080:8080
-      volumes:
-        - ./config.json:/home/node/router/config.json
       logging:
         driver: json-file
         options:
@@ -56,28 +56,54 @@ locals {
       networks:
         nxtp:
 
-    signer:
-      container_name: signer
-      image: \"consensys/web3signer:develop\"
-      command: \"--config-file=/home/node/signer/config.yaml eth1\"
+    logdna:
+      container_name: logdna
+      image: logdna/logspout:v1.2.0
+      restart: always
+      environment:
+        LOGDNA_KEY: ${var.logdna_key}
+        TAGS: "amarok-testnet-router"
       volumes:
-        - ./data/signerConfig/config.yaml:/home/node/signer/config.yaml
-        - ./key.yaml:/home/node/signer/keyFiles/key.yaml
+        - /var/run/docker.sock:/var/run/docker.sock
+      logging:
+        driver: json-file
+        options:
+          max-size: 10m
+          tag: \"amarok-testnet\"
+      networks:
+        - nxtp
+      EOT
+
+  docker_compose_sequencer = <<-EOT
+  version: \"3.3\"
+  networks:
+    nxtp:
+
+  services:
+    sequencer:
+      environment:
+        NXTP_CONFIG: "${local.local_sequencer_config}"
+      container_name: sequencer
+      image: ${var.full_image_name_sequencer}
+      restart: always
+      ports:
+        - 8080:8080
       logging:
         driver: json-file
         options:
           max-size: 10m
           tag: \"{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}\"
+
       networks:
-        - nxtp
+        nxtp:
 
     logdna:
       container_name: logdna
       image: logdna/logspout:v1.2.0
       restart: always
       environment:
-        LOGDNA_KEY: \$LOGDNA_KEY
-        TAGS: \$LOGDNA_TAG
+        LOGDNA_KEY: ${local.local_sequencer_config}
+        TAGS: "amarok-testnet-sequencer"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
       logging:
@@ -92,7 +118,7 @@ locals {
   local_router_config = jsonencode({
     "logLevel"     = "debug"
     "sequencerUrl" = "http://3.225.28.122:8081"
-    "redisUrl" = "redis://clustercfg.router-testnet.njrwqg.memorydb.us-east-1.amazonaws.com:6379"
+    "redisUrl"     = "redis://clustercfg.router-testnet.njrwqg.memorydb.us-east-1.amazonaws.com:6379"
     "server" = {
       "adminToken" = var.admin_token_router_testnet
     }
@@ -132,39 +158,40 @@ locals {
     }
     "mnemonic" = var.mnemonic_testnet
   })
-  local_sequencer_config = jsonencode({ 
-    "logLevel" = "debug" 
+
+  local_sequencer_config = jsonencode({
+    "logLevel" = "debug"
     "redisUrl" = "redis://clustercfg.amarok-sequencer-testnet.njrwqg.memorydb.us-east-1.amazonaws.com:6379"
-    "chains" = { 
-      "2000" = { 
-        "providers" = ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"] 
-        "subgraph" = { 
-          "runtime" = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"] 
-          "analytics" = [""] 
-        } 
-        "deployments" = { 
-          "transactionManager" = "0xd6d9d8E6304C460b40022e467d8A8748962Eb0B0" 
-        } 
-        "assets" = [{ 
-          "name" = "TEST" 
-          "address" = "0xf4CF3FcC8dC7E5171Bb08bef75EDe3fEf00F46E6" 
-        }] 
-      } 
-      "3000" = { 
-        "providers" = ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"] 
-        "subgraph" = { 
-          "runtime" = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"] 
-          "analytics" : [""] 
-        } 
-        "deployments" = { 
-          "transactionManager" = "0x9F929643db56eaf747131CB4FA1126612b30Eb7F" 
-        } 
-        "assets" = [{ 
-          "name" = "TEST" 
-          "address" = "0xe71678794fff8846bFF855f716b0Ce9d9a78E844" 
-        }] 
-      } 
-    } 
+    "chains" = {
+      "2000" = {
+        "providers" = ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
+        "subgraph" = {
+          "runtime"   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
+          "analytics" = [""]
+        }
+        "deployments" = {
+          "transactionManager" = "0xd6d9d8E6304C460b40022e467d8A8748962Eb0B0"
+        }
+        "assets" = [{
+          "name"    = "TEST"
+          "address" = "0xf4CF3FcC8dC7E5171Bb08bef75EDe3fEf00F46E6"
+        }]
+      }
+      "3000" = {
+        "providers" = ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
+        "subgraph" = {
+          "runtime" = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
+          "analytics" : [""]
+        }
+        "deployments" = {
+          "transactionManager" = "0x9F929643db56eaf747131CB4FA1126612b30Eb7F"
+        }
+        "assets" = [{
+          "name"    = "TEST"
+          "address" = "0xe71678794fff8846bFF855f716b0Ce9d9a78E844"
+        }]
+      }
+    }
   })
 }
 
@@ -236,11 +263,8 @@ resource "aws_instance" "terraformed-router" {
     sudo echo "RUNNING INITIAL SCRIPT" >> /root/touch.txt
     sudo echo "${var.full_image_name_router}" >> /root/touch.txt
     sudo echo "${local.local_router_config}" >> /root/touch.txt
-    sudo echo "${local.docker_compose}" >> /root/docker-compose.yml
+    sudo echo "${local.docker_compose_router}" >> /root/docker-compose.yml
     sudo chmod 777 /root/docker-compose.yml
-    sudo echo "ROUTER_VERSION=${var.full_image_name_router}" >> /root/.env
-    sudo echo "LOGDNA_KEY=${var.logdna_key}" >> /root/.env
-    sudo echo "NXTP_CONFIG=${local.local_router_config}" >> /root/config.json
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
@@ -275,14 +299,20 @@ resource "aws_instance" "terraformed-sequencer" {
     sudo echo "RUNNING INITIAL SCRIPT" >> /root/touch.txt
     sudo echo "${var.full_image_name_sequencer}" >> /root/touch.txt
     sudo echo "${local.local_sequencer_config}" >> /root/touch.txt
+    sudo echo "${local.docker_compose_sequencer}" >> /root/docker-compose.yml
+    sudo chmod 777 /root/docker-compose.yml
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
     sudo usermod -a -G docker ec2-user
+    sudo usermod -a -G docker root
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
-    sudo docker pull "${var.full_image_name_sequencer}"
-    sudo docker run -e NXTP_CONFIG='${local.local_sequencer_config}' -d "${var.full_image_name_sequencer}" >> /root/dockerout
+    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+    sudo su
+    cd /root
+    sudo docker-compose up
+    sudo echo "DONE" >> res.txt
   EOF
 
 }
