@@ -6,7 +6,7 @@ import {
   getRandomBytes32,
   Bid,
   CallParams,
-  FulfillArgs,
+  ExecuteArgs,
   SignedBid,
   createLoggingContext,
 } from "..";
@@ -56,12 +56,12 @@ export const mock: any = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (): CallParams => ({
-      to: mkAddress("0xrecipient"),
+      callto: mkAddress("0xrecipient"),
       callData: "0x",
       originDomain: mock.chain.A,
       destinationDomain: mock.chain.B,
     }),
-    fulfillArgs: (): FulfillArgs => ({
+    executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),
       local: mkAddress("0xlocal"),
       router: mkAddress("0xrouter"),
@@ -86,7 +86,7 @@ export const mock: any = {
       amount = "1000",
       status: CrossChainTxStatus = CrossChainTxStatus.Prepared,
       asset: string = mock.asset.A.address,
-      transactionId: string = getRandomBytes32(),
+      transferId: string = getRandomBytes32(),
       nonce = 1234,
       user: string = mkAddress("0xfaded"),
     ): CrossChainTx => {
@@ -98,42 +98,44 @@ export const mock: any = {
           status,
 
           // Transfer Data
-          nonce,
-          transactionId,
           to: user,
+          transferId,
+          callTo: constants.AddressZero,
+          callData: "0x0",
+          idx: "0",
+          nonce,
           router: mock.address.router,
 
-          // Prepared
-          prepareCaller: user,
-          prepareTransactingAmount: amount,
-          prepareLocalAmount: amount,
-          prepareTransactingAsset: asset,
-          prepareLocalAsset: asset,
-          callData: "0x0",
+          // XCalled
+          xcalledCaller: user,
+          xcalledTransferringAmount: amount,
+          xcalledLocalAmount: amount,
+          xcalledTransferringAsset: asset,
+          xcalledLocalAsset: asset,
 
-          // TransactionPrepared
-          prepareTransactionHash: getRandomBytes32(),
-          prepareTimestamp: Math.floor(Date.now() / 1000 - 60),
-          prepareGasPrice: utils.parseUnits("5", "gwei").toString(),
-          prepareGasLimit: "80000",
-          prepareBlockNumber: 7654321,
+          // XCalled
+          xcalledTransactionHash: getRandomBytes32(),
+          xcalledTimestamp: Math.floor(Date.now() / 1000 - 60),
+          xcalledGasPrice: utils.parseUnits("5", "gwei").toString(),
+          xcalledGasLimit: "80000",
+          xcalledBlockNumber: 7654321,
         },
         // If status is prepared, these should be empty.
         status === CrossChainTxStatus.Prepared
           ? {
-              // Fulfill
-              fulfillCaller: mkAddress("0x0"),
-              fulfillTransactingAmount: "0",
-              fulfillLocalAmount: "0",
-              fulfillTransactingAsset: asset,
-              fulfillLocalAsset: asset,
+              // Executed
+              executedCaller: mkAddress("0x0"),
+              executedTransferringAmount: "0",
+              executedLocalAmount: "0",
+              executedTransferringAsset: asset,
+              executedLocalAsset: asset,
 
-              // TransactionFulfilled
-              fulfillTransactionHash: "0x0",
-              fulfillTimestamp: 0,
-              fulfillGasPrice: "0",
-              fulfillGasLimit: "0",
-              fulfillBlockNumber: 0,
+              // Executed
+              executedTransactionHash: "0x0",
+              executedTimestamp: 0,
+              executedGasPrice: "0",
+              executedGasLimit: "0",
+              executedBlockNumber: 0,
 
               // Reconciled
               externalCallHash: "0x0",
@@ -147,18 +149,18 @@ export const mock: any = {
           status === CrossChainTxStatus.Fulfilled
           ? {
               // Fulfill
-              fulfillCaller: mock.address.relayer,
-              fulfillTransactingAmount: "1000",
-              fulfillLocalAmount: "1000",
-              fulfillTransactingAsset: asset,
-              fulfillLocalAsset: asset,
+              executedCaller: mock.address.relayer,
+              executedTransactingAmount: "1000",
+              executedLocalAmount: "1000",
+              executedTransactingAsset: asset,
+              executedLocalAsset: asset,
 
-              // TransactionFulfilled
-              fulfillTransactionHash: getRandomBytes32(),
-              fulfillTimestamp: Math.floor(Date.now() / 1000 - 30),
-              fulfillGasPrice: utils.parseUnits("5", "gwei").toString(),
-              fulfillGasLimit: "80000",
-              fulfillBlockNumber: 7654345,
+              // Transactionexecuteded
+              executedTransactionHash: getRandomBytes32(),
+              executedTimestamp: Math.floor(Date.now() / 1000 - 30),
+              executedGasPrice: utils.parseUnits("5", "gwei").toString(),
+              executedGasLimit: "80000",
+              executedBlockNumber: 7654345,
 
               // Reconciled
               externalCallHash: "0x0",
@@ -170,19 +172,19 @@ export const mock: any = {
             }
           : // Finally, if status is reconciled, we should have all fields defined.
             {
-              // Fulfill
-              fulfillCaller: mock.address.relayer,
-              fulfillTransactingAmount: "1000",
-              fulfillLocalAmount: "1000",
-              fulfillTransactingAsset: asset,
-              fulfillLocalAsset: asset,
+              // executed
+              executedCaller: mock.address.relayer,
+              executedTransactingAmount: "1000",
+              executedLocalAmount: "1000",
+              executedTransactingAsset: asset,
+              executedLocalAsset: asset,
 
-              // TransactionFulfilled
-              fulfillTransactionHash: getRandomBytes32(),
-              fulfillTimestamp: Math.floor(Date.now() / 1000 - 30),
-              fulfillGasPrice: utils.parseUnits("5", "gwei").toString(),
-              fulfillGasLimit: "80000",
-              fulfillBlockNumber: 7654345,
+              // Transactionexecuteded
+              executedTransactionHash: getRandomBytes32(),
+              executedTimestamp: Math.floor(Date.now() / 1000 - 30),
+              executedGasPrice: utils.parseUnits("5", "gwei").toString(),
+              executedGasLimit: "80000",
+              executedBlockNumber: 7654345,
 
               // Reconciled
               externalCallHash: "0x0",

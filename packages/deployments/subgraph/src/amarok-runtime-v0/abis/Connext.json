@@ -85,15 +85,52 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "destination",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "root",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[3]",
+        "name": "tokens",
+        "type": "address[3]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[3]",
+        "name": "amounts",
+        "type": "uint256[3]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "Dispatched",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "transactionId",
+        "name": "transferId",
         "type": "bytes32"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "recipient",
+        "name": "to",
         "type": "address"
       },
       {
@@ -106,12 +143,7 @@
         "components": [
           {
             "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "callTo",
+            "name": "to",
             "type": "address"
           },
           {
@@ -131,15 +163,9 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct TransactionManager.CallParams",
+        "internalType": "struct IConnext.CallParams",
         "name": "params",
         "type": "tuple"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "nonce",
-        "type": "uint256"
       },
       {
         "indexed": false,
@@ -150,7 +176,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "transactingAsset",
+        "name": "transferringAsset",
         "type": "address"
       },
       {
@@ -162,7 +188,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "transactingAmount",
+        "name": "transferringAmount",
         "type": "uint256"
       },
       {
@@ -172,7 +198,7 @@
         "type": "address"
       }
     ],
-    "name": "Fulfilled",
+    "name": "Executed",
     "type": "event"
   },
   {
@@ -224,7 +250,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "recipient",
+        "name": "to",
         "type": "address"
       },
       {
@@ -285,151 +311,10 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "transactionId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "callTo",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "callData",
-            "type": "bytes"
-          },
-          {
-            "internalType": "uint32",
-            "name": "originDomain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "destinationDomain",
-            "type": "uint32"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct TransactionManager.CallParams",
-        "name": "params",
-        "type": "tuple"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "transactingAsset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "localAsset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "transactingAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "localAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "nonce",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "Prepared",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "transactionId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "router",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "localAsset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "localAmount",
-        "type": "uint256"
-      },
-      {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "externalHash",
+        "name": "root",
         "type": "bytes32"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "router",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "externalHash",
-            "type": "bytes32"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct TransactionManager.FulfilledTransaction",
-        "name": "fulfilled",
-        "type": "tuple"
       },
       {
         "indexed": false,
@@ -534,6 +419,95 @@
       }
     ],
     "name": "StableSwapAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint32",
+            "name": "originDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "destinationDomain",
+            "type": "uint32"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IConnext.CallParams",
+        "name": "params",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "transferringAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "localAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "transferringAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "localAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "XCalled",
     "type": "event"
   },
   {
@@ -735,6 +709,54 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "batchAmounts",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "batchAssets",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "bridgeRouter",
     "outputs": [
@@ -768,6 +790,19 @@
   },
   {
     "inputs": [],
+    "name": "count",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "delay",
     "outputs": [
       {
@@ -777,6 +812,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_destination",
+        "type": "uint32"
+      }
+    ],
+    "name": "dispatch",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -800,12 +848,7 @@
             "components": [
               {
                 "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "callTo",
+                "name": "to",
                 "type": "address"
               },
               {
@@ -824,7 +867,7 @@
                 "type": "uint32"
               }
             ],
-            "internalType": "struct TransactionManager.CallParams",
+            "internalType": "struct IConnext.CallParams",
             "name": "params",
             "type": "tuple"
           },
@@ -845,13 +888,23 @@
           },
           {
             "internalType": "uint256",
-            "name": "nonce",
+            "name": "amount",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "index",
             "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "transferId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32[32]",
+            "name": "proof",
+            "type": "bytes32[32]"
           },
           {
             "internalType": "bytes",
@@ -859,12 +912,12 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct TransactionManager.FulfillArgs",
+        "internalType": "struct IConnext.ExecuteArgs",
         "name": "_args",
         "type": "tuple"
       }
     ],
-    "name": "fulfill",
+    "name": "execute",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -873,6 +926,32 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "executor",
+    "outputs": [
+      {
+        "internalType": "contract IExecutor",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "incomingRoot",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -901,19 +980,6 @@
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "interpreter",
-    "outputs": [
-      {
-        "internalType": "contract IFulfillInterpreter",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -971,64 +1037,61 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "_transferId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_local",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[32]",
+        "name": "_proof",
+        "type": "bytes32[32]"
+      },
+      {
         "components": [
           {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "callTo",
-                "type": "address"
-              },
-              {
-                "internalType": "bytes",
-                "name": "callData",
-                "type": "bytes"
-              },
-              {
-                "internalType": "uint32",
-                "name": "originDomain",
-                "type": "uint32"
-              },
-              {
-                "internalType": "uint32",
-                "name": "destinationDomain",
-                "type": "uint32"
-              }
-            ],
-            "internalType": "struct TransactionManager.CallParams",
-            "name": "params",
-            "type": "tuple"
-          },
-          {
             "internalType": "address",
-            "name": "transactingAssetId",
+            "name": "to",
             "type": "address"
           },
           {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint32",
+            "name": "originDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "destinationDomain",
+            "type": "uint32"
           }
         ],
-        "internalType": "struct TransactionManager.PrepareArgs",
-        "name": "_args",
+        "internalType": "struct IConnext.CallParams",
+        "name": "_params",
         "type": "tuple"
       }
     ],
-    "name": "prepare",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "payable",
+    "name": "process",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1088,52 +1151,13 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "_id",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_local",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_externalHash",
+        "name": "_incomingRoot",
         "type": "bytes32"
       }
     ],
     "name": "reconcile",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "reconciledTransactions",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1168,7 +1192,7 @@
       },
       {
         "internalType": "address payable",
-        "name": "recipient",
+        "name": "to",
         "type": "address"
       }
     ],
@@ -1186,7 +1210,7 @@
       },
       {
         "internalType": "address payable",
-        "name": "recipient",
+        "name": "to",
         "type": "address"
       }
     ],
@@ -1243,6 +1267,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "root",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -1250,7 +1287,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "routedTransactions",
+    "name": "routedTransfers",
     "outputs": [
       {
         "internalType": "address",
@@ -1279,7 +1316,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "routedTransactionsGas",
+    "name": "routedTransfersGas",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1401,6 +1438,19 @@
   },
   {
     "inputs": [],
+    "name": "tree",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "wrapper",
     "outputs": [
       {
@@ -1410,6 +1460,64 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "callData",
+                "type": "bytes"
+              },
+              {
+                "internalType": "uint32",
+                "name": "originDomain",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "destinationDomain",
+                "type": "uint32"
+              }
+            ],
+            "internalType": "struct IConnext.CallParams",
+            "name": "params",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "transactingAssetId",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IConnext.XCallArgs",
+        "name": "_args",
+        "type": "tuple"
+      }
+    ],
+    "name": "xcall",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "payable",
     "type": "function"
   },
   {

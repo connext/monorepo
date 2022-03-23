@@ -15,7 +15,7 @@ export default task("router-preflight", "Check if router has been set up correct
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+        const connextDeployment = await deployments.get("Connext_Proxy");
         connextAddress = connextDeployment.address;
       }
       console.log("connextAddress: ", connextAddress);
@@ -23,7 +23,7 @@ export default task("router-preflight", "Check if router has been set up correct
       const asset = _asset ?? (await deployments.get("TestERC20")).address;
       const amount = _amount ?? "2500000000000000000000000";
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
+      const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
 
       // Not needed for testnets.
       // Make sure router's signer address is approved.

@@ -12,12 +12,12 @@ export default task("renounce-ownership", "Renounce Ownership")
 
     let connextAddress = _connextAddress;
     if (!connextAddress) {
-      const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+      const connextDeployment = await deployments.get("Connext_Proxy");
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
 
-    const connext = await ethers.getContractAt("Connext", connextAddress);
+    const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
     let isRenouncedFunction;
     let ownershipTimestampFunction;
     let proposeRenunciationFunction;
