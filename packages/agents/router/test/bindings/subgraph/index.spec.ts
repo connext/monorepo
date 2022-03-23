@@ -5,7 +5,7 @@ import { CrossChainTxStatus, delay } from "@connext/nxtp-utils";
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
 
-describe("SubgraphBinding", () => {
+describe("Bindings:Subgraph", () => {
   let mockContext: any;
 
   beforeEach(() => {
