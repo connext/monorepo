@@ -83,7 +83,7 @@ const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
 };
 
 export type SubgraphQueryMetaParams = {
-  maxPrepareBlockNumber: number;
+  maxXCallBlockNumber: number;
   latestNonce: number;
 };
 

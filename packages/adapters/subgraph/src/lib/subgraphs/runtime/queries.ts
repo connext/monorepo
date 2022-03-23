@@ -2,16 +2,16 @@ import { gql } from "graphql-request";
 
 // Contains all subgraph queries used by router
 
-export const getPreparedTransactions = gql`
-  query GetPreparedTransactions($destinationDomains: [BigInt!], $maxPrepareBlockNumber: BigInt!, $nonce: BigInt!) {
-    transactions(
+export const getXCalledTransfers = gql`
+  query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
+    transfers(
       where: {
-        status: Prepared
+        status: XCalled
         destinationDomain_in: $destinationDomains
-        prepareBlockNumber_lte: $maxPrepareBlockNumber
+        xcalledBlockNumber_lte: $maxXCallBlockNumber
         nonce_gte: $nonce
       }
-      orderBy: prepareBlockNumber
+      orderBy: xcalledBlockNumber
       orderDirection: desc
     ) {
       id
@@ -20,100 +20,100 @@ export const getPreparedTransactions = gql`
       destinationDomain
       chainId
       status
-
       # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
       nonce
-      transactionId
-      recipient
       router {
         id
       }
-      transactingAsset
-      localAsset
-
-      # Prepared
-      prepareCaller
-      prepareTransactingAmount
-      prepareLocalAmount
-      callTo
-      callData
-
-      # TransactionPrepared
-      prepareTransactionHash
-      prepareTimestamp
-      prepareGasPrice
-      prepareGasLimit
-      prepareBlockNumber
+      # XCalled
+      xcalledCaller
+      xcalledTransferringAmount
+      xcalledLocalAmount
+      xcalledTransferringAsset
+      xcalledLocalAsset
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransferringAmount
+      executedLocalAmount
+      executedTransferringAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
     }
   }
 `;
 
-export const getTransaction = gql`
-  query GetTransaction($transactionId: Bytes!) {
-    transactions(where: { transactionId: $transactionId }) {
+export const getTransfer = gql`
+  query GetTransfer($transferId: Bytes!) {
+    transfers(where: { transferId: $transferId }) {
       id
       # Meta
       originDomain
       destinationDomain
       chainId
       status
-
       # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
       nonce
-      transactionId
-      recipient
       router {
         id
       }
-      transactingAsset
-      localAsset
-
-      # Prepared
-      prepareCaller
-      prepareTransactingAmount
-      prepareLocalAmount
-      callTo
-      callData
-
-      # TransactionPrepared
-      prepareTransactionHash
-      prepareTimestamp
-      prepareGasPrice
-      prepareGasLimit
-      prepareBlockNumber
-
-      # Fulfill
-      fulfillCaller
-      fulfillTransactingAmount
-      fulfillLocalAmount
-
-      # TransactionFulfilled
-      fulfillTransactionHash
-      fulfillTimestamp
-      fulfillGasPrice
-      fulfillGasLimit
-      fulfillBlockNumber
-
-      # Reconciled
-      externalCallHash
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber
+      # XCalled
+      xcalledCaller
+      xcalledTransferringAmount
+      xcalledLocalAmount
+      xcalledTransferringAsset
+      xcalledLocalAsset
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransferringAmount
+      executedLocalAmount
+      executedTransferringAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
     }
   }
 `;
 
-export const getFulfilledAndReconciledTransactionsByIds = gql`
-  query GetFulfilledAndReconciledTransactionsByIds($transactionIds: [Bytes!], $maxPrepareBlockNumber: BigInt!) {
-    transactions(
+export const getExecutedAndReconciledTransfersByIds = gql`
+  query GetExecutedAndReconciledTransfersByIds($transferIds: [Bytes!], $maxXCalledBlockNumber: BigInt!) {
+    transfers(
       where: {
-        transactionId_in: $transactionIds
-        prepareBlockNumber_lte: $maxPrepareBlockNumber
-        status_in: [Fulfilled, Reconciled]
+        transferId_in: $transferIds
+        xcalledBlockNumber_lte: $maxXCalledBlockNumber
+        status_in: [Executed, Reconciled]
       }
-      orderBy: fulfillBlockNumber
+      orderBy: xcalledBlockNumber
       orderDirection: desc
     ) {
       id
@@ -122,48 +122,40 @@ export const getFulfilledAndReconciledTransactionsByIds = gql`
       destinationDomain
       chainId
       status
-
       # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
       nonce
-      transactionId
-      recipient
       router {
         id
       }
-
-      # Prepared
-      prepareCaller
-      prepareTransactingAmount
-      prepareLocalAmount
-      callTo
-      callData
-
-      # TransactionPrepared
-      prepareTransactionHash
-      prepareTimestamp
-      prepareGasPrice
-      prepareGasLimit
-      prepareBlockNumber
-
-      # Fulfill
-      fulfillCaller
-      fulfillTransactingAmount
-      fulfillLocalAmount
-
-      # TransactionFulfilled
-      fulfillTransactionHash
-      fulfillTimestamp
-      fulfillGasPrice
-      fulfillGasLimit
-      fulfillBlockNumber
-
-      # Reconciled
-      externalCallHash
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber
+      # XCalled
+      xcalledCaller
+      xcalledTransferringAmount
+      xcalledLocalAmount
+      xcalledTransferringAsset
+      xcalledLocalAsset
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransferringAmount
+      executedLocalAmount
+      executedTransferringAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
     }
   }
 `;
