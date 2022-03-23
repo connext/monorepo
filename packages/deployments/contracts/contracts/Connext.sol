@@ -4,6 +4,7 @@ pragma solidity 0.8.11;
 import "./ProposedOwnableUpgradeable.sol";
 import "./interfaces/IWrapped.sol";
 import "./interfaces/IStableSwap.sol";
+import "./interfaces/IConnext.sol";
 import "./interpreters/Executor.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
@@ -31,292 +32,13 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
 
-contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, MerkleTreeManager {
-
+contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, MerkleTreeManager, IConnext {
   // TODO: why is this breaking the build
   // uint256 internal constant 3 = 3;
 
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
-
-  // ============= Structs =============
-
-  /**
-   * @notice These are the call parameters that will remain constant between the
-   * two chains. They are supplied on `xcall` and should be asserted on `execute`
-   * @property to - The account that receives funds, in the event of a crosschain call,
-   * will receive funds if the call fails.
-   * @param to - The address you are sending funds (and potentially data) to
-   * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
-   * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
-   * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
-   */
-  struct CallParams {
-    address to;
-    bytes callData;
-    uint32 originDomain;
-    uint32 destinationDomain;
-  }
-
-  /**
-   * @notice Contains the external call information
-   * @dev Used to create a hash to pass the external call information through the bridge
-   * @param to - The address that should receive the funds on the destination domain if no call is
-   * specified, or the fallback if an external call fails
-   * @param callData - The data to execute on the receiving chain
-   */
-  struct ExternalCall {
-    address to;
-    bytes callData;
-  }
-
-  /**
-   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a 
-   * transfer to properly reimburse router when funds come through the bridge.
-   * @param router - Address of the router that supplied fast-liquidity
-   * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount` 
-   * user supplied comes through bridge
-   * @param externalHash - Hash of the `ExternalCall` router supplied. Used to enforce router executed 
-   * the correct calldata under threat of non-repayment
-   */
-  struct ExecutedTransfer {
-    address router;
-    uint256 amount;
-    bytes32 externalHash;
-  }
-
-  /**
-   * @notice Contains information about the gas consumed in a `execute` call
-   * @param gasUsed - The gas consumed for a execute transfer (including external call)
-   * @param gasPrice - The tx.gasPrice on the execute transfer
-   */
-  struct GasInfo {
-    uint256 gasUsed;
-    uint256 gasPrice;
-  }
-
-  /**
-   * @notice Struct containing the information that comes through the bridge provided by the user on `xcall`
-   * @param externalHash - Hash of the `ExternalCall`
-   * @param local - The address of the bridged asset
-   * @param amount - The amount forwarded through the bridge
-   * @param to - The address that gets the funds on the destination chain
-   */
-  struct ReconciledTransfer {
-    bytes32 externalHash;
-    address local;
-    uint256 amount;
-    address to;
-  }
-
-  /**
-   * @notice The arguments you supply to the `xcall` function called by user on origin domain
-   * @param params - The CallParams. These are consistent across sending and receiving chains
-   * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
-   * or the representational asset
-   * @param amount - The amount of transferring asset the tx called xcall with
-   */
-  struct XCallArgs {
-    CallParams params;
-    address transactingAssetId; // Could be adopted, local, or wrapped
-    uint256 amount;
-  }
-
-  /**
-   * @notice 
-   * @param params - The CallParams. These are consistent across sending and receiving chains
-   * @param local - The local asset for the transfer, will be swapped to the adopted asset if
-   * appropriate
-   * @param router - The router who you are sending the funds on behalf of
-   * @param nonce - The nonce of the origin domain at the time the transfer was called xcall. Used to generate 
-   * the transfer id for the crosschain transfer
-   * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
-   * if fast liquidity was used
-   * @param feePercentage - The amount over the BASEFEE to tip the relayer
-   */
-  struct ExecuteArgs {
-    CallParams params;
-    address local;
-    address router;
-    uint32 feePercentage;
-    uint256 amount;
-    uint256 index;
-    bytes32 transferId;
-    bytes32[32] proof;
-    bytes relayerSignature;
-  }
-
-  // ============ Events ============
-
-  /**
-   * @notice Emitted when a new router is added
-   * @param router - The address of the added router
-   * @param caller - The account that called the function
-   */
-  event RouterAdded(
-    address router,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when an existing router is removed
-   * @param router - The address of the removed router
-   * @param caller - The account that called the function
-   */
-  event RouterRemoved(
-    address router,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
-   * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
-   * @param domain - The domain of the canonical token for the local <> adopted amm
-   * @param swapPool - The address of the AMM
-   * @param caller - The account that called the function
-   */
-  event StableSwapAdded(
-    bytes32 canonicalId,
-    uint32 domain,
-    address swapPool,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when a new asset is added
-   * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
-   * @param domain - The domain of the canonical token for the local <> adopted amm
-   * @param adoptedAsset - The address of the adopted (user-expected) asset
-   * @param supportedAsset - The address of the whitelisted asset. If the native asset is to be whitelisted,
-   * the address of the wrapped version will be stored
-   * @param caller - The account that called the function
-   */
-  event AssetAdded(
-    bytes32 canonicalId,
-    uint32 domain,
-    address adoptedAsset,
-    address supportedAsset,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when an asset is removed from whitelists
-   * @param canonicalId - The canonical identifier of the token removed
-   * @param caller - The account that called the function
-   */
-  event AssetRemoved(
-    bytes32 canonicalId,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when a router withdraws liquidity from the contract
-   * @param router - The router you are removing liquidity from
-   * @param to - The address the funds were withdrawn to
-   * @param local - The address of the token withdrawn
-   * @param amount - The amount of liquidity withdrawn
-   * @param caller - The account that called the function
-   */
-  event LiquidityRemoved(
-    address indexed router,
-    address to,
-    address local,
-    uint256 amount,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when a router adds liquidity to the contract
-   * @param router - The address of the router the funds were credited to
-   * @param local - The address of the token added (all liquidity held in local asset)
-   * @param amount - The amount of liquidity added
-   * @param caller - The account that called the function
-   */
-  event LiquidityAdded(
-    address router,
-    address local,
-    bytes32 canonicalId,
-    uint256 amount,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when `xcall` is called on the origin domain
-   * @param transferId - The unique identifier of the crosschain transfer
-   * @param idx - The leaf index of the transfer in batch tree
-   * @param to - The CallParams.to provided, created as indexed parameter
-   * @param params - The CallParams provided to the function
-   * @param transferringAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
-   * or the representational asset
-   * @param localAsset - The asset sent over the bridge. Will be the local asset of nomad that corresponds
-   * to the provided `transferringAsset`
-   * @param transferringAmount - The amount of transferring asset the tx xcalled with
-   * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
-   * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
-   * for the transfer
-   * @param caller - The account that called the function
-   */
-  event XCalled(
-    bytes32 indexed transferId,
-    uint256 indexed idx,
-    address indexed to,
-    CallParams params,
-    address transferringAsset,
-    address localAsset,
-    uint256 transferringAmount,
-    uint256 localAmount,
-    uint256 nonce,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when `reconciled` is called by the bridge on the destination domain
-   * @param root - the new root delivered by the bridge
-   */
-  event Reconciled(
-    bytes32 root,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when a batch is `dispatched` to destination
-   * @dev This function calls `send` on the bridge router
-   */
-  event Dispatched(
-    uint32 destination,
-    bytes32 root,
-    address[3] tokens,
-    uint256[3] amounts,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when `execute` is called on the destination chain
-   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
-   * @param transferId - The unique identifier of the crosschain transfer
-   * @param to - The CallParams.to provided, created as indexed parameter
-   * @param router - The router that supplied fast liquidity, if applicable
-   * @param params - The CallParams provided to the function
-   * @param localAsset - The asset that was provided by the bridge
-   * @param transferringAsset - The asset the to gets or the external call is executed with. Should be the
-   * adopted asset on that chain.
-   * @param localAmount - The amount that was provided by the bridge
-   * @param transferringAmount - The amount of transferring asset the to address receives or the external call is
-   * executed with
-   * @param caller - The account that called the function
-   */
-  event Executed(
-    bytes32 indexed transferId,
-    address indexed to,
-    address indexed router,
-    CallParams params,
-    address localAsset,
-    address transferringAsset,
-    uint256 localAmount,
-    uint256 transferringAmount,
-    address caller
-  );
 
   // ============ Constants =============
 
@@ -445,7 +167,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative
-  ) public initializer {
+  ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
 
@@ -464,7 +186,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to add routers that can transact crosschain
    * @param router Router address to add
    */
-  function addRouter(address router) external onlyOwner {
+  function addRouter(address router) external override onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#AR:001");
 
@@ -482,7 +204,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwner {
+  function removeRouter(address router) external override onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#RR:001");
 
@@ -502,7 +224,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   function addStableSwapPool(
     BridgeMessage.TokenId calldata canonical,
     address stableSwapPool
-  ) external onlyOwner {
+  ) external override onlyOwner {
     _addStableSwapPool(canonical, stableSwapPool);
   }
 
@@ -522,7 +244,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     BridgeMessage.TokenId calldata canonical,
     address adoptedAssetId,
     address stableSwapPool
-  ) external onlyOwner {
+  ) external override onlyOwner {
     // Add the asset
     _addAssetId(canonical, adoptedAssetId);
 
@@ -535,7 +257,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param canonicalId - Token id to remove
    * @param adoptedAssetId - Corresponding adopted asset to remove
    */
-  function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external onlyOwner {
+  function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
     // Sanity check: already approval
     require(approvedAssets[canonicalId] == true, "#RA:033");
 
@@ -556,7 +278,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to add relayer fees in the native asset
    * @param router - The router to credit
    */
-  function addRelayerFees(address router) external payable {
+  function addRelayerFees(address router) external override payable {
     require(msg.value > 0, "!value");
     routerRelayerFees[router] += msg.value;
   }
@@ -567,7 +289,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param amount - The amount of relayer fee to remove
    * @param to - Who to send funds to
    */
-  function removeRelayerFees(uint256 amount, address payable to) external {
+  function removeRelayerFees(uint256 amount, address payable to) external override {
     routerRelayerFees[msg.sender] -= amount;
     
     AddressUpgradeable.sendValue(to, amount);
@@ -582,7 +304,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param router The router you are adding liquidity on behalf of
    */
-  function addLiquidityFor(uint256 amount, address local, address router) external payable nonReentrant {
+  function addLiquidityFor(uint256 amount, address local, address router) external payable override nonReentrant {
     _addLiquidityForRouter(amount, local, router);
   }
 
@@ -594,7 +316,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    */
-  function addLiquidity(uint256 amount, address local) external payable nonReentrant {
+  function addLiquidity(uint256 amount, address local) external payable override nonReentrant {
     _addLiquidityForRouter(amount, local, msg.sender);
   }
 
@@ -609,7 +331,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     uint256 amount,
     address local,
     address payable to
-  ) external  nonReentrant {
+  ) external override nonReentrant {
     // Sanity check: to is sensible
     require(to != address(0), "#RL:007");
 
@@ -642,7 +364,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // TODO: add indicator if fast liquidity is allowed
   function xcall(
     XCallArgs calldata _args
-  ) external payable returns (bytes32) {
+  ) external payable override returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
     // require(
@@ -695,7 +417,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function reconcile(
     bytes32 _incomingRoot // TODO: do we need a batch id?
-  ) external onlyBridgeRouter payable {
+  ) external payable override onlyBridgeRouter{
     // Store the root
     incomingRoot = _incomingRoot;
 
@@ -706,7 +428,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   /**
    * @notice Sends a transfer root through nomad
    */
-  function dispatch(uint32 _destination) external {
+  function dispatch(uint32 _destination) external override {
     // Get the tree, assets, and amounts for the batch
     address[3] memory _tokens = batchAssets[_destination];
     uint256[3] memory _amounts = batchAmounts[_destination];
@@ -742,12 +464,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @dev Will store the `ExecutedTransfer` if fast liquidity is provided, or assert the hash of the
    * `ReconciledTransfer` when using bridge liquidity
    * @param _args - The `ExecuteArgs` for the transfer
-   * @return The transfer id of the crosschain transfer
+   * @return bytes32 The transfer id of the crosschain transfer
    */
   function execute(
     ExecuteArgs calldata _args
-    // bytes32[32] calldata _proof
-  ) external returns (bytes32) {
+  ) external override returns (bytes32) {
     // Get the starting gas
     uint256 _start = gasleft();
 
@@ -829,7 +550,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     uint256 _index,
     bytes32[32] calldata _proof,
     CallParams calldata _params
-  ) external {
+  ) external override {
     // Get the right asset in the leaf
     (, bytes32 canonicalId) = tokenRegistry.getCanonicalTokenId(_local);
     address _originAsset = tokenRegistry.getLocalAddress(_params.originDomain, canonicalId);

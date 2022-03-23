@@ -18,7 +18,7 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export declare namespace Connext {
+export declare namespace IConnext {
   export type CallParamsStruct = {
     to: string;
     callData: BytesLike;
@@ -34,7 +34,7 @@ export declare namespace Connext {
   };
 
   export type ExecuteArgsStruct = {
-    params: Connext.CallParamsStruct;
+    params: IConnext.CallParamsStruct;
     local: string;
     router: string;
     feePercentage: BigNumberish;
@@ -46,7 +46,7 @@ export declare namespace Connext {
   };
 
   export type ExecuteArgsStructOutput = [
-    Connext.CallParamsStructOutput,
+    IConnext.CallParamsStructOutput,
     string,
     string,
     number,
@@ -56,7 +56,7 @@ export declare namespace Connext {
     string[],
     string
   ] & {
-    params: Connext.CallParamsStructOutput;
+    params: IConnext.CallParamsStructOutput;
     local: string;
     router: string;
     feePercentage: number;
@@ -68,17 +68,17 @@ export declare namespace Connext {
   };
 
   export type XCallArgsStruct = {
-    params: Connext.CallParamsStruct;
+    params: IConnext.CallParamsStruct;
     transactingAssetId: string;
     amount: BigNumberish;
   };
 
   export type XCallArgsStructOutput = [
-    Connext.CallParamsStructOutput,
+    IConnext.CallParamsStructOutput,
     string,
     BigNumber
   ] & {
-    params: Connext.CallParamsStructOutput;
+    params: IConnext.CallParamsStructOutput;
     transactingAssetId: string;
     amount: BigNumber;
   };
@@ -217,7 +217,7 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "execute",
-    values: [Connext.ExecuteArgsStruct]
+    values: [IConnext.ExecuteArgsStruct]
   ): string;
   encodeFunctionData(functionFragment: "executor", values?: undefined): string;
   encodeFunctionData(
@@ -246,7 +246,7 @@ export interface ConnextInterface extends utils.Interface {
       string,
       BigNumberish,
       BytesLike[],
-      Connext.CallParamsStruct
+      IConnext.CallParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -332,7 +332,7 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "wrapper", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "xcall",
-    values: [Connext.XCallArgsStruct]
+    values: [IConnext.XCallArgsStruct]
   ): string;
 
   decodeFunctionResult(
@@ -594,7 +594,7 @@ export type ExecutedEvent = TypedEvent<
     string,
     string,
     string,
-    Connext.CallParamsStructOutput,
+    IConnext.CallParamsStructOutput,
     string,
     string,
     BigNumber,
@@ -605,7 +605,7 @@ export type ExecutedEvent = TypedEvent<
     transferId: string;
     to: string;
     router: string;
-    params: Connext.CallParamsStructOutput;
+    params: IConnext.CallParamsStructOutput;
     localAsset: string;
     transferringAsset: string;
     localAmount: BigNumber;
@@ -708,7 +708,7 @@ export type XCalledEvent = TypedEvent<
     string,
     BigNumber,
     string,
-    Connext.CallParamsStructOutput,
+    IConnext.CallParamsStructOutput,
     string,
     string,
     BigNumber,
@@ -720,7 +720,7 @@ export type XCalledEvent = TypedEvent<
     transferId: string;
     idx: BigNumber;
     to: string;
-    params: Connext.CallParamsStructOutput;
+    params: IConnext.CallParamsStructOutput;
     transferringAsset: string;
     localAsset: string;
     transferringAmount: BigNumber;
@@ -846,7 +846,7 @@ export interface Connext extends BaseContract {
     domain(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     execute(
-      _args: Connext.ExecuteArgsStruct,
+      _args: IConnext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -876,7 +876,7 @@ export interface Connext extends BaseContract {
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: Connext.CallParamsStruct,
+      _params: IConnext.CallParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -989,7 +989,7 @@ export interface Connext extends BaseContract {
     wrapper(overrides?: CallOverrides): Promise<[string]>;
 
     xcall(
-      _args: Connext.XCallArgsStruct,
+      _args: IConnext.XCallArgsStruct,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1074,7 +1074,7 @@ export interface Connext extends BaseContract {
   domain(overrides?: CallOverrides): Promise<BigNumber>;
 
   execute(
-    _args: Connext.ExecuteArgsStruct,
+    _args: IConnext.ExecuteArgsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1104,7 +1104,7 @@ export interface Connext extends BaseContract {
     _local: string,
     _index: BigNumberish,
     _proof: BytesLike[],
-    _params: Connext.CallParamsStruct,
+    _params: IConnext.CallParamsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1215,7 +1215,7 @@ export interface Connext extends BaseContract {
   wrapper(overrides?: CallOverrides): Promise<string>;
 
   xcall(
-    _args: Connext.XCallArgsStruct,
+    _args: IConnext.XCallArgsStruct,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1295,7 +1295,7 @@ export interface Connext extends BaseContract {
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
     execute(
-      _args: Connext.ExecuteArgsStruct,
+      _args: IConnext.ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -1325,7 +1325,7 @@ export interface Connext extends BaseContract {
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: Connext.CallParamsStruct,
+      _params: IConnext.CallParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1425,7 +1425,7 @@ export interface Connext extends BaseContract {
     wrapper(overrides?: CallOverrides): Promise<string>;
 
     xcall(
-      _args: Connext.XCallArgsStruct,
+      _args: IConnext.XCallArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -1708,7 +1708,7 @@ export interface Connext extends BaseContract {
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
     execute(
-      _args: Connext.ExecuteArgsStruct,
+      _args: IConnext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1738,7 +1738,7 @@ export interface Connext extends BaseContract {
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: Connext.CallParamsStruct,
+      _params: IConnext.CallParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1841,7 +1841,7 @@ export interface Connext extends BaseContract {
     wrapper(overrides?: CallOverrides): Promise<BigNumber>;
 
     xcall(
-      _args: Connext.XCallArgsStruct,
+      _args: IConnext.XCallArgsStruct,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -1935,7 +1935,7 @@ export interface Connext extends BaseContract {
     domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     execute(
-      _args: Connext.ExecuteArgsStruct,
+      _args: IConnext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1969,7 +1969,7 @@ export interface Connext extends BaseContract {
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: Connext.CallParamsStruct,
+      _params: IConnext.CallParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2074,7 +2074,7 @@ export interface Connext extends BaseContract {
     wrapper(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     xcall(
-      _args: Connext.XCallArgsStruct,
+      _args: IConnext.XCallArgsStruct,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
