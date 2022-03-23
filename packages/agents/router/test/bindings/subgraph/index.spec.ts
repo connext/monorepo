@@ -1,6 +1,6 @@
 import { SinonStub, stub } from "sinon";
 import { expect } from "chai";
-import { CrossChainTxStatus, delay } from "@connext/nxtp-utils";
+import { XTransferStatus, delay } from "@connext/nxtp-utils";
 
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
@@ -34,7 +34,7 @@ describe("Bindings:Subgraph", () => {
   });
 
   describe("#pollSubgraph", () => {
-    it("happy: should retrieve prepared transactions from the subgraph and cache them", async () => {
+    it("happy: should retrieve xcalls from the subgraph and cache them", async () => {
       const mockInfo = {
         [mock.chain.A]: {
           latestBlockNumber: 1234567,
@@ -56,16 +56,16 @@ describe("Bindings:Subgraph", () => {
       mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
       mockContext.config.chains[mock.chain.B].confirmations = mockInfo[mock.chain.B].safeConfirmations;
       const mockSubgraphResponse = [
-        mock.entity.crossChainTx(mock.chain.A, mock.chain.B, undefined, CrossChainTxStatus.Prepared),
-        mock.entity.crossChainTx(mock.chain.B, mock.chain.A, undefined, CrossChainTxStatus.Prepared),
+        mock.entity.xtransfer(mock.chain.A, mock.chain.B, undefined, XTransferStatus.XCalled),
+        mock.entity.xtransfer(mock.chain.B, mock.chain.A, undefined, XTransferStatus.XCalled),
       ];
-      mockContext.adapters.subgraph.getPreparedTransactions.resolves(mockSubgraphResponse);
+      mockContext.adapters.subgraph.getXCalls.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();
       // Should have been called once per available/configured chain.
       expect(mockContext.adapters.txservice.getBlockNumber.callCount).to.be.eq(Object.keys(mockInfo).length);
       expect(mockContext.adapters.cache.transactions.getLatestNonce.callCount).to.be.eq(Object.keys(mockInfo).length);
-      expect(mockContext.adapters.subgraph.getPreparedTransactions.getCall(0).args[0]).to.be.deep.eq(
+      expect(mockContext.adapters.subgraph.getXCalls.getCall(0).args[0]).to.be.deep.eq(
         new Map(
           Object.entries({
             [mock.chain.A]: {

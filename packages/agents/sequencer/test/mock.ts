@@ -1,5 +1,5 @@
 import { utils, BigNumber } from "ethers";
-import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, SinonStubbedInstance } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
@@ -80,7 +80,7 @@ export const mock = {
     },
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
-      subgraph.getPreparedTransactions.resolves([]);
+      subgraph.getXCalls.resolves([]);
       subgraph.getTransactionsWithStatuses.resolves([]);
       return subgraph;
     },

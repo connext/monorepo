@@ -10,9 +10,9 @@ import { mock, stubContext, stubHelpers } from "../../mock";
 const { execute, sendBid } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockCrossChainTx = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
 
-describe("Operations:Fulfill", () => {
+describe("Operations:Execute", () => {
   let mockContext: any;
 
   before(() => {
@@ -20,11 +20,11 @@ describe("Operations:Fulfill", () => {
     mockContext = stubContext();
   });
 
-  describe("#fulfill", () => {
+  describe("#execute", () => {
     const mockFulfillLocalAsset = mock.asset.A.address;
     let sendBidStub: SinonStub;
     beforeEach(() => {
-      mock.helpers.fulfill.sanityCheck.resolves(true);
+      mock.helpers.execute.sanityCheck.resolves(true);
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
       mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
       sendBidStub = stub(ExecuteFns, "sendBid").resolves();

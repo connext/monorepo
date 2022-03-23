@@ -1,8 +1,8 @@
 import { providers, constants, BigNumber, utils } from "ethers";
 import {
   chainDataToMap,
-  CrossChainTx,
-  CrossChainTxStatus,
+  XTransfer,
+  XTransferStatus,
   getRandomBytes32,
   Bid,
   CallParams,
@@ -80,105 +80,62 @@ export const mock: any = {
       bid: mock.entity.bid(),
       signature: "0xsig",
     }),
-    crossChainTx: (
+    xtransfer: (
       originDomain: string,
       destinationDomain: string,
       amount = "1000",
-      status: CrossChainTxStatus = CrossChainTxStatus.XCalled,
+      status: XTransferStatus = XTransferStatus.XCalled,
       asset: string = mock.asset.A.address,
       transferId: string = getRandomBytes32(),
       nonce = 1234,
       user: string = mkAddress("0xfaded"),
-    ): CrossChainTx => {
-      return Object.assign(
-        {
-          // Meta
-          originDomain: originDomain,
-          destinationDomain: destinationDomain,
-          status,
+    ): XTransfer => {
+      return Object.assign({
+        // Meta
+        originDomain: originDomain,
+        destinationDomain: destinationDomain,
+        status,
 
-          // Transfer Data
-          to: user,
-          transferId,
-          callTo: constants.AddressZero,
-          callData: "0x0",
-          idx: "0",
-          nonce,
-          router: mock.address.router,
+        // Transfer Data
+        to: user,
+        transferId,
+        callTo: constants.AddressZero,
+        callData: "0x0",
+        idx: "0",
+        nonce,
+        router: mock.address.router,
 
-          // XCalled
-          xcalledCaller: user,
-          xcalledTransferringAmount: amount,
-          xcalledLocalAmount: amount,
-          xcalledTransferringAsset: asset,
-          xcalledLocalAsset: asset,
-
-          // XCalled
-          xcalledTransactionHash: getRandomBytes32(),
-          xcalledTimestamp: Math.floor(Date.now() / 1000 - 60),
-          xcalledGasPrice: utils.parseUnits("5", "gwei").toString(),
-          xcalledGasLimit: "80000",
-          xcalledBlockNumber: 7654321,
+        // XCalled
+        xcall: {
+          caller: user,
+          transferringAmount: amount,
+          localAmount: amount,
+          transferringAsset: asset,
+          localAsset: asset,
+          transactionHash: getRandomBytes32(),
+          timestamp: Math.floor(Date.now() / 1000 - 60),
+          gasPrice: utils.parseUnits("5", "gwei").toString(),
+          gasLimit: "80000",
+          blockNumber: 7654321,
         },
-        // If status is prepared, these should be empty.
-        status === CrossChainTxStatus.XCalled
-          ? {
-              // Executed
-              executedCaller: mkAddress("0x0"),
-              executedTransferringAmount: "0",
-              executedLocalAmount: "0",
-              executedTransferringAsset: asset,
-              executedLocalAsset: asset,
 
-              // Executed
-              executedTransactionHash: "0x0",
-              executedTimestamp: 0,
-              executedGasPrice: "0",
-              executedGasLimit: "0",
-              executedBlockNumber: 0,
-
-              // Reconciled
-              externalCallHash: "0x0",
-              reconciledTransactionHash: "0x0",
-              reconciledTimestamp: 0,
-              reconciledGasPrice: "0",
-              reconciledGasLimit: "0",
-              reconciledBlockNumber: 0,
-            }
-          : // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
-          status === CrossChainTxStatus.Executed
-          ? {
-              // Fulfill
-              executedCaller: mock.address.relayer,
-              executedTransactingAmount: "1000",
-              executedLocalAmount: "1000",
-              executedTransactingAsset: asset,
-              executedLocalAsset: asset,
-
-              // Transactionexecuteded
-              executedTransactionHash: getRandomBytes32(),
-              executedTimestamp: Math.floor(Date.now() / 1000 - 30),
-              executedGasPrice: utils.parseUnits("5", "gwei").toString(),
-              executedGasLimit: "80000",
-              executedBlockNumber: 7654345,
-            }
-          : // Finally, if status is reconciled, we should have all fields defined.
-            {
-              // executed
-              executedCaller: mock.address.relayer,
-              executedTransactingAmount: "1000",
-              executedLocalAmount: "1000",
-              executedTransactingAsset: asset,
-              executedLocalAsset: asset,
-
-              // Transactionexecuteded
-              executedTransactionHash: getRandomBytes32(),
-              executedTimestamp: Math.floor(Date.now() / 1000 - 30),
-              executedGasPrice: utils.parseUnits("5", "gwei").toString(),
-              executedGasLimit: "80000",
-              executedBlockNumber: 7654345,
-            },
-      );
+        // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
+        execute:
+          status === XTransferStatus.Executed
+            ? {
+                caller: mock.address.relayer,
+                transferringAmount: amount,
+                localAmount: amount,
+                transferringAsset: asset,
+                localAsset: asset,
+                transactionHash: getRandomBytes32(),
+                timestamp: Math.floor(Date.now() / 1000 - 30),
+                gasPrice: utils.parseUnits("5", "gwei").toString(),
+                gasLimit: "80000",
+                blockNumber: 5651345,
+              }
+            : undefined,
+      });
     },
   },
   ethers: {

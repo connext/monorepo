@@ -1,4 +1,4 @@
-import { CrossChainTx, CrossChainTxStatus } from "@connext/nxtp-utils";
+import { XTransfer, XTransferStatus } from "@connext/nxtp-utils";
 import { StoreChannel } from "../entities";
 import { Cache } from ".";
 
@@ -7,7 +7,7 @@ import { Cache } from ".";
  * Transaction Data by Domain & Nonce
    key: $domain:$nonce | value: JSON.stringify(CrossChainTx);
  * Transaction Status by TransactionId
-   key: $txid | value CrossChainTxStatus as string
+   key: $txid | value XTransferStatus as string
  */
 export class TransactionsCache extends Cache {
   private readonly prefix = "transactions";
@@ -18,7 +18,7 @@ export class TransactionsCache extends Cache {
    * @returns true/false based on an "OK" from the store.
    * todo://getStatus() to verify that it's not already in the DB
    */
-  public async storeStatus(txid: string, status: CrossChainTxStatus): Promise<boolean> {
+  public async storeStatus(txid: string, status: XTransferStatus): Promise<boolean> {
     const prevStatus = await this.getStatus(txid);
     if (prevStatus == status) {
       return false;
@@ -35,7 +35,7 @@ export class TransactionsCache extends Cache {
    * @param txid TransacionId to search the cache for
    * @returns TransactionId's status or unfefined if it's not there.
    */
-  public async getStatus(txid: string): Promise<CrossChainTxStatus | undefined> {
+  public async getStatus(txid: string): Promise<XTransferStatus | undefined> {
     const status = this.data.scanStream({
       match: `${txid}`,
     });
@@ -43,7 +43,7 @@ export class TransactionsCache extends Cache {
       status.on("data", (txidMatch: string) => {
         this.logger.debug("found txid");
         const val = this.data.get(txidMatch);
-        res(val as unknown as CrossChainTxStatus);
+        res(val as unknown as XTransferStatus);
       });
       status.on("end", () => {
         res(undefined);
@@ -70,16 +70,16 @@ export class TransactionsCache extends Cache {
    * @param txid TransactionId
    * @returns Transaction data
    */
-  public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<CrossChainTx | undefined> {
+  public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<XTransfer | undefined> {
     const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
       match: `*:${txid}`,
       count: 1,
     });
-    let txData: CrossChainTx;
+    let txData: XTransfer;
     return new Promise((res, rej) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
-        txData = JSON.parse(crossChainData!) as CrossChainTx;
+        txData = JSON.parse(crossChainData!) as XTransfer;
       });
       txDataStream.on("end", async () => {
         res(txData);
@@ -87,16 +87,16 @@ export class TransactionsCache extends Cache {
     });
   }
 
-  public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<CrossChainTx | undefined> {
+  public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<XTransfer | undefined> {
     const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
       match: `${nonce}:*`,
     });
 
-    let txData: CrossChainTx;
+    let txData: XTransfer;
     return new Promise((res, rej) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
-        txData = JSON.parse(crossChainData!) as CrossChainTx;
+        txData = JSON.parse(crossChainData!) as XTransfer;
       });
       txDataStream.on("end", async () => {
         res(txData);
@@ -104,7 +104,7 @@ export class TransactionsCache extends Cache {
     });
   }
 
-  public async storeTxData(txs: CrossChainTx[]): Promise<void> {
+  public async storeTxData(txs: XTransfer[]): Promise<void> {
     for (const tx of txs) {
       // set transaction data at domain field in hash, hset returns the number of field that were added
       // gte(1) => added, 0 => updated,

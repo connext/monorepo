@@ -1,17 +1,30 @@
 import { TAddress, TDecimalString, TIntegerString } from ".";
 import { Type, Static } from "@sinclair/typebox";
 
-export enum CrossChainTxStatus {
+export enum XTransferStatus {
   XCalled = "XCalled",
   Executed = "Executed",
   Reconciled = "Reconciled",
 }
 
-export const CrossChainTxSchema = Type.Object({
+export const XTransferMethodCallSchema = Type.Object({
+  caller: TAddress,
+  transferringAmount: TIntegerString,
+  localAmount: TIntegerString,
+  transferringAsset: TAddress,
+  localAsset: TAddress,
+  transactionHash: Type.String(),
+  timestamp: Type.Number(),
+  gasPrice: TIntegerString,
+  gasLimit: TIntegerString,
+  blockNumber: Type.Number(),
+});
+
+export const XTransferSchema = Type.Object({
   // Meta
   originDomain: Type.String(),
   destinationDomain: Type.String(),
-  status: Type.Enum(CrossChainTxStatus),
+  status: Type.Enum(XTransferStatus),
 
   // Transfer Data
   to: TAddress,
@@ -23,34 +36,12 @@ export const CrossChainTxSchema = Type.Object({
   router: TAddress,
 
   // XCalled
-  xcalledCaller: TAddress,
-  xcalledTransferringAmount: TIntegerString,
-  xcalledLocalAmount: TIntegerString,
-  xcalledTransferringAsset: TAddress,
-  xcalledLocalAsset: TAddress,
-
-  // XCalled
-  xcalledTransactionHash: Type.Optional(Type.String()),
-  xcalledTimestamp: Type.Optional(Type.Number()),
-  xcalledGasPrice: Type.Optional(TIntegerString),
-  xcalledGasLimit: Type.Optional(TIntegerString),
-  xcalledBlockNumber: Type.Optional(Type.Number()),
+  xcall: XTransferMethodCallSchema,
 
   // Executed
-  executedCaller: Type.Optional(TAddress),
-  executedTransferringAmount: Type.Optional(TIntegerString),
-  executedLocalAmount: Type.Optional(TIntegerString),
-  executedTransferringAsset: Type.Optional(TAddress),
-  executedLocalAsset: Type.Optional(TAddress),
-
-  // Executed
-  executedTransactionHash: Type.Optional(Type.String()),
-  executedTimestamp: Type.Optional(Type.Number()),
-  executedGasPrice: Type.Optional(TIntegerString),
-  executedGasLimit: Type.Optional(TIntegerString),
-  executedBlockNumber: Type.Optional(Type.Number()),
+  execute: Type.Optional(XTransferMethodCallSchema),
 });
-export type CrossChainTx = Static<typeof CrossChainTxSchema>;
+export type XTransfer = Static<typeof XTransferSchema>;
 
 export const CallParamsSchema = Type.Object({
   to: TAddress,
@@ -85,12 +76,6 @@ export type Bid = Static<typeof BidSchema>;
 export type ExternalCall = {
   to: string;
   callData: string;
-};
-
-export type FulfilledTransaction = {
-  router: string;
-  amount: string;
-  externalHash: string;
 };
 
 export type ReconciledTransaction = {

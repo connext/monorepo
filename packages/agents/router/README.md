@@ -12,10 +12,10 @@ The router is an automated actor that is in charge of providing liquidity and fa
 
 - Listen for user swap requests.
 - Submit bids to fulfill user swap requests.
-- Monitor `Connext` contract events across all chains for `TransactionPrepared` events where `router` matches the configured router's signer address, and `sendingChainId` matches the chain of the event.
-- Call `prepare` on the receiving chain with `amount = amount - calculatedFees` where `calculatedFees` are a combination of the AMM-based swap rate, flat 0.05% fee, and any gas fees that will be reimbursed by the user.
-- Monitor `Connext` contract events across all chains for `TransactionFulfilled` events where `router` matches the configured router's signer address and `receivingChainId` matches the chain of the event.
-- Call `fulfill` on the sending chain with the signature emitted from the `TransactionFulfilled` event.
+- Monitor `Connext` contract events across all chains for `XCalled` events where `router` matches the configured router's signer address, and `sendingChainId` matches the chain of the event.
+- Call `xcall` on the receiving chain with `amount = amount - calculatedFees` where `calculatedFees` are a combination of the AMM-based swap rate, flat 0.05% fee, and any gas fees that will be reimbursed by the user.
+- Monitor `Connext` contract events across all chains for `Executed` events where `router` matches the configured router's signer address and `receivingChainId` matches the chain of the event.
+- Call `execute` on the sending chain with the signature emitted from the `Executed` event.
 
 ## Architecture
 

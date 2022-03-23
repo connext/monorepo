@@ -1,6 +1,6 @@
-import { CrossChainTx } from "@connext/nxtp-utils";
+import { XTransfer } from "@connext/nxtp-utils";
 
-export const crossChainTx = (subgEntity: any): CrossChainTx => {
+export const xtransfer = (subgEntity: any): XTransfer => {
   return {
     // Meta
     originDomain: subgEntity.originDomain,
@@ -16,32 +16,31 @@ export const crossChainTx = (subgEntity: any): CrossChainTx => {
     nonce: subgEntity.nonce,
     router: subgEntity.router,
 
-    // XCalled
-    xcalledCaller: subgEntity.xcalledCaller,
-    xcalledTransferringAmount: subgEntity.xcalledTransferringAmount,
-    xcalledLocalAmount: subgEntity.xcalledLocalAmount,
-    xcalledTransferringAsset: subgEntity.xcalledTransferringAsset,
-    xcalledLocalAsset: subgEntity.xcalledLocalAsset,
+    // XCall
+    xcall: {
+      caller: subgEntity.caller,
+      transferringAmount: subgEntity.transferringAmount,
+      localAmount: subgEntity.localAmount,
+      transferringAsset: subgEntity.transferringAsset,
+      localAsset: subgEntity.localAsset,
+      transactionHash: subgEntity.transactionHash,
+      timestamp: subgEntity.timestamp,
+      gasPrice: subgEntity.gasPrice,
+      gasLimit: subgEntity.gasLimit,
+      blockNumber: subgEntity.blockNumber,
+    },
 
-    // XCalled
-    xcalledTransactionHash: subgEntity.xcalledTransactionHash,
-    xcalledTimestamp: subgEntity.xcalledTimestamp,
-    xcalledGasPrice: subgEntity.xcalledGasPrice,
-    xcalledGasLimit: subgEntity.xcalledGasLimit,
-    xcalledBlockNumber: subgEntity.xcalledBlockNumber,
-
-    // Fulfill
-    executedCaller: subgEntity.executedCaller,
-    executedTransferringAmount: subgEntity.executedTransferringAmount,
-    executedLocalAmount: subgEntity.executedLocalAmount,
-    executedTransferringAsset: subgEntity.executedTransferringAsset,
-    executedLocalAsset: subgEntity.executedLocalAsset,
-
-    // TransactionFulfilled
-    executedTransactionHash: subgEntity.executedTransactionHash,
-    executedTimestamp: subgEntity.executedTimestamp,
-    executedGasPrice: subgEntity.executedGasPrice,
-    executedGasLimit: subgEntity.executedGasLimit,
-    executedBlockNumber: subgEntity.executedBlockNumber,
+    execute: {
+      caller: subgEntity.caller,
+      transferringAmount: subgEntity.transferringAmount,
+      localAmount: subgEntity.localAmount,
+      transferringAsset: subgEntity.transferringAsset,
+      localAsset: subgEntity.localAsset,
+      transactionHash: subgEntity.transactionHash,
+      timestamp: subgEntity.timestamp,
+      gasPrice: subgEntity.gasPrice,
+      gasLimit: subgEntity.gasLimit,
+      blockNumber: subgEntity.blockNumber,
+    },
   };
 };

@@ -1,11 +1,11 @@
 import {
   Logger,
-  CrossChainTxStatus,
+  XTransferStatus,
   expect,
   mock,
   getRandomBytes32,
   mkAddress,
-  CrossChainTx,
+  XTransfer,
   delay,
 } from "@connext/nxtp-utils";
 import { ConsumersCache, TransactionsCache, AuctionsCache } from "../../../src/index";
@@ -18,12 +18,12 @@ let auctions: AuctionsCache;
 let transactions: TransactionsCache;
 
 const fakeTxs = [
-  mock.entity.crossChainTx("1000", "2000"),
-  mock.entity.crossChainTx(
+  mock.entity.xtransfer("1000", "2000"),
+  mock.entity.xtransfer(
     "1000",
     "2000",
     "1000",
-    CrossChainTxStatus.XCalled,
+    XTransferStatus.XCalled,
     mkAddress("0xaaa"),
     getRandomBytes32(),
     5555,
@@ -98,7 +98,7 @@ describe("ConsumersCache", () => {
 
       // StoreChannel.NewStatus
       expect(callCountForNewStatus).to.be.eq(0);
-      await transactions.storeStatus((fakeTxs[0] as CrossChainTx).transferId, CrossChainTxStatus.Executed);
+      await transactions.storeStatus((fakeTxs[0] as XTransfer).transferId, XTransferStatus.Executed);
       await delay(100);
       expect(callCountForNewStatus).to.be.eq(1);
 
