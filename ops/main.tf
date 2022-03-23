@@ -19,16 +19,75 @@ variable "full_image_name_sequencer" {
 }
 
 variable "mnemonic_testnet" {
-  type = string
+  type        = string
+  default     = "tilt valley candy crush interest illness rifle quarter genius current damp legal"
   description = "mnemonic"
 }
 
 variable "admin_token_router_testnet" {
-  type = string
+  type        = string
   description = "admin token"
 }
 
+
+
 locals {
+  docker_compose = <<-EOT
+  version: \"3.3\"
+  networks:
+    nxtp:
+
+  services:
+    router:
+      container_name: router
+      image: ghcr.io/connext/nxtp-router:\$ROUTER_VERSION
+      restart: always
+      ports:
+        - 8080:8080
+      volumes:
+        - ./config.json:/home/node/router/config.json
+      logging:
+        driver: json-file
+        options:
+          max-size: 10m
+          tag: \"{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}\"
+
+      networks:
+        nxtp:
+
+    signer:
+      container_name: signer
+      image: \"consensys/web3signer:develop\"
+      command: \"--config-file=/home/node/signer/config.yaml eth1\"
+      volumes:
+        - ./data/signerConfig/config.yaml:/home/node/signer/config.yaml
+        - ./key.yaml:/home/node/signer/keyFiles/key.yaml
+      logging:
+        driver: json-file
+        options:
+          max-size: 10m
+          tag: \"{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}\"
+      networks:
+        - nxtp
+
+    logdna:
+      container_name: logdna
+      image: logdna/logspout:v1.2.0
+      restart: always
+      environment:
+        LOGDNA_KEY: \$LOGDNA_KEY
+        TAGS: \$LOGDNA_TAG
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      logging:
+        driver: json-file
+        options:
+          max-size: 10m
+          tag: \"{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}\"
+      networks:
+        - nxtp
+      EOT
+
   local_router_config = jsonencode({
     "logLevel"     = "debug"
     "sequencerUrl" = "http://3.225.28.122:8081"
@@ -108,6 +167,7 @@ locals {
   })
 }
 
+
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
   owners      = ["amazon"]
@@ -175,6 +235,7 @@ resource "aws_instance" "terraformed-router" {
     sudo echo "RUNNING INITIAL SCRIPT" >> /root/touch.txt
     sudo echo "${var.full_image_name_router}" >> /root/touch.txt
     sudo echo "${local.local_router_config}" >> /root/touch.txt
+    sudo echo "${local.docker_compose}" >> /root/router-docker-compose.yml
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
@@ -183,6 +244,7 @@ resource "aws_instance" "terraformed-router" {
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull "${var.full_image_name_router}"
     sudo docker run -e NXTP_CONFIG='${local.local_router_config}' -d "${var.full_image_name_router}" >> /root/dockerout
+    
   EOF
 
 }
