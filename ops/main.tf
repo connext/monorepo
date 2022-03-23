@@ -42,7 +42,7 @@ locals {
     router:
       container_name: router
       environment:
-        NXTP_CONFIG: "${local.local_router_config}"
+        NXTP_CONFIG: '${local.local_router_config}'
       image: ${var.full_image_name_router}
       restart: always
       ports:
@@ -82,7 +82,7 @@ locals {
   services:
     sequencer:
       environment:
-        NXTP_CONFIG: "${local.local_sequencer_config}"
+        NXTP_CONFIG: '${local.local_sequencer_config}'
       container_name: sequencer
       image: ${var.full_image_name_sequencer}
       restart: always
@@ -102,7 +102,7 @@ locals {
       image: logdna/logspout:v1.2.0
       restart: always
       environment:
-        LOGDNA_KEY: ${local.local_sequencer_config}
+        LOGDNA_KEY: ${var.logdna_key}
         TAGS: "amarok-testnet-sequencer"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
