@@ -126,7 +126,7 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
       if (e.message.includes("Already Verified")) {
         console.log(`${name} at ${implementation} already verified`);
       } else {
-        //throw e;
+        throw e;
       }
     }
   }
