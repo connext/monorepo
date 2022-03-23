@@ -163,7 +163,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct Connext.CallParams",
+        "internalType": "struct IConnext.CallParams",
         "name": "params",
         "type": "tuple"
       },
@@ -466,7 +466,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct Connext.CallParams",
+        "internalType": "struct IConnext.CallParams",
         "name": "params",
         "type": "tuple"
       },
@@ -867,7 +867,7 @@
                 "type": "uint32"
               }
             ],
-            "internalType": "struct Connext.CallParams",
+            "internalType": "struct IConnext.CallParams",
             "name": "params",
             "type": "tuple"
           },
@@ -912,7 +912,7 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct Connext.ExecuteArgs",
+        "internalType": "struct IConnext.ExecuteArgs",
         "name": "_args",
         "type": "tuple"
       }
@@ -1084,7 +1084,7 @@
             "type": "uint32"
           }
         ],
-        "internalType": "struct Connext.CallParams",
+        "internalType": "struct IConnext.CallParams",
         "name": "_params",
         "type": "tuple"
       }
@@ -1489,7 +1489,7 @@
                 "type": "uint32"
               }
             ],
-            "internalType": "struct Connext.CallParams",
+            "internalType": "struct IConnext.CallParams",
             "name": "params",
             "type": "tuple"
           },
@@ -1504,7 +1504,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct Connext.XCallArgs",
+        "internalType": "struct IConnext.XCallArgs",
         "name": "_args",
         "type": "tuple"
       }
