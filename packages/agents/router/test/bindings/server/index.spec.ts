@@ -1,5 +1,5 @@
 import { SinonStub, stub } from "sinon";
-import { expect, mock } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 
 import * as binding from "../../../src/bindings/server";
 import { stubContext } from "../../mock";

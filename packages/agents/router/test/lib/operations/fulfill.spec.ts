@@ -4,7 +4,7 @@ import { SinonStub, stub } from "sinon";
 import { expect, formatUrl } from "@connext/nxtp-utils";
 
 import * as FulfillFns from "../../../src/lib/operations/fulfill";
-import { SlippageInvalid, SequencerResponseInvalid } from "../../../src/lib/errors";
+import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
 const { fulfill, sendBid } = FulfillFns;
@@ -70,6 +70,18 @@ describe("Operations:Fulfill", () => {
       expect(sendBidStub.getCall(0).args[0]).to.deep.equal(expectedBid);
     });
 
+    it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
+      const invalidParams = {
+        ...mockCrossChainTx,
+        recipient: "0x0",
+        callTo: "0x0",
+        callData: "0x0",
+        originDomain: "-1",
+        destinationDomain: "-2",
+      };
+      await expect(fulfill(invalidParams)).to.be.rejectedWith(ParamsInvalid);
+    });
+
     it.skip("should throw NotEnoughAmount if final receiving amount < 0", async () => {});
 
     it.skip("should error if slippage invalid", async () => {
@@ -105,7 +117,7 @@ describe("Operations:Fulfill", () => {
       expect(result).to.equal("ok");
     });
 
-    it("throws if no response", async () => {
+    it("throws SequencerResponseInvalid if no response", async () => {
       axiosPostStub.resolves();
       await expect(sendBid(mockBid)).to.be.rejectedWith(SequencerResponseInvalid);
     });
