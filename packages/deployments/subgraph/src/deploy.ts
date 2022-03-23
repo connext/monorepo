@@ -79,7 +79,7 @@ const run = async () => {
     writeFileSync("./subgraph.yaml", doc.toString());
 
     console.log("Running Build command for " + n.network);
-    const { stdout: out, stderr: err } = await exec(`yarn build`);
+    const { stdout: out, stderr: err } = await exec(`yarn graph:build`);
 
     console.log(`stdout: ${out}`);
     console.error(`stderr: ${err}`);
