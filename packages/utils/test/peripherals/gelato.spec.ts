@@ -1,5 +1,5 @@
-import { expect } from "../src/expect";
-import { isChainSupportedByGelato } from "../src/gelato";
+import { expect } from "../../src/mocks";
+import { isChainSupportedByGelato } from "../../src";
 
 describe("isChainSupportedByGelato", () => {
   it("should work if a chain is supported by gelato", async () => {

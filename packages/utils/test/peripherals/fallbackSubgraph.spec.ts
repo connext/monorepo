@@ -1,9 +1,9 @@
 import axios from "axios";
 import { SinonStub, stub } from "sinon";
 
-import { expect, NxtpError, SubgraphSyncRecord } from "../dist";
-import { FallbackSubgraph, SubgraphDomain } from "../src";
-import * as fallbackSubgraphIndex from "../src/fallbackSubgraph";
+import { expect } from "../../src/mocks";
+import { FallbackSubgraph, SubgraphDomain, NxtpError, SubgraphSyncRecord } from "../../src";
+import * as fallbackSubgraphIndex from "../../src/peripherals/fallbackSubgraph";
 
 type MockSubgraphSdk = {
   MockSubgraphSdkMethod: () => {};

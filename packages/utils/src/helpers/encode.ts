@@ -1,6 +1,6 @@
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 
-import { ExternalCall, ReconciledTransaction } from "./transactions";
+import { ExternalCall, ReconciledTransaction } from "..";
 
 /**
  * Cleans any strings so they replace the newlines and properly format whitespace. Used to translate human readable encoding to contract-compatible encoding.

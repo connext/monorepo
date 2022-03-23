@@ -91,7 +91,7 @@ export const graphQuery = async (url: string, query: string): Promise<any> => {
   return await graphQLRequest(url, query);
 };
 
-const withRetries = async (method: () => Promise<any | undefined>) => {
+export const withRetries = async (method: () => Promise<any | undefined>) => {
   for (let i = 0; i < 5; i++) {
     try {
       return await method();
@@ -103,7 +103,7 @@ const withRetries = async (method: () => Promise<any | undefined>) => {
   }
 };
 
-const getSubgraphName = (url: string) => {
+export const getSubgraphName = (url: string) => {
   const split = url.split("/");
   return split[split.length - 1];
 };

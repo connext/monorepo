@@ -1,10 +1,10 @@
-import { expect } from "../src/expect";
-import { providers, Wallet } from "ethers";
-import { arrayify, hexlify, solidityKeccak256 } from "ethers/lib/utils";
+import { providers, Wallet, utils } from "ethers";
 import { createStubInstance } from "sinon";
-import { encodeHandleRelayerFeeData } from "../src/encode";
 
-import { recoverHandleRelayerFeePayload, signHandleRelayerFeePayload } from "../src/signatures";
+import { expect } from "../../src/mocks";
+import { recoverHandleRelayerFeePayload, signHandleRelayerFeePayload, encodeHandleRelayerFeeData } from "../../src";
+
+const { arrayify, hexlify, solidityKeccak256 } = utils;
 
 describe("signFulfillTransactionPayload / recoverFulfillTransactionPayload", () => {
   it("should work when there is no provider", async () => {
