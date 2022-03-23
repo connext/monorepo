@@ -2,24 +2,24 @@ import { task } from "hardhat/config";
 
 export default task("propose-transfer-owner", "Propose Transfer Ownership")
   .addParam("newOwner", "New owner")
-  .addOptionalParam("txManagerAddress", "Override tx manager address")
-  .setAction(async ({ newOwner, txManagerAddress: _txManagerAddress }, { deployments, getNamedAccounts, ethers }) => {
+  .addOptionalParam("connextAddress", "Override connext address")
+  .setAction(async ({ newOwner, connextAddress: _connextAddress }, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("newOwner: ", newOwner);
     console.log("namedAccounts: ", namedAccounts);
 
-    let txManagerAddress = _txManagerAddress;
-    if (!txManagerAddress) {
-      const txManagerDeployment = await deployments.get("TransactionManagerUpgradeBeaconProxy");
-      txManagerAddress = txManagerDeployment.address;
+    let connextAddress = _connextAddress;
+    if (!connextAddress) {
+      const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+      connextAddress = connextDeployment.address;
     }
-    console.log("txManagerAddress: ", txManagerAddress);
+    console.log("connextAddress: ", connextAddress);
 
-    const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
-    const tx = await txManager.proposeNewOwner(newOwner);
+    const connext = await ethers.getContractAt("Connext", connextAddress);
+    const tx = await connext.proposeNewOwner(newOwner);
     console.log("proposeNewOwner tx: ", tx);
     await tx.wait();
-    const proposedOwner = await txManager.proposed();
+    const proposedOwner = await connext.proposed();
     console.log("proposedOwner: ", proposedOwner);
   });

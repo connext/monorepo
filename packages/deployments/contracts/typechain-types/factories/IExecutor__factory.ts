@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type {
-  IFulfillInterpreter,
-  IFulfillInterpreterInterface,
-} from "../IFulfillInterpreter";
+import type { IExecutor, IExecutorInterface } from "../IExecutor";
 
 const _abi = [
   {
@@ -16,25 +13,19 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
-        name: "transactionId",
+        name: "transferId",
         type: "bytes32",
       },
       {
-        indexed: false,
-        internalType: "address payable",
-        name: "callTo",
+        indexed: true,
+        internalType: "address",
+        name: "to",
         type: "address",
       },
       {
         indexed: false,
         internalType: "address",
         name: "assetId",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address payable",
-        name: "fallbackAddress",
         type: "address",
       },
       {
@@ -75,22 +66,17 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "transactionId",
+        name: "transferId",
         type: "bytes32",
       },
       {
         internalType: "address payable",
-        name: "callTo",
+        name: "to",
         type: "address",
       },
       {
         internalType: "address",
         name: "assetId",
-        type: "address",
-      },
-      {
-        internalType: "address payable",
-        name: "fallbackAddress",
         type: "address",
       },
       {
@@ -127,7 +113,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getTransactionManager",
+    name: "getConnext",
     outputs: [
       {
         internalType: "address",
@@ -140,15 +126,15 @@ const _abi = [
   },
 ];
 
-export class IFulfillInterpreter__factory {
+export class IExecutor__factory {
   static readonly abi = _abi;
-  static createInterface(): IFulfillInterpreterInterface {
-    return new utils.Interface(_abi) as IFulfillInterpreterInterface;
+  static createInterface(): IExecutorInterface {
+    return new utils.Interface(_abi) as IExecutorInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IFulfillInterpreter {
-    return new Contract(address, _abi, signerOrProvider) as IFulfillInterpreter;
+  ): IExecutor {
+    return new Contract(address, _abi, signerOrProvider) as IExecutor;
   }
 }

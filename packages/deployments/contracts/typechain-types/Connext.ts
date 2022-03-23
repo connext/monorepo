@@ -18,43 +18,35 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export declare namespace TransactionManager {
+export declare namespace Connext {
   export type CallParamsStruct = {
-    recipient: string;
-    callTo: string;
+    to: string;
     callData: BytesLike;
     originDomain: BigNumberish;
     destinationDomain: BigNumberish;
   };
 
-  export type CallParamsStructOutput = [
-    string,
-    string,
-    string,
-    number,
-    number
-  ] & {
-    recipient: string;
-    callTo: string;
+  export type CallParamsStructOutput = [string, string, number, number] & {
+    to: string;
     callData: string;
     originDomain: number;
     destinationDomain: number;
   };
 
-  export type FulfillArgsStruct = {
-    params: TransactionManager.CallParamsStruct;
+  export type ExecuteArgsStruct = {
+    params: Connext.CallParamsStruct;
     local: string;
     router: string;
     feePercentage: BigNumberish;
     amount: BigNumberish;
     index: BigNumberish;
-    transactionId: BytesLike;
+    transferId: BytesLike;
     proof: BytesLike[];
     relayerSignature: BytesLike;
   };
 
-  export type FulfillArgsStructOutput = [
-    TransactionManager.CallParamsStructOutput,
+  export type ExecuteArgsStructOutput = [
+    Connext.CallParamsStructOutput,
     string,
     string,
     number,
@@ -64,29 +56,29 @@ export declare namespace TransactionManager {
     string[],
     string
   ] & {
-    params: TransactionManager.CallParamsStructOutput;
+    params: Connext.CallParamsStructOutput;
     local: string;
     router: string;
     feePercentage: number;
     amount: BigNumber;
     index: BigNumber;
-    transactionId: string;
+    transferId: string;
     proof: string[];
     relayerSignature: string;
   };
 
-  export type PrepareArgsStruct = {
-    params: TransactionManager.CallParamsStruct;
+  export type XCallArgsStruct = {
+    params: Connext.CallParamsStruct;
     transactingAssetId: string;
     amount: BigNumberish;
   };
 
-  export type PrepareArgsStructOutput = [
-    TransactionManager.CallParamsStructOutput,
+  export type XCallArgsStructOutput = [
+    Connext.CallParamsStructOutput,
     string,
     BigNumber
   ] & {
-    params: TransactionManager.CallParamsStructOutput;
+    params: Connext.CallParamsStructOutput;
     transactingAssetId: string;
     amount: BigNumber;
   };
@@ -101,8 +93,8 @@ export declare namespace BridgeMessage {
   };
 }
 
-export interface TransactionManagerInterface extends utils.Interface {
-  contractName: "TransactionManager";
+export interface ConnextInterface extends utils.Interface {
+  contractName: "Connext";
   functions: {
     "acceptProposedOwner()": FunctionFragment;
     "addLiquidity(uint256,address)": FunctionFragment;
@@ -123,16 +115,15 @@ export interface TransactionManagerInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "dispatch(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "fulfill(((address,address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes32,bytes32[32],bytes))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes32,bytes32[32],bytes))": FunctionFragment;
+    "executor()": FunctionFragment;
     "incomingRoot()": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
-    "interpreter()": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
-    "prepare(((address,address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
-    "process(bytes32,uint256,address,uint256,bytes32[32],(address,address,bytes,uint32,uint32))": FunctionFragment;
+    "process(bytes32,uint256,address,uint256,bytes32[32],(address,bytes,uint32,uint32))": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
@@ -148,8 +139,8 @@ export interface TransactionManagerInterface extends utils.Interface {
     "renounceRouterOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "root()": FunctionFragment;
-    "routedTransactions(bytes32)": FunctionFragment;
-    "routedTransactionsGas(bytes32)": FunctionFragment;
+    "routedTransfers(bytes32)": FunctionFragment;
+    "routedTransfersGas(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
     "routerOwnershipTimestamp()": FunctionFragment;
     "routerRelayerFees(address)": FunctionFragment;
@@ -157,6 +148,7 @@ export interface TransactionManagerInterface extends utils.Interface {
     "tokenRegistry()": FunctionFragment;
     "tree()": FunctionFragment;
     "wrapper()": FunctionFragment;
+    "xcall(((address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -224,9 +216,10 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "fulfill",
-    values: [TransactionManager.FulfillArgsStruct]
+    functionFragment: "execute",
+    values: [Connext.ExecuteArgsStruct]
   ): string;
+  encodeFunctionData(functionFragment: "executor", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "incomingRoot",
     values?: undefined
@@ -234,10 +227,6 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [BigNumberish, string, string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "interpreter",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isAssetOwnershipRenounced",
@@ -250,10 +239,6 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "prepare",
-    values: [TransactionManager.PrepareArgsStruct]
-  ): string;
-  encodeFunctionData(
     functionFragment: "process",
     values: [
       BytesLike,
@@ -261,7 +246,7 @@ export interface TransactionManagerInterface extends utils.Interface {
       string,
       BigNumberish,
       BytesLike[],
-      TransactionManager.CallParamsStruct
+      Connext.CallParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -316,11 +301,11 @@ export interface TransactionManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "root", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "routedTransactions",
+    functionFragment: "routedTransfers",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "routedTransactionsGas",
+    functionFragment: "routedTransfersGas",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -345,6 +330,10 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "tree", values?: undefined): string;
   encodeFunctionData(functionFragment: "wrapper", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "xcall",
+    values: [Connext.XCallArgsStruct]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -407,16 +396,13 @@ export interface TransactionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "fulfill", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "incomingRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "interpreter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "isAssetOwnershipRenounced",
     data: BytesLike
@@ -427,7 +413,6 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "prepare", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "process", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAssetOwnershipRenunciation",
@@ -478,11 +463,11 @@ export interface TransactionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "routedTransactions",
+    functionFragment: "routedTransfers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "routedTransactionsGas",
+    functionFragment: "routedTransfersGas",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -504,6 +489,7 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "wrapper", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
 
   events: {
     "AssetAdded(bytes32,uint32,address,address,address)": EventFragment;
@@ -511,18 +497,18 @@ export interface TransactionManagerInterface extends utils.Interface {
     "AssetOwnershipRenunciationProposed(uint256)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
     "Dispatched(uint32,bytes32,address[3],uint256[3],address)": EventFragment;
-    "Fulfilled(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
+    "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Prepared(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
     "Reconciled(bytes32,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterOwnershipRenounced(bool)": EventFragment;
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
+    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
@@ -532,12 +518,11 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatched"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Fulfilled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Prepared"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterOwnershipRenounced"): EventFragment;
@@ -546,6 +531,7 @@ export interface TransactionManagerInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
 
 export type AssetAddedEvent = TypedEvent<
@@ -603,12 +589,12 @@ export type DispatchedEvent = TypedEvent<
 
 export type DispatchedEventFilter = TypedEventFilter<DispatchedEvent>;
 
-export type FulfilledEvent = TypedEvent<
+export type ExecutedEvent = TypedEvent<
   [
     string,
     string,
     string,
-    TransactionManager.CallParamsStructOutput,
+    Connext.CallParamsStructOutput,
     string,
     string,
     BigNumber,
@@ -616,19 +602,19 @@ export type FulfilledEvent = TypedEvent<
     string
   ],
   {
-    transactionId: string;
-    recipient: string;
+    transferId: string;
+    to: string;
     router: string;
-    params: TransactionManager.CallParamsStructOutput;
+    params: Connext.CallParamsStructOutput;
     localAsset: string;
-    transactingAsset: string;
+    transferringAsset: string;
     localAmount: BigNumber;
-    transactingAmount: BigNumber;
+    transferringAmount: BigNumber;
     caller: string;
   }
 >;
 
-export type FulfilledEventFilter = TypedEventFilter<FulfilledEvent>;
+export type ExecutedEventFilter = TypedEventFilter<ExecutedEvent>;
 
 export type LiquidityAddedEvent = TypedEvent<
   [string, string, string, BigNumber, string],
@@ -647,7 +633,7 @@ export type LiquidityRemovedEvent = TypedEvent<
   [string, string, string, BigNumber, string],
   {
     router: string;
-    recipient: string;
+    to: string;
     local: string;
     amount: BigNumber;
     caller: string;
@@ -672,35 +658,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
-
-export type PreparedEvent = TypedEvent<
-  [
-    string,
-    BigNumber,
-    string,
-    TransactionManager.CallParamsStructOutput,
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    string
-  ],
-  {
-    transactionId: string;
-    idx: BigNumber;
-    recipient: string;
-    params: TransactionManager.CallParamsStructOutput;
-    transactingAsset: string;
-    localAsset: string;
-    transactingAmount: BigNumber;
-    localAmount: BigNumber;
-    nonce: BigNumber;
-    caller: string;
-  }
->;
-
-export type PreparedEventFilter = TypedEventFilter<PreparedEvent>;
 
 export type ReconciledEvent = TypedEvent<
   [string, string],
@@ -746,13 +703,42 @@ export type StableSwapAddedEvent = TypedEvent<
 
 export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
 
-export interface TransactionManager extends BaseContract {
-  contractName: "TransactionManager";
+export type XCalledEvent = TypedEvent<
+  [
+    string,
+    BigNumber,
+    string,
+    Connext.CallParamsStructOutput,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string
+  ],
+  {
+    transferId: string;
+    idx: BigNumber;
+    to: string;
+    params: Connext.CallParamsStructOutput;
+    transferringAsset: string;
+    localAsset: string;
+    transferringAmount: BigNumber;
+    localAmount: BigNumber;
+    nonce: BigNumber;
+    caller: string;
+  }
+>;
+
+export type XCalledEventFilter = TypedEventFilter<XCalledEvent>;
+
+export interface Connext extends BaseContract {
+  contractName: "Connext";
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: TransactionManagerInterface;
+  interface: ConnextInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -859,10 +845,12 @@ export interface TransactionManager extends BaseContract {
 
     domain(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    fulfill(
-      _args: TransactionManager.FulfillArgsStruct,
+    execute(
+      _args: Connext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    executor(overrides?: CallOverrides): Promise<[string]>;
 
     incomingRoot(overrides?: CallOverrides): Promise<[string]>;
 
@@ -874,8 +862,6 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    interpreter(overrides?: CallOverrides): Promise<[string]>;
-
     isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
@@ -884,18 +870,13 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    prepare(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     process(
-      _transactionId: BytesLike,
+      _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: TransactionManager.CallParamsStruct,
+      _params: Connext.CallParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -930,13 +911,13 @@ export interface TransactionManager extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       local: string,
-      recipient: string,
+      to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     removeRelayerFees(
       amount: BigNumberish,
-      recipient: string,
+      to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -961,7 +942,7 @@ export interface TransactionManager extends BaseContract {
 
     root(overrides?: CallOverrides): Promise<[string]>;
 
-    routedTransactions(
+    routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -972,7 +953,7 @@ export interface TransactionManager extends BaseContract {
       }
     >;
 
-    routedTransactionsGas(
+    routedTransfersGas(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -1006,6 +987,11 @@ export interface TransactionManager extends BaseContract {
     ): Promise<[BigNumber] & { count: BigNumber }>;
 
     wrapper(overrides?: CallOverrides): Promise<[string]>;
+
+    xcall(
+      _args: Connext.XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   acceptProposedOwner(
@@ -1087,10 +1073,12 @@ export interface TransactionManager extends BaseContract {
 
   domain(overrides?: CallOverrides): Promise<BigNumber>;
 
-  fulfill(
-    _args: TransactionManager.FulfillArgsStruct,
+  execute(
+    _args: Connext.ExecuteArgsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  executor(overrides?: CallOverrides): Promise<string>;
 
   incomingRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1102,8 +1090,6 @@ export interface TransactionManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  interpreter(overrides?: CallOverrides): Promise<string>;
-
   isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
 
   isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
@@ -1112,18 +1098,13 @@ export interface TransactionManager extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  prepare(
-    _args: TransactionManager.PrepareArgsStruct,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   process(
-    _transactionId: BytesLike,
+    _transferId: BytesLike,
     _amount: BigNumberish,
     _local: string,
     _index: BigNumberish,
     _proof: BytesLike[],
-    _params: TransactionManager.CallParamsStruct,
+    _params: Connext.CallParamsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1158,13 +1139,13 @@ export interface TransactionManager extends BaseContract {
   removeLiquidity(
     amount: BigNumberish,
     local: string,
-    recipient: string,
+    to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   removeRelayerFees(
     amount: BigNumberish,
-    recipient: string,
+    to: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1189,7 +1170,7 @@ export interface TransactionManager extends BaseContract {
 
   root(overrides?: CallOverrides): Promise<string>;
 
-  routedTransactions(
+  routedTransfers(
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
@@ -1200,7 +1181,7 @@ export interface TransactionManager extends BaseContract {
     }
   >;
 
-  routedTransactionsGas(
+  routedTransfersGas(
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
@@ -1232,6 +1213,11 @@ export interface TransactionManager extends BaseContract {
   tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   wrapper(overrides?: CallOverrides): Promise<string>;
+
+  xcall(
+    _args: Connext.XCallArgsStruct,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
@@ -1308,10 +1294,12 @@ export interface TransactionManager extends BaseContract {
 
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fulfill(
-      _args: TransactionManager.FulfillArgsStruct,
+    execute(
+      _args: Connext.ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    executor(overrides?: CallOverrides): Promise<string>;
 
     incomingRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1323,8 +1311,6 @@ export interface TransactionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    interpreter(overrides?: CallOverrides): Promise<string>;
-
     isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
@@ -1333,18 +1319,13 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    prepare(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     process(
-      _transactionId: BytesLike,
+      _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: TransactionManager.CallParamsStruct,
+      _params: Connext.CallParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1377,13 +1358,13 @@ export interface TransactionManager extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       local: string,
-      recipient: string,
+      to: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeRelayerFees(
       amount: BigNumberish,
-      recipient: string,
+      to: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1399,7 +1380,7 @@ export interface TransactionManager extends BaseContract {
 
     root(overrides?: CallOverrides): Promise<string>;
 
-    routedTransactions(
+    routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -1410,7 +1391,7 @@ export interface TransactionManager extends BaseContract {
       }
     >;
 
-    routedTransactionsGas(
+    routedTransfersGas(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
@@ -1442,6 +1423,11 @@ export interface TransactionManager extends BaseContract {
     tree(overrides?: CallOverrides): Promise<BigNumber>;
 
     wrapper(overrides?: CallOverrides): Promise<string>;
+
+    xcall(
+      _args: Connext.XCallArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
   };
 
   filters: {
@@ -1495,28 +1481,28 @@ export interface TransactionManager extends BaseContract {
       caller?: null
     ): DispatchedEventFilter;
 
-    "Fulfilled(bytes32,address,address,tuple,address,address,uint256,uint256,address)"(
-      transactionId?: BytesLike | null,
-      recipient?: string | null,
+    "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)"(
+      transferId?: BytesLike | null,
+      to?: string | null,
       router?: string | null,
       params?: null,
       localAsset?: null,
-      transactingAsset?: null,
+      transferringAsset?: null,
       localAmount?: null,
-      transactingAmount?: null,
+      transferringAmount?: null,
       caller?: null
-    ): FulfilledEventFilter;
-    Fulfilled(
-      transactionId?: BytesLike | null,
-      recipient?: string | null,
+    ): ExecutedEventFilter;
+    Executed(
+      transferId?: BytesLike | null,
+      to?: string | null,
       router?: string | null,
       params?: null,
       localAsset?: null,
-      transactingAsset?: null,
+      transferringAsset?: null,
       localAmount?: null,
-      transactingAmount?: null,
+      transferringAmount?: null,
       caller?: null
-    ): FulfilledEventFilter;
+    ): ExecutedEventFilter;
 
     "LiquidityAdded(address,address,bytes32,uint256,address)"(
       router?: null,
@@ -1535,14 +1521,14 @@ export interface TransactionManager extends BaseContract {
 
     "LiquidityRemoved(address,address,address,uint256,address)"(
       router?: string | null,
-      recipient?: null,
+      to?: null,
       local?: null,
       amount?: null,
       caller?: null
     ): LiquidityRemovedEventFilter;
     LiquidityRemoved(
       router?: string | null,
-      recipient?: null,
+      to?: null,
       local?: null,
       amount?: null,
       caller?: null
@@ -1563,31 +1549,6 @@ export interface TransactionManager extends BaseContract {
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
-
-    "Prepared(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)"(
-      transactionId?: BytesLike | null,
-      idx?: BigNumberish | null,
-      recipient?: string | null,
-      params?: null,
-      transactingAsset?: null,
-      localAsset?: null,
-      transactingAmount?: null,
-      localAmount?: null,
-      nonce?: null,
-      caller?: null
-    ): PreparedEventFilter;
-    Prepared(
-      transactionId?: BytesLike | null,
-      idx?: BigNumberish | null,
-      recipient?: string | null,
-      params?: null,
-      transactingAsset?: null,
-      localAsset?: null,
-      transactingAmount?: null,
-      localAmount?: null,
-      nonce?: null,
-      caller?: null
-    ): PreparedEventFilter;
 
     "Reconciled(bytes32,address)"(
       root?: null,
@@ -1633,6 +1594,31 @@ export interface TransactionManager extends BaseContract {
       swapPool?: null,
       caller?: null
     ): StableSwapAddedEventFilter;
+
+    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)"(
+      transferId?: BytesLike | null,
+      idx?: BigNumberish | null,
+      to?: string | null,
+      params?: null,
+      transferringAsset?: null,
+      localAsset?: null,
+      transferringAmount?: null,
+      localAmount?: null,
+      nonce?: null,
+      caller?: null
+    ): XCalledEventFilter;
+    XCalled(
+      transferId?: BytesLike | null,
+      idx?: BigNumberish | null,
+      to?: string | null,
+      params?: null,
+      transferringAsset?: null,
+      localAsset?: null,
+      transferringAmount?: null,
+      localAmount?: null,
+      nonce?: null,
+      caller?: null
+    ): XCalledEventFilter;
   };
 
   estimateGas: {
@@ -1721,10 +1707,12 @@ export interface TransactionManager extends BaseContract {
 
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fulfill(
-      _args: TransactionManager.FulfillArgsStruct,
+    execute(
+      _args: Connext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    executor(overrides?: CallOverrides): Promise<BigNumber>;
 
     incomingRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1736,8 +1724,6 @@ export interface TransactionManager extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    interpreter(overrides?: CallOverrides): Promise<BigNumber>;
-
     isAssetOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1746,18 +1732,13 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    prepare(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     process(
-      _transactionId: BytesLike,
+      _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: TransactionManager.CallParamsStruct,
+      _params: Connext.CallParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1792,13 +1773,13 @@ export interface TransactionManager extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       local: string,
-      recipient: string,
+      to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     removeRelayerFees(
       amount: BigNumberish,
-      recipient: string,
+      to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1823,12 +1804,12 @@ export interface TransactionManager extends BaseContract {
 
     root(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routedTransactions(
+    routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routedTransactionsGas(
+    routedTransfersGas(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1858,6 +1839,11 @@ export interface TransactionManager extends BaseContract {
     tree(overrides?: CallOverrides): Promise<BigNumber>;
 
     wrapper(overrides?: CallOverrides): Promise<BigNumber>;
+
+    xcall(
+      _args: Connext.XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1948,10 +1934,12 @@ export interface TransactionManager extends BaseContract {
 
     domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    fulfill(
-      _args: TransactionManager.FulfillArgsStruct,
+    execute(
+      _args: Connext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    executor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     incomingRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1962,8 +1950,6 @@ export interface TransactionManager extends BaseContract {
       _wrappedNative: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    interpreter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isAssetOwnershipRenounced(
       overrides?: CallOverrides
@@ -1977,18 +1963,13 @@ export interface TransactionManager extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    prepare(
-      _args: TransactionManager.PrepareArgsStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     process(
-      _transactionId: BytesLike,
+      _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
       _index: BigNumberish,
       _proof: BytesLike[],
-      _params: TransactionManager.CallParamsStruct,
+      _params: Connext.CallParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2023,13 +2004,13 @@ export interface TransactionManager extends BaseContract {
     removeLiquidity(
       amount: BigNumberish,
       local: string,
-      recipient: string,
+      to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     removeRelayerFees(
       amount: BigNumberish,
-      recipient: string,
+      to: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2054,12 +2035,12 @@ export interface TransactionManager extends BaseContract {
 
     root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    routedTransactions(
+    routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    routedTransactionsGas(
+    routedTransfersGas(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2091,5 +2072,10 @@ export interface TransactionManager extends BaseContract {
     tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     wrapper(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    xcall(
+      _args: Connext.XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }

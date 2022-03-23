@@ -8,7 +8,7 @@ import {
   Home,
   TestERC20,
   TokenRegistry,
-  TransactionManager,
+  Connext,
   TestBridgeMessage,
   WETH,
   UpgradeBeaconController,
@@ -23,7 +23,6 @@ import {
   bridge,
   BridgeMessageTypes,
   deployContract,
-  deployUpgradeableProxy,
   formatTokenId,
   getDetailsHash,
   NxtpEnabledAction,
@@ -73,7 +72,7 @@ const executeProxyWrite = async <T extends Contract>(
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe.only("TransactionManager", () => {
+describe.only("Connext", () => {
   // Get wallets
   const [admin, router, user] = waffle.provider.getWallets() as Wallet[];
 
@@ -106,9 +105,9 @@ describe.only("TransactionManager", () => {
   let originBridgeBeacon: string;
   let destinationBridge: BridgeRouter;
   let destinationBridgeBeacon: string;
-  let originTm: TransactionManager;
+  let originTm: Connext;
   let originTmBeacon: string;
-  let destinationTm: TransactionManager;
+  let destinationTm: Connext;
   let destinationTmBeacon: string;
   let stableSwap: DummySwap;
   let home: Home;
@@ -176,13 +175,13 @@ describe.only("TransactionManager", () => {
     ]);
 
     // Deploy transacion managers
-    [originTm, originTmBeacon] = await deployBeaconProxy<TransactionManager>("TransactionManager", [
+    [originTm, originTmBeacon] = await deployBeaconProxy<Connext>("Connext", [
       originDomain,
       originBridge.address,
       originTokenRegistry.address,
       weth.address,
     ]);
-    [destinationTm, destinationTmBeacon] = await deployBeaconProxy<TransactionManager>("TransactionManager", [
+    [destinationTm, destinationTmBeacon] = await deployBeaconProxy<Connext>("Connext", [
       destinationDomain,
       destinationBridge.address,
       destinationTokenRegistry.address,
@@ -280,9 +279,9 @@ describe.only("TransactionManager", () => {
     await Promise.all(approvals.map((a) => a.wait()));
 
     // Set transaction manager on BridgeRouter
-    const setOriginTm = await originBridge.connect(admin).setTransactionManager(originTm.address);
+    const setOriginTm = await originBridge.connect(admin).setConnext(originTm.address);
     await setOriginTm.wait();
-    const setDestinationTm = await destinationBridge.connect(admin).setTransactionManager(destinationTm.address);
+    const setDestinationTm = await destinationBridge.connect(admin).setConnext(destinationTm.address);
     await setDestinationTm.wait();
 
     // Set remote on BridgeRouter
@@ -344,13 +343,13 @@ describe.only("TransactionManager", () => {
     });
 
     it("should upgradeable", async () => {
-      expect(await upgradeBeaconProxy("TransactionManager", originTmBeacon)).to.be.true;
-      expect(await upgradeBeaconProxy("TransactionManager", destinationTmBeacon)).to.be.true;
+      expect(await upgradeBeaconProxy("Connext", originTmBeacon)).to.be.true;
+      expect(await upgradeBeaconProxy("Connext", destinationTmBeacon)).to.be.true;
       expect(await upgradeBeaconProxy("BridgeRouter", originBridgeBeacon)).to.be.true;
       expect(await upgradeBeaconProxy("BridgeRouter", destinationBridgeBeacon)).to.be.true;
     });
 
-    it("should set domain for original TransactionManager", async () => {
+    it("should set domain for original Connext", async () => {
       expect(await originTm.domain()).to.eq(originDomain);
     });
 
@@ -761,7 +760,7 @@ describe.only("TransactionManager", () => {
         local: assetId,
         caller: router.address,
         amount,
-        recipient: router.address,
+        to: router.address,
       });
 
       // Check liquidity
@@ -802,7 +801,7 @@ describe.only("TransactionManager", () => {
         local: assetId,
         caller: router.address,
         amount,
-        recipient: router.address,
+        to: router.address,
       });
 
       // Check liquidity
@@ -878,7 +877,7 @@ describe.only("TransactionManager", () => {
 
     // Prepare + fulfill all the transfers
     const transfers: {
-      transactionId: string;
+      transferId: string;
       amount: BigNumberish;
       local: string;
       index: string;
@@ -887,8 +886,7 @@ describe.only("TransactionManager", () => {
     for (const _ of Array(transfersInBatch).fill(0)) {
       const assetIdx = Math.floor(Math.random() * assetsInBatch);
       const params: CallParams = {
-        recipient: user.address,
-        callTo: constants.AddressZero,
+        to: user.address,
         callData: "0x",
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
@@ -896,18 +894,18 @@ describe.only("TransactionManager", () => {
       const transactingAssetId = originAssets[assetIdx].address;
       const amount = 1000;
       // check balance of user
-      const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount });
+      const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount });
       const prepareReceipt = await prepare.wait();
 
       // Get event data from prepare receipt
-      const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+      const originTmEvent = (await originTm.queryFilter(originTm.filters.XCalled())).find(
         (a) => a.blockNumber === prepareReceipt.blockNumber,
       );
-      const transactionId = (originTmEvent!.args as any).transactionId;
+      const transferId = (originTmEvent!.args as any).transferId;
       const leafIndex = (originTmEvent!.args as any).idx;
       const bridgedAmt = (originTmEvent!.args as any).localAmount;
       transfers.push({
-        transactionId,
+        transferId,
         index: leafIndex,
         amount: bridgedAmt,
         local: destinationAdopted.address,
@@ -915,9 +913,9 @@ describe.only("TransactionManager", () => {
       });
 
       // fulfill
-      const fulfill = await destinationTm.connect(router).fulfill({
+      const fulfill = await destinationTm.connect(router).execute({
         params,
-        transactionId,
+        transferId,
         local: destinationAssets[assetIdx].address,
         amount: bridgedAmt,
         feePercentage: constants.Zero,
@@ -950,7 +948,7 @@ describe.only("TransactionManager", () => {
     for (const transfer of transfers) {
       await (
         await destinationTm.process(
-          transfer.transactionId,
+          transfer.transferId,
           transfer.amount,
           transfer.local,
           transfer.index,
@@ -997,15 +995,14 @@ describe.only("TransactionManager", () => {
 
     // Prepare from the user
     const params = {
-      recipient: user.address,
-      callTo: constants.AddressZero,
+      to: user.address,
       callData: "0x",
       originDomain,
       destinationDomain,
     };
     const transactingAssetId = originAdopted.address;
     const amount = 1000;
-    const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount });
+    const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -1017,10 +1014,10 @@ describe.only("TransactionManager", () => {
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
     // Get the transaction id + leaf idx
-    const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+    const originTmEvent = (await originTm.queryFilter(originTm.filters.XCalled())).find(
       (a) => a.blockNumber === prepareReceipt.blockNumber,
     );
-    const transactionId = (originTmEvent!.args as any).transactionId;
+    const transferId = (originTmEvent!.args as any).transferId;
     const leafIndex = (originTmEvent!.args as any).idx;
     const bridgedAmt = (originTmEvent!.args as any).localAmount;
     const bridgedAsset = (originTmEvent!.args as any).localAsset;
@@ -1039,9 +1036,9 @@ describe.only("TransactionManager", () => {
 
     // Fulfill with the router
     const routerAmount = bridgedAmt;
-    const fulfill = await destinationTm.connect(router).fulfill({
+    const fulfill = await destinationTm.connect(router).execute({
       params,
-      transactionId,
+      transferId,
       local: local.address,
       amount: routerAmount,
       feePercentage: constants.Zero,
@@ -1080,7 +1077,7 @@ describe.only("TransactionManager", () => {
     // Process the transaction to reimburse the router
     const preProcess = await destinationTm.routerBalances(router.address, local.address);
     const processTx = await destinationTm.process(
-      transactionId,
+      transferId,
       bridgedAmt,
       local.address,
       leafIndex,
@@ -1117,15 +1114,14 @@ describe.only("TransactionManager", () => {
 
     // Prepare from the user
     const params = {
-      recipient: user.address,
-      callTo: constants.AddressZero,
+      to: user.address,
       callData: "0x",
       originDomain,
       destinationDomain,
     };
     const transactingAssetId = constants.AddressZero;
     const amount = 1000;
-    const prepare = await originTm.connect(user).prepare({ params, transactingAssetId, amount }, { value: amount });
+    const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount }, { value: amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -1136,10 +1132,10 @@ describe.only("TransactionManager", () => {
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
     // Get the transaction id + leaf idx
-    const originTmEvent = (await originTm.queryFilter(originTm.filters.Prepared())).find(
+    const originTmEvent = (await originTm.queryFilter(originTm.filters.XCalled())).find(
       (a) => a.blockNumber === prepareReceipt.blockNumber,
     );
-    const transactionId = (originTmEvent!.args as any).transactionId;
+    const transferId = (originTmEvent!.args as any).transferId;
     const leafIndex = (originTmEvent!.args as any).idx;
     const bridgedAmt = (originTmEvent!.args as any).localAmount;
     const bridgedAsset = (originTmEvent!.args as any).localAsset;
@@ -1158,9 +1154,9 @@ describe.only("TransactionManager", () => {
 
     // Fulfill with the router
     const routerAmount = bridgedAmt;
-    const fulfill = await destinationTm.connect(router).fulfill({
+    const fulfill = await destinationTm.connect(router).execute({
       params,
-      transactionId,
+      transferId,
       local: local.address,
       amount: routerAmount,
       relayerSignature: "0x",
@@ -1199,7 +1195,7 @@ describe.only("TransactionManager", () => {
     // Process the transaction to reimburse the router
     const preProcess = await destinationTm.routerBalances(router.address, local.address);
     const processTx = await destinationTm.process(
-      transactionId,
+      transferId,
       bridgedAmt,
       local.address,
       leafIndex,

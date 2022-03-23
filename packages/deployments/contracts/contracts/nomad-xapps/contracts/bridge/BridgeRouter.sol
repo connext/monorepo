@@ -3,7 +3,7 @@ pragma solidity >=0.6.11;
 
 // ============ Internal Imports ============
 import {ITokenRegistry} from "../../interfaces/bridge/ITokenRegistry.sol";
-import {ITransactionManager} from "../../interfaces/bridge/ITransactionManager.sol";
+import {IConnext} from "../../interfaces/bridge/IConnext.sol";
 import {Router} from "../Router.sol";
 import {XAppConnectionClient} from "../XAppConnectionClient.sol";
 import {BridgeMessage} from "./BridgeMessage.sol";
@@ -43,7 +43,7 @@ contract BridgeRouter is Version0, Router {
     // token transfer prefill ID => LP that pre-filled message to provide fast liquidity
     mapping(bytes32 => address) public liquidityProvider;
 
-    ITransactionManager public transactionManager;
+    IConnext public connext;
 
     // ============ Upgrade Gap ============
 
@@ -224,12 +224,12 @@ contract BridgeRouter is Version0, Router {
     /**
      * @notice Sets the transaction manager.
      * @dev Transacion manager and bridge router store references to each other
-     * @param _transactionManager the address of the transaction manager implementation
+     * @param _connext the address of the transaction manager implementation
      */
-    function setTransactionManager(
-        address _transactionManager
+    function setConnext(
+        address _connext
     ) external onlyOwner {
-        transactionManager = ITransactionManager(_transactionManager);
+        connext = IConnext(_connext);
     }
 
     // ======== External: Custom Tokens =========
@@ -291,7 +291,7 @@ contract BridgeRouter is Version0, Router {
         bytes29 _action
     ) internal {
         // load the original recipient of the tokens
-        address _recipient = address(transactionManager);
+        address _recipient = address(connext);
         
         // Send the tokens to the recipient of batch
         for (uint256 i; i < BridgeMessage.TOKENS_IN_BATCH; i++) {
@@ -329,7 +329,7 @@ contract BridgeRouter is Version0, Router {
         }
 
         // Pass the root and other information to TransactionManager
-        transactionManager.reconcile(_action.batchRoot());
+        connext.reconcile(_action.batchRoot());
     }
 
     // ============ Internal: Fast Liquidity ============

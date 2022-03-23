@@ -1,20 +1,20 @@
 import { task } from "hardhat/config";
 
 export default task("get-chain-id", "Get chainId")
-  .addOptionalParam("txManagerAddress", "Override tx manager address")
-  .setAction(async ({ txManagerAddress: _txManagerAddress }, { deployments, getNamedAccounts, ethers }) => {
+  .addOptionalParam("connextAddress", "Override tx manager address")
+  .setAction(async ({ connextAddress: _connextAddress }, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("namedAccounts: ", namedAccounts);
 
-    let txManagerAddress = _txManagerAddress;
-    if (!txManagerAddress) {
-      const txManagerDeployment = await deployments.get("TransactionManagerUpgradeBeaconProxy");
-      txManagerAddress = txManagerDeployment.address;
+    let connextAddress = _connextAddress;
+    if (!connextAddress) {
+      const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+      connextAddress = connextDeployment.address;
     }
-    console.log("txManagerAddress: ", txManagerAddress);
+    console.log("connextAddress: ", connextAddress);
 
-    const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
-    const chainId = await txManager.getChainId();
+    const connext = await ethers.getContractAt("Connext", connextAddress);
+    const chainId = await connext.getChainId();
     console.log("chainId: ", chainId.toString());
   });

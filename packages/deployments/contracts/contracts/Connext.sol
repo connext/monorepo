@@ -2,10 +2,9 @@
 pragma solidity 0.8.11;
 
 import "./ProposedOwnableUpgradeable.sol";
-import "./interfaces/IFulfillInterpreter.sol";
 import "./interfaces/IWrapped.sol";
 import "./interfaces/IStableSwap.sol";
-import "./interpreters/FulfillInterpreter.sol";
+import "./interpreters/Executor.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
@@ -15,14 +14,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 // TODOs:
 // Open questions:
 // 1. How to account for fees/specify amount used on receiving chain? How to specify slippage in prepare and in AMM?
 // 2. Callback interface?
-// 3. Is the transaction sufficiently observable offchain if the subgraph isn't working?
+// 3. Is the transfer sufficiently observable offchain if the subgraph isn't working?
 
 // Specs needed:
 // 1. Relayer fees -> https://www.notion.so/connext/Cross-Domain-Gas-Fees-7914f10ac441439ca3841495c1b89f6b
@@ -33,7 +31,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
 
-contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, MerkleTreeManager {
+contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, MerkleTreeManager {
 
   // TODO: why is this breaking the build
   // uint256 internal constant 3 = 3;
@@ -46,17 +44,16 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
 
   /**
    * @notice These are the call parameters that will remain constant between the
-   * two chains. They are supplied on `prepare` and should be asserted on `fulfill`
-   * @property recipient - The account that receives funds, in the event of a crosschain call,
+   * two chains. They are supplied on `xcall` and should be asserted on `execute`
+   * @property to - The account that receives funds, in the event of a crosschain call,
    * will receive funds if the call fails.
-   * @param callTo - The address of the receiving chain to execute the `callData` on. If no crosschain call is needed, then leave empty.
+   * @param to - The address you are sending funds (and potentially data) to
    * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
-   * @param originDomain - The originating domain (i.e. where `prepare` is called). Must match nomad domain schema
-   * @param destinationDomain - The final domain (i.e. where `fulfill` / `reconcile` are called). Must match nomad domain schema
+   * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
+   * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
    */
   struct CallParams {
-    address recipient;
-    address callTo;
+    address to;
     bytes callData;
     uint32 originDomain;
     uint32 destinationDomain;
@@ -65,36 +62,34 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   /**
    * @notice Contains the external call information
    * @dev Used to create a hash to pass the external call information through the bridge
-   * @param recipient - The address that should receive the funds on the destination domain if no call is
+   * @param to - The address that should receive the funds on the destination domain if no call is
    * specified, or the fallback if an external call fails
-   * @param callTo - The address of the receiving chain to execute the `callData` on
    * @param callData - The data to execute on the receiving chain
    */
   struct ExternalCall {
-    address recipient;
-    address callTo;
+    address to;
     bytes callData;
   }
 
   /**
-   * @notice Contains information stored when `fulfill` is used in a fast-liquidity manner on a 
-   * transaction to properly reimburse router when funds come through the bridge.
+   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a 
+   * transfer to properly reimburse router when funds come through the bridge.
    * @param router - Address of the router that supplied fast-liquidity
    * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount` 
    * user supplied comes through bridge
    * @param externalHash - Hash of the `ExternalCall` router supplied. Used to enforce router executed 
    * the correct calldata under threat of non-repayment
    */
-  struct FulfilledTransaction {
+  struct ExecutedTransfer {
     address router;
     uint256 amount;
     bytes32 externalHash;
   }
 
   /**
-   * @notice Contains information about the gas consumed in a `fulfill` call
-   * @param gasUsed - The gas consumed for a fulfill transaction (including external call)
-   * @param gasPrice - The tx.gasPrice on the fulfill transaction
+   * @notice Contains information about the gas consumed in a `execute` call
+   * @param gasUsed - The gas consumed for a execute transfer (including external call)
+   * @param gasPrice - The tx.gasPrice on the execute transfer
    */
   struct GasInfo {
     uint256 gasUsed;
@@ -102,27 +97,27 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   }
 
   /**
-   * @notice Struct containing the information that comes through the bridge provided by the user on `prepare`
+   * @notice Struct containing the information that comes through the bridge provided by the user on `xcall`
    * @param externalHash - Hash of the `ExternalCall`
    * @param local - The address of the bridged asset
    * @param amount - The amount forwarded through the bridge
-   * @param recipient - The address that gets the funds on the destination chain
+   * @param to - The address that gets the funds on the destination chain
    */
-  struct ReconciledTransaction {
+  struct ReconciledTransfer {
     bytes32 externalHash;
     address local;
     uint256 amount;
-    address recipient;
+    address to;
   }
 
   /**
-   * @notice The arguments you supply to the `prepare` function called by user on origin domain
+   * @notice The arguments you supply to the `xcall` function called by user on origin domain
    * @param params - The CallParams. These are consistent across sending and receiving chains
-   * @param transactingAssetId - The asset the caller sent with the transaction. Can be the adopted, canonical,
+   * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
-   * @param amount - The amount of transacting asset the tx prepared with
+   * @param amount - The amount of transferring asset the tx called xcall with
    */
-  struct PrepareArgs {
+  struct XCallArgs {
     CallParams params;
     address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
@@ -131,23 +126,23 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   /**
    * @notice 
    * @param params - The CallParams. These are consistent across sending and receiving chains
-   * @param local - The local asset for the transaction, will be swapped to the adopted asset if
+   * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
    * @param router - The router who you are sending the funds on behalf of
-   * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate 
-   * the transaction id for the crosschain transaction
+   * @param nonce - The nonce of the origin domain at the time the transfer was called xcall. Used to generate 
+   * the transfer id for the crosschain transfer
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
    * @param feePercentage - The amount over the BASEFEE to tip the relayer
    */
-  struct FulfillArgs {
+  struct ExecuteArgs {
     CallParams params;
     address local;
     address router;
     uint32 feePercentage;
     uint256 amount;
     uint256 index;
-    bytes32 transactionId;
+    bytes32 transferId;
     bytes32[32] proof;
     bytes relayerSignature;
   }
@@ -218,14 +213,14 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
    * @param router - The router you are removing liquidity from
-   * @param recipient - The address the funds were withdrawn to
+   * @param to - The address the funds were withdrawn to
    * @param local - The address of the token withdrawn
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
   event LiquidityRemoved(
     address indexed router,
-    address recipient,
+    address to,
     address local,
     uint256 amount,
     address caller
@@ -247,29 +242,29 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   );
 
   /**
-   * @notice Emitted when `prepare` is called on the origin domain
-   * @param transactionId - The unique identifier of the crosschain transaction
-   * @param idx - The leaf index of the transaction in batch tree
-   * @param recipient - The CallParams.recipient provided, created as indexed parameter
+   * @notice Emitted when `xcall` is called on the origin domain
+   * @param transferId - The unique identifier of the crosschain transfer
+   * @param idx - The leaf index of the transfer in batch tree
+   * @param to - The CallParams.to provided, created as indexed parameter
    * @param params - The CallParams provided to the function
-   * @param transactingAsset - The asset the caller sent with the transaction. Can be the adopted, canonical,
+   * @param transferringAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param localAsset - The asset sent over the bridge. Will be the local asset of nomad that corresponds
-   * to the provided `transactingAsset`
-   * @param transactingAmount - The amount of transacting asset the tx prepared with
+   * to the provided `transferringAsset`
+   * @param transferringAmount - The amount of transferring asset the tx xcalled with
    * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
    * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
-   * for the transaction
+   * for the transfer
    * @param caller - The account that called the function
    */
-  event Prepared(
-    bytes32 indexed transactionId,
+  event XCalled(
+    bytes32 indexed transferId,
     uint256 indexed idx,
-    address indexed recipient,
+    address indexed to,
     CallParams params,
-    address transactingAsset,
+    address transferringAsset,
     address localAsset,
-    uint256 transactingAmount,
+    uint256 transferringAmount,
     uint256 localAmount,
     uint256 nonce,
     address caller
@@ -297,31 +292,35 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   );
 
   /**
-   * @notice Emitted when `fulfill` is called on the destination chain
-   * @dev `fulfill` may be called when providing fast liquidity *or* when processing a reconciled transaction
-   * @param transactionId - The unique identifier of the crosschain transaction
-   * @param recipient - The CallParams.recipient provided, created as indexed parameter
+   * @notice Emitted when `execute` is called on the destination chain
+   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
+   * @param transferId - The unique identifier of the crosschain transfer
+   * @param to - The CallParams.to provided, created as indexed parameter
    * @param router - The router that supplied fast liquidity, if applicable
    * @param params - The CallParams provided to the function
    * @param localAsset - The asset that was provided by the bridge
-   * @param transactingAsset - The asset the recipient gets or the external call is executed with. Should be the
+   * @param transferringAsset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
    * @param localAmount - The amount that was provided by the bridge
-   * @param transactingAmount - The amount of transacting asset the recipient receives or the external call is
+   * @param transferringAmount - The amount of transferring asset the to address receives or the external call is
    * executed with
    * @param caller - The account that called the function
    */
-  event Fulfilled(
-    bytes32 indexed transactionId,
-    address indexed recipient,
+  event Executed(
+    bytes32 indexed transferId,
+    address indexed to,
     address indexed router,
     CallParams params,
     address localAsset,
-    address transactingAsset,
+    address transferringAsset,
     uint256 localAmount,
-    uint256 transactingAmount,
+    uint256 transferringAmount,
     address caller
   );
+
+  // ============ Constants =============
+
+  bytes32 internal EMPTY;
 
   // ============ Properties ============
 
@@ -337,15 +336,15 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   IWrapped public wrapper;
 
   /**
-   * @notice Nonce for the contract, used to keep unique transaction ids.
-   * @dev Assigned at first interaction (prepare on origin domain);
+   * @notice Nonce for the contract, used to keep unique transfer ids.
+   * @dev Assigned at first interaction (xcall on origin domain);
    */
-  uint256 public nonce ;
+  uint256 public nonce;
 
   /**
    * @notice The external contract that will execute crosschain calldata
    */
-  IFulfillInterpreter public interpreter;
+  IExecutor public executor;
 
   /**
    * @notice The local nomad token registry
@@ -359,16 +358,16 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   mapping(bytes32 => IStableSwap) public adoptedToLocalPools;
 
   /**
-   * @notice Stores the transactionId => FulfilledTransaction mapping
+   * @notice Stores the transferId => ExecutedTransfer mapping
    * @dev This information is stored onchain if fast liquidity is provided
    */
-  mapping(bytes32 => FulfilledTransaction) public routedTransactions;
+  mapping(bytes32 => ExecutedTransfer) public routedTransfers;
 
   /**
-   * @notice Stores the transactionId => GasInfo mapping to track gas used on `fulfill`
+   * @notice Stores the transferId => GasInfo mapping to track gas used on `execute`
    * @dev This informaion is stored onchain if fast liquidity is provided
    */
-  mapping(bytes32 => GasInfo) public routedTransactionsGas;
+  mapping(bytes32 => GasInfo) public routedTransfersGas;
 
   /**
    * @notice The domain this contract exists on
@@ -439,6 +438,8 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     _;
   }
 
+  // ========== Initializer ============
+
   function initialize(
     uint256 _domain,
     address payable _bridgeRouter,
@@ -451,9 +452,10 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     nonce = 0;
     domain = _domain;
     bridgeRouter = BridgeRouter(_bridgeRouter);
-    interpreter = new FulfillInterpreter(address(this));
+    executor = new Executor(address(this));
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
+    EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
   }
 
   // ============ Owner Functions ============
@@ -555,6 +557,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
    * @param router - The router to credit
    */
   function addRelayerFees(address router) external payable {
+    require(msg.value > 0, "!value");
     routerRelayerFees[router] += msg.value;
   }
 
@@ -562,12 +565,12 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
    * @notice Used to remove relayer fee in the native asset
    * @dev Must be called by the router you are decrementing relayer fees for
    * @param amount - The amount of relayer fee to remove
-   * @param recipient - Who to send funds to
+   * @param to - Who to send funds to
    */
-  function removeRelayerFees(uint256 amount, address payable recipient) external {
+  function removeRelayerFees(uint256 amount, address payable to) external {
     routerRelayerFees[msg.sender] -= amount;
     
-    AddressUpgradeable.sendValue(recipient, amount);
+    AddressUpgradeable.sendValue(to, amount);
   }
 
   /**
@@ -600,15 +603,15 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
    * @param amount - The amount of liquidity to remove for the router
    * @param local - The address of the asset you're removing liquidity from. If removing liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
-   * @param recipient The address that will receive the liquidity being removed
+   * @param to The address that will receive the liquidity being removed
    */
   function removeLiquidity(
     uint256 amount,
     address local,
-    address payable recipient
+    address payable to
   ) external  nonReentrant {
-    // Sanity check: recipient is sensible
-    require(recipient != address(0), "#RL:007");
+    // Sanity check: to is sensible
+    require(to != address(0), "#RL:007");
 
     // Sanity check: nonzero amounts
     require(amount > 0, "#RL:002");
@@ -622,23 +625,23 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
       routerBalances[msg.sender][local] = routerBalance - amount;
     }
 
-    // Transfer from contract to specified recipient
-    _transferAssetFromContract(local, recipient, amount);    
+    // Transfer from contract to specified to
+    _transferAssetFromContract(local, to, amount);    
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, recipient, local, amount, msg.sender);
+    emit LiquidityRemoved(msg.sender, to, local, amount, msg.sender);
   }
 
   /**
    * @notice This function is called by a user who is looking to bridge funds
    * @dev This contract must have approval to transfer the adopted assets. They are then swapped to
    * the local nomad assets via the configured AMM and sent over the bridge router.
-   * @param _args - The PrepareArgs
-   * @return The transaction id of the crosschain transaction
+   * @param _args - The XCallArgs
+   * @return The transfer id of the crosschain transfer
    */
   // TODO: add indicator if fast liquidity is allowed
-  function prepare(
-    PrepareArgs calldata _args
+  function xcall(
+    XCallArgs calldata _args
   ) external payable returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
@@ -660,19 +663,19 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     // TODO: do we want to swap per call or per batch?
     (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
-    // Compute the transaction id
-    bytes32 _transactionId = _getTransactionId(nonce, domain);
+    // Compute the transfer id
+    bytes32 _transferId = _getTransferId(nonce, domain);
     // Update nonce
     nonce++;
 
     // Add to batch
-    _addToBatch(_transactionId,  _bridgedAmt, _bridged, _args.params);
+    _addToBatch(_transferId,  _bridgedAmt, _bridged, _args.params);
 
     // Emit event
-    emit Prepared(
-      _transactionId,
+    emit XCalled(
+      _transferId,
       count() - 1, // leaf inserted
-      _args.params.recipient,
+      _args.params.to,
       _args.params,
       _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
       _bridged,
@@ -682,8 +685,8 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
       msg.sender
     );
 
-    // Return the transaction id
-    return _transactionId;
+    // Return the transfer id
+    return _transferId;
   }
 
   /**
@@ -736,13 +739,13 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
    * @notice This function is called on the destination chain when the bridged asset should be swapped
    * into the adopted asset and the external call executed. Can be used before reconcile (when providing
    * fast liquidity) or after reconcile (when using liquidity from the bridge)
-   * @dev Will store the `FulfilledTransaction` if fast liquidity is provided, or assert the hash of the
-   * `ReconciledTransaction` when using bridge liquidity
-   * @param _args - The `FulfillArgs` for the transaction
-   * @return The transaction id of the crosschain transaction
+   * @dev Will store the `ExecutedTransfer` if fast liquidity is provided, or assert the hash of the
+   * `ReconciledTransfer` when using bridge liquidity
+   * @param _args - The `ExecuteArgs` for the transfer
+   * @return The transfer id of the crosschain transfer
    */
-  function fulfill(
-    FulfillArgs calldata _args
+  function execute(
+    ExecuteArgs calldata _args
     // bytes32[32] calldata _proof
   ) external returns (bytes32) {
     // Get the starting gas
@@ -753,34 +756,33 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     (, bytes32 canonicalId) = tokenRegistry.getCanonicalTokenId(_args.local);
     address _originAsset = tokenRegistry.getLocalAddress(_args.params.originDomain, canonicalId);
     
-    // NOTE: _args.amount is now the **same** as the amount the tx was prepared with
+    // NOTE: _args.amount is now the **same** as the amount the tx was called xcall with
     // (i.e. the bridged amount after stable swap)
     bool _isFast;
     {
-      bytes32 _leaf = getLeaf(_args.transactionId, _args.amount, _originAsset, _args.params);
+      bytes32 _leaf = getLeaf(_args.transferId, _args.amount, _originAsset, _args.params);
       // Check to see if leaf is included in root, if not it is a fast transfer
       // TODO: keep check or second function to determine fast or slow liq
       bytes32 _calculated = MerkleLib.branchRoot(_leaf, _args.proof, _args.index);
       _isFast = _calculated != incomingRoot;
     }
 
-    _handleLiquidity(_args.params, _args.transactionId, _args.local, _args.router, _isFast, _args.amount);
+    _handleLiquidity(_args.params, _args.transferId, _args.local, _args.router, _isFast, _args.amount);
 
-    // Execute the the transaction
+    // Execute the the transfer
     // If this is a mad* asset, then swap on local AMM
     (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_args.local, _args.amount);
 
-    if (_args.params.callTo == address(0)) {
+    if (keccak256(_args.params.callData) == EMPTY) {
       // Send funds to the user
-      _transferAssetFromContract(adopted, _args.params.recipient, amount);
+      _transferAssetFromContract(adopted, _args.params.to, amount);
     } else {
       // Send funds to interprepter
-      _transferAssetFromContract(adopted, address(interpreter), amount);
-      interpreter.execute(
-        _args.transactionId,
-        payable(_args.params.callTo),
+      _transferAssetFromContract(adopted, address(executor), amount);
+      executor.execute(
+        _args.transferId,
+        payable(_args.params.to),
         adopted,
-        payable(_args.params.recipient),
         amount,
         _args.params.callData
       );
@@ -788,7 +790,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
 
     // Save gas used
     if (_isFast) {
-      routedTransactionsGas[_args.transactionId] = GasInfo({
+      routedTransfersGas[_args.transferId] = GasInfo({
         gasPrice: tx.gasprice,
         gasUsed: _start - gasleft()
         // TODO: account for gas used in storage
@@ -798,12 +800,12 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     // Pay metatx relayer
     // NOTE: if this is done *without* fast liquidity, router will be address(0) and the relayer
     // will always be paid
-    _handleRelayerFees(_args.transactionId, _args.router, _args.feePercentage, _args.relayerSignature);
+    _handleRelayerFees(_args.transferId, _args.router, _args.feePercentage, _args.relayerSignature);
 
     // Emit event
-    emit Fulfilled(
-      _args.transactionId,
-      _args.params.recipient,
+    emit Executed(
+      _args.transferId,
+      _args.params.to,
       msg.sender,
       _args.params,
       _args.local,
@@ -813,7 +815,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
       msg.sender
     );
 
-    return _args.transactionId;
+    return _args.transferId;
   }
 
   /**
@@ -821,7 +823,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
    * has been put onchain via nomad.
    */
   function process(
-    bytes32 _transactionId,
+    bytes32 _transferId,
     uint256 _amount,
     address _local,
     uint256 _index,
@@ -833,7 +835,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     address _originAsset = tokenRegistry.getLocalAddress(_params.originDomain, canonicalId);
 
     // Generate leaf
-    bytes32 _leaf = getLeaf(_transactionId, _amount, _originAsset, _params);
+    bytes32 _leaf = getLeaf(_transferId, _amount, _originAsset, _params);
 
     // Prove leaf is included in root
     bytes32 _calculated = MerkleLib.branchRoot(_leaf, _proof, _index);
@@ -842,7 +844,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     // TODO: amount assertion
 
     // Get the router
-    address router = routedTransactions[_transactionId].router;
+    address router = routedTransfers[_transferId].router;
     require(router != address(0), "!router");
 
     // Reimburse router
@@ -928,50 +930,48 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
    * @notice Gets unique identifier from nonce + domain
    * @param _nonce - The nonce of the contract
    * @param _domain - The origin domain of the transfer
-   * @return The transaction id
+   * @return The transfer id
    */
-  function _getTransactionId(uint256 _nonce, uint256 _domain) internal pure returns (bytes32) {
+  function _getTransferId(uint256 _nonce, uint256 _domain) internal pure returns (bytes32) {
     return keccak256(abi.encode(_nonce, _domain));
   }
 
   /**
-   * @notice Calculates the hash of the executed calldata and recipient on fulfill
-   * @param _recipient - The address that will receive funds on the destination domain
-   * @param _callTo - The contract address to execute the call data on
+   * @notice Calculates the hash of the executed calldata and to on execute
+   * @param _to - The address to execute the calldata on
    * @param _callData - The data to execute
    * @return The computed hash
    */
-  function _getExternalHash(address _recipient, address _callTo, bytes memory _callData) internal pure returns (bytes32) {
+  function _getExternalHash(address _to, bytes memory _callData) internal pure returns (bytes32) {
     return keccak256(abi.encode(ExternalCall({
-      callTo: _callTo,
       callData: _callData,
-      recipient: _recipient
+      to: _to
     })));
   }
 
   /**
    * @notice Gets the hash for information returned across the bridge
    * @param _local - The asset delivered by the bridge
-   * @param _recipient - The address that should receive the funds, or fallback address if the external call
+   * @param _to - The address that should receive the funds, or fallback address if the external call
    * fails
    * @param _amount - The amount delivered through the bridge
    * @param _externalHash - The hash of the `ExternalCall` passed through the bridge
-   * @return The hash of the `ReconciledTransaction`
+   * @return The hash of the `ReconciledTransfer`
    */
   function _getReconciledHash(
     address _local,
-    address _recipient,
+    address _to,
     uint256 _amount,
     bytes32 _externalHash
   ) internal pure returns (bytes32) {
-    ReconciledTransaction memory transaction = ReconciledTransaction({
+    ReconciledTransfer memory transfer = ReconciledTransfer({
       externalHash: _externalHash,
       local: _local,
       amount: _amount,
-      recipient: _recipient
+      to: _to
     });
 
-    return keccak256(abi.encode(transaction));
+    return keccak256(abi.encode(transfer));
   }
 
   /**
@@ -1014,7 +1014,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   }
 
   /**
-   * @notice Handles transferring funds from msg.sender to the transaction manager contract.
+   * @notice Handles transferring funds from msg.sender to the Connext contract.
    * @dev If using the native asset, will automatically wrap
    * @param _assetId - The address to transfer
    * @param _specifiedAmount - The specified amount to transfer. May not be the 
@@ -1045,7 +1045,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   }
 
   /**
-   * @notice Handles transferring funds from msg.sender to the transaction manager contract.
+   * @notice Handles transferring funds from msg.sender to the Connext contract.
    * @dev If using the native asset, will automatically unwrap
    * @param _assetId - The address to transfer
    * @param _to - The account that will receive the withdrawn funds
@@ -1111,7 +1111,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   /** */
   function _handleLiquidity(
     CallParams calldata _params,
-    bytes32 _transactionId,
+    bytes32 _transferId,
     address _local,
     address _router,
     bool _isFast,
@@ -1119,17 +1119,17 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   ) internal {
     // Determine if it is fast (i.e. happened before reconcile called, needs
     // a router to front)
-    bytes32 _externalHash = _getExternalHash(_params.recipient, _params.callTo, _params.callData);
+    bytes32 _externalHash = _getExternalHash(_params.to, _params.callData);
 
     if (_isFast) {
-      // Ensure it has not been fulfilled alread
-      require(routedTransactions[_transactionId].router == address(0), "!empty");
+      // Ensure it has not been executed already
+      require(routedTransfers[_transferId].router == address(0), "!empty");
 
       // Decrement liquidity
       routerBalances[_router][_local] -= _amount; 
 
       // Store the router
-      routedTransactions[_transactionId] = FulfilledTransaction({
+      routedTransfers[_transferId] = ExecutedTransfer({
         router: _router,
         externalHash: _externalHash,
         amount: _amount // will be of the mad asset, not adopted
@@ -1140,13 +1140,13 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   /**
    * @notice Pays the relayer fee on behalf of a router some multiple on the basefee
    * @dev Currently only supported on eip-1559 chains and only handles native assets.
-   * Also only used in `fulfill` transactions
-   * @param _transactionId - The unique identifier of the transaction
+   * Also only used in `execute` transfers
+   * @param _transferId - The unique identifier of the transfer
    * @param _router - The router you are sending the tx on behalf of
    * @param _feePct - The percent over the basefee you are adding
    */
   function _handleRelayerFees(
-    bytes32 _transactionId,
+    bytes32 _transferId,
     address _router,
     uint32 _feePct,
     bytes calldata _sig
@@ -1157,7 +1157,7 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
     }
 
     // Check the signature of the router on the nonce + fee pct
-    require(_router == recoverSignature(abi.encode(_transactionId, _feePct), _sig), "!rtr_sig");
+    require(_router == recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
 
     // Handle 0 case
     if (_feePct == 0) {
@@ -1178,18 +1178,17 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   }
 
   function getLeaf(
-    bytes32 _transactionId,
+    bytes32 _transferId,
     uint256 _amount,
     address _asset,
     CallParams calldata _params
   ) internal returns (bytes32) {
     return keccak256(
       abi.encode(
-        _transactionId,
+        _transferId,
         _amount,
         _asset,
-        _params.recipient,
-        _params.callTo,
+        _params.to,
         _params.callData,
         _params.originDomain,
         _params.destinationDomain
@@ -1198,19 +1197,18 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
   }
 
   /**
-   * @notice Adds a leaf into the right root, called by `prepare`
+   * @notice Adds a leaf into the right root, called by `xcall`
    * @dev Will revert if the batch is full
    */
   function _addToBatch(
-    bytes32 _transactionId,
+    bytes32 _transferId,
     uint256 _amount,
     address _asset,
     CallParams calldata _params
   ) internal {
     // Create a leaf
-    bytes32 _leaf = getLeaf(_transactionId, _amount, _asset, _params);
+    bytes32 _leaf = getLeaf(_transferId, _amount, _asset, _params);
 
-    // TODO: do we ever need to clear out tree?
     tree.insert(_leaf);
 
     // Update the batch asset
@@ -1253,9 +1251,9 @@ contract TransactionManager is Initializable, ReentrancyGuardUpgradeable, Propos
 
 
   /**
-    * @dev This empty reserved space is put in place to allow future versions to add new
-    * variables without shifting down storage in the inheritance chain.
-    * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    */
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * variables without shifting down storage in the inheritance chain.
+   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+   */
   uint256[49] private __gap;
 }

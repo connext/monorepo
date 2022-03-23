@@ -18,42 +18,38 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface IFulfillInterpreterInterface extends utils.Interface {
-  contractName: "IFulfillInterpreter";
+export interface IExecutorInterface extends utils.Interface {
+  contractName: "IExecutor";
   functions: {
-    "execute(bytes32,address,address,address,uint256,bytes)": FunctionFragment;
-    "getTransactionManager()": FunctionFragment;
+    "execute(bytes32,address,address,uint256,bytes)": FunctionFragment;
+    "getConnext()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "execute",
-    values: [BytesLike, string, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, string, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getTransactionManager",
+    functionFragment: "getConnext",
     values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getTransactionManager",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "getConnext", data: BytesLike): Result;
 
   events: {
-    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool,bool)": EventFragment;
+    "Executed(bytes32,address,address,uint256,bytes,bytes,bool,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
 }
 
 export type ExecutedEvent = TypedEvent<
-  [string, string, string, string, BigNumber, string, string, boolean, boolean],
+  [string, string, string, BigNumber, string, string, boolean, boolean],
   {
-    transactionId: string;
-    callTo: string;
+    transferId: string;
+    to: string;
     assetId: string;
-    fallbackAddress: string;
     amount: BigNumber;
     callData: string;
     returnData: string;
@@ -64,13 +60,13 @@ export type ExecutedEvent = TypedEvent<
 
 export type ExecutedEventFilter = TypedEventFilter<ExecutedEvent>;
 
-export interface IFulfillInterpreter extends BaseContract {
-  contractName: "IFulfillInterpreter";
+export interface IExecutor extends BaseContract {
+  contractName: "IExecutor";
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IFulfillInterpreterInterface;
+  interface: IExecutorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -93,40 +89,37 @@ export interface IFulfillInterpreter extends BaseContract {
 
   functions: {
     execute(
-      transactionId: BytesLike,
-      callTo: string,
+      transferId: BytesLike,
+      to: string,
       assetId: string,
-      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getTransactionManager(
+    getConnext(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   execute(
-    transactionId: BytesLike,
-    callTo: string,
+    transferId: BytesLike,
+    to: string,
     assetId: string,
-    fallbackAddress: string,
     amount: BigNumberish,
     callData: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getTransactionManager(
+  getConnext(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     execute(
-      transactionId: BytesLike,
-      callTo: string,
+      transferId: BytesLike,
+      to: string,
       assetId: string,
-      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: CallOverrides
@@ -138,15 +131,14 @@ export interface IFulfillInterpreter extends BaseContract {
       }
     >;
 
-    getTransactionManager(overrides?: CallOverrides): Promise<string>;
+    getConnext(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
-    "Executed(bytes32,address,address,address,uint256,bytes,bytes,bool,bool)"(
-      transactionId?: BytesLike | null,
-      callTo?: null,
+    "Executed(bytes32,address,address,uint256,bytes,bytes,bool,bool)"(
+      transferId?: BytesLike | null,
+      to?: string | null,
       assetId?: null,
-      fallbackAddress?: null,
       amount?: null,
       callData?: null,
       returnData?: null,
@@ -154,10 +146,9 @@ export interface IFulfillInterpreter extends BaseContract {
       isContract?: null
     ): ExecutedEventFilter;
     Executed(
-      transactionId?: BytesLike | null,
-      callTo?: null,
+      transferId?: BytesLike | null,
+      to?: string | null,
       assetId?: null,
-      fallbackAddress?: null,
       amount?: null,
       callData?: null,
       returnData?: null,
@@ -168,32 +159,30 @@ export interface IFulfillInterpreter extends BaseContract {
 
   estimateGas: {
     execute(
-      transactionId: BytesLike,
-      callTo: string,
+      transferId: BytesLike,
+      to: string,
       assetId: string,
-      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getTransactionManager(
+    getConnext(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     execute(
-      transactionId: BytesLike,
-      callTo: string,
+      transferId: BytesLike,
+      to: string,
       assetId: string,
-      fallbackAddress: string,
       amount: BigNumberish,
       callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getTransactionManager(
+    getConnext(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-interface IFulfillInterpreter {
+interface IExecutor {
 
   event Executed(
-    bytes32 indexed transactionId,
-    address payable callTo,
+    bytes32 indexed transferId,
+    address indexed to,
     address assetId,
-    address payable fallbackAddress,
     uint256 amount,
     bytes callData,
     bytes returnData,
@@ -15,13 +14,12 @@ interface IFulfillInterpreter {
     bool isContract
   );
 
-  function getTransactionManager() external returns (address);
+  function getConnext() external returns (address);
 
   function execute(
-    bytes32 transactionId,
-    address payable callTo,
+    bytes32 transferId,
+    address payable to,
     address assetId,
-    address payable fallbackAddress,
     uint256 amount,
     bytes calldata callData
   ) external payable returns (bool success, bool isContract, bytes memory returnData);

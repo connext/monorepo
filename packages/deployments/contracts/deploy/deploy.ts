@@ -306,23 +306,23 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // remote routers for different chains after they are all deployed
   // ========== End: Nomad BridgeRouter Deployment ==========
 
-  // Deploy tx manager
-  const txManager = await deployUpgradeable(
-    "TransactionManager",
+  // Deploy connext contract
+  const connext = await deployUpgradeable(
+    "Connext",
     [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
     deployer,
     hre,
   );
-  const txManagerAddress = txManager.address;
-  console.log("txManagerAddress: ", txManagerAddress);
+  const connextAddress = connext.address;
+  console.log("connextAddress: ", connextAddress);
 
   // Add tm to bridge
-  if ((await bridge.transactionManager) !== txManagerAddress) {
-    console.log("setting tx manager on bridge");
-    const addTm = await bridge.connect(deployer).setTransactionManager(txManagerAddress);
+  if ((await bridge.connext) !== connextAddress) {
+    console.log("setting connext on bridge");
+    const addTm = await bridge.connect(deployer).setConnext(connextAddress);
     await addTm.wait();
   } else {
-    console.log("bridge tx manager set");
+    console.log("bridge connext set");
   }
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {

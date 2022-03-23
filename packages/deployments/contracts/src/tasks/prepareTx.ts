@@ -4,24 +4,14 @@ import { task } from "hardhat/config";
 export default task("prepare", "Prepare a cross-chain tx")
   .addParam("transactingAssetId", "Transacting asset Id")
   .addParam("amount", "Amount to transfer")
-  .addParam("recipient", "Recipient address")
+  .addParam("to", "To address")
   .addParam("originDomain", "Origin domain")
   .addParam("destinationDomain", "Destination domain")
-  .addOptionalParam("callTo", "Address of external call")
   .addOptionalParam("callData", "Data for external call")
-  .addOptionalParam("txManagerAddress", "Override tx manager address")
+  .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
     async (
-      {
-        transactingAssetId,
-        amount,
-        txManagerAddress: _txManagerAddress,
-        recipient,
-        callTo,
-        callData,
-        originDomain,
-        destinationDomain,
-      },
+      { transactingAssetId, amount, connextAddress: _connextAddress, to, callData, originDomain, destinationDomain },
       { deployments, ethers },
     ) => {
       let tx: providers.TransactionResponse;
@@ -30,28 +20,27 @@ export default task("prepare", "Prepare a cross-chain tx")
 
       console.log("transactingAssetId: ", transactingAssetId);
       console.log("amount: ", amount);
-      console.log("callTo: ", callTo);
       console.log("callData: ", callData);
       console.log("originDomain: ", originDomain);
-      console.log("recipient: ", recipient);
+      console.log("to: ", to);
       console.log("destinationDomain: ", destinationDomain);
 
-      let txManagerAddress = _txManagerAddress;
-      if (!txManagerAddress) {
-        const txManagerDeployment = await deployments.get("TransactionManagerUpgradeBeaconProxy");
-        txManagerAddress = txManagerDeployment.address;
+      let connextAddress = _connextAddress;
+      if (!connextAddress) {
+        const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+        connextAddress = connextDeployment.address;
       }
-      console.log("txManagerAddress: ", txManagerAddress);
+      console.log("connextAddress: ", connextAddress);
 
       let balance: BigNumber;
       if (transactingAssetId === constants.AddressZero) {
         balance = await ethers.provider.getBalance(sender.address);
       } else {
         const erc20 = await ethers.getContractAt("IERC20Minimal", transactingAssetId, sender);
-        const allowance = await erc20.allowance(sender.address, txManagerAddress);
+        const allowance = await erc20.allowance(sender.address, connextAddress);
         if (allowance.lt(amount)) {
           console.log("Approving tokens");
-          tx = await erc20.approve(txManagerAddress, constants.MaxUint256);
+          tx = await erc20.approve(connextAddress, constants.MaxUint256);
           console.log("approval tx sent: ", tx.hash);
           await tx.wait();
           console.log("approval tx mined", tx.hash);
@@ -62,12 +51,11 @@ export default task("prepare", "Prepare a cross-chain tx")
         throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
       }
 
-      const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
       const args = [
         {
           params: {
-            recipient,
-            callTo: callTo ?? constants.AddressZero,
+            to,
             callData: callData ?? "0x",
             originDomain,
             destinationDomain,
@@ -77,8 +65,8 @@ export default task("prepare", "Prepare a cross-chain tx")
         },
         { from: sender.address },
       ];
-      console.log("prepare args", args);
-      tx = await txManager.functions.prepare(...args);
+      console.log("xcall args", args);
+      tx = await connext.functions.xcall(...args);
       console.log("tx sent! ", tx.hash);
       await tx.wait();
       console.log("tx mined! ", tx.hash);
