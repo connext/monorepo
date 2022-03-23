@@ -12,7 +12,7 @@ const fakeTxs = [
     "3000",
     "4000",
     "1000",
-    CrossChainTxStatus.Prepared,
+    CrossChainTxStatus.XCalled,
     mkAddress("0xaaa"),
     getRandomBytes32(),
     1234,
@@ -26,7 +26,7 @@ describe("TransactionCache", () => {
     const RedisSub = new RedisMock();
 
     RedisSub.subscribe(StoreChannel.NewHighestNonce);
-    RedisSub.subscribe(StoreChannel.NewPreparedTx);
+    RedisSub.subscribe(StoreChannel.NewXCall);
     RedisSub.subscribe(StoreChannel.NewStatus);
 
     RedisSub.on("message", (chan: any, msg: any) => {
@@ -39,28 +39,28 @@ describe("TransactionCache", () => {
   describe("TransactionsCache", () => {
     describe("#storeStatus", () => {
       it("happy: should return true if `set` returns OK", async () => {
-        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.XCalled);
         expect(res).to.be.eq(true);
       });
 
       it("should return false if the new status is different from the previous one", async () => {
-        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
-        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Fulfilled);
+        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Executed);
         expect(res).to.be.eq(true);
       });
 
       it("should return false if the new status is same as the previous one", async () => {
-        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
-        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.XCalled);
         expect(res).to.be.eq(false);
       });
     });
 
     describe("#getStatus", () => {
       it("happy: should get status of transaction by ID", async () => {
-        await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.Prepared);
+        await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.XCalled);
         const status = await transactions.getStatus(fakeTxs[1].transactionId);
-        expect(status).to.be.eq(CrossChainTxStatus.Prepared);
+        expect(status).to.be.eq(CrossChainTxStatus.XCalled);
       });
 
       it("should return undefined if no exists", async () => {
@@ -100,7 +100,7 @@ describe("TransactionCache", () => {
           "100",
           "200",
           "1000",
-          CrossChainTxStatus.Prepared,
+          CrossChainTxStatus.XCalled,
           mkAddress("0xaaa"),
           getRandomBytes32(),
           1235,
@@ -124,7 +124,7 @@ describe("TransactionCache", () => {
           "101",
           "201",
           "1000",
-          CrossChainTxStatus.Prepared,
+          CrossChainTxStatus.XCalled,
           mkAddress("0xaaa"),
           transactionId,
           1234,
@@ -133,7 +133,7 @@ describe("TransactionCache", () => {
         await transactions.storeTxData([mockCrossChainTx]);
 
         const res = await transactions.getTxDataByDomainAndTxID("101", transactionId);
-        expect(res.transactionId).to.eq(transactionId);
+        expect(res.transferId).to.eq(transactionId);
       });
     });
 
@@ -149,7 +149,7 @@ describe("TransactionCache", () => {
           "102",
           "202",
           "1000",
-          CrossChainTxStatus.Prepared,
+          CrossChainTxStatus.XCalled,
           mkAddress("0xaaa"),
           transactionId,
           1234,
@@ -158,7 +158,7 @@ describe("TransactionCache", () => {
         await transactions.storeTxData([mockCrossChainTx]);
 
         const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
-        expect(res.transactionId).to.eq(transactionId);
+        expect(res.transferId).to.eq(transactionId);
       });
     });
   });

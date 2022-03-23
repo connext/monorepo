@@ -7,7 +7,7 @@ import {
   RequestContext,
   expect,
   Logger,
-  requestContextMock,
+  mock,
 } from "@connext/nxtp-utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
@@ -35,6 +35,7 @@ let context: RequestContext = {
   id: "",
   origin: "",
 };
+const { requestContext: requestContextMock } = mock.loggingContext();
 
 /// In these tests, we are testing the outer shell of chainreader - the interface, not the core functionality.
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
@@ -373,15 +374,17 @@ describe("ChainReader", () => {
         TEST_SENDER_CHAIN_ID,
         sendingAssetId,
         18,
-        "fulfill",
-        false,
+        "execute",
+        undefined,
+        undefined,
       ]);
       expect(calculateGasFeeStub.getCall(1).args.slice(0, 5)).to.deep.eq([
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
         18,
-        "prepare",
-        false,
+        "execute",
+        undefined,
+        undefined,
       ]);
     });
   });
@@ -430,26 +433,26 @@ describe("ChainReader", () => {
       gasPriceStub.onFirstCall().resolves(BigNumber.from(testGasPrice));
     });
 
-    it("happy: should calculate for prepare if chain included and prepare specified", async () => {
+    it("happy: should calculate for xcall if chain included and xcall specified", async () => {
       const result = await chainReader.calculateGasFee(
         1,
         mkAddress("0x0"),
         18,
-        "prepare",
-        false,
+        "xcall",
+        undefined,
         undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4207142857142857);
     });
 
-    it("happy: should calculate for fulfill if chain included and fulfill specified", async () => {
+    it("happy: should calculate for execute if chain included and execute specified", async () => {
       const result = await chainReader.calculateGasFee(
         1,
         mkAddress("0x0"),
         18,
-        "fulfill",
-        false,
+        "execute",
+        undefined,
         undefined,
         requestContextMock,
       );
@@ -461,66 +464,66 @@ describe("ChainReader", () => {
         TEST_RECEIVER_CHAIN_ID,
         mkAddress("0x0"),
         18,
-        "prepare",
-        false,
+        "xcall",
+        undefined,
         undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(0);
     });
 
-    it("special case for chainId 10 prepare", async () => {
+    it("special case for chainId 10 xcall", async () => {
       chainsPriceOraclesStub.value([1, 10]);
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
         mkAddress("0x0"),
         18,
-        "prepare",
-        false,
+        "xcall",
+        undefined,
         undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4885223571428571);
     });
 
-    it("special case for chainId 10 fulfill", async () => {
+    it("special case for chainId 10 execute", async () => {
       chainsPriceOraclesStub.value([1, 10]);
       gasPriceStub.resolves(testGasPrice);
       const result = await chainReader.calculateGasFee(
         10,
         mkAddress("0x0"),
         18,
-        "fulfill",
-        false,
+        "execute",
+        undefined,
         undefined,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4073510714285714);
     });
 
-    it("special case for chainId 10 cancel", async () => {
-      chainsPriceOraclesStub.value([1, 10]);
-      gasPriceStub.resolves(testGasPrice);
-      const result = await chainReader.calculateGasFee(
-        10,
-        mkAddress("0x0"),
-        18,
-        "cancel",
-        false,
-        undefined,
-        requestContextMock,
-      );
-      expect(result.toNumber()).to.be.eq(4832368571428571);
-    });
+    // it("special case for chainId 10 cancel", async () => {
+    //   chainsPriceOraclesStub.value([1, 10]);
+    //   gasPriceStub.resolves(testGasPrice);
+    //   const result = await chainReader.calculateGasFee(
+    //     10,
+    //     mkAddress("0x0"),
+    //     18,
+    //     "cancel",
+    //     false,
+    //     undefined,
+    //     requestContextMock,
+    //   );
+    //   expect(result.toNumber()).to.be.eq(4832368571428571);
+    // });
 
     it("happy: should calculate for prepare with default data", async () => {
       const result = await chainReader.calculateGasFee(
         1337,
         mkAddress("0x0"),
         18,
-        "prepare",
-        false,
+        "xcall",
+        undefined,
         undefined,
         requestContextMock,
       );

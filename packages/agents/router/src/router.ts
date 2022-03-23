@@ -108,8 +108,8 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
     logger: logger.child({ module: "StoreManager" }),
   });
 
-  // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-  cacheInstance.consumers.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
+  // Subscribe to `NewXCall` channel and attach prepare handler.
+  cacheInstance.consumers.subscribe(StoreManager.Channel.NewXCall, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewXcalledTx");
     try {
       await execute(JSON.parse(pendingTx) as CrossChainTx);

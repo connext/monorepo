@@ -20,7 +20,7 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 
 /**
  * Router creates a new bid and sends it to auctioneer.
- * should be subsribed to NewPreparedTransaction channel of redis.
+ * should be subsribed to NewXCall channel of redis.
  *
  * @param params - The prepared crosschain tranaction
  */

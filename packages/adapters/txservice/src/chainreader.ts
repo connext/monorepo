@@ -277,14 +277,22 @@ export class ChainReader {
     // is not configured for goerli so theres no way to translate the price to goerli.
     const [senderFulfillGasFee, receiverPrepareGasFee] = await Promise.all([
       // Calculate gas fees for sender fulfill.
-      this.calculateGasFee(sendingChainId, sendingAssetId, outputDecimals, "fulfill", false, chainData, requestContext),
+      this.calculateGasFee(
+        sendingChainId,
+        sendingAssetId,
+        outputDecimals,
+        "execute",
+        undefined,
+        chainData,
+        requestContext,
+      ),
       // Calculate gas fees for receiver xcall.
       this.calculateGasFee(
         receivingChainId,
         receivingAssetId,
         outputDecimals,
         "xcall",
-        false,
+        undefined,
         chainData,
         requestContext,
       ),
@@ -325,11 +333,10 @@ export class ChainReader {
       receivingChainId,
       receivingAssetId,
       outputDecimals,
-      "fulfill",
-      false,
+      "execute",
+      callDataParams,
       chainData,
       requestContext,
-      callDataParams,
     );
   }
 
@@ -349,7 +356,6 @@ export class ChainReader {
     assetId: string,
     decimals: number,
     method: "xcall" | "execute",
-    isRouterContract: boolean,
     callDataParams: { callData?: string; callTo?: string; callDataGas?: string } = {},
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
@@ -393,12 +399,10 @@ export class ChainReader {
     if (chainIdForGasPrice === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
       let gasEstimate = "0";
-      if (method === "prepare") {
+      if (method === "xcall") {
         gasEstimate = gasLimits.prepareL1 ?? "0";
-      } else if (method === "fulfill") {
+      } else if (method === "execute") {
         gasEstimate = gasLimits.fulfillL1 ?? "0";
-      } else if (method === "cancel") {
-        gasEstimate = gasLimits.cancelL1 ?? "0";
       } else {
         gasEstimate = gasLimits.removeLiquidityL1 ?? "0";
       }
@@ -406,10 +410,10 @@ export class ChainReader {
     }
 
     let gasLimit = BigNumber.from("0");
-    if (method === "prepare") {
-      gasLimit = BigNumber.from(isRouterContract ? gasLimits.prepareRouterContract : gasLimits.prepare);
-    } else if (method === "fulfill") {
-      gasLimit = BigNumber.from(isRouterContract ? gasLimits.fulfillRouterContract : gasLimits.fulfill);
+    if (method === "xcall") {
+      gasLimit = BigNumber.from(gasLimits.prepare);
+    } else if (method === "execute") {
+      gasLimit = BigNumber.from(gasLimits.fulfill);
       const { callData, callTo, callDataGas } = callDataParams;
       if (callDataGas) {
         gasLimit = gasLimit.add(callDataGas);
@@ -428,9 +432,9 @@ export class ChainReader {
         }
       }
     } else if (method === "cancel") {
-      gasLimit = BigNumber.from(isRouterContract ? gasLimits.cancelRouterContract : gasLimits.cancel);
+      gasLimit = BigNumber.from(gasLimits.cancel);
     } else {
-      gasLimit = BigNumber.from(isRouterContract ? gasLimits.removeLiquidityRouterContract : gasLimits.removeLiquidity);
+      gasLimit = BigNumber.from(gasLimits.removeLiquidity);
     }
 
     const impactedGasPrice = gasPrice.mul(BigNumber.from(10).pow(18)).div(BigNumber.from(gasLimits.gasPriceFactor));
@@ -441,7 +445,6 @@ export class ChainReader {
 
     this.logger.info("Calculated gas fee.", requestContext, methodContext, {
       method,
-      isRouterContract,
       asset: {
         chainIdForTokenPrice,
         token: assetId,

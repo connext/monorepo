@@ -158,7 +158,7 @@ export const mock = {
     },
   },
   helpers: {
-    fulfill: {
+    execute: {
       sanityCheck: stub(),
     },
     shared: {
@@ -168,7 +168,7 @@ export const mock = {
     },
   },
   operations: {
-    fulfill: stub(),
+    execute: stub(),
   },
 };
 

@@ -23,7 +23,7 @@ const fakeTxs = [
     "1000",
     "2000",
     "1000",
-    CrossChainTxStatus.Prepared,
+    CrossChainTxStatus.XCalled,
     mkAddress("0xaaa"),
     getRandomBytes32(),
     5555,
@@ -38,9 +38,9 @@ const highestNonceHandler: SubscriptionCallback = async (msg: any, err?: any) =>
   console.log(`${highestNonceHandler.name} ===> Received message: ${msg}`);
 };
 
-let callCountForNewPrepared = 0;
+let callCountForNewXCall = 0;
 const newPreparedTxHandler: SubscriptionCallback = async (msg: any, err?: any) => {
-  callCountForNewPrepared++;
+  callCountForNewXCall++;
   console.log(`${newPreparedTxHandler.name} ===> Received message: ${msg}`);
 };
 
@@ -62,7 +62,7 @@ describe("ConsumersCache", () => {
     const RedisSub = new RedisMock();
 
     RedisSub.subscribe(StoreChannel.NewHighestNonce);
-    RedisSub.subscribe(StoreChannel.NewPreparedTx);
+    RedisSub.subscribe(StoreChannel.NewXCall);
     RedisSub.subscribe(StoreChannel.NewStatus);
     RedisSub.subscribe(StoreChannel.NewBid);
 
@@ -79,8 +79,8 @@ describe("ConsumersCache", () => {
     it("should be ok", async () => {
       await consumers.subscribe(StoreChannel.NewHighestNonce, highestNonceHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewHighestNonce)).to.be.eq(true);
-      await consumers.subscribe(StoreChannel.NewPreparedTx, newPreparedTxHandler);
-      expect(consumers.subscriptions.has(StoreChannel.NewPreparedTx)).to.be.eq(true);
+      await consumers.subscribe(StoreChannel.NewXCall, newPreparedTxHandler);
+      expect(consumers.subscriptions.has(StoreChannel.NewXCall)).to.be.eq(true);
       await consumers.subscribe(StoreChannel.NewStatus, newStatusHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewStatus)).to.be.eq(true);
       await consumers.subscribe(StoreChannel.NewBid, newBidHandler);
@@ -90,15 +90,15 @@ describe("ConsumersCache", () => {
 
   describe("#pub/sub", () => {
     it("subscriptions should be called if the new message arrives from its channel", async () => {
-      // StoreChannel.NewPreparedTx
-      expect(callCountForNewPrepared).to.be.eq(0);
+      // StoreChannel.NewXCall
+      expect(callCountForNewXCall).to.be.eq(0);
       await transactions.storeTxData([fakeTxs[0]]);
       await delay(100);
-      expect(callCountForNewPrepared).to.be.eq(1);
+      expect(callCountForNewXCall).to.be.eq(1);
 
       // StoreChannel.NewStatus
       expect(callCountForNewStatus).to.be.eq(0);
-      await transactions.storeStatus((fakeTxs[0] as CrossChainTx).transactionId, CrossChainTxStatus.Fulfilled);
+      await transactions.storeStatus((fakeTxs[0] as CrossChainTx).transferId, CrossChainTxStatus.Executed);
       await delay(100);
       expect(callCountForNewStatus).to.be.eq(1);
 

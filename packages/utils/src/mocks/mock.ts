@@ -72,7 +72,7 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       relayerSignature: "0xsig",
     }),
-    bid: (transferId = "0xtxid", data = mock.entity.fulfillArgs()): Bid => ({
+    bid: (transferId = "0xtxid", data = mock.entity.executeArgs()): Bid => ({
       transferId,
       data,
     }),
@@ -145,7 +145,7 @@ export const mock: any = {
               reconciledGasLimit: "0",
               reconciledBlockNumber: 0,
             }
-          : // If status is fulfilled, we should have fulfill fields defined (but leave reconciled fields empty).
+          : // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
           status === CrossChainTxStatus.Executed
           ? {
               // Fulfill
