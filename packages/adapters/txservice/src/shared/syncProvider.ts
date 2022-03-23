@@ -1,4 +1,4 @@
-import { delay, getHostnameFromRegex } from "@connext/nxtp-utils";
+import { delay, parseHostname } from "@connext/nxtp-utils";
 import { providers, utils } from "ethers";
 
 import { parseError, RpcError, ServerError, StallTimeout } from "./errors";
@@ -58,8 +58,8 @@ export class SyncProvider extends StaticJsonRpcProvider {
   ) {
     super(_connectionInfo, chainId);
     this.connectionInfo = typeof _connectionInfo === "string" ? { url: _connectionInfo } : _connectionInfo;
-    this.name = getHostnameFromRegex(this.connectionInfo.url)
-      ? getHostnameFromRegex(this.connectionInfo.url)!.split(".").slice(0, -1).join(".")
+    this.name = parseHostname(this.connectionInfo.url)
+      ? parseHostname(this.connectionInfo.url)!.split(".").slice(0, -1).join(".")
       : this.connectionInfo.url;
   }
 
