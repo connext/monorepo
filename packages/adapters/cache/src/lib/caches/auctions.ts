@@ -1,4 +1,4 @@
-import { BidStatus, StoredBid, Bid } from "@connext/nxtp-utils";
+import { BidStatus, StoredBid, Bid, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { Cache } from "./cache";

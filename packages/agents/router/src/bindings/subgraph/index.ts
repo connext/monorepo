@@ -40,7 +40,7 @@ export const pollSubgraph = async () => {
         latestNonce,
       });
       subgraphQueryMetaParams.set(domain, {
-        maxPrepareBlockNumber: latestBlockNumber - safeConfirmations,
+        maxXCallBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
       });
     }
