@@ -563,9 +563,9 @@
         }
       }
     },
-    "cf326870f40c6acae03e8da8ed5bae2c400a7a88d3943ad421ba56ca22f41b4a": {
-      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-      "txHash": "0x131749cfcb84b232394fe97b9ea964ab293b4c091c3fa0c6f38f7adbf909faff",
+    "4a771ee26241ca7961d0f76f44c4882e9a2957e0435ca357cc43cab5ea30cf8e": {
+      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
+      "txHash": "0x8a97aaa05865bed8135d37bc15b647ba09db3cc2364a89bc8159416936f2f4fd",
       "layout": {
         "storage": [
           {
@@ -574,7 +574,7 @@
             "slot": "0",
             "type": "t_bool",
             "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
           },
           {
             "label": "_initializing",
@@ -582,7 +582,7 @@
             "slot": "0",
             "type": "t_bool",
             "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
           },
           {
             "label": "__gap",
@@ -590,7 +590,7 @@
             "slot": "1",
             "type": "t_array(t_uint256)50_storage",
             "contract": "ContextUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
           },
           {
             "label": "_owner",
@@ -598,7 +598,7 @@
             "slot": "51",
             "type": "t_address",
             "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
           },
           {
             "label": "__gap",
@@ -606,7 +606,7 @@
             "slot": "52",
             "type": "t_array(t_uint256)49_storage",
             "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
           },
           {
             "label": "xAppConnectionManager",
@@ -614,7 +614,7 @@
             "slot": "101",
             "type": "t_contract(XAppConnectionManager)15533",
             "contract": "XAppConnectionClient",
-            "src": "contracts/nomad-xapps/contracts/XAppConnectionClient.sol:13"
+            "src": "contracts\\nomad-xapps\\contracts\\XAppConnectionClient.sol:13"
           },
           {
             "label": "__GAP",
@@ -622,7 +622,169 @@
             "slot": "102",
             "type": "t_array(t_uint256)49_storage",
             "contract": "XAppConnectionClient",
-            "src": "contracts/nomad-xapps/contracts/XAppConnectionClient.sol:14"
+            "src": "contracts\\nomad-xapps\\contracts\\XAppConnectionClient.sol:14"
+          },
+          {
+            "label": "remotes",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_mapping(t_uint32,t_bytes32)",
+            "contract": "Router",
+            "src": "contracts\\nomad-xapps\\contracts\\Router.sol:12"
+          },
+          {
+            "label": "__GAP",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "Router",
+            "src": "contracts\\nomad-xapps\\contracts\\Router.sol:13"
+          },
+          {
+            "label": "tokenRegistry",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_contract(ITokenRegistry)24221",
+            "contract": "BridgeRouter",
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\BridgeRouter.sol:42"
+          },
+          {
+            "label": "liquidityProvider",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_bytes32,t_address)",
+            "contract": "BridgeRouter",
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\BridgeRouter.sol:44"
+          },
+          {
+            "label": "connext",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_contract(IConnext)24152",
+            "contract": "BridgeRouter",
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\BridgeRouter.sol:46"
+          },
+          {
+            "label": "__GAP",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "BridgeRouter",
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\BridgeRouter.sol:51"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IConnext)24152": {
+            "label": "contract IConnext",
+            "numberOfBytes": "20"
+          },
+          "t_contract(ITokenRegistry)24221": {
+            "label": "contract ITokenRegistry",
+            "numberOfBytes": "20"
+          },
+          "t_contract(XAppConnectionManager)15533": {
+            "label": "contract XAppConnectionManager",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_bytes32,t_address)": {
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_bytes32)": {
+            "label": "mapping(uint32 => bytes32)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        }
+      }
+    },
+    "2da56e22798d0b123a5c4915efbf7d29e5ff7a34727e2b158c7523d4c9e5e8bd": {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "txHash": "0xdc26fd105b16aea26fc0ce6028909cf12ed8b055be326406e8757dc7b476bddd",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "xAppConnectionManager",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(XAppConnectionManager)15533",
+            "contract": "XAppConnectionClient",
+            "src": "contracts\\nomad-xapps\\contracts\\XAppConnectionClient.sol:13"
+          },
+          {
+            "label": "__GAP",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "XAppConnectionClient",
+            "src": "contracts\\nomad-xapps\\contracts\\XAppConnectionClient.sol:14"
           },
           {
             "label": "_local",
@@ -630,7 +792,7 @@
             "slot": "151",
             "type": "t_uint32",
             "contract": "TokenRegistry",
-            "src": "contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol:43"
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\TokenRegistry.sol:43"
           },
           {
             "label": "tokenBeacon",
@@ -638,7 +800,7 @@
             "slot": "151",
             "type": "t_address",
             "contract": "TokenRegistry",
-            "src": "contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol:46"
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\TokenRegistry.sol:46"
           },
           {
             "label": "representationToCanonical",
@@ -646,7 +808,7 @@
             "slot": "152",
             "type": "t_mapping(t_address,t_struct(TokenId)20550_storage)",
             "contract": "TokenRegistry",
-            "src": "contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol:48"
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\TokenRegistry.sol:48"
           },
           {
             "label": "canonicalToRepresentation",
@@ -654,7 +816,7 @@
             "slot": "153",
             "type": "t_mapping(t_bytes32,t_address)",
             "contract": "TokenRegistry",
-            "src": "contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol:51"
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\TokenRegistry.sol:51"
           },
           {
             "label": "__GAP",
@@ -662,7 +824,7 @@
             "slot": "154",
             "type": "t_array(t_uint256)49_storage",
             "contract": "TokenRegistry",
-            "src": "contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol:56"
+            "src": "contracts\\nomad-xapps\\contracts\\bridge\\TokenRegistry.sol:56"
           }
         ],
         "types": {
@@ -727,171 +889,9 @@
         }
       }
     },
-    "4a771ee26241ca7961d0f76f44c4882e9a2957e0435ca357cc43cab5ea30cf8e": {
-      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0xc7dde0700abf0717c9dc7343c1ad9420b610a92645a983646a954f130f6898d4",
-      "layout": {
-        "storage": [
-          {
-            "label": "_initialized",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
-          },
-          {
-            "label": "_initializing",
-            "offset": 1,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_array(t_uint256)50_storage",
-            "contract": "ContextUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
-          },
-          {
-            "label": "_owner",
-            "offset": 0,
-            "slot": "51",
-            "type": "t_address",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "52",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
-          },
-          {
-            "label": "xAppConnectionManager",
-            "offset": 0,
-            "slot": "101",
-            "type": "t_contract(XAppConnectionManager)15533",
-            "contract": "XAppConnectionClient",
-            "src": "contracts/nomad-xapps/contracts/XAppConnectionClient.sol:13"
-          },
-          {
-            "label": "__GAP",
-            "offset": 0,
-            "slot": "102",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "XAppConnectionClient",
-            "src": "contracts/nomad-xapps/contracts/XAppConnectionClient.sol:14"
-          },
-          {
-            "label": "remotes",
-            "offset": 0,
-            "slot": "151",
-            "type": "t_mapping(t_uint32,t_bytes32)",
-            "contract": "Router",
-            "src": "contracts/nomad-xapps/contracts/Router.sol:12"
-          },
-          {
-            "label": "__GAP",
-            "offset": 0,
-            "slot": "152",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "Router",
-            "src": "contracts/nomad-xapps/contracts/Router.sol:13"
-          },
-          {
-            "label": "tokenRegistry",
-            "offset": 0,
-            "slot": "201",
-            "type": "t_contract(ITokenRegistry)24221",
-            "contract": "BridgeRouter",
-            "src": "contracts/nomad-xapps/contracts/bridge/BridgeRouter.sol:42"
-          },
-          {
-            "label": "liquidityProvider",
-            "offset": 0,
-            "slot": "202",
-            "type": "t_mapping(t_bytes32,t_address)",
-            "contract": "BridgeRouter",
-            "src": "contracts/nomad-xapps/contracts/bridge/BridgeRouter.sol:44"
-          },
-          {
-            "label": "connext",
-            "offset": 0,
-            "slot": "203",
-            "type": "t_contract(IConnext)24152",
-            "contract": "BridgeRouter",
-            "src": "contracts/nomad-xapps/contracts/bridge/BridgeRouter.sol:46"
-          },
-          {
-            "label": "__GAP",
-            "offset": 0,
-            "slot": "204",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "BridgeRouter",
-            "src": "contracts/nomad-xapps/contracts/bridge/BridgeRouter.sol:51"
-          }
-        ],
-        "types": {
-          "t_address": {
-            "label": "address",
-            "numberOfBytes": "20"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]",
-            "numberOfBytes": "1568"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]",
-            "numberOfBytes": "1600"
-          },
-          "t_bool": {
-            "label": "bool",
-            "numberOfBytes": "1"
-          },
-          "t_bytes32": {
-            "label": "bytes32",
-            "numberOfBytes": "32"
-          },
-          "t_contract(IConnext)24152": {
-            "label": "contract IConnext",
-            "numberOfBytes": "20"
-          },
-          "t_contract(ITokenRegistry)24221": {
-            "label": "contract ITokenRegistry",
-            "numberOfBytes": "20"
-          },
-          "t_contract(XAppConnectionManager)15533": {
-            "label": "contract XAppConnectionManager",
-            "numberOfBytes": "20"
-          },
-          "t_mapping(t_bytes32,t_address)": {
-            "label": "mapping(bytes32 => address)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_uint32,t_bytes32)": {
-            "label": "mapping(uint32 => bytes32)",
-            "numberOfBytes": "32"
-          },
-          "t_uint256": {
-            "label": "uint256",
-            "numberOfBytes": "32"
-          },
-          "t_uint32": {
-            "label": "uint32",
-            "numberOfBytes": "4"
-          }
-        }
-      }
-    },
-    "6daf05bd6d9f470390241ec885feb5786d1d3608e2839c943ea0e993cd050ad9": {
+    "0e819b41e58625b4bcb8626d033e6a7d9f116d8be8b50e4b6bb372c55b2504f9": {
       "address": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
-      "txHash": "0x25492d6baedce9078c3e035c1ff7be0adcb33ed1cb4edb2fb32e07cd214df7df",
+      "txHash": "0x8b27b454b96442d5caa85a714abed3a4e661de69a45ddf1323f0c2c2121e4129",
       "layout": {
         "storage": [
           {
@@ -900,7 +900,7 @@
             "slot": "0",
             "type": "t_bool",
             "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
           },
           {
             "label": "_initializing",
@@ -908,7 +908,7 @@
             "slot": "0",
             "type": "t_bool",
             "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
           },
           {
             "label": "_status",
@@ -916,7 +916,7 @@
             "slot": "1",
             "type": "t_uint256",
             "contract": "ReentrancyGuardUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:38"
           },
           {
             "label": "__gap",
@@ -924,7 +924,7 @@
             "slot": "2",
             "type": "t_array(t_uint256)49_storage",
             "contract": "ReentrancyGuardUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:74"
           },
           {
             "label": "_owner",
@@ -932,7 +932,7 @@
             "slot": "51",
             "type": "t_address",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:27"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:27"
           },
           {
             "label": "_proposed",
@@ -940,7 +940,7 @@
             "slot": "52",
             "type": "t_address",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:29"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:29"
           },
           {
             "label": "_proposedOwnershipTimestamp",
@@ -948,7 +948,7 @@
             "slot": "53",
             "type": "t_uint256",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:30"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:30"
           },
           {
             "label": "_routerOwnershipRenounced",
@@ -956,7 +956,7 @@
             "slot": "54",
             "type": "t_bool",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:32"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:32"
           },
           {
             "label": "_routerOwnershipTimestamp",
@@ -964,7 +964,7 @@
             "slot": "55",
             "type": "t_uint256",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:33"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:33"
           },
           {
             "label": "_assetOwnershipRenounced",
@@ -972,7 +972,7 @@
             "slot": "56",
             "type": "t_bool",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:35"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:35"
           },
           {
             "label": "_assetOwnershipTimestamp",
@@ -980,7 +980,7 @@
             "slot": "57",
             "type": "t_uint256",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:36"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:36"
           },
           {
             "label": "__gap",
@@ -988,7 +988,7 @@
             "slot": "58",
             "type": "t_array(t_uint256)49_storage",
             "contract": "ProposedOwnableUpgradeable",
-            "src": "contracts/ProposedOwnableUpgradeable.sol:303"
+            "src": "contracts\\ProposedOwnableUpgradeable.sol:303"
           },
           {
             "label": "tree",
@@ -996,7 +996,7 @@
             "slot": "107",
             "type": "t_struct(Tree)17575_storage",
             "contract": "MerkleTreeManager",
-            "src": "contracts/nomad-core/contracts/Merkle.sol:17"
+            "src": "contracts\\nomad-core\\contracts\\Merkle.sol:17"
           },
           {
             "label": "__GAP",
@@ -1004,7 +1004,7 @@
             "slot": "140",
             "type": "t_array(t_uint256)49_storage",
             "contract": "MerkleTreeManager",
-            "src": "contracts/nomad-core/contracts/Merkle.sol:22"
+            "src": "contracts\\nomad-core\\contracts\\Merkle.sol:22"
           },
           {
             "label": "EMPTY",
@@ -1012,7 +1012,7 @@
             "slot": "189",
             "type": "t_bytes32",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:323"
+            "src": "contracts\\Connext.sol:323"
           },
           {
             "label": "bridgeRouter",
@@ -1020,7 +1020,7 @@
             "slot": "190",
             "type": "t_contract(BridgeRouter)22091",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:330"
+            "src": "contracts\\Connext.sol:330"
           },
           {
             "label": "wrapper",
@@ -1028,7 +1028,7 @@
             "slot": "191",
             "type": "t_contract(IWrapped)9894",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:336"
+            "src": "contracts\\Connext.sol:336"
           },
           {
             "label": "nonce",
@@ -1036,7 +1036,7 @@
             "slot": "192",
             "type": "t_uint256",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:342"
+            "src": "contracts\\Connext.sol:342"
           },
           {
             "label": "executor",
@@ -1044,7 +1044,7 @@
             "slot": "193",
             "type": "t_contract(IExecutor)9611",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:347"
+            "src": "contracts\\Connext.sol:347"
           },
           {
             "label": "tokenRegistry",
@@ -1052,7 +1052,7 @@
             "slot": "194",
             "type": "t_contract(TokenRegistry)23397",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:352"
+            "src": "contracts\\Connext.sol:352"
           },
           {
             "label": "adoptedToLocalPools",
@@ -1060,7 +1060,7 @@
             "slot": "195",
             "type": "t_mapping(t_bytes32,t_contract(IStableSwap)9883)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:358"
+            "src": "contracts\\Connext.sol:358"
           },
           {
             "label": "routedTransfers",
@@ -1068,7 +1068,7 @@
             "slot": "196",
             "type": "t_mapping(t_bytes32,t_struct(ExecutedTransfer)5454_storage)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:364"
+            "src": "contracts\\Connext.sol:364"
           },
           {
             "label": "routedTransfersGas",
@@ -1076,7 +1076,7 @@
             "slot": "197",
             "type": "t_mapping(t_bytes32,t_struct(GasInfo)5459_storage)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:370"
+            "src": "contracts\\Connext.sol:370"
           },
           {
             "label": "domain",
@@ -1084,7 +1084,7 @@
             "slot": "198",
             "type": "t_uint256",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:376"
+            "src": "contracts\\Connext.sol:376"
           },
           {
             "label": "routerBalances",
@@ -1092,7 +1092,7 @@
             "slot": "199",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:383"
+            "src": "contracts\\Connext.sol:383"
           },
           {
             "label": "routerRelayerFees",
@@ -1100,7 +1100,7 @@
             "slot": "200",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:390"
+            "src": "contracts\\Connext.sol:390"
           },
           {
             "label": "approvedRouters",
@@ -1108,7 +1108,7 @@
             "slot": "201",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:395"
+            "src": "contracts\\Connext.sol:395"
           },
           {
             "label": "approvedAssets",
@@ -1116,7 +1116,7 @@
             "slot": "202",
             "type": "t_mapping(t_bytes32,t_bool)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:402"
+            "src": "contracts\\Connext.sol:402"
           },
           {
             "label": "adoptedToCanonical",
@@ -1124,7 +1124,7 @@
             "slot": "203",
             "type": "t_mapping(t_address,t_struct(TokenId)20550_storage)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:409"
+            "src": "contracts\\Connext.sol:409"
           },
           {
             "label": "canonicalToAdopted",
@@ -1132,7 +1132,7 @@
             "slot": "204",
             "type": "t_mapping(t_bytes32,t_address)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:416"
+            "src": "contracts\\Connext.sol:416"
           },
           {
             "label": "batchAssets",
@@ -1140,7 +1140,7 @@
             "slot": "205",
             "type": "t_mapping(t_uint32,t_array(t_address)3_storage)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:420"
+            "src": "contracts\\Connext.sol:420"
           },
           {
             "label": "batchAmounts",
@@ -1148,7 +1148,7 @@
             "slot": "206",
             "type": "t_mapping(t_uint32,t_array(t_uint256)3_storage)",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:424"
+            "src": "contracts\\Connext.sol:424"
           },
           {
             "label": "incomingRoot",
@@ -1156,7 +1156,7 @@
             "slot": "207",
             "type": "t_bytes32",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:429"
+            "src": "contracts\\Connext.sol:429"
           },
           {
             "label": "__gap",
@@ -1164,7 +1164,7 @@
             "slot": "208",
             "type": "t_array(t_uint256)49_storage",
             "contract": "Connext",
-            "src": "contracts/Connext.sol:1258"
+            "src": "contracts\\Connext.sol:1258"
           }
         ],
         "types": {
