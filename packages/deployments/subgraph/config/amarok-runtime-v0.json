@@ -2,8 +2,8 @@
   {
     "subgraphName": "connext/nxtp-amarok-runtime-v0-rinkeby",
     "network": "rinkeby",
-    "address": "0xd6d9d8E6304C460b40022e467d8A8748962Eb0B0",
-    "startBlock": 10367124
+    "address": "0x3bf4d0DD2440b8EBd5304126BD71b9aBB0f943CC",
+    "startBlock": 10374077
   },
   {
     "subgraphName": "connext/nxtp-amarok-runtime-v0-kovan",
