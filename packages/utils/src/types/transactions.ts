@@ -61,7 +61,7 @@ export const CallParamsSchema = Type.Object({
 
 export type CallParams = Static<typeof CallParamsSchema>;
 
-export const ExecutedArgsSchema = Type.Object({
+export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   router: TAddress,
@@ -73,11 +73,11 @@ export const ExecutedArgsSchema = Type.Object({
   relayerSignature: Type.String(),
 });
 
-export type ExecutedArgs = Static<typeof ExecutedArgsSchema>;
+export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
 
 export const BidSchema = Type.Object({
   transactionId: Type.String(),
-  data: ExecutedArgsSchema,
+  data: ExecuteArgsSchema,
 });
 
 export type Bid = Static<typeof BidSchema>;
