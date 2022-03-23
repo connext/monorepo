@@ -83,7 +83,7 @@ locals {
         driver: json-file
         options:
           max-size: 10m
-          tag: \"{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}\"
+          tag: \"amarok-testnet\"
       networks:
         - nxtp
       EOT
