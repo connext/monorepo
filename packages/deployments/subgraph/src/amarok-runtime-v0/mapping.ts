@@ -4,16 +4,16 @@ import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 import {
   LiquidityAdded,
   LiquidityRemoved,
-  Prepared,
-  Fulfilled,
+  XCalled,
+  Executed,
   Reconciled,
   RouterAdded,
   RouterRemoved,
   StableSwapAdded,
   AssetAdded,
   AssetRemoved,
-} from "../../generated/TransactionManager/TransactionManager";
-import { AssetBalance, Router, Transaction } from "../../generated/schema";
+} from "../../generated/Connext/Connext";
+import { AssetBalance, Router, Transfer } from "../../generated/schema";
 
 export function handleRouterAdded(event: RouterAdded): void {
   let router = Router.load(event.params.router.toHex());
@@ -74,42 +74,44 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
  *
  * @param event - The contract event used to create the subgraph record
  */
-export function handlePrepared(event: Prepared): void {
+export function handleXCalled(event: XCalled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   // NOTE: the above case is not always true since malicious users can reuse IDs to try to break the
   // subgraph. we can protect against this by overwriting if we are able to load a Transactioln
-  let transaction = Transaction.load(event.params.transactionId.toHexString());
-  if (transaction == null) {
-    transaction = new Transaction(event.params.transactionId.toHexString());
+  let transfer = Transfer.load(event.params.transferId.toHexString());
+  if (transfer == null) {
+    transfer = new Transfer(event.params.transferId.toHexString());
   }
 
   // Meta
-  transaction.originDomain = event.params.params.originDomain;
-  transaction.destinationDomain = event.params.params.destinationDomain;
-  transaction.chainId = getChainId();
-  transaction.status = "Prepared";
+  transfer.originDomain = event.params.params.originDomain;
+  transfer.destinationDomain = event.params.params.destinationDomain;
+  transfer.chainId = getChainId();
+  transfer.status = "XCalled";
 
   // Transfer Data
-  transaction.nonce = event.params.nonce;
-  transaction.transactionId = event.params.transactionId;
-  transaction.recipient = event.params.recipient;
-  transaction.callTo = event.params.params.callTo;
-  transaction.callData = event.params.params.callData;
+  transfer.to = event.params.to;
+  transfer.idx = event.params.idx;
+  transfer.transferId = event.params.transferId;
+  transfer.nonce = event.params.nonce;
+  transfer.callTo = event.params.params.to;
+  transfer.callData = event.params.params.callData;
 
-  // Prepared
-  transaction.prepareCaller = event.params.caller;
-  transaction.prepareTransactingAmount = event.params.transactingAmount;
-  transaction.prepareLocalAmount = event.params.localAmount;
-  transaction.prepareTransactingAsset = event.params.transactingAsset;
-  transaction.prepareLocalAsset = event.params.localAsset;
+  // XCalled
+  transfer.xcalledCaller = event.params.caller;
+  transfer.xcalledTransferringAmount = event.params.transferringAmount;
+  transfer.xcalledLocalAmount = event.params.localAmount;
+  transfer.xcalledTransferringAsset = event.params.transferringAsset;
+  transfer.xcalledLocalAsset = event.params.localAsset;
 
-  // TransactionPrepared
-  transaction.prepareTransactionHash = event.transaction.hash;
-  transaction.prepareGasPrice = event.transaction.gasPrice;
-  transaction.prepareGasLimit = event.transaction.gasLimit;
-  transaction.prepareBlockNumber = event.block.number;
+  // Transaction XCalled
+  transfer.xcalledTransactionHash = event.transaction.hash;
+  transfer.executedTimestamp = event.block.timestamp;
+  transfer.xcalledGasPrice = event.transaction.gasPrice;
+  transfer.xcalledGasLimit = event.transaction.gasLimit;
+  transfer.xcalledBlockNumber = event.block.number;
 
-  transaction.save();
+  transfer.save();
 }
 
 /**
@@ -117,41 +119,42 @@ export function handlePrepared(event: Prepared): void {
  *
  * @param event - The contract event used to update the subgraph
  */
-export function handleFulfilled(event: Fulfilled): void {
-  let transaction = Transaction.load(event.params.transactionId.toHexString());
-  if (transaction == null) {
-    transaction = new Transaction(event.params.transactionId.toHexString());
+export function handleExecuted(event: Executed): void {
+  let transfer = Transfer.load(event.params.transferId.toHexString());
+  // router should have liquidity but it may not
+  let router = Router.load(event.params.router.toHex());
+  if (transfer == null) {
+    transfer = new Transfer(event.params.transferId.toHexString());
 
     // Meta
-    transaction.originDomain = event.params.params.originDomain;
-    transaction.destinationDomain = event.params.params.destinationDomain;
-    transaction.chainId = getChainId();
-    transaction.status = "Prepared";
+    transfer.originDomain = event.params.params.originDomain;
+    transfer.destinationDomain = event.params.params.destinationDomain;
+    transfer.chainId = getChainId();
+    transfer.status = "Executed";
 
     // Transfer Data
-    transaction.nonce = event.params.nonce;
-    transaction.transactionId = event.params.transactionId;
-    transaction.recipient = event.params.recipient;
-    transaction.callTo = event.params.params.callTo;
-    transaction.callData = event.params.params.callData;
+    transfer.transferId = event.params.transferId;
+    transfer.to = event.params.to;
+    transfer.router = router!.id;
+    transfer.callTo = event.params.params.to;
+    transfer.callData = event.params.params.callData;
   }
 
   // Fulfill
-  transaction.fulfillCaller = event.params.caller;
-  transaction.fulfillTransactingAmount = event.params.transactingAmount;
-  transaction.fulfillLocalAmount = event.params.localAmount;
-  transaction.fulfillTransactingAsset = event.params.transactingAsset;
-  transaction.fulfillLocalAsset = event.params.localAsset;
-  transaction.status = "Reconciled";
+  transfer.executedCaller = event.params.caller;
+  transfer.executedTransferringAmount = event.params.transferringAmount;
+  transfer.executedLocalAmount = event.params.localAmount;
+  transfer.executedTransferringAsset = event.params.transferringAsset;
+  transfer.executedLocalAsset = event.params.localAsset;
 
   // TransactionFulfilled
-  transaction.fulfillTransactionHash = event.transaction.hash;
-  transaction.fulfillTimestamp = event.block.timestamp;
-  transaction.fulfillGasPrice = event.transaction.gasPrice;
-  transaction.fulfillGasLimit = event.transaction.gasLimit;
-  transaction.fulfillBlockNumber = event.block.number;
+  transfer.executedTransactionHash = event.transaction.hash;
+  transfer.executedTimestamp = event.block.timestamp;
+  transfer.executedGasPrice = event.transaction.gasPrice;
+  transfer.executedGasLimit = event.transaction.gasLimit;
+  transfer.executedBlockNumber = event.block.number;
 
-  transaction.save();
+  transfer.save();
 }
 
 /**
@@ -159,17 +162,7 @@ export function handleFulfilled(event: Fulfilled): void {
  *
  * @param event - The contract event used to update the subgraph
  */
-export function handleReconciled(event: Reconciled): void {
-  let transaction = Transaction.load(event.params.transactionId.toHexString());
-
-  transaction!.externalCallHash = event.params.externalHash;
-
-  transaction!.reconciledTransactionHash = event.transaction.hash;
-  transaction!.reconciledTimestamp = event.block.timestamp;
-  transaction!.reconciledGasPrice = event.transaction.gasPrice;
-  transaction!.reconciledGasLimit = event.transaction.gasLimit;
-  transaction!.reconciledBlockNumber = event.block.number;
-}
+export function handleReconciled(event: Reconciled): void {}
 
 function getChainId(): BigInt {
   // try to get chainId from the mapping

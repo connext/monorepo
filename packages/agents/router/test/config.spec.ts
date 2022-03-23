@@ -48,9 +48,9 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_MNEMONIC: mockConfig.mnemonic,
-        // NXTP_ADMIN_TOKEN: configMock.adminToken,
         NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
         NXTP_LOG_LEVEL: mockConfig.logLevel,
+        NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
@@ -158,9 +158,9 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_MNEMONIC: mockConfig.mnemonic,
-        // NXTP_ADMIN_TOKEN: configMock.adminToken,
         NXTP_CHAIN_CONFIG: JSON.stringify(mockConfig.chains),
         NXTP_LOG_LEVEL: mockConfig.logLevel,
+        NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
       const env = getEnvConfig(mockChainData, mockDeployments);
