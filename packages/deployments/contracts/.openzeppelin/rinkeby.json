@@ -30,6 +30,16 @@
       "address": "0x918F3dcEc399A7769eC0E2f524BF9034280392EE",
       "txHash": "0xdb7f13c4abc672a4181b88ad3c78dbb6b743fe439c7ce2984df79ae6a906741b",
       "kind": "beacon"
+    },
+    {
+      "address": "0x1BD4D58AD8BD5fDDc82ffF3738044754995f147F",
+      "txHash": "0xda47f19bb8ed47cff45cc07f9dd8d0ad63af4e3246b5efffaa3afac05d8e6199",
+      "kind": "beacon"
+    },
+    {
+      "address": "0xb6Cf28712f69101d5032B22539a8628591DF4D15",
+      "txHash": "0xa3b793bc6de3af7dee1b3407e700e407b5c5dac0796cca641f242cdd917bd3de",
+      "kind": "beacon"
     }
   ],
   "impls": {
@@ -1588,7 +1598,7 @@
             "label": "tree",
             "offset": 0,
             "slot": "107",
-            "type": "t_struct(Tree)17575_storage",
+            "type": "t_struct(Tree)17725_storage",
             "contract": "MerkleTreeManager",
             "src": "contracts\\nomad-core\\contracts\\Merkle.sol:17"
           },
@@ -1606,23 +1616,23 @@
             "slot": "189",
             "type": "t_bytes32",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:323"
+            "src": "contracts\\Connext.sol:45"
           },
           {
             "label": "bridgeRouter",
             "offset": 0,
             "slot": "190",
-            "type": "t_contract(BridgeRouter)22091",
+            "type": "t_contract(BridgeRouter)22240",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:330"
+            "src": "contracts\\Connext.sol:52"
           },
           {
             "label": "wrapper",
             "offset": 0,
             "slot": "191",
-            "type": "t_contract(IWrapped)9894",
+            "type": "t_contract(IWrapped)10044",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:336"
+            "src": "contracts\\Connext.sol:58"
           },
           {
             "label": "nonce",
@@ -1630,47 +1640,47 @@
             "slot": "192",
             "type": "t_uint256",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:342"
+            "src": "contracts\\Connext.sol:64"
           },
           {
             "label": "executor",
             "offset": 0,
             "slot": "193",
-            "type": "t_contract(IExecutor)9611",
+            "type": "t_contract(IExecutor)9761",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:347"
+            "src": "contracts\\Connext.sol:69"
           },
           {
             "label": "tokenRegistry",
             "offset": 0,
             "slot": "194",
-            "type": "t_contract(TokenRegistry)23397",
+            "type": "t_contract(TokenRegistry)23546",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:352"
+            "src": "contracts\\Connext.sol:74"
           },
           {
             "label": "adoptedToLocalPools",
             "offset": 0,
             "slot": "195",
-            "type": "t_mapping(t_bytes32,t_contract(IStableSwap)9883)",
+            "type": "t_mapping(t_bytes32,t_contract(IStableSwap)10033)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:358"
+            "src": "contracts\\Connext.sol:80"
           },
           {
             "label": "routedTransfers",
             "offset": 0,
             "slot": "196",
-            "type": "t_mapping(t_bytes32,t_struct(ExecutedTransfer)5454_storage)",
+            "type": "t_mapping(t_bytes32,t_struct(ExecutedTransfer)9229_storage)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:364"
+            "src": "contracts\\Connext.sol:86"
           },
           {
             "label": "routedTransfersGas",
             "offset": 0,
             "slot": "197",
-            "type": "t_mapping(t_bytes32,t_struct(GasInfo)5459_storage)",
+            "type": "t_mapping(t_bytes32,t_struct(GasInfo)9234_storage)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:370"
+            "src": "contracts\\Connext.sol:92"
           },
           {
             "label": "domain",
@@ -1678,7 +1688,7 @@
             "slot": "198",
             "type": "t_uint256",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:376"
+            "src": "contracts\\Connext.sol:98"
           },
           {
             "label": "routerBalances",
@@ -1686,7 +1696,7 @@
             "slot": "199",
             "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:383"
+            "src": "contracts\\Connext.sol:105"
           },
           {
             "label": "routerRelayerFees",
@@ -1694,7 +1704,7 @@
             "slot": "200",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:390"
+            "src": "contracts\\Connext.sol:112"
           },
           {
             "label": "approvedRouters",
@@ -1702,7 +1712,7 @@
             "slot": "201",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:395"
+            "src": "contracts\\Connext.sol:117"
           },
           {
             "label": "approvedAssets",
@@ -1710,15 +1720,15 @@
             "slot": "202",
             "type": "t_mapping(t_bytes32,t_bool)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:402"
+            "src": "contracts\\Connext.sol:124"
           },
           {
             "label": "adoptedToCanonical",
             "offset": 0,
             "slot": "203",
-            "type": "t_mapping(t_address,t_struct(TokenId)20550_storage)",
+            "type": "t_mapping(t_address,t_struct(TokenId)20700_storage)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:409"
+            "src": "contracts\\Connext.sol:131"
           },
           {
             "label": "canonicalToAdopted",
@@ -1726,7 +1736,7 @@
             "slot": "204",
             "type": "t_mapping(t_bytes32,t_address)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:416"
+            "src": "contracts\\Connext.sol:138"
           },
           {
             "label": "batchAssets",
@@ -1734,7 +1744,7 @@
             "slot": "205",
             "type": "t_mapping(t_uint32,t_array(t_address)3_storage)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:420"
+            "src": "contracts\\Connext.sol:142"
           },
           {
             "label": "batchAmounts",
@@ -1742,7 +1752,7 @@
             "slot": "206",
             "type": "t_mapping(t_uint32,t_array(t_uint256)3_storage)",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:424"
+            "src": "contracts\\Connext.sol:146"
           },
           {
             "label": "incomingRoot",
@@ -1750,7 +1760,7 @@
             "slot": "207",
             "type": "t_bytes32",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:429"
+            "src": "contracts\\Connext.sol:151"
           },
           {
             "label": "__gap",
@@ -1758,7 +1768,7 @@
             "slot": "208",
             "type": "t_array(t_uint256)49_storage",
             "contract": "Connext",
-            "src": "contracts\\Connext.sol:1258"
+            "src": "contracts\\Connext.sol:979"
           }
         ],
         "types": {
@@ -1790,23 +1800,23 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(BridgeRouter)22091": {
+          "t_contract(BridgeRouter)22240": {
             "label": "contract BridgeRouter",
             "numberOfBytes": "20"
           },
-          "t_contract(IExecutor)9611": {
+          "t_contract(IExecutor)9761": {
             "label": "contract IExecutor",
             "numberOfBytes": "20"
           },
-          "t_contract(IStableSwap)9883": {
+          "t_contract(IStableSwap)10033": {
             "label": "contract IStableSwap",
             "numberOfBytes": "20"
           },
-          "t_contract(IWrapped)9894": {
+          "t_contract(IWrapped)10044": {
             "label": "contract IWrapped",
             "numberOfBytes": "20"
           },
-          "t_contract(TokenRegistry)23397": {
+          "t_contract(TokenRegistry)23546": {
             "label": "contract TokenRegistry",
             "numberOfBytes": "20"
           },
@@ -1818,7 +1828,7 @@
             "label": "mapping(address => mapping(address => uint256))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(TokenId)20550_storage)": {
+          "t_mapping(t_address,t_struct(TokenId)20700_storage)": {
             "label": "mapping(address => struct BridgeMessage.TokenId)",
             "numberOfBytes": "32"
           },
@@ -1834,16 +1844,16 @@
             "label": "mapping(bytes32 => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_contract(IStableSwap)9883)": {
+          "t_mapping(t_bytes32,t_contract(IStableSwap)10033)": {
             "label": "mapping(bytes32 => contract IStableSwap)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(ExecutedTransfer)5454_storage)": {
-            "label": "mapping(bytes32 => struct Connext.ExecutedTransfer)",
+          "t_mapping(t_bytes32,t_struct(ExecutedTransfer)9229_storage)": {
+            "label": "mapping(bytes32 => struct IConnext.ExecutedTransfer)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(GasInfo)5459_storage)": {
-            "label": "mapping(bytes32 => struct Connext.GasInfo)",
+          "t_mapping(t_bytes32,t_struct(GasInfo)9234_storage)": {
+            "label": "mapping(bytes32 => struct IConnext.GasInfo)",
             "numberOfBytes": "32"
           },
           "t_mapping(t_uint32,t_array(t_address)3_storage)": {
@@ -1854,8 +1864,8 @@
             "label": "mapping(uint32 => uint256[3])",
             "numberOfBytes": "32"
           },
-          "t_struct(ExecutedTransfer)5454_storage": {
-            "label": "struct Connext.ExecutedTransfer",
+          "t_struct(ExecutedTransfer)9229_storage": {
+            "label": "struct IConnext.ExecutedTransfer",
             "members": [
               {
                 "label": "router",
@@ -1878,8 +1888,8 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(GasInfo)5459_storage": {
-            "label": "struct Connext.GasInfo",
+          "t_struct(GasInfo)9234_storage": {
+            "label": "struct IConnext.GasInfo",
             "members": [
               {
                 "label": "gasUsed",
@@ -1896,7 +1906,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(TokenId)20550_storage": {
+          "t_struct(TokenId)20700_storage": {
             "label": "struct BridgeMessage.TokenId",
             "members": [
               {
@@ -1914,7 +1924,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(Tree)17575_storage": {
+          "t_struct(Tree)17725_storage": {
             "label": "struct MerkleLib.Tree",
             "members": [
               {
