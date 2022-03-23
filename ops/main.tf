@@ -87,7 +87,7 @@ locals {
       image: ${var.full_image_name_sequencer}
       restart: always
       ports:
-        - 8080:8080
+        - 8081:8081
       logging:
         driver: json-file
         options:
