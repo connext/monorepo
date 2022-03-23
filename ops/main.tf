@@ -28,8 +28,9 @@ variable "admin_token_router_testnet" {
   type        = string
   description = "admin token"
 }
-
-
+variable "logdna_key" {
+  type = string
+}
 
 locals {
   docker_compose = <<-EOT
@@ -40,7 +41,7 @@ locals {
   services:
     router:
       container_name: router
-      image: ghcr.io/connext/nxtp-router:\$ROUTER_VERSION
+      image: \$ROUTER_VERSION
       restart: always
       ports:
         - 8080:8080
@@ -235,16 +236,24 @@ resource "aws_instance" "terraformed-router" {
     sudo echo "RUNNING INITIAL SCRIPT" >> /root/touch.txt
     sudo echo "${var.full_image_name_router}" >> /root/touch.txt
     sudo echo "${local.local_router_config}" >> /root/touch.txt
-    sudo echo "${local.docker_compose}" >> /root/router-docker-compose.yml
+    sudo echo "${local.docker_compose}" >> /root/docker-compose.yml
+    sudo chmod 777 /root/docker-compose.yml
+    sudo echo "ROUTER_VERSION=${var.full_image_name_router}" >> /root/.env
+    sudo echo "LOGDNA_KEY=${var.logdna_key}" >> /root/.env
+    sudo echo "NXTP_CONFIG=${local.local_router_config}" >> /root/config.json
     sudo yum update -y
     sudo yum install amazon-linux-extras docker git -y
     sudo service docker start
     sudo usermod -a -G docker ec2-user
+    sudo usermod -a -G docker root
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
-    sudo docker pull "${var.full_image_name_router}"
-    sudo docker run -e NXTP_CONFIG='${local.local_router_config}' -d "${var.full_image_name_router}" >> /root/dockerout
-    
+    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+    sudo su
+    cd /root
+    sudo docker-compose up
+    sudo echo "DONE" >> res.txt
+
   EOF
 
 }
