@@ -2,10 +2,10 @@
 pragma solidity 0.8.11;
 
 import "../interfaces/IExecutor.sol";
-import "../lib/LibAsset.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
  * @title Executor
@@ -14,7 +14,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  *         an associated Connext contract. This is used to execute
  *         arbitrary calldata on a receiving chain.
  */
-contract Executor is ReentrancyGuard, IExecutor {
+contract Executor is IExecutor {
+
   address private immutable connext;
 
   constructor(address _connext) {
@@ -64,15 +65,15 @@ contract Executor is ReentrancyGuard, IExecutor {
     // We approve here rather than transfer since many external contracts
     // simply require an approval, and it is unclear if they can handle 
     // funds transferred directly to them (i.e. Uniswap)
-    bool isNative = LibAsset.isNativeAsset(assetId);
+    bool isNative = assetId == address(0);
     if (!isNative) {
-      LibAsset.increaseERC20Allowance(assetId, to, amount);
+      SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(assetId), to, amount);
     }
 
     // Check if the callTo is a contract
     bool success;
     bytes memory returnData;
-    bool isContract = Address.isContract(to);
+    bool isContract = AddressUpgradeable.isContract(to);
     if (isContract) {
       // Try to execute the callData
       // the low level call will return `false` if its execution reverts
@@ -80,11 +81,9 @@ contract Executor is ReentrancyGuard, IExecutor {
     }
 
     // Handle failure cases
-    if (!success) {
+    if (!success && !isNative) {
       // Decrease allowance
-      if (!isNative) {
-        LibAsset.decreaseERC20Allowance(assetId, to, amount);
-      }
+      SafeERC20Upgradeable.safeDecreaseAllowance(IERC20Upgradeable(assetId), to, amount);
     }
 
     // Emit event
