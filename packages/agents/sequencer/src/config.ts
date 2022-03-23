@@ -15,14 +15,14 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.NXTP_CONFIG || "");
+    configJson = JSON.parse(process.env.SEQ_CONFIG || "");
   } catch (e) {
-    console.info("No S_CONFIG exists, using config file and individual env vars");
+    console.info("No SEQ_CONFIG exists; using config file and individual env vars.");
   }
   try {
     let json: string;
 
-    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+    const path = process.env.SEQ_CONFIG_FILE ?? "config.json";
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -33,20 +33,22 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
   }
 
   const _sequencerConfig: SequencerConfig = {
-    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
-    chains: process.env.NXTP_CHAIN_CONFIG
-      ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
+    redisUrl: process.env.SEQ_REDIS_URL || configJson.redisUrl || configFile.redisUrl || process.env.NXTP_REDIS_URL,
+    chains: process.env.SEQ_CHAIN_CONFIG
+      ? JSON.parse(process.env.SEQ_CHAIN_CONFIG)
       : configJson.chains
       ? configJson.chains
       : configFile.chains,
-    logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
-    network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
+    logLevel:
+      process.env.SEQ_LOG_LEVEL || configJson.logLevel || configFile.logLevel || process.env.NXTP_LOG_LEVEL || "info",
+    network:
+      process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
     server: {
-      port: process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
-      host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      port: process.env.SEQ_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
+      host: process.env.SEQ_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
     },
     auctionWaitTime:
-      process.env.NXTP_AUCTION_WAIT_TIME ||
+      process.env.SEQ_AUCTION_WAIT_TIME ||
       configJson.auctionWaitTime ||
       configFile.auctionWaitTime ||
       DEFAULT_AUCTION_WAIT_TIME,

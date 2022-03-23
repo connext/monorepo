@@ -2,17 +2,11 @@ import { delay } from "@connext/nxtp-utils";
 import { expect } from "chai";
 import { stub, restore, reset, SinonStub } from "sinon";
 
-import { stubContext } from "../../mock";
+import { ctxMock } from "../../globalTestHook";
 import { bindBidSelection } from "../../../src/bindings";
 import * as BidFns from "../../../src/lib/operations/bid";
 
 describe("bidSelection", () => {
-  let mockContext: any;
-
-  before(() => {
-    mockContext = stubContext();
-  });
-
   describe("#bidSelection", () => {
     let bidSelectionStub: SinonStub;
     beforeEach(() => {
@@ -29,7 +23,7 @@ describe("bidSelection", () => {
       await bindBidSelection(10);
       // TODO: slight race here?
       await delay(20);
-      mockContext.config.mode.cleanup = true;
+      ctxMock.config.mode.cleanup = true;
       await delay(10);
       expect(bidSelectionStub.callCount).to.be.gte(1);
     });

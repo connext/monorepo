@@ -11,8 +11,6 @@ import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/Sta
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
-// Used for stubbing functions at the bottom of this file:
-import * as sequencer from "../src/sequencer";
 
 export const mock = {
   ..._mock,
@@ -129,20 +127,4 @@ export const mock = {
       };
     },
   },
-};
-
-export let mockContext: any;
-export let getContextStub: SinonStub;
-// Stub getContext to return the mock context above.
-export const stubContext = () => {
-  mockContext = mock.context();
-  try {
-    getContextStub.restore();
-  } catch (e) {}
-  try {
-    getContextStub = stub(sequencer, "getContext").callsFake(() => {
-      return mockContext;
-    });
-  } catch (e) {}
-  return mockContext;
 };

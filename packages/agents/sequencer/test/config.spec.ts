@@ -64,32 +64,38 @@ describe("Config", () => {
         abi: ["fakeAbi()"],
       });
     });
+
     afterEach(() => {
       restore();
       reset();
     });
+
     it("should read config from NXTP config with testnet network values overridden", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify(mock.config()),
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify(mock.config()),
       });
       expect(() => getEnvConfig(mock.chainData())).not.throw();
     });
+
     it("should error if no config ", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_NETWORK: "testnet",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: null,
+        SEQ_CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mock.chainData())).throw();
     });
+
     it("should error if transaction manager address is missing", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify({
+        SEQ_CONFIG_FILE: "buggypath",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
             [mock.chain.A]: { confirmations: 1, providers: ["http://example.com"] },
@@ -115,12 +121,13 @@ describe("Config", () => {
       ]);
       expect(() => getEnvConfig(chainData)).throw("No transactionManager address for domain");
     });
+
     it("should read transactionManager from contract", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify({
+        SEQ_CONFIG_FILE: "buggypath",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
             [mock.chain.A]: {
@@ -149,12 +156,13 @@ describe("Config", () => {
 
       expect(() => getEnvConfig(mock.chainData())).not.throw();
     });
+
     it("should read runtime subgraph from chainData", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify({
+        SEQ_CONFIG_FILE: "buggypath",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
             [mock.chain.A]: {
@@ -181,12 +189,13 @@ describe("Config", () => {
 
       expect(() => getEnvConfig(mock.chainData())).not.throw();
     });
+
     it("should read analytics subgraph from chainData", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify({
+        SEQ_CONFIG_FILE: "buggypath",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
             [mock.chain.A]: {
@@ -213,12 +222,13 @@ describe("Config", () => {
 
       expect(() => getEnvConfig(mock.chainData())).not.throw();
     });
+
     it("should read recommended confirmations", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify({
+        SEQ_CONFIG_FILE: "buggypath",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
             [mock.chain.A]: {
@@ -245,19 +255,22 @@ describe("Config", () => {
 
       expect(() => getEnvConfig(mock.chainData())).not.throw();
     });
+
     it("should error if validation fails", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
-        NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify({
+        SEQ_CONFIG_FILE: "buggypath",
+        SEQ_NETWORK: "testnet",
+        SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           auctionWaitTime: "ABCDEF",
         }),
       });
       expect(() => getEnvConfig(mock.chainData())).throw();
     });
+
     it("should generate sequencer config from external chainData", async () => {});
+
     it("should return sequencer config already created", async () => {});
   });
 });
