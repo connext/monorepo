@@ -3,35 +3,35 @@ import { task } from "hardhat/config";
 
 export default task("renounce-ownership", "Renounce Ownership")
   .addParam("type", "Type of ownership to renounce, either asset or router")
-  .addOptionalParam("txManagerAddress", "Override tx manager address")
-  .setAction(async ({ type, txManagerAddress: _txManagerAddress }, { deployments, getNamedAccounts, ethers }) => {
+  .addOptionalParam("connextAddress", "Override connext address")
+  .setAction(async ({ type, connextAddress: _connextAddress }, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("type: ", type);
     console.log("namedAccounts: ", namedAccounts);
 
-    let txManagerAddress = _txManagerAddress;
-    if (!txManagerAddress) {
-      const txManagerDeployment = await deployments.get("TransactionManagerUpgradeBeaconProxy");
-      txManagerAddress = txManagerDeployment.address;
+    let connextAddress = _connextAddress;
+    if (!connextAddress) {
+      const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+      connextAddress = connextDeployment.address;
     }
-    console.log("txManagerAddress: ", txManagerAddress);
+    console.log("connextAddress: ", connextAddress);
 
-    const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+    const connext = await ethers.getContractAt("Connext", connextAddress);
     let isRenouncedFunction;
     let ownershipTimestampFunction;
     let proposeRenunciationFunction;
     let renounceFunction;
     if (type === "router") {
-      isRenouncedFunction = txManager.isRouterOwnershipRenounced;
-      ownershipTimestampFunction = txManager.routerOwnershipTimestamp;
-      proposeRenunciationFunction = txManager.proposeRouterOwnershipRenunciation;
-      renounceFunction = txManager.renounceRouterOwnership;
+      isRenouncedFunction = connext.isRouterOwnershipRenounced;
+      ownershipTimestampFunction = connext.routerOwnershipTimestamp;
+      proposeRenunciationFunction = connext.proposeRouterOwnershipRenunciation;
+      renounceFunction = connext.renounceRouterOwnership;
     } else if (type === "asset") {
-      isRenouncedFunction = txManager.isAssetOwnershipRenounced;
-      ownershipTimestampFunction = txManager.assetOwnershipTimestamp;
-      proposeRenunciationFunction = txManager.proposeAssetOwnershipRenunciation;
-      renounceFunction = txManager.renounceAssetOwnership;
+      isRenouncedFunction = connext.isAssetOwnershipRenounced;
+      ownershipTimestampFunction = connext.assetOwnershipTimestamp;
+      proposeRenunciationFunction = connext.proposeAssetOwnershipRenunciation;
+      renounceFunction = connext.renounceAssetOwnership;
     } else {
       throw new Error("Unsupported type");
     }

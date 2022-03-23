@@ -7,11 +7,11 @@ export default task("decode-input-data", "Decodes input data")
     console.log("inputData: ", inputData);
     console.log("type: ", type);
 
-    const txManagerDeployment = await deployments.get("TransactionManager");
-    const txMinterface = new Interface(txManagerDeployment.abi);
+    const connextDeployment = await deployments.get("Connext");
+    const connextMinterface = new Interface(connextDeployment.abi);
 
-    if (type === "fulfill") {
-      const decoded = txMinterface.decodeFunctionData("fulfill", inputData);
+    if (type === "execute") {
+      const decoded = connextMinterface.decodeFunctionData("execute", inputData);
       console.log("decoded: ", decoded);
     }
   });

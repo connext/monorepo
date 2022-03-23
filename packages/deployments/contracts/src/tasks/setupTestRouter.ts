@@ -4,10 +4,10 @@ export default task("setup-test-router", "Add router and test assets")
   .addParam("router", "Router address")
   .addOptionalParam("assetId", "Override token address")
   .addOptionalParam("amount", "Override amount (real units)")
-  .addOptionalParam("txManagerAddress", "Override tx manager address")
+  .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
     async (
-      { assetId: _assetId, router, txManagerAddress: _txManagerAddress, amount: _amount },
+      { assetId: _assetId, router, connextAddress: _connextAddress, amount: _amount },
       { deployments, getNamedAccounts, ethers, run },
     ) => {
       console.log("router: ", router);
@@ -15,12 +15,12 @@ export default task("setup-test-router", "Add router and test assets")
       const namedAccounts = await getNamedAccounts();
       console.log("namedAccounts: ", namedAccounts);
 
-      let txManagerAddress = _txManagerAddress;
-      if (!txManagerAddress) {
-        const txManagerDeployment = await deployments.get("TransactionManagerUpgradeBeaconProxy");
-        txManagerAddress = txManagerDeployment.address;
+      let connextAddress = _connextAddress;
+      if (!connextAddress) {
+        const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+        connextAddress = connextDeployment.address;
       }
-      console.log("txManagerAddress: ", txManagerAddress);
+      console.log("connextAddress: ", connextAddress);
 
       let assetId = _assetId;
       if (!_assetId) {
@@ -33,19 +33,19 @@ export default task("setup-test-router", "Add router and test assets")
         amount = "2500000000000000000000000";
       }
 
-      const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
 
-      const isRouterApproved = await txManager.approvedRouters(router);
+      const isRouterApproved = await connext.approvedRouters(router);
       console.log("isRouterApproved: ", isRouterApproved);
       if (!isRouterApproved) {
-        await run("add-router", { router, txManagerAddress });
+        await run("add-router", { router, connextAddress });
       }
       console.log("Router approved");
 
-      const isAssetApproved = await txManager.approvedAssets(assetId);
+      const isAssetApproved = await connext.approvedAssets(assetId);
       console.log("isAssetApproved: ", isAssetApproved);
       if (!isAssetApproved) {
-        await run("add-asset", { assetId, txManagerAddress });
+        await run("add-asset", { assetId, connextAddress });
       }
       console.log("Asset approved");
 
@@ -54,10 +54,10 @@ export default task("setup-test-router", "Add router and test assets")
         const balance = await erc20.balanceOf(namedAccounts.deployer);
         console.log("balance: ", balance.toString());
         if (balance.lt(amount)) {
-          await run("mint", { amount, assetId, txManagerAddress });
+          await run("mint", { amount, assetId, connextAddress });
         }
       }
 
-      await run("add-liquidity", { router, assetId, amount, txManagerAddress });
+      await run("add-liquidity", { router, assetId, amount, connextAddress });
     },
   );
