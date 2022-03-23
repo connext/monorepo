@@ -32,6 +32,7 @@ locals {
   local_router_config = jsonencode({
     "logLevel"     = "debug"
     "sequencerUrl" = "http://3.225.28.122:8081"
+    "redisUrl" = "redis://clustercfg.router-testnet.njrwqg.memorydb.us-east-1.amazonaws.com:6379"
     "server" = {
       "adminToken" = var.admin_token_router_testnet
     }
@@ -73,6 +74,7 @@ locals {
   })
   local_sequencer_config = jsonencode({ 
     "logLevel" = "debug" 
+    "redisUrl" = "redis://clustercfg.amarok-sequencer-testnet.njrwqg.memorydb.us-east-1.amazonaws.com:6379"
     "chains" = { 
       "2000" = { 
         "providers" = ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"] 
