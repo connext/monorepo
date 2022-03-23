@@ -4,6 +4,7 @@ import { getEnvConfig, getConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { mock } from "./mock";
 
+const mockDeployments = mock.contracts.deployments();
 describe("Config", () => {
   afterEach(() => {
     restore();
@@ -17,27 +18,18 @@ describe("Config", () => {
     });
 
     it("should generate sequencer config from chainData in arguments", async () => {
-      expect(() => getConfig(mock.chainData())).not.throw();
-    });
-
-    it("should generate sequencer config from external chainData", async () => {
-      expect(() => getConfig(undefined)).not.throw();
+      expect(() => getConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
     it("should return sequencer config already created", async () => {
       stub(ConfigFns, "sequencerConfig").value(mock.config());
-      await getConfig(mock.chainData());
+      await getConfig(mock.chainData(), mockDeployments);
       expect(getEnvConfigStub).callCount(0);
     });
   });
 
   describe("#getEnvConfig", () => {
-    beforeEach(() => {
-      stub(ConfigFns, "getDeployedTransactionManagerContract").returns({
-        address: mkAddress("0xaaa"),
-        abi: ["fakeAbi()"],
-      });
-    });
+    beforeEach(() => {});
 
     afterEach(() => {
       restore();
@@ -50,7 +42,7 @@ describe("Config", () => {
         SEQ_NETWORK: "testnet",
         SEQ_CONFIG: JSON.stringify(mock.config()),
       });
-      expect(() => getEnvConfig(mock.chainData())).not.throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
     it("should error if no config ", () => {
@@ -61,7 +53,7 @@ describe("Config", () => {
         SEQ_CONFIG_FILE: "buggypath",
       });
 
-      expect(() => getEnvConfig(mock.chainData())).throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).throw();
     });
 
     it("should error if transaction manager address is missing", () => {
@@ -93,7 +85,7 @@ describe("Config", () => {
           assetId: {},
         },
       ]);
-      expect(() => getEnvConfig(chainData)).throw("No transactionManager address for domain");
+      expect(() => getEnvConfig(chainData, mockDeployments)).throw("No transactionManager address for domain");
     });
 
     it("should read transactionManager from contract", () => {
@@ -128,7 +120,7 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(mock.chainData())).not.throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
     it("should read runtime subgraph from chainData", () => {
@@ -161,7 +153,7 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(mock.chainData())).not.throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
     it("should read analytics subgraph from chainData", () => {
@@ -194,7 +186,7 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(mock.chainData())).not.throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
     it("should read recommended confirmations", () => {
@@ -227,7 +219,7 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(mock.chainData())).not.throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
     it("should error if validation fails", () => {
@@ -240,10 +232,8 @@ describe("Config", () => {
           auctionWaitTime: "ABCDEF",
         }),
       });
-      expect(() => getEnvConfig(mock.chainData())).throw();
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).throw();
     });
-
-    it("should generate sequencer config from external chainData", async () => {});
 
     it("should return sequencer config already created", async () => {});
   });

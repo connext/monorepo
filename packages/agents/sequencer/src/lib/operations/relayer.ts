@@ -17,8 +17,7 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
 
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const destinationTransactionManagerAddress =
-    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+  const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.connext;
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
 
@@ -28,12 +27,12 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
 
   logger.info("Sending to Gelato network", requestContext, methodContext, {
     encodedData,
-    destinationTransactionManagerAddress,
+    destinationConnextAddress,
     domain: bid.data.params.destinationDomain,
   });
   const result = await gelatoSend(
     destinationChainId,
-    destinationTransactionManagerAddress,
+    destinationConnextAddress,
     encodedData,
     bid.data.local,
     bid.data.feePercentage,

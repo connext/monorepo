@@ -1,16 +1,17 @@
 import * as fs from "fs";
 
-import { ajv, ChainData, getChainData } from "@connext/nxtp-utils";
-import { getDeployedTransactionManagerContract as _getDeployedTransactionManagerContract } from "@connext/nxtp-txservice";
+import { ajv, ChainData } from "@connext/nxtp-utils";
+import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 
-export const getDeployedTransactionManagerContract = _getDeployedTransactionManagerContract;
-
-export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig => {
+export const getEnvConfig = (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): SequencerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -64,13 +65,13 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
     const chainDataForChain = chainData.get(domainId);
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
     // allow passed in address to override
-    // format: { [chainId]: { [chainName]: { "contracts": { "TransactionManager": { "address": "...." } } } }
-    if (!chainConfig.deployments?.transactionManager) {
-      const res = chainDataForChain ? getDeployedTransactionManagerContract(chainDataForChain.chainId) : undefined;
+    // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
+    if (!chainConfig.deployments?.connext) {
+      const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
       if (!res) {
-        throw new Error(`No transactionManager address for domain ${domainId}`);
+        throw new Error(`No Connext contract address for domain ${domainId}`);
       }
-      _sequencerConfig.chains[domainId].deployments.transactionManager = res.address;
+      _sequencerConfig.chains[domainId].deployments.connext = res.address;
     }
 
     if (!chainConfig.subgraph.runtime) {
@@ -108,10 +109,12 @@ export let sequencerConfig: SequencerConfig | undefined;
  * @param useDefaultLocal - (optional) If true, use the default local config.
  * @returns The router config with sensible defaults
  */
-export const getConfig = async (chainData?: Map<string, ChainData>): Promise<SequencerConfig> => {
+export const getConfig = async (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): Promise<SequencerConfig> => {
   if (!sequencerConfig) {
-    const _chainData = chainData ?? (await getChainData());
-    sequencerConfig = getEnvConfig(_chainData!);
+    sequencerConfig = getEnvConfig(chainData, deployments);
   }
   return sequencerConfig;
 };

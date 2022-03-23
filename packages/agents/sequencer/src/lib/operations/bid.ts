@@ -28,12 +28,11 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
-  const destinationTransactionManagerAddress =
-    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+  const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
   logger.info("Prepared data for sending", requestContext, methodContext, {
     encodedData,
-    destinationTransactonManagerAddress: destinationTransactionManagerAddress,
+    destinationTransactonManagerAddress: destinationConnextAddress,
     domain: bid.data.params.destinationDomain,
     bid,
   });
@@ -41,7 +40,7 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   // Validate the bid's fulfill call will succeed on chain.
   const gas = await chainreader.getGasEstimate(Number(bid.data.params.destinationDomain), {
     chainId: destinationChainId,
-    to: destinationTransactionManagerAddress,
+    to: destinationConnextAddress,
     data: encodedData,
   });
 

@@ -3,11 +3,11 @@ import { utils } from "ethers";
 import { SinonStub, stub } from "sinon";
 import { expect, formatUrl } from "@connext/nxtp-utils";
 
-import * as FulfillFns from "../../../src/lib/operations/fulfill";
+import * as ExecuteFns from "../../../src/lib/operations/execute";
 import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
-const { fulfill, sendBid } = FulfillFns;
+const { execute, sendBid } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
 const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
@@ -27,7 +27,7 @@ describe("Operations:Fulfill", () => {
       mock.helpers.fulfill.sanityCheck.resolves(true);
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
       mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
-      sendBidStub = stub(FulfillFns, "sendBid").resolves();
+      sendBidStub = stub(ExecuteFns, "sendBid").resolves();
     });
 
     afterEach(() => {
@@ -47,7 +47,7 @@ describe("Operations:Fulfill", () => {
           },
           local: mockFulfillLocalAsset,
           router: mockCrossChainTx.router,
-          feePercentage: FulfillFns.RELAYER_FEE_PERCENTAGE,
+          feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
           amount: mockCrossChainTx.prepareLocalAmount,
           index: 0,
           transactionId: mockCrossChainTx.transactionId,
@@ -56,7 +56,7 @@ describe("Operations:Fulfill", () => {
         },
       };
 
-      await expect(fulfill(mockCrossChainTx)).to.be.fulfilled;
+      await expect(execute(mockCrossChainTx)).to.be.fulfilled;
 
       expect(mock.helpers.shared.getDestinationLocalAsset.callCount).to.equal(1);
       expect(mock.helpers.shared.getDestinationLocalAsset.getCall(0).args).to.deep.eq([
@@ -79,19 +79,19 @@ describe("Operations:Fulfill", () => {
         originDomain: "-1",
         destinationDomain: "-2",
       };
-      await expect(fulfill(invalidParams)).to.be.rejectedWith(ParamsInvalid);
+      await expect(execute(invalidParams)).to.be.rejectedWith(ParamsInvalid);
     });
 
     it.skip("should throw NotEnoughAmount if final receiving amount < 0", async () => {});
 
     it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";
-      await expect(fulfill(mockCrossChainTx)).to.be.rejectedWith(SlippageInvalid);
+      await expect(execute(mockCrossChainTx)).to.be.rejectedWith(SlippageInvalid);
     });
 
     it("should not sendBid if sanityCheck returns false", async () => {
       mock.helpers.fulfill.sanityCheck.resolves(false);
-      await expect(fulfill(mockCrossChainTx)).to.be.fulfilled;
+      await expect(execute(mockCrossChainTx)).to.be.fulfilled;
       expect(sendBidStub.callCount).to.equal(0);
     });
   });

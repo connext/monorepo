@@ -9,34 +9,7 @@ const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 describe("Config", () => {
-  let testChainId = mock.chain.A;
-  let testAddress = "0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  let contractDeployment: any;
-
-  beforeEach(() => {
-    contractDeployment = {
-      [String(testChainId)]: {
-        test: {
-          name: "test",
-          chainId: testChainId,
-          contracts: {
-            TransactionManager: {
-              address: testAddress,
-              abi: ["fakeAbi()"],
-            },
-            ConnextPriceOracle: {
-              address: testAddress,
-              abi: ["fakeAbi()"],
-            },
-            Multicall: {
-              address: testAddress,
-              abi: ["fakeAbi()"],
-            },
-          },
-        },
-      },
-    };
-  });
+  const testChainId = mock.chain.A;
 
   afterEach(() => {
     restore();
@@ -103,9 +76,9 @@ describe("Config", () => {
         }),
       });
 
-      const expectedDeployment = mockDeployments.transactionManager(alteredMockChain);
+      const expectedDeployment = mockDeployments.connext(alteredMockChain);
       const config = getEnvConfig(mockChainData, mockDeployments);
-      expect(config.chains[alteredMockChain].deployments.transactionManager).to.be.eq(expectedDeployment.address);
+      expect(config.chains[alteredMockChain].deployments.connext).to.be.eq(expectedDeployment.address);
     });
 
     it("should error if validation fails", () => {

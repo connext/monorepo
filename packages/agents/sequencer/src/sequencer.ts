@@ -1,7 +1,7 @@
 import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { ChainReader, getContractInterfaces } from "@connext/nxtp-txservice";
+import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
@@ -25,7 +25,7 @@ export const makeSequencer = async () => {
       throw new Error("Could not get chain data");
     }
     context.chainData = chainData;
-    context.config = await getConfig(chainData);
+    context.config = await getConfig(chainData, contractDeployments);
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redisUrl, context.logger, requestContext);

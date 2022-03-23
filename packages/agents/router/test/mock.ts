@@ -41,7 +41,7 @@ export const mock = {
           maxLag: 10,
         },
         deployments: {
-          transactionManager: mkAddress("0xabcdef123"),
+          connext: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -55,7 +55,7 @@ export const mock = {
           maxLag: 10,
         },
         deployments: {
-          transactionManager: mkAddress("0xabcdef123"),
+          connext: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -124,9 +124,9 @@ export const mock = {
     interfaces: (): SinonStubbedInstance<ConnextContractInterfaces> => {
       const encodedDataMock = "0xabcde";
 
-      const transactionManager = createStubInstance(utils.Interface);
-      transactionManager.encodeFunctionData.returns(encodedDataMock);
-      transactionManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      const connext = createStubInstance(utils.Interface);
+      connext.encodeFunctionData.returns(encodedDataMock);
+      connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
@@ -141,7 +141,7 @@ export const mock = {
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        transactionManager: transactionManager as unknown as ConnextContractInterfaces["transactionManager"],
+        connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
@@ -149,7 +149,7 @@ export const mock = {
     },
     deployments: (): ConnextContractDeployments => {
       return {
-        transactionManager: (_: number) => ({
+        connext: (_: number) => ({
           address: mkAddress("0xbadcab"),
           abi: {},
         }),

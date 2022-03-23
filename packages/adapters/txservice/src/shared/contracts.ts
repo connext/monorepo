@@ -22,18 +22,18 @@ export const _getContractDeployments: any = () => {
 };
 
 /**
- * Returns the address of the `TransactionManager` deployed to the provided chain, or undefined if it has not been deployed
+ * Returns the address of the `Connext` deployed to the provided chain, or undefined if it has not been deployed
  *
  * @param chainId - The chain you want the address on
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
-export const getDeployedTransactionManagerContract = (chainId: number): { address: string; abi: any } | undefined => {
+export const getDeployedConnextContract = (chainId: number): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const name = Object.keys(record)[0];
   if (!name) {
     return undefined;
   }
-  const contract = record[name]?.contracts?.TransactionManager;
+  const contract = record[name]?.contracts?.Connext;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -80,7 +80,7 @@ export const getDeployedPriceOracleContract = (chainId: number): { address: stri
 export type ConnextContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
-  transactionManager: ConnextContractDeploymentGetter;
+  connext: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
   // TODO:
   // tokenRegistry: ConnextContractDeploymentGetter;
@@ -88,7 +88,7 @@ export type ConnextContractDeployments = {
 };
 
 export const contractDeployments: ConnextContractDeployments = {
-  transactionManager: getDeployedTransactionManagerContract,
+  connext: getDeployedConnextContract,
   priceOracle: getDeployedPriceOracleContract,
 };
 

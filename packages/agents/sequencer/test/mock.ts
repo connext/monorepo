@@ -4,7 +4,7 @@ import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-ad
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
-import { TransactionManagerInterface } from "@connext/nxtp-contracts/typechain-types/TransactionManager";
+import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
 import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/StableSwap";
@@ -103,9 +103,9 @@ export const mock = {
     contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
       const encodedDataMock = "0xabcde";
 
-      const transactionManager = createStubInstance(utils.Interface);
-      transactionManager.encodeFunctionData.returns(encodedDataMock);
-      transactionManager.decodeFunctionResult.returns([BigNumber.from(1000)]);
+      const connext = createStubInstance(utils.Interface);
+      connext.encodeFunctionData.returns(encodedDataMock);
+      connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       const priceOracle = createStubInstance(utils.Interface);
       priceOracle.encodeFunctionData.returns(encodedDataMock);
@@ -120,7 +120,7 @@ export const mock = {
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        transactionManager: transactionManager as unknown as TransactionManagerInterface,
+        connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,

@@ -28,7 +28,7 @@ export const TChainConfig = Type.Object({
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    transactionManager: TAddress,
+    connext: TAddress,
   }),
 });
 
@@ -151,14 +151,14 @@ export const getEnvConfig = (
 
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
-    // format: { [domainId]: { { "deployments": { "transactionManager": <address>, ... } }
+    // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
     nxtpConfig.chains[domainId].deployments = {
-      transactionManager:
-        chainConfig.deployments?.transactionManager ??
+      connext:
+        chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.transactionManager(chainDataForChain.chainId) : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
           if (!res) {
-            throw new Error(`No transactionManager address for domain ${domainId}`);
+            throw new Error(`No Connext contract address for domain ${domainId}`);
           }
           return res.address;
         })(),
