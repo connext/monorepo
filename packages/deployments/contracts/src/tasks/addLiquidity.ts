@@ -19,12 +19,12 @@ export default task("add-liquidity", "Add liquidity for a router")
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+        const connextDeployment = await deployments.get("Connext_Proxy");
         connextAddress = connextDeployment.address;
       }
       console.log("connextAddress: ", connextAddress);
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
+      const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
       if (asset !== ethers.constants.AddressZero) {
         const erc20 = await ethers.getContractAt("TestERC20", asset);
         const balance = await erc20.balanceOf(namedAccounts.deployer);

@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!deployer) {
     [deployer] = await hre.getUnnamedAccounts();
   }
-  console.log("deploying stable swap");
+  console.log("============================= Deploying StableSwap ===============================");
   console.log("deployer: ", deployer);
 
   /////////////////////////////////////////////////////////////////////////////////
