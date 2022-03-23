@@ -11,12 +11,12 @@ export default task("remove-router", "Remove a router")
 
     let connextAddress = _connextAddress;
     if (!connextAddress) {
-      const connextDeployment = await deployments.get("ConnextUpgradeBeaconProxy");
+      const connextDeployment = await deployments.get("Connext_Proxy");
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
 
-    const connext = await ethers.getContractAt("Connext", connextAddress);
+    const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
     const approved = await connext.approvedRouters(router);
     if (!approved) {
       console.log("not approved, no need to remove");
