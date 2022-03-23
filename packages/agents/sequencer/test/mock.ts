@@ -38,7 +38,7 @@ export const mock = {
           maxLag: 10,
         },
         deployments: {
-          transactionManager: mkAddress("0xabcdef123"),
+          connext: mkAddress("0xabcdef123"),
         },
       },
       [mock.chain.B]: {
@@ -50,7 +50,7 @@ export const mock = {
           maxLag: 10,
         },
         deployments: {
-          transactionManager: mkAddress("0xabcdef123"),
+          connext: mkAddress("0xabcdef123"),
         },
       },
     },

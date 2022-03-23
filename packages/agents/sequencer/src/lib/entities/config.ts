@@ -8,7 +8,7 @@ export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    transactionManager: TAddress,
+    connext: TAddress,
   }),
 });
 

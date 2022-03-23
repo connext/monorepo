@@ -28,7 +28,7 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
-  const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+  const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.connext;
 
   logger.info("Prepared data for sending", requestContext, methodContext, {
     encodedData,
