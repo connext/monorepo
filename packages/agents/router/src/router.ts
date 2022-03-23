@@ -114,7 +114,7 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
     try {
       await execute(JSON.parse(pendingTx) as CrossChainTx);
     } catch (err: any) {
-      logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
+      logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }
   });
 

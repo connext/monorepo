@@ -118,7 +118,7 @@ export class TransactionsCache extends Cache {
         await this.data.publish(StoreChannel.NewHighestNonce, tx.nonce.toString());
       }
       //dont think we need to set the status anymore.
-      await this.data.publish(StoreChannel.NewPreparedTx, JSON.stringify(tx));
+      await this.data.publish(StoreChannel.NewXCall, JSON.stringify(tx));
     }
   }
 }

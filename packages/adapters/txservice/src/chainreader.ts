@@ -245,18 +245,12 @@ export class ChainReader {
   /**
    * Calculates total router gas fee in token.
    *
-   * @param sendingChainId The source chain ID
-   * @param sendingChainIdForGasPrice The source chain ID where we're going to gas price on
-   * @param sendingAssetId The asset address on source chain
-   * @param sendingNativeChainId The network that we're going to get the native token price of sending chain on
-   * @param sendingNativeAssetId The native asset id on source chain
-   * @param receivingChainId The destination chain ID
-   * @param receivingChainIdForGasPrice The destination chain ID where we're going to gas price on
-   * @param receivingAssetId The asset address on destination chain
-   * @param receivingNativeChainId The network that we're going to get the native token price of receiving chain on
-   * @param receivingNativeAssetId The native asset id on destination chain
-   * @param outputDecimals Decimal number of receiving asset
-   * @param _requestContext Request context instance
+   * @param sendingChainId - The source chain ID
+   * @param sendingAssetId - The asset address on source chain
+   * @param receivingChainId - The destination chain ID
+   * @param receivingAssetId - The asset address on destination chain
+   * @param outputDecimals - Decimal number of receiving asset
+   * @param _requestContext-  Request context instance
    */
   async calculateGasFeeInReceivingToken(
     sendingChainId: number,
@@ -284,12 +278,12 @@ export class ChainReader {
     const [senderFulfillGasFee, receiverPrepareGasFee] = await Promise.all([
       // Calculate gas fees for sender fulfill.
       this.calculateGasFee(sendingChainId, sendingAssetId, outputDecimals, "fulfill", false, chainData, requestContext),
-      // Calculate gas fees for receiver prepare.
+      // Calculate gas fees for receiver xcall.
       this.calculateGasFee(
         receivingChainId,
         receivingAssetId,
         outputDecimals,
-        "prepare",
+        "xcall",
         false,
         chainData,
         requestContext,
@@ -302,13 +296,12 @@ export class ChainReader {
   /**
    * Calculates relayer fee in receiving token.
    *
-   * @param receivingChainId - The destination chain ID.
-   * @param receivingChainIdForGasPrice - The destination chain ID that we're going to get gas price on.
    * @param receivingAssetId - The asset address on destination chain.
-   * @param receivingNativeChainId - The network Id that we're going to get native asset price on.
-   * @param receivingNativeAssetId - The native asset address on {receivingNativeChainId}.
+   * @param receivingChainId - The destination chain ID.
    * @param outputDecimals - Decimal number of receiving asset.
-   * @param requestContext - Request context instance.
+   * @param callDataParams - Call data params.
+   * @param chainData - Chain data.
+   * @param _requestContext - Request context instance.
    */
   async calculateGasFeeInReceivingTokenForFulfill(
     receivingChainId: number,
@@ -344,26 +337,22 @@ export class ChainReader {
    * Calculates gas fee for specified chain and asset.
    *
    * @param chainId - The destination chain ID.
-   * @param gasPriceChainId - The destination chain ID that we're going to get gas price on.
    * @param assetId - The asset address on destination chain.
-   * @param nativeTokenChainId - The chain Id that we're going to get native asset price on.
-   * @param nativeTokenAssetId - The native asset address on {nativeTokenChainId}.
    * @param decimals - Decimal number of asset.
    * @param method - Which contract method to calculate gas fees for.
-   * @param requestContext - Request context instance.
-   * @param methodContext - Method context instance.
-   * @param whichChain - Whether it's sender or receiver chain, used for
-   * logging purposes only.
+   * @param callDataParams - Call data params.
+   * @param chainData - Chain data.
+   * @param _requestContext - Request context instance.
    */
   public async calculateGasFee(
     chainId: number,
     assetId: string,
     decimals: number,
-    method: "prepare" | "fulfill" | "cancel" | "removeLiquidity",
+    method: "xcall" | "execute",
     isRouterContract: boolean,
+    callDataParams: { callData?: string; callTo?: string; callDataGas?: string } = {},
     chainData?: Map<string, ChainData>,
     _requestContext?: RequestContext,
-    callDataParams: { callData?: string; callTo?: string; callDataGas?: string } = {},
   ): Promise<BigNumber> {
     const { requestContext, methodContext } = createLoggingContext(this.calculateGasFee.name, _requestContext);
 

@@ -4,7 +4,7 @@ import { expect } from "@connext/nxtp-utils";
 import { getHelpers } from "../../../src/lib/helpers";
 import { stubContext, mock } from "../../mock";
 
-const { fulfill } = getHelpers();
+const { execute } = getHelpers();
 
 const mockTransactingAmount = utils.parseEther("1");
 const mockRouterFee = BigNumber.from(mockTransactingAmount).mul(5).div(100);
@@ -28,7 +28,7 @@ describe("Helpers:Fulfill", () => {
 
     it("happy", async () => {
       const mockBid = mock.entity.bid();
-      const result = await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      const result = await execute.sanityCheck(mockBid, mock.loggingContext().requestContext);
       expect(result).to.be.true;
       expect(mockContext.adapters.txservice.getGasEstimate).to.have.been.calledOnceWithExactly(
         Number(mockBid.data.params.destinationDomain),
@@ -43,7 +43,7 @@ describe("Helpers:Fulfill", () => {
     it("returns false if gas estimate throws", async () => {
       const mockBid = mock.entity.bid();
       mockContext.adapters.txservice.getGasEstimate.rejects(new Error("gas estimate error, oh no!"));
-      const result = await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      const result = await execute.sanityCheck(mockBid, mock.loggingContext().requestContext);
       expect(result).to.be.false;
     });
   });
