@@ -56,7 +56,7 @@ export const mock: any = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (): CallParams => ({
-      callto: mkAddress("0xrecipient"),
+      to: mkAddress("0xrecipient"),
       callData: "0x",
       originDomain: mock.chain.A,
       destinationDomain: mock.chain.B,
@@ -67,7 +67,7 @@ export const mock: any = {
       router: mkAddress("0xrouter"),
       feePercentage: "1",
       index: 0,
-      transactionId: "0x",
+      transferId: "0x",
       proof: ["0x"],
       amount: utils.parseEther("1").toString(),
       relayerSignature: "0xsig",
@@ -84,7 +84,7 @@ export const mock: any = {
       originDomain: string,
       destinationDomain: string,
       amount = "1000",
-      status: CrossChainTxStatus = CrossChainTxStatus.Prepared,
+      status: CrossChainTxStatus = CrossChainTxStatus.XCalled,
       asset: string = mock.asset.A.address,
       transferId: string = getRandomBytes32(),
       nonce = 1234,
@@ -121,7 +121,7 @@ export const mock: any = {
           xcalledBlockNumber: 7654321,
         },
         // If status is prepared, these should be empty.
-        status === CrossChainTxStatus.Prepared
+        status === CrossChainTxStatus.XCalled
           ? {
               // Executed
               executedCaller: mkAddress("0x0"),
@@ -146,7 +146,7 @@ export const mock: any = {
               reconciledBlockNumber: 0,
             }
           : // If status is fulfilled, we should have fulfill fields defined (but leave reconciled fields empty).
-          status === CrossChainTxStatus.Fulfilled
+          status === CrossChainTxStatus.Executed
           ? {
               // Fulfill
               executedCaller: mock.address.relayer,
@@ -161,14 +161,6 @@ export const mock: any = {
               executedGasPrice: utils.parseUnits("5", "gwei").toString(),
               executedGasLimit: "80000",
               executedBlockNumber: 7654345,
-
-              // Reconciled
-              externalCallHash: "0x0",
-              reconciledTransactionHash: "0x0",
-              reconciledTimestamp: 0,
-              reconciledGasPrice: "0",
-              reconciledGasLimit: "0",
-              reconciledBlockNumber: 0,
             }
           : // Finally, if status is reconciled, we should have all fields defined.
             {
@@ -185,14 +177,6 @@ export const mock: any = {
               executedGasPrice: utils.parseUnits("5", "gwei").toString(),
               executedGasLimit: "80000",
               executedBlockNumber: 7654345,
-
-              // Reconciled
-              externalCallHash: "0x0",
-              reconciledTransactionHash: getRandomBytes32(),
-              reconciledTimestamp: Math.floor(Date.now() / 1000),
-              reconciledGasPrice: utils.parseUnits("5", "gwei").toString(),
-              reconciledGasLimit: "80000",
-              reconciledBlockNumber: 7654567,
             },
       );
     },

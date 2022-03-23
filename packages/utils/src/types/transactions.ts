@@ -2,8 +2,8 @@ import { TAddress, TDecimalString, TIntegerString } from ".";
 import { Type, Static } from "@sinclair/typebox";
 
 export enum CrossChainTxStatus {
-  Prepared = "Prepared",
-  Fulfilled = "Fulfilled",
+  XCalled = "XCalled",
+  Executed = "Executed",
   Reconciled = "Reconciled",
 }
 
@@ -53,7 +53,7 @@ export const CrossChainTxSchema = Type.Object({
 export type CrossChainTx = Static<typeof CrossChainTxSchema>;
 
 export const CallParamsSchema = Type.Object({
-  callto: TAddress,
+  to: TAddress,
   callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
@@ -68,7 +68,7 @@ export const ExecuteArgsSchema = Type.Object({
   feePercentage: TDecimalString,
   amount: TDecimalString,
   index: Type.Number(),
-  transactionId: Type.String(),
+  transferId: Type.String(),
   proof: Type.Array(Type.String()),
   relayerSignature: Type.String(),
 });
