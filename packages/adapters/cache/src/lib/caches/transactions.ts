@@ -109,7 +109,7 @@ export class TransactionsCache extends Cache {
       // set transaction data at domain field in hash, hset returns the number of field that were added
       // gte(1) => added, 0 => updated,
       // reference: https://redis.io/commands/hset
-      await this.data.hset(`${this.prefix}:${tx.originDomain}`, `${tx.nonce}:${tx.transactionId}`, JSON.stringify(tx));
+      await this.data.hset(`${this.prefix}:${tx.originDomain}`, `${tx.nonce}:${tx.transferId}`, JSON.stringify(tx));
       //move pointer to latest Nonce
       const latestNonce = (await this.data.hget(`${this.prefix}:${tx.originDomain}`, "latestNonce")) ?? "0";
       if (tx.nonce > parseInt(latestNonce)) {

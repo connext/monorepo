@@ -8,47 +8,40 @@ export const crossChainTx = (subgEntity: any): CrossChainTx => {
     status: subgEntity.status,
 
     // Transfer Data
-    nonce: subgEntity.nonce,
-    transactionId: subgEntity.transactionId,
-    recipient: subgEntity.recipient,
-    router: subgEntity.router,
-
-    // Prepared
-    prepareCaller: subgEntity.prepareCaller,
-    prepareTransactingAmount: subgEntity.prepareTransactingAmount,
-    prepareLocalAmount: subgEntity.prepareLocalAmount,
-    prepareTransactingAsset: subgEntity.prepareTransactingAsset,
-    prepareLocalAsset: subgEntity.prepareLocalAsset,
+    to: subgEntity.to,
+    transferId: subgEntity.transferId,
     callTo: subgEntity.callTo,
     callData: subgEntity.callData,
+    idx: subgEntity.idx,
+    nonce: subgEntity.nonce,
+    router: subgEntity.router,
 
-    // TransactionPrepared
-    prepareTransactionHash: subgEntity.prepareTransactionHash,
-    prepareTimestamp: subgEntity.prepareTimestamp,
-    prepareGasPrice: subgEntity.prepareGasPrice,
-    prepareGasLimit: subgEntity.prepareGasLimit,
-    prepareBlockNumber: subgEntity.prepareBlockNumber,
+    // XCalled
+    xcalledCaller: subgEntity.xcalledCaller,
+    xcalledTransferringAmount: subgEntity.xcalledTransferringAmount,
+    xcalledLocalAmount: subgEntity.xcalledLocalAmount,
+    xcalledTransferringAsset: subgEntity.xcalledTransferringAsset,
+    xcalledLocalAsset: subgEntity.xcalledLocalAsset,
+
+    // XCalled
+    xcalledTransactionHash: subgEntity.xcalledTransactionHash,
+    xcalledTimestamp: subgEntity.xcalledTimestamp,
+    xcalledGasPrice: subgEntity.xcalledGasPrice,
+    xcalledGasLimit: subgEntity.xcalledGasLimit,
+    xcalledBlockNumber: subgEntity.xcalledBlockNumber,
 
     // Fulfill
-    fulfillCaller: subgEntity.fulfillCaller,
-    fulfillTransactingAmount: subgEntity.fulfillTransactingAmount,
-    fulfillLocalAmount: subgEntity.fulfillLocalAmount,
-    fulfillTransactingAsset: subgEntity.fulfillTransactingAsset,
-    fulfillLocalAsset: subgEntity.fulfillLocalAsset,
+    executedCaller: subgEntity.executedCaller,
+    executedTransferringAmount: subgEntity.executedTransferringAmount,
+    executedLocalAmount: subgEntity.executedLocalAmount,
+    executedTransferringAsset: subgEntity.executedTransferringAsset,
+    executedLocalAsset: subgEntity.executedLocalAsset,
 
     // TransactionFulfilled
-    fulfillTransactionHash: subgEntity.fulfillTransactionHash,
-    fulfillTimestamp: subgEntity.fulfillTimestamp,
-    fulfillGasPrice: subgEntity.fulfillGasPrice,
-    fulfillGasLimit: subgEntity.fulfillGasLimit,
-    fulfillBlockNumber: subgEntity.fulfillBlockNumber,
-
-    // Reconciled
-    externalCallHash: subgEntity.externalCallHash,
-    reconciledTransactionHash: subgEntity.reconciledTransactionHash,
-    reconciledTimestamp: subgEntity.reconciledTimestamp,
-    reconciledGasPrice: subgEntity.reconciledGasPrice,
-    reconciledGasLimit: subgEntity.reconciledGasLimit,
-    reconciledBlockNumber: subgEntity.reconciledBlockNumber,
+    executedTransactionHash: subgEntity.executedTransactionHash,
+    executedTimestamp: subgEntity.executedTimestamp,
+    executedGasPrice: subgEntity.executedGasPrice,
+    executedGasLimit: subgEntity.executedGasLimit,
+    executedBlockNumber: subgEntity.executedBlockNumber,
   };
 };

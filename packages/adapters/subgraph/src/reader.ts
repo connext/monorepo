@@ -123,7 +123,7 @@ export class SubgraphReader {
         // set into a map by destination domain
         txIdsByDestinationDomain.set(
           tx.destinationDomain,
-          (txIdsByDestinationDomain.get(tx.transactionId) ?? []).concat([tx.transactionId]),
+          (txIdsByDestinationDomain.get(tx.transferId) ?? []).concat([tx.transferId]),
         );
         return [s.transactionId as string, tx];
       });
@@ -132,21 +132,21 @@ export class SubgraphReader {
 
     // use prepared IDs to get all receiving txs
     await Promise.all(
-      [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transactionIds]) => {
+      [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
         const { transactions } = await subgraph.runtime.request<GetFulfilledAndReconciledTransactionsByIdsQuery>(
           (client) =>
             client.GetFulfilledAndReconciledTransactionsByIds({
-              transactionIds,
+              transactionIds: transferIds,
               maxPrepareBlockNumber: agents.get(destinationDomain)!.maxPrepareBlockNumber.toString(),
             }), // TODO: maxPrepareBlockNumber
         );
         transactions.forEach((_tx) => {
           const tx = parser.crossChainTx(_tx);
-          const inMap = allTxById.get(tx.transactionId)!;
+          const inMap = allTxById.get(tx.transferId)!;
           inMap.status = tx.status;
-          allTxById.set(tx.transactionId, inMap);
+          allTxById.set(tx.transferId, inMap);
         });
       }),
     );

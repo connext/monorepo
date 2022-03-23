@@ -29,21 +29,21 @@ export const CrossChainTxSchema = Type.Object({
   xcalledTransferringAsset: TAddress,
   xcalledLocalAsset: TAddress,
 
-  // TransactionPrepared
+  // XCalled
   xcalledTransactionHash: Type.Optional(Type.String()),
   xcalledTimestamp: Type.Optional(Type.Number()),
   xcalledGasPrice: Type.Optional(TIntegerString),
   xcalledGasLimit: Type.Optional(TIntegerString),
   xcalledBlockNumber: Type.Optional(Type.Number()),
 
-  // Fulfill
+  // Executed
   executedCaller: Type.Optional(TAddress),
   executedTransferringAmount: Type.Optional(TIntegerString),
   executedLocalAmount: Type.Optional(TIntegerString),
   executedTransferringAsset: Type.Optional(TAddress),
   executedLocalAsset: Type.Optional(TAddress),
 
-  // TransactionFulfilled
+  // Executed
   executedTransactionHash: Type.Optional(Type.String()),
   executedTimestamp: Type.Optional(Type.Number()),
   executedGasPrice: Type.Optional(TIntegerString),
