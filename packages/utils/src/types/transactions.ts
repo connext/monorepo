@@ -14,52 +14,46 @@ export const CrossChainTxSchema = Type.Object({
   status: Type.Enum(CrossChainTxStatus),
 
   // Transfer Data
+  to: TAddress,
+  transferId: Type.String(),
+  callTo: Type.String(),
+  callData: Type.String(),
+  idx: TIntegerString,
   nonce: Type.Number(),
-  transactionId: Type.String(),
   router: TAddress,
 
-  // Prepared
-  prepareCaller: TAddress,
-  prepareTransactingAmount: TIntegerString,
-  prepareLocalAmount: TIntegerString,
-  prepareTransactingAsset: TAddress,
-  prepareLocalAsset: TAddress,
-  to: TAddress,
-  callData: Type.String(),
+  // XCalled
+  xcalledCaller: TAddress,
+  xcalledTransferringAmount: TIntegerString,
+  xcalledLocalAmount: TIntegerString,
+  xcalledTransferringAsset: TAddress,
+  xcalledLocalAsset: TAddress,
 
   // TransactionPrepared
-  prepareTransactionHash: Type.Optional(Type.String()),
-  prepareTimestamp: Type.Optional(Type.Number()),
-  prepareGasPrice: Type.Optional(TIntegerString),
-  prepareGasLimit: Type.Optional(TIntegerString),
-  prepareBlockNumber: Type.Optional(Type.Number()),
+  xcalledTransactionHash: Type.Optional(Type.String()),
+  xcalledTimestamp: Type.Optional(Type.Number()),
+  xcalledGasPrice: Type.Optional(TIntegerString),
+  xcalledGasLimit: Type.Optional(TIntegerString),
+  xcalledBlockNumber: Type.Optional(Type.Number()),
 
   // Fulfill
-  fulfillCaller: Type.Optional(TAddress),
-  fulfillTransactingAmount: Type.Optional(TIntegerString),
-  fulfillLocalAmount: Type.Optional(TIntegerString),
-  fulfillTransactingAsset: Type.Optional(TAddress),
-  fulfillLocalAsset: Type.Optional(TAddress),
+  executedCaller: Type.Optional(TAddress),
+  executedTransferringAmount: Type.Optional(TIntegerString),
+  executedLocalAmount: Type.Optional(TIntegerString),
+  executedTransferringAsset: Type.Optional(TAddress),
+  executedLocalAsset: Type.Optional(TAddress),
 
   // TransactionFulfilled
-  fulfillTransactionHash: Type.Optional(Type.String()),
-  fulfillTimestamp: Type.Optional(Type.Number()),
-  fulfillGasPrice: Type.Optional(TIntegerString),
-  fulfillGasLimit: Type.Optional(TIntegerString),
-  fulfillBlockNumber: Type.Optional(Type.Number()),
-
-  // Reconciled
-  externalCallHash: Type.Optional(Type.String()),
-  reconciledTransactionHash: Type.Optional(Type.String()),
-  reconciledTimestamp: Type.Optional(Type.Number()),
-  reconciledGasPrice: Type.Optional(TIntegerString),
-  reconciledGasLimit: Type.Optional(TIntegerString),
-  reconciledBlockNumber: Type.Optional(Type.Number()),
+  executedTransactionHash: Type.Optional(Type.String()),
+  executedTimestamp: Type.Optional(Type.Number()),
+  executedGasPrice: Type.Optional(TIntegerString),
+  executedGasLimit: Type.Optional(TIntegerString),
+  executedBlockNumber: Type.Optional(Type.Number()),
 });
 export type CrossChainTx = Static<typeof CrossChainTxSchema>;
 
 export const CallParamsSchema = Type.Object({
-  to: TAddress,
+  callto: TAddress,
   callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
@@ -67,7 +61,7 @@ export const CallParamsSchema = Type.Object({
 
 export type CallParams = Static<typeof CallParamsSchema>;
 
-export const FulfillArgsSchema = Type.Object({
+export const ExecutedArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   router: TAddress,
@@ -79,11 +73,11 @@ export const FulfillArgsSchema = Type.Object({
   relayerSignature: Type.String(),
 });
 
-export type FulfillArgs = Static<typeof FulfillArgsSchema>;
+export type ExecutedArgs = Static<typeof ExecutedArgsSchema>;
 
 export const BidSchema = Type.Object({
   transactionId: Type.String(),
-  data: FulfillArgsSchema,
+  data: ExecutedArgsSchema,
 });
 
 export type Bid = Static<typeof BidSchema>;
