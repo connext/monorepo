@@ -8,7 +8,7 @@ If contract changes have been made, create a new version under `src` directory a
 
 #### Contract Event changes
 
-When changes have been made to the `TransactionManager.sol` events, first update the [subgraph.template.yaml](./subgraph.template.yaml) to make sure the event signatures are correct. Make sure these changes are properly propagated by running the following from the root directory:
+When changes have been made to the `Connext.sol` events, first update the [subgraph.template.yaml](./subgraph.template.yaml) to make sure the event signatures are correct. Make sure these changes are properly propagated by running the following from the root directory:
 
 ```sh
 yarn workspace @connext/nxtp-subgraph prepare:local
@@ -50,9 +50,9 @@ yarn workspace @connext/nxtp-subgraph build
 
 ### Deploying Subgraph
 
-Before deploying a subgraph, update the `.json` files for the supported chains in the `config/` directory for the `TransactionManager.sol` you want to connect the subgraph to. You should update the:
+Before deploying a subgraph, update the `.json` files for the supported chains in the `config/` directory for the `Connext.sol` you want to connect the subgraph to. You should update the:
 
-- `address` to be the deployed `TransactionManager.sol` address
+- `address` to be the deployed `Connext.sol` address
 - `startBlock` to match the block the deploy transaction was mined
 
 You can find the correct values in the `packages/contracts/deployments` directory for each supported chain.

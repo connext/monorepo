@@ -29,7 +29,7 @@ export const ReconciledTransactionDataEncoding = tidy(`tuple(
 )`);
 
 /**
- * Encodes a handleRelayerFee payload object, as defined in the TransactionManager contract
+ * Encodes a handleRelayerFee payload object, as defined in the Connext contract
  *
  * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
@@ -41,7 +41,7 @@ export const encodeHandleRelayerFeeData = (nonce: string, feePercentage: string)
 };
 
 /**
- * Encodes a reconcile transaction payload object, as defined in the TransactionManager contract
+ * Encodes a reconcile transaction payload object, as defined in the Connext contract
  *
  * @param externalHash - Hash of the `ExternalCall`
  * @param local - The address of the bridged asset
@@ -65,7 +65,7 @@ export const getReconciledHash = (reconciledData: ReconciledTransaction): string
 };
 
 /**
- * Encodes an external call transaction payload object, as defined in the TransactionManager contract
+ * Encodes an external call transaction payload object, as defined in the Connext contract
  *
  * @param recipient - The address that should receive the funds on the destination domain if no call is
  * specified, or the fallback if an external call fails

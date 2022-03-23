@@ -30,7 +30,7 @@ export class SubgraphReader {
 
   /**
    *
-   * Returns available liquidity for the given asset on the TransactionManager on the provided chain.
+   * Returns available liquidity for the given asset on the Connext on the provided chain.
    *
    * @param chain - The chain you want to determine liquidity on
    * @param router - Router address

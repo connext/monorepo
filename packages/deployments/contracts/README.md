@@ -203,7 +203,7 @@ yarn workspace @connext/nxtp-contracts hardhat ensure-local --domain \<CANONICAL
 
 **NOTE** This task should be removed once using the nomad token registry
 
-- Setup the asset on the `TransactionManager` to ensure the routers can supply liquidity for all local assets, the correct adopted asset is set, and configure the stable swap pool:
+- Setup the asset on the `Connext` to ensure the routers can supply liquidity for all local assets, the correct adopted asset is set, and configure the stable swap pool:
 
 ```sh
 yarn workspace @connext/nxtp-contracts hardhat setup-asset --canonical \<TOKEN_ADDR_ON_CANONICAL_DOMAIN\> --domain \<CANONICAL_DOMAIN\> --adopted \<ADOPTED_ADDR_ON_NETWORK\> --pool \<SWAP_LOCAL_FOR_ADOPTED\> --network \<NETWORK\>

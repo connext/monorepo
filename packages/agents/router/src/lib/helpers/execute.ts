@@ -11,14 +11,13 @@ export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Pro
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
-  const destinationTransactionManagerAddress =
-    config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
+  const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.connext;
 
   // Validate the bid's fulfill call will succeed on chain.
   try {
     await txservice.getGasEstimate(Number(bid.data.params.destinationDomain), {
       chainId: destinationChainId,
-      to: destinationTransactionManagerAddress,
+      to: destinationConnextAddress,
       data: encodedData,
     });
 

@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * @title Executor
  * @author Connext <support@connext.network>
  * @notice This library contains an `execute` function that is callabale by
- *         an associated TransactionManager contract. This is used to execute
+ *         an associated Connext contract. This is used to execute
  *         arbitrary calldata on a receiving chain.
  */
 contract Executor is ReentrancyGuard, IExecutor {

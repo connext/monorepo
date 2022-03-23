@@ -42,7 +42,7 @@ export default task("router-preflight", "Check if router has been set up correct
       // }
       // console.log("Asset approved");
 
-      // Make sure the router's signer address has liquidity by checking the TransactionManager
+      // Make sure the router's signer address has liquidity by checking the Connext
       // contract in the block explorer and reading the routerBalances mapping, putting in the
       // router signer address and Rinkeby asset ID.
       const liquidity = await connext.routerBalances(router, asset);
@@ -63,7 +63,7 @@ export default task("router-preflight", "Check if router has been set up correct
       }
 
       // Make sure the router's signer address has relayer fees by checking the
-      // TransactionManager contract on chain and reading the routerRelayerFees function.
+      // Connext contract on chain and reading the routerRelayerFees function.
       const relayerFees = await connext.routerRelayerFees(router);
       console.log("relayerFees: ", relayerFees.toString());
       if (relayerFees.lt(BigNumber.from(amount).mul(10).div(100))) {

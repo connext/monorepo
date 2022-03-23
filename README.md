@@ -15,8 +15,8 @@ The protocol is made up of a simple contract that uses a locking pattern to `pre
 Transactions go through three phases:
 
 1. **Route Auction**: User broadcasts to our network signalling their desired route. Routers respond with sealed bids containing commitments to fulfilling the transaction within a certain time and price range.
-2. **Prepare**: Once the auction is completed, the transaction can be prepared. The user submits a transaction to `TransactionManager` contract on sender-side chain containing router's signed bid. This transaction locks up the users funds on the sending chain. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `TransactionManager` on the receiver-side chain, and locks up a corresponding amount of liquidity. The amount locked on the receiving chain is `sending amount - auction fee` so the router is incentivized to complete the transaction.
-3. **Fulfill**: Upon detecting the `TransactionPrepared` event on the receiver-side chain, the user signs a message and sends it to a relayer, who will earn a fee for submission. The relayer (which may be the router) then submits the message to the `TransactionManager` to complete their transaction on receiver-side chain and claim the funds locked by the router. A relayer is used here to allow users to submit transactions with arbitrary calldata on the receiving chain without needing gas to do so. The router then submits the same signed message and completes transaction on sender-side, unlocking the original `amount`.
+2. **Prepare**: Once the auction is completed, the transaction can be prepared. The user submits a transaction to `Connext` contract on sender-side chain containing router's signed bid. This transaction locks up the users funds on the sending chain. Upon detecting an event containing their signed bid from the chain, router submits the same transaction to `Connext` on the receiver-side chain, and locks up a corresponding amount of liquidity. The amount locked on the receiving chain is `sending amount - auction fee` so the router is incentivized to complete the transaction.
+3. **Fulfill**: Upon detecting the `TransactionPrepared` event on the receiver-side chain, the user signs a message and sends it to a relayer, who will earn a fee for submission. The relayer (which may be the router) then submits the message to the `Connext` to complete their transaction on receiver-side chain and claim the funds locked by the router. A relayer is used here to allow users to submit transactions with arbitrary calldata on the receiving chain without needing gas to do so. The router then submits the same signed message and completes transaction on sender-side, unlocking the original `amount`.
 
 If a transaction is not fulfilled within a fixed timeout, it reverts and can be reclaimed by the party that called `prepare` on each chain (initiator). Additionally, transactions can be cancelled unilaterally by the person owed funds on that chain (router for sending chain, user for receiving chain) prior to expiry.
 
@@ -148,7 +148,7 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 Information about common integration flows.
 
-### Setup Router for TransactionManager
+### Setup Router for Connext
 
 There's an easy hardhat script to run that sets up a router, adds assets, and adds liquidity. Run it by calling:
 
@@ -166,7 +166,7 @@ There are other configurable options. Note: You must use the deployer mnemonic. 
 yarn workspace @connext/nxtp-integration docker:messaging:up
 ```
 
-- Create router `packages/router/config.json`. Configure for live chains and the desired messaging. If you have not set up your mnemonic with the `TransactionManager`, see the [instructions](#setup-router-for-TransactionManager):
+- Create router `packages/router/config.json`. Configure for live chains and the desired messaging. If you have not set up your mnemonic with the `Connext`, see the [instructions](#setup-router-for-Connext):
 
 ```json
 {

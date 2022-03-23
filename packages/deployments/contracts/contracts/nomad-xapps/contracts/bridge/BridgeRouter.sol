@@ -326,7 +326,7 @@ contract BridgeRouter is Version0, Router {
             );
         }
 
-        // Pass the root and other information to TransactionManager
+        // Pass the root and other information to Connext
         connext.reconcile(_action.batchRoot());
     }
 
