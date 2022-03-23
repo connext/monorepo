@@ -1,5 +1,5 @@
 import { utils, BigNumber } from "ethers";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
@@ -11,6 +11,8 @@ import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/Sta
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
+// Used for stubbing functions at the bottom of this file:
+import * as sequencer from "../src/sequencer";
 
 export const mock = {
   ..._mock,
@@ -62,6 +64,9 @@ export const mock = {
     },
     network: "testnet",
     auctionWaitTime: 1_000,
+    mode: {
+      cleanup: false,
+    },
   }),
   adapter: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -124,4 +129,20 @@ export const mock = {
       };
     },
   },
+};
+
+export let mockContext: any;
+export let getContextStub: SinonStub;
+// Stub getContext to return the mock context above.
+export const stubContext = () => {
+  mockContext = mock.context();
+  try {
+    getContextStub.restore();
+  } catch (e) {}
+  try {
+    getContextStub = stub(sequencer, "getContext").callsFake(() => {
+      return mockContext;
+    });
+  } catch (e) {}
+  return mockContext;
 };

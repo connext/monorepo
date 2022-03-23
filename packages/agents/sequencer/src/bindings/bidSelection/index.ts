@@ -1,17 +1,21 @@
 import interval from "interval-promise";
-import { Bid, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/nxtp-utils";
 
 import { bidSelection } from "../../lib/operations";
 import { getContext } from "../../sequencer";
 
-export const BID_SELECTION_POLL_INTERVAL = 15 * 1_000;
+const BID_SELECTION_POLL_INTERVAL = 15 * 1_000;
 
-export const bindBidSelection = async () => {
-  const { logger } = getContext();
+export const bindBidSelection = async (_pollInterval = BID_SELECTION_POLL_INTERVAL) => {
+  const { logger, config } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindBidSelection.name);
-  logger.info("Starting Bid Selection", requestContext, methodContext, {});
+  logger.info("Binding bid selection polling loop", requestContext, methodContext, {});
 
-  interval(async () => {
-    await bidSelection(requestContext);
-  }, BID_SELECTION_POLL_INTERVAL);
+  interval(async (_, stop) => {
+    if (config.mode.cleanup) {
+      stop();
+    } else {
+      await bidSelection(requestContext);
+    }
+  }, _pollInterval);
 };

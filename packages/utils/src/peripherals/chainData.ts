@@ -74,14 +74,22 @@ export type ChainData = {
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
 export const chainDataToMap = (data: any): Map<string, ChainData> => {
   const chainData: Map<string, ChainData> = new Map();
+  const noDomainIdFound: string[] = [];
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
     const domainId = item.domainId;
     if (domainId) {
       chainData.set(domainId, item as ChainData);
     } else {
-      console.warn(`No domainId for chain! Continuing without indexing chain ${item.chainId}`);
+      noDomainIdFound.push(item.chainId);
     }
+  }
+  if (noDomainIdFound.length > 0) {
+    console.warn(
+      `No domainId was found for the following chains: ${noDomainIdFound.join(
+        ", ",
+      )};\n Continuing without indexing these chains.`,
+    );
   }
   return chainData;
 };

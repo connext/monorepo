@@ -50,6 +50,9 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): SequencerConfig
       configJson.auctionWaitTime ||
       configFile.auctionWaitTime ||
       DEFAULT_AUCTION_WAIT_TIME,
+    mode: {
+      cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
+    },
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
