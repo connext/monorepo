@@ -8,3 +8,4 @@ export * from "./parse";
 export * from "./signatures";
 export * from "./swap";
 export * from "./time";
+export * from "./address";
