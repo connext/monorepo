@@ -45,7 +45,7 @@ export const pollSubgraph = async () => {
       });
     }
 
-    const transactions = await subgraph.getPreparedTransactions(subgraphQueryMetaParams);
+    const transactions = await subgraph.getXCalls(subgraphQueryMetaParams);
     logger.debug("Got transactions", requestContext, methodContext, {
       transactions,
     });

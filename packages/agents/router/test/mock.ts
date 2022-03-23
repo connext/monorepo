@@ -98,7 +98,7 @@ export const mock = {
     },
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
-      subgraph.getPreparedTransactions.resolves([]);
+      subgraph.getXCalls.resolves([]);
       subgraph.getTransactionsWithStatuses.resolves([]);
       return subgraph;
     },
@@ -158,7 +158,7 @@ export const mock = {
     },
   },
   helpers: {
-    fulfill: {
+    execute: {
       sanityCheck: stub(),
     },
     shared: {
@@ -168,7 +168,7 @@ export const mock = {
     },
   },
   operations: {
-    fulfill: stub(),
+    execute: stub(),
   },
 };
 

@@ -1,4 +1,4 @@
-import { Logger, CrossChainTxStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
 import { TransactionsCache } from "../../../src/index";
 import { StoreChannel } from "../../../src/lib/entities";
 
@@ -7,12 +7,12 @@ const RedisMock = require("ioredis-mock");
 let transactions: TransactionsCache;
 
 const fakeTxs = [
-  mock.entity.crossChainTx("3000", "4000"),
-  mock.entity.crossChainTx(
+  mock.entity.xtransfer("3000", "4000"),
+  mock.entity.xtransfer(
     "3000",
     "4000",
     "1000",
-    CrossChainTxStatus.Prepared,
+    XTransferStatus.XCalled,
     mkAddress("0xaaa"),
     getRandomBytes32(),
     1234,
@@ -26,7 +26,7 @@ describe("TransactionCache", () => {
     const RedisSub = new RedisMock();
 
     RedisSub.subscribe(StoreChannel.NewHighestNonce);
-    RedisSub.subscribe(StoreChannel.NewPreparedTx);
+    RedisSub.subscribe(StoreChannel.NewXCall);
     RedisSub.subscribe(StoreChannel.NewStatus);
 
     RedisSub.on("message", (chan: any, msg: any) => {
@@ -39,28 +39,28 @@ describe("TransactionCache", () => {
   describe("TransactionsCache", () => {
     describe("#storeStatus", () => {
       it("happy: should return true if `set` returns OK", async () => {
-        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
         expect(res).to.be.eq(true);
       });
 
       it("should return false if the new status is different from the previous one", async () => {
-        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
-        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Fulfilled);
+        await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.Executed);
         expect(res).to.be.eq(true);
       });
 
       it("should return false if the new status is same as the previous one", async () => {
-        await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
-        const res = await transactions.storeStatus(fakeTxs[0].transactionId, CrossChainTxStatus.Prepared);
+        await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
         expect(res).to.be.eq(false);
       });
     });
 
     describe("#getStatus", () => {
       it("happy: should get status of transaction by ID", async () => {
-        await transactions.storeStatus(fakeTxs[1].transactionId, CrossChainTxStatus.Prepared);
+        await transactions.storeStatus(fakeTxs[1].transactionId, XTransferStatus.XCalled);
         const status = await transactions.getStatus(fakeTxs[1].transactionId);
-        expect(status).to.be.eq(CrossChainTxStatus.Prepared);
+        expect(status).to.be.eq(XTransferStatus.XCalled);
       });
 
       it("should return undefined if no exists", async () => {
@@ -85,9 +85,9 @@ describe("TransactionCache", () => {
 
     describe("#storeTxData", () => {
       it("happy: should store transaction data", async () => {
-        const mockCrossChainTx = mock.entity.crossChainTx("100", "200");
+        const mockXTransfer = mock.entity.xtransfer("100", "200");
         //add fake txid's status, should fire off event.
-        await transactions.storeTxData([mockCrossChainTx]);
+        await transactions.storeTxData([mockXTransfer]);
         let latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1234);
       });
@@ -96,17 +96,17 @@ describe("TransactionCache", () => {
         let latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1234);
 
-        const mockCrossChainTx = mock.entity.crossChainTx(
+        const mockXTransfer = mock.entity.xtransfer(
           "100",
           "200",
           "1000",
-          CrossChainTxStatus.Prepared,
+          XTransferStatus.XCalled,
           mkAddress("0xaaa"),
           getRandomBytes32(),
           1235,
           mkAddress("0xa"),
         );
-        const res = await transactions.storeTxData([mockCrossChainTx]);
+        const res = await transactions.storeTxData([mockXTransfer]);
         latestNonce = await transactions.getLatestNonce("100");
         expect(latestNonce).to.be.eq(1235);
       });
@@ -120,20 +120,20 @@ describe("TransactionCache", () => {
 
       it("happy case: should return data", async () => {
         const transactionId = getRandomBytes32();
-        const mockCrossChainTx = mock.entity.crossChainTx(
+        const mockXTransfer = mock.entity.xtransfer(
           "101",
           "201",
           "1000",
-          CrossChainTxStatus.Prepared,
+          XTransferStatus.XCalled,
           mkAddress("0xaaa"),
           transactionId,
           1234,
           mkAddress("0xa"),
         );
-        await transactions.storeTxData([mockCrossChainTx]);
+        await transactions.storeTxData([mockXTransfer]);
 
         const res = await transactions.getTxDataByDomainAndTxID("101", transactionId);
-        expect(res.transactionId).to.eq(transactionId);
+        expect(res.transferId).to.eq(transactionId);
       });
     });
 
@@ -145,20 +145,20 @@ describe("TransactionCache", () => {
 
       it("happy case: should return data", async () => {
         const transactionId = getRandomBytes32();
-        const mockCrossChainTx = mock.entity.crossChainTx(
+        const mockXTransfer = mock.entity.xtransfer(
           "102",
           "202",
           "1000",
-          CrossChainTxStatus.Prepared,
+          XTransferStatus.XCalled,
           mkAddress("0xaaa"),
           transactionId,
           1234,
           mkAddress("0xa"),
         );
-        await transactions.storeTxData([mockCrossChainTx]);
+        await transactions.storeTxData([mockXTransfer]);
 
         const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
-        expect(res.transactionId).to.eq(transactionId);
+        expect(res.transferId).to.eq(transactionId);
       });
     });
   });

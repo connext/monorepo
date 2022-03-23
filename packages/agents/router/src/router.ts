@@ -3,7 +3,7 @@ import {
   createLoggingContext,
   createMethodContext,
   createRequestContext,
-  CrossChainTx,
+  XTransfer,
   getChainData,
   jsonifyError,
   Logger,
@@ -108,13 +108,13 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
     logger: logger.child({ module: "StoreManager" }),
   });
 
-  // Subscribe to `NewPreparedTx` channel and attach prepare handler.
-  cacheInstance.consumers.subscribe(StoreManager.Channel.NewPreparedTx, async (pendingTx) => {
-    const { requestContext, methodContext } = createLoggingContext("NewXcalledTx");
+  // Subscribe to `NewXCall` channel and attach execute handler.
+  cacheInstance.consumers.subscribe(StoreManager.Channel.NewXCall, async (pendingTx) => {
+    const { requestContext, methodContext } = createLoggingContext("NewXCallHandler");
     try {
-      await execute(JSON.parse(pendingTx) as CrossChainTx);
+      await execute(JSON.parse(pendingTx) as XTransfer);
     } catch (err: any) {
-      logger.error("Error fulfilling transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
+      logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
     }
   });
 

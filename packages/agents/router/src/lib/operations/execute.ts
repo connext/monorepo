@@ -3,8 +3,8 @@ import {
   ExecuteArgs,
   Bid,
   createLoggingContext,
-  CrossChainTx,
-  CrossChainTxSchema,
+  XTransfer,
+  XTransferSchema,
   formatUrl,
   ajv,
 } from "@connext/nxtp-utils";
@@ -20,11 +20,11 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 
 /**
  * Router creates a new bid and sends it to auctioneer.
- * should be subsribed to NewPreparedTransaction channel of redis.
+ * should be subsribed to NewXCall channel of redis.
  *
- * @param params - The prepared crosschain tranaction
+ * @param params - The crosschain xcall params.
  */
-export const execute = async (params: CrossChainTx): Promise<void> => {
+export const execute = async (params: XTransfer): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
@@ -40,7 +40,7 @@ export const execute = async (params: CrossChainTx): Promise<void> => {
   logger.info("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
-  const validateInput = ajv.compile(CrossChainTxSchema);
+  const validateInput = ajv.compile(XTransferSchema);
   const validInput = validateInput(params);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
@@ -51,8 +51,7 @@ export const execute = async (params: CrossChainTx): Promise<void> => {
   }
 
   /// create a bid
-  const { originDomain, destinationDomain, transferId, to, xcalledLocalAsset, xcalledLocalAmount, callTo, callData } =
-    params;
+  const { originDomain, destinationDomain, transferId, to, xcall, callTo, callData } = params;
   // generate bid params
   const callParams: CallParams = {
     to,
@@ -62,9 +61,9 @@ export const execute = async (params: CrossChainTx): Promise<void> => {
   };
 
   // TODO:  get local Asset from onChain call and later switch to subgraph
-  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcalledLocalAsset, destinationDomain);
+  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
 
-  let receivingAmount = xcalledLocalAmount;
+  let receivingAmount = xcall.localAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);

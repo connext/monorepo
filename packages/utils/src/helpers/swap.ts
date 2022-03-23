@@ -24,7 +24,7 @@ export const getSwapRate = async (): Promise<string> => {
  * @returns The amount, less fees as determined by the swapRate
  *
  * @remarks
- * Router fulfills on sending chain, so gets `amount`, and user fulfills on receiving chain so gets `amount * swapRate`
+ * Router executes on sending chain, so gets `amount`, and user executes on receiving chain so gets `amount * swapRate`
  */
 export const getReceiverAmount = async (
   amount: string,

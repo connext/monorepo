@@ -1,5 +1,3 @@
-import { BidStatus, StoredBid, getNtpTimeSeconds, Bid } from "@connext/nxtp-utils";
-
 import { StoreChannel, Subscriptions, SubscriptionCallback, CacheParams } from "../entities";
 import { Cache } from ".";
 
@@ -18,7 +16,7 @@ export class ConsumersCache extends Cache {
     this.data.subscribe(
       StoreChannel.NewBid,
       StoreChannel.NewHighestNonce,
-      StoreChannel.NewPreparedTx,
+      StoreChannel.NewXCall,
       StoreChannel.NewStatus,
       (err: any, count) => {
         if (err) {

@@ -42,7 +42,7 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
 };
 
 /**
- * Generates a signature on the handleRelayerFee payload in `fulfill` transaction
+ * Generates a signature on the handleRelayerFee payload in `execute` transaction
  *
  * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
@@ -60,7 +60,7 @@ export const signHandleRelayerFeePayload = async (
 };
 
 /**
- * Generates a hash to sign of the handleRelayerFee payload in `fulfill` transaction
+ * Generates a hash to sign of the handleRelayerFee payload in `execute` transaction
  *
  * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction

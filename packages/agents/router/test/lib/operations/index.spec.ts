@@ -8,7 +8,7 @@ describe("Operations:Index", () => {
       const operations = getOperations();
       expect(operations).to.not.be.undefined;
       expect(operations).to.not.be.null;
-      expect(operations.fulfill).to.be.a("function");
+      expect(operations.execute).to.be.a("function");
     });
   });
 });

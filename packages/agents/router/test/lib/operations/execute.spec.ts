@@ -10,9 +10,9 @@ import { mock, stubContext, stubHelpers } from "../../mock";
 const { execute, sendBid } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockCrossChainTx = mock.entity.crossChainTx(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockXTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
 
-describe("Operations:Fulfill", () => {
+describe("Operations:Execute", () => {
   let mockContext: any;
 
   before(() => {
@@ -20,11 +20,11 @@ describe("Operations:Fulfill", () => {
     mockContext = stubContext();
   });
 
-  describe("#fulfill", () => {
+  describe("#execute", () => {
     const mockFulfillLocalAsset = mock.asset.A.address;
     let sendBidStub: SinonStub;
     beforeEach(() => {
-      mock.helpers.fulfill.sanityCheck.resolves(true);
+      mock.helpers.execute.sanityCheck.resolves(true);
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
       mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
       sendBidStub = stub(ExecuteFns, "sendBid").resolves();
@@ -36,33 +36,33 @@ describe("Operations:Fulfill", () => {
 
     it("happy", async () => {
       const expectedBid = {
-        transactionId: mockCrossChainTx.transactionId,
+        transactionId: mockXTransfer.transactionId,
         data: {
           params: {
-            recipient: mockCrossChainTx.recipient,
-            callTo: mockCrossChainTx.callTo,
-            callData: mockCrossChainTx.callData,
-            originDomain: mockCrossChainTx.originDomain,
-            destinationDomain: mockCrossChainTx.destinationDomain,
+            recipient: mockXTransfer.recipient,
+            callTo: mockXTransfer.callTo,
+            callData: mockXTransfer.callData,
+            originDomain: mockXTransfer.originDomain,
+            destinationDomain: mockXTransfer.destinationDomain,
           },
           local: mockFulfillLocalAsset,
-          router: mockCrossChainTx.router,
+          router: mockXTransfer.router,
           feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
-          amount: mockCrossChainTx.prepareLocalAmount,
+          amount: mockXTransfer.xcall.localAmount,
           index: 0,
-          transactionId: mockCrossChainTx.transactionId,
+          transactionId: mockXTransfer.transactionId,
           proof: [],
           relayerSignature: mock.signature,
         },
       };
 
-      await expect(execute(mockCrossChainTx)).to.be.fulfilled;
+      await expect(execute(mockXTransfer)).to.be.fulfilled;
 
       expect(mock.helpers.shared.getDestinationLocalAsset.callCount).to.equal(1);
       expect(mock.helpers.shared.getDestinationLocalAsset.getCall(0).args).to.deep.eq([
-        mockCrossChainTx.originDomain,
-        mockCrossChainTx.prepareLocalAsset,
-        mockCrossChainTx.destinationDomain,
+        mockXTransfer.originDomain,
+        mockXTransfer.xcall.localAsset,
+        mockXTransfer.destinationDomain,
       ]);
       expect(mock.helpers.shared.signHandleRelayerFeePayload.callCount).to.equal(1);
       expect(mock.helpers.fulfill.sanityCheck.callCount).to.equal(1);
@@ -72,7 +72,7 @@ describe("Operations:Fulfill", () => {
 
     it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
       const invalidParams = {
-        ...mockCrossChainTx,
+        ...mockXTransfer,
         recipient: "0x0",
         callTo: "0x0",
         callData: "0x0",
@@ -86,12 +86,12 @@ describe("Operations:Fulfill", () => {
 
     it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";
-      await expect(execute(mockCrossChainTx)).to.be.rejectedWith(SlippageInvalid);
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(SlippageInvalid);
     });
 
     it("should not sendBid if sanityCheck returns false", async () => {
       mock.helpers.fulfill.sanityCheck.resolves(false);
-      await expect(execute(mockCrossChainTx)).to.be.fulfilled;
+      await expect(execute(mockXTransfer)).to.be.fulfilled;
       expect(sendBidStub.callCount).to.equal(0);
     });
   });

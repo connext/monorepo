@@ -170,7 +170,7 @@ export class SdkManager {
    * Starts a cyclical transfer test:
    * - sets each agent into "cyclical transfer" mode, meaning they
    *   will send a transfer *back* to the origin chain once they have
-   *   fulfilled a transfer on the destination chain
+   *   executed a transfer on the destination chain
    * - makes sure each agent is ping-pong-ing transfers back and
    *   forth between each other
    *
