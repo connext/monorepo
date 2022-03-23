@@ -1,6 +1,4 @@
 import { utils, BigNumber } from "ethers";
-import { SinonStub, stub } from "sinon";
-import * as UtilFns from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils";
 
 import { getHelpers } from "../../../src/lib/helpers";
@@ -20,37 +18,33 @@ describe("Helpers:Fulfill", () => {
   });
 
   describe("#sanityCheck", () => {
+    const mockEncodedData = mock.encodedData();
     beforeEach(() => {
       mockContext.adapters.txservice.getGasEstimate.resetHistory();
       mockContext.adapters.txservice.getGasEstimate.resolves(BigNumber.from(200_000));
+      mockContext.adapters.contracts.transactionManager.encodeFunctionData.resetHistory();
+      mockContext.adapters.contracts.transactionManager.encodeFunctionData.returns(mockEncodedData);
     });
 
     it("happy", async () => {
       const mockBid = mock.entity.bid();
-      await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      const result = await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      expect(result).to.be.true;
+      expect(mockContext.adapters.txservice.getGasEstimate).to.have.been.calledOnceWithExactly(
+        Number(mockBid.data.params.destinationDomain),
+        {
+          chainId: Number(mock.chain.B),
+          to: mockContext.config.chains[mockBid.data.params.destinationDomain].deployments.transactionManager,
+          data: mockEncodedData,
+        },
+      );
+    });
+
+    it("returns false if gas estimate throws", async () => {
+      const mockBid = mock.entity.bid();
+      mockContext.adapters.txservice.getGasEstimate.rejects(new Error("gas estimate error, oh no!"));
+      const result = await fulfill.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      expect(result).to.be.false;
     });
   });
-
-  // describe("#getReceiverAmount", () => {
-  //   let getReceiverAmountUtilsStub: SinonStub;
-  //   const stubResult = {
-  //     receivingAmount: mockReceivingAmount.toString(),
-  //     routerFee: mockRouterFee.toString(),
-  //     amountAfterSwapRate: "1",
-  //   };
-  //   beforeEach(() => {
-  //     getReceiverAmountUtilsStub = stub(UtilFns, "getReceiverAmount").resolves(stubResult);
-  //   });
-
-  //   it("happy: should call utility function", async () => {
-  //     const amount = mockTransactingAmount.toString();
-  //     const res = await fulfill.getReceiverAmount(amount, 18, 18);
-  //     expect(res).to.deep.equal(stubResult);
-  //     expect(getReceiverAmountUtilsStub).to.have.been.calledOnceWithExactly(amount, 18, 18);
-  //   });
-
-  //   it("should throw if amount includes a decimal", async () => {
-  //     await expect(fulfill.getReceiverAmount("1.1", 18, 18)).to.be.rejectedWith(AmountInvalid);
-  //   });
-  // });
 });

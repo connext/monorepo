@@ -50,6 +50,7 @@ export const mock: any = {
       },
     ]),
   signature: mkSig("0xabcdef1c"),
+  encodedData: () => getRandomBytes32(),
   address: {
     router: mkAddress("0xc0ffeebabe"),
     relayer: mkAddress("0xdad"),
@@ -60,8 +61,8 @@ export const mock: any = {
       recipient: mkAddress("0xrecipient"),
       callTo: mkAddress("0xcallTo"),
       callData: "0x",
-      originDomain: "1337",
-      destinationDomain: "1338",
+      originDomain: mock.chain.A,
+      destinationDomain: mock.chain.B,
     }),
     fulfillArgs: (): FulfillArgs => ({
       params: mock.entity.callParams(),
