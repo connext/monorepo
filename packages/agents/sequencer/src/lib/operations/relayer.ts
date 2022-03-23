@@ -1,8 +1,9 @@
-import { gelatoSend, isChainSupportedByGelato, Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
-import { AxiosResponse, AxiosError } from "axios";
+import { Bid, RequestContext, createLoggingContext } from "@connext/nxtp-utils";
+import { AxiosError } from "axios";
 
 import { GelatoSendFailed } from "../errors";
 import { getContext } from "../../sequencer";
+import { gelatoSend, isChainSupportedByGelato } from "../helpers/relayer";
 
 export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) => {
   const {
@@ -15,6 +16,7 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
   logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { bid });
 
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
+
   const destinationTransactionManagerAddress =
     config.chains[bid.data.params.destinationDomain].deployments.transactionManager;
 
@@ -29,7 +31,6 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
     destinationTransactionManagerAddress,
     domain: bid.data.params.destinationDomain,
   });
-
   const result = await gelatoSend(
     destinationChainId,
     destinationTransactionManagerAddress,
@@ -37,7 +38,6 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
     bid.data.local,
     bid.data.feePercentage,
   );
-
   if ((result as AxiosError).isAxiosError) {
     throw new GelatoSendFailed({ result });
   } else {
