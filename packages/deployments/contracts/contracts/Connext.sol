@@ -167,7 +167,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative
-  ) public initializer {
+  ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
 
@@ -186,7 +186,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to add routers that can transact crosschain
    * @param router Router address to add
    */
-  function addRouter(address router) external onlyOwner {
+  function addRouter(address router) external override onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#AR:001");
 
@@ -204,7 +204,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(address router) external onlyOwner {
+  function removeRouter(address router) external override onlyOwner {
     // Sanity check: not empty
     require(router != address(0), "#RR:001");
 
@@ -224,7 +224,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   function addStableSwapPool(
     BridgeMessage.TokenId calldata canonical,
     address stableSwapPool
-  ) external onlyOwner {
+  ) external override onlyOwner {
     _addStableSwapPool(canonical, stableSwapPool);
   }
 
@@ -244,7 +244,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     BridgeMessage.TokenId calldata canonical,
     address adoptedAssetId,
     address stableSwapPool
-  ) external onlyOwner {
+  ) external override onlyOwner {
     // Add the asset
     _addAssetId(canonical, adoptedAssetId);
 
@@ -257,7 +257,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param canonicalId - Token id to remove
    * @param adoptedAssetId - Corresponding adopted asset to remove
    */
-  function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external onlyOwner {
+  function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
     // Sanity check: already approval
     require(approvedAssets[canonicalId] == true, "#RA:033");
 
@@ -278,7 +278,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to add relayer fees in the native asset
    * @param router - The router to credit
    */
-  function addRelayerFees(address router) external payable {
+  function addRelayerFees(address router) external override payable {
     require(msg.value > 0, "!value");
     routerRelayerFees[router] += msg.value;
   }
@@ -289,7 +289,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param amount - The amount of relayer fee to remove
    * @param to - Who to send funds to
    */
-  function removeRelayerFees(uint256 amount, address payable to) external {
+  function removeRelayerFees(uint256 amount, address payable to) external override {
     routerRelayerFees[msg.sender] -= amount;
     
     AddressUpgradeable.sendValue(to, amount);
@@ -304,7 +304,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param router The router you are adding liquidity on behalf of
    */
-  function addLiquidityFor(uint256 amount, address local, address router) external payable nonReentrant {
+  function addLiquidityFor(uint256 amount, address local, address router) external payable override nonReentrant {
     _addLiquidityForRouter(amount, local, router);
   }
 
@@ -316,7 +316,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    */
-  function addLiquidity(uint256 amount, address local) external payable nonReentrant {
+  function addLiquidity(uint256 amount, address local) external payable override nonReentrant {
     _addLiquidityForRouter(amount, local, msg.sender);
   }
 
@@ -331,7 +331,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     uint256 amount,
     address local,
     address payable to
-  ) external nonReentrant {
+  ) external override nonReentrant {
     // Sanity check: to is sensible
     require(to != address(0), "#RL:007");
 
@@ -364,7 +364,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // TODO: add indicator if fast liquidity is allowed
   function xcall(
     XCallArgs calldata _args
-  ) external payable returns (bytes32) {
+  ) external payable override returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
     // require(
@@ -417,7 +417,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function reconcile(
     bytes32 _incomingRoot // TODO: do we need a batch id?
-  ) external onlyBridgeRouter payable {
+  ) external payable override onlyBridgeRouter{
     // Store the root
     incomingRoot = _incomingRoot;
 
@@ -428,7 +428,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   /**
    * @notice Sends a transfer root through nomad
    */
-  function dispatch(uint32 _destination) external {
+  function dispatch(uint32 _destination) external override {
     // Get the tree, assets, and amounts for the batch
     address[3] memory _tokens = batchAssets[_destination];
     uint256[3] memory _amounts = batchAmounts[_destination];
@@ -468,7 +468,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function execute(
     ExecuteArgs calldata _args
-  ) external returns (bytes32) {
+  ) external override returns (bytes32) {
     // Get the starting gas
     uint256 _start = gasleft();
 
@@ -550,7 +550,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     uint256 _index,
     bytes32[32] calldata _proof,
     CallParams calldata _params
-  ) external {
+  ) external override {
     // Get the right asset in the leaf
     (, bytes32 canonicalId) = tokenRegistry.getCanonicalTokenId(_local);
     address _originAsset = tokenRegistry.getLocalAddress(_params.originDomain, canonicalId);
