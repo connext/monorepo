@@ -1,4 +1,5 @@
 import { expect } from "@connext/nxtp-utils";
+
 import * as binding from "../../../src/bindings/metrics";
 
 describe("Bindings:Metrics", async () => {
