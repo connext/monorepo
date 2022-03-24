@@ -157,6 +157,16 @@ export const mock: any = {
         transactionIndex: 1,
       } as unknown as providers.TransactionReceipt),
   },
+  contracts: {
+    deployments: {
+      connext: function (chainId: number) {
+        return mkAddress("0xconnext");
+      },
+      priceOracle: function (chainId: number) {
+        return mkAddress("0xpriceoralce");
+      },
+    },
+  },
 };
 
 // export
