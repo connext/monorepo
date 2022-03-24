@@ -36,19 +36,19 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "^0.18.1",
-    "@typescript-eslint/eslint-plugin": "^4.29.2",
-    "ethers": "^5.5.4",
-    "graphql": "^15.5.1",
-    "graphql-request": "^3.5.0",
-    "graphql-tag": "^2.12.5"
+    "@sinclair/typebox": "^0.23.4",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "ethers": "^5.6.1",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.2.0",
+    "graphql-tag": "^2.12.6"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.0.1",
-    "@graphql-codegen/typescript": "^2.0.0",
-    "@graphql-codegen/typescript-graphql-request": "^4.0.0",
-    "@graphql-codegen/typescript-operations": "^2.0.1",
-    "ts-node": "^10.2.0",
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.8",
+    "@graphql-codegen/typescript-graphql-request": "^4.4.4",
+    "@graphql-codegen/typescript-operations": "^2.3.5",
+    "ts-node": "^10.7.0",
     "tslib": "^2.3.1",
     "typescript": "^4.6.2"
   },

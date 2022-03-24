@@ -24,18 +24,18 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "^5.5.4",
+    "ethers": "^5.6.1",
     "js-yaml": "^4.1.0",
     "mustache": "^4.2.0",
-    "ts-node": "^10.3.0",
+    "ts-node": "^10.7.0",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "=0.25.0",
-    "@graphprotocol/graph-ts": "^0.24.1",
+    "@graphprotocol/graph-cli": "^0.29.0",
+    "@graphprotocol/graph-ts": "^0.26.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mustache": "^4.1.2",
     "@types/yaml": "^1.9.7",
-    "sinon": "^13.0.0"
+    "sinon": "^13.0.1"
   }
 }
