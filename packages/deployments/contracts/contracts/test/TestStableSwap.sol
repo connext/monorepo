@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract TestStableSwap {
   using SafeMath for uint256;
@@ -134,12 +133,6 @@ contract TestStableSwap {
           address(this)
       );
 
-      console.log(
-          "swap: Expected %s, got %s",
-          balanceAfter.sub(balanceBefore),
-          returnValue
-      );
-
       require(
           returnValue == balanceAfter.sub(balanceBefore),
           "swap()'s return value does not match received amount"
@@ -152,12 +145,6 @@ contract TestStableSwap {
       uint256 balanceBefore = lpToken.balanceOf(address(this));
       uint256 returnValue = swap.addLiquidity(amounts, minToMint, MAX_INT);
       uint256 balanceAfter = lpToken.balanceOf(address(this));
-
-      console.log(
-          "addLiquidity: Expected %s, got %s",
-          balanceAfter.sub(balanceBefore),
-          returnValue
-      );
 
       require(
           returnValue == balanceAfter.sub(balanceBefore),
@@ -183,11 +170,6 @@ contract TestStableSwap {
 
       for (uint8 i = 0; i < n; i++) {
           balanceAfter[i] = swap.getToken(i).balanceOf(address(this));
-          console.log(
-              "removeLiquidity: Expected %s, got %s",
-              balanceAfter[i].sub(balanceBefore[i]),
-              returnValue[i]
-          );
           require(
               balanceAfter[i].sub(balanceBefore[i]) == returnValue[i],
               "removeLiquidity()'s return value does not match received amounts of tokens"
@@ -206,12 +188,6 @@ contract TestStableSwap {
           MAX_INT
       );
       uint256 balanceAfter = lpToken.balanceOf(address(this));
-
-      console.log(
-          "removeLiquidityImbalance: Expected %s, got %s",
-          balanceBefore.sub(balanceAfter),
-          returnValue
-      );
 
       require(
           returnValue == balanceBefore.sub(balanceAfter),
@@ -235,12 +211,6 @@ contract TestStableSwap {
       );
       uint256 balanceAfter = swap.getToken(tokenIndex).balanceOf(
           address(this)
-      );
-
-      console.log(
-          "removeLiquidityOneToken: Expected %s, got %s",
-          balanceAfter.sub(balanceBefore),
-          returnValue
       );
 
       require(
