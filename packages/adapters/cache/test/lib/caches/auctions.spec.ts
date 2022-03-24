@@ -8,7 +8,7 @@ let auctions: AuctionsCache;
 
 const mockTransferId = getRandomBytes32();
 
-const mockFulfillArgs: ExecuteArgs[] = [
+const mockExecuteArgs: ExecuteArgs[] = [
   {
     params: {
       to: mkAddress("0xbeefdead"),
@@ -44,8 +44,8 @@ const mockFulfillArgs: ExecuteArgs[] = [
 ];
 
 const mockBids = [
-  mock.entity.bid(mockTransferId, mockFulfillArgs[0]),
-  mock.entity.bid(mockTransferId, mockFulfillArgs[1]),
+  mock.entity.bid(mockTransferId, mockExecuteArgs[0]),
+  mock.entity.bid(mockTransferId, mockExecuteArgs[1]),
   mock.entity.bid(),
 ];
 

@@ -13,9 +13,10 @@ import { bidSelection, handleBid } from "../../../src/lib/operations";
 import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 import * as RelayerFns from "../../../src/lib/operations/relayer";
+import { ParamsInvalid } from "../../../src/lib/errors";
 
 const mockTransferId = getRandomBytes32();
-const mockFulfillArgs: ExecuteArgs[] = [
+const mockExecuteArgs: ExecuteArgs[] = [
   {
     params: {
       to: mkAddress("0xbeefdead"),
@@ -51,8 +52,8 @@ const mockFulfillArgs: ExecuteArgs[] = [
 ];
 
 const mockBids = [
-  mock.entity.bid(mockTransferId, mockFulfillArgs[0]),
-  mock.entity.bid(mockTransferId, mockFulfillArgs[1]),
+  mock.entity.bid(mockTransferId, mockExecuteArgs[0]),
+  mock.entity.bid(mockTransferId, mockExecuteArgs[1]),
   mock.entity.bid(),
 ];
 
@@ -78,9 +79,9 @@ describe("Bid", () => {
     it("should error if input validation fails", async () => {
       const _bid: Bid = {
         ...mockBids[0],
-        transactionId: 1,
+        transferId: 1,
       };
-      expect(handleBid(_bid, loggingContext.requestContext)).to.eventually.be.rejectedWith("Params invalid");
+      expect(handleBid(_bid, loggingContext.requestContext)).to.eventually.be.throw(new ParamsInvalid());
     });
     it("happy case: should store bid to auction cache", async () => {
       await handleBid(mockBids[0], loggingContext.requestContext);
@@ -98,7 +99,7 @@ describe("Bid", () => {
         ctxMock.adapters.cache.auctions,
         "getAllTransactionsIdsWithPendingBids",
       );
-      getAllTransactionsIdsWithPendingBidsStub.resolves([mockBids[0].transactionId]);
+      getAllTransactionsIdsWithPendingBidsStub.resolves([mockBids[0].transferId]);
 
       getBidsByTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId");
       getBidsByTransactionIdStub.resolves(storedBids);
@@ -118,7 +119,7 @@ describe("Bid", () => {
       await delay(1000);
       expect(getBidsByTransactionIdStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
-      expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
+      expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transferId, BidStatus.Sent);
     });
   });
 });
