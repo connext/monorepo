@@ -20,8 +20,8 @@ const mockFulfillArgs: ExecuteArgs[] = [
     params: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
-      originDomain: "2000",
-      destinationDomain: "3000",
+      originDomain: "1337",
+      destinationDomain: "1337",
     },
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xa"),
@@ -36,8 +36,8 @@ const mockFulfillArgs: ExecuteArgs[] = [
     params: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
-      originDomain: "2000",
-      destinationDomain: "3000",
+      originDomain: "1338",
+      destinationDomain: "1338",
     },
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xb"),
@@ -119,7 +119,6 @@ describe("Bid", () => {
       expect(getBidsByTransactionIdStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
       expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
-      // expect(updateAllBidsWithTransactionIdStub.callCount).to.be.eq(1);
     });
   });
 });
