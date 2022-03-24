@@ -94,9 +94,9 @@ describe("Bindings:Server", async () => {
         it.skip("happy: removes liquidity", async () => {});
       });
 
-      describe.skip("#addLiquidityFor", () => {
+      describe("#addLiquidityFor", () => {
         it("not implemented", async () => {
-          await binding.api.post.removeLiquidity(mockRes);
+          await binding.api.post.addLiquidityFor(mockRes);
           expect(sendStub.calledWith("Not implemented")).to.be.true;
         });
 

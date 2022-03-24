@@ -36,11 +36,10 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const expectedBid = {
-        transactionId: mockXTransfer.transactionId,
+        transferId: mockXTransfer.transferId,
         data: {
           params: {
-            recipient: mockXTransfer.recipient,
-            callTo: mockXTransfer.callTo,
+            to: mockXTransfer.to,
             callData: mockXTransfer.callData,
             originDomain: mockXTransfer.originDomain,
             destinationDomain: mockXTransfer.destinationDomain,
@@ -50,7 +49,7 @@ describe("Operations:Execute", () => {
           feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
           amount: mockXTransfer.xcall.localAmount,
           index: 0,
-          transactionId: mockXTransfer.transactionId,
+          transferId: mockXTransfer.transferId,
           proof: [],
           relayerSignature: mock.signature,
         },
@@ -65,21 +64,20 @@ describe("Operations:Execute", () => {
         mockXTransfer.destinationDomain,
       ]);
       expect(mock.helpers.shared.signHandleRelayerFeePayload.callCount).to.equal(1);
-      expect(mock.helpers.fulfill.sanityCheck.callCount).to.equal(1);
-      expect(mock.helpers.fulfill.sanityCheck.getCall(0).args[0]).to.deep.equal(expectedBid);
+      expect(mock.helpers.execute.sanityCheck.callCount).to.equal(1);
+      expect(mock.helpers.execute.sanityCheck.getCall(0).args[0]).to.deep.equal(expectedBid);
       expect(sendBidStub.getCall(0).args[0]).to.deep.equal(expectedBid);
     });
 
     it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
       const invalidParams = {
         ...mockXTransfer,
-        recipient: "0x0",
-        callTo: "0x0",
+        to: "0x0",
         callData: "0x0",
         originDomain: "-1",
         destinationDomain: "-2",
       };
-      await expect(execute(invalidParams)).to.be.rejectedWith(ParamsInvalid);
+      expect(execute(invalidParams)).to.eventually.be.throw(new ParamsInvalid());
     });
 
     it.skip("should throw NotEnoughAmount if final receiving amount < 0", async () => {});
@@ -90,7 +88,7 @@ describe("Operations:Execute", () => {
     });
 
     it("should not sendBid if sanityCheck returns false", async () => {
-      mock.helpers.fulfill.sanityCheck.resolves(false);
+      mock.helpers.execute.sanityCheck.resolves(false);
       await expect(execute(mockXTransfer)).to.be.fulfilled;
       expect(sendBidStub.callCount).to.equal(0);
     });

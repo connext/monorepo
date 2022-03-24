@@ -4,6 +4,7 @@ import { stub, restore, reset, SinonStub } from "sinon";
 
 import { ctxMock } from "../../globalTestHook";
 import { bindBidSelection } from "../../../src/bindings";
+import * as BindBidSelectionFns from "../../../src/bindings/bidSelection";
 import * as BidFns from "../../../src/lib/operations/bid";
 
 describe("bidSelection", () => {
@@ -27,9 +28,10 @@ describe("bidSelection", () => {
       expect(bidSelectionStub.callCount).to.be.gte(1);
     });
 
-    it("happy: should read default polling interval", async () => {
+    it("happy: default polling interval", async () => {
+      BindBidSelectionFns.BID_SELECTION_POLL_INTERVAL = 10;
       await bindBidSelection();
-      await delay(15_000);
+      await delay(20);
       ctxMock.config.mode.cleanup = true;
       expect(bidSelectionStub.callCount).to.be.gte(1);
     });

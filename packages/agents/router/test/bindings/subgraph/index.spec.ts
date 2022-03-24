@@ -31,6 +31,13 @@ describe("Bindings:Subgraph", () => {
       await delay(10);
       expect(pollStub.callCount).to.be.gte(1);
     });
+    it("happy: should read default interval", async () => {
+      bindSubgraphFns.SUBGRAPH_POLL_INTERVAL = 10;
+      bindSubgraphFns.bindSubgraph();
+      await delay(20);
+      mockContext.config.mode.cleanup = true;
+      expect(pollStub.callCount).to.be.gte(1);
+    });
   });
 
   describe("#pollSubgraph", () => {
