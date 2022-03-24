@@ -4,11 +4,45 @@ import { register } from "prom-client";
 
 import * as binding from "../../../src/bindings/server";
 import { stubContext } from "../../mock";
+import { FastifyInstance } from "fastify";
 
+let fastifyApp: FastifyInstance;
 describe("Bindings:Server", async () => {
+  let metricsStub: SinonStub;
+  beforeEach(() => {
+    metricsStub = stub(register, "metrics");
+  });
+  afterEach(() => {
+    restore();
+    reset();
+  });
   describe("#bindServer", () => {
-    it("happy: should bind fastify server endpoints", async () => {
-      await expect(binding.bindServer()).to.be.fulfilled;
+    before(async () => {
+      fastifyApp = await binding.bindServer();
+    });
+    it("should respond with `pong`", async () => {
+      const response = await fastifyApp.inject({
+        method: "GET",
+        url: "/ping",
+      });
+      expect(response.payload).to.be.eq("pong\n");
+    });
+    it("should respond with config", async () => {
+      const response = await fastifyApp.inject({
+        method: "GET",
+        url: "/config",
+      });
+      console.log({ response });
+      expect(response.statusCode).to.be.eq(200);
+    });
+    it("should respond with metrics", async () => {
+      metricsStub.resolves("Happy metrics!");
+      const response = await fastifyApp.inject({
+        method: "GET",
+        url: "/metrics",
+      });
+
+      expect(response.statusCode).to.be.eq(200);
     });
   });
 
@@ -76,14 +110,6 @@ describe("Bindings:Server", async () => {
       });
 
       describe("#metrics", () => {
-        let metricsStub: SinonStub;
-        beforeEach(() => {
-          metricsStub = stub(register, "metrics");
-        });
-        afterEach(() => {
-          restore();
-          reset();
-        });
         it("happy: should respond with metrics", async () => {
           const mockMetricsResult = "Happy metrics!";
           metricsStub.resolves(mockMetricsResult);

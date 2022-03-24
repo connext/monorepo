@@ -1,5 +1,5 @@
 import { jsonifyError } from "@connext/nxtp-utils";
-import fastify, { FastifyReply, FastifyRequest } from "fastify";
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { register } from "prom-client";
 
 import { getContext } from "../../router";
@@ -14,7 +14,7 @@ import {
 } from "./schema";
 
 export const bindServer = () =>
-  new Promise<void>((res) => {
+  new Promise<FastifyInstance>((res) => {
     const {
       adapters: { wallet },
       config,
@@ -47,7 +47,7 @@ export const bindServer = () =>
         process.exit(1);
       }
       logger.info(`Server listening at ${address}`);
-      res();
+      res(server);
     });
   });
 
