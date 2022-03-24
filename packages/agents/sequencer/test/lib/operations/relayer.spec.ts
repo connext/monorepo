@@ -48,7 +48,7 @@ const mockBids = [
 ];
 const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 const mockAxiosSuccessResponse = { taskId: 1, msg: "success" };
-const loggingContext = mock.loggingContext("BID-TEST");
+const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("#relayer", () => {
   describe("#sendToRelayer", () => {
     let gelatoSendStub: SinonStub;
