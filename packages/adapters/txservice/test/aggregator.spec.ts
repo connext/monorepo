@@ -3,7 +3,7 @@ import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import { getRandomAddress, getRandomBytes32, expect, Logger, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
-import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
+import { RpcProviderAggregator } from "../src/aggregator";
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import {
   OnchainTransaction,
