@@ -1,5 +1,6 @@
-import { SinonStub, stub } from "sinon";
+import { SinonStub, stub, restore, reset } from "sinon";
 import { expect } from "@connext/nxtp-utils";
+import { register } from "prom-client";
 
 import * as binding from "../../../src/bindings/server";
 import { stubContext } from "../../mock";
@@ -74,13 +75,31 @@ describe("Bindings:Server", async () => {
         });
       });
 
-      describe.skip("#metrics", () => {
+      describe("#metrics", () => {
+        let metricsStub: SinonStub;
+        beforeEach(() => {
+          metricsStub = stub(register, "metrics");
+        });
+        afterEach(() => {
+          restore();
+          reset();
+        });
         it("happy: should respond with metrics", async () => {
+          const mockMetricsResult = "Happy metrics!";
+          metricsStub.resolves(mockMetricsResult);
           await binding.api.get.metrics(mockRes);
-          expect(sendStub.calledWith(mockContext.register.metrics())).to.be.true;
+          expect(sendStub.calledWith(mockMetricsResult)).to.be.true;
         });
 
-        it("sad: if failure occurs, responds with 500 error", async () => {});
+        it("sad: if failure occurs, responds with 500 error", async () => {
+          metricsStub.throws(new Error("Failed to get metrics"));
+          await binding.api.get.metrics(mockRes);
+          expect(sendStub.called).to.be.true;
+          expect(sendStub.getCall(0).args[0]).to.contain({
+            message: "Failed to get metrics",
+          });
+          expect(statusStub.calledWith(500)).to.be.true;
+        });
       });
     });
 
