@@ -1,4 +1,4 @@
-schema: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
+schema: https://api.thegraph.com/subgraphs/id/QmTfLDkYh7FRsFLh34T9dmSV7MGH6LUoc1XJWvp6H33x2Y
 documents: "./src/lib/subgraphs/runtime/queries.ts"
 generates:
   ./src/lib/subgraphs/runtime/graphqlsdk.ts:
