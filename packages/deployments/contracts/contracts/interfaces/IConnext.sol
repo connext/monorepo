@@ -100,14 +100,15 @@ interface IConnext {
    * @param feePercentage - The amount over the BASEFEE to tip the relayer
    */
   struct ExecuteArgs {
-    CallParams params;
-    address local;
-    address router;
-    uint32 feePercentage;
     uint256 amount;
     uint256 index;
     bytes32 transferId;
     bytes32[32] proof;
+    CallParams params;
+    address local;
+    address router;
+    address originSender;
+    uint32 feePercentage;
     bytes relayerSignature;
   }
 
@@ -336,6 +337,7 @@ interface IConnext {
     bytes32 _transferId,
     uint256 _amount,
     address _local,
+    address _originSender,
     uint256 _index,
     bytes32[32] calldata _proof,
     CallParams calldata _params

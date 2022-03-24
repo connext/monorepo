@@ -274,6 +274,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     emit AssetRemoved(canonicalId, msg.sender);
   }
 
+  // ============ Public Functions ============
+
   /**
    * @notice Used to add relayer fees in the native asset
    * @param router - The router to credit
@@ -391,7 +393,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     nonce++;
 
     // Add to batch
-    _addToBatch(_transferId,  _bridgedAmt, _bridged, _args.params);
+    _addToBatch(_transferId,  _bridgedAmt, _bridged, msg.sender, _args.params);
 
     // Emit event
     emit XCalled(
@@ -481,7 +483,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // (i.e. the bridged amount after stable swap)
     bool _isFast;
     {
-      bytes32 _leaf = getLeaf(_args.transferId, _args.amount, _originAsset, _args.params);
+      bytes32 _leaf = getLeaf(_args.transferId, _args.amount, _originAsset, _args.originSender, _args.params);
       // Check to see if leaf is included in root, if not it is a fast transfer
       // TODO: keep check or second function to determine fast or slow liq
       bytes32 _calculated = MerkleLib.branchRoot(_leaf, _args.proof, _args.index);
@@ -502,9 +504,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       _transferAssetFromContract(adopted, address(executor), amount);
       executor.execute(
         _args.transferId,
+        amount,
         payable(_args.params.to),
         adopted,
-        amount,
+        _isFast ? TypedMemView.nullView() : LibCrossDomainProperty.formatDomainAndSender(_args.params.originDomain, _args.originSender),
         _args.params.callData
       );
     }
@@ -547,6 +550,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     bytes32 _transferId,
     uint256 _amount,
     address _local,
+    address _originSender,
     uint256 _index,
     bytes32[32] calldata _proof,
     CallParams calldata _params
@@ -556,7 +560,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _originAsset = tokenRegistry.getLocalAddress(_params.originDomain, canonicalId);
 
     // Generate leaf
-    bytes32 _leaf = getLeaf(_transferId, _amount, _originAsset, _params);
+    bytes32 _leaf = getLeaf(_transferId, _amount, _originAsset, _originSender, _params);
 
     // Prove leaf is included in root
     bytes32 _calculated = MerkleLib.branchRoot(_leaf, _proof, _index);
@@ -902,6 +906,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     bytes32 _transferId,
     uint256 _amount,
     address _asset,
+    address _sender,
     CallParams calldata _params
   ) internal returns (bytes32) {
     return keccak256(
@@ -909,6 +914,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
         _transferId,
         _amount,
         _asset,
+        _sender,
         _params.to,
         _params.callData,
         _params.originDomain,
@@ -925,10 +931,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     bytes32 _transferId,
     uint256 _amount,
     address _asset,
+    address _sender,
     CallParams calldata _params
   ) internal {
     // Create a leaf
-    bytes32 _leaf = getLeaf(_transferId, _amount, _asset, _params);
+    bytes32 _leaf = getLeaf(_transferId, _amount, _asset, _sender, _params);
 
     tree.insert(_leaf);
 

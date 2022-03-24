@@ -549,6 +549,26 @@ const _abi = [
       {
         components: [
           {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "index",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "transferId",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32[32]",
+            name: "proof",
+            type: "bytes32[32]",
+          },
+          {
             components: [
               {
                 internalType: "address",
@@ -586,29 +606,14 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
             internalType: "uint32",
             name: "feePercentage",
             type: "uint32",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "index",
-            type: "uint256",
-          },
-          {
-            internalType: "bytes32",
-            name: "transferId",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32[32]",
-            name: "proof",
-            type: "bytes32[32]",
           },
           {
             internalType: "bytes",
@@ -675,6 +680,11 @@ const _abi = [
       {
         internalType: "address",
         name: "_local",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_originSender",
         type: "address",
       },
       {

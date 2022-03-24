@@ -34,36 +34,39 @@ export declare namespace IConnext {
   };
 
   export type ExecuteArgsStruct = {
-    params: IConnext.CallParamsStruct;
-    local: string;
-    router: string;
-    feePercentage: BigNumberish;
     amount: BigNumberish;
     index: BigNumberish;
     transferId: BytesLike;
     proof: BytesLike[];
+    params: IConnext.CallParamsStruct;
+    local: string;
+    router: string;
+    originSender: string;
+    feePercentage: BigNumberish;
     relayerSignature: BytesLike;
   };
 
   export type ExecuteArgsStructOutput = [
-    IConnext.CallParamsStructOutput,
-    string,
-    string,
-    number,
     BigNumber,
     BigNumber,
     string,
     string[],
+    IConnext.CallParamsStructOutput,
+    string,
+    string,
+    string,
+    number,
     string
   ] & {
-    params: IConnext.CallParamsStructOutput;
-    local: string;
-    router: string;
-    feePercentage: number;
     amount: BigNumber;
     index: BigNumber;
     transferId: string;
     proof: string[];
+    params: IConnext.CallParamsStructOutput;
+    local: string;
+    router: string;
+    originSender: string;
+    feePercentage: number;
     relayerSignature: string;
   };
 
@@ -102,9 +105,9 @@ export interface IConnextInterface extends utils.Interface {
     "addRouter(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "dispatch(uint32)": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes32,bytes32[32],bytes))": FunctionFragment;
+    "execute((uint256,uint256,bytes32,bytes32[32],(address,bytes,uint32,uint32),address,address,address,uint32,bytes))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
-    "process(bytes32,uint256,address,uint256,bytes32[32],(address,bytes,uint32,uint32))": FunctionFragment;
+    "process(bytes32,uint256,address,address,uint256,bytes32[32],(address,bytes,uint32,uint32))": FunctionFragment;
     "reconcile(bytes32)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
@@ -148,6 +151,7 @@ export interface IConnextInterface extends utils.Interface {
     values: [
       BytesLike,
       BigNumberish,
+      string,
       string,
       BigNumberish,
       BytesLike[],
@@ -480,6 +484,7 @@ export interface IConnext extends BaseContract {
       _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
+      _originSender: string,
       _index: BigNumberish,
       _proof: BytesLike[],
       _params: IConnext.CallParamsStruct,
@@ -579,6 +584,7 @@ export interface IConnext extends BaseContract {
     _transferId: BytesLike,
     _amount: BigNumberish,
     _local: string,
+    _originSender: string,
     _index: BigNumberish,
     _proof: BytesLike[],
     _params: IConnext.CallParamsStruct,
@@ -672,6 +678,7 @@ export interface IConnext extends BaseContract {
       _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
+      _originSender: string,
       _index: BigNumberish,
       _proof: BytesLike[],
       _params: IConnext.CallParamsStruct,
@@ -916,6 +923,7 @@ export interface IConnext extends BaseContract {
       _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
+      _originSender: string,
       _index: BigNumberish,
       _proof: BytesLike[],
       _params: IConnext.CallParamsStruct,
@@ -1016,6 +1024,7 @@ export interface IConnext extends BaseContract {
       _transferId: BytesLike,
       _amount: BigNumberish,
       _local: string,
+      _originSender: string,
       _index: BigNumberish,
       _proof: BytesLike[],
       _params: IConnext.CallParamsStruct,

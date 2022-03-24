@@ -21,36 +21,49 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface IExecutorInterface extends utils.Interface {
   contractName: "IExecutor";
   functions: {
-    "execute(bytes32,address,address,uint256,bytes)": FunctionFragment;
+    "execute(bytes32,uint256,address,address,bytes29,bytes)": FunctionFragment;
     "getConnext()": FunctionFragment;
+    "origin()": FunctionFragment;
+    "originSender()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "execute",
-    values: [BytesLike, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, BigNumberish, string, string, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getConnext",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "origin", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "originSender",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getConnext", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "origin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "originSender",
+    data: BytesLike
+  ): Result;
 
   events: {
-    "Executed(bytes32,address,address,uint256,bytes,bytes,bool,bool)": EventFragment;
+    "Executed(bytes32,address,address,uint256,bytes29,bytes,bytes,bool,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
 }
 
 export type ExecutedEvent = TypedEvent<
-  [string, string, string, BigNumber, string, string, boolean, boolean],
+  [string, string, string, BigNumber, string, string, string, boolean, boolean],
   {
     transferId: string;
     to: string;
     assetId: string;
     amount: BigNumber;
+    _properties: string;
     callData: string;
     returnData: string;
     success: boolean;
@@ -89,25 +102,35 @@ export interface IExecutor extends BaseContract {
 
   functions: {
     execute(
-      transferId: BytesLike,
-      to: string,
-      assetId: string,
-      amount: BigNumberish,
-      callData: BytesLike,
+      _transferId: BytesLike,
+      _amount: BigNumberish,
+      _to: string,
+      _assetId: string,
+      _properties: BytesLike,
+      _callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     getConnext(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    origin(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    originSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   execute(
-    transferId: BytesLike,
-    to: string,
-    assetId: string,
-    amount: BigNumberish,
-    callData: BytesLike,
+    _transferId: BytesLike,
+    _amount: BigNumberish,
+    _to: string,
+    _assetId: string,
+    _properties: BytesLike,
+    _callData: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -115,31 +138,39 @@ export interface IExecutor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  origin(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  originSender(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     execute(
-      transferId: BytesLike,
-      to: string,
-      assetId: string,
-      amount: BigNumberish,
-      callData: BytesLike,
+      _transferId: BytesLike,
+      _amount: BigNumberish,
+      _to: string,
+      _assetId: string,
+      _properties: BytesLike,
+      _callData: BytesLike,
       overrides?: CallOverrides
-    ): Promise<
-      [boolean, boolean, string] & {
-        success: boolean;
-        isContract: boolean;
-        returnData: string;
-      }
-    >;
+    ): Promise<[boolean, string] & { success: boolean; returnData: string }>;
 
     getConnext(overrides?: CallOverrides): Promise<string>;
+
+    origin(overrides?: CallOverrides): Promise<number>;
+
+    originSender(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
-    "Executed(bytes32,address,address,uint256,bytes,bytes,bool,bool)"(
+    "Executed(bytes32,address,address,uint256,bytes29,bytes,bytes,bool,bool)"(
       transferId?: BytesLike | null,
       to?: string | null,
       assetId?: null,
       amount?: null,
+      _properties?: null,
       callData?: null,
       returnData?: null,
       success?: null,
@@ -150,6 +181,7 @@ export interface IExecutor extends BaseContract {
       to?: string | null,
       assetId?: null,
       amount?: null,
+      _properties?: null,
       callData?: null,
       returnData?: null,
       success?: null,
@@ -159,30 +191,48 @@ export interface IExecutor extends BaseContract {
 
   estimateGas: {
     execute(
-      transferId: BytesLike,
-      to: string,
-      assetId: string,
-      amount: BigNumberish,
-      callData: BytesLike,
+      _transferId: BytesLike,
+      _amount: BigNumberish,
+      _to: string,
+      _assetId: string,
+      _properties: BytesLike,
+      _callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     getConnext(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    origin(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    originSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     execute(
-      transferId: BytesLike,
-      to: string,
-      assetId: string,
-      amount: BigNumberish,
-      callData: BytesLike,
+      _transferId: BytesLike,
+      _amount: BigNumberish,
+      _to: string,
+      _assetId: string,
+      _properties: BytesLike,
+      _callData: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getConnext(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    origin(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    originSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
