@@ -145,6 +145,11 @@ const config: HardhatUserConfig = {
       chainId: 10,
       url: "https://mainnet.optimism.io",
     },
+    cronos: {
+      accounts,
+      chainId: 25,
+      url: "https://evm.cronos.org/",
+    },
     kovan: {
       accounts,
       chainId: 42,
