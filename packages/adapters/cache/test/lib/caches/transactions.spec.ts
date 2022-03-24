@@ -39,27 +39,27 @@ describe("TransactionCache", () => {
   describe("TransactionsCache", () => {
     describe("#storeStatus", () => {
       it("happy: should return true if `set` returns OK", async () => {
-        const res = await transactions.storeStatus(fakeTxs[0].transferId, XTransferStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
         expect(res).to.be.eq(true);
       });
 
       it("should return false if the new status is different from the previous one", async () => {
-        await transactions.storeStatus(fakeTxs[0].transferId, XTransferStatus.XCalled);
-        const res = await transactions.storeStatus(fakeTxs[0].transferId, XTransferStatus.Executed);
+        await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.Executed);
         expect(res).to.be.eq(true);
       });
 
       it("should return false if the new status is same as the previous one", async () => {
-        await transactions.storeStatus(fakeTxs[0].transferId, XTransferStatus.XCalled);
-        const res = await transactions.storeStatus(fakeTxs[0].transferId, XTransferStatus.XCalled);
+        await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
+        const res = await transactions.storeStatus(fakeTxs[0].transactionId, XTransferStatus.XCalled);
         expect(res).to.be.eq(false);
       });
     });
 
     describe("#getStatus", () => {
       it("happy: should get status of transaction by ID", async () => {
-        await transactions.storeStatus(fakeTxs[1].transferId, XTransferStatus.XCalled);
-        const status = await transactions.getStatus(fakeTxs[1].transferId);
+        await transactions.storeStatus(fakeTxs[1].transactionId, XTransferStatus.XCalled);
+        const status = await transactions.getStatus(fakeTxs[1].transactionId);
         expect(status).to.be.eq(XTransferStatus.XCalled);
       });
 

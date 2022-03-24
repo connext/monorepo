@@ -1,4 +1,4 @@
-import { Logger, expect, mock, mkAddress, ExecuteArgs, BidStatus, getRandomBytes32 } from "@connext/nxtp-utils";
+import { Logger, expect, mock, mkAddress, FulfillArgs, BidStatus } from "@connext/nxtp-utils";
 import { AuctionsCache } from "../../../src/index";
 import { StoreChannel } from "../../../src/lib/entities";
 
@@ -6,12 +6,11 @@ const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
 let auctions: AuctionsCache;
 
-const mockTransferId = getRandomBytes32();
-
-const mockFulfillArgs: ExecuteArgs[] = [
+const mockFulfillArgs: FulfillArgs[] = [
   {
     params: {
-      to: mkAddress("0xbeefdead"),
+      recipient: "0xbeefdead",
+      callTo: "0x",
       callData: "0x0",
       originDomain: "2000",
       destinationDomain: "3000",
@@ -19,15 +18,14 @@ const mockFulfillArgs: ExecuteArgs[] = [
     local: "0xdedddddddddddddd",
     router: mkAddress("0xa"),
     feePercentage: "0.1",
+    nonce: "1",
     amount: "10",
-    index: 0,
-    transferId: mockTransferId,
-    proof: ["0x"],
     relayerSignature: "0xsigsigsig",
   },
   {
     params: {
-      to: mkAddress("0xbeefdead"),
+      recipient: "0xbeefdead",
+      callTo: "0x",
       callData: "0x0",
       originDomain: "2000",
       destinationDomain: "3000",
@@ -35,17 +33,15 @@ const mockFulfillArgs: ExecuteArgs[] = [
     local: "0xdedddddddddddddd",
     router: mkAddress("0xb"),
     feePercentage: "0.1",
+    nonce: "1",
     amount: "10",
-    index: 1,
-    transferId: mockTransferId,
-    proof: ["0x"],
     relayerSignature: "0xsigsigsig",
   },
 ];
 
 const mockBids = [
-  mock.entity.bid(mockTransferId, mockFulfillArgs[0]),
-  mock.entity.bid(mockTransferId, mockFulfillArgs[1]),
+  mock.entity.bid("0xtx111", mockFulfillArgs[0]),
+  mock.entity.bid("0xtx111", mockFulfillArgs[1]),
   mock.entity.bid(),
 ];
 
@@ -92,24 +88,24 @@ describe("AuctionCache", () => {
       });
 
       it("happy case: should return data", async () => {
-        const res = await auctions.getBidsByTransactionId(mockTransferId);
-        expect(res[0].payload.transferId).to.be.eq(mockTransferId);
-        expect(res[1].payload.transferId).to.be.eq(mockTransferId);
+        const res = await auctions.getBidsByTransactionId("0xtx111");
+        expect(res[0].payload.transactionId).to.be.eq("0xtx111");
+        expect(res[1].payload.transactionId).to.be.eq("0xtx111");
       });
     });
     describe("#getAllTransactionsIdsWithPendingBids", () => {
       it("should return transacionIds with pending bids", async () => {
         const res = await auctions.getAllTransactionsIdsWithPendingBids();
-        expect(res[0]).to.be.eq(mockTransferId);
+        expect(res[0]).to.be.eq("0xtx111");
         expect(res.length).to.be.eq(1);
       });
     });
     describe("#updateAllBidsWithTransactionId", () => {
       it("should be ok", async () => {
         let txids = await auctions.getAllTransactionsIdsWithPendingBids();
-        expect(txids[0]).to.be.eq(mockTransferId);
+        expect(txids[0]).to.be.eq("0xtx111");
         expect(txids.length).to.be.eq(1);
-        const res = await auctions.updateAllBidsWithTransactionId(mockTransferId, BidStatus.Sent);
+        const res = await auctions.updateAllBidsWithTransactionId("0xtx111", BidStatus.Sent);
         txids = await auctions.getAllTransactionsIdsWithPendingBids();
         expect(txids.length).to.be.eq(0);
       });
