@@ -67,7 +67,7 @@ export const mock: any = {
       router: mkAddress("0xrouter"),
       feePercentage: "1",
       index: 0,
-      transferId: "0x",
+      transferId: getRandomBytes32(),
       proof: ["0x"],
       amount: utils.parseEther("1").toString(),
       relayerSignature: "0xsig",
