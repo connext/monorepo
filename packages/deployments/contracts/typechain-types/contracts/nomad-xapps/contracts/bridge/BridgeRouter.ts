@@ -42,7 +42,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "remotes(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "send(address,uint256,uint32,bytes32,bool,bytes32,bytes32)": FunctionFragment;
+    "send(address,uint256,uint32,bytes32,bool,bytes32)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
@@ -120,15 +120,7 @@ export interface BridgeRouterInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "send",
-    values: [
-      string,
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      boolean,
-      BytesLike,
-      BytesLike
-    ]
+    values: [string, BigNumberish, BigNumberish, BytesLike, boolean, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "setConnext", values: [string]): string;
   encodeFunctionData(
@@ -344,7 +336,6 @@ export interface BridgeRouter extends BaseContract {
       _destination: BigNumberish,
       _recipient: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -430,7 +421,6 @@ export interface BridgeRouter extends BaseContract {
     _destination: BigNumberish,
     _recipient: BytesLike,
     _enableFast: boolean,
-    _externalId: BytesLike,
     _externalHash: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -511,7 +501,6 @@ export interface BridgeRouter extends BaseContract {
       _destination: BigNumberish,
       _recipient: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -642,7 +631,6 @@ export interface BridgeRouter extends BaseContract {
       _destination: BigNumberish,
       _recipient: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -736,7 +724,6 @@ export interface BridgeRouter extends BaseContract {
       _destination: BigNumberish,
       _recipient: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

@@ -42,16 +42,11 @@ export declare namespace IConnext {
     destinationDomain: number;
   };
 
-  export type ExecutedTransferStruct = {
-    router: string;
-    amount: BigNumberish;
-    externalHash: BytesLike;
-  };
+  export type ExecutedTransferStruct = { router: string; amount: BigNumberish };
 
-  export type ExecutedTransferStructOutput = [string, BigNumber, string] & {
+  export type ExecutedTransferStructOutput = [string, BigNumber] & {
     router: string;
     amount: BigNumber;
-    externalHash: string;
   };
 
   export type ExecuteArgsStruct = {
@@ -137,7 +132,7 @@ export interface ConnextInterface extends utils.Interface {
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "reconcile(bytes32,address,address,uint256,bytes32)": FunctionFragment;
+    "reconcile(bytes32,address,address,uint256)": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
@@ -297,7 +292,7 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reconcile",
-    values: [BytesLike, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "reconciledTransfers",
@@ -519,7 +514,7 @@ export interface ConnextInterface extends utils.Interface {
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)": EventFragment;
+    "Reconciled(bytes32,address,address,address,uint256,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterOwnershipRenounced(bool)": EventFragment;
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
@@ -683,7 +678,6 @@ export interface ReconciledEventObject {
   router: string;
   localAsset: string;
   localAmount: BigNumber;
-  externalHash: string;
   executed: IConnext.ExecutedTransferStructOutput;
   caller: string;
 }
@@ -694,7 +688,6 @@ export type ReconciledEvent = TypedEvent<
     string,
     string,
     BigNumber,
-    string,
     IConnext.ExecutedTransferStructOutput,
     string
   ],
@@ -926,7 +919,6 @@ export interface Connext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -976,13 +968,7 @@ export interface Connext extends BaseContract {
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, string] & {
-        router: string;
-        amount: BigNumber;
-        externalHash: string;
-      }
-    >;
+    ): Promise<[string, BigNumber] & { router: string; amount: BigNumber }>;
 
     routedTransfersGas(
       arg0: BytesLike,
@@ -1126,7 +1112,6 @@ export interface Connext extends BaseContract {
     _local: string,
     _recipient: string,
     _amount: BigNumberish,
-    _externalHash: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1176,13 +1161,7 @@ export interface Connext extends BaseContract {
   routedTransfers(
     arg0: BytesLike,
     overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber, string] & {
-      router: string;
-      amount: BigNumber;
-      externalHash: string;
-    }
-  >;
+  ): Promise<[string, BigNumber] & { router: string; amount: BigNumber }>;
 
   routedTransfersGas(
     arg0: BytesLike,
@@ -1319,7 +1298,6 @@ export interface Connext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1360,13 +1338,7 @@ export interface Connext extends BaseContract {
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, string] & {
-        router: string;
-        amount: BigNumber;
-        externalHash: string;
-      }
-    >;
+    ): Promise<[string, BigNumber] & { router: string; amount: BigNumber }>;
 
     routedTransfersGas(
       arg0: BytesLike,
@@ -1510,13 +1482,12 @@ export interface Connext extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)"(
+    "Reconciled(bytes32,address,address,address,uint256,tuple,address)"(
       transferId?: BytesLike | null,
       to?: string | null,
       router?: string | null,
       localAsset?: null,
       localAmount?: null,
-      externalHash?: null,
       executed?: null,
       caller?: null
     ): ReconciledEventFilter;
@@ -1526,7 +1497,6 @@ export interface Connext extends BaseContract {
       router?: string | null,
       localAsset?: null,
       localAmount?: null,
-      externalHash?: null,
       executed?: null,
       caller?: null
     ): ReconciledEventFilter;
@@ -1706,7 +1676,6 @@ export interface Connext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1911,7 +1880,6 @@ export interface Connext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -42,16 +42,11 @@ export declare namespace IConnext {
     destinationDomain: number;
   };
 
-  export type ExecutedTransferStruct = {
-    router: string;
-    amount: BigNumberish;
-    externalHash: BytesLike;
-  };
+  export type ExecutedTransferStruct = { router: string; amount: BigNumberish };
 
-  export type ExecutedTransferStructOutput = [string, BigNumber, string] & {
+  export type ExecutedTransferStructOutput = [string, BigNumber] & {
     router: string;
     amount: BigNumber;
-    externalHash: string;
   };
 
   export type ExecuteArgsStruct = {
@@ -117,7 +112,7 @@ export interface IConnextInterface extends utils.Interface {
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,bytes32,bytes))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
-    "reconcile(bytes32,address,address,uint256,bytes32)": FunctionFragment;
+    "reconcile(bytes32,address,address,uint256)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRelayerFees(uint256,address)": FunctionFragment;
@@ -171,7 +166,7 @@ export interface IConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reconcile",
-    values: [BytesLike, string, string, BigNumberish, BytesLike]
+    values: [BytesLike, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetId",
@@ -243,7 +238,7 @@ export interface IConnextInterface extends utils.Interface {
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
-    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)": EventFragment;
+    "Reconciled(bytes32,address,address,address,uint256,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
@@ -350,7 +345,6 @@ export interface ReconciledEventObject {
   router: string;
   localAsset: string;
   localAmount: BigNumber;
-  externalHash: string;
   executed: IConnext.ExecutedTransferStructOutput;
   caller: string;
 }
@@ -361,7 +355,6 @@ export type ReconciledEvent = TypedEvent<
     string,
     string,
     BigNumber,
-    string,
     IConnext.ExecutedTransferStructOutput,
     string
   ],
@@ -507,7 +500,6 @@ export interface IConnext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -595,7 +587,6 @@ export interface IConnext extends BaseContract {
     _local: string,
     _recipient: string,
     _amount: BigNumberish,
-    _externalHash: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -677,7 +668,6 @@ export interface IConnext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -790,13 +780,12 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): LiquidityRemovedEventFilter;
 
-    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)"(
+    "Reconciled(bytes32,address,address,address,uint256,tuple,address)"(
       transferId?: BytesLike | null,
       to?: string | null,
       router?: string | null,
       localAsset?: null,
       localAmount?: null,
-      externalHash?: null,
       executed?: null,
       caller?: null
     ): ReconciledEventFilter;
@@ -806,7 +795,6 @@ export interface IConnext extends BaseContract {
       router?: string | null,
       localAsset?: null,
       localAmount?: null,
-      externalHash?: null,
       executed?: null,
       caller?: null
     ): ReconciledEventFilter;
@@ -908,7 +896,6 @@ export interface IConnext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -997,7 +984,6 @@ export interface IConnext extends BaseContract {
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
-      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

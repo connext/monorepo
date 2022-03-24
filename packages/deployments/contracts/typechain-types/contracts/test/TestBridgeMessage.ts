@@ -25,7 +25,7 @@ export interface TestBridgeMessageInterface extends utils.Interface {
     "testFormatDetailsHash(string,string,uint8)": FunctionFragment;
     "testFormatMessage(bytes,bytes,uint8,uint8)": FunctionFragment;
     "testFormatTokenId(uint32,bytes32)": FunctionFragment;
-    "testFormatTransfer(bytes32,uint256,bytes32,bool,bytes32,bytes32)": FunctionFragment;
+    "testFormatTransfer(bytes32,uint256,bytes32,bool,bytes32)": FunctionFragment;
     "testIsFastTransfer(bytes)": FunctionFragment;
     "testIsTransfer(bytes)": FunctionFragment;
     "testIsValidAction(bytes,uint8)": FunctionFragment;
@@ -68,7 +68,7 @@ export interface TestBridgeMessageInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "testFormatTransfer",
-    values: [BytesLike, BigNumberish, BytesLike, boolean, BytesLike, BytesLike]
+    values: [BytesLike, BigNumberish, BytesLike, boolean, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "testIsFastTransfer",
@@ -216,7 +216,6 @@ export interface TestBridgeMessage extends BaseContract {
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string]>;
@@ -265,7 +264,7 @@ export interface TestBridgeMessage extends BaseContract {
     testSplitTransfer(
       _transfer: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[number, string, string, BigNumber, string, string]>;
+    ): Promise<[number, string, string, BigNumber, string]>;
   };
 
   testFormatDetailsHash(
@@ -294,7 +293,6 @@ export interface TestBridgeMessage extends BaseContract {
     _amnt: BigNumberish,
     _detailsHash: BytesLike,
     _enableFast: boolean,
-    _externalId: BytesLike,
     _externalHash: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
@@ -343,7 +341,7 @@ export interface TestBridgeMessage extends BaseContract {
   testSplitTransfer(
     _transfer: BytesLike,
     overrides?: CallOverrides
-  ): Promise<[number, string, string, BigNumber, string, string]>;
+  ): Promise<[number, string, string, BigNumber, string]>;
 
   callStatic: {
     testFormatDetailsHash(
@@ -372,7 +370,6 @@ export interface TestBridgeMessage extends BaseContract {
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -421,7 +418,7 @@ export interface TestBridgeMessage extends BaseContract {
     testSplitTransfer(
       _transfer: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[number, string, string, BigNumber, string, string]>;
+    ): Promise<[number, string, string, BigNumber, string]>;
   };
 
   filters: {};
@@ -453,7 +450,6 @@ export interface TestBridgeMessage extends BaseContract {
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -532,7 +528,6 @@ export interface TestBridgeMessage extends BaseContract {
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
       _enableFast: boolean,
-      _externalId: BytesLike,
       _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

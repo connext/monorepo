@@ -257,12 +257,6 @@ const _abi = [
         type: "uint256",
       },
       {
-        indexed: false,
-        internalType: "bytes32",
-        name: "externalHash",
-        type: "bytes32",
-      },
-      {
         components: [
           {
             internalType: "address",
@@ -273,11 +267,6 @@ const _abi = [
             internalType: "uint256",
             name: "amount",
             type: "uint256",
-          },
-          {
-            internalType: "bytes32",
-            name: "externalHash",
-            type: "bytes32",
           },
         ],
         indexed: false,
@@ -671,11 +660,6 @@ const _abi = [
         internalType: "uint256",
         name: "_amount",
         type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_externalHash",
-        type: "bytes32",
       },
     ],
     name: "reconcile",
