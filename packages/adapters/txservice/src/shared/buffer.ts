@@ -1,7 +1,7 @@
 import { Logger } from "@connext/nxtp-utils";
 
 import { MaxBufferLengthError, TransactionBackfilled } from "./errors";
-import { OnchainTransaction } from "./onchainTransaction";
+import { OnchainTransaction } from "./transaction";
 
 /**
  * @classdesc A data structure for managing the lifecycle of a (continuously rotating) batch of transactions.

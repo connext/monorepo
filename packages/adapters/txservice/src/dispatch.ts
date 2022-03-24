@@ -27,7 +27,7 @@ import {
   TransactionBuffer,
 } from "./shared";
 import { ChainConfig } from "./config";
-import { RpcProviderAggregator } from "./rpcProviderAggregator";
+import { RpcProviderAggregator } from "./aggregator";
 
 export type DispatchCallbacks = {
   onSubmit: (transaction: OnchainTransaction) => void;
