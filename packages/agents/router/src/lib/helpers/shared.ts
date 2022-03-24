@@ -21,7 +21,7 @@ export const getDestinationLocalAsset = async (
   //   originLocalAsset
   // ]);
 
-  return originLocalAsset;
+  return originLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d";
 };
 
 export const getTransactionId = (nonce: string, domain: string): string => {

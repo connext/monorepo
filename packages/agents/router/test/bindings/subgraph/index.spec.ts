@@ -90,5 +90,32 @@ describe("Bindings:Subgraph", () => {
         mockSubgraphResponse,
       );
     });
+    it("should throw an error", async () => {
+      const mockInfo = {
+        [mock.chain.A]: {
+          latestBlockNumber: 1234567,
+          latestNonce: 232323,
+          safeConfirmations: 19,
+        },
+        [mock.chain.B]: {
+          latestBlockNumber: 7654321,
+          latestNonce: 454545,
+          safeConfirmations: 28,
+        },
+      };
+      mockContext.adapters.txservice.getBlockNumber.callsFake((domain: string) => {
+        return mockInfo[domain].latestBlockNumber;
+      });
+      mockContext.adapters.cache.transactions.getLatestNonce.callsFake(
+        (domain: string) => mockInfo[domain].latestNonce,
+      );
+      mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
+      mockContext.config.chains[mock.chain.B].confirmations = mockInfo[mock.chain.B].safeConfirmations;
+      mockContext.adapters.subgraph.getXCalls.throws(new Error("getXCalls failed!"));
+
+      await bindSubgraphFns.pollSubgraph();
+
+      expect(mockContext.adapters.cache.transactions.storeTxData.callCount).to.be.eq(0);
+    });
   });
 });

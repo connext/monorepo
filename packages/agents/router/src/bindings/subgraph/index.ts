@@ -6,7 +6,7 @@ import { getContext } from "../../router";
 export let SUBGRAPH_POLL_INTERVAL = 15_000;
 
 // Ought to be configured properly for each network; we consult the chain config below.
-const DEFAULT_SAFE_CONFIRMATIONS = 5;
+export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL) => {
   const { config } = getContext();
