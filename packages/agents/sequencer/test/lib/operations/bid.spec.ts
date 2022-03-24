@@ -1,6 +1,6 @@
 import {
   mkAddress,
-  FulfillArgs,
+  ExecuteArgs,
   Bid,
   expect,
   BidStatus,
@@ -14,46 +14,45 @@ import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 import * as RelayerFns from "../../../src/lib/operations/relayer";
 
-const mockFulfillArgs: FulfillArgs[] = [
+const mockTransferId = getRandomBytes32();
+const mockFulfillArgs: ExecuteArgs[] = [
   {
     params: {
-      recipient: mkAddress("0xbeefdead"),
-      callTo: mkAddress("0x"),
+      to: mkAddress("0xbeefdead"),
       callData: "0x0",
-      originDomain: "1337",
-      destinationDomain: "1338",
+      originDomain: "2000",
+      destinationDomain: "3000",
     },
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xa"),
     feePercentage: "0.1",
+    amount: "10",
     index: 0,
-    transactionId: getRandomBytes32(),
+    transferId: mockTransferId,
     proof: ["0x"],
-    amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
   {
     params: {
-      recipient: mkAddress("0xbeefdead"),
-      callTo: mkAddress("0x"),
+      to: mkAddress("0xbeefdead"),
       callData: "0x0",
-      originDomain: "1337",
-      destinationDomain: "1338",
+      originDomain: "2000",
+      destinationDomain: "3000",
     },
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xb"),
     feePercentage: "0.1",
+    amount: "10",
     index: 1,
-    transactionId: getRandomBytes32(),
+    transferId: mockTransferId,
     proof: ["0x"],
-    amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
 ];
 
 const mockBids = [
-  mock.entity.bid("0xtx111", mockFulfillArgs[0]),
-  mock.entity.bid("0xtx111", mockFulfillArgs[1]),
+  mock.entity.bid(mockTransferId, mockFulfillArgs[0]),
+  mock.entity.bid(mockTransferId, mockFulfillArgs[1]),
   mock.entity.bid(),
 ];
 

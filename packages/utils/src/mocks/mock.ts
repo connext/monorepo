@@ -56,15 +56,15 @@ export const mock: any = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (): CallParams => ({
-      to: mkAddress("0xrecipient"),
+      to: mkAddress("0xaaa"),
       callData: "0x",
       originDomain: mock.chain.A,
       destinationDomain: mock.chain.B,
     }),
     executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),
-      local: mkAddress("0xlocal"),
-      router: mkAddress("0xrouter"),
+      local: mkAddress("0x111"),
+      router: mkAddress("0x222"),
       feePercentage: "1",
       index: 0,
       transferId: getRandomBytes32(),
@@ -160,10 +160,16 @@ export const mock: any = {
   contracts: {
     deployments: {
       connext: function (chainId: number) {
-        return mkAddress("0xconnext");
+        return {
+          address: mkAddress("0x123123"),
+          abi: "fakeAbi()",
+        };
       },
       priceOracle: function (chainId: number) {
-        return mkAddress("0xpriceoralce");
+        return {
+          address: mkAddress("0x321321"),
+          abi: "fakeAbi()",
+        };
       },
     },
   },
