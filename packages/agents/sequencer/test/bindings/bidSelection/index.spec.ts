@@ -24,7 +24,13 @@ describe("bidSelection", () => {
       // TODO: slight race here?
       await delay(20);
       ctxMock.config.mode.cleanup = true;
-      await delay(10);
+      expect(bidSelectionStub.callCount).to.be.gte(1);
+    });
+
+    it("happy: should read default polling interval", async () => {
+      await bindBidSelection();
+      await delay(15_000);
+      ctxMock.config.mode.cleanup = true;
       expect(bidSelectionStub.callCount).to.be.gte(1);
     });
   });
