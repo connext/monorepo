@@ -93,8 +93,6 @@ interface IConnext {
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
    * @param router - The router who you are sending the funds on behalf of
-   * @param nonce - The nonce of the origin domain at the time the transfer was called xcall. Used to generate 
-   * the transfer id for the crosschain transfer
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
    * @param feePercentage - The amount over the BASEFEE to tip the relayer
@@ -105,9 +103,7 @@ interface IConnext {
     address router;
     uint32 feePercentage;
     uint256 amount;
-    uint256 index;
     bytes32 transferId;
-    bytes32[32] proof;
     bytes relayerSignature;
   }
 
@@ -211,11 +207,11 @@ interface IConnext {
    * @param idx - The leaf index of the transfer in batch tree
    * @param to - The CallParams.to provided, created as indexed parameter
    * @param params - The CallParams provided to the function
-   * @param transferringAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
+   * @param transactingAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param localAsset - The asset sent over the bridge. Will be the local asset of nomad that corresponds
-   * to the provided `transferringAsset`
-   * @param transferringAmount - The amount of transferring asset the tx xcalled with
+   * to the provided `transactingAsset`
+   * @param transactingAmount - The amount of transferring asset the tx xcalled with
    * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
    * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
    * for the transfer
@@ -226,9 +222,9 @@ interface IConnext {
     uint256 indexed idx,
     address indexed to,
     CallParams params,
-    address transferringAsset,
+    address transactingAsset,
     address localAsset,
-    uint256 transferringAmount,
+    uint256 transactingAmount,
     uint256 localAmount,
     uint256 nonce,
     address caller
@@ -236,22 +232,23 @@ interface IConnext {
 
   /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
-   * @param root - the new root delivered by the bridge
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param to - The CallParams.recipient provided, created as indexed parameter
+   * @param router - The router that supplied fast liquidity, if applicable
+   * @param localAsset - The asset that was provided by the bridge
+   * @param localAmount - The amount that was provided by the bridge
+   * @param externalHash - Hash of the `ExternalCall` passed through bridge
+   * @param executed - Record of the `ExecutedTransfer` stored onchain if fast liquidity is provided
+   * @param caller - The account that called the function
    */
   event Reconciled(
-    bytes32 root,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when a batch is `dispatched` to destination
-   * @dev This function calls `send` on the bridge router
-   */
-  event Dispatched(
-    uint32 destination,
-    bytes32 root,
-    address[3] tokens,
-    uint256[3] amounts,
+    bytes32 indexed transferId,
+    address indexed to,
+    address indexed router,
+    address localAsset,
+    uint256 localAmount,
+    bytes32 externalHash,
+    ExecutedTransfer executed,
     address caller
   );
 
@@ -263,10 +260,10 @@ interface IConnext {
    * @param router - The router that supplied fast liquidity, if applicable
    * @param params - The CallParams provided to the function
    * @param localAsset - The asset that was provided by the bridge
-   * @param transferringAsset - The asset the to gets or the external call is executed with. Should be the
+   * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
    * @param localAmount - The amount that was provided by the bridge
-   * @param transferringAmount - The amount of transferring asset the to address receives or the external call is
+   * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
    * executed with
    * @param caller - The account that called the function
    */
@@ -276,9 +273,9 @@ interface IConnext {
     address indexed router,
     CallParams params,
     address localAsset,
-    address transferringAsset,
+    address transactingAsset,
     uint256 localAmount,
-    uint256 transferringAmount,
+    uint256 transactingAmount,
     address caller
   );
 
@@ -326,18 +323,13 @@ interface IConnext {
 
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
-  function reconcile(bytes32 _incomingRoot) external payable;
-
-  function dispatch(uint32 _destination) external;
+  function reconcile(
+    bytes32 _transferId,
+    address _local,
+    address _recipient,
+    uint256 _amount,
+    bytes32 _externalHash
+  ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
-
-  function process(
-    bytes32 _transferId,
-    uint256 _amount,
-    address _local,
-    uint256 _index,
-    bytes32[32] calldata _proof,
-    CallParams calldata _params
-  ) external;
 }

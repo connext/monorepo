@@ -49,7 +49,7 @@ contract TestBridgeMessage {
 
     function testIsValidMessageLength(bytes memory _message)
         external
-        view
+        pure
         returns (bool)
     {
         uint40 _t = getMessageType(_message);
@@ -57,12 +57,12 @@ contract TestBridgeMessage {
     }
 
     function testFormatMessage(
-        bytes memory _tokenIds,
+        bytes memory _tokenId,
         bytes memory _action,
         BridgeMessage.Types _idType,
         BridgeMessage.Types _actionType
     ) external view returns (bytes memory) {
-        bytes29 tokenId = _tokenIds.ref(uint40(_idType));
+        bytes29 tokenId = _tokenId.ref(uint40(_idType));
         bytes29 action = _action.ref(uint40(_actionType));
         return BridgeMessage.formatMessage(tokenId, action);
     }
@@ -92,22 +92,24 @@ contract TestBridgeMessage {
 
     function testFormatTransfer(
         bytes32 _to,
-        bytes32 _root,
-        uint256[3] memory _amts,
-        bytes32[3] memory _details
+        uint256 _amnt,
+        bytes32 _detailsHash,
+        bool _enableFast,
+        bytes32 _externalId,
+        bytes32 _externalHash
     ) external view returns (bytes memory) {
         return
             BridgeMessage
-                .formatTransfer(_to, _root, _amts, _details)
+                .formatTransfer(_to, _amnt, _detailsHash, _enableFast, _externalId, _externalHash)
                 .clone();
     }
 
-    function testFormatTokenIds(uint32[3] memory _domain, bytes32[3] memory _id)
+    function testFormatTokenId(uint32 _domain, bytes32 _id)
         external
         view
         returns (bytes memory)
     {
-        return BridgeMessage.formatTokenIds(_domain, _id).clone();
+        return BridgeMessage.formatTokenId(_domain, _id).clone();
     }
 
     function testFormatDetailsHash(
@@ -118,7 +120,7 @@ contract TestBridgeMessage {
         return BridgeMessage.getDetailsHash(_name, _symbol, _decimals);
     }
 
-    function testSplitTokenId(bytes memory _tokenId, uint8 idx)
+    function testSplitTokenId(bytes memory _tokenId)
         external
         pure
         returns (
@@ -127,49 +129,45 @@ contract TestBridgeMessage {
             address
         )
     {
-        bytes29 tokenId = _tokenId.ref(uint40(BridgeMessage.Types.TokenIds));
-        uint32 domain = BridgeMessage.domain(tokenId, idx);
-        bytes32 id = BridgeMessage.id(tokenId, idx);
-        address evmId = BridgeMessage.evmId(tokenId, idx);
+        bytes29 tokenId = _tokenId.ref(uint40(BridgeMessage.Types.TokenId));
+        uint32 domain = BridgeMessage.domain(tokenId);
+        bytes32 id = BridgeMessage.id(tokenId);
+        address evmId = BridgeMessage.evmId(tokenId);
         return (domain, id, evmId);
     }
 
-    function testSplitTransfer(bytes memory _batch)
+    function testSplitTransfer(bytes memory _transfer)
         external
         pure
         returns (
             uint8,
             bytes32,
             address,
-            bytes32, // root
-            uint256[3] memory, // amounts
-            bytes32[3] memory // details
+            uint256,
+            bytes32,
+            bytes32
         )
     {
-        bytes29 batch = _batch.ref(uint40(BridgeMessage.Types.NxtpEnabled));
-        uint8 t = BridgeMessage.actionType(batch);
-        bytes32 recipient = BridgeMessage.recipient(batch);
-        address evmRecipient = BridgeMessage.evmRecipient(batch);
-        bytes32 root = BridgeMessage.batchRoot(batch);
-        uint256[3] memory amnts;
-        bytes32[3] memory details;
-        for (uint8 i; i < 3; i++) {
-            amnts[i] = BridgeMessage.amnt(batch, i);
-            details[i] = BridgeMessage.detailsHash(batch, i);
-        }
-        return (t, recipient, evmRecipient, root, amnts, details);
+        bytes29 transfer = _transfer.ref(uint40(BridgeMessage.Types.FastTransfer));
+        uint8 t = BridgeMessage.actionType(transfer);
+        bytes32 recipient = BridgeMessage.recipient(transfer);
+        address evmRecipient = BridgeMessage.evmRecipient(transfer);
+        uint256 amnt = BridgeMessage.amnt(transfer);
+        bytes32 id = BridgeMessage.externalId(transfer);
+        bytes32 extHash = BridgeMessage.externalCallHash(transfer);
+        return (t, recipient, evmRecipient, amnt, id, extHash);
     }
 
-    // function testSplitMessage(bytes memory _message)
-    //     external
-    //     view
-    //     returns (bytes memory, bytes memory)
-    // {
-    //     bytes29 message = _message.ref(uint40(BridgeMessage.Types.Message));
-    //     bytes29 tokenId = BridgeMessage.tokenId(message);
-    //     bytes29 action = BridgeMessage.action(message);
-    //     return (tokenId.clone(), action.clone());
-    // }
+    function testSplitMessage(bytes memory _message)
+        external
+        view
+        returns (bytes memory, bytes memory)
+    {
+        bytes29 message = _message.ref(uint40(BridgeMessage.Types.Message));
+        bytes29 tokenId = BridgeMessage.tokenId(message);
+        bytes29 action = BridgeMessage.action(message);
+        return (tokenId.clone(), action.clone());
+    }
 
     function testMustBeMessage(bytes memory _message)
         external

@@ -138,17 +138,17 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   mapping(bytes32 => address) public canonicalToAdopted;
 
   /**
+   * @notice Stores hash of the `ReconciledTransaction` (all information passed through bridge) on `reconcile`
+   * @dev This information is stored onchain if the transaction has not been fulfilled at the time
+   * of reconcile
    */
-  mapping(uint32 => address[3]) public batchAssets;
+  mapping(bytes32 => bytes32) public reconciledTransfers;
 
   /**
+   * @notice Stores the transactionId => FulfilledTransaction mapping
+   * @dev This information is stored onchain if fast liquidity is provided
    */
-  mapping(uint32 => uint256[3]) public batchAmounts;
-
-  /**
-   * @notice Latest root passed through nomad system. Should include all transfers
-   */
-  bytes32 public incomingRoot;
+  mapping(bytes32 => ExecutedTransfer) public routedTransactions;
 
   // ============ Modifiers ============
 
@@ -391,7 +391,14 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     nonce++;
 
     // Add to batch
-    _addToBatch(_transferId,  _bridgedAmt, _bridged, _args.params);
+    _sendMessage(
+      _args.params.destinationDomain,
+      _args.params.to,
+      _bridged,
+      _bridgedAmt,
+      _transferId,
+      _getExternalHash(_args.params.to, _args.params.callData)
+    );
 
     // Emit event
     emit XCalled(
@@ -412,49 +419,51 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   }
 
   /**
-   * @notice This function is called by the bridge router to pass through the merkle root of the batch.
-   * @param _incomingRoot - The hash of the `ExternalCall` passed through the bridge
+   * @notice This function is called by the bridge router to pass through the information provided
+   * by the user on prepare.
+   * @dev If fast liquidity was provided, the `amount` and `externalHash` are asserted against the
+   * `ExecutedTransaction` struct stored onchain. If no fast liqudity was provided, the hash
+   * of the `ReconciledTransaction` is stored onchain to enforce correctness when `execute` is called
+   * @param _transferId - The transfer id
+   * @param _local - The address of the asset delivered by the bridge
+   * @param _recipient - The address that will receive funds on the destination domain
+   * @param _externalHash - The hash of the `ExternalCall` passed through the bridge
    */
   function reconcile(
-    bytes32 _incomingRoot // TODO: do we need a batch id?
+    bytes32 _transferId,
+    address _local,
+    address _recipient,
+    uint256 _amount,
+    bytes32 _externalHash
   ) external payable override onlyBridgeRouter{
-    // Store the root
-    incomingRoot = _incomingRoot;
+    // Find the router to credit
+    ExecutedTransfer memory transaction = routedTransactions[_transferId];
 
-    // Emit event
-    emit Reconciled(incomingRoot, msg.sender);
-  }
+    if (transaction.router == address(0)) {
+      // Nomad bridge executed faster than router, funds should become process-able
+      // by the user.
+      reconciledTransfers[_transferId] = _getReconciledHash(_local, _recipient, _amount, _externalHash);
+    } else {
+      // Ensure the router submitted the correct calldata
+      require(transaction.externalHash == _externalHash, "!external");
 
-  /**
-   * @notice Sends a transfer root through nomad
-   */
-  function dispatch(uint32 _destination) external override {
-    // Get the tree, assets, and amounts for the batch
-    address[3] memory _tokens = batchAssets[_destination];
-    uint256[3] memory _amounts = batchAmounts[_destination];
+      // TODO: assert amount
 
-    // Zero-out the batch tokens and assets
-    address empty = address(0);
-    batchAssets[_destination] = [empty, empty, empty];
-    batchAmounts[_destination] = [0, 0, 0];
-
-    // Approve bridge router for amounts
-    for (uint256 i; i < _tokens.length; i++) {
-      address batch = _tokens[i];
-      if (batch != address(0)) {
-        SafeERC20Upgradeable.safeIncreaseAllowance(
-          IERC20Upgradeable(batch),
-          address(bridgeRouter),
-          _amounts[i]
-        );
-      }
+      // Credit router
+      routerBalances[transaction.router][_local] += _amount;
     }
 
-    // Send info over bridge router
-    bytes32 _root = tree.root();
-    bridgeRouter.send(_tokens, _amounts, _destination, _root);
-
-    emit Dispatched(_destination, _root, _tokens, _amounts, msg.sender);
+    // Emit event
+    emit Reconciled(
+      _transferId,
+      _recipient,
+      transaction.router,
+      _local,
+      _amount,
+      _externalHash,
+      transaction,
+      msg.sender
+    );
   }
 
   /**
@@ -472,25 +481,13 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Get the starting gas
     uint256 _start = gasleft();
 
-    // Get the leaf
-    // Get the right asset for the leaf by looking up this-domain asset via canonical
-    (, bytes32 canonicalId) = tokenRegistry.getCanonicalTokenId(_args.local);
-    address _originAsset = tokenRegistry.getLocalAddress(_args.params.originDomain, canonicalId);
-    
-    // NOTE: _args.amount is now the **same** as the amount the tx was called xcall with
-    // (i.e. the bridged amount after stable swap)
-    bool _isFast;
-    {
-      bytes32 _leaf = getLeaf(_args.transferId, _args.amount, _originAsset, _args.params);
-      // Check to see if leaf is included in root, if not it is a fast transfer
-      // TODO: keep check or second function to determine fast or slow liq
-      bytes32 _calculated = MerkleLib.branchRoot(_leaf, _args.proof, _args.index);
-      _isFast = _calculated != incomingRoot;
-    }
+    // Determine if this is fast liquidity
+    bool _isFast = reconciledTransfers[_args.transferId] == bytes32(0);
 
+    // Handle liquidity as needed
     _handleLiquidity(_args.params, _args.transferId, _args.local, _args.router, _isFast, _args.amount);
 
-    // Execute the the transfer
+    // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
     (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_args.local, _args.amount);
 
@@ -537,39 +534,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     );
 
     return _args.transferId;
-  }
-
-  /**
-   * @notice Called by routers that sent fast liquidity to claim funds once a batch-transfer root
-   * has been put onchain via nomad.
-   */
-  function process(
-    bytes32 _transferId,
-    uint256 _amount,
-    address _local,
-    uint256 _index,
-    bytes32[32] calldata _proof,
-    CallParams calldata _params
-  ) external override {
-    // Get the right asset in the leaf
-    (, bytes32 canonicalId) = tokenRegistry.getCanonicalTokenId(_local);
-    address _originAsset = tokenRegistry.getLocalAddress(_params.originDomain, canonicalId);
-
-    // Generate leaf
-    bytes32 _leaf = getLeaf(_transferId, _amount, _originAsset, _params);
-
-    // Prove leaf is included in root
-    bytes32 _calculated = MerkleLib.branchRoot(_leaf, _proof, _index);
-    // require(_calculated == incomingRoot, "!proven");
-
-    // TODO: amount assertion
-
-    // Get the router
-    address router = routedTransfers[_transferId].router;
-    require(router != address(0), "!router");
-
-    // Reimburse router
-    routerBalances[router][_local] += _amount;
   }
 
   // ============ Private functions ============
@@ -878,7 +842,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Check the signature of the router on the nonce + fee pct
-    require(_router == recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
+    require(_router == _recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
 
     // Handle 0 case
     if (_feePct == 0) {
@@ -898,60 +862,36 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     AddressUpgradeable.sendValue(payable(msg.sender), fee);
   }
 
-  function getLeaf(
-    bytes32 _transferId,
-    uint256 _amount,
-    address _asset,
-    CallParams calldata _params
-  ) internal returns (bytes32) {
-    return keccak256(
-      abi.encode(
-        _transferId,
-        _amount,
-        _asset,
-        _params.to,
-        _params.callData,
-        _params.originDomain,
-        _params.destinationDomain
-      )
-    );
-  }
-
   /**
-   * @notice Adds a leaf into the right root, called by `xcall`
-   * @dev Will revert if the batch is full
+   * @notice Sends a message over the bridge
+   * @param _destination - The destination domain for the message
+   * @param _recipient - The address that should receive the funds, or fallback address if the external call
+   * fails
+   * @param _local - The asset delivered by the bridge
+   * @param _amount - The amount delivered through the bridge
+   * @param _id - The unique identifier of the transaction
+   * @param _callHash - The hash of the `ExternalCall` information
    */
-  function _addToBatch(
-    bytes32 _transferId,
+  function _sendMessage(
+    uint32 _destination,
+    address _recipient,
+    address _local,
     uint256 _amount,
-    address _asset,
-    CallParams calldata _params
+    bytes32 _id,
+    bytes32 _callHash
   ) internal {
-    // Create a leaf
-    bytes32 _leaf = getLeaf(_transferId, _amount, _asset, _params);
+    // Approve the bridge router
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_local), address(bridgeRouter), _amount);
 
-    tree.insert(_leaf);
-
-    // Update the batch asset
-    // find the appropriate index
-    for (uint256 i; i < batchAssets[_params.destinationDomain].length; i++) {
-      address batch = batchAssets[_params.destinationDomain][i];
-      if (batch == _asset) {
-        // no need to add asset, but should inc. amount
-        // at this index
-        batchAmounts[_params.destinationDomain][i] += _amount;
-        return;
-      } else if (batch == address(0)) {
-        // uninitialized, set to asset and inc. amount
-        batchAssets[_params.destinationDomain][i] = _asset;
-        batchAmounts[_params.destinationDomain][i] += _amount;
-        return;
-      }
-    }
-
-    // Should have added the asset and amount in for loop and exited.
-    // If here, then the batch is full
-    require(false, "batch full");
+    bridgeRouter.send(
+      _local,
+      _amount,
+      _destination,
+      TypeCasts.addressToBytes32(_recipient),
+      true,
+      _id,
+      _callHash
+    );
   }
 
   /**
@@ -960,7 +900,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _encoded The payload that was signed
    * @param _sig The signature you are recovering the signer from
    */
-  function recoverSignature(bytes memory _encoded, bytes calldata _sig) internal pure returns (address) {
+  function _recoverSignature(bytes memory _encoded, bytes calldata _sig) internal pure returns (address) {
     // Recover
     return ECDSAUpgradeable.recover(
       ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)),
