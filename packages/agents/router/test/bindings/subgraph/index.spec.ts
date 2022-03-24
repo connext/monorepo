@@ -69,13 +69,11 @@ describe("Bindings:Subgraph", () => {
         new Map(
           Object.entries({
             [mock.chain.A]: {
-              maxPrepareBlockNumber:
-                mockInfo[mock.chain.A].latestBlockNumber - mockInfo[mock.chain.A].safeConfirmations,
+              maxXCallBlockNumber: mockInfo[mock.chain.A].latestBlockNumber - mockInfo[mock.chain.A].safeConfirmations,
               latestNonce: mockInfo[mock.chain.A].latestNonce + 1,
             },
             [mock.chain.B]: {
-              maxPrepareBlockNumber:
-                mockInfo[mock.chain.B].latestBlockNumber - mockInfo[mock.chain.B].safeConfirmations,
+              maxXCallBlockNumber: mockInfo[mock.chain.B].latestBlockNumber - mockInfo[mock.chain.B].safeConfirmations,
               latestNonce: mockInfo[mock.chain.B].latestNonce + 1,
             },
           }),
