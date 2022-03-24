@@ -1,16 +1,20 @@
 import { SinonStub, stub, restore, reset } from "sinon";
-import { expect } from "@connext/nxtp-utils";
+import { expect, mkAddress } from "@connext/nxtp-utils";
 import { register } from "prom-client";
 
 import * as binding from "../../../src/bindings/server";
-import { stubContext } from "../../mock";
+import { mock, stubContext } from "../../mock";
 import { FastifyInstance } from "fastify";
+import { AddLiquidityForRequest, RemoveLiquidityRequest } from "../../../src/bindings/server/schema";
+import { parseEther } from "ethers/lib/utils";
 
 let fastifyApp: FastifyInstance;
 describe("Bindings:Server", async () => {
   let metricsStub: SinonStub;
+  let mockContext: any;
   beforeEach(() => {
     metricsStub = stub(register, "metrics");
+    mockContext = stubContext();
   });
   afterEach(() => {
     restore();
@@ -20,39 +24,70 @@ describe("Bindings:Server", async () => {
     before(async () => {
       fastifyApp = await binding.bindServer();
     });
-    it("should respond with `pong`", async () => {
+    it("happy: should respond with `pong`", async () => {
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/ping",
       });
+      expect(response.statusCode).to.be.eq(200);
       expect(response.payload).to.be.eq("pong\n");
     });
-    it("should respond with config", async () => {
+    it("happy: should respond with config", async () => {
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/config",
       });
-      console.log({ response });
       expect(response.statusCode).to.be.eq(200);
+      expect(response.payload).to.be.eq(JSON.stringify({ signerAddress: mock.context().adapters.wallet.address }));
     });
-    it("should respond with metrics", async () => {
+    it("happy: should respond with metrics", async () => {
       metricsStub.resolves("Happy metrics!");
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/metrics",
       });
-
       expect(response.statusCode).to.be.eq(200);
+      expect(response.payload).to.be.eq("Happy metrics!");
+    });
+    it("happy: #remove-liquidity", async () => {
+      const removeLiquidityReq: RemoveLiquidityRequest = {
+        adminToken: "blahblahblah",
+        recipientAddress: mkAddress("0x1"),
+        chainId: 1337,
+        assetId: mkAddress("0xa"),
+        amount: parseEther("10000").toString(),
+      };
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/remove-liquidity",
+        payload: removeLiquidityReq,
+      });
+      expect(response.statusCode).to.be.eq(500);
+      expect(response.payload).to.be.eq("Not implemented");
+    });
+    it("happy: #add-liquidity-for", async () => {
+      const addLiquidityReq: AddLiquidityForRequest = {
+        adminToken: "blahblahblah",
+        routerAddress: mkAddress("0x1"),
+        chainId: 1337,
+        assetId: mkAddress("0xa"),
+        amount: parseEther("10000").toString(),
+      };
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/add-liquidity-for",
+        payload: addLiquidityReq,
+      });
+      expect(response.statusCode).to.be.eq(500);
+      expect(response.payload).to.be.eq("Not implemented");
     });
   });
 
   describe("api", () => {
-    let mockContext: any;
     let mockRes: any;
     let sendStub: SinonStub;
     let statusStub: SinonStub;
     beforeEach(() => {
-      mockContext = stubContext();
       sendStub = stub().resolves();
       statusStub = stub().returns({ send: sendStub });
       mockRes = {
