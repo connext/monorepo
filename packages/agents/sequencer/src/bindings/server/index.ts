@@ -1,4 +1,4 @@
-import fastify from "fastify";
+import fastify, { FastifyInstance } from "fastify";
 import pino from "pino";
 import { Bid, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
@@ -6,7 +6,7 @@ import { handleBid } from "../../lib/operations";
 import { getContext } from "../../sequencer";
 
 export const bindServer = () =>
-  new Promise<void>((res) => {
+  new Promise<FastifyInstance>((res) => {
     const { config, logger } = getContext();
     const server = fastify({ logger: pino({ level: config.logLevel }) });
 
@@ -33,6 +33,6 @@ export const bindServer = () =>
         process.exit(1);
       }
       logger.info(`Server listening at ${address}`);
-      res();
+      res(server);
     });
   });
