@@ -33,15 +33,25 @@ export declare namespace IConnext {
     destinationDomain: number;
   };
 
+  export type ExecutedTransferStruct = {
+    router: string;
+    amount: BigNumberish;
+    externalHash: BytesLike;
+  };
+
+  export type ExecutedTransferStructOutput = [string, BigNumber, string] & {
+    router: string;
+    amount: BigNumber;
+    externalHash: string;
+  };
+
   export type ExecuteArgsStruct = {
     params: IConnext.CallParamsStruct;
     local: string;
     router: string;
     feePercentage: BigNumberish;
     amount: BigNumberish;
-    index: BigNumberish;
     transferId: BytesLike;
-    proof: BytesLike[];
     relayerSignature: BytesLike;
   };
 
@@ -51,9 +61,7 @@ export declare namespace IConnext {
     string,
     number,
     BigNumber,
-    BigNumber,
     string,
-    string[],
     string
   ] & {
     params: IConnext.CallParamsStructOutput;
@@ -61,9 +69,7 @@ export declare namespace IConnext {
     router: string;
     feePercentage: number;
     amount: BigNumber;
-    index: BigNumber;
     transferId: string;
-    proof: string[];
     relayerSignature: string;
   };
 
@@ -107,29 +113,25 @@ export interface ConnextInterface extends utils.Interface {
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedRouters(address)": FunctionFragment;
     "assetOwnershipTimestamp()": FunctionFragment;
-    "batchAmounts(uint32,uint256)": FunctionFragment;
-    "batchAssets(uint32,uint256)": FunctionFragment;
     "bridgeRouter()": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
     "count()": FunctionFragment;
     "delay()": FunctionFragment;
-    "dispatch(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes32,bytes32[32],bytes))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,bytes32,bytes))": FunctionFragment;
     "executor()": FunctionFragment;
-    "incomingRoot()": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
-    "process(bytes32,uint256,address,uint256,bytes32[32],(address,bytes,uint32,uint32))": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "reconcile(bytes32)": FunctionFragment;
+    "reconcile(bytes32,address,address,uint256,bytes32)": FunctionFragment;
+    "reconciledTransfers(bytes32)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRelayerFees(uint256,address)": FunctionFragment;
@@ -139,6 +141,7 @@ export interface ConnextInterface extends utils.Interface {
     "renounceRouterOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "root()": FunctionFragment;
+    "routedTransactions(bytes32)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routedTransfersGas(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -193,14 +196,6 @@ export interface ConnextInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "batchAmounts",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "batchAssets",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "bridgeRouter",
     values?: undefined
   ): string;
@@ -210,20 +205,12 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "dispatch",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [IConnext.ExecuteArgsStruct]
   ): string;
   encodeFunctionData(functionFragment: "executor", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "incomingRoot",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [BigNumberish, string, string, string]
@@ -238,17 +225,6 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "process",
-    values: [
-      BytesLike,
-      BigNumberish,
-      string,
-      BigNumberish,
-      BytesLike[],
-      IConnext.CallParamsStruct
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "proposeAssetOwnershipRenunciation",
     values?: undefined
@@ -268,6 +244,10 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reconcile",
+    values: [BytesLike, string, string, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reconciledTransfers",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -300,6 +280,10 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "root", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "routedTransactions",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "routedTransfers",
     values: [BytesLike]
@@ -377,14 +361,6 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "batchAmounts",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "batchAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "bridgeRouter",
     data: BytesLike
   ): Result;
@@ -394,14 +370,9 @@ export interface ConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "incomingRoot",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isAssetOwnershipRenounced",
@@ -413,7 +384,6 @@ export interface ConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "process", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAssetOwnershipRenunciation",
     data: BytesLike
@@ -432,6 +402,10 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "reconcile", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reconciledTransfers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId",
     data: BytesLike
@@ -462,6 +436,10 @@ export interface ConnextInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "routedTransactions",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "routedTransfers",
     data: BytesLike
@@ -496,13 +474,12 @@ export interface ConnextInterface extends utils.Interface {
     "AssetOwnershipRenounced(bool)": EventFragment;
     "AssetOwnershipRenunciationProposed(uint256)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
-    "Dispatched(uint32,bytes32,address[3],uint256[3],address)": EventFragment;
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Reconciled(bytes32,address)": EventFragment;
+    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterOwnershipRenounced(bool)": EventFragment;
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
@@ -517,7 +494,6 @@ export interface ConnextInterface extends utils.Interface {
     nameOrSignatureOrTopic: "AssetOwnershipRenunciationProposed"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Dispatched"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
@@ -570,25 +546,6 @@ export type AssetRemovedEvent = TypedEvent<
 
 export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
 
-export type DispatchedEvent = TypedEvent<
-  [
-    number,
-    string,
-    [string, string, string],
-    [BigNumber, BigNumber, BigNumber],
-    string
-  ],
-  {
-    destination: number;
-    root: string;
-    tokens: [string, string, string];
-    amounts: [BigNumber, BigNumber, BigNumber];
-    caller: string;
-  }
->;
-
-export type DispatchedEventFilter = TypedEventFilter<DispatchedEvent>;
-
 export type ExecutedEvent = TypedEvent<
   [
     string,
@@ -607,9 +564,9 @@ export type ExecutedEvent = TypedEvent<
     router: string;
     params: IConnext.CallParamsStructOutput;
     localAsset: string;
-    transferringAsset: string;
+    transactingAsset: string;
     localAmount: BigNumber;
-    transferringAmount: BigNumber;
+    transactingAmount: BigNumber;
     caller: string;
   }
 >;
@@ -660,8 +617,26 @@ export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
 export type ReconciledEvent = TypedEvent<
-  [string, string],
-  { root: string; caller: string }
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    IConnext.ExecutedTransferStructOutput,
+    string
+  ],
+  {
+    transferId: string;
+    to: string;
+    router: string;
+    localAsset: string;
+    localAmount: BigNumber;
+    externalHash: string;
+    executed: IConnext.ExecutedTransferStructOutput;
+    caller: string;
+  }
 >;
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
@@ -721,9 +696,9 @@ export type XCalledEvent = TypedEvent<
     idx: BigNumber;
     to: string;
     params: IConnext.CallParamsStructOutput;
-    transferringAsset: string;
+    transactingAsset: string;
     localAsset: string;
-    transferringAmount: BigNumber;
+    transactingAmount: BigNumber;
     localAmount: BigNumber;
     nonce: BigNumber;
     caller: string;
@@ -815,18 +790,6 @@ export interface Connext extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    batchAmounts(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    batchAssets(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     bridgeRouter(overrides?: CallOverrides): Promise<[string]>;
 
     canonicalToAdopted(
@@ -838,11 +801,6 @@ export interface Connext extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     domain(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     execute(
@@ -851,8 +809,6 @@ export interface Connext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     executor(overrides?: CallOverrides): Promise<[string]>;
-
-    incomingRoot(overrides?: CallOverrides): Promise<[string]>;
 
     initialize(
       _domain: BigNumberish,
@@ -869,16 +825,6 @@ export interface Connext extends BaseContract {
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     proposeAssetOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -898,9 +844,18 @@ export interface Connext extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    reconciledTransfers(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     removeAssetId(
       canonicalId: BytesLike,
@@ -941,6 +896,17 @@ export interface Connext extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     root(overrides?: CallOverrides): Promise<[string]>;
+
+    routedTransactions(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, string] & {
+        router: string;
+        amount: BigNumber;
+        externalHash: string;
+      }
+    >;
 
     routedTransfers(
       arg0: BytesLike,
@@ -1043,18 +1009,6 @@ export interface Connext extends BaseContract {
 
   assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  batchAmounts(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  batchAssets(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   bridgeRouter(overrides?: CallOverrides): Promise<string>;
 
   canonicalToAdopted(
@@ -1066,11 +1020,6 @@ export interface Connext extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  dispatch(
-    _destination: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   domain(overrides?: CallOverrides): Promise<BigNumber>;
 
   execute(
@@ -1079,8 +1028,6 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   executor(overrides?: CallOverrides): Promise<string>;
-
-  incomingRoot(overrides?: CallOverrides): Promise<string>;
 
   initialize(
     _domain: BigNumberish,
@@ -1097,16 +1044,6 @@ export interface Connext extends BaseContract {
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
-
-  process(
-    _transferId: BytesLike,
-    _amount: BigNumberish,
-    _local: string,
-    _index: BigNumberish,
-    _proof: BytesLike[],
-    _params: IConnext.CallParamsStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   proposeAssetOwnershipRenunciation(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1126,9 +1063,18 @@ export interface Connext extends BaseContract {
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   reconcile(
-    _incomingRoot: BytesLike,
+    _transferId: BytesLike,
+    _local: string,
+    _recipient: string,
+    _amount: BigNumberish,
+    _externalHash: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  reconciledTransfers(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   removeAssetId(
     canonicalId: BytesLike,
@@ -1169,6 +1115,17 @@ export interface Connext extends BaseContract {
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   root(overrides?: CallOverrides): Promise<string>;
+
+  routedTransactions(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, string] & {
+      router: string;
+      amount: BigNumber;
+      externalHash: string;
+    }
+  >;
 
   routedTransfers(
     arg0: BytesLike,
@@ -1264,18 +1221,6 @@ export interface Connext extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    batchAmounts(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    batchAssets(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     bridgeRouter(overrides?: CallOverrides): Promise<string>;
 
     canonicalToAdopted(
@@ -1287,11 +1232,6 @@ export interface Connext extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
     execute(
@@ -1300,8 +1240,6 @@ export interface Connext extends BaseContract {
     ): Promise<string>;
 
     executor(overrides?: CallOverrides): Promise<string>;
-
-    incomingRoot(overrides?: CallOverrides): Promise<string>;
 
     initialize(
       _domain: BigNumberish,
@@ -1319,16 +1257,6 @@ export interface Connext extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     proposeAssetOwnershipRenunciation(overrides?: CallOverrides): Promise<void>;
 
     proposeNewOwner(
@@ -1345,9 +1273,18 @@ export interface Connext extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    reconciledTransfers(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     removeAssetId(
       canonicalId: BytesLike,
@@ -1379,6 +1316,17 @@ export interface Connext extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     root(overrides?: CallOverrides): Promise<string>;
+
+    routedTransactions(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, string] & {
+        router: string;
+        amount: BigNumber;
+        externalHash: string;
+      }
+    >;
 
     routedTransfers(
       arg0: BytesLike,
@@ -1466,30 +1414,15 @@ export interface Connext extends BaseContract {
     ): AssetRemovedEventFilter;
     AssetRemoved(canonicalId?: null, caller?: null): AssetRemovedEventFilter;
 
-    "Dispatched(uint32,bytes32,address[3],uint256[3],address)"(
-      destination?: null,
-      root?: null,
-      tokens?: null,
-      amounts?: null,
-      caller?: null
-    ): DispatchedEventFilter;
-    Dispatched(
-      destination?: null,
-      root?: null,
-      tokens?: null,
-      amounts?: null,
-      caller?: null
-    ): DispatchedEventFilter;
-
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)"(
       transferId?: BytesLike | null,
       to?: string | null,
       router?: string | null,
       params?: null,
       localAsset?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAmount?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
@@ -1498,9 +1431,9 @@ export interface Connext extends BaseContract {
       router?: string | null,
       params?: null,
       localAsset?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAmount?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       caller?: null
     ): ExecutedEventFilter;
 
@@ -1550,11 +1483,26 @@ export interface Connext extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "Reconciled(bytes32,address)"(
-      root?: null,
+    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)"(
+      transferId?: BytesLike | null,
+      to?: string | null,
+      router?: string | null,
+      localAsset?: null,
+      localAmount?: null,
+      externalHash?: null,
+      executed?: null,
       caller?: null
     ): ReconciledEventFilter;
-    Reconciled(root?: null, caller?: null): ReconciledEventFilter;
+    Reconciled(
+      transferId?: BytesLike | null,
+      to?: string | null,
+      router?: string | null,
+      localAsset?: null,
+      localAmount?: null,
+      externalHash?: null,
+      executed?: null,
+      caller?: null
+    ): ReconciledEventFilter;
 
     "RouterAdded(address,address)"(
       router?: null,
@@ -1600,9 +1548,9 @@ export interface Connext extends BaseContract {
       idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAsset?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       localAmount?: null,
       nonce?: null,
       caller?: null
@@ -1612,9 +1560,9 @@ export interface Connext extends BaseContract {
       idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAsset?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       localAmount?: null,
       nonce?: null,
       caller?: null
@@ -1677,18 +1625,6 @@ export interface Connext extends BaseContract {
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    batchAmounts(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    batchAssets(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     bridgeRouter(overrides?: CallOverrides): Promise<BigNumber>;
 
     canonicalToAdopted(
@@ -1700,11 +1636,6 @@ export interface Connext extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     domain(overrides?: CallOverrides): Promise<BigNumber>;
 
     execute(
@@ -1713,8 +1644,6 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     executor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    incomingRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
       _domain: BigNumberish,
@@ -1731,16 +1660,6 @@ export interface Connext extends BaseContract {
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     proposeAssetOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1760,8 +1679,17 @@ export interface Connext extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    reconciledTransfers(
+      arg0: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     removeAssetId(
@@ -1803,6 +1731,11 @@ export interface Connext extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     root(overrides?: CallOverrides): Promise<BigNumber>;
+
+    routedTransactions(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     routedTransfers(
       arg0: BytesLike,
@@ -1904,18 +1837,6 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    batchAmounts(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    batchAssets(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     bridgeRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     canonicalToAdopted(
@@ -1927,11 +1848,6 @@ export interface Connext extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     execute(
@@ -1940,8 +1856,6 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     executor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    incomingRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
       _domain: BigNumberish,
@@ -1963,16 +1877,6 @@ export interface Connext extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     proposeAssetOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1991,8 +1895,17 @@ export interface Connext extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    reconciledTransfers(
+      arg0: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     removeAssetId(
@@ -2034,6 +1947,11 @@ export interface Connext extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    routedTransactions(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     routedTransfers(
       arg0: BytesLike,
