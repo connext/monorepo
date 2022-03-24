@@ -4,10 +4,12 @@ pragma solidity 0.8.11;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "../interfaces/IExecutor.sol";
 
 contract Counter {
   bool public shouldRevert;
   uint256 public count = 0;
+  IExecutor public executor;
 
   constructor() {
     shouldRevert = false;
@@ -15,6 +17,10 @@ contract Counter {
 
   function setShouldRevert(bool value) public {
     shouldRevert = value;
+  }
+
+  function setExecutor(address _executor) public {
+    executor = IExecutor(_executor);
   }
 
   function increment() public {
@@ -32,6 +38,29 @@ contract Counter {
     increment();
 
     transferAsset(assetId, payable(recipient), amount);
+  }
+
+  function attack() public payable {
+    require(msg.value >= 0.1 ether);
+    executor.execute(
+      bytes32 (uint256(11111)),
+      payable(address(this)),
+      address(0),
+      0.1 ether,
+      ""
+    );
+  }
+
+  fallback() external payable {
+    if (address(executor).balance >= 0.1 ether) {
+      executor.execute(
+        bytes32 (uint256(11111)),
+        payable(address(this)),
+        address(0),
+        0.1 ether,
+        ""
+      );
+    }
   }
 
   function transferAsset(

@@ -71,7 +71,7 @@ const executeProxyWrite = async <T extends Contract>(
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe.only("Connext", () => {
+describe("Connext", () => {
   // Get wallets
   const [admin, router, user] = waffle.provider.getWallets() as Wallet[];
 
