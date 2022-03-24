@@ -82,12 +82,14 @@ describe("Config", () => {
     it("should error if the wallet is missing", () => {
       stub(process, "env").value({
         ...process.env,
+        NXTP_MNEMONIC: null,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
           ...mockConfig,
-          mnemonic: undefined,
-          web3SignerUrl: undefined,
+          mnemonic: null,
+          web3SignerUrl: null,
         }),
+        NXTP_CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).throw(
