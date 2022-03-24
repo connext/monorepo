@@ -3,9 +3,8 @@ import { expect, use } from "chai";
 import { solidity } from "ethereum-waffle";
 use(solidity);
 
-import { constants, Wallet } from "ethers";
+import { constants, utils, Wallet } from "ethers";
 import { Counter, Executor, RevertableERC20 } from "../../typechain-types";
-import { getContractError } from "../../src";
 import { assertReceiptEvent, getOnchainBalance, deployContract, MAX_FEE_PER_GAS } from "../utils";
 import { getRandomBytes32 } from "@connext/nxtp-utils";
 
@@ -37,6 +36,9 @@ describe("Executor.sol", async () => {
     const liq = "10000";
     const tx = await token.connect(wallet).transfer(other.address, liq);
     await tx.wait();
+
+    const tx2 = await counter.setExecutor(executor.address);
+    await tx2.wait();
   });
 
   describe("getConnext", () => {
@@ -45,15 +47,15 @@ describe("Executor.sol", async () => {
     });
   });
 
-  describe("execute", () => {
-    it("should fail if not called by transaction manager", async () => {
+  describe.only("execute", () => {
+    it("should fail if not called by connext contract", async () => {
       const amount = "1000";
       const assetId = constants.AddressZero;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, wallet.address, amount]);
 
       await expect(
         executor.connect(other).execute(getRandomBytes32(), counter.address, assetId, amount, data),
-      ).to.be.revertedWith(getContractError("onlyTransactionManager: NOT_TRANSACTION_MANAGER"));
+      ).to.be.revertedWith("#OC:027");
     });
 
     it("should not execute if there is no data at the `to` (i.e. it is an EOA)", async () => {
@@ -77,6 +79,7 @@ describe("Executor.sol", async () => {
         callData: data,
         returnData: "0x",
         success: false,
+        isContract: false,
       });
 
       expect(await counter.count()).to.be.eq(preExecute);
@@ -96,13 +99,13 @@ describe("Executor.sol", async () => {
       const receipt = await tx.wait();
       assertReceiptEvent(receipt, "Executed", {
         transferId,
-        callTo: counter.address,
+        to: counter.address,
         assetId,
-        fallbackAddress: other.address,
         amount,
         callData: data,
         returnData: "0x",
         success: true,
+        isContract: true,
       });
 
       expect(await counter.count()).to.be.eq(preExecute.add(1));
@@ -123,16 +126,43 @@ describe("Executor.sol", async () => {
       const receipt = await tx.wait();
       assertReceiptEvent(receipt, "Executed", {
         transferId,
-        callTo: counter.address,
+        to: counter.address,
         assetId,
-        fallbackAddress: other.address,
         amount,
         callData: data,
         returnData: "0x",
         success: true,
+        isContract: true,
       });
 
       expect(await counter.count()).to.be.eq(preExecute.add(1));
+    });
+
+    it("should fail if reentrancy", async () => {
+      const amount = utils.parseEther("0.1");
+      const assetId = constants.AddressZero;
+      const transferId = getRandomBytes32();
+      const data = counter.interface.encodeFunctionData("attack");
+
+      // Transfer amount * 100 to executor to ensure we have enough to be attacked.
+      const tx = await executor
+        .connect(wallet)
+        .execute(transferId, counter.address, assetId, amount, data, { value: amount.mul(100) });
+      const receipt = await tx.wait();
+
+      const balance = await getOnchainBalance(assetId, counter.address, ethers.provider);
+      expect(balance).to.be.eq(0);
+
+      assertReceiptEvent(receipt, "Executed", {
+        transferId,
+        to: counter.address,
+        assetId,
+        amount,
+        callData: data,
+        //returnData: "0x",
+        success: false,
+        isContract: true,
+      });
     });
   });
 });
