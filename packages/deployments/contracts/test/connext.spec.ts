@@ -30,8 +30,7 @@ import {
   assertReceiptEvent,
   ZERO_ADDRESS,
   transferOwnershipOnContract,
-  deployBeaconProxy,
-  upgradeBeaconProxy,
+  deployUpgradeableProxy,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
@@ -93,22 +92,16 @@ describe.only("Connext", () => {
   let originXappConnectionManager: XAppConnectionManager;
   let destinationXappConnectionManager: XAppConnectionManager;
   let originTokenRegistry: TokenRegistry;
-  let originTokenRegistryBeacon: string;
   let destinationTokenRegistry: TokenRegistry;
-  let destinationTokenRegistryBeacon: string;
   let originAdopted: TestERC20;
   let destinationAdopted: TestERC20;
   let canonical: TestERC20;
   let local: TestERC20;
   let weth: WETH;
   let originBridge: BridgeRouter;
-  let originBridgeBeacon: string;
   let destinationBridge: BridgeRouter;
-  let destinationBridgeBeacon: string;
   let originTm: Connext;
-  let originTmBeacon: string;
   let destinationTm: Connext;
-  let destinationTmBeacon: string;
   let stableSwap: DummySwap;
   let home: Home;
   let bridgeMessage: TestBridgeMessage;
@@ -131,62 +124,44 @@ describe.only("Connext", () => {
     // Deploy xapp connection manager
     originXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     destinationXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
-    // Deploy token registry
-    // originTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
-    //   "TokenRegistry",
-    //   [upgradeBeaconController.address, originXappConnectionManager.address],
-    //   upgradeBeaconController.address,
-    // );
-    // destinationTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
-    //   "TokenRegistry",
-    //   [upgradeBeaconController.address, destinationXappConnectionManager.address],
-    //   upgradeBeaconController.address,
-    // );
-    [originTokenRegistry, originTokenRegistryBeacon] = await deployBeaconProxy<TokenRegistry>("TokenRegistry", [
+    //Deploy token registry
+    originTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+      "TokenRegistry",
+      [upgradeBeaconController.address, originXappConnectionManager.address],
       upgradeBeaconController.address,
-      originXappConnectionManager.address,
-    ]);
-    [destinationTokenRegistry, destinationBridgeBeacon] = await deployBeaconProxy<TokenRegistry>("TokenRegistry", [
+    );
+    destinationTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+      "TokenRegistry",
+      [upgradeBeaconController.address, destinationXappConnectionManager.address],
       upgradeBeaconController.address,
-      destinationXappConnectionManager.address,
-    ]);
+    );
 
     // Deploy dummy stable swap
     stableSwap = await deployContract<DummySwap>("DummySwap");
 
     // Deploy bridge
-    // originBridge = await deployUpgradeableProxy<BridgeRouter>(
-    //   "BridgeRouter",
-    //   [originTokenRegistry.address, originXappConnectionManager.address],
-    //   upgradeBeaconController.address,
-    // );
-    // destinationBridge = await deployUpgradeableProxy<BridgeRouter>(
-    //   "BridgeRouter",
-    //   [destinationTokenRegistry.address, destinationXappConnectionManager.address],
-    //   upgradeBeaconController.address,
-    // );
-    [originBridge, originBridgeBeacon] = await deployBeaconProxy<BridgeRouter>("BridgeRouter", [
-      originTokenRegistry.address,
-      originXappConnectionManager.address,
-    ]);
-    [destinationBridge, destinationBridgeBeacon] = await deployBeaconProxy<BridgeRouter>("BridgeRouter", [
-      destinationTokenRegistry.address,
-      destinationXappConnectionManager.address,
-    ]);
+    originBridge = await deployUpgradeableProxy<BridgeRouter>(
+      "BridgeRouter",
+      [originTokenRegistry.address, originXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
+    destinationBridge = await deployUpgradeableProxy<BridgeRouter>(
+      "BridgeRouter",
+      [destinationTokenRegistry.address, destinationXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
 
     // Deploy transacion managers
-    [originTm, originTmBeacon] = await deployBeaconProxy<Connext>("Connext", [
-      originDomain,
-      originBridge.address,
-      originTokenRegistry.address,
-      weth.address,
-    ]);
-    [destinationTm, destinationTmBeacon] = await deployBeaconProxy<Connext>("Connext", [
+    originTm = await deployContract<Connext>("Connext");
+    await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address);
+
+    destinationTm = await deployContract<Connext>("Connext");
+    await destinationTm.initialize(
       destinationDomain,
       destinationBridge.address,
       destinationTokenRegistry.address,
       weth.address,
-    ]);
+    );
     // Deploy home
     home = await deployContract<Home>("Home", originDomain);
     // Deploy test bridge message
@@ -340,13 +315,6 @@ describe.only("Connext", () => {
   describe("constructor", async () => {
     it("should deploy", async () => {
       expect(originTm.address).to.be.a("string");
-    });
-
-    it("should upgradeable", async () => {
-      expect(await upgradeBeaconProxy("Connext", originTmBeacon)).to.be.true;
-      expect(await upgradeBeaconProxy("Connext", destinationTmBeacon)).to.be.true;
-      expect(await upgradeBeaconProxy("BridgeRouter", originBridgeBeacon)).to.be.true;
-      expect(await upgradeBeaconProxy("BridgeRouter", destinationBridgeBeacon)).to.be.true;
     });
 
     it("should set domain for original Connext", async () => {
