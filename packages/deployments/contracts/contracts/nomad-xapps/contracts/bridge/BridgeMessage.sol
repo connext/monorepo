@@ -38,8 +38,8 @@ library BridgeMessage {
 
     uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
     uint256 private constant IDENTIFIER_LEN = 1;
-    uint256 private constant TRANSFER_LEN = 161;
-    // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes externalId + 32 bytes external hash
+    uint256 private constant TRANSFER_LEN = 129;
+    // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes external hash
 
     // ============ Modifiers ============
 
@@ -144,12 +144,11 @@ library BridgeMessage {
         uint256 _amnt,
         bytes32 _detailsHash,
         bool _enableFast,
-        bytes32 _externalId,
         bytes32 _externalHash
     ) internal pure returns (bytes29) {
         Types _type = _enableFast ? Types.FastTransfer : Types.Transfer;
         return
-            abi.encodePacked(_type, _to, _amnt, _detailsHash, _externalId, _externalHash).ref(0).castTo(
+            abi.encodePacked(_type, _to, _amnt, _detailsHash, _externalHash).ref(0).castTo(
                 uint40(_type)
             );
     }
@@ -334,21 +333,11 @@ library BridgeMessage {
     }
 
     /**
-     * @notice Retrieves the external call hash from a Transfer
-     * @param _transferAction The message
-     * @return The amount
-     */
-    function externalCallHash(bytes29 _transferAction) internal pure returns (bytes32) {
-        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash + 32 bytes external id = 129 bytes
-        return _transferAction.index(129, 32);
-    }
-
-    /**
      * @notice Retrieves the external identifier from a Transfer
      * @param _transferAction The message
      * @return The amount
      */
-    function externalId(bytes29 _transferAction) internal pure returns (bytes32) {
+    function externalHash(bytes29 _transferAction) internal pure returns (bytes32) {
         // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash = 97 bytes
         return _transferAction.index(97, 32);
     }

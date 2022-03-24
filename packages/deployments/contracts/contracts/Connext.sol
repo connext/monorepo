@@ -375,7 +375,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
     // Compute the transfer id
-    bytes32 _transferId = _getTransferId(nonce, domain);
+    bytes32 _transferId = _getTransferId(nonce, _args.params);
     // Update nonce
     nonce++;
 
@@ -385,8 +385,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       _args.params.to,
       _bridged,
       _bridgedAmt,
-      _transferId,
-      _getExternalHash(_args.params.to, _args.params.callData)
+      _transferId
     );
 
     // Emit event
@@ -412,17 +411,16 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @dev If fast liquidity was provided, the `amount` and `externalHash` are asserted against the
    * `ExecutedTransaction` struct stored onchain. If no fast liqudity was provided, the hash
    * of the `ReconciledTransaction` is stored onchain to enforce correctness when `execute` is called
-   * @param _transferId - The transfer id
+   * @param _transferId - Transfer UUID
    * @param _local - The address of the asset delivered by the bridge
    * @param _recipient - The address that will receive funds on the destination domain
-   * @param _externalHash - The hash of the `ExternalCall` passed through the bridge
+   * @param _amount - The amount bridged
    */
   function reconcile(
     bytes32 _transferId,
     address _local,
     address _recipient,
-    uint256 _amount,
-    bytes32 _externalHash
+    uint256 _amount
   ) external payable override onlyBridgeRouter {
     // Find the router to credit
     ExecutedTransfer memory transaction = routedTransfers[_transferId];
@@ -430,11 +428,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     if (transaction.router == address(0)) {
       // Nomad bridge executed faster than router, funds should become process-able
       // by the user.
-      reconciledTransfers[_transferId] = _getReconciledHash(_local, _recipient, _amount, _externalHash);
+      reconciledTransfers[_transferId] = _getReconciledHash(_local, _recipient, _amount);
     } else {
-      // Ensure the router submitted the correct calldata
-      require(transaction.externalHash == _externalHash, "!external");
-
       // TODO: assert amount
 
       // Credit router
@@ -448,7 +443,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       transaction.router,
       _local,
       _amount,
-      _externalHash,
       transaction,
       msg.sender
     );
@@ -602,24 +596,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   /**
    * @notice Gets unique identifier from nonce + domain
    * @param _nonce - The nonce of the contract
-   * @param _domain - The origin domain of the transfer
+   * @param _params - The call params of the transfer
    * @return The transfer id
    */
-  function _getTransferId(uint256 _nonce, uint256 _domain) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _domain));
-  }
-
-  /**
-   * @notice Calculates the hash of the executed calldata and to on execute
-   * @param _to - The address to execute the calldata on
-   * @param _callData - The data to execute
-   * @return The computed hash
-   */
-  function _getExternalHash(address _to, bytes memory _callData) internal pure returns (bytes32) {
-    return keccak256(abi.encode(ExternalCall({
-      callData: _callData,
-      to: _to
-    })));
+  function _getTransferId(uint256 _nonce, CallParams calldata _params) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _params));
   }
 
   /**
@@ -628,17 +609,14 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _to - The address that should receive the funds, or fallback address if the external call
    * fails
    * @param _amount - The amount delivered through the bridge
-   * @param _externalHash - The hash of the `ExternalCall` passed through the bridge
    * @return The hash of the `ReconciledTransfer`
    */
   function _getReconciledHash(
     address _local,
     address _to,
-    uint256 _amount,
-    bytes32 _externalHash
+    uint256 _amount
   ) internal pure returns (bytes32) {
     ReconciledTransfer memory transfer = ReconciledTransfer({
-      externalHash: _externalHash,
       local: _local,
       amount: _amount,
       to: _to
@@ -790,10 +768,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     bool _isFast,
     uint256 _amount
   ) internal {
-    // Determine if it is fast (i.e. happened before reconcile called, needs
-    // a router to front)
-    bytes32 _externalHash = _getExternalHash(_params.to, _params.callData);
-
     if (_isFast) {
       // Ensure it has not been executed already
       require(routedTransfers[_transferId].router == address(0), "!empty");
@@ -804,7 +778,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       // Store the router
       routedTransfers[_transferId] = ExecutedTransfer({
         router: _router,
-        externalHash: _externalHash,
         amount: _amount // will be of the mad asset, not adopted
       });
     }
@@ -858,15 +831,13 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _local - The asset delivered by the bridge
    * @param _amount - The amount delivered through the bridge
    * @param _id - The unique identifier of the transaction
-   * @param _callHash - The hash of the `ExternalCall` information
    */
   function _sendMessage(
     uint32 _destination,
     address _recipient,
     address _local,
     uint256 _amount,
-    bytes32 _id,
-    bytes32 _callHash
+    bytes32 _id
   ) internal {
     // Approve the bridge router
     SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_local), address(bridgeRouter), _amount);
@@ -877,8 +848,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       _destination,
       TypeCasts.addressToBytes32(_recipient),
       true,
-      _id,
-      _callHash
+      _id
     );
   }
 

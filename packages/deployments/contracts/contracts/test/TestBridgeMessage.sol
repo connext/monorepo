@@ -95,12 +95,11 @@ contract TestBridgeMessage {
         uint256 _amnt,
         bytes32 _detailsHash,
         bool _enableFast,
-        bytes32 _externalId,
         bytes32 _externalHash
     ) external view returns (bytes memory) {
         return
             BridgeMessage
-                .formatTransfer(_to, _amnt, _detailsHash, _enableFast, _externalId, _externalHash)
+                .formatTransfer(_to, _amnt, _detailsHash, _enableFast, _externalHash)
                 .clone();
     }
 
@@ -144,7 +143,6 @@ contract TestBridgeMessage {
             bytes32,
             address,
             uint256,
-            bytes32,
             bytes32
         )
     {
@@ -153,9 +151,8 @@ contract TestBridgeMessage {
         bytes32 recipient = BridgeMessage.recipient(transfer);
         address evmRecipient = BridgeMessage.evmRecipient(transfer);
         uint256 amnt = BridgeMessage.amnt(transfer);
-        bytes32 id = BridgeMessage.externalId(transfer);
-        bytes32 extHash = BridgeMessage.externalCallHash(transfer);
-        return (t, recipient, evmRecipient, amnt, id, extHash);
+        bytes32 id = BridgeMessage.externalHash(transfer);
+        return (t, recipient, evmRecipient, amnt, id);
     }
 
     function testSplitMessage(bytes memory _message)

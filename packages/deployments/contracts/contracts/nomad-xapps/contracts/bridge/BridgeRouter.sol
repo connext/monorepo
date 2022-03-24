@@ -148,7 +148,6 @@ contract BridgeRouter is Version0, Router {
         uint32 _destination,
         bytes32 _recipient,
         bool _enableFast,
-        bytes32 _externalId,
         bytes32 _externalHash
     ) external {
         require(_amount > 0, "!amnt");
@@ -181,7 +180,6 @@ contract BridgeRouter is Version0, Router {
             _amount,
             _detailsHash,
             _enableFast,
-            _externalId,
             _externalHash
         );
         bytes29 _tokenId = dispatchAction(_action, _token, _destination, _remote);
@@ -308,11 +306,10 @@ contract BridgeRouter is Version0, Router {
 
             // Call reconcile
             connext.reconcile(
-                _action.externalId(),
+                _action.externalHash(),
                 _token,
                 _recipient,
-                _amount,
-                _action.externalCallHash()
+                _amount
             );
         } else {
             _handleFundsDisbursal(_recipient, _token, _amount, _details);

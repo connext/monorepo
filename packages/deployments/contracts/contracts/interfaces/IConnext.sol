@@ -41,13 +41,10 @@ interface IConnext {
    * @param router - Address of the router that supplied fast-liquidity
    * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount` 
    * user supplied comes through bridge
-   * @param externalHash - Hash of the `ExternalCall` router supplied. Used to enforce router executed 
-   * the correct calldata under threat of non-repayment
    */
   struct ExecutedTransfer {
     address router;
     uint256 amount;
-    bytes32 externalHash;
   }
 
   /**
@@ -62,13 +59,11 @@ interface IConnext {
 
   /**
    * @notice Struct containing the information that comes through the bridge provided by the user on `xcall`
-   * @param externalHash - Hash of the `ExternalCall`
    * @param local - The address of the bridged asset
    * @param amount - The amount forwarded through the bridge
    * @param to - The address that gets the funds on the destination chain
    */
   struct ReconciledTransfer {
-    bytes32 externalHash;
     address local;
     uint256 amount;
     address to;
@@ -235,7 +230,6 @@ interface IConnext {
    * @param router - The router that supplied fast liquidity, if applicable
    * @param localAsset - The asset that was provided by the bridge
    * @param localAmount - The amount that was provided by the bridge
-   * @param externalHash - Hash of the `ExternalCall` passed through bridge
    * @param executed - Record of the `ExecutedTransfer` stored onchain if fast liquidity is provided
    * @param caller - The account that called the function
    */
@@ -245,7 +239,6 @@ interface IConnext {
     address indexed router,
     address localAsset,
     uint256 localAmount,
-    bytes32 externalHash,
     ExecutedTransfer executed,
     address caller
   );
@@ -325,8 +318,7 @@ interface IConnext {
     bytes32 _transferId,
     address _local,
     address _recipient,
-    uint256 _amount,
-    bytes32 _externalHash
+    uint256 _amount
   ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
