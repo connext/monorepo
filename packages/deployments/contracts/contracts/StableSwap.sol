@@ -98,7 +98,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
             );
             precisionMultipliers[i] =
                 10 **
-                    uint256(SwapUtils.POOL_PRECISION_DECIMALS) - uint256(decimals[i]);
+                    uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
             tokenIndexes[address(_pooledTokens[i])] = i;
         }
 
