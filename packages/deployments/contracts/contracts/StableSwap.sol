@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -29,7 +28,6 @@ import "./interfaces/IStableSwap.sol";
  */
 contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
     using SwapUtils for SwapUtils.Swap;
     using AmplificationUtils for SwapUtils.Swap;
 
@@ -100,9 +98,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
             );
             precisionMultipliers[i] =
                 10 **
-                    uint256(SwapUtils.POOL_PRECISION_DECIMALS).sub(
-                        uint256(decimals[i])
-                    );
+                    uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
             tokenIndexes[address(_pooledTokens[i])] = i;
         }
 
@@ -126,8 +122,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
         swapStorage.pooledTokens = _pooledTokens;
         swapStorage.tokenPrecisionMultipliers = precisionMultipliers;
         swapStorage.balances = new uint256[](_pooledTokens.length);
-        swapStorage.initialA = _a.mul(AmplificationUtils.A_PRECISION);
-        swapStorage.futureA = _a.mul(AmplificationUtils.A_PRECISION);
+        swapStorage.initialA = _a * AmplificationUtils.A_PRECISION;
+        swapStorage.futureA = _a * AmplificationUtils.A_PRECISION;
         // swapStorage.initialATime = 0;
         // swapStorage.futureATime = 0;
         swapStorage.swapFee = _fee;
