@@ -17,7 +17,7 @@ export default task("setup-test-router", "Add router and test assets")
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext_Proxy");
+        const connextDeployment = await deployments.get("Connext");
         connextAddress = connextDeployment.address;
       }
       console.log("connextAddress: ", connextAddress);
@@ -33,7 +33,7 @@ export default task("setup-test-router", "Add router and test assets")
         amount = "2500000000000000000000000";
       }
 
-      const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
 
       const isRouterApproved = await connext.approvedRouters(router);
       console.log("isRouterApproved: ", isRouterApproved);

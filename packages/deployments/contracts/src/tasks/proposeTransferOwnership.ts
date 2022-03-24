@@ -11,12 +11,12 @@ export default task("propose-transfer-owner", "Propose Transfer Ownership")
 
     let connextAddress = _connextAddress;
     if (!connextAddress) {
-      const connextDeployment = await deployments.get("Connext_Proxy");
+      const connextDeployment = await deployments.get("Connext");
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
 
-    const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
+    const connext = await ethers.getContractAt("Connext", connextAddress);
     const tx = await connext.proposeNewOwner(newOwner);
     console.log("proposeNewOwner tx: ", tx);
     await tx.wait();

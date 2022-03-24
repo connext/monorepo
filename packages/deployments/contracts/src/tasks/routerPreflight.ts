@@ -15,7 +15,7 @@ export default task("router-preflight", "Check if router has been set up correct
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext_Proxy");
+        const connextDeployment = await deployments.get("Connext");
         connextAddress = connextDeployment.address;
       }
       console.log("connextAddress: ", connextAddress);
