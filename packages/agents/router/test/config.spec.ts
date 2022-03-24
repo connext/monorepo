@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { chainDataToMap, expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
@@ -40,9 +40,7 @@ describe("Config", () => {
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
     });
 
-    // Essentially same test as below?
-    it.skip("should error if transaction manager address is missing", () => {
-      const prevMockChainDataForChain = mockChainData.get(testChainId);
+    it("should error if the connext address is missing", () => {
       mockChainData[testChainId] = undefined;
       stub(process, "env").value({
         ...process.env,
@@ -55,11 +53,46 @@ describe("Config", () => {
               providers: [],
             },
           },
+          deployments: {},
         }),
       });
 
-      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw("No transactionManager address");
-      mockChainData.chains[testChainId].deployments.transactionManager = prevMockChainDataForChain;
+      const _chainData = chainDataToMap([
+        {
+          name: "Unit Test Chain 1",
+          chainId: 111,
+          domainId: "111",
+          confirmations: 1,
+          assetId: {},
+        },
+        {
+          name: "Unit Test Chain 2",
+          chainId: 222,
+          domainId: "222",
+          confirmations: 1,
+          assetId: {},
+        },
+      ]);
+
+      expect(() => getEnvConfig(_chainData, mockDeployments)).throw(
+        `No Connext contract address for domain ${testChainId}`,
+      );
+    });
+
+    it("should error if the wallet is missing", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_NETWORK: "local",
+        NXTP_CONFIG: JSON.stringify({
+          ...mockConfig,
+          mnemonic: undefined,
+          web3SignerUrl: undefined,
+        }),
+      });
+
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw(
+        `Wallet missing, please add either mnemonic or web3SignerUrl`,
+      );
     });
 
     it("should substitute contract deployments with deployments argument if none exist in config", () => {
@@ -71,7 +104,7 @@ describe("Config", () => {
           ...mockConfig,
           chains: {
             ...mockConfig.chains,
-            [alteredMockChain]: { assets: [], providers: [], deployments: { transactionManager: null } },
+            [alteredMockChain]: { assets: [], providers: [], deployments: { connext: null } },
           },
         }),
       });

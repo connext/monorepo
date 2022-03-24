@@ -175,8 +175,8 @@ export const mock = {
 export let mockContext: any;
 export let getContextStub: SinonStub;
 // Stub getContext to return the mock context above.
-export const stubContext = () => {
-  mockContext = mock.context();
+export const stubContext = (_context?: AppContext) => {
+  mockContext = _context ?? mock.context();
   try {
     getContextStub.restore();
   } catch (e) {}
