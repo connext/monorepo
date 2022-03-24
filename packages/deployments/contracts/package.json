@@ -5,8 +5,9 @@
   "scripts": {
     "test": "test:hardhat && test:forge",
     "test:hardhat": "hardhat test",
-    "test:forge": "yarn forge test",
+    "test:forge": "yarn forge test --gas-report --hh",
     "forge": "forge",
+    "postinstall": "forge install",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",

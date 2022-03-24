@@ -2,7 +2,7 @@ import "ds-test/test.sol";
 import "forge-std/stdlib.sol";
 import "forge-std/Vm.sol";
 
-import "../contracts/TransactionManager.sol";
+import "../contracts/Connext.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -12,7 +12,7 @@ import "../contracts/TransactionManager.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
-contract TransactionManagerTest is DSTest {
+contract ConnextTest is DSTest {
   using stdStorage for StdStorage;
 
   Vm public constant vm = Vm(HEVM_ADDRESS);
