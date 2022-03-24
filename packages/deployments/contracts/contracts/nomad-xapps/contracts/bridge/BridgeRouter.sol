@@ -52,18 +52,21 @@ contract BridgeRouter is Version0, Router {
 
     /**
      * @notice emitted when tokens are sent from this domain to another domain
-     * @param tokens the address of the token contract
+     * @param token the address of the token contract
      * @param from the address sending tokens
      * @param toDomain the domain of the chain the tokens are being sent to
-     * @param amounts the amount of tokens sent
-     * @param batchRoot the merkle root of the transfer batch
+     * @param toId the bytes32 address of the recipient of the tokens
+     * @param amount the amount of tokens sent
+     * @param fastLiquidityEnabled True if fast liquidity is enabled, False otherwise
      */
     event Send(
-        address[3] indexed tokens,
+        address indexed token,
         address indexed from,
         uint32 indexed toDomain,
-        uint256[3] amounts,
-        bytes32 batchRoot,
+        bytes32 toId,
+        uint256 amount,
+        bool fastLiquidityEnabled,
+        bytes32 externalHash,
         bytes message
     );
 
@@ -117,97 +120,93 @@ contract BridgeRouter is Version0, Router {
     ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
         // parse tokenId and action from message
         bytes29 _msg = _message.ref(0).mustBeMessage();
+        bytes29 _tokenId = _msg.tokenId();
         bytes29 _action = _msg.action();
-        bytes29 _tokenIds = _msg.tokenIds();
-        // assert valid action
-        // TODO: handling other action types in a backwards compatible way
-        require(_action.isNxtpEnabled(), "!valid action");
-        // handle
-        _handleNxtpEnabledTransfer(_origin, _nonce, _tokenIds, _action);
+        // handle message based on the intended action
+        if (_action.isTransfer()) {
+            _handleTransfer(_origin, _nonce, _tokenId, _action, false);
+        } else if (_action.isFastTransfer()) {
+            _handleTransfer(_origin, _nonce, _tokenId, _action, true);
+        } else {
+            require(false, "!valid action");
+        }
     }
 
     // ======== External: Send Token =========
 
     /**
      * @notice Send tokens to a recipient on a remote chain
-     * @param _tokens The token addresses
-     * @param _amounts The token amounts
+     * @param _token The token address
+     * @param _amount The token amount
      * @param _destination The destination domain
-     * @param _batchRoot The merkle root of the transfer batch
+     * @param _recipient The recipient address
+     * @param _enableFast True to enable fast liquidity
      */
     function send(
-        address[3] calldata _tokens,
-        uint256[3] calldata _amounts,
+        address _token,
+        uint256 _amount,
         uint32 _destination,
-        bytes32 _batchRoot
+        bytes32 _recipient,
+        bool _enableFast,
+        bytes32 _externalId,
+        bytes32 _externalHash
     ) external {
-        // Must have at least one amount
-        // TODO: backwards compatbility
-        require(_amounts[0] > 0, "!amnt");
+        require(_amount > 0, "!amnt");
+        require(_recipient != bytes32(0), "!recip");
         // get remote BridgeRouter address; revert if not found
         bytes32 _remote = _mustHaveRemote(_destination);
-
-        bytes32[3] memory _details;
-        uint32[3] memory _domains;
-        bytes32[3] memory _ids;
-        for (uint256 i; i < BridgeMessage.TOKENS_IN_BATCH; i++) {
-            address _token = _tokens[i];
-            if (_token == address(0)) {
-                break;
-            }
-            // Get token ids
-            (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_tokens[i]);
-            _domains[i] = _domain;
-            _ids[i] = _id;
-            // Setup vars used in both if branches
-            IBridgeToken _t = IBridgeToken(_token);
-            bytes32 _detailsHash;
-            // remove tokens from circulation on this chain
-            if (tokenRegistry.isLocalOrigin(_token)) {
-                // if the token originates on this chain,
-                // hold the tokens in escrow in the Router
-                IERC20Upgradeable(_token).safeTransferFrom(msg.sender, address(this), _amounts[i]);
-                // query token contract for details and calculate detailsHash
-                _detailsHash = BridgeMessage.getDetailsHash(
-                    _t.name(),
-                    _t.symbol(),
-                    _t.decimals()
-                );
-            } else {
-                // if the token originates on a remote chain,
-                // burn the representation tokens on this chain
-                _t.burn(msg.sender, _amounts[i]);
-                _details[i] = _t.detailsHash();
-            }
+        // Setup vars used in both if branches
+        IBridgeToken _t = IBridgeToken(_token);
+        bytes32 _detailsHash;
+        // remove tokens from circulation on this chain
+        if (tokenRegistry.isLocalOrigin(_token)) {
+            // if the token originates on this chain,
+            // hold the tokens in escrow in the Router
+            IERC20Upgradeable(_token).safeTransferFrom(msg.sender, address(this), _amount);
+            // query token contract for details and calculate detailsHash
+            _detailsHash = BridgeMessage.getDetailsHash(
+                _t.name(),
+                _t.symbol(),
+                _t.decimals()
+            );
+        } else {
+            // if the token originates on a remote chain,
+            // burn the representation tokens on this chain
+            _t.burn(msg.sender, _amount);
+            _detailsHash = _t.detailsHash();
         }
-
         // format Transfer Tokens action
         bytes29 _action = BridgeMessage.formatTransfer(
-            bytes32(0), // TODO: remove recipient from message
-            _batchRoot,
-            _amounts,
-            _details
+            _recipient,
+            _amount,
+            _detailsHash,
+            _enableFast,
+            _externalId,
+            _externalHash
         );
-        bytes29 _tokenIds = dispatchAction(_action, _domains, _ids, _destination, _remote);
+        bytes29 _tokenId = dispatchAction(_action, _token, _destination, _remote);
         // emit Send event to record token sender
         emit Send(
-            _tokens,
+            _token,
             msg.sender,
             _destination,
-            _amounts,
-            _batchRoot,
-            BridgeMessage.formatMessage(_tokenIds, _action)
+            _recipient,
+            _amount,
+            _enableFast,
+            _externalHash,
+            BridgeMessage.formatMessage(_tokenId, _action)
         );
     }
 
     function dispatchAction(
         bytes29 _action,
-        uint32[3] memory _domains,
-        bytes32[3] memory _ids,
+        address _token,
         uint32 _destination,
         bytes32 _remote
     ) internal returns (bytes29) {
-        bytes29 _tokenId = BridgeMessage.formatTokenIds(_domains, _ids);
+        // get the tokenID
+        (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
+        bytes29 _tokenId = BridgeMessage.formatTokenId(_domain, _id);
         // send message to remote chain via Nomad
         Home(xAppConnectionManager.home()).dispatch(
             _destination,
@@ -279,55 +278,57 @@ contract BridgeRouter is Version0, Router {
      *
      * @param _origin The domain of the chain from which the transfer originated
      * @param _nonce The unique identifier for the message from origin to destination
-     * @param _tokenIds The token IDs
+     * @param _tokenId The token ID
      * @param _action The action
+     * @param _fastEnabled True if fast liquidity was enabled, False otherwise
      */
-    function _handleNxtpEnabledTransfer(
+    function _handleTransfer(
         uint32 _origin,
         uint32 _nonce,
-        bytes29 _tokenIds,
-        bytes29 _action
+        bytes29 _tokenId,
+        bytes29 _action,
+        bool _fastEnabled
     ) internal {
+        // get the token contract for the given tokenId on this chain;
+        // (if the token is of remote origin and there is
+        // no existing representation token contract, the TokenRegistry will
+        // deploy a new one)
+        address _token = tokenRegistry.ensureLocalToken(
+            _tokenId.domain(),
+            _tokenId.id()
+        );
         // load the original recipient of the tokens
-        address _recipient = address(connext);
-        
-        // Send the tokens to the recipient of batch
-        for (uint256 i; i < BridgeMessage.TOKENS_IN_BATCH; i++) {
-            bytes32 id = _tokenIds.id(i);
-            if (id == bytes32(0)) {
-                // empty, no more tokens in batch
-                break;
-            }
-            uint32 domain = _tokenIds.domain(i);
+        address _recipient = _action.evmRecipient();
+        // load amount once
+        uint256 _amount = _action.amnt();
+        bytes32 _details = _action.detailsHash();
+        if (_fastEnabled) {
+            // Mint more of token if needed
+            _handleFundsDisbursal(address(connext), _token, _amount, _details);
 
-            // get the token contract for the given tokenId on this chain;
-            // (if the token is of remote origin and there is
-            // no existing representation token contract, the TokenRegistry will
-            // deploy a new one)
-            address _token = tokenRegistry.ensureLocalToken(
-                domain,
-                id
-            );
-            
-            // load amount and details
-            uint256 _amount = _action.amnt(i);
-            bytes32 _details = _action.detailsHash(i);
-
-            // disburse funds
-            _handleFundsDisbursal(_recipient, _token, _amount, _details);
-
-            // emit Receive event
-            emit Receive(
-                _originAndNonce(_origin, _nonce),
+            // Call reconcile
+            connext.reconcile(
+                _action.externalId(),
                 _token,
                 _recipient,
-                address(0),
-                _amount
+                _amount,
+                _action.externalCallHash()
             );
-        }
+        } else {
+            _handleFundsDisbursal(_recipient, _token, _amount, _details);
 
-        // Pass the root and other information to Connext
-        connext.reconcile(_action.batchRoot());
+            // dust the recipient if appropriate
+            _dust(_recipient);
+        }
+        
+        // emit Receive event
+        emit Receive(
+            _originAndNonce(_origin, _nonce),
+            _token,
+            _recipient,
+            address(0),
+            _amount
+        );
     }
 
     // ============ Internal: Fast Liquidity ============

@@ -33,15 +33,25 @@ export declare namespace IConnext {
     destinationDomain: number;
   };
 
+  export type ExecutedTransferStruct = {
+    router: string;
+    amount: BigNumberish;
+    externalHash: BytesLike;
+  };
+
+  export type ExecutedTransferStructOutput = [string, BigNumber, string] & {
+    router: string;
+    amount: BigNumber;
+    externalHash: string;
+  };
+
   export type ExecuteArgsStruct = {
     params: IConnext.CallParamsStruct;
     local: string;
     router: string;
     feePercentage: BigNumberish;
     amount: BigNumberish;
-    index: BigNumberish;
     transferId: BytesLike;
-    proof: BytesLike[];
     relayerSignature: BytesLike;
   };
 
@@ -51,9 +61,7 @@ export declare namespace IConnext {
     string,
     number,
     BigNumber,
-    BigNumber,
     string,
-    string[],
     string
   ] & {
     params: IConnext.CallParamsStructOutput;
@@ -61,9 +69,7 @@ export declare namespace IConnext {
     router: string;
     feePercentage: number;
     amount: BigNumber;
-    index: BigNumber;
     transferId: string;
-    proof: string[];
     relayerSignature: string;
   };
 
@@ -101,11 +107,9 @@ export interface IConnextInterface extends utils.Interface {
     "addRelayerFees(address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
-    "dispatch(uint32)": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes32,bytes32[32],bytes))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,bytes32,bytes))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
-    "process(bytes32,uint256,address,uint256,bytes32[32],(address,bytes,uint32,uint32))": FunctionFragment;
-    "reconcile(bytes32)": FunctionFragment;
+    "reconcile(bytes32,address,address,uint256,bytes32)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRelayerFees(uint256,address)": FunctionFragment;
@@ -132,10 +136,6 @@ export interface IConnextInterface extends utils.Interface {
     values: [BridgeMessage.TokenIdStruct, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "dispatch",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "execute",
     values: [IConnext.ExecuteArgsStruct]
   ): string;
@@ -144,19 +144,8 @@ export interface IConnextInterface extends utils.Interface {
     values: [BigNumberish, string, string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "process",
-    values: [
-      BytesLike,
-      BigNumberish,
-      string,
-      BigNumberish,
-      BytesLike[],
-      IConnext.CallParamsStruct
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "reconcile",
-    values: [BytesLike]
+    values: [BytesLike, string, string, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetId",
@@ -200,10 +189,8 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "addStableSwapPool",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "process", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "reconcile", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId",
@@ -227,20 +214,18 @@ export interface IConnextInterface extends utils.Interface {
   events: {
     "AssetAdded(bytes32,uint32,address,address,address)": EventFragment;
     "AssetRemoved(bytes32,address)": EventFragment;
-    "Dispatched(uint32,bytes32,address[3],uint256[3],address)": EventFragment;
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
-    "Reconciled(bytes32,address)": EventFragment;
+    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
-    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
+    "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Dispatched"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
@@ -271,25 +256,6 @@ export type AssetRemovedEvent = TypedEvent<
 
 export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
 
-export type DispatchedEvent = TypedEvent<
-  [
-    number,
-    string,
-    [string, string, string],
-    [BigNumber, BigNumber, BigNumber],
-    string
-  ],
-  {
-    destination: number;
-    root: string;
-    tokens: [string, string, string];
-    amounts: [BigNumber, BigNumber, BigNumber];
-    caller: string;
-  }
->;
-
-export type DispatchedEventFilter = TypedEventFilter<DispatchedEvent>;
-
 export type ExecutedEvent = TypedEvent<
   [
     string,
@@ -308,9 +274,9 @@ export type ExecutedEvent = TypedEvent<
     router: string;
     params: IConnext.CallParamsStructOutput;
     localAsset: string;
-    transferringAsset: string;
+    transactingAsset: string;
     localAmount: BigNumber;
-    transferringAmount: BigNumber;
+    transactingAmount: BigNumber;
     caller: string;
   }
 >;
@@ -345,8 +311,26 @@ export type LiquidityRemovedEventFilter =
   TypedEventFilter<LiquidityRemovedEvent>;
 
 export type ReconciledEvent = TypedEvent<
-  [string, string],
-  { root: string; caller: string }
+  [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    IConnext.ExecutedTransferStructOutput,
+    string
+  ],
+  {
+    transferId: string;
+    to: string;
+    router: string;
+    localAsset: string;
+    localAmount: BigNumber;
+    externalHash: string;
+    executed: IConnext.ExecutedTransferStructOutput;
+    caller: string;
+  }
 >;
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
@@ -375,7 +359,6 @@ export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
 export type XCalledEvent = TypedEvent<
   [
     string,
-    BigNumber,
     string,
     IConnext.CallParamsStructOutput,
     string,
@@ -387,12 +370,11 @@ export type XCalledEvent = TypedEvent<
   ],
   {
     transferId: string;
-    idx: BigNumber;
     to: string;
     params: IConnext.CallParamsStructOutput;
-    transferringAsset: string;
+    transactingAsset: string;
     localAsset: string;
-    transferringAmount: BigNumber;
+    transactingAmount: BigNumber;
     localAmount: BigNumber;
     nonce: BigNumber;
     caller: string;
@@ -458,11 +440,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     execute(
       _args: IConnext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -476,18 +453,12 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -557,11 +528,6 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  dispatch(
-    _destination: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   execute(
     _args: IConnext.ExecuteArgsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -575,18 +541,12 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  process(
-    _transferId: BytesLike,
-    _amount: BigNumberish,
-    _local: string,
-    _index: BigNumberish,
-    _proof: BytesLike[],
-    _params: IConnext.CallParamsStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   reconcile(
-    _incomingRoot: BytesLike,
+    _transferId: BytesLike,
+    _local: string,
+    _recipient: string,
+    _amount: BigNumberish,
+    _externalHash: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -650,11 +610,6 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     execute(
       _args: IConnext.ExecuteArgsStruct,
       overrides?: CallOverrides
@@ -668,18 +623,12 @@ export interface IConnext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -739,30 +688,15 @@ export interface IConnext extends BaseContract {
     ): AssetRemovedEventFilter;
     AssetRemoved(canonicalId?: null, caller?: null): AssetRemovedEventFilter;
 
-    "Dispatched(uint32,bytes32,address[3],uint256[3],address)"(
-      destination?: null,
-      root?: null,
-      tokens?: null,
-      amounts?: null,
-      caller?: null
-    ): DispatchedEventFilter;
-    Dispatched(
-      destination?: null,
-      root?: null,
-      tokens?: null,
-      amounts?: null,
-      caller?: null
-    ): DispatchedEventFilter;
-
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)"(
       transferId?: BytesLike | null,
       to?: string | null,
       router?: string | null,
       params?: null,
       localAsset?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAmount?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
@@ -771,9 +705,9 @@ export interface IConnext extends BaseContract {
       router?: string | null,
       params?: null,
       localAsset?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAmount?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       caller?: null
     ): ExecutedEventFilter;
 
@@ -807,11 +741,26 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): LiquidityRemovedEventFilter;
 
-    "Reconciled(bytes32,address)"(
-      root?: null,
+    "Reconciled(bytes32,address,address,address,uint256,bytes32,tuple,address)"(
+      transferId?: BytesLike | null,
+      to?: string | null,
+      router?: string | null,
+      localAsset?: null,
+      localAmount?: null,
+      externalHash?: null,
+      executed?: null,
       caller?: null
     ): ReconciledEventFilter;
-    Reconciled(root?: null, caller?: null): ReconciledEventFilter;
+    Reconciled(
+      transferId?: BytesLike | null,
+      to?: string | null,
+      router?: string | null,
+      localAsset?: null,
+      localAmount?: null,
+      externalHash?: null,
+      executed?: null,
+      caller?: null
+    ): ReconciledEventFilter;
 
     "RouterAdded(address,address)"(
       router?: null,
@@ -838,26 +787,24 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): StableSwapAddedEventFilter;
 
-    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)"(
+    "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)"(
       transferId?: BytesLike | null,
-      idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAsset?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       localAmount?: null,
       nonce?: null,
       caller?: null
     ): XCalledEventFilter;
     XCalled(
       transferId?: BytesLike | null,
-      idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
-      transferringAsset?: null,
+      transactingAsset?: null,
       localAsset?: null,
-      transferringAmount?: null,
+      transactingAmount?: null,
       localAmount?: null,
       nonce?: null,
       caller?: null
@@ -894,11 +841,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     execute(
       _args: IConnext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -912,18 +854,12 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -994,11 +930,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    dispatch(
-      _destination: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     execute(
       _args: IConnext.ExecuteArgsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1012,18 +943,12 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    process(
-      _transferId: BytesLike,
-      _amount: BigNumberish,
-      _local: string,
-      _index: BigNumberish,
-      _proof: BytesLike[],
-      _params: IConnext.CallParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     reconcile(
-      _incomingRoot: BytesLike,
+      _transferId: BytesLike,
+      _local: string,
+      _recipient: string,
+      _amount: BigNumberish,
+      _externalHash: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

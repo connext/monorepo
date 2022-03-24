@@ -67,43 +67,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "uint32",
-        name: "destination",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "root",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "address[3]",
-        name: "tokens",
-        type: "address[3]",
-      },
-      {
-        indexed: false,
-        internalType: "uint256[3]",
-        name: "amounts",
-        type: "uint256[3]",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "Dispatched",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: true,
         internalType: "bytes32",
         name: "transferId",
@@ -158,7 +121,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "transferringAsset",
+        name: "transactingAsset",
         type: "address",
       },
       {
@@ -170,7 +133,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "transferringAmount",
+        name: "transactingAmount",
         type: "uint256",
       },
       {
@@ -261,10 +224,63 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "bytes32",
+        name: "transferId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "localAsset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "localAmount",
+        type: "uint256",
+      },
+      {
         indexed: false,
         internalType: "bytes32",
-        name: "root",
+        name: "externalHash",
         type: "bytes32",
+      },
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "router",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "externalHash",
+            type: "bytes32",
+          },
+        ],
+        indexed: false,
+        internalType: "struct IConnext.ExecutedTransfer",
+        name: "executed",
+        type: "tuple",
       },
       {
         indexed: false,
@@ -356,12 +372,6 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "idx",
-        type: "uint256",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "to",
         type: "address",
@@ -397,7 +407,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "transferringAsset",
+        name: "transactingAsset",
         type: "address",
       },
       {
@@ -409,7 +419,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "transferringAmount",
+        name: "transactingAmount",
         type: "uint256",
       },
       {
@@ -534,19 +544,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32",
-        name: "_destination",
-        type: "uint32",
-      },
-    ],
-    name: "dispatch",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             components: [
@@ -596,19 +593,9 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "uint256",
-            name: "index",
-            type: "uint256",
-          },
-          {
             internalType: "bytes32",
             name: "transferId",
             type: "bytes32",
-          },
-          {
-            internalType: "bytes32[32]",
-            name: "proof",
-            type: "bytes32[32]",
           },
           {
             internalType: "bytes",
@@ -668,63 +655,23 @@ const _abi = [
         type: "bytes32",
       },
       {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
         internalType: "address",
         name: "_local",
         type: "address",
       },
       {
+        internalType: "address",
+        name: "_recipient",
+        type: "address",
+      },
+      {
         internalType: "uint256",
-        name: "_index",
+        name: "_amount",
         type: "uint256",
       },
       {
-        internalType: "bytes32[32]",
-        name: "_proof",
-        type: "bytes32[32]",
-      },
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint32",
-            name: "originDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "destinationDomain",
-            type: "uint32",
-          },
-        ],
-        internalType: "struct IConnext.CallParams",
-        name: "_params",
-        type: "tuple",
-      },
-    ],
-    name: "process",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
-        name: "_incomingRoot",
+        name: "_externalHash",
         type: "bytes32",
       },
     ],

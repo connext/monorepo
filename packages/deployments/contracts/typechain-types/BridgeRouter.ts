@@ -34,7 +34,7 @@ export interface BridgeRouterInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "remotes(uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "send(address[3],uint256[3],uint32,bytes32)": FunctionFragment;
+    "send(address,uint256,uint32,bytes32,bool,bytes32,bytes32)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
     "setXAppConnectionManager(address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
@@ -89,9 +89,12 @@ export interface BridgeRouterInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "send",
     values: [
-      [string, string, string],
-      [BigNumberish, BigNumberish, BigNumberish],
+      string,
       BigNumberish,
+      BigNumberish,
+      BytesLike,
+      boolean,
+      BytesLike,
       BytesLike
     ]
   ): string;
@@ -170,7 +173,7 @@ export interface BridgeRouterInterface extends utils.Interface {
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
     "Receive(uint64,address,address,address,uint256)": EventFragment;
-    "Send(address[3],address,uint32,uint256[3],bytes32,bytes)": EventFragment;
+    "Send(address,address,uint32,bytes32,uint256,bool,bytes32,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -200,20 +203,15 @@ export type ReceiveEvent = TypedEvent<
 export type ReceiveEventFilter = TypedEventFilter<ReceiveEvent>;
 
 export type SendEvent = TypedEvent<
-  [
-    [string, string, string],
-    string,
-    number,
-    [BigNumber, BigNumber, BigNumber],
-    string,
-    string
-  ],
+  [string, string, number, string, BigNumber, boolean, string, string],
   {
-    tokens: [string, string, string];
+    token: string;
     from: string;
     toDomain: number;
-    amounts: [BigNumber, BigNumber, BigNumber];
-    batchRoot: string;
+    toId: string;
+    amount: BigNumber;
+    fastLiquidityEnabled: boolean;
+    externalHash: string;
     message: string;
   }
 >;
@@ -304,10 +302,13 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     send(
-      _tokens: [string, string, string],
-      _amounts: [BigNumberish, BigNumberish, BigNumberish],
+      _token: string,
+      _amount: BigNumberish,
       _destination: BigNumberish,
-      _batchRoot: BytesLike,
+      _recipient: BytesLike,
+      _enableFast: boolean,
+      _externalId: BytesLike,
+      _externalHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -387,10 +388,13 @@ export interface BridgeRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   send(
-    _tokens: [string, string, string],
-    _amounts: [BigNumberish, BigNumberish, BigNumberish],
+    _token: string,
+    _amount: BigNumberish,
     _destination: BigNumberish,
-    _batchRoot: BytesLike,
+    _recipient: BytesLike,
+    _enableFast: boolean,
+    _externalId: BytesLike,
+    _externalHash: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -465,10 +469,13 @@ export interface BridgeRouter extends BaseContract {
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     send(
-      _tokens: [string, string, string],
-      _amounts: [BigNumberish, BigNumberish, BigNumberish],
+      _token: string,
+      _amount: BigNumberish,
       _destination: BigNumberish,
-      _batchRoot: BytesLike,
+      _recipient: BytesLike,
+      _enableFast: boolean,
+      _externalId: BytesLike,
+      _externalHash: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -514,20 +521,24 @@ export interface BridgeRouter extends BaseContract {
       amount?: null
     ): ReceiveEventFilter;
 
-    "Send(address[3],address,uint32,uint256[3],bytes32,bytes)"(
-      tokens?: [string, string, string] | null,
+    "Send(address,address,uint32,bytes32,uint256,bool,bytes32,bytes)"(
+      token?: string | null,
       from?: string | null,
       toDomain?: BigNumberish | null,
-      amounts?: null,
-      batchRoot?: null,
+      toId?: null,
+      amount?: null,
+      fastLiquidityEnabled?: null,
+      externalHash?: null,
       message?: null
     ): SendEventFilter;
     Send(
-      tokens?: [string, string, string] | null,
+      token?: string | null,
       from?: string | null,
       toDomain?: BigNumberish | null,
-      amounts?: null,
-      batchRoot?: null,
+      toId?: null,
+      amount?: null,
+      fastLiquidityEnabled?: null,
+      externalHash?: null,
       message?: null
     ): SendEventFilter;
   };
@@ -589,10 +600,13 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<BigNumber>;
 
     send(
-      _tokens: [string, string, string],
-      _amounts: [BigNumberish, BigNumberish, BigNumberish],
+      _token: string,
+      _amount: BigNumberish,
       _destination: BigNumberish,
-      _batchRoot: BytesLike,
+      _recipient: BytesLike,
+      _enableFast: boolean,
+      _externalId: BytesLike,
+      _externalHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -680,10 +694,13 @@ export interface BridgeRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     send(
-      _tokens: [string, string, string],
-      _amounts: [BigNumberish, BigNumberish, BigNumberish],
+      _token: string,
+      _amount: BigNumberish,
       _destination: BigNumberish,
-      _batchRoot: BytesLike,
+      _recipient: BytesLike,
+      _enableFast: boolean,
+      _externalId: BytesLike,
+      _externalHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -16,15 +16,12 @@ library BridgeMessage {
     // WARNING: do NOT re-write the numbers / order
     // of message types in an upgrade;
     // will cause in-flight messages to be mis-interpreted
-    // TODO: best way to handle the addition of nxtp / batching to existing types?
     enum Types {
         Invalid, // 0
         TokenId, // 1
         Message, // 2
         Transfer, // 3
-        FastTransfer, // 4
-        NxtpEnabled, // 5
-        TokenIds // 6
+        FastTransfer // 4
     }
 
     // ============ Structs ============
@@ -39,20 +36,10 @@ library BridgeMessage {
 
     // ============ Constants ============
 
-    // Each message must contain the merkle root for the batched transfer and the mint info for
-    // the assets in the batch. Right now, the message restricts to 3 assets per batch. However,
-    // it is possible to not use all of the allocated space.
-
-    // Msg should consist of:
-    // 1 byte identifer + 32 bytes recipient + 32 bytes root + 3 * (4 bytes domain + 32 bytes id + 32 bytes amount + 32 bytes detailsHash)
-    // TODO: need to refine the number of assets in the batch
-    // TODO: does this delineation still make sense? (i.e. token ids then "action")
-
     uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
-    uint256 public constant TOKENS_IN_BATCH = 3;
-    uint256 private constant TOKEN_IDS_LEN = TOKENS_IN_BATCH * TOKEN_ID_LEN; // 108 = 3 * (4 bytes domain + 32 bytes id)
-    uint256 private constant IDENTIFIER_LEN = 1; // type of action (Types enum)
-    uint256 private constant BATCH_TRANSFER_LEN = 257; // 1 byte identifier + 32 bytes recipient + 32 bytes root + 3 * (32 bytes detailsHash + 32 bytes amount)
+    uint256 private constant IDENTIFIER_LEN = 1;
+    uint256 private constant TRANSFER_LEN = 161;
+    // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes externalId + 32 bytes external hash
 
     // ============ Modifiers ============
 
@@ -74,7 +61,7 @@ library BridgeMessage {
      * @return TRUE if action is valid
      */
     function isValidAction(bytes29 _action) internal pure returns (bool) {
-        return isTransfer(_action) || isFastTransfer(_action) || isNxtpEnabled(_action);
+        return isTransfer(_action) || isFastTransfer(_action);
     }
 
     /**
@@ -84,24 +71,24 @@ library BridgeMessage {
      */
     function isValidMessageLength(bytes29 _view) internal pure returns (bool) {
         uint256 _len = _view.len();
-        return _len == TOKEN_IDS_LEN + BATCH_TRANSFER_LEN;
+        return _len == TOKEN_ID_LEN + TRANSFER_LEN;
     }
 
     /**
      * @notice Formats an action message
-     * @param _tokenIds The token IDs for batch
-     * @param _action The action for batch
+     * @param _tokenId The token ID
+     * @param _action The action
      * @return The formatted message
      */
-    function formatMessage(bytes29 _tokenIds, bytes29 _action)
+    function formatMessage(bytes29 _tokenId, bytes29 _action)
         internal
         view
-        typeAssert(_tokenIds, Types.TokenIds)
+        typeAssert(_tokenId, Types.TokenId)
         returns (bytes memory)
     {
         require(isValidAction(_action), "!action");
         bytes29[] memory _views = new bytes29[](2);
-        _views[0] = _tokenIds;
+        _views[0] = _tokenId;
         _views[1] = _action;
         return TypedMemView.join(_views);
     }
@@ -146,43 +133,38 @@ library BridgeMessage {
     }
 
     /**
-     * @notice Checks that the message is of type NxtpEnabled
-     * @param _action The message
-     * @return True if the message is of type NxtpEnabled
-     */
-    function isNxtpEnabled(bytes29 _action) internal pure returns (bool) {
-        return isType(_action, Types.NxtpEnabled);
-    }
-
-    /**
      * @notice Formats Transfer
      * @param _to The recipient address as bytes32
-     * @param _root The merkle root of the transfer batch
-     * @param _amnts The amount in the 
-     * @return bytes29
+     * @param _amnt The transfer amount
+     * @param _enableFast True to format FastTransfer, False to format regular Transfer
+     * @return
      */
     function formatTransfer(
         bytes32 _to,
-        bytes32 _root,
-        uint256[3] memory _amnts,
-        bytes32[3] memory _details
+        uint256 _amnt,
+        bytes32 _detailsHash,
+        bool _enableFast,
+        bytes32 _externalId,
+        bytes32 _externalHash
     ) internal pure returns (bytes29) {
-        Types _type = Types.NxtpEnabled;
-        // TODO: this is tacky and i hate it. interface too
+        Types _type = _enableFast ? Types.FastTransfer : Types.Transfer;
         return
-            abi.encodePacked(
-                _type,
-                _to,
-                _root,
-                _details[0],
-                _amnts[0],
-                _details[1],
-                _amnts[1],
-                _details[2],
-                _amnts[2]
-            ).ref(0).castTo(
+            abi.encodePacked(_type, _to, _amnt, _detailsHash, _externalId, _externalHash).ref(0).castTo(
                 uint40(_type)
             );
+    }
+
+    /**
+     * @notice Serializes a Token ID struct
+     * @param _tokenId The token id struct
+     * @return The formatted Token ID
+     */
+    function formatTokenId(TokenId memory _tokenId)
+        internal
+        pure
+        returns (bytes29)
+    {
+        return formatTokenId(_tokenId.domain, _tokenId.id);
     }
 
     /**
@@ -191,13 +173,12 @@ library BridgeMessage {
      * @param _id The ID
      * @return The formatted Token ID
      */
-    function formatTokenIds(uint32[3] memory _domain, bytes32[3] memory _id)
+    function formatTokenId(uint32 _domain, bytes32 _id)
         internal
         pure
         returns (bytes29)
     {
-        // TODO: tacky and i hate it
-        return abi.encodePacked(_domain[0], _id[0], _domain[1], _id[1],_domain[2], _id[2]).ref(0).castTo(uint40(Types.TokenIds));
+        return abi.encodePacked(_domain, _id).ref(0).castTo(uint40(Types.TokenId));
     }
 
     /**
@@ -255,36 +236,30 @@ library BridgeMessage {
     /**
      * @notice Retrieves the domain from a TokenID
      * @param _tokenId The message
-     * @param _idx The index of the desired token id
      * @return The domain
      */
-    function domain(bytes29 _tokenId, uint256 _idx)
+    function domain(bytes29 _tokenId)
         internal
         pure
-        typeAssert(_tokenId, Types.TokenIds)
+        typeAssert(_tokenId, Types.TokenId)
         returns (uint32)
     {
-        // domain,   id, domain,    id, domain,     id
-        //    0-4, 4-36,  36-40, 40-72,  72-76, 76-108
-        return uint32(_tokenId.indexUint(_idx * TOKEN_ID_LEN, 4));
+        return uint32(_tokenId.indexUint(0, 4));
     }
 
     /**
      * @notice Retrieves the ID from a TokenID
      * @param _tokenId The message
-     * @param _idx The index of the desired token id
      * @return The ID
      */
-    function id(bytes29 _tokenId, uint256 _idx)
+    function id(bytes29 _tokenId)
         internal
         pure
-        typeAssert(_tokenId, Types.TokenIds)
+        typeAssert(_tokenId, Types.TokenId)
         returns (bytes32)
     {
-        // before = 4 bytes domain + preceeding ids
-        // domain, id  , domain, id   , domain, id
-        // 0-4   , 4-36, 36-40 , 40-72, 72-76 , 76-108
-        return _tokenId.index(_idx * TOKEN_ID_LEN + 4, 32);
+        // before = 4 bytes domain
+        return _tokenId.index(4, 32);
     }
 
     /**
@@ -292,14 +267,14 @@ library BridgeMessage {
      * @param _tokenId The message
      * @return The EVM ID
      */
-    function evmId(bytes29 _tokenId, uint256 _idx)
+    function evmId(bytes29 _tokenId)
         internal
         pure
-        typeAssert(_tokenId, Types.TokenIds)
+        typeAssert(_tokenId, Types.TokenId)
         returns (address)
     {
         // before = 4 bytes domain + 12 bytes empty to trim for address
-        return _tokenId.indexAddress((_idx * 32) + 16);
+        return _tokenId.indexAddress(16);
     }
 
     /**
@@ -308,7 +283,7 @@ library BridgeMessage {
      * @return The message type
      */
     function msgType(bytes29 _message) internal pure returns (uint8) {
-        return uint8(_message.indexUint(TOKEN_IDS_LEN, 1));
+        return uint8(_message.indexUint(TOKEN_ID_LEN, 1));
     }
 
     /**
@@ -349,82 +324,61 @@ library BridgeMessage {
     }
 
     /**
-     * @notice Retrieves the merkle root for the batch of transfers
+     * @notice Retrieves the amount from a Transfer
      * @param _transferAction The message
      * @return The amount
      */
-    function batchRoot(bytes29 _transferAction) internal pure returns (bytes32) {
-        // before = 1 byte identifier + 32 recipient = 33 bytes
-        return _transferAction.index(33, 32);
+    function amnt(bytes29 _transferAction) internal pure returns (uint256) {
+        // before = 1 byte identifier + 32 bytes ID = 33 bytes
+        return _transferAction.indexUint(33, 32);
     }
 
     /**
-     * @notice Retrieves the amount from a Transfer
+     * @notice Retrieves the external call hash from a Transfer
      * @param _transferAction The message
-     * @param _idx The index of the amount
      * @return The amount
      */
-    function amnt(bytes29 _transferAction, uint256 _idx) internal pure returns (uint256) {
-        // prefix = 1 byte identifier + 32 bytes recipient + 32 bytes root = 65 bytes
-        // per-token -> 32 bytes detailsHash
-        return _transferAction.indexUint(65 + (_idx * 64) + 32, 32);
+    function externalCallHash(bytes29 _transferAction) internal pure returns (bytes32) {
+        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash + 32 bytes external id = 129 bytes
+        return _transferAction.index(129, 32);
+    }
+
+    /**
+     * @notice Retrieves the external identifier from a Transfer
+     * @param _transferAction The message
+     * @return The amount
+     */
+    function externalId(bytes29 _transferAction) internal pure returns (bytes32) {
+        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash = 97 bytes
+        return _transferAction.index(97, 32);
     }
 
     /**
      * @notice Retrieves the detailsHash from a Transfer
      * @param _transferAction The message
-     * @param _idx The index of the details
      * @return The detailsHash
      */
-    function detailsHash(bytes29 _transferAction, uint256 _idx)
+    function detailsHash(bytes29 _transferAction)
         internal
         pure
         returns (bytes32)
     {
-        // prefix = 1 byte identifier + 32 bytes recipient + 32 bytes root = 65 bytes
-        // per-token -> 32 bytes detailsHash
-        return _transferAction.index(65 + (_idx * 64), 32);
+        // before = 1 byte identifier + 32 bytes ID + 32 bytes amount = 65 bytes
+        return _transferAction.index(65, 32);
     }
 
     /**
-     * @notice Serializes a Token ID struct
-     * @param _tokenId The token id struct
-     * @return The formatted Token ID
-     */
-    function formatTokenId(TokenId memory _tokenId)
-        internal
-        pure
-        returns (bytes29)
-    {
-        return formatTokenId(_tokenId.domain, _tokenId.id);
-    }
-
-    /**
-     * @notice Creates a serialized Token ID from components
-     * @param _domain The domain
-     * @param _id The ID
-     * @return The formatted Token ID
-     */
-    function formatTokenId(uint32 _domain, bytes32 _id)
-        internal
-        pure
-        returns (bytes29)
-    {
-        return abi.encodePacked(_domain, _id).ref(0).castTo(uint40(Types.TokenId));
-    }
-
-    /**
-     * @notice Retrieves the token IDs from a Message
+     * @notice Retrieves the token ID from a Message
      * @param _message The message
-     * @return The IDs for the batch
+     * @return The ID
      */
-    function tokenIds(bytes29 _message)
+    function tokenId(bytes29 _message)
         internal
         pure
         typeAssert(_message, Types.Message)
         returns (bytes29)
     {
-        return _message.slice(0, TOKEN_IDS_LEN, uint40(Types.TokenIds));
+        return _message.slice(0, TOKEN_ID_LEN, uint40(Types.TokenId));
     }
 
     /**
@@ -438,9 +392,9 @@ library BridgeMessage {
         typeAssert(_message, Types.Message)
         returns (bytes29)
     {
-        uint256 _actionLen = _message.len() - TOKEN_IDS_LEN;
+        uint256 _actionLen = _message.len() - TOKEN_ID_LEN;
         uint40 _type = uint40(msgType(_message));
-        return _message.slice(TOKEN_IDS_LEN, _actionLen, _type);
+        return _message.slice(TOKEN_ID_LEN, _actionLen, _type);
     }
 
     /**
