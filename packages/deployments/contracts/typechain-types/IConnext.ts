@@ -221,7 +221,7 @@ export interface IConnextInterface extends utils.Interface {
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
-    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
+    "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
@@ -359,7 +359,6 @@ export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
 export type XCalledEvent = TypedEvent<
   [
     string,
-    BigNumber,
     string,
     IConnext.CallParamsStructOutput,
     string,
@@ -371,7 +370,6 @@ export type XCalledEvent = TypedEvent<
   ],
   {
     transferId: string;
-    idx: BigNumber;
     to: string;
     params: IConnext.CallParamsStructOutput;
     transactingAsset: string;
@@ -789,9 +787,8 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): StableSwapAddedEventFilter;
 
-    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)"(
+    "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)"(
       transferId?: BytesLike | null,
-      idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
       transactingAsset?: null,
@@ -803,7 +800,6 @@ export interface IConnext extends BaseContract {
     ): XCalledEventFilter;
     XCalled(
       transferId?: BytesLike | null,
-      idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
       transactingAsset?: null,

@@ -115,7 +115,6 @@ export interface ConnextInterface extends utils.Interface {
     "assetOwnershipTimestamp()": FunctionFragment;
     "bridgeRouter()": FunctionFragment;
     "canonicalToAdopted(bytes32)": FunctionFragment;
-    "count()": FunctionFragment;
     "delay()": FunctionFragment;
     "domain()": FunctionFragment;
     "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,bytes32,bytes))": FunctionFragment;
@@ -140,8 +139,6 @@ export interface ConnextInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounceRouterOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "root()": FunctionFragment;
-    "routedTransactions(bytes32)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routedTransfersGas(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -149,7 +146,6 @@ export interface ConnextInterface extends utils.Interface {
     "routerRelayerFees(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
-    "tree()": FunctionFragment;
     "wrapper()": FunctionFragment;
     "xcall(((address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
   };
@@ -203,7 +199,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "canonicalToAdopted",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(
@@ -279,11 +274,6 @@ export interface ConnextInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(functionFragment: "root", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "routedTransactions",
-    values: [BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "routedTransfers",
     values: [BytesLike]
@@ -312,7 +302,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "tokenRegistry",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "tree", values?: undefined): string;
   encodeFunctionData(functionFragment: "wrapper", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "xcall",
@@ -368,7 +357,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "canonicalToAdopted",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -435,11 +423,6 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "routedTransactions",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "routedTransfers",
     data: BytesLike
@@ -465,7 +448,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "tokenRegistry",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "wrapper", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
 
@@ -485,7 +467,7 @@ export interface ConnextInterface extends utils.Interface {
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
-    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
+    "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetAdded"): EventFragment;
@@ -681,7 +663,6 @@ export type StableSwapAddedEventFilter = TypedEventFilter<StableSwapAddedEvent>;
 export type XCalledEvent = TypedEvent<
   [
     string,
-    BigNumber,
     string,
     IConnext.CallParamsStructOutput,
     string,
@@ -693,7 +674,6 @@ export type XCalledEvent = TypedEvent<
   ],
   {
     transferId: string;
-    idx: BigNumber;
     to: string;
     params: IConnext.CallParamsStructOutput;
     transactingAsset: string;
@@ -797,8 +777,6 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    count(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     domain(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -895,19 +873,6 @@ export interface Connext extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    root(overrides?: CallOverrides): Promise<[string]>;
-
-    routedTransactions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, string] & {
-        router: string;
-        amount: BigNumber;
-        externalHash: string;
-      }
-    >;
-
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -947,10 +912,6 @@ export interface Connext extends BaseContract {
     ): Promise<ContractTransaction>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<[string]>;
-
-    tree(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { count: BigNumber }>;
 
     wrapper(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1015,8 +976,6 @@ export interface Connext extends BaseContract {
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  count(overrides?: CallOverrides): Promise<BigNumber>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1114,19 +1073,6 @@ export interface Connext extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  root(overrides?: CallOverrides): Promise<string>;
-
-  routedTransactions(
-    arg0: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber, string] & {
-      router: string;
-      amount: BigNumber;
-      externalHash: string;
-    }
-  >;
-
   routedTransfers(
     arg0: BytesLike,
     overrides?: CallOverrides
@@ -1166,8 +1112,6 @@ export interface Connext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
-  tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   wrapper(overrides?: CallOverrides): Promise<string>;
 
@@ -1227,8 +1171,6 @@ export interface Connext extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    count(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1315,19 +1257,6 @@ export interface Connext extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    root(overrides?: CallOverrides): Promise<string>;
-
-    routedTransactions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, string] & {
-        router: string;
-        amount: BigNumber;
-        externalHash: string;
-      }
-    >;
-
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1367,8 +1296,6 @@ export interface Connext extends BaseContract {
     ): Promise<void>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<string>;
-
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
 
     wrapper(overrides?: CallOverrides): Promise<string>;
 
@@ -1543,9 +1470,8 @@ export interface Connext extends BaseContract {
       caller?: null
     ): StableSwapAddedEventFilter;
 
-    "XCalled(bytes32,uint256,address,tuple,address,address,uint256,uint256,uint256,address)"(
+    "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)"(
       transferId?: BytesLike | null,
-      idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
       transactingAsset?: null,
@@ -1557,7 +1483,6 @@ export interface Connext extends BaseContract {
     ): XCalledEventFilter;
     XCalled(
       transferId?: BytesLike | null,
-      idx?: BigNumberish | null,
       to?: string | null,
       params?: null,
       transactingAsset?: null,
@@ -1631,8 +1556,6 @@ export interface Connext extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    count(overrides?: CallOverrides): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1730,13 +1653,6 @@ export interface Connext extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    root(overrides?: CallOverrides): Promise<BigNumber>;
-
-    routedTransactions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1768,8 +1684,6 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<BigNumber>;
-
-    tree(overrides?: CallOverrides): Promise<BigNumber>;
 
     wrapper(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1843,8 +1757,6 @@ export interface Connext extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1946,13 +1858,6 @@ export interface Connext extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    routedTransactions(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1986,8 +1891,6 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     tokenRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     wrapper(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

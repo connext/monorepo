@@ -204,7 +204,6 @@ interface IConnext {
   /**
    * @notice Emitted when `xcall` is called on the origin domain
    * @param transferId - The unique identifier of the crosschain transfer
-   * @param idx - The leaf index of the transfer in batch tree
    * @param to - The CallParams.to provided, created as indexed parameter
    * @param params - The CallParams provided to the function
    * @param transactingAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
@@ -219,7 +218,6 @@ interface IConnext {
    */
   event XCalled(
     bytes32 indexed transferId,
-    uint256 indexed idx,
     address indexed to,
     CallParams params,
     address transactingAsset,

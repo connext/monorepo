@@ -372,12 +372,6 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "idx",
-        type: "uint256",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "to",
         type: "address",

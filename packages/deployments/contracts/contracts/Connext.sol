@@ -9,7 +9,6 @@ import "./interpreters/Executor.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
-import "./nomad-core/contracts/Merkle.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -32,13 +31,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
 
-contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, MerkleTreeManager, IConnext {
+contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, IConnext {
   // TODO: why is this breaking the build
   // uint256 internal constant 3 = 3;
-
-  // ============ Libraries ============
-
-  using MerkleLib for MerkleLib.Tree;
 
   // ============ Constants =============
 
@@ -143,12 +138,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * of reconcile
    */
   mapping(bytes32 => bytes32) public reconciledTransfers;
-
-  /**
-   * @notice Stores the transactionId => FulfilledTransaction mapping
-   * @dev This information is stored onchain if fast liquidity is provided
-   */
-  mapping(bytes32 => ExecutedTransfer) public routedTransactions;
 
   // ============ Modifiers ============
 
@@ -403,7 +392,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Emit event
     emit XCalled(
       _transferId,
-      count() - 1, // leaf inserted
       _args.params.to,
       _args.params,
       _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
@@ -435,9 +423,9 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _recipient,
     uint256 _amount,
     bytes32 _externalHash
-  ) external payable override onlyBridgeRouter{
+  ) external payable override onlyBridgeRouter {
     // Find the router to credit
-    ExecutedTransfer memory transaction = routedTransactions[_transferId];
+    ExecutedTransfer memory transaction = routedTransfers[_transferId];
 
     if (transaction.router == address(0)) {
       // Nomad bridge executed faster than router, funds should become process-able
