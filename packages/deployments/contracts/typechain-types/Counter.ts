@@ -21,19 +21,25 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface CounterInterface extends utils.Interface {
   contractName: "Counter";
   functions: {
+    "attack()": FunctionFragment;
     "count()": FunctionFragment;
+    "executor()": FunctionFragment;
     "increment()": FunctionFragment;
     "incrementAndSend(address,address,uint256)": FunctionFragment;
+    "setExecutor(address)": FunctionFragment;
     "setShouldRevert(bool)": FunctionFragment;
     "shouldRevert()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "attack", values?: undefined): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
+  encodeFunctionData(functionFragment: "executor", values?: undefined): string;
   encodeFunctionData(functionFragment: "increment", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "incrementAndSend",
     values: [string, string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "setExecutor", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setShouldRevert",
     values: [boolean]
@@ -43,10 +49,16 @@ export interface CounterInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(functionFragment: "attack", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "increment", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "incrementAndSend",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setExecutor",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -89,7 +101,13 @@ export interface Counter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    attack(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     count(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    executor(overrides?: CallOverrides): Promise<[string]>;
 
     increment(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -102,6 +120,11 @@ export interface Counter extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setExecutor(
+      _executor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setShouldRevert(
       value: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -110,7 +133,13 @@ export interface Counter extends BaseContract {
     shouldRevert(overrides?: CallOverrides): Promise<[boolean]>;
   };
 
+  attack(
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   count(overrides?: CallOverrides): Promise<BigNumber>;
+
+  executor(overrides?: CallOverrides): Promise<string>;
 
   increment(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -123,6 +152,11 @@ export interface Counter extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setExecutor(
+    _executor: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setShouldRevert(
     value: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -131,7 +165,11 @@ export interface Counter extends BaseContract {
   shouldRevert(overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
+    attack(overrides?: CallOverrides): Promise<void>;
+
     count(overrides?: CallOverrides): Promise<BigNumber>;
+
+    executor(overrides?: CallOverrides): Promise<string>;
 
     increment(overrides?: CallOverrides): Promise<void>;
 
@@ -142,6 +180,8 @@ export interface Counter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setExecutor(_executor: string, overrides?: CallOverrides): Promise<void>;
+
     setShouldRevert(value: boolean, overrides?: CallOverrides): Promise<void>;
 
     shouldRevert(overrides?: CallOverrides): Promise<boolean>;
@@ -150,7 +190,13 @@ export interface Counter extends BaseContract {
   filters: {};
 
   estimateGas: {
+    attack(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     count(overrides?: CallOverrides): Promise<BigNumber>;
+
+    executor(overrides?: CallOverrides): Promise<BigNumber>;
 
     increment(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -161,6 +207,11 @@ export interface Counter extends BaseContract {
       recipient: string,
       amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setExecutor(
+      _executor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setShouldRevert(
@@ -172,7 +223,13 @@ export interface Counter extends BaseContract {
   };
 
   populateTransaction: {
+    attack(
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    executor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increment(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -183,6 +240,11 @@ export interface Counter extends BaseContract {
       recipient: string,
       amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setExecutor(
+      _executor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setShouldRevert(
