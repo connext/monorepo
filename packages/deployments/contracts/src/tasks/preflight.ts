@@ -4,7 +4,7 @@ import { task } from "hardhat/config";
 import { canonizeId } from "../nomad";
 
 export default task("preflight", "Ensure correct setup for e2e with specified router")
-  .addParam("router", "Router address")
+  .addOptionalParam("router", "Router address")
   .addOptionalParam("domain", "Canonical domain of token")
   .addOptionalParam("asset", "Canonical token address on canonical domain")
   .addOptionalParam("amount", "Override amount (real units)")
@@ -12,7 +12,14 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
   .addOptionalParam("pool", "The adopted <> local stable swap pool address")
   .setAction(
     async (
-      { router, connextAddress: _connextAddress, amount: _amount, domain: _domain, asset: _asset, pool: _pool },
+      {
+        router: _router,
+        connextAddress: _connextAddress,
+        amount: _amount,
+        domain: _domain,
+        asset: _asset,
+        pool: _pool,
+      },
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
       let connextAddress = _connextAddress;
@@ -21,33 +28,54 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         connextAddress = connextDeployment.address;
       }
 
+      // Get the router address.
+      const router = _router ?? process.env.ROUTER_ADDRESS;
+      if (!router) {
+        throw new Error("Router address must be specified as param of from env (ROUTER_ADDRESS)");
+      }
       // Get canonical domain and asset.
       const canonicalDomain = _domain ?? process.env.CANONICAL_DOMAIN;
       if (!canonicalDomain) {
-        throw new Error("Domain must be specified as param or from env");
+        throw new Error("Domain must be specified as param or from env (CANONICAL_DOMAIN)");
+      }
+      // Get the domain of the current network (this could be the canonical network, so same as above).
+      const networkDomain = network.name === "rinkeby" ? "2000" : network.name === "kovan" ? "3000" : undefined;
+      if (!networkDomain) {
+        throw new Error("Unsupported network");
       }
       const canonicalAsset = _asset ?? process.env.CANONICAL_TOKEN;
       if (!canonicalAsset) {
-        throw new Error("Asset must be specified as param or from env");
+        throw new Error("Asset must be specified as param or from env (CANONICAL_TOKEN)");
       }
       const canonicalTokenId = hexlify(canonizeId(canonicalAsset));
 
-      // Retrieve the local asset from the token registry.
-      const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
-      const tokenRegistry = await ethers.getContractAt(
-        (
-          await deployments.getArtifact("TokenRegistry")
-        ).abi,
-        tokenRegistryAddress,
-      );
-      let localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
-      if (localAsset === constants.AddressZero) {
-        // use the canonical asset as the local asset
-        console.log(`Corresponding local asset not found for canonical asset, using canonical as local`);
+      // Retrieve the local asset from the token registry, if applicable.
+      let localAsset;
+      if (canonicalDomain === networkDomain) {
+        // Use the canonical asset as the local asset since we're on the canonical network.
         localAsset = canonicalAsset;
+      } else {
+        // Current network's domain is not canonical domain, so we need to get the local asset representation.
+        const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
+        const tokenRegistry = await ethers.getContractAt(
+          (
+            await deployments.getArtifact("TokenRegistry")
+          ).abi,
+          tokenRegistryAddress,
+        );
+        localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+        if (localAsset === constants.AddressZero) {
+          throw new Error(
+            "Corresponding local asset not found for canonical asset!" +
+              " Has the representation asset been deployed to this domain?",
+          );
+        }
       }
 
+      // The amount to mint / add liquidity for.
       const amount = _amount ?? "2500000000000000000000000";
+      // The stable swap pool address, if applicable; if mad asset is what's being used,
+      // should be set to address(0).
       const pool = _pool ?? constants.AddressZero;
 
       // Make sure router's signer address is approved.
@@ -66,11 +94,13 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
       console.log("Canonical asset: ", canonicalAsset);
       if (!isAssetApproved) {
         console.log("*** Approving canonical asset!");
-        const domain = network.name === "rinkeby" ? "2000" : network.name === "kovan" ? "3000" : undefined;
-        if (!domain) {
-          throw new Error("Unsupported network");
-        }
-        await run("setup-asset", { canonical: canonicalTokenId, adopted: localAsset, domain, connextAddress, pool });
+        await run("setup-asset", {
+          canonical: canonicalTokenId,
+          adopted: localAsset,
+          domain: networkDomain,
+          connextAddress,
+          pool,
+        });
       }
       console.log("Canonical asset approved!");
 
