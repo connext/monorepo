@@ -18,6 +18,7 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         const connextDeployment = await deployments.get("Connext");
         connextAddress = connextDeployment.address;
       }
+
       const asset = _asset ?? (await deployments.get("TestERC20")).address;
       const amount = _amount ?? "2500000000000000000000000";
 
