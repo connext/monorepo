@@ -28,7 +28,7 @@ import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
 import "./src/tasks/enrollHandler";
 import "./src/tasks/ensureLocal";
-import "./src/tasks/prepareTx";
+import "./src/tasks/xcall";
 import "./src/tasks/setLocalDomain";
 import "./src/tasks/traceMessage";
 import "./src/tasks/preflight";

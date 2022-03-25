@@ -112,11 +112,14 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       // The amount to mint / add liquidity for. Convert units, coerce to number to remove
       // decimal point, then back to string.
       const amount = Number(utils.formatUnits(_amount ?? DEFAULT_AMOUNT, await erc20.decimals())).toString();
+      // 10% of the total balance should go to relayer fees, and 90% should go to liquidity pool.
+      const targetRelayerFees = BigNumber.from(amount).mul(10).div(100);
+      const targetLiquidity = BigNumber.from(amount).sub(targetRelayerFees);
       const liquidity = await connext.routerBalances(router, localAsset);
-      if (liquidity.lt(amount)) {
+      const relayerFees = await connext.routerRelayerFees(router);
+      if (liquidity.lt(targetLiquidity) || relayerFees.lt(targetRelayerFees)) {
         if (localAsset !== ethers.constants.AddressZero) {
           const namedAccounts = await getNamedAccounts();
-
           const balance = await erc20.balanceOf(namedAccounts.deployer);
           console.log("\nDeployer Balance: ", balance.toString());
           if (balance.lt(amount)) {
@@ -128,7 +131,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
             });
           }
         } else {
-          // TODO: send ETH to txmanager
+          // TODO: send ETH to connext contract
           throw new Error("Need to support eth");
         }
         console.log("\nLiquidity: ", liquidity.toString());
@@ -139,10 +142,10 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
 
       // Make sure the router's signer address has relayer fees by checking the
       // Connext contract on chain and reading the routerRelayerFees function.
-      const relayerFees = await connext.routerRelayerFees(router);
       console.log("\nRelayer Fees: ", relayerFees.toString());
       if (relayerFees.lt(BigNumber.from(amount).mul(10).div(100))) {
         // TODO: add relayer fees
       }
+      console.log("Sufficient relayer fees added!");
     },
   );
