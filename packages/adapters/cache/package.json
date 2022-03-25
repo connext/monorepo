@@ -36,18 +36,18 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^4.29.2",
-    "ethers": "^5.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "ethers": "^5.6.1",
     "ioredis": "^4.28.5",
-    "ioredis-mock": "^7.1.0"
+    "ioredis-mock": "^7.2.0"
   },
   "devDependencies": {
-    "@types/ioredis": "^4",
-    "@types/mocha": "^9",
-    "mocha": "^9.2.1",
+    "@types/ioredis": "^4.28.10",
+    "@types/mocha": "^9.1.0",
+    "mocha": "^9.2.2",
     "nyc": "^15.1.0",
     "ts-mocha": "^9.0.2",
-    "ts-node": "^10.2.0",
+    "ts-node": "^10.7.0",
     "tslib": "^2.3.1",
     "typescript": "^4.6.2"
   },

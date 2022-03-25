@@ -20,7 +20,7 @@ import {
   getPriceOracleInterface,
   WriteTransaction,
 } from "./shared";
-import { RpcProviderAggregator } from "./rpcProviderAggregator";
+import { RpcProviderAggregator } from "./aggregator";
 
 // TODO: Rename to BlockchainService
 // TODO: I do not like that this is generally a passthrough class now - all it handles is the mapping. We should
@@ -281,7 +281,7 @@ export class ChainReader {
         sendingChainId,
         sendingAssetId,
         outputDecimals,
-        "execute",
+        "xcall",
         undefined,
         chainData,
         requestContext,
@@ -291,7 +291,7 @@ export class ChainReader {
         receivingChainId,
         receivingAssetId,
         outputDecimals,
-        "xcall",
+        "execute",
         undefined,
         chainData,
         requestContext,

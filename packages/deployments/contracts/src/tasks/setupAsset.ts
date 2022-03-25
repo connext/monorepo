@@ -24,7 +24,7 @@ export default task("setup-asset", "Configures an asset")
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext_Proxy");
+        const connextDeployment = await deployments.get("Connext");
         connextAddress = connextDeployment.address;
       }
       console.log("connextAddress: ", connextAddress);
@@ -34,7 +34,7 @@ export default task("setup-asset", "Configures an asset")
         domain: +domain,
       };
 
-      const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
       const approved = await connext.approvedAssets(canonicalTokenId.id);
       if (approved) {
         console.log("approved, no need to add");

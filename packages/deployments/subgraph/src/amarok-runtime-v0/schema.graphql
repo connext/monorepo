@@ -39,11 +39,11 @@ type Transfer @entity {
   router: Router
 
   # XCalled
-  xcalledCaller: Bytes
-  xcalledTransferringAmount: BigInt
-  xcalledLocalAmount: BigInt
-  xcalledTransferringAsset: Bytes
+  xcalledTransactingAsset: Bytes
   xcalledLocalAsset: Bytes
+  xcalledTransactingAmount: BigInt
+  xcalledLocalAmount: BigInt
+  xcalledCaller: Bytes
 
   # XCalled Transaction
   xcalledTransactionHash: Bytes
@@ -54,9 +54,9 @@ type Transfer @entity {
 
   # Executed
   executedCaller: Bytes
-  executedTransferringAmount: BigInt
+  executedTransactingAmount: BigInt
   executedLocalAmount: BigInt
-  executedTransferringAsset: Bytes
+  executedTransactingAsset: Bytes
   executedLocalAsset: Bytes
 
   # Executed Transaction
@@ -66,14 +66,15 @@ type Transfer @entity {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
 
-  # # Reconciled
-  # root: Bytes
-  # reconciledCaller: Bytes
+  # Reconciled
+  reconciledCaller: Bytes
+  reconciledLocalAsset: Bytes
+  reconciledLocalAmount: BigInt
 
-  # # Reconciled Transaction
-  # reconciledTransactionHash: Bytes
-  # reconciledTimestamp: BigInt
-  # reconciledGasPrice: BigInt
-  # reconciledGasLimit: BigInt
-  # reconciledBlockNumber: BigInt
+  # Reconciled Transaction
+  reconciledTransactionHash: Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
 }
