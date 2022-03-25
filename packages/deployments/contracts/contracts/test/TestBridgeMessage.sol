@@ -39,7 +39,7 @@ contract TestBridgeMessage {
         return uint40(uint8(_message[TOKEN_ID_LEN]));
     }
 
-    function testIsValidAction(bytes memory _action, BridgeMessage.Types _t)
+    function isValidAction(bytes memory _action, BridgeMessage.Types _t)
         external
         pure
         returns (bool)
@@ -47,7 +47,7 @@ contract TestBridgeMessage {
         return BridgeMessage.isValidAction(_action.ref(uint40(_t)));
     }
 
-    function testIsValidMessageLength(bytes memory _message)
+    function isValidMessageLength(bytes memory _message)
         external
         pure
         returns (bool)
@@ -56,7 +56,7 @@ contract TestBridgeMessage {
         return BridgeMessage.isValidMessageLength(_message.ref(_t));
     }
 
-    function testFormatMessage(
+    function formatMessage(
         bytes memory _tokenId,
         bytes memory _action,
         BridgeMessage.Types _idType,
@@ -67,7 +67,7 @@ contract TestBridgeMessage {
         return BridgeMessage.formatMessage(tokenId, action);
     }
 
-    function testMessageType(bytes memory _message)
+    function messageType(bytes memory _message)
         external
         pure
         returns (BridgeMessage.Types)
@@ -76,12 +76,12 @@ contract TestBridgeMessage {
         return BridgeMessage.messageType(_message.ref(_t));
     }
 
-    function testIsTransfer(bytes memory _action) external pure returns (bool) {
+    function isTransfer(bytes memory _action) external pure returns (bool) {
         bytes29 action = _action.ref(uint40(BridgeMessage.Types.Transfer));
         return BridgeMessage.isTransfer(action);
     }
 
-    function testIsFastTransfer(bytes memory _action)
+    function isFastTransfer(bytes memory _action)
         external
         pure
         returns (bool)
@@ -90,7 +90,7 @@ contract TestBridgeMessage {
         return BridgeMessage.isFastTransfer(action);
     }
 
-    function testFormatTransfer(
+    function formatTransfer(
         bytes32 _to,
         uint256 _amnt,
         bytes32 _detailsHash,
@@ -103,7 +103,7 @@ contract TestBridgeMessage {
                 .clone();
     }
 
-    function testFormatTokenId(uint32 _domain, bytes32 _id)
+    function formatTokenId(uint32 _domain, bytes32 _id)
         external
         view
         returns (bytes memory)
@@ -111,7 +111,7 @@ contract TestBridgeMessage {
         return BridgeMessage.formatTokenId(_domain, _id).clone();
     }
 
-    function testFormatDetailsHash(
+    function formatDetailsHash(
         string memory _name,
         string memory _symbol,
         uint8 _decimals
@@ -119,7 +119,7 @@ contract TestBridgeMessage {
         return BridgeMessage.getDetailsHash(_name, _symbol, _decimals);
     }
 
-    function testSplitTokenId(bytes memory _tokenId)
+    function splitTokenId(bytes memory _tokenId)
         external
         pure
         returns (
@@ -135,7 +135,7 @@ contract TestBridgeMessage {
         return (domain, id, evmId);
     }
 
-    function testSplitTransfer(bytes memory _transfer)
+    function splitTransfer(bytes memory _transfer)
         external
         pure
         returns (
@@ -155,7 +155,7 @@ contract TestBridgeMessage {
         return (t, recipient, evmRecipient, amnt, id);
     }
 
-    function testSplitMessage(bytes memory _message)
+    function splitMessage(bytes memory _message)
         external
         view
         returns (bytes memory, bytes memory)
@@ -166,7 +166,7 @@ contract TestBridgeMessage {
         return (tokenId.clone(), action.clone());
     }
 
-    function testMustBeMessage(bytes memory _message)
+    function mustBeMessage(bytes memory _message)
         external
         view
         returns (bytes memory)
