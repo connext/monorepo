@@ -1,4 +1,3 @@
-import { Wallet } from "ethers";
 import { task } from "hardhat/config";
 
 export default task("mint", "Mint test tokens")
