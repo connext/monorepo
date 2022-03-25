@@ -22,141 +22,138 @@ import type {
 
 export interface TestBridgeMessageInterface extends utils.Interface {
   functions: {
-    "testFormatDetailsHash(string,string,uint8)": FunctionFragment;
-    "testFormatMessage(bytes,bytes,uint8,uint8)": FunctionFragment;
-    "testFormatTokenId(uint32,bytes32)": FunctionFragment;
-    "testFormatTransfer(bytes32,uint256,bytes32,bool,bytes32)": FunctionFragment;
-    "testIsFastTransfer(bytes)": FunctionFragment;
-    "testIsTransfer(bytes)": FunctionFragment;
-    "testIsValidAction(bytes,uint8)": FunctionFragment;
-    "testIsValidMessageLength(bytes)": FunctionFragment;
-    "testMessageType(bytes)": FunctionFragment;
-    "testMustBeMessage(bytes)": FunctionFragment;
-    "testSplitMessage(bytes)": FunctionFragment;
-    "testSplitTokenId(bytes)": FunctionFragment;
-    "testSplitTransfer(bytes)": FunctionFragment;
+    "formatDetailsHash(string,string,uint8)": FunctionFragment;
+    "formatMessage(bytes,bytes,uint8,uint8)": FunctionFragment;
+    "formatTokenId(uint32,bytes32)": FunctionFragment;
+    "formatTransfer(bytes32,uint256,bytes32,bool,bytes32)": FunctionFragment;
+    "isFastTransfer(bytes)": FunctionFragment;
+    "isTransfer(bytes)": FunctionFragment;
+    "isValidAction(bytes,uint8)": FunctionFragment;
+    "isValidMessageLength(bytes)": FunctionFragment;
+    "messageType(bytes)": FunctionFragment;
+    "mustBeMessage(bytes)": FunctionFragment;
+    "splitMessage(bytes)": FunctionFragment;
+    "splitTokenId(bytes)": FunctionFragment;
+    "splitTransfer(bytes)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "testFormatDetailsHash"
-      | "testFormatMessage"
-      | "testFormatTokenId"
-      | "testFormatTransfer"
-      | "testIsFastTransfer"
-      | "testIsTransfer"
-      | "testIsValidAction"
-      | "testIsValidMessageLength"
-      | "testMessageType"
-      | "testMustBeMessage"
-      | "testSplitMessage"
-      | "testSplitTokenId"
-      | "testSplitTransfer"
+      | "formatDetailsHash"
+      | "formatMessage"
+      | "formatTokenId"
+      | "formatTransfer"
+      | "isFastTransfer"
+      | "isTransfer"
+      | "isValidAction"
+      | "isValidMessageLength"
+      | "messageType"
+      | "mustBeMessage"
+      | "splitMessage"
+      | "splitTokenId"
+      | "splitTransfer"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "testFormatDetailsHash",
+    functionFragment: "formatDetailsHash",
     values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "testFormatMessage",
+    functionFragment: "formatMessage",
     values: [BytesLike, BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "testFormatTokenId",
+    functionFragment: "formatTokenId",
     values: [BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testFormatTransfer",
+    functionFragment: "formatTransfer",
     values: [BytesLike, BigNumberish, BytesLike, boolean, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testIsFastTransfer",
+    functionFragment: "isFastTransfer",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testIsTransfer",
+    functionFragment: "isTransfer",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testIsValidAction",
+    functionFragment: "isValidAction",
     values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "testIsValidMessageLength",
+    functionFragment: "isValidMessageLength",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testMessageType",
+    functionFragment: "messageType",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testMustBeMessage",
+    functionFragment: "mustBeMessage",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testSplitMessage",
+    functionFragment: "splitMessage",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testSplitTokenId",
+    functionFragment: "splitTokenId",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "testSplitTransfer",
+    functionFragment: "splitTransfer",
     values: [BytesLike]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "testFormatDetailsHash",
+    functionFragment: "formatDetailsHash",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testFormatMessage",
+    functionFragment: "formatMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testFormatTokenId",
+    functionFragment: "formatTokenId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testFormatTransfer",
+    functionFragment: "formatTransfer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testIsFastTransfer",
+    functionFragment: "isFastTransfer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "isTransfer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isValidAction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testIsTransfer",
+    functionFragment: "isValidMessageLength",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testIsValidAction",
+    functionFragment: "messageType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testIsValidMessageLength",
+    functionFragment: "mustBeMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testMessageType",
+    functionFragment: "splitMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testMustBeMessage",
+    functionFragment: "splitTokenId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testSplitMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testSplitTokenId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testSplitTransfer",
+    functionFragment: "splitTransfer",
     data: BytesLike
   ): Result;
 
@@ -190,14 +187,14 @@ export interface TestBridgeMessage extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    testFormatDetailsHash(
+    formatDetailsHash(
       _name: string,
       _symbol: string,
       _decimals: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    testFormatMessage(
+    formatMessage(
       _tokenId: BytesLike,
       _action: BytesLike,
       _idType: BigNumberish,
@@ -205,13 +202,13 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    testFormatTokenId(
+    formatTokenId(
       _domain: BigNumberish,
       _id: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    testFormatTransfer(
+    formatTransfer(
       _to: BytesLike,
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
@@ -220,61 +217,61 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    testIsFastTransfer(
+    isFastTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    testIsTransfer(
+    isTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    testIsValidAction(
+    isValidAction(
       _action: BytesLike,
       _t: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    testIsValidMessageLength(
+    isValidMessageLength(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    testMessageType(
+    messageType(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<[number]>;
 
-    testMustBeMessage(
+    mustBeMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    testSplitMessage(
+    splitMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
-    testSplitTokenId(
+    splitTokenId(
       _tokenId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[number, string, string]>;
 
-    testSplitTransfer(
+    splitTransfer(
       _transfer: BytesLike,
       overrides?: CallOverrides
     ): Promise<[number, string, string, BigNumber, string]>;
   };
 
-  testFormatDetailsHash(
+  formatDetailsHash(
     _name: string,
     _symbol: string,
     _decimals: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  testFormatMessage(
+  formatMessage(
     _tokenId: BytesLike,
     _action: BytesLike,
     _idType: BigNumberish,
@@ -282,13 +279,13 @@ export interface TestBridgeMessage extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  testFormatTokenId(
+  formatTokenId(
     _domain: BigNumberish,
     _id: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  testFormatTransfer(
+  formatTransfer(
     _to: BytesLike,
     _amnt: BigNumberish,
     _detailsHash: BytesLike,
@@ -297,61 +294,55 @@ export interface TestBridgeMessage extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  testIsFastTransfer(
+  isFastTransfer(
     _action: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  testIsTransfer(
-    _action: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isTransfer(_action: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
-  testIsValidAction(
+  isValidAction(
     _action: BytesLike,
     _t: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  testIsValidMessageLength(
+  isValidMessageLength(
     _message: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  testMessageType(
-    _message: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<number>;
+  messageType(_message: BytesLike, overrides?: CallOverrides): Promise<number>;
 
-  testMustBeMessage(
+  mustBeMessage(
     _message: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  testSplitMessage(
+  splitMessage(
     _message: BytesLike,
     overrides?: CallOverrides
   ): Promise<[string, string]>;
 
-  testSplitTokenId(
+  splitTokenId(
     _tokenId: BytesLike,
     overrides?: CallOverrides
   ): Promise<[number, string, string]>;
 
-  testSplitTransfer(
+  splitTransfer(
     _transfer: BytesLike,
     overrides?: CallOverrides
   ): Promise<[number, string, string, BigNumber, string]>;
 
   callStatic: {
-    testFormatDetailsHash(
+    formatDetailsHash(
       _name: string,
       _symbol: string,
       _decimals: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    testFormatMessage(
+    formatMessage(
       _tokenId: BytesLike,
       _action: BytesLike,
       _idType: BigNumberish,
@@ -359,13 +350,13 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    testFormatTokenId(
+    formatTokenId(
       _domain: BigNumberish,
       _id: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    testFormatTransfer(
+    formatTransfer(
       _to: BytesLike,
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
@@ -374,48 +365,45 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    testIsFastTransfer(
+    isFastTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    testIsTransfer(
-      _action: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isTransfer(_action: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
-    testIsValidAction(
+    isValidAction(
       _action: BytesLike,
       _t: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    testIsValidMessageLength(
+    isValidMessageLength(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    testMessageType(
+    messageType(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<number>;
 
-    testMustBeMessage(
+    mustBeMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    testSplitMessage(
+    splitMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
-    testSplitTokenId(
+    splitTokenId(
       _tokenId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[number, string, string]>;
 
-    testSplitTransfer(
+    splitTransfer(
       _transfer: BytesLike,
       overrides?: CallOverrides
     ): Promise<[number, string, string, BigNumber, string]>;
@@ -424,14 +412,14 @@ export interface TestBridgeMessage extends BaseContract {
   filters: {};
 
   estimateGas: {
-    testFormatDetailsHash(
+    formatDetailsHash(
       _name: string,
       _symbol: string,
       _decimals: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testFormatMessage(
+    formatMessage(
       _tokenId: BytesLike,
       _action: BytesLike,
       _idType: BigNumberish,
@@ -439,13 +427,13 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testFormatTokenId(
+    formatTokenId(
       _domain: BigNumberish,
       _id: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testFormatTransfer(
+    formatTransfer(
       _to: BytesLike,
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
@@ -454,62 +442,62 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testIsFastTransfer(
+    isFastTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testIsTransfer(
+    isTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testIsValidAction(
+    isValidAction(
       _action: BytesLike,
       _t: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testIsValidMessageLength(
+    isValidMessageLength(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testMessageType(
+    messageType(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testMustBeMessage(
+    mustBeMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testSplitMessage(
+    splitMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testSplitTokenId(
+    splitTokenId(
       _tokenId: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    testSplitTransfer(
+    splitTransfer(
       _transfer: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    testFormatDetailsHash(
+    formatDetailsHash(
       _name: string,
       _symbol: string,
       _decimals: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testFormatMessage(
+    formatMessage(
       _tokenId: BytesLike,
       _action: BytesLike,
       _idType: BigNumberish,
@@ -517,13 +505,13 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testFormatTokenId(
+    formatTokenId(
       _domain: BigNumberish,
       _id: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testFormatTransfer(
+    formatTransfer(
       _to: BytesLike,
       _amnt: BigNumberish,
       _detailsHash: BytesLike,
@@ -532,48 +520,48 @@ export interface TestBridgeMessage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testIsFastTransfer(
+    isFastTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testIsTransfer(
+    isTransfer(
       _action: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testIsValidAction(
+    isValidAction(
       _action: BytesLike,
       _t: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testIsValidMessageLength(
+    isValidMessageLength(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testMessageType(
+    messageType(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testMustBeMessage(
+    mustBeMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testSplitMessage(
+    splitMessage(
       _message: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testSplitTokenId(
+    splitTokenId(
       _tokenId: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    testSplitTransfer(
+    splitTransfer(
       _transfer: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
