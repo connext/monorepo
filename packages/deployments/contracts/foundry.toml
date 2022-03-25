@@ -1,5 +1,5 @@
 [default]
-src = 'contracts_forge'
+src = 'contracts'
 out = 'artifacts_forge'
 libs = ['node_modules']
 remappings = ['ds-test/=lib/ds-test/src/', 'forge-std/=lib/forge-std/src/']
