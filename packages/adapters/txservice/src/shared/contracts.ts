@@ -29,11 +29,7 @@ export const _getContractDeployments: any = () => {
  */
 export const getDeployedConnextContract = (chainId: number): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0];
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts?.Connext;
+  const contract = record[0]?.contracts?.Connext;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 

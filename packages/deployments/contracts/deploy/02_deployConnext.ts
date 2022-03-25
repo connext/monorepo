@@ -59,6 +59,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
+      viaAdminContract: "ConnextProxyAdmin",
     },
   });
   const connextAddress = connext.address;

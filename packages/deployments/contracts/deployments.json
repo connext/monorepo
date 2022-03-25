@@ -86,7 +86,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0xf16cc08dd7143D58a7a9b172f53A73ef8A8d9b21",
+          "address": "0xF0281D0Cb35AaDde777B9aC3c072f620d1c22C77",
           "abi": [
             {
               "anonymous": false,
@@ -603,7 +603,7 @@
           ]
         },
         "Connext": {
-          "address": "0xFc8c869d62d4EAe98E0EB4da736d50EaC95f624a",
+          "address": "0x798CFcC8d23e388bAaEb0B05bA03865Cf598cc3A",
           "abi": [
             {
               "anonymous": false,
@@ -2536,8 +2536,173 @@
             }
           ]
         },
+        "ConnextProxyAdmin": {
+          "address": "0x92d4b9DD5324566d75aF69172C0f31a71032dB65",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "changeProxyAdmin",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                }
+              ],
+              "name": "getProxyAdmin",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                }
+              ],
+              "name": "getProxyImplementation",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "upgrade",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "upgradeAndCall",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            }
+          ]
+        },
         "Connext_Implementation": {
-          "address": "0xA302F22Ba1143218D010f83c7a11fbba5b045813",
+          "address": "0x6Dee9cc860110Cf9Df2355642d2D28c1dCFDB13B",
           "abi": [
             {
               "anonymous": false,
@@ -3912,18 +4077,18 @@
           ]
         },
         "Connext_Proxy": {
-          "address": "0xFc8c869d62d4EAe98E0EB4da736d50EaC95f624a",
+          "address": "0x798CFcC8d23e388bAaEb0B05bA03865Cf598cc3A",
           "abi": [
             {
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "initialLogic",
+                  "name": "_logic",
                   "type": "address"
                 },
                 {
                   "internalType": "address",
-                  "name": "initialAdmin",
+                  "name": "admin_",
                   "type": "address"
                 },
                 {
@@ -3960,6 +4125,19 @@
                 {
                   "indexed": true,
                   "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
                   "name": "implementation",
                   "type": "address"
                 }
@@ -3977,7 +4155,7 @@
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "admin_",
                   "type": "address"
                 }
               ],
@@ -4003,7 +4181,7 @@
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "implementation_",
                   "type": "address"
                 }
               ],
@@ -4044,171 +4222,6 @@
             {
               "stateMutability": "payable",
               "type": "receive"
-            }
-          ]
-        },
-        "DefaultProxyAdmin": {
-          "address": "0xcc70210C3d95449cFaCC305336231203591Ce7D2",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "newAdmin",
-                  "type": "address"
-                }
-              ],
-              "name": "changeProxyAdmin",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                }
-              ],
-              "name": "getProxyAdmin",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                }
-              ],
-              "name": "getProxyImplementation",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "upgrade",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ],
-              "name": "upgradeAndCall",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
             }
           ]
         },
@@ -6138,7 +6151,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0xD01135CA7688de27B90B791c8E8e6B3434ce65c0",
+          "address": "0x27462F717D2db74bC04D61E99Bb80a154F08a2d7",
           "abi": [
             {
               "anonymous": false,
@@ -7651,7 +7664,7 @@
           ]
         },
         "Connext": {
-          "address": "0x1126253020AA24D83Dd5f7EeC61f2bDA9E91640b",
+          "address": "0xA09C4Dd04fd656d2ED0ee1c95A1cB14B921296A8",
           "abi": [
             {
               "anonymous": false,
@@ -9584,8 +9597,173 @@
             }
           ]
         },
+        "ConnextProxyAdmin": {
+          "address": "0xCF902FFDB63F7948d08b776478933aDdA5aC39cA",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "newAdmin",
+                  "type": "address"
+                }
+              ],
+              "name": "changeProxyAdmin",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                }
+              ],
+              "name": "getProxyAdmin",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                }
+              ],
+              "name": "getProxyImplementation",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                }
+              ],
+              "name": "upgrade",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "upgradeAndCall",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            }
+          ]
+        },
         "Connext_Implementation": {
-          "address": "0xc043CDc3dB890abcB238cB07099062DcE190046e",
+          "address": "0xfB5c228267B4b66894E6eD68893535F943532516",
           "abi": [
             {
               "anonymous": false,
@@ -10960,18 +11138,18 @@
           ]
         },
         "Connext_Proxy": {
-          "address": "0x1126253020AA24D83Dd5f7EeC61f2bDA9E91640b",
+          "address": "0xA09C4Dd04fd656d2ED0ee1c95A1cB14B921296A8",
           "abi": [
             {
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "initialLogic",
+                  "name": "_logic",
                   "type": "address"
                 },
                 {
                   "internalType": "address",
-                  "name": "initialAdmin",
+                  "name": "admin_",
                   "type": "address"
                 },
                 {
@@ -11008,6 +11186,19 @@
                 {
                   "indexed": true,
                   "internalType": "address",
+                  "name": "beacon",
+                  "type": "address"
+                }
+              ],
+              "name": "BeaconUpgraded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
                   "name": "implementation",
                   "type": "address"
                 }
@@ -11025,7 +11216,7 @@
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "admin_",
                   "type": "address"
                 }
               ],
@@ -11051,7 +11242,7 @@
               "outputs": [
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "implementation_",
                   "type": "address"
                 }
               ],
@@ -11092,171 +11283,6 @@
             {
               "stateMutability": "payable",
               "type": "receive"
-            }
-          ]
-        },
-        "DefaultProxyAdmin": {
-          "address": "0x158C46B5D3A1d157F718445B0f4876315A4ad88C",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "newAdmin",
-                  "type": "address"
-                }
-              ],
-              "name": "changeProxyAdmin",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                }
-              ],
-              "name": "getProxyAdmin",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                }
-              ],
-              "name": "getProxyImplementation",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "transferOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                }
-              ],
-              "name": "upgrade",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "contract TransparentUpgradeableProxy",
-                  "name": "proxy",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "implementation",
-                  "type": "address"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
-              ],
-              "name": "upgradeAndCall",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
             }
           ]
         },
@@ -13323,7 +13349,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x1A5e2000bf94a8f0A77612e060f523C8057F8Cf7",
+          "address": "0x4dAA7681BAACD12DE01f5E6D1eC0F21e46D2d00B",
           "abi": [
             {
               "anonymous": false,
