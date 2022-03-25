@@ -1,4 +1,4 @@
-import { BigNumber, constants } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { canonizeId } from "../nomad";
@@ -9,9 +9,10 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
   .addOptionalParam("asset", "Canonical token address on canonical domain")
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
+  .addOptionalParam("pool", "The adopted <> local stable swap pool address")
   .setAction(
     async (
-      { router, connextAddress: _connextAddress, amount: _amount, domain: _domain, asset: _asset },
+      { router, connextAddress: _connextAddress, amount: _amount, domain: _domain, asset: _asset, pool: _pool },
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
       let connextAddress = _connextAddress;
@@ -39,12 +40,15 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         ).abi,
         tokenRegistryAddress,
       );
-      const localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+      let localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
       if (localAsset === constants.AddressZero) {
-        throw new Error("Corresponding local asset not found for canonical asset!");
+        // use the canonical asset as the local asset
+        console.log(`Corresponding local asset not found for canonical asset, using canonical as local`);
+        localAsset = canonicalAsset;
       }
 
       const amount = _amount ?? "2500000000000000000000000";
+      const pool = _pool ?? constants.AddressZero;
 
       // Make sure router's signer address is approved.
       const connext = await ethers.getContractAt("Connext", connextAddress);
@@ -66,7 +70,7 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         if (!domain) {
           throw new Error("Unsupported network");
         }
-        await run("setup-asset", { canonical: canonicalTokenId, adopted: localAsset, domain, connextAddress });
+        await run("setup-asset", { canonical: canonicalTokenId, adopted: localAsset, domain, connextAddress, pool });
       }
       console.log("Canonical asset approved!");
 
@@ -82,7 +86,11 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
           console.log("\nDeployer Balance: ", balance.toString());
           if (balance.lt(amount)) {
             console.log("*** Minting tokens!");
-            await run("mint", { amount, asset: localAsset, receiver: namedAccounts.deployer });
+            await run("mint", {
+              amount: utils.formatUnits(amount, await erc20.decimals()),
+              asset: localAsset,
+              receiver: namedAccounts.deployer,
+            });
           }
         } else {
           // TODO: send ETH to txmanager
