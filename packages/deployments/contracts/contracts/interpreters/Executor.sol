@@ -120,7 +120,7 @@ contract Executor is IExecutor {
     
     if (isContract) {
       // If it should set the properties, set them
-      bool shouldSet = !_properties.isNull();
+      bool shouldSet = !_properties.equal(LibCrossDomainProperty.DEFAULT_VALUE);
       if (shouldSet) {
         require(LibCrossDomainProperty.isDomainAndSender(_properties), "!properties");
         properties = _properties;

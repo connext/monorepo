@@ -10,4 +10,6 @@ abstract contract ForgeHelper is DSTest {
   Vm public constant vm = Vm(HEVM_ADDRESS);
 
   StdStorage public stdstore;
+
+  address public constant NATIVE_ASSET = address(0);
 }
