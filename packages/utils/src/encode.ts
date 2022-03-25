@@ -40,8 +40,8 @@ export const InvariantTransactionDataEncoding = tidy(`tuple(
   address sendingChainFallback,
   address receivingAddress,
   address callTo,
-  uint24 sendingChainId,
-  uint24 receivingChainId,
+  uint256 sendingChainId,
+  uint256 receivingChainId,
   bytes32 callDataHash,
   bytes32 transactionId
 )`);
@@ -144,10 +144,10 @@ export const AuctionBidEncoding = tidy(`tuple(
   address user,
   address router,
   address initiator,
-  uint24 sendingChainId,
+  uint256 sendingChainId,
   address sendingAssetId,
   uint256 amount,
-  uint24 receivingChainId,
+  uint256 receivingChainId,
   address receivingAssetId,
   uint256 amountReceived,
   address receivingAddress,
