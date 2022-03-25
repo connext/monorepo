@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { mkAddress } from "@connext/nxtp-utils";
 import Sinon, { reset, restore, SinonStub } from "sinon";
 import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain-types";
 import * as ContractFns from "../../src/shared/contracts";
@@ -6,14 +7,14 @@ import * as ContractFns from "../../src/shared/contracts";
 describe("contracts", () => {
   let testChainId1 = 1336;
   let testChainId2 = 1337;
-  let testAddress = "0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  let testAddress = mkAddress("0x123");
   let contractDeployment: any;
   let contractDeploymentStub: SinonStub;
 
   beforeEach(() => {
     contractDeployment = {
-      [String(testChainId1)]: {
-        test: {
+      [String(testChainId1)]: [
+        {
           name: "test",
           chainId: testChainId1,
           contracts: {
@@ -21,9 +22,13 @@ describe("contracts", () => {
               address: testAddress,
               abi: ["fakeAbi()"],
             },
+            Connext: {
+              address: testAddress,
+              abi: ["fakeAbi()"],
+            },
           },
         },
-      },
+      ],
     };
     contractDeploymentStub = Sinon.stub(ContractFns, "_getContractDeployments");
   });
@@ -34,7 +39,20 @@ describe("contracts", () => {
     });
 
     it("should be correct structure", () => {
-      expect(Object.keys(ContractFns._getContractDeployments()[testChainId1])[0]).to.be.equal("test");
+      expect(ContractFns._getContractDeployments()[testChainId1][0].chainId).to.be.equal(1336);
+    });
+  });
+
+  describe("#getDeployedConnextContract", () => {
+    beforeEach(() => {
+      contractDeploymentStub.returns(contractDeployment);
+    });
+
+    it("should return the connext contract", () => {
+      expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.deep.equal({
+        address: testAddress,
+        abi: ["fakeAbi()"],
+      });
     });
   });
 
