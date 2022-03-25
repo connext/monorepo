@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.32
+
+- [utils] ChainId ABI encoding
+
 ## 0.1.31
 
 - [contracts] Boba network deployments
