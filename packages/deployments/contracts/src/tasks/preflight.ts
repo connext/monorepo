@@ -50,8 +50,6 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
       const connext = await ethers.getContractAt("Connext", connextAddress);
       const isRouterApproved = await connext.approvedRouters(router);
       console.log("\nRouter: ", router, " is approved: ", isRouterApproved);
-      console.log(connextAddress);
-      process.exit(0);
       if (!isRouterApproved) {
         console.log("*** Approving router!");
         await run("add-router", { router, connextAddress });
