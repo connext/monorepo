@@ -56,6 +56,8 @@ export type { IWrapped } from "./contracts/interfaces/IWrapped";
 export { IWrapped__factory } from "./factories/contracts/interfaces/IWrapped__factory";
 export type { Executor } from "./contracts/interpreters/Executor";
 export { Executor__factory } from "./factories/contracts/interpreters/Executor__factory";
+export type { LibCrossDomainProperty } from "./contracts/lib/LibCrossDomainProperty";
+export { LibCrossDomainProperty__factory } from "./factories/contracts/lib/LibCrossDomainProperty__factory";
 export type { AmplificationUtils } from "./contracts/lib/StableSwap/AmplificationUtils";
 export { AmplificationUtils__factory } from "./factories/contracts/lib/StableSwap/AmplificationUtils__factory";
 export type { LPToken } from "./contracts/lib/StableSwap/LPToken";

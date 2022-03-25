@@ -4,7 +4,10 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { IConnext, IConnextInterface } from "../../../contracts/interfaces/IConnext";
+import type {
+  IConnext,
+  IConnextInterface,
+} from "../../../contracts/interfaces/IConnext";
 
 const _abi = [
   {
@@ -535,26 +538,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "index",
-            type: "uint256",
-          },
-          {
-            internalType: "bytes32",
-            name: "transferId",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32[32]",
-            name: "proof",
-            type: "bytes32[32]",
-          },
-          {
             components: [
               {
                 internalType: "address",
@@ -592,11 +575,6 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "originSender",
-            type: "address",
-          },
-          {
             internalType: "uint32",
             name: "feePercentage",
             type: "uint32",
@@ -607,14 +585,19 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "bytes32",
-            name: "transferId",
-            type: "bytes32",
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
           },
           {
             internalType: "bytes",
             name: "relayerSignature",
             type: "bytes",
+          },
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
           },
         ],
         internalType: "struct IConnext.ExecuteArgs",
@@ -676,11 +659,6 @@ const _abi = [
       {
         internalType: "address",
         name: "_recipient",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
         type: "address",
       },
       {
@@ -866,7 +844,10 @@ export class IConnext__factory {
   static createInterface(): IConnextInterface {
     return new utils.Interface(_abi) as IConnextInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IConnext {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IConnext {
     return new Contract(address, _abi, signerOrProvider) as IConnext;
   }
 }

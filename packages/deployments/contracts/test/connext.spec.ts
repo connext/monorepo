@@ -844,7 +844,7 @@ describe("Connext", () => {
     const originTmEvent = (await originTm.queryFilter(originTm.filters.XCalled())).find(
       (a) => a.blockNumber === prepareReceipt.blockNumber,
     );
-    const transferId = (originTmEvent!.args as any).transferId;
+    const nonce = (originTmEvent!.args as any).nonce;
 
     // Get pre-execute balances
     const preExecute = await Promise.all([
@@ -856,12 +856,13 @@ describe("Connext", () => {
     const routerAmount = amount - 500;
     const execute = await destinationTm.connect(router).execute({
       params,
-      transferId,
+      nonce,
       local: local.address,
       amount: routerAmount,
       feePercentage: constants.Zero,
       relayerSignature: "0x",
       router: router.address,
+      originSender: user.address,
     });
     await execute.wait();
 
@@ -937,7 +938,7 @@ describe("Connext", () => {
     const originTmEvent = await (
       await originTm.queryFilter(originTm.filters.XCalled())
     ).find((a) => a.blockNumber === prepareReceipt.blockNumber);
-    const transferId = (originTmEvent!.args as any).transferId;
+    const nonce = (originTmEvent!.args as any).nonce;
 
     // Get pre-fulfill balances
     const preFulfill = await Promise.all([
@@ -949,11 +950,12 @@ describe("Connext", () => {
     const routerAmount = amount - 500;
     const fulfill = await destinationTm.connect(router).execute({
       params,
-      transferId,
+      nonce,
       local: local.address,
       amount: routerAmount,
       relayerSignature: "0x",
       router: router.address,
+      originSender: user.address,
       feePercentage: constants.Zero,
     });
     await fulfill.wait();

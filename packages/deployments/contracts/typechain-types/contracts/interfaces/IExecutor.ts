@@ -14,9 +14,18 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "../../common";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+} from "../../common";
 
 export interface IExecutorInterface extends utils.Interface {
   functions: {
@@ -26,20 +35,31 @@ export interface IExecutorInterface extends utils.Interface {
     "originSender()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "execute" | "getConnext"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "execute" | "getConnext" | "origin" | "originSender"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "execute",
-    values: [BytesLike, BigNumberish, string, string, BytesLike, BytesLike],
+    values: [BytesLike, BigNumberish, string, string, BytesLike, BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "getConnext", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getConnext",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "origin", values?: undefined): string;
-  encodeFunctionData(functionFragment: "originSender", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "originSender",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getConnext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "origin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "originSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "originSender",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Executed(bytes32,address,address,uint256,bytes29,bytes,bytes,bool,bool)": EventFragment;
@@ -53,13 +73,14 @@ export interface ExecutedEventObject {
   to: string;
   assetId: string;
   amount: BigNumber;
+  _properties: string;
   callData: string;
   returnData: string;
   success: boolean;
   isContract: boolean;
 }
 export type ExecutedEvent = TypedEvent<
-  [string, string, string, BigNumber, string, string, boolean, boolean],
+  [string, string, string, BigNumber, string, string, string, boolean, boolean],
   ExecutedEventObject
 >;
 
@@ -75,12 +96,16 @@ export interface IExecutor extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -95,14 +120,20 @@ export interface IExecutor extends BaseContract {
       _assetId: string,
       _properties: BytesLike,
       _callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getConnext(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+    getConnext(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    origin(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+    origin(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    originSender(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+    originSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   execute(
@@ -112,14 +143,20 @@ export interface IExecutor extends BaseContract {
     _assetId: string,
     _properties: BytesLike,
     _callData: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> },
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getConnext(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  getConnext(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  origin(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  origin(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  originSender(overrides?: Overrides & { from?: string | Promise<string> }): Promise<ContractTransaction>;
+  originSender(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     execute(
@@ -129,7 +166,7 @@ export interface IExecutor extends BaseContract {
       _assetId: string,
       _properties: BytesLike,
       _callData: BytesLike,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[boolean, string] & { success: boolean; returnData: string }>;
 
     getConnext(overrides?: CallOverrides): Promise<string>;
@@ -149,7 +186,7 @@ export interface IExecutor extends BaseContract {
       callData?: null,
       returnData?: null,
       success?: null,
-      isContract?: null,
+      isContract?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: BytesLike | null,
@@ -160,7 +197,7 @@ export interface IExecutor extends BaseContract {
       callData?: null,
       returnData?: null,
       success?: null,
-      isContract?: null,
+      isContract?: null
     ): ExecutedEventFilter;
   };
 
@@ -172,14 +209,20 @@ export interface IExecutor extends BaseContract {
       _assetId: string,
       _properties: BytesLike,
       _callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getConnext(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    getConnext(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    origin(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    origin(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    originSender(overrides?: Overrides & { from?: string | Promise<string> }): Promise<BigNumber>;
+    originSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -190,13 +233,19 @@ export interface IExecutor extends BaseContract {
       _assetId: string,
       _properties: BytesLike,
       _callData: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> },
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getConnext(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
+    getConnext(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    origin(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
+    origin(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    originSender(overrides?: Overrides & { from?: string | Promise<string> }): Promise<PopulatedTransaction>;
+    originSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }
