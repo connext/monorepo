@@ -1,16 +1,17 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { canonizeId } from "../nomad";
 
 export default task("preflight", "Ensure correct setup for e2e with specified router")
   .addParam("router", "Router address")
-  .addOptionalParam("asset", "Override token address")
+  .addOptionalParam("domain", "Canonical domain of token")
+  .addOptionalParam("asset", "Canonical token address on canonical domain")
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
     async (
-      { router, connextAddress: _connextAddress, asset: _asset, amount: _amount },
+      { router, connextAddress: _connextAddress, amount: _amount, domain: _domain, asset: _asset },
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
       let connextAddress = _connextAddress;
@@ -18,14 +19,37 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         const connextDeployment = await deployments.get("Connext");
         connextAddress = connextDeployment.address;
       }
-      const asset = _asset ?? (await deployments.get("TestERC20")).address;
+
+      // Get canonical domain and asset.
+      const canonicalDomain = _domain ?? process.env.CANONICAL_DOMAIN;
+      if (!canonicalDomain) {
+        throw new Error("Domain must be specified as param or from env");
+      }
+      const canonicalAsset = _asset ?? process.env.CANONICAL_TOKEN;
+      if (!canonicalAsset) {
+        throw new Error("Asset must be specified as param or from env");
+      }
+      const canonicalTokenId = hexlify(canonizeId(canonicalAsset));
+
+      // Retrieve the local asset from the token registry.
+      const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
+      const tokenRegistry = await ethers.getContractAt(
+        (
+          await deployments.getArtifact("TokenRegistry")
+        ).abi,
+        tokenRegistryAddress,
+      );
+      const localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+      if (localAsset === constants.AddressZero) {
+        throw new Error("Corresponding local asset not found for canonical asset!");
+      }
+
       const amount = _amount ?? "2500000000000000000000000";
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
-      // Not needed for testnets.
       // Make sure router's signer address is approved.
+      const connext = await ethers.getContractAt("Connext", connextAddress);
       const isRouterApproved = await connext.approvedRouters(router);
-      console.log("\nRouter: ", router);
+      console.log("\nRouter: ", router, " is approved: ", isRouterApproved);
       if (!isRouterApproved) {
         console.log("*** Approving router!");
         await run("add-router", { router, connextAddress });
@@ -33,32 +57,32 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
       console.log("Router approved!");
 
       // Make sure the asset is approved.
-      const canonicalTokenId = hexlify(canonizeId(asset));
       const isAssetApproved = await connext.approvedAssets(canonicalTokenId);
-      console.log("\nAsset: ", asset);
+      console.log("\nLocal asset: ", localAsset);
+      console.log("Canonical asset: ", canonicalAsset);
       if (!isAssetApproved) {
-        console.log("*** Approving asset!");
+        console.log("*** Approving canonical asset!");
         const domain = network.name === "rinkeby" ? "2000" : network.name === "kovan" ? "3000" : undefined;
         if (!domain) {
           throw new Error("Unsupported network");
         }
-        await run("setup-asset", { canonical: canonicalTokenId, adopted: asset, domain, connextAddress });
+        await run("setup-asset", { canonical: canonicalTokenId, adopted: localAsset, domain, connextAddress });
       }
-      console.log("Asset approved!");
+      console.log("Canonical asset approved!");
 
       // Make sure the router's signer address has liquidity by checking the Connext
       // contract in the block explorer and reading the routerBalances mapping, putting in the
       // router signer address and Rinkeby asset ID.
-      const liquidity = await connext.routerBalances(router, asset);
+      const liquidity = await connext.routerBalances(router, localAsset);
       if (liquidity.lt(amount)) {
-        if (asset !== ethers.constants.AddressZero) {
+        if (localAsset !== ethers.constants.AddressZero) {
           const namedAccounts = await getNamedAccounts();
-          const erc20 = await ethers.getContractAt("TestERC20", asset);
+          const erc20 = await ethers.getContractAt("TestERC20", localAsset);
           const balance = await erc20.balanceOf(namedAccounts.deployer);
           console.log("\nDeployer Balance: ", balance.toString());
           if (balance.lt(amount)) {
             console.log("*** Minting tokens!");
-            await run("mint", { amount, asset, receiver: namedAccounts.deployer });
+            await run("mint", { amount, asset: localAsset, receiver: namedAccounts.deployer });
           }
         } else {
           // TODO: send ETH to txmanager
@@ -66,7 +90,7 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         }
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Adding liquidity!");
-        await run("add-liquidity", { router, asset, amount, connextAddress });
+        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress });
       }
       console.log("Sufficient liquidity added!");
 
