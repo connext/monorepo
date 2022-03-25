@@ -20,6 +20,10 @@ contract Executor is IExecutor {
 
   // ============ Properties =============
 
+  using TypedMemView for bytes29;
+
+  // ============ Properties =============
+
   address private immutable connext;
   bytes29 private properties = LibCrossDomainProperty.DEFAULT_VALUE;
 

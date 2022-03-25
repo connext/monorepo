@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
+import "../interfaces/IExecutor.sol";
+
+import "../lib/LibCrossDomainProperty.sol";
+
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "../interfaces/IExecutor.sol";
 
 contract Counter {
   bool public shouldRevert;
@@ -44,9 +47,10 @@ contract Counter {
     require(msg.value >= 0.1 ether);
     executor.execute(
       bytes32 (uint256(11111)),
+      0.1 ether,
       payable(address(this)),
       address(0),
-      0.1 ether,
+      LibCrossDomainProperty.DEFAULT_VALUE,
       ""
     );
   }
@@ -55,9 +59,10 @@ contract Counter {
     if (address(executor).balance >= 0.1 ether) {
       executor.execute(
         bytes32 (uint256(11111)),
+        0.1 ether,
         payable(address(this)),
         address(0),
-        0.1 ether,
+        LibCrossDomainProperty.DEFAULT_VALUE,
         ""
       );
     }
