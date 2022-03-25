@@ -1,6 +1,5 @@
-import "ds-test/test.sol";
-import "forge-std/stdlib.sol";
-import "forge-std/Vm.sol";
+// SPDX-License-Identifier: UNLICENSED
+import "./ForgeHelper.sol";
 
 import "../Connext.sol";
 
@@ -12,12 +11,9 @@ import "../Connext.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
-contract ConnextTest is DSTest {
+contract ConnextTest is ForgeHelper {
+
   using stdStorage for StdStorage;
-
-  Vm public constant vm = Vm(HEVM_ADDRESS);
-
-  StdStorage stdstore;
 
   Connext connext;
 
