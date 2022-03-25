@@ -46,7 +46,7 @@ export default task("setup-asset", "Configures an asset")
       });
 
       console.log("setupAsset tx: ", tx);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(1);
       console.log("setupAsset tx mined: ", receipt.transactionHash);
 
       const isAssetApproved = await connext.approvedAssets(canonicalTokenId.id);
