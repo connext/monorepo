@@ -3,7 +3,10 @@ import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { canonizeId } from "../nomad";
 
-export default task("preflight", "Ensure correct setup for e2e with specified router")
+// Default amount of tokens to mint / add liquidity for.
+const DEFAULT_AMOUNT = "2500000000000000000000000";
+
+export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
   .addOptionalParam("router", "Router address")
   .addOptionalParam("domain", "Canonical domain of token")
   .addOptionalParam("asset", "Canonical token address on canonical domain")
@@ -50,7 +53,7 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
       const canonicalTokenId = hexlify(canonizeId(canonicalAsset));
 
       // Retrieve the local asset from the token registry, if applicable.
-      let localAsset;
+      let localAsset: string;
       if (canonicalDomain === networkDomain) {
         // Use the canonical asset as the local asset since we're on the canonical network.
         localAsset = canonicalAsset;
@@ -72,12 +75,6 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
         }
       }
 
-      // The amount to mint / add liquidity for.
-      const amount = _amount ?? "2500000000000000000000000";
-      // The stable swap pool address, if applicable; if mad asset is what's being used,
-      // should be set to address(0).
-      const pool = _pool ?? constants.AddressZero;
-
       // Make sure router's signer address is approved.
       const connext = await ethers.getContractAt("Connext", connextAddress);
       const isRouterApproved = await connext.approvedRouters(router);
@@ -89,6 +86,9 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
       console.log("Router approved!");
 
       // Make sure the asset is approved.
+      // The stable swap pool address, if applicable; if mad asset is what's being used,
+      // should be set to address(0).
+      const pool = _pool ?? constants.AddressZero;
       const isAssetApproved = await connext.approvedAssets(canonicalTokenId);
       console.log("\nLocal asset: ", localAsset);
       console.log("Canonical asset: ", canonicalAsset);
@@ -107,17 +107,22 @@ export default task("preflight", "Ensure correct setup for e2e with specified ro
       // Make sure the router's signer address has liquidity by checking the Connext
       // contract in the block explorer and reading the routerBalances mapping, putting in the
       // router signer address and Rinkeby asset ID.
+
+      const erc20 = await ethers.getContractAt("TestERC20", localAsset);
+      // The amount to mint / add liquidity for. Convert units, coerce to number to remove
+      // decimal point, then back to string.
+      const amount = Number(utils.formatUnits(_amount ?? DEFAULT_AMOUNT, await erc20.decimals())).toString();
       const liquidity = await connext.routerBalances(router, localAsset);
       if (liquidity.lt(amount)) {
         if (localAsset !== ethers.constants.AddressZero) {
           const namedAccounts = await getNamedAccounts();
-          const erc20 = await ethers.getContractAt("TestERC20", localAsset);
+
           const balance = await erc20.balanceOf(namedAccounts.deployer);
           console.log("\nDeployer Balance: ", balance.toString());
           if (balance.lt(amount)) {
             console.log("*** Minting tokens!");
             await run("mint", {
-              amount: utils.formatUnits(amount, await erc20.decimals()),
+              amount,
               asset: localAsset,
               receiver: namedAccounts.deployer,
             });
