@@ -31,6 +31,7 @@ import "./src/tasks/ensureLocal";
 import "./src/tasks/prepareTx";
 import "./src/tasks/setLocalDomain";
 import "./src/tasks/traceMessage";
+import "./src/tasks/preflight";
 
 dotEnvConfig();
 

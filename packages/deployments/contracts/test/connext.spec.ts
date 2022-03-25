@@ -983,7 +983,7 @@ describe("Connext", () => {
       domain: originDomain,
     };
     const expectedToken = formatTokenId(tokenId.domain, tokenId.id);
-    const testTokenId = await bridgeMessage.testFormatTokenId(tokenId.domain, tokenId.id);
+    const testTokenId = await bridgeMessage.formatTokenId(tokenId.domain, tokenId.id);
     expect(testTokenId).to.be.eq(expectedToken);
 
     // Test detailsHash
@@ -993,7 +993,7 @@ describe("Connext", () => {
       decimals: await canonical.decimals(),
     };
     const expectedDetailsHash = getDetailsHash(tokenDetails.name, tokenDetails.symbol, tokenDetails.decimals);
-    const testDetailsHash = await bridgeMessage.testFormatDetailsHash(
+    const testDetailsHash = await bridgeMessage.formatDetailsHash(
       tokenDetails.name,
       tokenDetails.symbol,
       tokenDetails.decimals,
@@ -1009,7 +1009,7 @@ describe("Connext", () => {
       externalHash: getRandomBytes32().toLowerCase(),
     };
     const serializedAction = bridge.serializeFastTransferAction(action);
-    const testTransfer = await bridgeMessage.testFormatTransfer(
+    const testTransfer = await bridgeMessage.formatTransfer(
       action.recipient,
       action.amount,
       action.detailsHash,
@@ -1019,7 +1019,7 @@ describe("Connext", () => {
     expect(testTransfer).to.be.eq(serializedAction);
 
     // Test split transfer
-    const [type, recipient, recipientAddr, amount, externalHash] = await bridgeMessage.testSplitTransfer(testTransfer);
+    const [type, recipient, recipientAddr, amount, externalHash] = await bridgeMessage.splitTransfer(testTransfer);
     expect(type).to.be.eq(action.type);
     expect(recipient).to.be.eq(action.recipient);
     expect(recipientAddr.toLowerCase()).to.be.eq(user.address.toLowerCase());
@@ -1032,7 +1032,7 @@ describe("Connext", () => {
       action,
     };
     const serializedMessage = bridge.serializeMessage(transferMessage);
-    const testMessage = await bridgeMessage.testFormatMessage(
+    const testMessage = await bridgeMessage.formatMessage(
       expectedToken,
       serializedAction,
       BridgeMessageTypes.TOKEN_ID,

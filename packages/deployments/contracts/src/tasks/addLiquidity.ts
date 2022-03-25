@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 
 export default task("add-liquidity", "Add liquidity for a router")
@@ -66,9 +67,11 @@ export default task("add-liquidity", "Add liquidity for a router")
         throw new Error("Asset not approved");
       }
 
+      console.log("args:", amount, asset, router);
       const tx = await connext.addLiquidityFor(amount, asset, router, {
         from: namedAccounts.deployer,
         value: asset === ethers.constants.AddressZero ? amount : 0,
+        gasLimit: BigNumber.from("10000000"),
       });
       console.log("addLiquidityFor tx: ", tx);
       const receipt = await tx.wait();

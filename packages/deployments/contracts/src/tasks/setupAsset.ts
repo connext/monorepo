@@ -1,3 +1,4 @@
+import { constants } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
@@ -7,7 +8,7 @@ export default task("setup-asset", "Configures an asset")
   .addParam("canonical", "Canonical token address")
   .addParam("domain", "Canonical domain of token")
   .addParam("adopted", "Addopted token address")
-  .addParam("pool", "Stable swap pool for adopted <> local asset")
+  .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
   .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
     async (
@@ -40,10 +41,12 @@ export default task("setup-asset", "Configures an asset")
         console.log("approved, no need to add");
         return;
       }
-      const tx = await connext.setupAsset(canonicalTokenId, adopted, pool, { from: namedAccounts.deployer });
+      const tx = await connext.setupAsset(canonicalTokenId, adopted, pool ?? constants.AddressZero, {
+        from: namedAccounts.deployer,
+      });
 
       console.log("setupAsset tx: ", tx);
-      const receipt = await tx.wait();
+      const receipt = await tx.wait(1);
       console.log("setupAsset tx mined: ", receipt.transactionHash);
 
       const isAssetApproved = await connext.approvedAssets(canonicalTokenId.id);
