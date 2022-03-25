@@ -71,6 +71,7 @@ export const getEnvConfig = (
       if (!res) {
         throw new Error(`No Connext contract address for domain ${domainId}`);
       }
+
       _sequencerConfig.chains[domainId].deployments.connext = res.address;
     }
 
@@ -93,7 +94,6 @@ export const getEnvConfig = (
   });
 
   const validate = ajv.compile(SequencerConfigSchema);
-
   const valid = validate(_sequencerConfig);
   if (!valid) {
     throw new Error(validate.errors?.map((err: any) => JSON.stringify(err, null, 2)).join(","));

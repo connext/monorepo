@@ -1,6 +1,6 @@
 import {
   mkAddress,
-  FulfillArgs,
+  ExecuteArgs,
   Bid,
   expect,
   BidStatus,
@@ -13,47 +13,47 @@ import { bidSelection, handleBid } from "../../../src/lib/operations";
 import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 import * as RelayerFns from "../../../src/lib/operations/relayer";
+import { ParamsInvalid } from "../../../src/lib/errors";
 
-const mockFulfillArgs: FulfillArgs[] = [
+const mockTransferId = getRandomBytes32();
+const mockExecuteArgs: ExecuteArgs[] = [
   {
     params: {
-      recipient: mkAddress("0xbeefdead"),
-      callTo: mkAddress("0x"),
+      to: mkAddress("0xbeefdead"),
       callData: "0x0",
       originDomain: "1337",
-      destinationDomain: "1338",
+      destinationDomain: "1337",
     },
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xa"),
     feePercentage: "0.1",
+    amount: "10",
     index: 0,
-    transactionId: getRandomBytes32(),
+    transferId: mockTransferId,
     proof: ["0x"],
-    amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
   {
     params: {
-      recipient: mkAddress("0xbeefdead"),
-      callTo: mkAddress("0x"),
+      to: mkAddress("0xbeefdead"),
       callData: "0x0",
-      originDomain: "1337",
+      originDomain: "1338",
       destinationDomain: "1338",
     },
     local: mkAddress("0xdedddddddddddddd"),
     router: mkAddress("0xb"),
     feePercentage: "0.1",
+    amount: "10",
     index: 1,
-    transactionId: getRandomBytes32(),
+    transferId: mockTransferId,
     proof: ["0x"],
-    amount: "10.1",
     relayerSignature: "0xsigsigsig",
   },
 ];
 
 const mockBids = [
-  mock.entity.bid("0xtx111", mockFulfillArgs[0]),
-  mock.entity.bid("0xtx111", mockFulfillArgs[1]),
+  mock.entity.bid(mockTransferId, mockExecuteArgs[0]),
+  mock.entity.bid(mockTransferId, mockExecuteArgs[1]),
   mock.entity.bid(),
 ];
 
@@ -79,9 +79,9 @@ describe("Bid", () => {
     it("should error if input validation fails", async () => {
       const _bid: Bid = {
         ...mockBids[0],
-        transactionId: 1,
+        transferId: 1,
       };
-      expect(handleBid(_bid, loggingContext.requestContext)).to.eventually.be.rejectedWith("Params invalid");
+      expect(handleBid(_bid, loggingContext.requestContext)).to.eventually.be.throw(new ParamsInvalid());
     });
     it("happy case: should store bid to auction cache", async () => {
       await handleBid(mockBids[0], loggingContext.requestContext);
@@ -99,7 +99,7 @@ describe("Bid", () => {
         ctxMock.adapters.cache.auctions,
         "getAllTransactionsIdsWithPendingBids",
       );
-      getAllTransactionsIdsWithPendingBidsStub.resolves([mockBids[0].transactionId]);
+      getAllTransactionsIdsWithPendingBidsStub.resolves([mockBids[0].transferId]);
 
       getBidsByTransactionIdStub = stub(ctxMock.adapters.cache.auctions, "getBidsByTransactionId");
       getBidsByTransactionIdStub.resolves(storedBids);
@@ -119,8 +119,7 @@ describe("Bid", () => {
       await delay(1000);
       expect(getBidsByTransactionIdStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
-      expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transactionId, BidStatus.Sent);
-      // expect(updateAllBidsWithTransactionIdStub.callCount).to.be.eq(1);
+      expect(updateAllBidsWithTransactionIdStub).to.be.calledOnceWithExactly(mockBids[0].transferId, BidStatus.Sent);
     });
   });
 });

@@ -22,8 +22,8 @@ describe("Helpers:Fulfill", () => {
     beforeEach(() => {
       mockContext.adapters.txservice.getGasEstimate.resetHistory();
       mockContext.adapters.txservice.getGasEstimate.resolves(BigNumber.from(200_000));
-      mockContext.adapters.contracts.transactionManager.encodeFunctionData.resetHistory();
-      mockContext.adapters.contracts.transactionManager.encodeFunctionData.returns(mockEncodedData);
+      mockContext.adapters.contracts.connext.encodeFunctionData.resetHistory();
+      mockContext.adapters.contracts.connext.encodeFunctionData.returns(mockEncodedData);
     });
 
     it("happy", async () => {
@@ -34,7 +34,7 @@ describe("Helpers:Fulfill", () => {
         Number(mockBid.data.params.destinationDomain),
         {
           chainId: Number(mock.chain.B),
-          to: mockContext.config.chains[mockBid.data.params.destinationDomain].deployments.transactionManager,
+          to: mockContext.config.chains[mockBid.data.params.destinationDomain].deployments.connext,
           data: mockEncodedData,
         },
       );

@@ -31,6 +31,13 @@ describe("Bindings:Subgraph", () => {
       await delay(10);
       expect(pollStub.callCount).to.be.gte(1);
     });
+    it("happy: should read default interval", async () => {
+      bindSubgraphFns.SUBGRAPH_POLL_INTERVAL = 10;
+      bindSubgraphFns.bindSubgraph();
+      await delay(20);
+      mockContext.config.mode.cleanup = true;
+      expect(pollStub.callCount).to.be.gte(1);
+    });
   });
 
   describe("#pollSubgraph", () => {
@@ -69,13 +76,11 @@ describe("Bindings:Subgraph", () => {
         new Map(
           Object.entries({
             [mock.chain.A]: {
-              maxPrepareBlockNumber:
-                mockInfo[mock.chain.A].latestBlockNumber - mockInfo[mock.chain.A].safeConfirmations,
+              maxXCallBlockNumber: mockInfo[mock.chain.A].latestBlockNumber - mockInfo[mock.chain.A].safeConfirmations,
               latestNonce: mockInfo[mock.chain.A].latestNonce + 1,
             },
             [mock.chain.B]: {
-              maxPrepareBlockNumber:
-                mockInfo[mock.chain.B].latestBlockNumber - mockInfo[mock.chain.B].safeConfirmations,
+              maxXCallBlockNumber: mockInfo[mock.chain.B].latestBlockNumber - mockInfo[mock.chain.B].safeConfirmations,
               latestNonce: mockInfo[mock.chain.B].latestNonce + 1,
             },
           }),
@@ -84,6 +89,33 @@ describe("Bindings:Subgraph", () => {
       expect(mockContext.adapters.cache.transactions.storeTxData.getCall(0).args[0]).to.be.deep.eq(
         mockSubgraphResponse,
       );
+    });
+    it("should throw an error", async () => {
+      const mockInfo = {
+        [mock.chain.A]: {
+          latestBlockNumber: 1234567,
+          latestNonce: 232323,
+          safeConfirmations: 19,
+        },
+        [mock.chain.B]: {
+          latestBlockNumber: 7654321,
+          latestNonce: 454545,
+          safeConfirmations: 28,
+        },
+      };
+      mockContext.adapters.txservice.getBlockNumber.callsFake((domain: string) => {
+        return mockInfo[domain].latestBlockNumber;
+      });
+      mockContext.adapters.cache.transactions.getLatestNonce.callsFake(
+        (domain: string) => mockInfo[domain].latestNonce,
+      );
+      mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
+      mockContext.config.chains[mock.chain.B].confirmations = mockInfo[mock.chain.B].safeConfirmations;
+      mockContext.adapters.subgraph.getXCalls.throws(new Error("getXCalls failed!"));
+
+      await bindSubgraphFns.pollSubgraph();
+
+      expect(mockContext.adapters.cache.transactions.storeTxData.callCount).to.be.eq(0);
     });
   });
 });

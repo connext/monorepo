@@ -49,10 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
     proxy: {
       proxyContract: "OpenZeppelinTransparentProxy",
-      execute: {
-        methodName: "initialize",
-        args: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
-      },
+      proxyArgs: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
     },
   });
   const connextAddress = connext.address;

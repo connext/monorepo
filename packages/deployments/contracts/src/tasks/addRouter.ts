@@ -11,12 +11,12 @@ export default task("add-router", "Add a router")
 
     let connextAddress = _connextAddress;
     if (!connextAddress) {
-      const connextDeployment = await deployments.get("Connext_Proxy");
+      const connextDeployment = await deployments.get("Connext");
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
 
-    const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
+    const connext = await ethers.getContractAt("Connext", connextAddress);
     const approved = await connext.approvedRouters(router);
     if (approved) {
       console.log("approved, no need to add");

@@ -69,7 +69,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
   const executeArguments: ExecuteArgs = {
     params: callParams,
-    local: executeLocalAsset ?? "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d",
+    local: executeLocalAsset,
     router: routerAddress,
     feePercentage: RELAYER_FEE_PERCENTAGE,
     amount: receivingAmount,

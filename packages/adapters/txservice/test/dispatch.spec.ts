@@ -1,11 +1,11 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { getRandomBytes32, Logger, mkAddress, txReceiptMock } from "@connext/nxtp-utils";
+import { getRandomBytes32, Logger, mkAddress, mock } from "@connext/nxtp-utils";
 import { expect } from "@connext/nxtp-utils";
 
 import { ChainConfig, DEFAULT_CHAIN_CONFIG } from "../src/config";
 import { DispatchCallbacks, TransactionDispatch } from "../src/dispatch";
-import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
+import { RpcProviderAggregator } from "../src/aggregator";
 import {
   OnchainTransaction,
   BadNonce,
@@ -35,6 +35,7 @@ const logger = new Logger({
 });
 const ADDRESS = mkAddress("0xaaa");
 const OG_MAX_INFLIGHT_TRANSACTIONS = (TransactionDispatch as any).MAX_INFLIGHT_TRANSACTIONS;
+const txReceiptMock = mock.ethers.receipt();
 
 let signer: SinonStubbedInstance<Wallet>;
 let transaction: OnchainTransaction;

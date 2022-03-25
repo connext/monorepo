@@ -56,18 +56,18 @@ export const mock: any = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (): CallParams => ({
-      to: mkAddress("0xrecipient"),
+      to: mkAddress("0xaaa"),
       callData: "0x",
       originDomain: mock.chain.A,
       destinationDomain: mock.chain.B,
     }),
     executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),
-      local: mkAddress("0xlocal"),
-      router: mkAddress("0xrouter"),
+      local: mkAddress("0x111"),
+      router: mkAddress("0x222"),
       feePercentage: "1",
       index: 0,
-      transferId: "0x",
+      transferId: getRandomBytes32(),
       proof: ["0x"],
       amount: utils.parseEther("1").toString(),
       relayerSignature: "0xsig",
@@ -156,6 +156,22 @@ export const mock: any = {
         logsBloom: "",
         transactionIndex: 1,
       } as unknown as providers.TransactionReceipt),
+  },
+  contracts: {
+    deployments: {
+      connext: function (chainId: number) {
+        return {
+          address: mkAddress("0x123123"),
+          abi: "fakeAbi()",
+        };
+      },
+      priceOracle: function (chainId: number) {
+        return {
+          address: mkAddress("0x321321"),
+          abi: "fakeAbi()",
+        };
+      },
+    },
   },
 };
 

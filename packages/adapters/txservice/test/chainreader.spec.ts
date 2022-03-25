@@ -1,5 +1,5 @@
-import { BigNumber, constants, providers, utils, Wallet } from "ethers";
-import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub, stub } from "sinon";
+import { BigNumber, utils, Wallet } from "ethers";
+import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import {
   getRandomAddress,
   getRandomBytes32,
@@ -11,9 +11,9 @@ import {
 } from "@connext/nxtp-utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
-import { RpcProviderAggregator } from "../src/rpcProviderAggregator";
+import { RpcProviderAggregator } from "../src/aggregator";
 import { ChainNotSupported, ConfigurationError, ProviderNotConfigured, RpcError } from "../src/shared";
-import * as contractFns from "../src/shared/contracts";
+import * as ContractFns from "../src/shared/contracts";
 import {
   TEST_SENDER_CHAIN_ID,
   TEST_TX,
@@ -230,9 +230,9 @@ describe("ChainReader", () => {
     let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
       interfaceStub = createStubInstance(utils.Interface);
-      getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
+      getPriceOracleInterfaceStub = Sinon.stub(ContractFns, "getPriceOracleInterface");
       getPriceOracleInterfaceStub.returns(interfaceStub);
-      getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
+      getDeployedPriceOracleContractStub = Sinon.stub(ContractFns, "getDeployedPriceOracleContract");
       getDeployedPriceOracleContractStub.returns({
         address: priceOracleContractFakeAddr,
         abi: ["fakeAbi()"],
@@ -309,9 +309,9 @@ describe("ChainReader", () => {
     let interfaceStub: SinonStubbedInstance<utils.Interface>;
     beforeEach(() => {
       interfaceStub = createStubInstance(utils.Interface);
-      getPriceOracleInterfaceStub = Sinon.stub(contractFns, "getPriceOracleInterface");
+      getPriceOracleInterfaceStub = Sinon.stub(ContractFns, "getPriceOracleInterface");
       getPriceOracleInterfaceStub.returns(interfaceStub);
-      getDeployedPriceOracleContractStub = Sinon.stub(contractFns, "getDeployedPriceOracleContract");
+      getDeployedPriceOracleContractStub = Sinon.stub(ContractFns, "getDeployedPriceOracleContract");
       getDeployedPriceOracleContractStub.returns({
         address: priceOracleContractFakeAddr,
         abi: ["fakeAbi()"],
@@ -370,22 +370,25 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.eq(expectedTotal.toNumber());
-      expect(calculateGasFeeStub.getCall(0).args.slice(0, 5)).to.deep.eq([
+      // Calls are made with an async Promise.all so we don't know which order they'll actually be made in.
+      expect(calculateGasFeeStub).to.have.been.calledWithExactly(
         TEST_SENDER_CHAIN_ID,
         sendingAssetId,
         18,
-        "execute",
+        "xcall",
         undefined,
         undefined,
-      ]);
-      expect(calculateGasFeeStub.getCall(1).args.slice(0, 5)).to.deep.eq([
+        requestContextMock,
+      );
+      expect(calculateGasFeeStub).to.have.been.calledWithExactly(
         TEST_RECEIVER_CHAIN_ID,
         receivingAssetId,
         18,
         "execute",
         undefined,
         undefined,
-      ]);
+        requestContextMock,
+      );
     });
   });
 
@@ -411,8 +414,8 @@ describe("ChainReader", () => {
         TEST_RECEIVER_CHAIN_ID,
         assetId,
         18,
-        "fulfill",
-        false,
+        "execute",
+        undefined,
       ]);
     });
   });
@@ -425,7 +428,7 @@ describe("ChainReader", () => {
     let tokenPriceStub: SinonStub;
     let gasPriceStub: SinonStub;
     beforeEach(() => {
-      chainsPriceOraclesStub = Sinon.stub(contractFns, "CHAINS_WITH_PRICE_ORACLES").value([1, 10, 1337]);
+      chainsPriceOraclesStub = Sinon.stub(ContractFns, "CHAINS_WITH_PRICE_ORACLES").value([1, 10, 1337]);
       tokenPriceStub = Sinon.stub(chainReader, "getTokenPrice");
       gasPriceStub = Sinon.stub(chainReader, "getGasPrice");
       tokenPriceStub.onFirstCall().resolves(BigNumber.from(testEthPrice));
@@ -484,7 +487,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(4885223571428571);
+      expect(result.toNumber()).to.be.eq(4663795000000000);
     });
 
     it("special case for chainId 10 execute", async () => {
@@ -499,7 +502,7 @@ describe("ChainReader", () => {
         undefined,
         requestContextMock,
       );
-      expect(result.toNumber()).to.be.eq(4073510714285714);
+      expect(result.toNumber()).to.be.eq(4737796428571428);
     });
 
     // it("special case for chainId 10 cancel", async () => {

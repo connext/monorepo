@@ -4,7 +4,7 @@ import { getEnvConfig, getConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { mock } from "./mock";
 
-const mockDeployments = mock.contracts.deployments();
+const mockDeployments = mock.contracts.deployments;
 describe("Config", () => {
   afterEach(() => {
     restore();
@@ -56,7 +56,7 @@ describe("Config", () => {
       expect(() => getEnvConfig(mock.chainData(), mockDeployments)).throw();
     });
 
-    it("should error if transaction manager address is missing", () => {
+    it("should error if connext address is missing", () => {
       stub(process, "env").value({
         ...process.env,
         SEQ_CONFIG_FILE: "buggypath",
@@ -85,10 +85,10 @@ describe("Config", () => {
           assetId: {},
         },
       ]);
-      expect(() => getEnvConfig(chainData, mockDeployments)).throw("No transactionManager address for domain");
+      expect(() => getEnvConfig(chainData, mockDeployments)).throw("No Connext contract address");
     });
 
-    it("should read transactionManager from contract", () => {
+    it("should read connext from contract", () => {
       stub(process, "env").value({
         ...process.env,
         SEQ_CONFIG_FILE: "buggypath",

@@ -91,7 +91,6 @@ export function handleXCalled(event: XCalled): void {
 
   // Transfer Data
   transfer.to = event.params.to;
-  transfer.idx = event.params.idx;
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
   transfer.callTo = event.params.params.to;
@@ -99,9 +98,9 @@ export function handleXCalled(event: XCalled): void {
 
   // XCalled
   transfer.xcalledCaller = event.params.caller;
-  transfer.xcalledTransferringAmount = event.params.transferringAmount;
+  transfer.xcalledTransactingAmount = event.params.transactingAmount;
   transfer.xcalledLocalAmount = event.params.localAmount;
-  transfer.xcalledTransferringAsset = event.params.transferringAsset;
+  transfer.xcalledTransactingAsset = event.params.transactingAsset;
   transfer.xcalledLocalAsset = event.params.localAsset;
 
   // Transaction XCalled
@@ -142,9 +141,9 @@ export function handleExecuted(event: Executed): void {
 
   // Fulfill
   transfer.executedCaller = event.params.caller;
-  transfer.executedTransferringAmount = event.params.transferringAmount;
+  transfer.executedTransactingAmount = event.params.transactingAmount;
   transfer.executedLocalAmount = event.params.localAmount;
-  transfer.executedTransferringAsset = event.params.transferringAsset;
+  transfer.executedTransactingAsset = event.params.transactingAsset;
   transfer.executedLocalAsset = event.params.localAsset;
 
   // TransactionFulfilled
@@ -162,7 +161,36 @@ export function handleExecuted(event: Executed): void {
  *
  * @param event - The contract event used to update the subgraph
  */
-export function handleReconciled(event: Reconciled): void {}
+export function handleReconciled(event: Reconciled): void {
+  let transfer = Transfer.load(event.params.transferId.toHexString());
+  // router should have liquidity but it may not
+  let router = Router.load(event.params.router.toHex());
+  if (transfer == null) {
+    transfer = new Transfer(event.params.transferId.toHexString());
+
+    // Meta
+    transfer.chainId = getChainId();
+    transfer.status = "Executed";
+
+    // Transfer Data
+    transfer.transferId = event.params.transferId;
+    transfer.to = event.params.to;
+    transfer.router = router!.id;
+  }
+
+  // Reconcile
+  transfer.reconciledLocalAmount = event.params.localAmount;
+  transfer.reconciledLocalAsset = event.params.localAsset;
+
+  // TransactionFulfilled
+  transfer.reconciledTransactionHash = event.transaction.hash;
+  transfer.reconciledTimestamp = event.block.timestamp;
+  transfer.reconciledGasPrice = event.transaction.gasPrice;
+  transfer.reconciledGasLimit = event.transaction.gasLimit;
+  transfer.reconciledBlockNumber = event.block.number;
+
+  transfer.save();
+}
 
 function getChainId(): BigInt {
   // try to get chainId from the mapping

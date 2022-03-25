@@ -1,6 +1,12 @@
 import { task } from "hardhat/config";
-import { NomadMessage, Annotated, dev, mainnet, NomadContext, NomadStatus } from "@nomad-xyz/sdk";
-import { AnnotatedLifecycleEvent, MessageStatus } from "@nomad-xyz/sdk/nomad";
+import {
+  NomadMessage,
+  Annotated,
+  NomadContext,
+  NomadStatus,
+  MessageStatus,
+  AnnotatedLifecycleEvent,
+} from "@nomad-xyz/sdk";
 import { providers, Contract } from "ethers";
 import { NOMAD_DEPLOYMENTS } from "../constants";
 
@@ -45,8 +51,8 @@ function fromReceipt(
   domain: number,
   receipt: providers.TransactionReceipt,
   homeContract: Contract,
-): NomadMessage[] {
-  const messages: NomadMessage[] = [];
+): NomadMessage<any>[] {
+  const messages: NomadMessage<any>[] = [];
 
   const home = homeContract.interface;
   for (const log of receipt.logs) {
@@ -111,7 +117,7 @@ export default task("trace-message", "See the status of a nomad message")
       if (!destConfig || typeof destChain === "undefined") {
         throw new Error(`No nomad config for ${destination}`);
       }
-      const context = originConfig.isDev ? dev : mainnet;
+      const context = originConfig.isDev ? new NomadContext("dev") : new NomadContext("mainnet");
 
       // Register origin provider
       context.registerProvider(originConfig.domain, ethers.provider);

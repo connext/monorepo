@@ -10,6 +10,7 @@
     "src/bindings/fastify/index.ts",
     "src/bindings/messaging/index.ts",
     "src/bindings/metrics/index.ts",
+    "src/bindings/index.ts",
     "src/lib/errors/*.ts",
     "src/lib/entities/*.ts",
     "test/**/*.ts"

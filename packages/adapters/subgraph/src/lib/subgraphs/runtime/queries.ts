@@ -32,9 +32,9 @@ export const getXCalledTransfers = gql`
       }
       # XCalled
       xcalledCaller
-      xcalledTransferringAmount
+      xcalledTransactingAmount
       xcalledLocalAmount
-      xcalledTransferringAsset
+      xcalledTransactingAsset
       xcalledLocalAsset
       # XCalled Transaction
       xcalledTransactionHash
@@ -44,9 +44,9 @@ export const getXCalledTransfers = gql`
       xcalledBlockNumber
       # Executed
       executedCaller
-      executedTransferringAmount
+      executedTransactingAmount
       executedLocalAmount
-      executedTransferringAsset
+      executedTransactingAsset
       executedLocalAsset
       # Executed Transaction
       executedTransactionHash
@@ -54,6 +54,16 @@ export const getXCalledTransfers = gql`
       executedGasPrice
       executedGasLimit
       executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
     }
   }
 `;
@@ -79,9 +89,9 @@ export const getTransfer = gql`
       }
       # XCalled
       xcalledCaller
-      xcalledTransferringAmount
+      xcalledTransactingAmount
       xcalledLocalAmount
-      xcalledTransferringAsset
+      xcalledTransactingAsset
       xcalledLocalAsset
       # XCalled Transaction
       xcalledTransactionHash
@@ -91,9 +101,9 @@ export const getTransfer = gql`
       xcalledBlockNumber
       # Executed
       executedCaller
-      executedTransferringAmount
+      executedTransactingAmount
       executedLocalAmount
-      executedTransferringAsset
+      executedTransactingAsset
       executedLocalAsset
       # Executed Transaction
       executedTransactionHash
@@ -101,6 +111,16 @@ export const getTransfer = gql`
       executedGasPrice
       executedGasLimit
       executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
     }
   }
 `;
@@ -133,11 +153,11 @@ export const getExecutedAndReconciledTransfersByIds = gql`
         id
       }
       # XCalled
-      xcalledCaller
-      xcalledTransferringAmount
-      xcalledLocalAmount
-      xcalledTransferringAsset
+      xcalledTransactingAsset
       xcalledLocalAsset
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledCaller
       # XCalled Transaction
       xcalledTransactionHash
       xcalledTimestamp
@@ -146,9 +166,9 @@ export const getExecutedAndReconciledTransfersByIds = gql`
       xcalledBlockNumber
       # Executed
       executedCaller
-      executedTransferringAmount
+      executedTransactingAmount
       executedLocalAmount
-      executedTransferringAsset
+      executedTransactingAsset
       executedLocalAsset
       # Executed Transaction
       executedTransactionHash
@@ -156,6 +176,16 @@ export const getExecutedAndReconciledTransfersByIds = gql`
       executedGasPrice
       executedGasLimit
       executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
     }
   }
 `;

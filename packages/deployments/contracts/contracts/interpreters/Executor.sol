@@ -18,10 +18,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  */
 contract Executor is IExecutor {
 
-  // ============ Libraries =============
-
-  using TypedMemView for bytes29;
-
   // ============ Properties =============
 
   address private immutable connext;
@@ -122,7 +118,7 @@ contract Executor is IExecutor {
       // If it should set the properties, set them
       bool shouldSet = !_properties.isNull();
       if (shouldSet) {
-        require(isDomainAndSender(_properties), "!properties");
+        require(LibCrossDomainProperty.isDomainAndSender(_properties), "!properties");
         properties = _properties;
       }
       // Try to execute the callData

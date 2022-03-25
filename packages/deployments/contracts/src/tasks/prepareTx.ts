@@ -27,7 +27,7 @@ export default task("prepare", "Prepare a cross-chain tx")
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext_Proxy");
+        const connextDeployment = await deployments.get("Connext");
         connextAddress = connextDeployment.address;
       }
       console.log("connextAddress: ", connextAddress);
@@ -51,7 +51,7 @@ export default task("prepare", "Prepare a cross-chain tx")
         throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
       }
 
-      const connext = await ethers.getContractAt("Connext_Implementation", connextAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
       const args = [
         {
           params: {
