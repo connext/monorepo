@@ -16,6 +16,7 @@ export type { nomadXapps };
 import type * as test from "./test";
 export type { test };
 export type { Connext } from "./Connext";
+export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
 export type { Multicall } from "./Multicall";
 export type { PriceOracle } from "./PriceOracle";
 export type { ProposedOwnableUpgradeable } from "./ProposedOwnableUpgradeable";

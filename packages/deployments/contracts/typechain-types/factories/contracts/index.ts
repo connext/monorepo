@@ -9,6 +9,7 @@ export * as nomadCore from "./nomad-core";
 export * as nomadXapps from "./nomad-xapps";
 export * as test from "./test";
 export { Connext__factory } from "./Connext__factory";
+export { ConnextProxyAdmin__factory } from "./ConnextProxyAdmin__factory";
 export { Multicall__factory } from "./Multicall__factory";
 export { PriceOracle__factory } from "./PriceOracle__factory";
 export { ProposedOwnableUpgradeable__factory } from "./ProposedOwnableUpgradeable__factory";

@@ -24,10 +24,16 @@ export type { IERC1822Proxiable } from "./@openzeppelin/contracts/interfaces/dra
 export { IERC1822Proxiable__factory } from "./factories/@openzeppelin/contracts/interfaces/draft-IERC1822.sol/IERC1822Proxiable__factory";
 export type { IBeacon } from "./@openzeppelin/contracts/proxy/beacon/IBeacon";
 export { IBeacon__factory } from "./factories/@openzeppelin/contracts/proxy/beacon/IBeacon__factory";
+export type { ERC1967Proxy } from "./@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy";
+export { ERC1967Proxy__factory } from "./factories/@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy__factory";
 export type { ERC1967Upgrade } from "./@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade";
 export { ERC1967Upgrade__factory } from "./factories/@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade__factory";
 export type { Proxy } from "./@openzeppelin/contracts/proxy/Proxy";
 export { Proxy__factory } from "./factories/@openzeppelin/contracts/proxy/Proxy__factory";
+export type { ProxyAdmin } from "./@openzeppelin/contracts/proxy/transparent/ProxyAdmin";
+export { ProxyAdmin__factory } from "./factories/@openzeppelin/contracts/proxy/transparent/ProxyAdmin__factory";
+export type { TransparentUpgradeableProxy } from "./@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy";
+export { TransparentUpgradeableProxy__factory } from "./factories/@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy__factory";
 export type { ERC20 } from "./@openzeppelin/contracts/token/ERC20/ERC20";
 export { ERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/ERC20__factory";
 export type { IERC20Metadata } from "./@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata";
@@ -40,6 +46,10 @@ export type { AggregatorV3Interface } from "./contracts/ConnextPriceOracle.sol/A
 export { AggregatorV3Interface__factory } from "./factories/contracts/ConnextPriceOracle.sol/AggregatorV3Interface__factory";
 export type { ConnextPriceOracle } from "./contracts/ConnextPriceOracle.sol/ConnextPriceOracle";
 export { ConnextPriceOracle__factory } from "./factories/contracts/ConnextPriceOracle.sol/ConnextPriceOracle__factory";
+export type { ConnextProxyAdmin } from "./contracts/ConnextProxyAdmin";
+export { ConnextProxyAdmin__factory } from "./factories/contracts/ConnextProxyAdmin__factory";
+export type { CheatCodes } from "./contracts/interfaces/CheatCodes";
+export { CheatCodes__factory } from "./factories/contracts/interfaces/CheatCodes__factory";
 export type { IConnext } from "./contracts/interfaces/IConnext";
 export { IConnext__factory } from "./factories/contracts/interfaces/IConnext__factory";
 export type { IERC20Extended } from "./contracts/interfaces/IERC20Extended";
