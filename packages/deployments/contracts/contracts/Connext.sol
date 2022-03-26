@@ -474,7 +474,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
     // Handle liquidity as needed
     if (_isFast) {
-      _decrementLiquidity(_transferId, _args.amount, _args.params, _args.local, _args.router);
+      _decrementLiquidity(_transferId, _args.amount, _args.local, _args.router);
     } else {
       // Ensure the reconciled hash is correct (user not charged liq fee for slow-liq)
       require(_reconciledHash == _getReconciledHash(_args.local, _args.params.to, _args.amount), "!slow params");
@@ -778,7 +778,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   function _decrementLiquidity(
     bytes32 _transferId,
     uint256 _amount,
-    CallParams calldata _params,
     address _local,
     address _router
   ) internal {
