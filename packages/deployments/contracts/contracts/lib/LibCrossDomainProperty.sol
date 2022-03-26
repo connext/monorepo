@@ -76,7 +76,7 @@ library LibCrossDomainProperty {
      * @return True if the property is of type DomainAndSender
      */
     function isDomainAndSender(bytes29 _property) internal pure returns (bool) {
-        return isType(_property, Types.DomainAndSender) && isValidPropertyLength(_property);
+        return isValidPropertyLength(_property) && isType(_property, Types.DomainAndSender);
     }
 
     /**
@@ -115,20 +115,7 @@ library LibCrossDomainProperty {
         returns (uint32)
     {
         // before = 1 byte identifier = 1 byte
-        return uint32(_property.indexUint(5, 4));
-    }
-
-    /**
-     * @notice Creates a serialized property from components
-     * @param _property The struct of the DomainAndSender property to format
-     * @return The formatted view
-     */
-    function formatDomainAndSender(DomainAndSender memory _property)
-        internal
-        pure
-        returns (bytes29)
-    {
-        return formatDomainAndSender(_property.domain, _property.sender);
+        return uint32(_property.indexUint(1, 4));
     }
 
     /**
@@ -142,7 +129,7 @@ library LibCrossDomainProperty {
         pure
         returns (bytes29)
     {
-        return abi.encodePacked(_domain, _sender).ref(0).castTo(uint40(Types.DomainAndSender));
+        return abi.encodePacked(Types.DomainAndSender, _domain, _sender).ref(uint40(Types.DomainAndSender));
     }
 
 }
