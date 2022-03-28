@@ -139,9 +139,9 @@ export class TransactionsCache extends Cache {
       if (xcall.transactionHash && !execute?.transactionHash && !reconcile?.transactionHash) {
         // If xcall but no execute or reconcile, then it's possibly a new transfer.
         newXCalls[transferId] = stringified;
-      } else if (execute?.transactionHash) {
-        // If execute, then it's a completed transfer. In case we've previously marked the xcall as new in
-        // this batch, we need to remove it from the newXCalls list.
+      } else if (execute?.transactionHash || reconcile?.transactionHash) {
+        // If execute (or reconcile), then it's a completed transfer. In case we've previously recorded
+        // the xcall as new in this batch, we need to remove it from the newXCalls list.
         delete newXCalls[transferId];
       }
       // Retrieve latest nonce for this domain.
