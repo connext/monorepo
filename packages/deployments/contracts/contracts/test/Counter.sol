@@ -50,7 +50,7 @@ contract Counter {
       0.1 ether,
       payable(address(this)),
       address(0),
-      LibCrossDomainProperty.DEFAULT_VALUE,
+      LibCrossDomainProperty.EMPTY_BYTES,
       ""
     );
   }
@@ -62,7 +62,7 @@ contract Counter {
         0.1 ether,
         payable(address(this)),
         address(0),
-        LibCrossDomainProperty.DEFAULT_VALUE,
+        LibCrossDomainProperty.EMPTY_BYTES,
         ""
       );
     }
