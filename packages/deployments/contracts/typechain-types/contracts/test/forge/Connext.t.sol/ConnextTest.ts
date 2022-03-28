@@ -23,7 +23,7 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-} from "../../../common";
+} from "../../../../common";
 
 export interface ConnextTestInterface extends utils.Interface {
   functions: {
