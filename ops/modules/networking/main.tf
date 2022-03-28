@@ -114,13 +114,23 @@ resource "aws_security_group" "allow_all" {
 
 }
 
-resource "aws_db_subnet_group" "default" {
-  name       = "rds-subnet-group-${var.environment}"
-  subnet_ids = aws_subnet.main.*.id
-
-}
-
 resource "aws_elasticache_subnet_group" "default" {
   name       = "redis-subnet-group-${var.environment}"
   subnet_ids = aws_subnet.main.*.id
 }
+
+resource "aws_security_group" "str-sg" {
+  name   = "sequencer-to-router-sg"
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_security_group_rule" "allow-sequencer-to-router" {
+  description              = "Allow sequencer to communicate with router"
+  from_port                = 8080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.str-sg.id
+  source_security_group_id = aws_security_group.ecs_tasks.id
+  to_port                  = 8080
+  type                     = "ingress"
+}
+
