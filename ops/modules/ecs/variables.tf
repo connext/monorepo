@@ -1,5 +1,5 @@
 variable "ecs_cluster_name" {
-  default = "tracer"
+  default = "nxtp-ecs"
 }
 
 variable "private_subnets" {

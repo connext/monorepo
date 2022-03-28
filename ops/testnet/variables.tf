@@ -46,6 +46,7 @@ variable "full_image_name_sequencer" {
 variable "mnemonic" {
   type        = string
   description = "mnemonic"
+  default     = "blah blah blah blah blah blah blah blah blah blah blah blah"
 }
 
 variable "admin_token_router" {
