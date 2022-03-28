@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { validateAndParseAddress } from "../../src";
+import { validateAndParseAddress, getHexStringError, getAddressError } from "../../src";
 
 describe("Helpers:Hex", () => {
   describe("#validateAndParseAddress", () => {
@@ -24,4 +24,15 @@ describe("Helpers:Hex", () => {
       }
     });
   });
+  describe("#getHexStringError", () => {
+    it("validate that hex string is 4 bytes long", () => {
+      expect(getHexStringError("0xdeadbeef", 4)).to.be.deep.eq(undefined);
+    })
+  })
+
+  describe("#getAddressError", () => {
+    it("validates this is an address", () => {
+      expect(getAddressError("0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef")).to.be.deep.eq(undefined);
+    })
+  })
 });

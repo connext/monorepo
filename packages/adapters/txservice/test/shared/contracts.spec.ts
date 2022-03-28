@@ -44,11 +44,48 @@ describe("contracts", () => {
   });
 
   describe("#getDeployedConnextContract", () => {
-    beforeEach(() => {
-      contractDeploymentStub.returns(contractDeployment);
+    beforeEach(() => {});
+
+    it("should return undefined if `connext` doesn't exist in deployments", () => {
+      const mockContractDeployment = {
+        [String(testChainId1)]: [
+          {
+            name: "test",
+            chainId: testChainId1,
+            contracts: {
+              ConnextPriceOracle: {
+                address: testAddress,
+                abi: ["fakeAbi()"],
+              },
+            },
+          },
+        ],
+      };
+      contractDeploymentStub.returns(mockContractDeployment);
+      expect(ContractFns.getDeployedConnextContract(1111)).to.be.undefined;
     });
 
-    it("should return the connext contract", () => {
+    it("should return undefined if chainId doesn't exist in deployments", () => {
+      const mockContractDeployment = {
+        [String(testChainId1)]: [
+          {
+            name: "test",
+            chainId: testChainId1,
+            contracts: {
+              ConnextPriceOracle: {
+                address: testAddress,
+                abi: ["fakeAbi()"],
+              },
+            },
+          },
+        ],
+      };
+      contractDeploymentStub.returns(mockContractDeployment);
+      expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.undefined;
+    });
+
+    it("happy case: should return the connext contract", () => {
+      contractDeploymentStub.returns(contractDeployment);
       expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.deep.equal({
         address: testAddress,
         abi: ["fakeAbi()"],
