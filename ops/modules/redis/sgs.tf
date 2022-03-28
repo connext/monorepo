@@ -1,5 +1,5 @@
 resource "aws_security_group" "redis" {
-  name   = "redis-cluster-celery-broker-sg"
+  name   = "redis-cluster-${var.environment}-${var.family}-sg"
   vpc_id = var.vpc_id
 }
 
