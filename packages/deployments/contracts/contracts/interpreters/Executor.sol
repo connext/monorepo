@@ -18,14 +18,15 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  */
 contract Executor is IExecutor {
 
-  // ============ Properties =============
+  // ============ Libraries =============
 
   using TypedMemView for bytes29;
+  using TypedMemView for bytes;
 
   // ============ Properties =============
 
   address private immutable connext;
-  bytes29 private properties = LibCrossDomainProperty.DEFAULT_VALUE;
+  bytes private properties = LibCrossDomainProperty.EMPTY_BYTES;
 
   // ============ Constructor =============
 
@@ -60,11 +61,9 @@ contract Executor is IExecutor {
    * optimism
    */
   function originSender() external override view returns (address) {
-    require(
-        properties != LibCrossDomainProperty.DEFAULT_VALUE,
-        "!properties"
-    );
-    return LibCrossDomainProperty.sender(properties);
+    // The following will revert if it is empty
+    bytes29 _parsed = LibCrossDomainProperty.parseDomainAndSenderBytes(properties);
+    return LibCrossDomainProperty.sender(_parsed);
   }
 
   /**
@@ -73,11 +72,9 @@ contract Executor is IExecutor {
    * optimism
    */
   function origin() external override view returns (uint32) {
-    require(
-        properties != LibCrossDomainProperty.DEFAULT_VALUE,
-        "!properties"
-    );
-    return LibCrossDomainProperty.domain(properties);
+    // The following will revert if it is empty
+    bytes29 _parsed = LibCrossDomainProperty.parseDomainAndSenderBytes(properties);
+    return LibCrossDomainProperty.domain(_parsed);
   }
 
 
@@ -101,7 +98,7 @@ contract Executor is IExecutor {
     uint256 _amount,
     address payable _to,
     address _assetId,
-    bytes29 _properties,
+    bytes memory _properties,
     bytes calldata _callData
   ) override external payable onlyConnext returns (bool, bytes memory) {
     // If it is not ether, approve the callTo
@@ -116,24 +113,20 @@ contract Executor is IExecutor {
     // Check if the callTo is a contract
     bool success;
     bytes memory returnData;
-    bool isContract = AddressUpgradeable.isContract(_to);
+    require(AddressUpgradeable.isContract(_to), "!contract");
     
-    if (isContract) {
-      // If it should set the properties, set them
-      bool shouldSet = !_properties.equal(LibCrossDomainProperty.DEFAULT_VALUE);
-      if (shouldSet) {
-        require(LibCrossDomainProperty.isDomainAndSender(_properties), "!properties");
-        properties = _properties;
-      }
-      // Try to execute the callData
-      // the low level call will return `false` if its execution reverts
-      (success, returnData) = _to.call{value: isNative ? _amount : 0}(_callData);
-      // If it set the properties, unset them
-      if (shouldSet) {
-        properties = LibCrossDomainProperty.DEFAULT_VALUE;
-      }
-    }
-
+    // If it should set the properties, set them.
+    // NOTE: safe to set the properties always because modifier will revert if
+    // it is the wrong type on conversion, and revert occurs with empty type as
+    // well
+    properties = _properties;
+  
+    // Try to execute the callData
+    // the low level call will return `false` if its execution reverts
+    (success, returnData) = _to.call{value: isNative ? _amount : 0}(_callData);
+    
+    // Unset properties
+    properties = LibCrossDomainProperty.EMPTY_BYTES;
 
     // Handle failure cases
     if (!success && !isNative) {
@@ -150,8 +143,7 @@ contract Executor is IExecutor {
       _properties,
       _callData,
       returnData,
-      success,
-      isContract
+      success
     );
     return (success, returnData);
   }

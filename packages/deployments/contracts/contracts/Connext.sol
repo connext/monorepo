@@ -495,7 +495,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
         amount,
         payable(_args.params.to),
         adopted,
-        _isFast ? TypedMemView.nullView() : LibCrossDomainProperty.formatDomainAndSender(_args.params.originDomain, _args.originSender),
+        _isFast ? LibCrossDomainProperty.EMPTY_BYTES : LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender),
         _args.params.callData
       );
     }

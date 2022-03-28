@@ -8,11 +8,10 @@ interface IExecutor {
     address indexed to,
     address assetId,
     uint256 amount,
-    bytes29 _properties,
+    bytes _properties,
     bytes callData,
     bytes returnData,
-    bool success,
-    bool isContract
+    bool success
   );
 
   function getConnext() external returns (address);
@@ -26,7 +25,7 @@ interface IExecutor {
     uint256 _amount,
     address payable _to,
     address _assetId,
-    bytes29 _properties,
+    bytes memory _properties,
     bytes calldata _callData
   ) external payable returns (bool success, bytes memory returnData);
 }
