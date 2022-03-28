@@ -21,18 +21,23 @@ import type {
 
 export interface LibCrossDomainPropertyInterface extends utils.Interface {
   functions: {
-    "DEFAULT_VALUE()": FunctionFragment;
+    "EMPTY()": FunctionFragment;
+    "EMPTY_BYTES()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "DEFAULT_VALUE"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "EMPTY" | "EMPTY_BYTES"
+  ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "EMPTY", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "DEFAULT_VALUE",
+    functionFragment: "EMPTY_BYTES",
     values?: undefined
   ): string;
 
+  decodeFunctionResult(functionFragment: "EMPTY", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "DEFAULT_VALUE",
+    functionFragment: "EMPTY_BYTES",
     data: BytesLike
   ): Result;
 
@@ -66,22 +71,32 @@ export interface LibCrossDomainProperty extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    DEFAULT_VALUE(overrides?: CallOverrides): Promise<[string]>;
+    EMPTY(overrides?: CallOverrides): Promise<[string]>;
+
+    EMPTY_BYTES(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  DEFAULT_VALUE(overrides?: CallOverrides): Promise<string>;
+  EMPTY(overrides?: CallOverrides): Promise<string>;
+
+  EMPTY_BYTES(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    DEFAULT_VALUE(overrides?: CallOverrides): Promise<string>;
+    EMPTY(overrides?: CallOverrides): Promise<string>;
+
+    EMPTY_BYTES(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    DEFAULT_VALUE(overrides?: CallOverrides): Promise<BigNumber>;
+    EMPTY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    EMPTY_BYTES(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    DEFAULT_VALUE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    EMPTY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    EMPTY_BYTES(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

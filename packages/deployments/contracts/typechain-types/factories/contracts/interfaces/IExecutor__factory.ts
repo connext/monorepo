@@ -39,9 +39,9 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "bytes29",
+        internalType: "bytes",
         name: "_properties",
-        type: "bytes29",
+        type: "bytes",
       },
       {
         indexed: false,
@@ -59,12 +59,6 @@ const _abi = [
         indexed: false,
         internalType: "bool",
         name: "success",
-        type: "bool",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "isContract",
         type: "bool",
       },
     ],
@@ -94,9 +88,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "bytes29",
+        internalType: "bytes",
         name: "_properties",
-        type: "bytes29",
+        type: "bytes",
       },
       {
         internalType: "bytes",

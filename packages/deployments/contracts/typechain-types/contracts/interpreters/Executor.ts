@@ -28,7 +28,7 @@ import type {
 
 export interface ExecutorInterface extends utils.Interface {
   functions: {
-    "execute(bytes32,uint256,address,address,bytes29,bytes)": FunctionFragment;
+    "execute(bytes32,uint256,address,address,bytes,bytes)": FunctionFragment;
     "getConnext()": FunctionFragment;
     "origin()": FunctionFragment;
     "originSender()": FunctionFragment;
@@ -61,7 +61,7 @@ export interface ExecutorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "Executed(bytes32,address,address,uint256,bytes29,bytes,bytes,bool,bool)": EventFragment;
+    "Executed(bytes32,address,address,uint256,bytes,bytes,bytes,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
@@ -76,10 +76,9 @@ export interface ExecutedEventObject {
   callData: string;
   returnData: string;
   success: boolean;
-  isContract: boolean;
 }
 export type ExecutedEvent = TypedEvent<
-  [string, string, string, BigNumber, string, string, string, boolean, boolean],
+  [string, string, string, BigNumber, string, string, string, boolean],
   ExecutedEventObject
 >;
 
@@ -164,7 +163,7 @@ export interface Executor extends BaseContract {
   };
 
   filters: {
-    "Executed(bytes32,address,address,uint256,bytes29,bytes,bytes,bool,bool)"(
+    "Executed(bytes32,address,address,uint256,bytes,bytes,bytes,bool)"(
       transferId?: BytesLike | null,
       to?: string | null,
       assetId?: null,
@@ -172,8 +171,7 @@ export interface Executor extends BaseContract {
       _properties?: null,
       callData?: null,
       returnData?: null,
-      success?: null,
-      isContract?: null
+      success?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: BytesLike | null,
@@ -183,8 +181,7 @@ export interface Executor extends BaseContract {
       _properties?: null,
       callData?: null,
       returnData?: null,
-      success?: null,
-      isContract?: null
+      success?: null
     ): ExecutedEventFilter;
   };
 
