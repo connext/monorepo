@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 
-import "ds-test/test.sol";
-import "forge-std/stdlib.sol";
-import "forge-std/Vm.sol";
+import "../../../lib/ds-test/src/test.sol";
+import "../../../lib/forge-std/src/stdlib.sol";
+import "../../../lib/forge-std/src/Vm.sol";
+import "../../../lib/forge-std/src/console.sol";
 
 abstract contract ForgeHelper is DSTest {
   using stdStorage for StdStorage;
