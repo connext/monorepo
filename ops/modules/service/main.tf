@@ -11,8 +11,8 @@ resource "aws_ecs_task_definition" "service" {
   execution_role_arn       = var.execution_role_arn
   container_definitions    = jsonencode([
     {
-      name        = "first"
-      image       = "service-first"
+      name        = "${var.environment}-${var.container_family}"
+      image       = var.docker_image
       cpu         = var.cpu
       memory      = var.memory
       environment = [
@@ -25,7 +25,7 @@ resource "aws_ecs_task_definition" "service" {
         logDriver = "awslogs",
         options   = {
           awslogs-group         = aws_cloudwatch_log_group.container.name,
-          awslogs-region        = "us-east-1",
+          awslogs-region        = var.region,
           awslogs-stream-prefix = "logs"
         }
       }
@@ -67,7 +67,9 @@ resource "aws_alb" "lb" {
   subnets                    = var.lb_subnets
   enable_deletion_protection = false
   idle_timeout               = var.timeout
-
+  tags = {
+    Family = "${var.environment}-${var.container_family}"
+  }
 }
 
 resource "aws_alb_target_group" "front_end" {
@@ -99,7 +101,7 @@ resource "aws_alb_listener" "front_end" {
 # This is the group you need to edit if you want to restrict access to your application
 resource "aws_security_group" "lb" {
   description = "controls access to the ALB"
-
+  vpc_id      = var.vpc_id
 
   ingress {
     protocol         = "tcp"

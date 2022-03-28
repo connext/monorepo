@@ -49,6 +49,7 @@ variable "ecs_cluster_sg" {}
 
 variable "allow_all_sg" {}
 
+variable "region" {}
 
 variable "environment" {}
 
