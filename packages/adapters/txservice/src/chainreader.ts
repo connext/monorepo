@@ -403,8 +403,6 @@ export class ChainReader {
         gasEstimate = gasLimits.prepareL1 ?? "0";
       } else if (method === "execute") {
         gasEstimate = gasLimits.fulfillL1 ?? "0";
-      } else {
-        gasEstimate = gasLimits.removeLiquidityL1 ?? "0";
       }
       l1GasInUsd = gasPriceMainnet.mul(gasEstimate).mul(ethPrice);
     }
@@ -431,10 +429,6 @@ export class ChainReader {
           gasLimit = gasLimit.add(callGas);
         }
       }
-    } else if (method === "cancel") {
-      gasLimit = BigNumber.from(gasLimits.cancel);
-    } else {
-      gasLimit = BigNumber.from(gasLimits.removeLiquidity);
     }
 
     const impactedGasPrice = gasPrice.mul(BigNumber.from(10).pow(18)).div(BigNumber.from(gasLimits.gasPriceFactor));

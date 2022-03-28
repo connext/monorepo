@@ -1,4 +1,4 @@
-import { BigNumber, utils, Wallet } from "ethers";
+import { BigNumber, providers, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance, SinonStub } from "sinon";
 import {
   getRandomAddress,
@@ -22,6 +22,7 @@ import {
   makeChaiReadable,
   TEST_RECEIVER_CHAIN_ID,
 } from "./utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 
 const logger = new Logger({
   level: process.env.LOG_LEVEL ?? "silent",
@@ -148,6 +149,24 @@ describe("ChainReader", () => {
     });
   });
 
+  describe("#getBlock", () => {
+    it("happy", async () => {
+      const mockBlock = { transactions: [getRandomBytes32()] } as providers.Block;
+      provider.getBlock.resolves(mockBlock);
+
+      const block = await chainReader.getBlock(TEST_SENDER_CHAIN_ID, "block");
+
+      expect(block).to.be.eq(mockBlock);
+      expect(provider.getBlock.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getBlock.rejects(new RpcError("fail"));
+
+      await expect(chainReader.getBlock(TEST_SENDER_CHAIN_ID, "block")).to.be.rejectedWith("fail");
+    });
+  });
+
   describe("#getBlockTime", () => {
     it("happy", async () => {
       const time = Math.floor(Date.now() / 1000);
@@ -218,6 +237,24 @@ describe("ChainReader", () => {
       provider.getCode.rejects(new RpcError("fail"));
 
       await expect(chainReader.getCode(TEST_SENDER_CHAIN_ID, mkAddress("0xa1"))).to.be.rejectedWith("fail");
+    });
+  });
+
+  describe("#getGasEstimate", () => {
+    it("happy", async () => {
+      const mockGasEstimation = parseUnits("1", 9);
+      provider.getGasEstimate.resolves(mockGasEstimation);
+
+      const gasEstimation = await chainReader.getGasEstimate(TEST_SENDER_CHAIN_ID, null);
+
+      expect(gasEstimation).to.be.eq(mockGasEstimation);
+      expect(provider.getGasEstimate.callCount).to.equal(1);
+    });
+
+    it("should throw if provider fails", async () => {
+      provider.getGasEstimate.rejects(new RpcError("fail"));
+
+      await expect(chainReader.getGasEstimate(TEST_SENDER_CHAIN_ID, null)).to.be.rejectedWith("fail");
     });
   });
 
@@ -531,6 +568,36 @@ describe("ChainReader", () => {
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4207142857142857);
+    });
+
+    it("happy: should add callDataGas for execute with default data", async () => {
+      const callDataParams = { callData: "0x", callTo: mkAddress("0xaaa"), callDataGas: "100000" };
+      const result = await chainReader.calculateGasFee(
+        1337,
+        mkAddress("0x0"),
+        18,
+        "execute",
+        callDataParams,
+        undefined,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(6642857142857142);
+    });
+
+    it("happy: should calculate callDataGas with callData and callTo", async () => {
+      const mockGasEstimation = BigNumber.from("100000");
+      provider.getGasEstimate.resolves(mockGasEstimation);
+      const callDataParams = { callData: "0xaaa", callTo: mkAddress("0xaaa") };
+      const result = await chainReader.calculateGasFee(
+        1337,
+        mkAddress("0x0"),
+        18,
+        "execute",
+        callDataParams,
+        undefined,
+        requestContextMock,
+      );
+      expect(result.toNumber()).to.be.eq(6642857142857142);
     });
   });
 
