@@ -111,10 +111,31 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   // Subscribe to `NewXCall` channel and attach execute handler.
   cacheInstance.consumers.subscribe(StoreManager.Channel.NewXCall, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewXCallHandler");
+
+    const incomingTx = JSON.parse(pendingTx) as XTransfer;
+    const tx: XTransfer = {
+      originDomain: incomingTx.originDomain,
+      destinationDomain: incomingTx.destinationDomain,
+      status: incomingTx.status,
+
+      to: incomingTx.to,
+      transferId: incomingTx.transferId,
+      callTo: incomingTx.callTo,
+      callData: incomingTx.callData,
+      idx: incomingTx.idx ?? "0",
+      nonce: incomingTx.nonce,
+      router: incomingTx.router,
+
+      xcall: incomingTx.xcall,
+      execute: incomingTx.execute,
+    };
     try {
-      await execute(JSON.parse(pendingTx) as XTransfer);
+      await execute(tx);
     } catch (err: any) {
-      logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
+      logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err), {
+        tx,
+        xcall: tx.xcall,
+      });
     }
   });
 
