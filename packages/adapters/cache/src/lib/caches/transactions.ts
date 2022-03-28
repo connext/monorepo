@@ -39,7 +39,7 @@ export class TransactionsCache extends Cache {
     const status = this.data.scanStream({
       match: `${txid}`,
     });
-    return new Promise((res, rej) => {
+    return new Promise((res, _) => {
       status.on("data", (txidMatch: string) => {
         this.logger.debug("found txid");
         const val = this.data.get(txidMatch);
@@ -76,7 +76,7 @@ export class TransactionsCache extends Cache {
       count: 1,
     });
     let txData: XTransfer;
-    return new Promise((res, rej) => {
+    return new Promise((res, _) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
         txData = JSON.parse(crossChainData!) as XTransfer;
@@ -85,6 +85,17 @@ export class TransactionsCache extends Cache {
         res(txData);
       });
     });
+  }
+
+  /**
+   * Gets transfer data by transferId.
+   *
+   * @param transferId - transferId property
+   * @returns XTransfer data
+   */
+  public async getTransferByTransferId(transferId: string): Promise<XTransfer | undefined> {
+    const result = await this.data.hget(`${this.prefix}:transfers`, `${transferId}`);
+    return result ? (JSON.parse(result) as XTransfer) : undefined;
   }
 
   public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<XTransfer | undefined> {
@@ -93,7 +104,7 @@ export class TransactionsCache extends Cache {
     });
 
     let txData: XTransfer;
-    return new Promise((res, rej) => {
+    return new Promise((res, _) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
         txData = JSON.parse(crossChainData!) as XTransfer;
@@ -104,21 +115,57 @@ export class TransactionsCache extends Cache {
     });
   }
 
-  public async storeTxData(txs: XTransfer[]): Promise<void> {
-    for (const tx of txs) {
+  public async storeTransfers(transfers: XTransfer[]): Promise<void> {
+    const nonceIncreasesByDomain: { [domain: string]: boolean } = {};
+    const highestNonceByDomain: { [domain: string]: number } = {};
+    const newXCalls: { [transferId: string]: string } = {};
+    for (let transfer of transfers) {
+      const existing = await this.getTransferByTransferId(transfer.transferId);
+      // TODO: Sanity check: no update needed if this transfer is same as the one already stored!
+
+      // TODO: Sanity check: make sure that the existing transfer's metadata is the same as the old one!
+
+      // Update the existing transfer with the data from the new one; this will collate the transfer across
+      // domains, since our cache is indexed by transferId.
+      transfer = existing ? { ...existing, ...transfer } : transfer;
+      const { xcall, execute, reconcile, transferId, nonce: _nonce, originDomain } = transfer;
+      const nonce = Number(_nonce);
+      const stringified = JSON.stringify(transfer);
+
       // set transaction data at domain field in hash, hset returns the number of field that were added
       // gte(1) => added, 0 => updated,
       // reference: https://redis.io/commands/hset
-      await this.data.hset(`${this.prefix}:${tx.originDomain}`, `${tx.nonce}:${tx.transferId}`, JSON.stringify(tx));
-      //move pointer to latest Nonce
-      const latestNonce = (await this.data.hget(`${this.prefix}:${tx.originDomain}`, "latestNonce")) ?? "0";
-      if (Number(tx.nonce) > parseInt(latestNonce)) {
-        //if this txns nonce is > the current pointer to latest nonce point to this one now
-        await this.data.hset(`${this.prefix}:${tx.originDomain}`, "latestNonce", tx.nonce);
-        await this.data.publish(StoreChannel.NewHighestNonce, tx.nonce.toString());
+      await this.data.hset(`${this.prefix}:transfers`, `${transferId}`, stringified);
+      if (xcall.transactionHash && !execute?.transactionHash && !reconcile?.transactionHash) {
+        // If xcall but no execute or reconcile, then it's possibly a new transfer.
+        newXCalls[transferId] = stringified;
+      } else if (execute?.transactionHash) {
+        // If execute, then it's a completed transfer. In case we've previously marked the xcall as new in
+        // this batch, we need to remove it from the newXCalls list.
+        delete newXCalls[transferId];
       }
-      //dont think we need to set the status anymore.
-      await this.data.publish(StoreChannel.NewXCall, JSON.stringify(tx));
+      // Retrieve latest nonce for this domain.
+      let currentNonce = highestNonceByDomain[originDomain];
+      if (!currentNonce) {
+        // If we don't have a nonce recorded yet for this domain, we need to retrieve it from the cache.
+        currentNonce = (await this.getLatestNonce(originDomain)) ?? 0;
+        highestNonceByDomain[originDomain] = currentNonce;
+      }
+      if (nonce > currentNonce) {
+        // If the new nonce is higher than the current one, we'll record it to later update the cache.
+        nonceIncreasesByDomain[originDomain] = true;
+        highestNonceByDomain[originDomain] = nonce;
+      }
+    }
+    // Publish NewXCall events for any new xcalls we found.
+    for (const transfer of Object.values(newXCalls)) {
+      await this.data.publish(StoreChannel.NewXCall, transfer);
+    }
+    // Set the new highest nonce, and publish NewHighestNonce events for any new highest nonces we found.
+    for (const [domain, nonce] of Object.entries(highestNonceByDomain)) {
+      if (nonceIncreasesByDomain[domain]) {
+        await this.data.hset(`${this.prefix}:${domain}`, "latestNonce", nonce);
+      }
     }
   }
 }
