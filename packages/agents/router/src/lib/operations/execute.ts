@@ -40,15 +40,15 @@ export const execute = async (params: XTransfer): Promise<void> => {
   logger.info("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
-  const validateInput = ajv.compile(XTransferSchema);
-  const validInput = validateInput(params);
-  if (!validInput) {
-    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    throw new ParamsInvalid({
-      paramsError: msg,
-      params,
-    });
-  }
+  // const validateInput = ajv.compile(XTransferSchema);
+  // const validInput = validateInput(params);
+  // if (!validInput) {
+  //   const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+  //   throw new ParamsInvalid({
+  //     paramsError: msg,
+  //     params,
+  //   });
+  // }
 
   /// create a bid
   const { originDomain, destinationDomain, transferId, to, xcall, callTo, callData } = params;

@@ -112,7 +112,7 @@ export class TransactionsCache extends Cache {
       await this.data.hset(`${this.prefix}:${tx.originDomain}`, `${tx.nonce}:${tx.transferId}`, JSON.stringify(tx));
       //move pointer to latest Nonce
       const latestNonce = (await this.data.hget(`${this.prefix}:${tx.originDomain}`, "latestNonce")) ?? "0";
-      if (tx.nonce > parseInt(latestNonce)) {
+      if (Number(tx.nonce) > parseInt(latestNonce)) {
         //if this txns nonce is > the current pointer to latest nonce point to this one now
         await this.data.hset(`${this.prefix}:${tx.originDomain}`, "latestNonce", tx.nonce);
         await this.data.publish(StoreChannel.NewHighestNonce, tx.nonce.toString());

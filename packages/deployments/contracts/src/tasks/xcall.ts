@@ -1,7 +1,7 @@
 import { BigNumber, constants, providers } from "ethers";
 import { task } from "hardhat/config";
 
-export default task("prepare", "Prepare a cross-chain tx")
+export default task("xcall", "Prepare a cross-chain tx")
   .addParam("transactingAssetId", "Transacting asset Id")
   .addParam("amount", "Amount to transfer")
   .addParam("to", "To address")

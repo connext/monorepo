@@ -31,15 +31,18 @@ export const XTransferSchema = Type.Object({
   transferId: Type.String(),
   callTo: Type.String(),
   callData: Type.String(),
-  idx: TIntegerString,
-  nonce: Type.Number(),
-  router: TAddress,
+  idx: Type.Optional(TIntegerString),
+  nonce: TIntegerString,
+  router: Type.Optional(TAddress),
 
   // XCalled
   xcall: XTransferMethodCallSchema,
 
   // Executed
   execute: Type.Optional(XTransferMethodCallSchema),
+
+  // Reconciled
+  reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 export type XTransfer = Static<typeof XTransferSchema>;
 
