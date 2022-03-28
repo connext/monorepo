@@ -8,6 +8,7 @@ contract LibCrossDomainPropertyTest is ForgeHelper {
 
   using stdStorage for StdStorage;
   using TypedMemView for bytes29;
+  using TypedMemView for bytes;
 
   // ============ Storage ============
 
@@ -23,13 +24,17 @@ contract LibCrossDomainPropertyTest is ForgeHelper {
     return LibCrossDomainProperty.formatDomainAndSender(domain, sender);
   }
 
+  function getPropertyBytes() public returns (bytes memory) {
+    return LibCrossDomainProperty.formatDomainAndSenderBytes(domain, sender);
+  }
+
   // ============ isValidPropertyLength ============
 
   // Should work
-  function testLength() public {
+  function testValidPropertyLength() public {
     bytes29 property = getProperty();
     assertTrue(LibCrossDomainProperty.isValidPropertyLength(property));
-    assertTrue(!LibCrossDomainProperty.isValidPropertyLength(LibCrossDomainProperty.DEFAULT_VALUE));
+    assertTrue(!LibCrossDomainProperty.isValidPropertyLength(LibCrossDomainProperty.EMPTY));
   }
 
   // ============ isType ============
@@ -58,13 +63,44 @@ contract LibCrossDomainPropertyTest is ForgeHelper {
     assertEq(propertyType, uint8(1));
   }
 
+  // ============ tryAsProperty ============
+
+  // Should return null if its invalid length
+  function testTryAsPropertyInvalidLength() public {
+    bytes29 ret = LibCrossDomainProperty.tryAsProperty(LibCrossDomainProperty.EMPTY);
+    assertTrue(ret.isNull());
+  }
+
+  // Should work if it is a property
+  function testTryAsProperty() public {
+    bytes29 property = getProperty();
+    bytes29 ret = LibCrossDomainProperty.tryAsProperty(property);
+    assertTrue(ret.notNull());
+    assertTrue(ret.equal(property));
+  }
+
+  // ============ mustBeProperty ============
+
+  // Should work if it is not a property
+  function testFailMustBeProperty() public {
+    // https://github.com/gakonst/foundry/issues/864
+    // bug with internal reverts, should revert with:
+    // Validity assertion failed
+    LibCrossDomainProperty.mustBeProperty(LibCrossDomainProperty.EMPTY);
+  }
+
+  // Should work if it is a property
+  function testMustBeProperty() public {
+    LibCrossDomainProperty.mustBeProperty(getProperty());
+  }
+
   // ============ sender ============
 
   // Should fail if its not the right type
   function testFailSenderIncorrectType() public {
     // bug with internal reverts, should revert with:
     // Type assertion failed. Got 0xffffffffff. Expected 0x0000000001
-    LibCrossDomainProperty.sender(LibCrossDomainProperty.DEFAULT_VALUE);
+    LibCrossDomainProperty.sender(LibCrossDomainProperty.EMPTY);
   }
 
   // Should work
@@ -76,13 +112,44 @@ contract LibCrossDomainPropertyTest is ForgeHelper {
 
   // Should fail if its not the right type
   function testFailDomainIncorrectType() public {
+    // https://github.com/gakonst/foundry/issues/864
     // bug with internal reverts, should revert with:
     // Type assertion failed. Got 0xffffffffff. Expected 0x0000000001
-    LibCrossDomainProperty.domain(LibCrossDomainProperty.DEFAULT_VALUE);
+    LibCrossDomainProperty.domain(LibCrossDomainProperty.EMPTY);
   }
 
   // Should work
   function testDomain() public {
     assertEq(LibCrossDomainProperty.domain(getProperty()), domain);
+  }
+
+  // ============ formatDomainAndSender ============
+
+  // Should work
+  function testFormatDomainAndSender() public {
+    bytes29 property = getProperty();
+    assertTrue(LibCrossDomainProperty.isDomainAndSender(property));
+    bytes memory propertyBytes = getPropertyBytes();
+    bytes29 converted = LibCrossDomainProperty.mustBeProperty(propertyBytes.ref(0));
+    assertTrue(LibCrossDomainProperty.isDomainAndSender(converted));
+  }
+
+  // ============ formatDomainAndSenderBytes ============
+
+  // Should work
+  function testFormatDomainAndSenderBytes() public {
+    bytes memory propertyBytes = getPropertyBytes();
+    bytes29 converted = LibCrossDomainProperty.mustBeProperty(propertyBytes.ref(0));
+    assertTrue(LibCrossDomainProperty.isDomainAndSender(converted));
+  }
+
+  // ============ formatDomainAndSenderBytes ============
+
+  // Should work
+  function testParseDomainAndSenderBytes() public {
+    bytes memory propertyBytes = getPropertyBytes();
+    bytes29 converted = LibCrossDomainProperty.parseDomainAndSenderBytes(propertyBytes);
+    assertTrue(LibCrossDomainProperty.isDomainAndSender(converted));
+    assertTrue(converted.equal(getProperty()));
   }
 }

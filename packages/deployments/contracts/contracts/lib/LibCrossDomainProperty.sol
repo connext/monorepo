@@ -34,7 +34,8 @@ library LibCrossDomainProperty {
 
     uint256 private constant PROPERTY_LEN = 25; // 1 byte identifer + 4 bytes domain + 20 bytes address
     // default value is the TypedMemView null view
-    bytes29 public constant DEFAULT_VALUE = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+    bytes29 public constant EMPTY = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+    bytes public constant EMPTY_BYTES = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
     // ============ Modifiers ============
 
@@ -89,6 +90,27 @@ library LibCrossDomainProperty {
     }
 
     /**
+     * @notice Converts to a Property
+     * @param _view The property
+     * @return The newly typed property
+     */
+    function tryAsProperty(bytes29 _view) internal pure returns (bytes29) {
+        if (isValidPropertyLength(_view)) {
+            return _view.castTo(uint40(Types.DomainAndSender));
+        }
+        return TypedMemView.nullView();
+    }
+
+    /**
+     * @notice Asserts that the property is of type DomainAndSender
+     * @param _view The property
+     * @return The property
+     */
+    function mustBeProperty(bytes29 _view) internal pure returns (bytes29) {
+        return tryAsProperty(_view).assertValid();
+    }
+
+    /**
      * @notice Retrieves the sender from a property
      * @param _property The property
      * @return The sender address
@@ -99,7 +121,7 @@ library LibCrossDomainProperty {
         typeAssert(_property, Types.DomainAndSender)
         returns (address)
     {
-        // before = 1 byte identifier + 4 bytes domain = 5 bytes
+        // before = 1 byte id + 4 bytes domain = 5 bytes
         return _property.indexAddress(5);
     }
 
@@ -129,7 +151,32 @@ library LibCrossDomainProperty {
         pure
         returns (bytes29)
     {
-        return abi.encodePacked(Types.DomainAndSender, _domain, _sender).ref(uint40(Types.DomainAndSender));
+        return abi.encodePacked(Types.DomainAndSender, _domain, _sender).ref(0).castTo(uint40(Types.DomainAndSender));
     }
 
+    /**
+     * @notice Creates a serialized property from components
+     * @param _domain The domain
+     * @param _sender The sender
+     * @return The formatted view
+     */
+    function formatDomainAndSenderBytes(uint32 _domain, address _sender)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodePacked(Types.DomainAndSender, _domain, _sender);
+    }
+
+    /**
+     * @notice Creates a serialized property from components
+     * @param _property The bytes representation of the property
+     */
+    function parseDomainAndSenderBytes(bytes memory _property)
+        internal
+        pure
+        returns (bytes29)
+    {
+        return mustBeProperty(_property.ref(0));
+    }
 }
