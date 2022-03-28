@@ -6,7 +6,7 @@ variable "private_subnets" {
   type = list(string)
 }
 
-variable "public_subnets" {
+variable "lb_subnets" {
   type = list(string)
 }
 
@@ -49,14 +49,24 @@ variable "ecs_cluster_sg" {}
 
 variable "allow_all_sg" {}
 
-variable "redis_uri" {}
-
 
 variable "environment" {}
 
 variable "mnemonic" {}
 
-variable "admin_token" {}
-
-variable "sequencer_url" {
+variable "ingress_cdir_blocks" {
+  type = list(string)
 }
+variable "ingress_ipv6_cdir_blocks" {
+  type = list(string)
+}
+
+variable "allow_all_cdir_blocks" {
+  default = [ "0.0.0.0/0" ]
+}
+
+variable "service_security_groups" {
+  type = list(string)
+}
+
+variable "nxtp_config" {}

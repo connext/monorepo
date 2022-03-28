@@ -1,48 +1,46 @@
 resource "aws_cloudwatch_log_group" "container" {
-  name = var.container_family
+  name = "${var.environment}-${var.container_family}"
 }
 
 resource "aws_ecs_task_definition" "service" {
-  family                   = var.container_family
+  family                   = "${var.environment}-${var.container_family}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.cpu
   memory                   = var.memory
   execution_role_arn       = var.execution_role_arn
-  container_definitions    = <<TASK_DEFINITION
-[
- {
-   "cpu": ${var.cpu},
-   "memory": ${var.memory},
-   "environment": [
-      {"name": "NXTP_CONFIG", "value": ${local.local_router_config},
-      {"name": "NXTP_MNEMONIC", "value": "${var.mnemonic}"},
-      {"name": "ENV", "value": "${var.environment}"}
-   ],
-   "name": "${var.container_family}",
-   "image": "${var.docker_image}",
-   "networkMode": "awsvpc",
-   "portMappings": [
-     {
-       "containerPort": ${var.container_port},
-       "hostPort": ${var.container_port}
-     }
-   ],
-   "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "${aws_cloudwatch_log_group.container.name}",
-                    "awslogs-region": "eu-central-1",
-                    "awslogs-stream-prefix": "logs"
-                }
-            }
- }
-]
-TASK_DEFINITION
+  container_definitions    = jsonencode([
+    {
+      name        = "first"
+      image       = "service-first"
+      cpu         = var.cpu
+      memory      = var.memory
+      environment = [
+        { name = "NXTP_CONFIG", value = var.nxtp_config },
+        { name = "NXTP_MNEMONIC", value = var.mnemonic },
+        { name = "ENVIRONMENT", value = var.environment }
+      ]
+      networkMode      = "awsvpc"
+      logConfiguration = {
+        logDriver = "awslogs",
+        options   = {
+          awslogs-group         = aws_cloudwatch_log_group.container.name,
+          awslogs-region        = "us-east-1",
+          awslogs-stream-prefix = "logs"
+        }
+      }
+      portMappings = [
+        {
+          containerPort = var.container_port
+          hostPort      = var.container_port
+        }
+      ]
+    }
+  ])
 }
 
 resource "aws_ecs_service" "service" {
-  name          = var.container_family
+  name          = "${var.environment}-${var.container_family}"
   cluster       = var.cluster_id
   desired_count = var.instance_count
 
@@ -50,24 +48,23 @@ resource "aws_ecs_service" "service" {
   depends_on  = [aws_alb_target_group.front_end, aws_alb.lb]
 
   # Track the latest ACTIVE revision
-
   task_definition = "${aws_ecs_task_definition.service.family}:${max("${aws_ecs_task_definition.service.revision}", "${aws_ecs_task_definition.service.revision}")}"
 
   network_configuration {
-    security_groups = flatten([var.ecs_cluster_sg])
-    subnets         = flatten([var.private_subnets])
+    security_groups = var.service_security_groups
+    subnets         = var.private_subnets
   }
 
   load_balancer {
     target_group_arn = aws_alb_target_group.front_end.id
-    container_name   = var.container_family
+    container_name   = "${var.environment}-${var.container_family}"
     container_port   = var.container_port
   }
 }
 
 resource "aws_alb" "lb" {
-  security_groups            = flatten([var.allow_all_sg, var.ecs_cluster_sg])
-  subnets                    = var.private_subnets
+  security_groups            = var.service_security_groups
+  subnets                    = var.lb_subnets
   enable_deletion_protection = false
   idle_timeout               = var.timeout
 
@@ -105,21 +102,18 @@ resource "aws_security_group" "lb" {
 
 
   ingress {
-    protocol    = "tcp"
-    from_port   = var.loadbalancer_port
-    to_port     = var.container_port
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
+    protocol         = "tcp"
+    from_port        = var.loadbalancer_port
+    to_port          = var.container_port
+    cidr_blocks      = var.ingress_cdir_blocks
+    ipv6_cidr_blocks = var.ingress_ipv6_cdir_blocks
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
+    cidr_blocks = var.allow_all_cdir_blocks
   }
 }
 
