@@ -19,6 +19,7 @@ data "aws_iam_role" "ecr_admin_role" {
 
 module "router" {
   source                   = "../modules/service"
+  region                   = var.region
   ecs_cluster_sg           = module.network.ecs_task_sg
   allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
@@ -31,8 +32,8 @@ module "router" {
   health_check_path        = "/"
   container_port           = 8080
   loadbalancer_port        = 8080
-  cpu                      = 128
-  memory                   = 256
+  cpu                      = 256
+  memory                   = 512
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
@@ -46,6 +47,7 @@ module "router" {
 
 module "sequencer" {
   source                   = "../modules/service"
+  region                   = var.region
   ecs_cluster_sg           = module.network.ecs_task_sg
   allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
@@ -58,8 +60,8 @@ module "sequencer" {
   health_check_path        = "/"
   container_port           = 8080
   loadbalancer_port        = 8080
-  cpu                      = 128
-  memory                   = 256
+  cpu                      = 256
+  memory                   = 512
   instance_count           = 2
   timeout                  = 180
   environment              = var.environment

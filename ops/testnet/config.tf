@@ -39,7 +39,7 @@ locals {
 locals {
   local_router_config = jsonencode({
     "logLevel"     = "debug"
-    "sequencerUrl" =  module.sequencer.dns_name
+    "sequencerUrl" =  "https://${module.sequencer.dns_name}:8080"
     "redisUrl"     = "redis://${module.router_cache.redis_instance_address}:6379"
     "server" = {
       "adminToken" = var.admin_token_router
