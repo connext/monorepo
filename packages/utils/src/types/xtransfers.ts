@@ -40,6 +40,9 @@ export const XTransferSchema = Type.Object({
 
   // Executed
   execute: Type.Optional(XTransferMethodCallSchema),
+
+  // Reconciled
+  reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 export type XTransfer = Static<typeof XTransferSchema>;
 
