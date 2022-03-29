@@ -61,10 +61,9 @@ export const ExecuteArgsSchema = Type.Object({
   router: TAddress,
   feePercentage: TDecimalString,
   amount: TDecimalString,
-  index: Type.Number(),
-  transferId: Type.String(),
-  proof: Type.Array(Type.String()),
+  nonce: Type.Number(),
   relayerSignature: Type.String(),
+  originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
