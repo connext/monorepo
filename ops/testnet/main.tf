@@ -27,7 +27,7 @@ module "router" {
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
-  internal_lb              = true
+  internal_lb              = false
   docker_image             = var.full_image_name_router
   container_family         = "router"
   health_check_path        = "/ping"
