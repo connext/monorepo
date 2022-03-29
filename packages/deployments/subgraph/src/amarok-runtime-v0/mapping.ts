@@ -170,7 +170,7 @@ export function handleReconciled(event: Reconciled): void {
 
     // Meta
     transfer.chainId = getChainId();
-    transfer.status = "Executed";
+    transfer.status = "Reconciled";
 
     // Transfer Data
     transfer.transferId = event.params.transferId;
