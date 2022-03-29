@@ -8,14 +8,14 @@ import {
   XTransfer,
   delay,
 } from "@connext/nxtp-utils";
-import { ConsumersCache, TransactionsCache, AuctionsCache } from "../../../src/index";
+import { ConsumersCache, TransfersCache, AuctionsCache } from "../../../src/index";
 import { StoreChannel, SubscriptionCallback } from "../../../src/lib/entities";
 
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
 let consumers: ConsumersCache;
 let auctions: AuctionsCache;
-let transactions: TransactionsCache;
+let transactions: TransfersCache;
 
 const fakeTxs = [
   mock.entity.xtransfer("1000", "2000"),
@@ -72,7 +72,7 @@ describe("ConsumersCache", () => {
 
     consumers = new ConsumersCache({ url: "mock", mock: true, logger });
     auctions = new AuctionsCache({ url: "mock", mock: true, logger });
-    transactions = new TransactionsCache({ url: "mock", mock: true, logger });
+    transactions = new TransfersCache({ url: "mock", mock: true, logger });
   });
 
   describe("#subscribe", () => {
@@ -92,7 +92,7 @@ describe("ConsumersCache", () => {
     it("subscriptions should be called if the new message arrives from its channel", async () => {
       // StoreChannel.NewXCall
       expect(callCountForNewXCall).to.be.eq(0);
-      await transactions.storeTxData([fakeTxs[0]]);
+      await transactions.storeTransfers([fakeTxs[0]]);
       await delay(100);
       expect(callCountForNewXCall).to.be.eq(1);
 
@@ -110,7 +110,7 @@ describe("ConsumersCache", () => {
 
       // StoreChannel.NewHighestNonce
       callCountForHightedNonce = 0;
-      await transactions.storeTxData([fakeTxs[1]]);
+      await transactions.storeTransfers([fakeTxs[1]]);
       await delay(100);
       expect(callCountForHightedNonce).to.be.eq(1);
     });

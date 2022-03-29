@@ -9,7 +9,7 @@ import { Cache } from ".";
  * Transaction Status by TransactionId
    key: $txid | value XTransferStatus as string
  */
-export class TransactionsCache extends Cache {
+export class TransfersCache extends Cache {
   private readonly prefix = "transactions";
   /**
    *
