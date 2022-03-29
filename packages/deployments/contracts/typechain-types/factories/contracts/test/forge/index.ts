@@ -2,6 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as connextTSol from "./Connext.t.sol";
-export * as interpreters from "./interpreters";
-export * as lib from "./lib";
-export { ForgeHelper__factory } from "./ForgeHelper__factory";
