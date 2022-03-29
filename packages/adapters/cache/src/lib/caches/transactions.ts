@@ -39,7 +39,7 @@ export class TransactionsCache extends Cache {
     const status = this.data.scanStream({
       match: `${txid}`,
     });
-    return new Promise((res, _) => {
+    return new Promise((res) => {
       status.on("data", (txidMatch: string) => {
         this.logger.debug("found txid");
         const val = this.data.get(txidMatch);
@@ -76,7 +76,7 @@ export class TransactionsCache extends Cache {
       count: 1,
     });
     let txData: XTransfer;
-    return new Promise((res, _) => {
+    return new Promise((res) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
         txData = JSON.parse(crossChainData!) as XTransfer;
@@ -104,7 +104,7 @@ export class TransactionsCache extends Cache {
     });
 
     let txData: XTransfer;
-    return new Promise((res, _) => {
+    return new Promise((res) => {
       txDataStream.on("data", async (data: string) => {
         const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
         txData = JSON.parse(crossChainData!) as XTransfer;
@@ -116,7 +116,7 @@ export class TransactionsCache extends Cache {
   }
 
   public async storeTransfers(transfers: XTransfer[]): Promise<void> {
-    const nonceIncreasesByDomain: { [domain: string]: boolean } = {};
+    const nonceDidIncreaseForDomain: { [domain: string]: boolean } = {};
     const highestNonceByDomain: { [domain: string]: number } = {};
     const newXCalls: { [transferId: string]: string } = {};
     for (let transfer of transfers) {
@@ -140,7 +140,7 @@ export class TransactionsCache extends Cache {
         // If xcall but no execute or reconcile, then it's possibly a new transfer.
         newXCalls[transferId] = stringified;
       } else if (execute?.transactionHash || reconcile?.transactionHash) {
-        // If execute (or reconcile), then it's a completed transfer. In case we've previously recorded
+        // If execute (or reconcile), then it's a stale xcall. In case we've previously recorded
         // the xcall as new in this batch, we need to remove it from the newXCalls list.
         delete newXCalls[transferId];
       }
@@ -153,7 +153,7 @@ export class TransactionsCache extends Cache {
       }
       if (nonce > currentNonce) {
         // If the new nonce is higher than the current one, we'll record it to later update the cache.
-        nonceIncreasesByDomain[originDomain] = true;
+        nonceDidIncreaseForDomain[originDomain] = true;
         highestNonceByDomain[originDomain] = nonce;
       }
     }
@@ -163,7 +163,7 @@ export class TransactionsCache extends Cache {
     }
     // Set the new highest nonce, and publish NewHighestNonce events for any new highest nonces we found.
     for (const [domain, nonce] of Object.entries(highestNonceByDomain)) {
-      if (nonceIncreasesByDomain[domain]) {
+      if (nonceDidIncreaseForDomain[domain]) {
         await this.data.hset(`${this.prefix}:${domain}`, "latestNonce", nonce);
       }
     }
