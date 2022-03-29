@@ -40,14 +40,10 @@ export const isValidHexString = (value: any): boolean => !getHexStringError(valu
  * @returns undefined if validation passes, or a string representing the appropriate error
  */
 export const getAddressError = (value: any): string | undefined => {
-  try {
-    const hexError = getHexStringError(value, 20);
-    if (hexError) return hexError;
-    utils.getAddress(value);
-    return undefined;
-  } catch (e: any) {
-    return e.message;
-  }
+  const hexError = getHexStringError(value, 20);
+  if (hexError) return hexError;
+  utils.getAddress(value);
+  return undefined;
 };
 
 /**
