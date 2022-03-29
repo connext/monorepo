@@ -3,8 +3,6 @@
 /* eslint-disable */
 import type * as connextTSol from "./Connext.t.sol";
 export type { connextTSol };
-import type * as executorTSol from "./Executor.t.sol";
-export type { executorTSol };
 import type * as interpreters from "./interpreters";
 export type { interpreters };
 import type * as lib from "./lib";
