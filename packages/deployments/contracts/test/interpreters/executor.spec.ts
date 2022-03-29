@@ -12,6 +12,7 @@ describe("Executor.sol", async () => {
   const createFixtureLoader = waffle.createFixtureLoader;
   const [wallet, other] = waffle.provider.getWallets() as Wallet[];
 
+  const EMPTY_PROPERTIES = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
   let executor: Executor;
   let counter: Counter;
   let token: RevertableERC20;
@@ -54,7 +55,7 @@ describe("Executor.sol", async () => {
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, wallet.address, amount]);
 
       await expect(
-        executor.connect(other).execute(getRandomBytes32(), counter.address, assetId, amount, data),
+        executor.connect(other).execute(getRandomBytes32(), amount, counter.address, assetId, EMPTY_PROPERTIES, data),
       ).to.be.revertedWith("#OC:027");
     });
 
@@ -69,7 +70,9 @@ describe("Executor.sol", async () => {
 
       const to = Wallet.createRandom().address;
 
-      const tx = await executor.connect(wallet).execute(transferId, to, assetId, amount, data, { value: amount });
+      const tx = await executor
+        .connect(wallet)
+        .execute(transferId, amount, to, assetId, EMPTY_PROPERTIES, data, { value: amount });
       const receipt = await tx.wait();
       assertReceiptEvent(receipt, "Executed", {
         transferId,
@@ -95,7 +98,7 @@ describe("Executor.sol", async () => {
 
       const tx = await executor
         .connect(wallet)
-        .execute(transferId, counter.address, assetId, amount, data, { value: amount });
+        .execute(transferId, amount, counter.address, assetId, EMPTY_PROPERTIES, data, { value: amount });
       const receipt = await tx.wait();
       assertReceiptEvent(receipt, "Executed", {
         transferId,
@@ -122,7 +125,9 @@ describe("Executor.sol", async () => {
 
       const preExecute = await counter.count();
 
-      const tx = await executor.connect(wallet).execute(transferId, counter.address, assetId, amount, data);
+      const tx = await executor
+        .connect(wallet)
+        .execute(transferId, amount, counter.address, assetId, EMPTY_PROPERTIES, data);
       const receipt = await tx.wait();
       assertReceiptEvent(receipt, "Executed", {
         transferId,
@@ -147,7 +152,7 @@ describe("Executor.sol", async () => {
       // Transfer amount * 100 to executor to ensure we have enough to be attacked.
       const tx = await executor
         .connect(wallet)
-        .execute(transferId, counter.address, assetId, amount, data, { value: amount.mul(100) });
+        .execute(transferId, amount, counter.address, assetId, EMPTY_PROPERTIES, data, { value: amount.mul(100) });
       const receipt = await tx.wait();
 
       const balance = await getOnchainBalance(assetId, counter.address, ethers.provider);

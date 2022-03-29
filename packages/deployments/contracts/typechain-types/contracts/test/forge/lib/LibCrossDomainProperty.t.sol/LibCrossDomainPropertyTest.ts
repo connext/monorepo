@@ -23,23 +23,32 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-} from "../../../../common";
+} from "../../../../../common";
 
-export interface ConnextTestInterface extends utils.Interface {
+export interface LibCrossDomainPropertyTestInterface extends utils.Interface {
   functions: {
     "IS_TEST()": FunctionFragment;
     "NATIVE_ASSET()": FunctionFragment;
     "failed()": FunctionFragment;
+    "getProperty()": FunctionFragment;
+    "getPropertyBytes()": FunctionFragment;
     "setUp()": FunctionFragment;
     "stdstore()": FunctionFragment;
-    "testAddRouter()": FunctionFragment;
-    "testAddRouterAlreadyApproved()": FunctionFragment;
-    "testAddRouterNotApproved()": FunctionFragment;
-    "testAddRouterOwnable()": FunctionFragment;
-    "testAddRouterZeroAddress()": FunctionFragment;
-    "testRemoveRouter()": FunctionFragment;
-    "testRemoveRouterOwnable()": FunctionFragment;
-    "testRemoveRouterZeroAddress()": FunctionFragment;
+    "testDomain()": FunctionFragment;
+    "testFailDomainIncorrectType()": FunctionFragment;
+    "testFailMustBeProperty()": FunctionFragment;
+    "testFailSenderIncorrectType()": FunctionFragment;
+    "testFormatDomainAndSender()": FunctionFragment;
+    "testFormatDomainAndSenderBytes()": FunctionFragment;
+    "testIsDomainAndSender()": FunctionFragment;
+    "testIsType()": FunctionFragment;
+    "testMustBeProperty()": FunctionFragment;
+    "testParseDomainAndSenderBytes()": FunctionFragment;
+    "testPropertyType()": FunctionFragment;
+    "testSender()": FunctionFragment;
+    "testTryAsProperty()": FunctionFragment;
+    "testTryAsPropertyInvalidLength()": FunctionFragment;
+    "testValidPropertyLength()": FunctionFragment;
     "vm()": FunctionFragment;
   };
 
@@ -48,16 +57,25 @@ export interface ConnextTestInterface extends utils.Interface {
       | "IS_TEST"
       | "NATIVE_ASSET"
       | "failed"
+      | "getProperty"
+      | "getPropertyBytes"
       | "setUp"
       | "stdstore"
-      | "testAddRouter"
-      | "testAddRouterAlreadyApproved"
-      | "testAddRouterNotApproved"
-      | "testAddRouterOwnable"
-      | "testAddRouterZeroAddress"
-      | "testRemoveRouter"
-      | "testRemoveRouterOwnable"
-      | "testRemoveRouterZeroAddress"
+      | "testDomain"
+      | "testFailDomainIncorrectType"
+      | "testFailMustBeProperty"
+      | "testFailSenderIncorrectType"
+      | "testFormatDomainAndSender"
+      | "testFormatDomainAndSenderBytes"
+      | "testIsDomainAndSender"
+      | "testIsType"
+      | "testMustBeProperty"
+      | "testParseDomainAndSenderBytes"
+      | "testPropertyType"
+      | "testSender"
+      | "testTryAsProperty"
+      | "testTryAsPropertyInvalidLength"
+      | "testValidPropertyLength"
       | "vm"
   ): FunctionFragment;
 
@@ -67,38 +85,74 @@ export interface ConnextTestInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "failed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getProperty",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPropertyBytes",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "setUp", values?: undefined): string;
   encodeFunctionData(functionFragment: "stdstore", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "testAddRouter",
+    functionFragment: "testDomain",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testAddRouterAlreadyApproved",
+    functionFragment: "testFailDomainIncorrectType",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testAddRouterNotApproved",
+    functionFragment: "testFailMustBeProperty",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testAddRouterOwnable",
+    functionFragment: "testFailSenderIncorrectType",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testAddRouterZeroAddress",
+    functionFragment: "testFormatDomainAndSender",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testRemoveRouter",
+    functionFragment: "testFormatDomainAndSenderBytes",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testRemoveRouterOwnable",
+    functionFragment: "testIsDomainAndSender",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "testRemoveRouterZeroAddress",
+    functionFragment: "testIsType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testMustBeProperty",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testParseDomainAndSenderBytes",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testPropertyType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testSender",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testTryAsProperty",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testTryAsPropertyInvalidLength",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testValidPropertyLength",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "vm", values?: undefined): string;
@@ -109,38 +163,65 @@ export interface ConnextTestInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "failed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getProperty",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPropertyBytes",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setUp", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stdstore", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "testDomain", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "testAddRouter",
+    functionFragment: "testFailDomainIncorrectType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testAddRouterAlreadyApproved",
+    functionFragment: "testFailMustBeProperty",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testAddRouterNotApproved",
+    functionFragment: "testFailSenderIncorrectType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testAddRouterOwnable",
+    functionFragment: "testFormatDomainAndSender",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testAddRouterZeroAddress",
+    functionFragment: "testFormatDomainAndSenderBytes",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testRemoveRouter",
+    functionFragment: "testIsDomainAndSender",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "testIsType", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "testMustBeProperty",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testRemoveRouterOwnable",
+    functionFragment: "testParseDomainAndSenderBytes",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "testRemoveRouterZeroAddress",
+    functionFragment: "testPropertyType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "testSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "testTryAsProperty",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "testTryAsPropertyInvalidLength",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "testValidPropertyLength",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vm", data: BytesLike): Result;
@@ -333,12 +414,12 @@ export type logsEvent = TypedEvent<[string], logsEventObject>;
 
 export type logsEventFilter = TypedEventFilter<logsEvent>;
 
-export interface ConnextTest extends BaseContract {
+export interface LibCrossDomainPropertyTest extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ConnextTestInterface;
+  interface: LibCrossDomainPropertyTestInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -366,6 +447,14 @@ export interface ConnextTest extends BaseContract {
 
     failed(overrides?: CallOverrides): Promise<[boolean]>;
 
+    getProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    getPropertyBytes(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setUp(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -381,35 +470,63 @@ export interface ConnextTest extends BaseContract {
       }
     >;
 
-    testAddRouter(
+    testDomain(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testAddRouterAlreadyApproved(
+    testFailDomainIncorrectType(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testAddRouterNotApproved(
+    testFailMustBeProperty(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testAddRouterOwnable(
+    testFailSenderIncorrectType(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testAddRouterZeroAddress(
+    testFormatDomainAndSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testRemoveRouter(
+    testFormatDomainAndSenderBytes(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testRemoveRouterOwnable(
+    testIsDomainAndSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    testRemoveRouterZeroAddress(
+    testIsType(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testMustBeProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testParseDomainAndSenderBytes(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testPropertyType(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testTryAsProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testTryAsPropertyInvalidLength(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testValidPropertyLength(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -421,6 +538,14 @@ export interface ConnextTest extends BaseContract {
   NATIVE_ASSET(overrides?: CallOverrides): Promise<string>;
 
   failed(overrides?: CallOverrides): Promise<boolean>;
+
+  getProperty(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getPropertyBytes(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setUp(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -437,35 +562,63 @@ export interface ConnextTest extends BaseContract {
     }
   >;
 
-  testAddRouter(
+  testDomain(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testAddRouterAlreadyApproved(
+  testFailDomainIncorrectType(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testAddRouterNotApproved(
+  testFailMustBeProperty(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testAddRouterOwnable(
+  testFailSenderIncorrectType(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testAddRouterZeroAddress(
+  testFormatDomainAndSender(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testRemoveRouter(
+  testFormatDomainAndSenderBytes(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testRemoveRouterOwnable(
+  testIsDomainAndSender(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  testRemoveRouterZeroAddress(
+  testIsType(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testMustBeProperty(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testParseDomainAndSenderBytes(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testPropertyType(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testSender(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testTryAsProperty(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testTryAsPropertyInvalidLength(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testValidPropertyLength(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -477,6 +630,10 @@ export interface ConnextTest extends BaseContract {
     NATIVE_ASSET(overrides?: CallOverrides): Promise<string>;
 
     failed(overrides?: CallOverrides): Promise<boolean>;
+
+    getProperty(overrides?: CallOverrides): Promise<string>;
+
+    getPropertyBytes(overrides?: CallOverrides): Promise<string>;
 
     setUp(overrides?: CallOverrides): Promise<void>;
 
@@ -491,21 +648,35 @@ export interface ConnextTest extends BaseContract {
       }
     >;
 
-    testAddRouter(overrides?: CallOverrides): Promise<void>;
+    testDomain(overrides?: CallOverrides): Promise<void>;
 
-    testAddRouterAlreadyApproved(overrides?: CallOverrides): Promise<void>;
+    testFailDomainIncorrectType(overrides?: CallOverrides): Promise<void>;
 
-    testAddRouterNotApproved(overrides?: CallOverrides): Promise<void>;
+    testFailMustBeProperty(overrides?: CallOverrides): Promise<void>;
 
-    testAddRouterOwnable(overrides?: CallOverrides): Promise<void>;
+    testFailSenderIncorrectType(overrides?: CallOverrides): Promise<void>;
 
-    testAddRouterZeroAddress(overrides?: CallOverrides): Promise<void>;
+    testFormatDomainAndSender(overrides?: CallOverrides): Promise<void>;
 
-    testRemoveRouter(overrides?: CallOverrides): Promise<void>;
+    testFormatDomainAndSenderBytes(overrides?: CallOverrides): Promise<void>;
 
-    testRemoveRouterOwnable(overrides?: CallOverrides): Promise<void>;
+    testIsDomainAndSender(overrides?: CallOverrides): Promise<void>;
 
-    testRemoveRouterZeroAddress(overrides?: CallOverrides): Promise<void>;
+    testIsType(overrides?: CallOverrides): Promise<void>;
+
+    testMustBeProperty(overrides?: CallOverrides): Promise<void>;
+
+    testParseDomainAndSenderBytes(overrides?: CallOverrides): Promise<void>;
+
+    testPropertyType(overrides?: CallOverrides): Promise<void>;
+
+    testSender(overrides?: CallOverrides): Promise<void>;
+
+    testTryAsProperty(overrides?: CallOverrides): Promise<void>;
+
+    testTryAsPropertyInvalidLength(overrides?: CallOverrides): Promise<void>;
+
+    testValidPropertyLength(overrides?: CallOverrides): Promise<void>;
 
     vm(overrides?: CallOverrides): Promise<string>;
   };
@@ -601,41 +772,77 @@ export interface ConnextTest extends BaseContract {
 
     failed(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getPropertyBytes(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setUp(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     stdstore(overrides?: CallOverrides): Promise<BigNumber>;
 
-    testAddRouter(
+    testDomain(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testAddRouterAlreadyApproved(
+    testFailDomainIncorrectType(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testAddRouterNotApproved(
+    testFailMustBeProperty(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testAddRouterOwnable(
+    testFailSenderIncorrectType(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testAddRouterZeroAddress(
+    testFormatDomainAndSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testRemoveRouter(
+    testFormatDomainAndSenderBytes(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testRemoveRouterOwnable(
+    testIsDomainAndSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    testRemoveRouterZeroAddress(
+    testIsType(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testMustBeProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testParseDomainAndSenderBytes(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testPropertyType(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testTryAsProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testTryAsPropertyInvalidLength(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testValidPropertyLength(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -649,41 +856,77 @@ export interface ConnextTest extends BaseContract {
 
     failed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getPropertyBytes(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setUp(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     stdstore(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    testAddRouter(
+    testDomain(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testAddRouterAlreadyApproved(
+    testFailDomainIncorrectType(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testAddRouterNotApproved(
+    testFailMustBeProperty(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testAddRouterOwnable(
+    testFailSenderIncorrectType(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testAddRouterZeroAddress(
+    testFormatDomainAndSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testRemoveRouter(
+    testFormatDomainAndSenderBytes(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testRemoveRouterOwnable(
+    testIsDomainAndSender(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    testRemoveRouterZeroAddress(
+    testIsType(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testMustBeProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testParseDomainAndSenderBytes(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testPropertyType(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testSender(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testTryAsProperty(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testTryAsPropertyInvalidLength(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testValidPropertyLength(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -82,7 +82,7 @@ interface IConnext {
     uint256 amount;
   }
 
-  /**
+    /**
    * @notice 
    * @param params - The CallParams. These are consistent across sending and receiving chains
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
@@ -98,10 +98,10 @@ interface IConnext {
     address router;
     uint32 feePercentage;
     uint256 amount;
-    bytes32 transferId;
+    uint256 nonce;
     bytes relayerSignature;
+    address originSender;
   }
-
   // ============ Events ============
 
   /**
