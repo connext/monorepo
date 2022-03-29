@@ -15,7 +15,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 
 import { getConfig } from "./config";
-import { bindMetrics, bindPrices, bindSubgraph } from "./bindings";
+import { bindMetrics, bindPrices, bindSubgraph, bindServer } from "./bindings";
 import { AppContext } from "./lib/entities";
 import { getOperations } from "./lib/operations";
 
@@ -81,7 +81,7 @@ export const makeRouter = async () => {
     } else {
       logger.warn("Running router without price caching.");
     }
-    // await bindServer(context);
+    await bindServer();
     await bindMetrics();
     await bindSubgraph();
 
