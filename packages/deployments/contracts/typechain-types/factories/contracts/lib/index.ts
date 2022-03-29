@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as stableSwap from "./StableSwap";
-export { LibCrossDomainProperty__factory } from "./LibCrossDomainProperty__factory";
