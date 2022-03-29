@@ -26,7 +26,7 @@ module "router" {
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
   internal_lb              = true
   docker_image             = var.full_image_name_router
   container_family         = "router"
@@ -40,9 +40,9 @@ module "router" {
   environment              = var.environment
   mnemonic                 = var.mnemonic
   nxtp_config              = local.local_router_config
-  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
-  service_security_groups  = [module.network.ecs_task_sg, module.network.sequencer-to-router-sg]
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 }
 
 
