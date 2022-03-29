@@ -162,34 +162,7 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
-  let transfer = Transfer.load(event.params.transferId.toHexString());
-  // router should have liquidity but it may not
-  let router = Router.load(event.params.router.toHex());
-  if (transfer == null) {
-    transfer = new Transfer(event.params.transferId.toHexString());
-
-    // Meta
-    transfer.chainId = getChainId();
-    transfer.status = "Reconciled";
-
-    // Transfer Data
-    transfer.transferId = event.params.transferId;
-    transfer.to = event.params.to;
-    transfer.router = router!.id;
-  }
-
-  // Reconcile
-  transfer.reconciledLocalAmount = event.params.localAmount;
-  transfer.reconciledLocalAsset = event.params.localAsset;
-
-  // TransactionFulfilled
-  transfer.reconciledTransactionHash = event.transaction.hash;
-  transfer.reconciledTimestamp = event.block.timestamp;
-  transfer.reconciledGasPrice = event.transaction.gasPrice;
-  transfer.reconciledGasLimit = event.transaction.gasLimit;
-  transfer.reconciledBlockNumber = event.block.number;
-
-  transfer.save();
+  //TODO
 }
 
 function getChainId(): BigInt {
