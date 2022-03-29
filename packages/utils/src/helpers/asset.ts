@@ -2,6 +2,7 @@ import { providers, BigNumber, constants, utils } from "ethers";
 
 import { ChainData, getChainData } from "..";
 import { getETHBalance, getTokenBalance, getTokenDecimals } from "..";
+import { getDomainFromChainId } from "./nomad";
 
 export const getOnchainBalance = async (
   assetId: string,
@@ -20,7 +21,8 @@ export const getDecimalsForAsset = async (
   chainData?: Map<string, ChainData>,
 ): Promise<number> => {
   if (chainData) {
-    const chainInfo = chainData.get(chainId.toString());
+    const domainId = await getDomainFromChainId(chainId, chainData);
+    const chainInfo = chainData.get(domainId);
     const decimals = chainInfo?.assetId[assetId]?.decimals;
     if (decimals) {
       return decimals;
@@ -39,7 +41,8 @@ export const getMainnetEquivalent = async (
 ): Promise<string | undefined> => {
   const chaindata = chainData ?? (await getChainData());
 
-  const chainInfo = chaindata?.get(chainId.toString());
+  const domainId = await getDomainFromChainId(chainId, chainData);
+  const chainInfo = chaindata?.get(domainId);
 
   const equiv = chainInfo
     ? chainInfo.assetId[utils.getAddress(assetId)] ??
