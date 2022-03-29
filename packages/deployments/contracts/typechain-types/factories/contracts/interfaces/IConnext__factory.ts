@@ -585,14 +585,19 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "bytes32",
-            name: "transferId",
-            type: "bytes32",
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
           },
           {
             internalType: "bytes",
             name: "relayerSignature",
             type: "bytes",
+          },
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
           },
         ],
         internalType: "struct IConnext.ExecuteArgs",

@@ -40,6 +40,12 @@ const _abi = [
       {
         indexed: false,
         internalType: "bytes",
+        name: "_properties",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
         name: "callData",
         type: "bytes",
       },
@@ -55,12 +61,6 @@ const _abi = [
         name: "success",
         type: "bool",
       },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "isContract",
-        type: "bool",
-      },
     ],
     name: "Executed",
     type: "event",
@@ -69,27 +69,32 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "transferId",
+        name: "_transferId",
         type: "bytes32",
       },
       {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
         internalType: "address payable",
-        name: "to",
+        name: "_to",
         type: "address",
       },
       {
         internalType: "address",
-        name: "assetId",
+        name: "_assetId",
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: "bytes",
+        name: "_properties",
+        type: "bytes",
       },
       {
         internalType: "bytes",
-        name: "callData",
+        name: "_callData",
         type: "bytes",
       },
     ],
@@ -98,11 +103,6 @@ const _abi = [
       {
         internalType: "bool",
         name: "success",
-        type: "bool",
-      },
-      {
-        internalType: "bool",
-        name: "isContract",
         type: "bool",
       },
       {
@@ -117,6 +117,32 @@ const _abi = [
   {
     inputs: [],
     name: "getConnext",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "origin",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "originSender",
     outputs: [
       {
         internalType: "address",

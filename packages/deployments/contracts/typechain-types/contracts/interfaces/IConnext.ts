@@ -55,8 +55,9 @@ export declare namespace IConnext {
     router: string;
     feePercentage: BigNumberish;
     amount: BigNumberish;
-    transferId: BytesLike;
+    nonce: BigNumberish;
     relayerSignature: BytesLike;
+    originSender: string;
   };
 
   export type ExecuteArgsStructOutput = [
@@ -64,6 +65,7 @@ export declare namespace IConnext {
     string,
     string,
     number,
+    BigNumber,
     BigNumber,
     string,
     string
@@ -73,8 +75,9 @@ export declare namespace IConnext {
     router: string;
     feePercentage: number;
     amount: BigNumber;
-    transferId: string;
+    nonce: BigNumber;
     relayerSignature: string;
+    originSender: string;
   };
 
   export type XCallArgsStruct = {
@@ -110,7 +113,7 @@ export interface IConnextInterface extends utils.Interface {
     "addRelayerFees(address)": FunctionFragment;
     "addRouter(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,bytes32,bytes))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes,address))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
     "reconcile(bytes32,address,address,uint256)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
