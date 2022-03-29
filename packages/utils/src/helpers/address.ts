@@ -12,14 +12,7 @@ export const getAddressFromPublicKey = (publicKey: string): string => {
   try {
     return utils.computeAddress(compressPublicKey(publicKey));
   } catch (e: any) {
-    if (
-      e.message === "public key length is invalid" ||
-      e.message === "Expected public key to be an Uint8Array with length [33, 65]" ||
-      e.code === "INVALID_ARGUMENT"
-    ) {
-      throw new Error("The public key must be a string representing 64 bytes");
-    }
-    throw e;
+    throw new Error(`Invalid public key, errorMsg: ${e.toString()}`);
   }
 };
 

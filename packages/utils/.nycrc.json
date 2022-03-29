@@ -6,7 +6,8 @@
     "src/logging/*.ts",
     "src/mocks/*.ts",
     "src/types/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "src/helpers/env.ts"
   ],
   "all": true
 }
