@@ -83,7 +83,7 @@ contract Executor is IExecutor {
    * call data executes can be payable, and will have `amount` sent
    * along with the function (or approved to the contract). If the
    * call fails, rather than reverting, funds are sent directly to 
-   * some provided fallbaack address
+   * some provided fallback address
    * @param _transferId Unique identifier of transaction id that necessitated
    * calldata execution
    * @param _amount The amount to approve or send with the call
