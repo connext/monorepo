@@ -43,6 +43,14 @@ const mockChainData = chainDataToMap([
         symbol: "USDT",
         mainnetEquivalent: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
       },
+      "0xb6f6bae73e69e9b70bf6fc56f4f510eb699711a8": {
+        symbol: "Test1",
+        mainnetEquivalent: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      },
+      "0XE787030AEBB7095128ACE4B880DAB2237F0F50F8": {
+        symbol: "Test2",
+        mainnetEquivalent: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      },
     },
   },
   {
@@ -123,7 +131,7 @@ describe("Helpers:Asset", () => {
       expect(res).to.be.eq(18);
     });
     it("should get decimals from onchain if decimals doesn't exist in chainData", async () => {
-      const assetId = "0xD92E713d051C37EbB2561803a3b5FBAbc4962431";
+      const assetId = "0xb6F6BAe73E69e9B70bF6Fc56f4f510eb699711A8";
       const res = await getDecimalsForAsset(assetId, 4, mockProvider, mockChainData);
       expect(res).to.be.eq(6);
     });
@@ -146,6 +154,22 @@ describe("Helpers:Asset", () => {
       const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
       const res = await getMainnetEquivalent(4, assetId, mockChainData);
       expect(res.toLowerCase()).to.be.eq("0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787");
+    });
+    it("should get decimals for upper address", async () => {
+      const assetId = "0xe787030AebB7095128aCE4B880dab2237f0F50F8";
+      const res = await getMainnetEquivalent(4, assetId, mockChainData);
+      expect(res.toLowerCase()).to.be.eq("0xdAC17F958D2ee523a2206206994597C13D831ec7");
+    });
+    it("should get decimals for lower address", async () => {
+      const assetId = "0xb6F6BAe73E69e9B70bF6Fc56f4f510eb699711A8";
+      const res = await getMainnetEquivalent(4, assetId, mockChainData);
+      expect(res.toLowerCase()).to.be.eq("0xdAC17F958D2ee523a2206206994597C13D831ec7");
+    });
+
+    it("should get decimals from the `chainData` argument", async () => {
+      const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
+      const res = await getMainnetEquivalent(4, assetId, mockChainData);
+      expect(res.toLowerCase()).to.be.eq("0xdAC17F958D2ee523a2206206994597C13D831ec7");
     });
     it("should get decimals using `getChainData` function", async () => {
       const assetId = "0xB4a04eCF1855FBccf5C770BA6DB1dde7c96b17Be";
