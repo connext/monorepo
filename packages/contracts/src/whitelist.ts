@@ -45,28 +45,30 @@ export const allRouters = [
   "0x1F6853bC0cc4DCCd2ebF7B36c3b34dac0C1b1096",
   "0x5898252DC60c7d113776720Efca744c00324Ba53",
   "0x3582ec1c312819246fc1820475e3daa251a159ef",
+  "0xb03422855AA56d6a4Bf00155dD4A55abE132a3EA",
+  "0x54BD2Ad4a667e740D39eC2Dd2f885a5B41D7705C",
 ];
 
 const networks: string[] = [
-  // "mainnet",
-  // "moonbeam",
-  // "optimism",
-  // "bsc",
-  // "xdai",
-  // "fuse",
-  // "matic",
-  // "ftm",
-  // "moonriver",
-  // "arbitrum-one",
-  // "avalanche",
-  // "milkomeda-cardano",
-  // "kava-alphanet",
+  "mainnet",
+  "moonbeam",
+  "optimism",
+  "bsc",
+  "xdai",
+  "fuse",
+  "matic",
+  "ftm",
+  "moonriver",
+  "arbitrum-one",
+  "avalanche",
+  "milkomeda-cardano",
+  "kava-alphanet",
   "harmonyone",
-  // "boba",
+  "boba",
 ];
 
-// const routers: string[] = ["0x3582ec1c312819246fc1820475e3daa251a159ef"];
-const routers = allRouters;
+const routers: string[] = ["0x54BD2Ad4a667e740D39eC2Dd2f885a5B41D7705C"];
+// const routers = allRouters;
 
 const run = async () => {
   if (routers.length === 0) {
