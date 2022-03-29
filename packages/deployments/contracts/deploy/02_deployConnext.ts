@@ -53,10 +53,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
           methodName: "initialize",
           args: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
         },
-        onUpgrade: {
-          methodName: "upgrade",
-          args: [],
-        },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
       viaAdminContract: "ConnextProxyAdmin",
@@ -125,4 +121,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 func.tags = ["Connext"];
-func.dependencies = ["Nomad"];
+//func.dependencies = ["Nomad"];
