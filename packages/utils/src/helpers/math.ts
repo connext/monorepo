@@ -95,7 +95,12 @@ export const calculateExchangeWad = (
   return outputWad;
 };
 
+/**
+ * Gets rate from percentage string
+ * @param percentage - The percentage to get rate from
+ * @returns
+ */
 export const getRateFromPercentage = (percentage: string): string => {
-  const rate = (1 - parseFloat(percentage) / 100).toString();
+  const rate = ((100 - parseFloat(percentage)) / 100).toString();
   return rate;
 };
