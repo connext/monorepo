@@ -1,6 +1,7 @@
-import { providers, BigNumber, Contract, constants, utils } from "ethers";
+import { providers, BigNumber, constants, utils } from "ethers";
 
-import { ChainData, getChainData, ERC20Abi } from "..";
+import { ChainData, getChainData } from "..";
+import { getETHBalance, getTokenBalance, getTokenDecimals } from "..";
 
 export const getOnchainBalance = async (
   assetId: string,
@@ -8,8 +9,8 @@ export const getOnchainBalance = async (
   provider: providers.Provider,
 ): Promise<BigNumber> => {
   return assetId === constants.AddressZero
-    ? provider.getBalance(address)
-    : new Contract(assetId, ERC20Abi, provider).balanceOf(address);
+    ? getETHBalance(provider, address)
+    : getTokenBalance(assetId, address, provider);
 };
 
 export const getDecimalsForAsset = async (
@@ -28,8 +29,7 @@ export const getDecimalsForAsset = async (
   if (assetId === constants.AddressZero) {
     return 18;
   }
-  const contract = new Contract(assetId, ERC20Abi, provider);
-  return await contract.decimals();
+  return await getTokenDecimals(assetId, provider);
 };
 
 export const getMainnetEquivalent = async (
