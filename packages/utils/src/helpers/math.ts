@@ -33,7 +33,7 @@ export const inverse = (value: string, precision = 18): string =>
   fromWad(toWad("1", precision * 2).div(toWad(value, precision)), precision);
 
 /**
- * Drops decimals past the provided prevision
+ * Drops decimals past the provided precision
  *
  * @param value Value to sanitize
  * @param decimals - (optional) The precision to use. Defaults to 18
