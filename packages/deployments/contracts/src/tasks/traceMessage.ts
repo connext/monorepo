@@ -1,13 +1,6 @@
 import { task } from "hardhat/config";
-import {
-  NomadMessage,
-  Annotated,
-  NomadContext,
-  NomadStatus,
-  MessageStatus,
-  AnnotatedLifecycleEvent,
-} from "@nomad-xyz/sdk";
-import { providers, Contract } from "ethers";
+import { NomadMessage, NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent } from "@nomad-xyz/sdk";
+import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { NOMAD_DEPLOYMENTS } from "../constants";
 
 import { JsonRpcProvider } from "@ethersproject/providers";
@@ -46,45 +39,6 @@ function printStatus(context: NomadContext, nomadStatus: NomadStatus) {
   console.log(JSON.stringify(printable, null, 2));
 }
 
-function fromReceipt(
-  context: NomadContext,
-  domain: number,
-  receipt: providers.TransactionReceipt,
-  homeContract: Contract,
-): NomadMessage<any>[] {
-  const messages: NomadMessage<any>[] = [];
-
-  const home = homeContract.interface;
-  for (const log of receipt.logs) {
-    try {
-      const parsed = home.parseLog(log);
-      if (parsed.name === "Dispatch") {
-        const dispatch = parsed as any;
-        dispatch.getBlock = () => {
-          return context.mustGetProvider(domain).getBlock(log.blockHash);
-        };
-        dispatch.getTransaction = () => {
-          return context.mustGetProvider(domain).getTransaction(log.transactionHash);
-        };
-        dispatch.getTransactionReceipt = () => {
-          return context.mustGetProvider(domain).getTransactionReceipt(log.transactionHash);
-        };
-
-        const annotated = new Annotated<any, any>(domain, receipt, dispatch, true);
-        annotated.event.blockNumber = annotated.receipt.blockNumber;
-        const message = new NomadMessage(context, annotated);
-        messages.push(message);
-      }
-    } catch (e: any) {
-      if (!e.message.includes("no matching event")) {
-        console.log("An error occured while getting NomadMessage from Receipt", e);
-      }
-      continue;
-    }
-  }
-  return messages;
-}
-
 export default task("trace-message", "See the status of a nomad message")
   .addParam(
     "transaction",
@@ -117,7 +71,9 @@ export default task("trace-message", "See the status of a nomad message")
       if (!destConfig || typeof destChain === "undefined") {
         throw new Error(`No nomad config for ${destination}`);
       }
-      const context = originConfig.isDev ? new NomadContext("dev") : new NomadContext("mainnet");
+      const context = BridgeContext.fromNomadContext(
+        originConfig.isDev ? new NomadContext("development") : new NomadContext("production"),
+      );
 
       // Register origin provider
       context.registerProvider(originConfig.domain, ethers.provider);
@@ -139,12 +95,8 @@ export default task("trace-message", "See the status of a nomad message")
       }
 
       // Trace the message
-      const [message] = fromReceipt(
-        context,
-        originConfig.domain,
-        receipt,
-        await ethers.getContractAt("Home", originConfig.home),
-      );
+      const [message] = NomadMessage.baseFromReceipt(context, destination, receipt);
+
       const status = await message.events();
       printStatus(context, status);
     },

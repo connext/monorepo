@@ -694,7 +694,8 @@ __metadata:
   resolution: "@connext/nxtp-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@nomad-xyz/sdk": ^2.0.0-rc.3
+    "@nomad-xyz/sdk": ^2.0.0-rc.4
+    "@nomad-xyz/sdk-bridge": ^1.0.0-rc.4
     "@nomiclabs/hardhat-ethers": ^2.0.5
     "@nomiclabs/hardhat-etherscan": ^3.0.3
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -2265,6 +2266,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nomad-xyz/contracts-bridge@npm:^1.0.0-rc.2":
+  version: 1.0.0-rc.2
+  resolution: "@nomad-xyz/contracts-bridge@npm:1.0.0-rc.2"
+  dependencies:
+    "@nomad-xyz/contracts-core": ^1.0.0-rc.2
+    "@nomad-xyz/contracts-router": ^1.0.0-rc.2
+    "@openzeppelin/contracts": ~3.4.2
+    "@openzeppelin/contracts-upgradeable": ~3.4.2
+    "@summa-tx/memview-sol": ^2.0.0
+  checksum: 870f6f1de6e06326b1ea56b7c2c61447595b4bcf2f9a7a222f2d228f85f68a5748c3143bf9c5ad7451c9916b76b27072e0b2cf912f04ec62b5e084f606c79aa3
+  languageName: node
+  linkType: hard
+
 "@nomad-xyz/contracts-core@npm:^1.0.0-rc.2":
   version: 1.0.0-rc.2
   resolution: "@nomad-xyz/contracts-core@npm:1.0.0-rc.2"
@@ -2273,6 +2287,18 @@ __metadata:
     "@openzeppelin/contracts-upgradeable": ~3.4.2
     "@summa-tx/memview-sol": ^2.0.0
   checksum: 3b8ba7a6f42d50324c7ed974cedb7ef69115a37d259a78153847016ac9dd6640c5207d59808229ac5f83cbc727ebf2360b349b221a7e9410665289b66bcd51d3
+  languageName: node
+  linkType: hard
+
+"@nomad-xyz/contracts-router@npm:^1.0.0-rc.2":
+  version: 1.0.0-rc.2
+  resolution: "@nomad-xyz/contracts-router@npm:1.0.0-rc.2"
+  dependencies:
+    "@nomad-xyz/contracts-core": ^1.0.0-rc.2
+    "@openzeppelin/contracts": ~3.4.2
+    "@openzeppelin/contracts-upgradeable": ~3.4.2
+    "@summa-tx/memview-sol": ^2.0.0
+  checksum: 740b2bb4873992c0fe2a989062f38555c1a78d6971f43703bc74dc20f816605014be971d04a6cba129b71f87396436d11d7156e896e2516e29a0bb2efe2f1131
   languageName: node
   linkType: hard
 
@@ -2286,7 +2312,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk@npm:^2.0.0-rc.3":
+"@nomad-xyz/sdk-bridge@npm:^1.0.0-rc.4":
+  version: 1.0.0-rc.4
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.4"
+  dependencies:
+    "@nomad-xyz/configuration": 0.1.0-rc.6
+    "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
+    "@nomad-xyz/sdk": ^2.0.0-rc.4
+    ethers: ^5.4.6
+    web3: ^1.6.1
+  checksum: 7da7ba96028aff517cbfc01c7c855816031ad56a4dd763dd9042988a5b6eeb1a2bd2d81dd887ece0d69d9816b1ad96660cf2043e623267079c2857ce761812dc
+  languageName: node
+  linkType: hard
+
+"@nomad-xyz/sdk@npm:^2.0.0-rc.4":
   version: 2.0.0-rc.4
   resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.4"
   dependencies:
@@ -2374,7 +2413,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^3.4.2":
+"@openzeppelin/contracts@npm:^3.4.2, @openzeppelin/contracts@npm:~3.4.2":
   version: 3.4.2
   resolution: "@openzeppelin/contracts@npm:3.4.2"
   checksum: 0c90f029fe50a49643588e4c8670dae3bbf31795133a6ddce9bdcbc258486332700bb732287baabf7bf807f39182fe8ea2ffa19aa5caf359b1b9c0f083280748
