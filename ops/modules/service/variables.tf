@@ -71,3 +71,8 @@ variable "service_security_groups" {
 }
 
 variable "nxtp_config" {}
+
+
+variable "internal_lb" {
+  default = false
+}

@@ -51,7 +51,7 @@ resource "aws_ecs_service" "service" {
   task_definition = "${aws_ecs_task_definition.service.family}:${max("${aws_ecs_task_definition.service.revision}", "${aws_ecs_task_definition.service.revision}")}"
 
   network_configuration {
-    security_groups = var.service_security_groups
+    security_groups = flatten([var.service_security_groups, aws_security_group.lb.id])
     subnets         = var.private_subnets
   }
 
@@ -63,6 +63,7 @@ resource "aws_ecs_service" "service" {
 }
 
 resource "aws_alb" "lb" {
+  internal                   = var.internal_lb
   security_groups            = var.service_security_groups
   subnets                    = var.lb_subnets
   enable_deletion_protection = false
@@ -73,7 +74,7 @@ resource "aws_alb" "lb" {
 }
 
 resource "aws_alb_target_group" "front_end" {
-  port        = var.container_port
+  port        = var.loadbalancer_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
@@ -82,6 +83,9 @@ resource "aws_alb_target_group" "front_end" {
     path     = var.health_check_path
     matcher  = var.matcher_ports
     interval = var.timeout + 10
+  }
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

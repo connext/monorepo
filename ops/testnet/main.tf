@@ -27,9 +27,10 @@ module "router" {
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.private_subnets
+  internal_lb              = true
   docker_image             = var.full_image_name_router
   container_family         = "router"
-  health_check_path        = "/"
+  health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 8080
   cpu                      = 256
@@ -57,8 +58,8 @@ module "sequencer" {
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer
   container_family         = "sequencer"
-  health_check_path        = "/"
-  container_port           = 8080
+  health_check_path        = "/ping"
+  container_port           = 8081
   loadbalancer_port        = 8080
   cpu                      = 256
   memory                   = 512
