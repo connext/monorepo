@@ -36,7 +36,7 @@ describe("Helpers:Encode", () => {
     });
   });
   describe("#encodeReconcileData", () => {
-    it("should error if reconcile transaction is invalid", () => {
+    it("should error if the reconcile transaction is corrupted", () => {
       const reconcileTx2: ReconciledTransaction = {
         externalHash: "0x1",
         local: mkAddress("0xaaa"),
@@ -57,6 +57,13 @@ describe("Helpers:Encode", () => {
     });
   });
   describe("#encodeExternalCallData", () => {
+    it("should error if the externalCall data is corrupted", () => {
+      const externalCallData2: ExternalCall = {
+        to: "0xaaa",
+        callData: getRandomBytes32(),
+      };
+      expect(() => encodeExternalCallData(externalCallData2)).to.throw();
+    });
     it("happy case", () => {
       expect(() => encodeExternalCallData(externalCallData)).to.not.throw();
     });
