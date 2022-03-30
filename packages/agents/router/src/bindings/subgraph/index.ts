@@ -32,10 +32,9 @@ export const pollSubgraph = async () => {
       // TODO: Convert domain to chainID ??
       const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
-      console.log("here 1");
 
       const latestNonce = await cache.transfers.getLatestNonce(domain);
-      console.log("here 2");
+
       logger.debug("Retrieved domain information for subgraph polling", undefined, undefined, {
         domain,
         latestBlockNumber,
