@@ -31,6 +31,8 @@ import {
   deployUpgradeableProxy,
   FastTransferAction,
   Message,
+  restoreSnapshot,
+  takeSnapshot,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
@@ -105,6 +107,7 @@ describe("Connext", () => {
   let stableSwap: DummySwap;
   let home: Home;
   let bridgeMessage: TestBridgeMessage;
+  let snapshot: number;
 
   const originDomain = 1;
   const destinationDomain = 2;
@@ -171,9 +174,7 @@ describe("Connext", () => {
   let loadFixture: ReturnType<typeof createFixtureLoader>;
   before("create fixture loader", async () => {
     loadFixture = createFixtureLoader([admin, router, user]);
-  });
 
-  beforeEach(async () => {
     // Deploy all contracts
     await loadFixture(fixture);
 
@@ -310,6 +311,15 @@ describe("Connext", () => {
       delay(100).then((_) => destinationTm.addRouter(router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
+  });
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await restoreSnapshot(snapshot);
+    snapshot = await takeSnapshot();
   });
 
   describe("constructor", async () => {
