@@ -110,7 +110,7 @@ interface IConnext {
    * @param caller - The account that called the function
    */
   event RouterAdded(
-    address router,
+    address indexed router,
     address caller
   );
 
@@ -120,8 +120,44 @@ interface IConnext {
    * @param caller - The account that called the function
    */
   event RouterRemoved(
-    address router,
+    address indexed router,
     address caller
+  );
+
+  /**
+   * @notice Emitted when the recipient of router is updated
+   * @param router - The address of the added router
+   * @param prevRecipient  - The address of the previous recipient of the router
+   * @param newRecipient  - The address of the new recipient of the router
+   */
+  event RouterRecipientSet(
+    address indexed router,
+    address indexed prevRecipient,
+    address indexed newRecipient
+  );
+
+  /**
+   * @notice Emitted when the owner of router is proposed
+   * @param router - The address of the added router
+   * @param prevProposed  - The address of the previous proposed
+   * @param newProposed  - The address of the new proposed
+   */
+  event RouterOwnerProposed(
+    address indexed router,
+    address indexed prevProposed,
+    address indexed newProposed
+  );
+
+  /**
+   * @notice Emitted when the owner of router is accepted
+   * @param router - The address of the added router
+   * @param prevOwner  - The address of the previous owner of the router
+   * @param newOwner  - The address of the new owner of the router
+   */
+  event RouterOwnerAccepted(
+    address indexed router,
+    address indexed prevOwner,
+    address indexed newOwner
   );
 
   /**
@@ -189,7 +225,7 @@ interface IConnext {
    * @param caller - The account that called the function
    */
   event LiquidityAdded(
-    address router,
+    address indexed router,
     address local,
     bytes32 canonicalId,
     uint256 amount,
@@ -282,6 +318,14 @@ interface IConnext {
   function addRouter(address router) external;
     
   function removeRouter(address router) external;
+
+  function setupRouter(address router, address owner, address recipient) external;
+
+  function setRecipient(address router , address recipient) external;
+
+  function proposeRouterOwner(address router, address proposed) external;
+
+  function acceptRouterOwner(address router)  external; 
 
   function addStableSwapPool(
     BridgeMessage.TokenId calldata canonical,

@@ -153,7 +153,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
@@ -288,7 +288,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
@@ -307,7 +307,82 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "prevOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "RouterOwnerAccepted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "prevProposed",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newProposed",
+        type: "address",
+      },
+    ],
+    name: "RouterOwnerProposed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "prevRecipient",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newRecipient",
+        type: "address",
+      },
+    ],
+    name: "RouterRecipientSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
@@ -435,6 +510,19 @@ const _abi = [
     ],
     name: "XCalled",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "acceptRouterOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
@@ -647,6 +735,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "proposed",
+        type: "address",
+      },
+    ],
+    name: "proposeRouterOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",
@@ -747,6 +853,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "setRecipient",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint32",
@@ -775,6 +899,29 @@ const _abi = [
       },
     ],
     name: "setupAsset",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

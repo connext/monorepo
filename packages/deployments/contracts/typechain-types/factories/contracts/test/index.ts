@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as testWethSol from "./TestWeth.sol";
-export * as forge from "./forge";
 export { BeaconProxy__factory } from "./BeaconProxy__factory";
 export { Counter__factory } from "./Counter__factory";
 export { DummySwap__factory } from "./DummySwap__factory";

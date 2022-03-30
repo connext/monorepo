@@ -32,8 +32,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 2. Gas optimizations
 
 contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, IConnext {
-  // TODO: why is this breaking the build
-  // uint256 internal constant 3 = 3;
 
   // ============ Constants =============
 
@@ -110,6 +108,22 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Mapping of whitelisted router addresses.
    */
   mapping(address => bool) public approvedRouters;
+
+  /**
+   * @notice Mapping of router withdraw receipient addresses.
+   */
+  mapping(address => address) private _routerRecipients;
+
+  /**
+   * @notice Mapping of router owners
+   */
+  mapping(address => address) private _routerOwners;
+  
+  /**
+   * @notice Mapping of proposed router owners
+   */
+  mapping(address => address) private _proposedRouterOwners;
+
 
   /**
    * @notice Mapping of whitelisted assets on same domain as contract
@@ -205,6 +219,126 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
     // Emit event
     emit RouterRemoved(router, msg.sender);
+
+    // Remove router owner
+    address _curOwner = _routerOwners[router];
+
+    if(_curOwner != address(0)) {
+      emit RouterOwnerAccepted(router, _curOwner, address(0));
+      _routerOwners[router] = address(0);
+    }
+    
+    // Remove router recipient
+    address curRecipient = _routerRecipients[router];
+    if(curRecipient != address(0)) {
+      emit RouterRecipientSet(router, curRecipient, address(0));
+      _routerRecipients[router] = address(0);
+    }
+  }
+
+  /**
+   * @notice Used to set router initial properties
+   * @param router Router address to setup
+   * @param owner Initial Owner of router
+   * @param recipient Initial Recipient of router
+   */
+  function setupRouter(address router, address owner, address recipient) external onlyOwner {
+    // Sanity check: not empty
+    require(router != address(0), "#SR:001");
+
+    // Sanity check: needs approval
+    require(approvedRouters[router] == false, "#SR:002");
+
+    approvedRouters[router] = true;
+
+    // Emit event
+    emit RouterAdded(router, msg.sender);
+
+    // Update routerOwner (zero address possible)
+    if(owner != address(0)) {
+      _routerOwners[router] = owner;
+      emit RouterOwnerAccepted(router, address(0), owner);
+    }
+    
+    // Update router Recipient
+    if(recipient != address(0)) {
+      _routerRecipients[router] = recipient;
+      emit RouterRecipientSet(router, address(0), recipient);
+    }
+  }
+
+  /**
+   * @notice Sets the designated recipient for a router
+   * @dev Router should only be able to set this once 
+          otherwise if router key compromised, 
+          no problem is solved since attacker could just update recipient
+   * @param router Router address to set recipient
+   * @param recipient Recipient Address to set to router
+   */
+  function setRecipient(address router, address recipient) external {
+    address routerOwner = _routerOwners[router];
+    
+    if (routerOwner == address(0)) {
+        require(msg.sender == router, "#SR:101");
+    } else {
+        require(msg.sender == routerOwner, "#SR:102");
+    }
+
+    // Set recipient
+    address _prevRecipient = _routerRecipients[router];
+    require(_prevRecipient != recipient, "#SR:103");
+
+    _routerRecipients[router] = recipient;
+
+    //Emit event
+    emit RouterRecipientSet(router, _prevRecipient, recipient);
+  } 
+
+  /**
+   * @notice Current owner or router may propose a new router owner
+   * @param router Router address to set recipient
+   * @param proposed Proposed owner Address to set to router
+   */
+  function proposeRouterOwner(address router, address proposed) external {
+    address routerOwner = _routerOwners[router];
+    
+    if (routerOwner == address(0)) {
+        require(msg.sender == router, "#PR:001");
+    } else {
+        require(msg.sender == routerOwner, "#PR:002");
+    }
+
+    // Set proposed owner
+    address _prevProposed = _proposedRouterOwners[router];
+    require(_prevProposed != proposed, "#PR:003");
+
+    _proposedRouterOwners[router] = proposed;
+
+    //Emit event
+    emit RouterOwnerProposed(router, _prevProposed, proposed);
+  }
+
+  /**
+   * @notice New router owner must accept role, or previous if proposed is 0x0
+   * @param router Router address to set recipient
+   */
+  function acceptRouterOwner(address router) external {
+    address proposed = _proposedRouterOwners[router];
+    address _curOwner = _routerOwners[router];
+
+    require(_curOwner != proposed, "#AR:101");
+
+    if (proposed == address(0)) {
+      require(msg.sender == _curOwner, "#AR:102");
+    } else {
+      require(msg.sender == proposed, "#AR:103");
+    }
+
+    // Accept proposed owner
+    _routerOwners[router] = proposed;
+
+    //Emit event
+    emit RouterOwnerAccepted(router, _curOwner, proposed);
   }
 
   /**
@@ -323,8 +457,12 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address local,
     address payable to
   ) external override nonReentrant {
+    // transfer to specicfied recipient IF recipient not sest
+	  address _recipient = _routerRecipients[msg.sender];
+    _recipient =  _recipient == address(0) ? to : _recipient;
+
     // Sanity check: to is sensible
-    require(to != address(0), "#RL:007");
+    require(_recipient != address(0), "#RL:007");
 
     // Sanity check: nonzero amounts
     require(amount > 0, "#RL:002");
@@ -339,10 +477,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Transfer from contract to specified to
-    _transferAssetFromContract(local, to, amount);    
+    _transferAssetFromContract(local, _recipient, amount);    
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, to, local, amount, msg.sender);
+    emit LiquidityRemoved(msg.sender, _recipient, local, amount, msg.sender);
   }
 
   /**
