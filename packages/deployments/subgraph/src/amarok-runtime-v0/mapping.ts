@@ -13,7 +13,7 @@ import {
   AssetAdded,
   AssetRemoved,
 } from "../../generated/Connext/Connext";
-import { AssetBalance, Router, Transfer } from "../../generated/schema";
+import { Asset, AssetBalance, Router, Transfer } from "../../generated/schema";
 
 export function handleRouterAdded(event: RouterAdded): void {
   let router = Router.load(event.params.router.toHex());
@@ -27,7 +27,16 @@ export function handleRouterRemoved(_event: RouterRemoved): void {}
 
 export function handleStableSwapAdded(_event: StableSwapAdded): void {}
 
-export function handleAssetAdded(_event: AssetAdded): void {}
+export function handleAssetAdded(event: AssetAdded): void {
+  let asset = Asset.load(event.params.adoptedAsset.toHex());
+  if (asset == null) {
+    asset = new Asset(event.params.adoptedAsset.toHex());
+    asset.assetId = event.params.adoptedAsset;
+    asset.canonicalId = event.params.canonicalId;
+    asset.domain = event.params.domain;
+    asset.save();
+  }
+}
 
 export function handleAssetRemoved(_event: AssetRemoved): void {}
 
@@ -213,7 +222,7 @@ function getOrCreateAssetBalance(local: Bytes, router: Address): AssetBalance {
   let assetBalance = AssetBalance.load(assetBalanceId);
   if (assetBalance == null) {
     assetBalance = new AssetBalance(assetBalanceId);
-    assetBalance.assetId = local;
+    assetBalance.asset = local.toHex();
     assetBalance.router = router.toHex();
     assetBalance.amount = new BigInt(0);
   }

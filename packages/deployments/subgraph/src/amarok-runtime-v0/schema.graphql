@@ -1,10 +1,16 @@
+type Asset @entity {
+  id: ID!
+  assetId: Bytes!
+  domain: BigInt!
+  local: Bytes!
+  canonicalId: Bytes!
+}
+
 type AssetBalance @entity {
   id: ID!
   amount: BigInt!
   router: Router!
-  assetId: Bytes!
-  local: Bytes!
-  canonicalId: Bytes!
+  asset: Asset!
 }
 
 # Router represents a router and its associated liquidity
