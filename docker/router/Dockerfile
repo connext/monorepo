@@ -36,7 +36,7 @@ RUN touch /tmp/build/yarn.lock
 
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.
-RUN yarn install
+RUN SKIP_FORGE=1 yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
@@ -51,7 +51,7 @@ COPY .eslintignore /tmp/build/
 COPY .eslintrc.js /tmp/build/
 
 # ----- Lint, test and build -----
-RUN yarn build
+RUN SKIP_FORGE=1 yarn build
 
 # ----------------------------------------
 # Copy files to the deployment image.
@@ -60,7 +60,7 @@ RUN yarn build
 FROM node as runtime
 
 ENV NODE_ENV=production \
-    PORT=8001
+    PORT=8080
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
@@ -75,6 +75,6 @@ USER node
 
 WORKDIR /home/node/packages/agents/router
 
-EXPOSE 8001
+EXPOSE 8080
 
 CMD ["node", "--trace-warnings", "dist/index.js"]

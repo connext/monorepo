@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 import "./ForgeHelper.sol";
 
-import "../../Connext.sol";
+import "../contracts/Connext.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
