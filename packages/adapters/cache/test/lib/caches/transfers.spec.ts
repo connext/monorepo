@@ -59,6 +59,41 @@ describe("TransfersCache", () => {
       expect(latestNonce).to.be.eq(1234);
     });
 
+    it("happy: should store multiple xtransfers", async () => {
+      const transferId = getRandomBytes32();
+      const mockXTransfer1 = mock.entity.xtransfer(
+        "100",
+        "200",
+        "1000",
+        XTransferStatus.XCalled,
+        mkAddress("0x111"),
+        transferId,
+        1233,
+      );
+      const mockXTransfer2 = mock.entity.xtransfer(
+        "100",
+        "200",
+        "1000",
+        XTransferStatus.XCalled,
+        mkAddress("0x111"),
+        transferId,
+        1234,
+      );
+      await transactions.storeTransfers([mockXTransfer1]);
+      await transactions.storeTransfers([mockXTransfer2]);
+      let latestNonce = await transactions.getLatestNonce("100");
+      expect(latestNonce).to.be.eq(1234);
+    });
+
+    it("happy: should delete the stall transfer", async () => {
+      const mockXTransfer = mock.entity.xtransfer("100", "200", "1000", XTransferStatus.Executed);
+      //add fake txid's status, should fire off event.
+      await transactions.storeTransfers([mockXTransfer]);
+      await transactions.storeTransfers([mockXTransfer]);
+      let latestNonce = await transactions.getLatestNonce("100");
+      expect(latestNonce).to.be.eq(1234);
+    });
+
     it("should update latest nonce", async () => {
       let latestNonce = await transactions.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1234);
@@ -101,6 +136,21 @@ describe("TransfersCache", () => {
 
       const res = await transactions.getTransferByTransferId(transferId);
       expect(res.transferId).to.eq(transferId);
+    });
+  });
+
+  describe("#storeStatus", () => {
+    it("Not implemented", () => {
+      const transferId = getRandomBytes32();
+      expect(transactions.storeStatus(transferId, XTransferStatus.XCalled)).to.eventually.be.throw(
+        new Error("Not implemented"),
+      );
+    });
+  });
+  describe("#getStatus", () => {
+    it("Not implemented", () => {
+      const transferId = getRandomBytes32();
+      expect(transactions.getStatus(transferId)).to.eventually.be.throw(new Error("Not implemented"));
     });
   });
 });
