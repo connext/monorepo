@@ -14,6 +14,12 @@ export const getDestinationLocalAsset = async (
   originLocalAsset: string,
   destinationDomain: string,
 ): Promise<string> => {
+  // use origin domain to get subgraph
+  // run query to get asset by originLocalAsset
+  // get canonical
+  // use destination domain to get subgraph
+  // query local asset on destination
+
   // TODO: Not implemented yet
 
   // const encoded = getTokenRegistryInterface().encodeFunctionData("getLocalAddress(uint32,address)", [

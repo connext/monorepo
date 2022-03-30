@@ -18,13 +18,20 @@ export type Scalars = {
   Bytes: any;
 };
 
+export type Asset = {
+  __typename?: 'Asset';
+  assetId: Scalars['Bytes'];
+  canonicalId: Scalars['Bytes'];
+  domain: Scalars['BigInt'];
+  id: Scalars['ID'];
+  local: Scalars['Bytes'];
+};
+
 export type AssetBalance = {
   __typename?: 'AssetBalance';
   amount: Scalars['BigInt'];
-  assetId: Scalars['Bytes'];
-  canonicalId: Scalars['Bytes'];
+  asset: Asset;
   id: Scalars['ID'];
-  local: Scalars['Bytes'];
   router: Router;
 };
 
@@ -37,18 +44,26 @@ export type AssetBalance_Filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetId?: InputMaybe<Scalars['Bytes']>;
-  assetId_contains?: InputMaybe<Scalars['Bytes']>;
-  assetId_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  assetId_not?: InputMaybe<Scalars['Bytes']>;
-  assetId_not_contains?: InputMaybe<Scalars['Bytes']>;
-  assetId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  canonicalId?: InputMaybe<Scalars['Bytes']>;
-  canonicalId_contains?: InputMaybe<Scalars['Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  canonicalId_not?: InputMaybe<Scalars['Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['Bytes']>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -57,12 +72,6 @@ export type AssetBalance_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  local?: InputMaybe<Scalars['Bytes']>;
-  local_contains?: InputMaybe<Scalars['Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  local_not?: InputMaybe<Scalars['Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['Bytes']>;
-  local_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   router?: InputMaybe<Scalars['String']>;
   router_contains?: InputMaybe<Scalars['String']>;
   router_contains_nocase?: InputMaybe<Scalars['String']>;
@@ -87,11 +96,54 @@ export type AssetBalance_Filter = {
 
 export enum AssetBalance_OrderBy {
   Amount = 'amount',
+  Asset = 'asset',
+  Id = 'id',
+  Router = 'router'
+}
+
+export type Asset_Filter = {
+  assetId?: InputMaybe<Scalars['Bytes']>;
+  assetId_contains?: InputMaybe<Scalars['Bytes']>;
+  assetId_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  assetId_not?: InputMaybe<Scalars['Bytes']>;
+  assetId_not_contains?: InputMaybe<Scalars['Bytes']>;
+  assetId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  canonicalId?: InputMaybe<Scalars['Bytes']>;
+  canonicalId_contains?: InputMaybe<Scalars['Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  canonicalId_not?: InputMaybe<Scalars['Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['Bytes']>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  local?: InputMaybe<Scalars['Bytes']>;
+  local_contains?: InputMaybe<Scalars['Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  local_not?: InputMaybe<Scalars['Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['Bytes']>;
+  local_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+};
+
+export enum Asset_OrderBy {
   AssetId = 'assetId',
   CanonicalId = 'canonicalId',
+  Domain = 'domain',
   Id = 'id',
-  Local = 'local',
-  Router = 'router'
+  Local = 'local'
 }
 
 /** The block at which the query should be executed. */
@@ -120,8 +172,10 @@ export type Query = {
   __typename?: 'Query';
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
+  asset?: Maybe<Asset>;
   assetBalance?: Maybe<AssetBalance>;
   assetBalances: Array<AssetBalance>;
+  assets: Array<Asset>;
   router?: Maybe<Router>;
   routers: Array<Router>;
   transfer?: Maybe<Transfer>;
@@ -131,6 +185,13 @@ export type Query = {
 
 export type Query_MetaArgs = {
   block?: InputMaybe<Block_Height>;
+};
+
+
+export type QueryAssetArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -149,6 +210,17 @@ export type QueryAssetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<AssetBalance_Filter>;
+};
+
+
+export type QueryAssetsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Asset_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Asset_Filter>;
 };
 
 
@@ -233,8 +305,10 @@ export type Subscription = {
   __typename?: 'Subscription';
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
+  asset?: Maybe<Asset>;
   assetBalance?: Maybe<AssetBalance>;
   assetBalances: Array<AssetBalance>;
+  assets: Array<Asset>;
   router?: Maybe<Router>;
   routers: Array<Router>;
   transfer?: Maybe<Transfer>;
@@ -244,6 +318,13 @@ export type Subscription = {
 
 export type Subscription_MetaArgs = {
   block?: InputMaybe<Block_Height>;
+};
+
+
+export type SubscriptionAssetArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -262,6 +343,17 @@ export type SubscriptionAssetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<AssetBalance_Filter>;
+};
+
+
+export type SubscriptionAssetsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Asset_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Asset_Filter>;
 };
 
 
@@ -750,6 +842,13 @@ export type GetExecutedAndReconciledTransfersByIdsQueryVariables = Exact<{
 
 export type GetExecutedAndReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransferStatus, to: any, transferId: any, callTo: any, callData: any, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
+export type GetAssetByLocalQueryVariables = Exact<{
+  local: Scalars['Bytes'];
+}>;
+
+
+export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, assetId: any, domain: any, local: any, canonicalId: any }> };
+
 
 export const GetXCalledTransfersDocument = gql`
     query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
@@ -903,6 +1002,17 @@ export const GetExecutedAndReconciledTransfersByIdsDocument = gql`
   }
 }
     `;
+export const GetAssetByLocalDocument = gql`
+    query GetAssetByLocal($local: Bytes!) {
+  assets(where: {local: $local}) {
+    id
+    assetId
+    domain
+    local
+    canonicalId
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -919,6 +1029,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetExecutedAndReconciledTransfersByIds(variables: GetExecutedAndReconciledTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetExecutedAndReconciledTransfersByIdsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetExecutedAndReconciledTransfersByIdsQuery>(GetExecutedAndReconciledTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetExecutedAndReconciledTransfersByIds', 'query');
+    },
+    GetAssetByLocal(variables: GetAssetByLocalQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByLocalQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByLocalQuery>(GetAssetByLocalDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByLocal', 'query');
     }
   };
 }
