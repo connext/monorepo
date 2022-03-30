@@ -11,45 +11,6 @@ import { Cache } from ".";
  */
 export class TransfersCache extends Cache {
   private readonly prefix = "transactions";
-  /**
-   *
-   * @param txid TransactionId to store
-   * @param status The status of the TranscationID
-   * @returns true/false based on an "OK" from the store.
-   * todo://getStatus() to verify that it's not already in the DB
-   */
-  public async storeStatus(txid: string, status: XTransferStatus): Promise<boolean> {
-    const prevStatus = await this.getStatus(txid);
-    if (prevStatus == status) {
-      return false;
-    } else {
-      // Return value is OK if SET was executed correctly
-      // if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
-      await this.data.set(txid, status);
-      this.data.publish(StoreChannel.NewStatus, `${txid}:${status}`);
-      return true;
-    }
-  }
-  /**
-   *
-   * @param txid TransacionId to search the cache for
-   * @returns TransactionId's status or unfefined if it's not there.
-   */
-  public async getStatus(txid: string): Promise<XTransferStatus | undefined> {
-    const status = this.data.scanStream({
-      match: `${txid}`,
-    });
-    return new Promise((res) => {
-      status.on("data", (txidMatch: string) => {
-        this.logger.debug("found txid");
-        const val = this.data.get(txidMatch);
-        res(val as unknown as XTransferStatus);
-      });
-      status.on("end", () => {
-        res(undefined);
-      });
-    });
-  }
 
   /**
    * Returns pointer to latest nonce for `domain` network
@@ -57,34 +18,11 @@ export class TransfersCache extends Cache {
    * @returns latest nonce for that domain
    */
   public async getLatestNonce(domain: string): Promise<number> {
-    const res = await this.data.hget(`${this.prefix}:${domain}`, "latestNonce");
+    const res = await this.data.hget(`${this.prefix}:${domain}`, "nonce");
     if (res) {
       return parseInt(res);
     }
     return 0;
-  }
-
-  /**
-   * @dev Gets Transaction Data By Domain and Txid
-   * @param domain The chain domain
-   * @param txid TransactionId
-   * @returns Transaction data
-   */
-  public async getTxDataByDomainAndTxID(domain: string, txid: string): Promise<XTransfer | undefined> {
-    const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
-      match: `*:${txid}`,
-      count: 1,
-    });
-    let txData: XTransfer;
-    return new Promise((res) => {
-      txDataStream.on("data", async (data: string) => {
-        const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
-        txData = JSON.parse(crossChainData!) as XTransfer;
-      });
-      txDataStream.on("end", async () => {
-        res(txData);
-      });
-    });
   }
 
   /**
@@ -98,32 +36,26 @@ export class TransfersCache extends Cache {
     return result ? (JSON.parse(result) as XTransfer) : undefined;
   }
 
-  public async getTxDataByDomainAndNonce(domain: string, nonce: string): Promise<XTransfer | undefined> {
-    const txDataStream = this.data.hscanStream(`${this.prefix}:${domain}`, {
-      match: `${nonce}:*`,
-    });
-
-    let txData: XTransfer;
-    return new Promise((res) => {
-      txDataStream.on("data", async (data: string) => {
-        const crossChainData = await this.data.hget(`${this.prefix}:${domain}`, data);
-        txData = JSON.parse(crossChainData!) as XTransfer;
-      });
-      txDataStream.on("end", async () => {
-        res(txData);
-      });
-    });
-  }
-
+  /**
+   * Stores a batch of transfers in the cache. All transfer data will be stored (JSON
+   * stringified). Transfers are indexed by their transferId. Publishes NewXCall event if
+   * there are any transfers for which a corresponding destination domain record is not
+   * present.
+   *
+   * @param transfers - Transfers to store. All overlapping transfers (with same ID) either
+   * within the same batch or existing in the current cache will be collated upon storage.
+   * @returns XTransfer data
+   */
   public async storeTransfers(transfers: XTransfer[]): Promise<void> {
     const nonceDidIncreaseForDomain: { [domain: string]: boolean } = {};
     const highestNonceByDomain: { [domain: string]: number } = {};
     const newXCalls: { [transferId: string]: string } = {};
     for (let transfer of transfers) {
       const existing = await this.getTransferByTransferId(transfer.transferId);
-      // TODO: Sanity check: no update needed if this transfer is same as the one already stored!
-
-      // TODO: Sanity check: make sure that the existing transfer's metadata is the same as the old one!
+      // Sanity check: no update needed if this transfer is same as the one already stored.
+      if (JSON.stringify(transfer) === JSON.stringify(existing)) {
+        continue;
+      }
 
       // Update the existing transfer with the data from the new one; this will collate the transfer across
       // domains, since our cache is indexed by transferId.
@@ -164,8 +96,51 @@ export class TransfersCache extends Cache {
     // Set the new highest nonce, and publish NewHighestNonce events for any new highest nonces we found.
     for (const [domain, nonce] of Object.entries(highestNonceByDomain)) {
       if (nonceDidIncreaseForDomain[domain]) {
-        await this.data.hset(`${this.prefix}:${domain}`, "latestNonce", nonce);
+        await this.data.hset(`${this.prefix}:${domain}`, "nonce", nonce);
       }
     }
+  }
+
+  /**
+   *
+   * @param transferId - ID of the transfer to search the cache for
+   * @param status - The status of the Transfer
+   * @returns true/false based on an "OK" from the store.
+   * todo://getStatus() to verify that it's not already in the DB
+   */
+  public async storeStatus(transferId: string, status: XTransferStatus): Promise<boolean> {
+    // const prevStatus = await this.getStatus(transferId);
+    // if (prevStatus == status) {
+    //   return false;
+    // } else {
+    //   // Return value is OK if SET was executed correctly
+    //   // if the SET operation was not performed because the user specified the NX or XX option but the condition was not met.
+    //   await this.data.set(transferId, status);
+    //   this.data.publish(StoreChannel.NewStatus, `${transferId}:${status}`);
+    //   return true;
+    // }
+    // TODO: Reimplement status API for transfers?
+    throw new Error("Not implemented");
+  }
+  /**
+   *
+   * @param transferId - ID of the transfer to search the cache for
+   * @returns Transfer's status or unfefined if it's not there.
+   */
+  public async getStatus(transferId: string): Promise<XTransferStatus | undefined> {
+    // const status = this.data.scanStream({
+    //   match: `${transferId}`,
+    // });
+    // return new Promise((res) => {
+    //   status.on("data", (match: string) => {
+    //     const val = this.data.get(match);
+    //     res(val as unknown as XTransferStatus);
+    //   });
+    //   status.on("end", () => {
+    //     res(undefined);
+    //   });
+    // });
+    // TODO: Reimplement status API for transfers?
+    throw new Error("Not implemented");
   }
 }
