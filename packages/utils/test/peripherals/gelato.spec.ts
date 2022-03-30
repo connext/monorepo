@@ -131,7 +131,7 @@ describe("Peripherals:Gelato", () => {
     });
 
     it("should return false if the request fails", async () => {
-      axiosGetStub.resolves(new Error("Request failed!"));
+      axiosGetStub.throws(new Error("Request failed!"));
 
       expect(await isOracleActive(1337)).to.be.eq(false);
       expect(await isOracleActive(1338)).to.be.eq(false);
@@ -155,7 +155,7 @@ describe("Peripherals:Gelato", () => {
     });
 
     it("should return empty if the request fails", async () => {
-      axiosGetStub.resolves(new Error("Request failed!"));
+      axiosGetStub.throws(new Error("Request failed!"));
 
       expect(await getGelatoOracles()).to.be.deep.eq([]);
     });
@@ -180,7 +180,7 @@ describe("Peripherals:Gelato", () => {
     });
 
     it("should return false if the request fails", async () => {
-      axiosGetStub.resolves(new Error("Request failed!"));
+      axiosGetStub.throws(new Error("Request failed!"));
 
       expect(await isPaymentTokenSupported(1337, mkAddress("0x111"))).to.be.eq(false);
     });
@@ -202,10 +202,10 @@ describe("Peripherals:Gelato", () => {
       expect(await getPaymentTokens(1337)).to.be.deep.eq([mkAddress("0x111"), mkAddress("0x222")]);
     });
 
-    it("should return false if the request fails", async () => {
-      axiosGetStub.resolves(new Error("Request failed!"));
+    it("should return empty if the request fails", async () => {
+      axiosGetStub.throws(new Error("Request failed!"));
 
-      expect(await getPaymentTokens(1337)).to.be.eq([]);
+      expect(await getPaymentTokens(1337)).to.be.deep.eq([]);
     });
   });
 });
