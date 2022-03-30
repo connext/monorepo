@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import '../interfaces/IERC20Minimal.sol';
+import "../interfaces/IERC20Minimal.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * Anybody can burn anyone else's tokens
  */
 contract FeeERC20 is ERC20 {
-
   uint256 public fee = 1;
 
   constructor() ERC20("Fee Token", "FEERC20") {
@@ -35,7 +34,11 @@ contract FeeERC20 is ERC20 {
     return true;
   }
 
-  function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) public override returns (bool) {
     uint256 toTransfer = amount - fee;
     _burn(sender, fee);
     _transfer(sender, recipient, toTransfer);

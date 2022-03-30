@@ -2,7 +2,6 @@
 pragma solidity 0.8.11;
 
 interface IExecutor {
-
   event Executed(
     bytes32 indexed transferId,
     address indexed to,

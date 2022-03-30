@@ -36,10 +36,10 @@ interface IConnext {
   }
 
   /**
-   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a 
+   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a
    * transfer to properly reimburse router when funds come through the bridge.
    * @param router - Address of the router that supplied fast-liquidity
-   * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount` 
+   * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount`
    * user supplied comes through bridge
    */
   struct ExecutedTransfer {
@@ -82,8 +82,8 @@ interface IConnext {
     uint256 amount;
   }
 
-    /**
-   * @notice 
+  /**
+   * @notice
    * @param params - The CallParams. These are consistent across sending and receiving chains
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
@@ -167,12 +167,7 @@ interface IConnext {
    * @param swapPool - The address of the AMM
    * @param caller - The account that called the function
    */
-  event StableSwapAdded(
-    bytes32 canonicalId,
-    uint32 domain,
-    address swapPool,
-    address caller
-  );
+  event StableSwapAdded(bytes32 canonicalId, uint32 domain, address swapPool, address caller);
 
   /**
    * @notice Emitted when a new asset is added
@@ -183,23 +178,14 @@ interface IConnext {
    * the address of the wrapped version will be stored
    * @param caller - The account that called the function
    */
-  event AssetAdded(
-    bytes32 canonicalId,
-    uint32 domain,
-    address adoptedAsset,
-    address supportedAsset,
-    address caller
-  );
+  event AssetAdded(bytes32 canonicalId, uint32 domain, address adoptedAsset, address supportedAsset, address caller);
 
   /**
    * @notice Emitted when an asset is removed from whitelists
    * @param canonicalId - The canonical identifier of the token removed
    * @param caller - The account that called the function
    */
-  event AssetRemoved(
-    bytes32 canonicalId,
-    address caller
-  );
+  event AssetRemoved(bytes32 canonicalId, address caller);
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
@@ -209,13 +195,7 @@ interface IConnext {
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
-  event LiquidityRemoved(
-    address indexed router,
-    address to,
-    address local,
-    uint256 amount,
-    address caller
-  );
+  event LiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
 
   /**
    * @notice Emitted when a router adds liquidity to the contract
@@ -316,7 +296,7 @@ interface IConnext {
   ) external;
 
   function addRouter(address router) external;
-    
+
   function removeRouter(address router) external;
 
   function setupRouter(address router, address owner, address recipient) external;
@@ -346,7 +326,11 @@ interface IConnext {
 
   function removeRelayerFees(uint256 amount, address payable to) external;
 
-  function addLiquidityFor(uint256 amount, address local, address router) external payable;
+  function addLiquidityFor(
+    uint256 amount,
+    address local,
+    address router
+  ) external payable;
 
   function addLiquidity(uint256 amount, address local) external payable;
 
