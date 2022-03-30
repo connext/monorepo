@@ -51,7 +51,7 @@ jobs:
 
   terraform-services:
     env:
-      TF_VAR_full_image_name_router: "ghcr.io/connext/router:sha-011c975"
+      TF_VAR_full_image_name_router: "ghcr.io/connext/router:sha-c3bc0e0"
       TF_VAR_full_image_name_sequencer: "ghcr.io/connext/sequencer:sha-011c975"
       TF_VAR_mnemonic: ${{ secrets.MNEMONIC_TESTNET }}
       TF_VAR_admin_token_router: ${{ secrets.ADMIN_TOKEN_ROUTER_TESTNET }}
