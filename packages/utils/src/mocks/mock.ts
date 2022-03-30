@@ -20,6 +20,10 @@ export const mock: any = {
     A: "1337",
     B: "1338",
   },
+  domain: {
+    A: "2000",
+    B: "3000",
+  },
   asset: {
     A: {
       name: "TEST-A",
@@ -58,8 +62,8 @@ export const mock: any = {
     callParams: (): CallParams => ({
       to: mkAddress("0xaaa"),
       callData: "0x",
-      originDomain: mock.chain.A,
-      destinationDomain: mock.chain.B,
+      originDomain: mock.domain.A,
+      destinationDomain: mock.domain.B,
     }),
     executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),

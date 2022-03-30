@@ -114,51 +114,26 @@ describe("TransactionCache", () => {
 
     describe("#getTxDataByDomainAndTxID", () => {
       it("should return null if no exists", async () => {
-        const res = await transactions.getTxDataByDomainAndTxID("101", getRandomBytes32());
+        const res = await transactions.getTransferByTransferId(getRandomBytes32());
         expect(res).to.be.undefined;
       });
 
       it("happy case: should return data", async () => {
-        const transactionId = getRandomBytes32();
+        const transferId = getRandomBytes32();
         const mockXTransfer = mock.entity.xtransfer(
           "101",
           "201",
           "1000",
           XTransferStatus.XCalled,
           mkAddress("0xaaa"),
-          transactionId,
+          transferId,
           1234,
           mkAddress("0xa"),
         );
         await transactions.storeTransfers([mockXTransfer]);
 
-        const res = await transactions.getTxDataByDomainAndTxID("101", transactionId);
-        expect(res.transferId).to.eq(transactionId);
-      });
-    });
-
-    describe("#getTxDataByDomainAndNonce", () => {
-      it("should return null if no exists", async () => {
-        const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
-        expect(res).to.be.undefined;
-      });
-
-      it("happy case: should return data", async () => {
-        const transactionId = getRandomBytes32();
-        const mockXTransfer = mock.entity.xtransfer(
-          "102",
-          "202",
-          "1000",
-          XTransferStatus.XCalled,
-          mkAddress("0xaaa"),
-          transactionId,
-          1234,
-          mkAddress("0xa"),
-        );
-        await transactions.storeTransfers([mockXTransfer]);
-
-        const res = await transactions.getTxDataByDomainAndNonce("102", "1234");
-        expect(res.transferId).to.eq(transactionId);
+        const res = await transactions.getTransferByTransferId(transferId);
+        expect(res.transferId).to.eq(transferId);
       });
     });
   });

@@ -1,5 +1,4 @@
-import { BigNumber, constants, utils } from "ethers";
-import { hexlify } from "ethers/lib/utils";
+import { constants, utils } from "ethers";
 import { task } from "hardhat/config";
 import { canonizeId } from "../nomad";
 
@@ -51,7 +50,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       if (!canonicalAsset) {
         throw new Error("Asset must be specified as param or from env (CANONICAL_TOKEN)");
       }
-      const canonicalTokenId = hexlify(canonizeId(canonicalAsset));
+      const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
 
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;

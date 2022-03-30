@@ -63,7 +63,7 @@ describe("ConsumersCache", () => {
 
     RedisSub.subscribe(StoreChannel.NewHighestNonce);
     RedisSub.subscribe(StoreChannel.NewXCall);
-    RedisSub.subscribe(StoreChannel.NewStatus);
+    // RedisSub.subscribe(StoreChannel.NewStatus);
     RedisSub.subscribe(StoreChannel.NewBid);
 
     RedisSub.on("message", (chan: any, msg: any) => {
@@ -81,8 +81,8 @@ describe("ConsumersCache", () => {
       expect(consumers.subscriptions.has(StoreChannel.NewHighestNonce)).to.be.eq(true);
       await consumers.subscribe(StoreChannel.NewXCall, newPreparedTxHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewXCall)).to.be.eq(true);
-      await consumers.subscribe(StoreChannel.NewStatus, newStatusHandler);
-      expect(consumers.subscriptions.has(StoreChannel.NewStatus)).to.be.eq(true);
+      // await consumers.subscribe(StoreChannel.NewStatus, newStatusHandler);
+      // expect(consumers.subscriptions.has(StoreChannel.NewStatus)).to.be.eq(true);
       await consumers.subscribe(StoreChannel.NewBid, newBidHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewBid));
     });
@@ -97,10 +97,11 @@ describe("ConsumersCache", () => {
       expect(callCountForNewXCall).to.be.eq(1);
 
       // StoreChannel.NewStatus
-      expect(callCountForNewStatus).to.be.eq(0);
-      await transactions.storeStatus((fakeTxs[0] as XTransfer).transferId, XTransferStatus.Executed);
-      await delay(100);
-      expect(callCountForNewStatus).to.be.eq(1);
+      // TODO: Currently not implemented, method needs reimplementation or to be removed.
+      // expect(callCountForNewStatus).to.be.eq(0);
+      // await transactions.storeStatus((fakeTxs[0] as XTransfer).transferId, XTransferStatus.Executed);
+      // await delay(100);
+      // expect(callCountForNewStatus).to.be.eq(1);
 
       // StoreChannel.NewBid
       expect(callCountForNewBid).to.be.eq(0);
