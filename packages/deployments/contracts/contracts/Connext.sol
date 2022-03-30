@@ -35,6 +35,31 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // TODO: why is this breaking the build
   // uint256 internal constant 3 = 3;
 
+  // ========== Custom Errors ===========
+
+  error Connext__onlyBridgeRouter_notBridge();
+  error Connext__addRouter_001();
+  error Connext__addRouter_032();
+  error Connext__removeRouter_001();
+  error Connext__removeRouter_033();
+  error Connext__removeAssetId_033();
+  error Connext__addRelayerFees_notValue();
+  error Connext__removeLiquidity_007();
+  error Connext__removeLiquidity_002();
+  error Connext__removeLiquidity_008();
+  error Connext__xcall_notSupportedAsset();
+  error Connext__execute_notSlowParams();
+  error Connext__addLiquidityForRouter_001();
+  error Connext__addLiquidityForRouter_002();
+  error Connext__addLiquidityForRouter_003();
+  error Connext__addLiquidityForRouter_004();
+  error Connext__transferAssetToContract_notAmount();
+  error Connext__transferAssetToContract_006();
+  error Connext__transferAssetFromContract_notNative();
+  error Connext__addAssetId_032();
+  error Connext__decrementLiquidity_notEmpty();
+  error Connext__handleRelayerFees_notRtrSig();
+
   // ============ Constants =============
 
   bytes32 internal EMPTY;
@@ -145,7 +170,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Restricts the caller to the local bridge router
    */
   modifier onlyBridgeRouter() {
-    require(msg.sender == address(bridgeRouter), "!bridge");
+    if (msg.sender != address(bridgeRouter)) revert Connext__onlyBridgeRouter_notBridge();
     _;
   }
 
@@ -177,10 +202,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function addRouter(address router) external override onlyOwner {
     // Sanity check: not empty
-    require(router != address(0), "#AR:001");
+    if (router == address(0)) revert Connext__addRouter_001();
 
     // Sanity check: needs approval
-    require(approvedRouters[router] == false, "#AR:032");
+    if (approvedRouters[router]) revert Connext__addRouter_032();
 
     // Update mapping
     approvedRouters[router] = true;
@@ -195,10 +220,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function removeRouter(address router) external override onlyOwner {
     // Sanity check: not empty
-    require(router != address(0), "#RR:001");
+    if (router == address(0)) revert Connext__removeRouter_001();
 
     // Sanity check: needs removal
-    require(approvedRouters[router] == true, "#RR:033");
+    if (!approvedRouters[router]) revert Connext__removeRouter_033();
 
     // Update mapping
     approvedRouters[router] = false;
@@ -248,7 +273,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
     // Sanity check: already approval
-    require(approvedAssets[canonicalId] == true, "#RA:033");
+    if (!approvedAssets[canonicalId]) revert Connext__removeAssetId_033();
 
     // Update mapping
     delete approvedAssets[canonicalId];
@@ -270,7 +295,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param router - The router to credit
    */
   function addRelayerFees(address router) external override payable {
-    require(msg.value > 0, "!value");
+    if (msg.value == 0) revert Connext__addRelayerFees_notValue();
     routerRelayerFees[router] += msg.value;
   }
 
@@ -282,7 +307,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function removeRelayerFees(uint256 amount, address payable to) external override {
     routerRelayerFees[msg.sender] -= amount;
-    
+
     AddressUpgradeable.sendValue(to, amount);
   }
 
@@ -324,14 +349,14 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address payable to
   ) external override nonReentrant {
     // Sanity check: to is sensible
-    require(to != address(0), "#RL:007");
+    if (to == address(0)) revert Connext__removeLiquidity_007();
 
     // Sanity check: nonzero amounts
-    require(amount > 0, "#RL:002");
+    if (amount == 0) revert Connext__removeLiquidity_002();
 
     uint256 routerBalance = routerBalances[msg.sender][local];
     // Sanity check: amount can be deducted for the router
-    require(routerBalance >= amount, "#RL:008");
+    if (routerBalance < amount) revert Connext__removeLiquidity_008();
 
     // Update router balances
     unchecked {
@@ -339,7 +364,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Transfer from contract to specified to
-    _transferAssetFromContract(local, to, amount);    
+    _transferAssetFromContract(local, to, amount);
 
     // Emit event
     emit LiquidityRemoved(msg.sender, to, local, amount, msg.sender);
@@ -359,15 +384,18 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
     // require(
-    //   adoptedToCanonical[_asset].id != bytes32(0) || 
+    //   adoptedToCanonical[_asset].id != bytes32(0) ||
     //   tokenRegistry.getLocalAddress(domain, _asset) != address(0),
     //   "!supported_asset"
     // );
 
-    require(
-      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id != bytes32(0),
-      "!supported_asset"
-    );
+    if (
+      adoptedToCanonical[
+        _args.transactingAssetId == address(0)
+          ? address(wrapper)
+          : _args.transactingAssetId
+      ].id == bytes32(0)
+    ) revert Connext__xcall_notSupportedAsset();
 
     // Transfer funds to the contract
     (address _transactingAssetId, uint256 _amount) = _transferAssetToContract(_args.transactingAssetId, _args.amount);
@@ -477,7 +505,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       _decrementLiquidity(_transferId, _args.amount, _args.local, _args.router);
     } else {
       // Ensure the reconciled hash is correct (user not charged liq fee for slow-liq)
-      require(_reconciledHash == _getReconciledHash(_args.local, _args.params.to, _args.amount), "!slow params");
+      if (_reconciledHash != _getReconciledHash(_args.local, _args.params.to, _args.amount)) revert Connext__execute_notSlowParams();
     }
 
     // Execute the the transaction
@@ -547,7 +575,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       // This is *not* the adopted asset, meaning it must be the local asset
       return (_amount, _asset);
     }
-  
+
     // Get the local token for this domain (may return canonical or representation)
     address local = tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
 
@@ -567,7 +595,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
         _amount,
         _asset,
         local
-      ), 
+      ),
       local
     );
   }
@@ -600,7 +628,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
         _amount,
         _asset,
         adopted
-      ), 
+      ),
       adopted
     );
   }
@@ -651,19 +679,19 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _router
   ) internal {
     // Sanity check: router is sensible
-    require(_router != address(0), "#AL:001");
+    if (_router == address(0)) revert Connext__addLiquidityForRouter_001();
 
     // Sanity check: nonzero amounts
-    require(_amount > 0, "#AL:002");
+    if (_amount == 0) revert Connext__addLiquidityForRouter_002();
 
     // Get the canonical asset id from the representation
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    require(isRouterOwnershipRenounced() || approvedRouters[_router], "#AL:003");
+    if (!isRouterOwnershipRenounced() && !approvedRouters[_router]) revert Connext__addLiquidityForRouter_003();
 
     // Asset is approved
-    require(isAssetOwnershipRenounced() || approvedAssets[id], "#AL:004");
+    if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_004();
 
     // Transfer funds to contract
     (address _asset, uint256 _received) = _transferAssetToContract(_local, _amount);
@@ -680,7 +708,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Handles transferring funds from msg.sender to the Connext contract.
    * @dev If using the native asset, will automatically wrap
    * @param _assetId - The address to transfer
-   * @param _specifiedAmount - The specified amount to transfer. May not be the 
+   * @param _specifiedAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
    * @return The assetId of the transferred asset
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
@@ -692,13 +720,13 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     if (_assetId == address(0)) {
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
-      require(msg.value == _specifiedAmount, "!amount");
+      if (msg.value != _specifiedAmount) revert Connext__transferAssetToContract_notAmount();
       wrapper.deposit{ value: _specifiedAmount }();
       _assetId = address(wrapper);
     } else {
       // Validate correct amounts are transferred
       uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-      require(msg.value == 0, "#TA:006");
+      if (msg.value != 0) revert Connext__transferAssetToContract_006();
       SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
       // Calculate the *actual* amount that was sent here
       trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
@@ -716,7 +744,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function _transferAssetFromContract(address _assetId, address _to, uint256 _amount) internal {
     // No native assets should ever be stored on this contract
-    require(_assetId != address(0), "!native");
+    if (_assetId == address(0)) revert Connext__transferAssetFromContract_notNative();
 
     if (_assetId == address(wrapper)) {
       // If dealing with wrapped assets, make sure they are properly unwrapped
@@ -740,7 +768,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _adoptedAssetId
   ) internal {
     // Sanity check: needs approval
-    require(approvedAssets[_canonical.id] == false, "#AA:032");
+    if (approvedAssets[_canonical.id]) revert Connext__addAssetId_032();
 
     // Update approved assets mapping
     approvedAssets[_canonical.id] = true;
@@ -782,10 +810,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _router
   ) internal {
     // Ensure it has not been executed already
-    require(routedTransfers[_transferId].router == address(0), "!empty");
+    if (routedTransfers[_transferId].router != address(0)) revert Connext__decrementLiquidity_notEmpty();
 
     // Decrement liquidity
-    routerBalances[_router][_local] -= _amount; 
+    routerBalances[_router][_local] -= _amount;
 
     // Store the router
     routedTransfers[_transferId] = ExecutedTransfer({
@@ -814,7 +842,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Check the signature of the router on the nonce + fee pct
-    require(_router == _recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
+    if (_router != _recoverSignature(abi.encode(_transferId, _feePct), _sig)) revert Connext__handleRelayerFees_notRtrSig();
 
     // Handle 0 case
     if (_feePct == 0) {

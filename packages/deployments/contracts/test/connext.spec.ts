@@ -340,16 +340,16 @@ describe("Connext", () => {
   describe("addRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(originTm.connect(user).addRouter(toAdd)).to.be.revertedWith("#OO:029");
+      await expect(originTm.connect(user).addRouter(toAdd)).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_029");
     });
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originTm.addRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#AR:001");
+      await expect(originTm.addRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("Connext__addRouter_001");
     });
 
     it("should fail if its already added", async () => {
-      await expect(originTm.addRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#AR:032");
+      await expect(originTm.addRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("Connext__addRouter_032");
     });
 
     it("should work", async () => {
@@ -364,12 +364,12 @@ describe("Connext", () => {
   describe("removeRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(originTm.connect(user).removeRouter(toAdd)).to.be.revertedWith("#OO:029");
+      await expect(originTm.connect(user).removeRouter(toAdd)).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_029");
     });
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originTm.removeRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#RR:001");
+      await expect(originTm.removeRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("Connext__removeRouter_001");
     });
 
     it("should fail if its already removed", async () => {
@@ -377,7 +377,7 @@ describe("Connext", () => {
       await tx.wait();
 
       await expect(originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith(
-        "#RR:033",
+        "Connext__removeRouter_033",
       );
     });
 
@@ -399,7 +399,7 @@ describe("Connext", () => {
           },
           stableSwap.address,
         ),
-      ).to.be.revertedWith("#OO:029");
+      ).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_029");
     });
 
     it("should work", async () => {
@@ -432,7 +432,7 @@ describe("Connext", () => {
             originAdopted.address,
             stableSwap.address,
           ),
-      ).to.be.revertedWith("#OO:029");
+      ).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_029");
     });
 
     it("should fail if it is already approved canonical", async () => {
@@ -458,7 +458,7 @@ describe("Connext", () => {
           stableSwap.address,
           { maxFeePerGas: MAX_FEE_PER_GAS },
         ),
-      ).to.be.revertedWith("#AA:032");
+      ).to.be.revertedWith("Connext__addAssetId_032");
     });
 
     it("should work", async () => {
@@ -489,14 +489,14 @@ describe("Connext", () => {
     it("should fail if not called by owner", async () => {
       await expect(
         originTm.connect(user).removeAssetId(addressToBytes32(canonical.address), originAdopted.address),
-      ).to.be.revertedWith("#OO:029");
+      ).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_029");
     });
 
     it("should fail if it is not approved canonical", async () => {
       const toRemove = Wallet.createRandom().address;
       await expect(
         originTm.removeAssetId(addressToBytes32(toRemove), originAdopted.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
-      ).to.be.revertedWith("#RA:033");
+      ).to.be.revertedWith("Connext__removeAssetId_033");
     });
 
     it("should work", async () => {
@@ -563,7 +563,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).addLiquidityFor(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "#AL:001",
+        "Connext__addLiquidityForRouter_001",
       );
       expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
@@ -573,7 +573,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "#AL:002",
+        "Connext__addLiquidityForRouter_002",
       );
     });
 
@@ -588,14 +588,14 @@ describe("Connext", () => {
 
       await expect(
         originTm.addLiquidityFor(amount, assetId, router.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
-      ).to.be.revertedWith("#AL:003");
+      ).to.be.revertedWith("Connext__addLiquidityForRouter_003");
     });
 
     it("should fail if its an unapproved asset && ownership isnt renounced", async () => {
       const amount = "10";
       const assetId = Wallet.createRandom().address;
       await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "#AL:004",
+        "Connext__addLiquidityForRouter_004",
       );
     });
 
@@ -604,7 +604,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "!amount",
+        "Connext__transferAssetToContract_notAmount",
       );
       expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
@@ -616,7 +616,7 @@ describe("Connext", () => {
 
       await expect(
         originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith("!amount");
+      ).to.be.revertedWith("Connext__transferAssetToContract_notAmount");
       expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
@@ -626,7 +626,7 @@ describe("Connext", () => {
       const assetId = local.address;
       await expect(
         destinationTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith("#TA:006");
+      ).to.be.revertedWith("Connext__transferAssetToContract_006");
       expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -681,7 +681,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "#RL:007",
+        "Connext__removeLiquidity_007",
       );
     });
 
@@ -690,7 +690,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "#RL:002",
+        "Connext__removeLiquidity_002",
       );
     });
 
@@ -699,7 +699,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "#RL:008",
+        "Connext__removeLiquidity_008",
       );
     });
 

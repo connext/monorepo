@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title ProposedOwnable
- * @notice Contract module which provides a basic access control mechanism, 
+ * @notice Contract module which provides a basic access control mechanism,
  * where there is an account (an owner) that can be granted exclusive access to
  * specific functions.
  *
@@ -15,15 +15,37 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * 2. Wait out the delay period
  * 3. Call `acceptOwner`
  *
- * @dev This module is used through inheritance. It will make available the 
- * modifier `onlyOwner`, which can be applied to your functions to restrict 
+ * @dev This module is used through inheritance. It will make available the
+ * modifier `onlyOwner`, which can be applied to your functions to restrict
  * their use to the owner.
- * 
- * @dev The majority of this code was taken from the openzeppelin Ownable 
+ *
+ * @dev The majority of this code was taken from the openzeppelin Ownable
  * contract
  *
  */
 abstract contract ProposedOwnableUpgradeable  is Initializable {
+  // ========== Custom Errors ===========
+
+  error ProposedOwnableUpgradeable__onlyOwner_029();
+  error ProposedOwnableUpgradeable__onlyProposed_035();
+  error ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_038();
+  error ProposedOwnableUpgradeable__renounceRouterOwnership_038();
+  error ProposedOwnableUpgradeable__renounceRouterOwnership_037();
+  error ProposedOwnableUpgradeable__renounceRouterOwnership_030();
+  error ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_038();
+  error ProposedOwnableUpgradeable__renounceAssetOwnership_038();
+  error ProposedOwnableUpgradeable__renounceAssetOwnership_037();
+  error ProposedOwnableUpgradeable__renounceAssetOwnership_030();
+  error ProposedOwnableUpgradeable__proposeNewOwner_036();
+  error ProposedOwnableUpgradeable__proposeNewOwner_038();
+  error ProposedOwnableUpgradeable__renounceOwnership_037();
+  error ProposedOwnableUpgradeable__renounceOwnership_030();
+  error ProposedOwnableUpgradeable__renounceOwnership_036();
+  error ProposedOwnableUpgradeable__acceptProposedOwner_038();
+  error ProposedOwnableUpgradeable__acceptProposedOwner_030();
+
+  // ============ Properties ============
+
   address private _owner;
 
   address private _proposed;
@@ -51,7 +73,7 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
 
 
   /**
-    * @dev Initializes the contract setting the deployer as the initial 
+    * @dev Initializes the contract setting the deployer as the initial
     */
   function __ProposedOwnable_init() internal onlyInitializing {
     __ProposedOwnable_init_unchained();
@@ -107,7 +129,7 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     * @notice Throws if called by any account other than the owner.
     */
   modifier onlyOwner() {
-      require(_owner == msg.sender, "#OO:029");
+      if (_owner != msg.sender) revert ProposedOwnableUpgradeable__onlyOwner_029();
       _;
   }
 
@@ -115,11 +137,11 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     * @notice Throws if called by any account other than the proposed owner.
     */
   modifier onlyProposed() {
-      require(_proposed == msg.sender, "#OP:035");
+      if (_proposed != msg.sender) revert ProposedOwnableUpgradeable__onlyProposed_035();
       _;
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership of the router whitelist has
     * been renounced
     */
@@ -127,39 +149,39 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     return _owner == address(0) || _routerOwnershipRenounced;
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership of the router whitelist has
     * been renounced
     */
   function proposeRouterOwnershipRenunciation() public virtual onlyOwner {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
-    require(!_routerOwnershipRenounced, "#PROR:038");
+    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_038();
 
     // Begin delay, emit event
     _setRouterOwnershipTimestamp();
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership of the asset whitelist has
     * been renounced
     */
   function renounceRouterOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    require(!_routerOwnershipRenounced, "#RRO:038");
+    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__renounceRouterOwnership_038();
 
     // Ensure there has been a proposal cycle started
-    require(_routerOwnershipTimestamp > 0, "#RRO:037");
+    if (_routerOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceRouterOwnership_037();
 
     // Delay has elapsed
-    require((block.timestamp - _routerOwnershipTimestamp) > _delay, "#RRO:030");
+    if ((block.timestamp - _routerOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__renounceRouterOwnership_030();
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterOwnership(true);
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership of the asset whitelist has
     * been renounced
     */
@@ -167,39 +189,39 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     return _owner == address(0) || _assetOwnershipRenounced;
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership of the asset whitelist has
     * been renounced
     */
   function proposeAssetOwnershipRenunciation() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    require(!_assetOwnershipRenounced, "#PAOR:038");
+    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_038();
 
     // Start cycle, emit event
     _setAssetOwnershipTimestamp();
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership of the asset whitelist has
     * been renounced
     */
   function renounceAssetOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    require(!_assetOwnershipRenounced, "#RAO:038");
+    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__renounceAssetOwnership_038();
 
     // Ensure there has been a proposal cycle started
-    require(_assetOwnershipTimestamp > 0, "#RAO:037");
+    if (_assetOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceAssetOwnership_037();
 
     // Ensure delay has elapsed
-    require((block.timestamp - _assetOwnershipTimestamp) > _delay, "#RAO:030");
+    if ((block.timestamp - _assetOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__renounceAssetOwnership_030();
 
     // Set ownership, reset timestamp, emit event
     _setAssetOwnership(true);
   }
 
-  /** 
+  /**
     * @notice Indicates if the ownership has been renounced() by
     * checking if current owner is address(0)
     */
@@ -213,10 +235,10 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
    */
   function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
     // Contract as source of truth
-    require(_proposed != newlyProposed || newlyProposed == address(0), "#PNO:036");
+    if (_proposed == newlyProposed && newlyProposed != address(0)) revert ProposedOwnableUpgradeable__proposeNewOwner_036();
 
     // Sanity check: reasonable proposal
-    require(_owner != newlyProposed, "#PNO:038");
+    if (_owner == newlyProposed) revert ProposedOwnableUpgradeable__proposeNewOwner_038();
 
     _setProposed(newlyProposed);
   }
@@ -226,13 +248,13 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     */
   function renounceOwnership() public virtual onlyOwner {
     // Ensure there has been a proposal cycle started
-    require(_proposedOwnershipTimestamp > 0, "#RO:037");
+    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceOwnership_037();
 
     // Ensure delay has elapsed
-    require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#RO:030");
+    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__renounceOwnership_030();
 
     // Require proposed is set to 0
-    require(_proposed == address(0), "#RO:036");
+    if (_proposed != address(0)) revert ProposedOwnableUpgradeable__renounceOwnership_036();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);
@@ -244,7 +266,7 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     */
   function acceptProposedOwner() public virtual onlyProposed {
     // Contract as source of truth
-    require(_owner != _proposed, "#APO:038");
+    if (_owner == _proposed) revert ProposedOwnableUpgradeable__acceptProposedOwner_038();
 
     // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because
     // the only time this would happen is if the _proposed was never
@@ -252,7 +274,7 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     // above)
 
     // Ensure delay has elapsed
-    require((block.timestamp - _proposedOwnershipTimestamp) > _delay, "#APO:030");
+    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__acceptProposedOwner_030();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);

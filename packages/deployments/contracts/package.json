@@ -53,6 +53,7 @@
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.1",
     "hardhat": "^2.9.1",
+    "hardhat-contract-sizer": "^2.5.1",
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
     "sinon": "^13.0.1",
