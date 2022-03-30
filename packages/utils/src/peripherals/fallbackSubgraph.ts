@@ -208,6 +208,7 @@ export class FallbackSubgraph<T> {
     // we're operating on up-to-date information (and ensure that we have indeed synced at least once).
     await this.syncingQueue.onIdle();
 
+    console.log("\n** ORDERED SUBGRAPHS: ", this.getOrderedSubgraphs());
     // Get the sdks in order of determined priority.
     const orderedSubgraphs = this.getOrderedSubgraphs();
     if (orderedSubgraphs.length === 0) {
