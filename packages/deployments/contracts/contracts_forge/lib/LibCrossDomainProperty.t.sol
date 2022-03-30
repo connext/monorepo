@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 import "../ForgeHelper.sol";
 
-import "../../../interpreters/Executor.sol";
+import "../../contracts/interpreters/Executor.sol";
 
 contract LibCrossDomainPropertyTest is ForgeHelper {
   // ============ Libraries ============

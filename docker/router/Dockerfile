@@ -51,7 +51,7 @@ COPY .eslintignore /tmp/build/
 COPY .eslintrc.js /tmp/build/
 
 # ----- Lint, test and build -----
-RUN yarn build
+RUN SKIP_FORGE=1 yarn build
 
 # ----------------------------------------
 # Copy files to the deployment image.
