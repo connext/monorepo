@@ -1,37 +1,28 @@
 {
-  "adminToken": "blahblah",
-  "chainConfig": {
-    "1337": {
-      "providers": ["http://172.17.0.1:8545"],
-      "confirmations": 1,
-      "subgraph": "http://172.17.0.1:8010/subgraphs/name/connext/nxtp",
-      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
+  "logLevel": "debug",
+  "sequencerUrl": "http://localhost:8081",
+  "server": {
+    "adminToken": "blahblah"
+  },
+  "chains": {
+    "2000": {
+      "providers": ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
+      "subgraph": {
+        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"],
+        "analytics": [""]
+      },
+      "deployments": {},
+      "assets": [{ "name": "TEST", "address": "0xf4CF3FcC8dC7E5171Bb08bef75EDe3fEf00F46E6" }]
     },
-    "1338": {
-      "providers": ["http://172.17.0.1:8546"],
-      "confirmations": 1,
-      "subgraph": "http://172.17.0.1:9010/subgraphs/name/connext/nxtp",
-      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
+    "3000": {
+      "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
+      "subgraph": {
+        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"],
+        "analytics": [""]
+      },
+      "deployments": {},
+      "assets": [{ "name": "TEST", "address": "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d" }]
     }
   },
-  "logLevel": "info",
-  "natsUrl": "nats://172.17.0.1:4222",
-  "authUrl": "http://172.17.0.1:5040",
-  "web3SignerUrl": "http://172.17.0.1:9000",
-  "swapPools": [
-    {
-      "name": "TEST",
-      "assets": [
-        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
-      ]
-    },
-    {
-      "name": "NATIVE",
-      "assets": [
-        { "chainId": 1337, "assetId": "0x0000000000000000000000000000000000000000" },
-        { "chainId": 1338, "assetId": "0x0000000000000000000000000000000000000000" }
-      ]
-    }
-  ]
+  "mnemonic": "village fiscal include unaware shrug swear whale sea car tilt clinic despair"
 }

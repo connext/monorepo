@@ -7,7 +7,7 @@
     "test:hardhat": "hardhat test",
     "test:forge": "yarn forge test --gas-report --hh",
     "forge": "forge",
-    "forge:install": "forge install",
+    "postinstall": "test -n \"$SKIP_FORGE\" || forge install",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",
