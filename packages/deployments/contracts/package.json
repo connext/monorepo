@@ -14,7 +14,6 @@
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
-    "dev": "yarn build",
     "lint": "eslint ./src --ext .ts --env node",
     "clean": "hardhat clean && forge clean && rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
