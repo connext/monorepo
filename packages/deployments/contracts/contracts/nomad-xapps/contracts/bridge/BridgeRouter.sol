@@ -307,6 +307,7 @@ contract BridgeRouter is Version0, Router {
             // Call reconcile
             connext.reconcile(
                 _action.externalHash(),
+                _origin,
                 _token,
                 _recipient,
                 _amount
