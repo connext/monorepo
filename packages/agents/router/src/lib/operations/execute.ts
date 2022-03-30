@@ -78,9 +78,10 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   if (res) {
     /// send the bid to auctioneer
-    logger.info("Sending bid to sequencer", requestContext, methodContext, { bid });
+    logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, executeArguments });
     await sendBid(bid);
   } else {
+    logger.info("Sanity check failed", requestContext, methodContext, { bid });
     // sanity check failed
   }
 };
