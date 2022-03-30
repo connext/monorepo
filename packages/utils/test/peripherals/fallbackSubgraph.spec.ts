@@ -3,7 +3,7 @@ import { SinonStub, stub } from "sinon";
 
 import { expect } from "../../src/mocks";
 import { FallbackSubgraph, SubgraphDomain, NxtpError, SubgraphSyncRecord } from "../../src";
-import * as fallbackSubgraphIndex from "../../src/peripherals/fallbackSubgraph";
+import * as FallbackSubgraphIndex from "../../src/peripherals/fallbackSubgraph";
 
 type MockSubgraphSdk = {
   MockSubgraphSdkMethod: () => {};
@@ -82,11 +82,15 @@ describe("FallbackSubgraph", () => {
 
       describe("#query", () => {
         const mockGenericQueryResponse = "test";
-        const mockGraphQueryMethod: SinonStub = stub(fallbackSubgraphIndex, "graphQuery").resolves(
-          mockGenericQueryResponse,
-        );
+        let mockGraphQueryMethod: SinonStub;
         beforeEach(() => {
-          mockGraphQueryMethod.resetHistory();
+          mockGraphQueryMethod = stub(FallbackSubgraphIndex, "graphQuery").callsFake(async () => {
+            return mockGenericQueryResponse;
+          });
+        });
+
+        afterEach(() => {
+          mockGraphQueryMethod.restore();
         });
 
         it("happy: should passthrough query message to graphql request", async () => {
