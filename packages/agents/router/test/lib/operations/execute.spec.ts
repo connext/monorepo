@@ -1,7 +1,7 @@
 import axios from "axios";
 import { utils } from "ethers";
 import { SinonStub, stub } from "sinon";
-import { expect, formatUrl } from "@connext/nxtp-utils";
+import { expect, formatUrl, mkAddress } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
 import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid } from "../../../src/lib/errors";
@@ -48,9 +48,8 @@ describe("Operations:Execute", () => {
           router: mockXTransfer.router,
           feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
           amount: mockXTransfer.xcall.localAmount,
-          index: 0,
-          transferId: mockXTransfer.transferId,
-          proof: [],
+          nonce: 1234,
+          originSender: mkAddress("0xfaded"),
           relayerSignature: mock.signature,
         },
       };

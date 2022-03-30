@@ -10,35 +10,17 @@ const mockTransferId = getRandomBytes32();
 
 const mockExecuteArgs: ExecuteArgs[] = [
   {
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
-      originDomain: "2000",
-      destinationDomain: "3000",
-    },
-    local: "0xdedddddddddddddd",
+    ...mock.entity.executeArgs(),
     router: mkAddress("0xa"),
     feePercentage: "0.1",
     amount: "10",
-    index: 0,
-    transferId: mockTransferId,
-    proof: ["0x"],
     relayerSignature: "0xsigsigsig",
   },
   {
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
-      originDomain: "2000",
-      destinationDomain: "3000",
-    },
-    local: "0xdedddddddddddddd",
+    ...mock.entity.executeArgs(),
     router: mkAddress("0xb"),
     feePercentage: "0.1",
     amount: "10",
-    index: 1,
-    transferId: mockTransferId,
-    proof: ["0x"],
     relayerSignature: "0xsigsigsig",
   },
 ];

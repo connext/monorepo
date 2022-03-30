@@ -16,8 +16,7 @@ export const SignedRelayerFeeDataEncoding = tidy(`tuple(
 )`);
 
 export const ExternalCallDataEncoding = tidy(`tuple(
-  address recipient,
-  address callTo,
+  address to,
   bytes callData
 )`);
 

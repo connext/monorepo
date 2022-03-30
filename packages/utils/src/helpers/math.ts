@@ -33,7 +33,7 @@ export const inverse = (value: string, precision = 18): string =>
   fromWad(toWad("1", precision * 2).div(toWad(value, precision)), precision);
 
 /**
- * Drops decimals past the provided prevision
+ * Drops decimals past the provided precision
  *
  * @param value Value to sanitize
  * @param decimals - (optional) The precision to use. Defaults to 18
@@ -95,7 +95,12 @@ export const calculateExchangeWad = (
   return outputWad;
 };
 
+/**
+ * Gets rate from percentage string
+ * @param percentage - The percentage to get rate from
+ * @returns
+ */
 export const getRateFromPercentage = (percentage: string): string => {
-  const rate = (1 - parseFloat(percentage) / 100).toString();
+  const rate = ((100 - parseFloat(percentage)) / 100).toString();
   return rate;
 };

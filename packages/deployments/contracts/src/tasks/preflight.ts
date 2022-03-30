@@ -1,10 +1,10 @@
-import { BigNumber, constants, utils } from "ethers";
-import { hexlify } from "ethers/lib/utils";
+import { constants, utils } from "ethers";
 import { task } from "hardhat/config";
 import { canonizeId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000000000000000000000";
+const DEFAULT_RELAYER_FEES_ETH = "0.02";
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
   .addOptionalParam("router", "Router address")
@@ -50,7 +50,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       if (!canonicalAsset) {
         throw new Error("Asset must be specified as param or from env (CANONICAL_TOKEN)");
       }
-      const canonicalTokenId = hexlify(canonizeId(canonicalAsset));
+      const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
 
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;
@@ -83,7 +83,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("*** Approving router!");
         await run("add-router", { router, connextAddress });
       }
-      console.log("Router approved!");
+      console.log("*** Router approved!");
 
       // Make sure the asset is approved.
       // The stable swap pool address, if applicable; if mad asset is what's being used,
@@ -102,7 +102,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           pool,
         });
       }
-      console.log("Canonical asset approved!");
+      console.log("*** Canonical asset approved!");
 
       // Make sure the router's signer address has liquidity by checking the Connext
       // contract in the block explorer and reading the routerBalances mapping, putting in the
@@ -111,21 +111,17 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       const erc20 = await ethers.getContractAt("TestERC20", localAsset);
       // The amount to mint / add liquidity for. Convert units, coerce to number to remove
       // decimal point, then back to string.
-      const amount = Number(utils.formatUnits(_amount ?? DEFAULT_AMOUNT, await erc20.decimals())).toString();
-      // 10% of the total balance should go to relayer fees, and 90% should go to liquidity pool.
-      const targetRelayerFees = BigNumber.from(amount).mul(10).div(100);
-      const targetLiquidity = BigNumber.from(amount).sub(targetRelayerFees);
+      const targetLiquidity = Number(utils.formatUnits(_amount ?? DEFAULT_AMOUNT, await erc20.decimals())).toString();
       const liquidity = await connext.routerBalances(router, localAsset);
-      const relayerFees = await connext.routerRelayerFees(router);
-      if (liquidity.lt(targetLiquidity) || relayerFees.lt(targetRelayerFees)) {
+      const namedAccounts = await getNamedAccounts();
+      if (liquidity.lt(targetLiquidity)) {
         if (localAsset !== ethers.constants.AddressZero) {
-          const namedAccounts = await getNamedAccounts();
           const balance = await erc20.balanceOf(namedAccounts.deployer);
           console.log("\nDeployer Balance: ", balance.toString());
-          if (balance.lt(amount)) {
+          if (balance.lt(targetLiquidity)) {
             console.log("*** Minting tokens!");
             await run("mint", {
-              amount,
+              amount: targetLiquidity,
               asset: localAsset,
               receiver: namedAccounts.deployer,
             });
@@ -136,16 +132,37 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         }
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Adding liquidity!");
-        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress });
+        await run("add-liquidity", { router, asset: localAsset, amount: targetLiquidity, connextAddress });
+        console.log("*** Sufficient liquidity added!");
+      } else {
+        console.log("\nLiquidity: ", liquidity.toString());
+        console.log("*** Sufficient liquidity present!");
       }
-      console.log("Sufficient liquidity added!");
 
       // Make sure the router's signer address has relayer fees by checking the
       // Connext contract on chain and reading the routerRelayerFees function.
+      const targetRelayerFees = utils.parseEther(DEFAULT_RELAYER_FEES_ETH);
+      let relayerFees = await connext.routerRelayerFees(router);
       console.log("\nRelayer Fees: ", relayerFees.toString());
-      if (relayerFees.lt(BigNumber.from(amount).mul(10).div(100))) {
-        // TODO: add relayer fees
+      console.log("Target relayer fees: ", targetRelayerFees.toString(), `(${DEFAULT_RELAYER_FEES_ETH} ETH)`);
+      if (relayerFees.lt(targetRelayerFees)) {
+        console.log("*** Adding relayer fee ETH!");
+        const additionalEthNeeded = targetRelayerFees.sub(relayerFees);
+        const tx = await connext.addRelayerFees(router, {
+          from: namedAccounts.deployer,
+          value: additionalEthNeeded,
+          // gasLimit: BigNumber.from("10000000"),
+        });
+        console.log("addRelayerFees tx:", tx.hash);
+        await tx.wait(1);
+        relayerFees = await connext.routerRelayerFees(router);
+        console.log("Updated Relayer Fees: ", relayerFees.toString());
+        if (relayerFees.lt(targetRelayerFees)) {
+          throw new Error(`Failed to add relayer fees! Needed to add:  ${additionalEthNeeded.toString()}`);
+        }
+        console.log("*** Sufficient relayer fees added!");
+      } else {
+        console.log("*** Sufficient relayer fees present!");
       }
-      console.log("Sufficient relayer fees added!");
     },
   );

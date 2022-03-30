@@ -7,7 +7,7 @@
     "test:hardhat": "hardhat test",
     "test:forge": "yarn forge test --gas-report --hh",
     "forge": "forge",
-    "postinstall": "forge install",
+    "forge:install": "forge install",
     "build": "hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",
@@ -36,7 +36,8 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomad-xyz/sdk": "^2.0.0-rc.3",
+    "@nomad-xyz/sdk": "^2.0.0-rc.4",
+    "@nomad-xyz/sdk-bridge": "^1.0.0-rc.4",
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.3",

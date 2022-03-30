@@ -1,6 +1,6 @@
 import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { AuctionsCache, TransactionsCache } from "@connext/nxtp-adapters-cache";
+import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
@@ -88,11 +88,11 @@ export const mock = {
       return wallet;
     },
     cache: (): any => {
-      const transactions = createStubInstance(TransactionsCache);
+      const transfers = createStubInstance(TransfersCache);
       const auctions = createStubInstance(AuctionsCache);
-      transactions.getLatestNonce.resolves(0);
+      transfers.getLatestNonce.resolves(0);
       return {
-        transactions,
+        transfers,
         auctions,
       };
     },

@@ -15,7 +15,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 
 import { getConfig } from "./config";
-import { bindMetrics, bindPrices, bindSubgraph } from "./bindings";
+import { bindMetrics, bindPrices, bindSubgraph, bindServer } from "./bindings";
 import { AppContext } from "./lib/entities";
 import { getOperations } from "./lib/operations";
 
@@ -69,10 +69,12 @@ export const makeRouter = async () => {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
 
-    // TODO: Sanity checks on boot:
+    // TODO: Cold start housekeeping.
+    // - send a ping request to sequencer
     // - read subgraph to make sure router is approved
-    // - read subgraph for current liquidity in each asset, cache it
+    // - read contract or subgraph for current liquidity in each asset, cache it
     // - read subgraph to make sure each asset is (still) approved
+    // - bring cache up to speed
 
     // Set up bindings.
     // TODO: New diagnostic mode / cleanup mode?
@@ -81,7 +83,7 @@ export const makeRouter = async () => {
     } else {
       logger.warn("Running router without price caching.");
     }
-    // await bindServer(context);
+    await bindServer();
     await bindMetrics();
     await bindSubgraph();
 
@@ -111,10 +113,31 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   // Subscribe to `NewXCall` channel and attach execute handler.
   cacheInstance.consumers.subscribe(StoreManager.Channel.NewXCall, async (pendingTx) => {
     const { requestContext, methodContext } = createLoggingContext("NewXCallHandler");
+
+    const incomingTx = JSON.parse(pendingTx) as XTransfer;
+    const tx: XTransfer = {
+      originDomain: incomingTx.originDomain,
+      destinationDomain: incomingTx.destinationDomain,
+      status: incomingTx.status,
+
+      to: incomingTx.to,
+      transferId: incomingTx.transferId,
+      callTo: incomingTx.callTo,
+      callData: incomingTx.callData,
+      idx: incomingTx.idx ?? "0",
+      nonce: incomingTx.nonce,
+      router: incomingTx.router,
+
+      xcall: incomingTx.xcall,
+      execute: incomingTx.execute,
+    };
     try {
-      await execute(JSON.parse(pendingTx) as XTransfer);
+      await execute(tx);
     } catch (err: any) {
-      logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err), { pendingTx });
+      logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err), {
+        tx,
+        xcall: tx.xcall,
+      });
     }
   });
 

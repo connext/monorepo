@@ -20,6 +20,10 @@ export const mock: any = {
     A: "1337",
     B: "1338",
   },
+  domain: {
+    A: "2000",
+    B: "3000",
+  },
   asset: {
     A: {
       name: "TEST-A",
@@ -58,19 +62,18 @@ export const mock: any = {
     callParams: (): CallParams => ({
       to: mkAddress("0xaaa"),
       callData: "0x",
-      originDomain: mock.chain.A,
-      destinationDomain: mock.chain.B,
+      originDomain: mock.domain.A,
+      destinationDomain: mock.domain.B,
     }),
     executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),
       local: mkAddress("0x111"),
       router: mkAddress("0x222"),
       feePercentage: "1",
-      index: 0,
-      transferId: getRandomBytes32(),
-      proof: ["0x"],
       amount: utils.parseEther("1").toString(),
+      nonce: 0,
       relayerSignature: "0xsig",
+      originSender: "0xogsender",
     }),
     bid: (transferId = "0xtxid", data = mock.entity.executeArgs()): Bid => ({
       transferId,

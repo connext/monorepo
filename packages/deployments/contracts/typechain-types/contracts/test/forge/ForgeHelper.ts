@@ -6,8 +6,6 @@ import type {
   BigNumber,
   BytesLike,
   CallOverrides,
-  ContractTransaction,
-  Overrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -25,110 +23,40 @@ import type {
   OnEvent,
 } from "../../../common";
 
-export interface ConnextTestInterface extends utils.Interface {
+export interface ForgeHelperInterface extends utils.Interface {
   functions: {
     "IS_TEST()": FunctionFragment;
+    "NATIVE_ASSET()": FunctionFragment;
     "failed()": FunctionFragment;
-    "setUp()": FunctionFragment;
-    "testAddRouter()": FunctionFragment;
-    "testAddRouterAlreadyApproved()": FunctionFragment;
-    "testAddRouterNotApproved()": FunctionFragment;
-    "testAddRouterOwnable()": FunctionFragment;
-    "testAddRouterZeroAddress()": FunctionFragment;
-    "testRemoveRouter()": FunctionFragment;
-    "testRemoveRouterOwnable()": FunctionFragment;
-    "testRemoveRouterZeroAddress()": FunctionFragment;
+    "stdstore()": FunctionFragment;
     "vm()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "IS_TEST"
+      | "NATIVE_ASSET"
       | "failed"
-      | "setUp"
-      | "testAddRouter"
-      | "testAddRouterAlreadyApproved"
-      | "testAddRouterNotApproved"
-      | "testAddRouterOwnable"
-      | "testAddRouterZeroAddress"
-      | "testRemoveRouter"
-      | "testRemoveRouterOwnable"
-      | "testRemoveRouterZeroAddress"
+      | "stdstore"
       | "vm"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "IS_TEST", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "NATIVE_ASSET",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "failed", values?: undefined): string;
-  encodeFunctionData(functionFragment: "setUp", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "testAddRouter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testAddRouterAlreadyApproved",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testAddRouterNotApproved",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testAddRouterOwnable",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testAddRouterZeroAddress",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testRemoveRouter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testRemoveRouterOwnable",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "testRemoveRouterZeroAddress",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "stdstore", values?: undefined): string;
   encodeFunctionData(functionFragment: "vm", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "IS_TEST", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "NATIVE_ASSET",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "failed", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setUp", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "testAddRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testAddRouterAlreadyApproved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testAddRouterNotApproved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testAddRouterOwnable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testAddRouterZeroAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testRemoveRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testRemoveRouterOwnable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "testRemoveRouterZeroAddress",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "stdstore", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "vm", data: BytesLike): Result;
 
   events: {
@@ -319,12 +247,12 @@ export type logsEvent = TypedEvent<[string], logsEventObject>;
 
 export type logsEventFilter = TypedEventFilter<logsEvent>;
 
-export interface ConnextTest extends BaseContract {
+export interface ForgeHelper extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ConnextTestInterface;
+  interface: ForgeHelperInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -348,111 +276,60 @@ export interface ConnextTest extends BaseContract {
   functions: {
     IS_TEST(overrides?: CallOverrides): Promise<[boolean]>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<[string]>;
+
     failed(overrides?: CallOverrides): Promise<[boolean]>;
 
-    setUp(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testAddRouter(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testAddRouterAlreadyApproved(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testAddRouterNotApproved(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testAddRouterOwnable(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testAddRouterZeroAddress(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testRemoveRouter(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testRemoveRouterOwnable(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    testRemoveRouterZeroAddress(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    stdstore(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, string, string] & {
+        _sig: string;
+        _depth: BigNumber;
+        _target: string;
+        _set: string;
+      }
+    >;
 
     vm(overrides?: CallOverrides): Promise<[string]>;
   };
 
   IS_TEST(overrides?: CallOverrides): Promise<boolean>;
 
+  NATIVE_ASSET(overrides?: CallOverrides): Promise<string>;
+
   failed(overrides?: CallOverrides): Promise<boolean>;
 
-  setUp(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testAddRouter(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testAddRouterAlreadyApproved(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testAddRouterNotApproved(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testAddRouterOwnable(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testAddRouterZeroAddress(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testRemoveRouter(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testRemoveRouterOwnable(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  testRemoveRouterZeroAddress(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  stdstore(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, string, string] & {
+      _sig: string;
+      _depth: BigNumber;
+      _target: string;
+      _set: string;
+    }
+  >;
 
   vm(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     IS_TEST(overrides?: CallOverrides): Promise<boolean>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<string>;
+
     failed(overrides?: CallOverrides): Promise<boolean>;
 
-    setUp(overrides?: CallOverrides): Promise<void>;
-
-    testAddRouter(overrides?: CallOverrides): Promise<void>;
-
-    testAddRouterAlreadyApproved(overrides?: CallOverrides): Promise<void>;
-
-    testAddRouterNotApproved(overrides?: CallOverrides): Promise<void>;
-
-    testAddRouterOwnable(overrides?: CallOverrides): Promise<void>;
-
-    testAddRouterZeroAddress(overrides?: CallOverrides): Promise<void>;
-
-    testRemoveRouter(overrides?: CallOverrides): Promise<void>;
-
-    testRemoveRouterOwnable(overrides?: CallOverrides): Promise<void>;
-
-    testRemoveRouterZeroAddress(overrides?: CallOverrides): Promise<void>;
+    stdstore(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, string, string] & {
+        _sig: string;
+        _depth: BigNumber;
+        _target: string;
+        _set: string;
+      }
+    >;
 
     vm(overrides?: CallOverrides): Promise<string>;
   };
@@ -544,43 +421,11 @@ export interface ConnextTest extends BaseContract {
   estimateGas: {
     IS_TEST(overrides?: CallOverrides): Promise<BigNumber>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<BigNumber>;
+
     failed(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setUp(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testAddRouter(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testAddRouterAlreadyApproved(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testAddRouterNotApproved(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testAddRouterOwnable(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testAddRouterZeroAddress(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testRemoveRouter(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testRemoveRouterOwnable(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    testRemoveRouterZeroAddress(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    stdstore(overrides?: CallOverrides): Promise<BigNumber>;
 
     vm(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -588,43 +433,11 @@ export interface ConnextTest extends BaseContract {
   populateTransaction: {
     IS_TEST(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     failed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setUp(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testAddRouter(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testAddRouterAlreadyApproved(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testAddRouterNotApproved(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testAddRouterOwnable(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testAddRouterZeroAddress(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testRemoveRouter(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testRemoveRouterOwnable(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    testRemoveRouterZeroAddress(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    stdstore(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     vm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

@@ -31,15 +31,18 @@ export const XTransferSchema = Type.Object({
   transferId: Type.String(),
   callTo: Type.String(),
   callData: Type.String(),
-  idx: TIntegerString,
-  nonce: Type.Number(),
-  router: TAddress,
+  idx: Type.Optional(TIntegerString),
+  nonce: TIntegerString,
+  router: Type.Optional(TAddress),
 
   // XCalled
   xcall: XTransferMethodCallSchema,
 
   // Executed
   execute: Type.Optional(XTransferMethodCallSchema),
+
+  // Reconciled
+  reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 export type XTransfer = Static<typeof XTransferSchema>;
 
@@ -56,12 +59,11 @@ export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   router: TAddress,
-  feePercentage: TDecimalString,
   amount: TDecimalString,
-  index: Type.Number(),
-  transferId: Type.String(),
-  proof: Type.Array(Type.String()),
+  nonce: Type.Number(),
+  feePercentage: TDecimalString,
   relayerSignature: Type.String(),
+  originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
