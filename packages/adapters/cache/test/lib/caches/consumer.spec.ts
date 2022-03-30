@@ -31,17 +31,17 @@ const fakeTxs = [
   ),
 ];
 
-let callCountForHightedNonce = 0;
+let callCountForHighestNonce = 0;
 // subscription mock functions
 const highestNonceHandler: SubscriptionCallback = async (msg: any, err?: any) => {
-  callCountForHightedNonce++;
+  callCountForHighestNonce++;
   console.log(`${highestNonceHandler.name} ===> Received message: ${msg}`);
 };
 
 let callCountForNewXCall = 0;
-const newPreparedTxHandler: SubscriptionCallback = async (msg: any, err?: any) => {
+const newXCallHandler: SubscriptionCallback = async (msg: any, err?: any) => {
   callCountForNewXCall++;
-  console.log(`${newPreparedTxHandler.name} ===> Received message: ${msg}`);
+  console.log(`${newXCallHandler.name} ===> Received message: ${msg}`);
 };
 
 let callCountForNewStatus = 0;
@@ -79,7 +79,7 @@ describe("ConsumersCache", () => {
     it("should be ok", async () => {
       await consumers.subscribe(StoreChannel.NewHighestNonce, highestNonceHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewHighestNonce)).to.be.eq(true);
-      await consumers.subscribe(StoreChannel.NewXCall, newPreparedTxHandler);
+      await consumers.subscribe(StoreChannel.NewXCall, newXCallHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewXCall)).to.be.eq(true);
       // await consumers.subscribe(StoreChannel.NewStatus, newStatusHandler);
       // expect(consumers.subscriptions.has(StoreChannel.NewStatus)).to.be.eq(true);
@@ -90,11 +90,13 @@ describe("ConsumersCache", () => {
 
   describe("#pub/sub", () => {
     it("subscriptions should be called if the new message arrives from its channel", async () => {
-      // StoreChannel.NewXCall
+      // StoreChannel.NewXCall + StoreChannel.NewHighestNonce
+      callCountForHighestNonce = 0;
       expect(callCountForNewXCall).to.be.eq(0);
       await transactions.storeTransfers([fakeTxs[0]]);
       await delay(100);
       expect(callCountForNewXCall).to.be.eq(1);
+      expect(callCountForHighestNonce).to.be.eq(1);
 
       // StoreChannel.NewStatus
       // TODO: Currently not implemented, method needs reimplementation or to be removed.
@@ -108,12 +110,6 @@ describe("ConsumersCache", () => {
       await auctions.storeBid(mock.entity.bid());
       await delay(100);
       expect(callCountForNewBid).to.be.eq(1);
-
-      // StoreChannel.NewHighestNonce
-      callCountForHightedNonce = 0;
-      await transactions.storeTransfers([fakeTxs[1]]);
-      await delay(100);
-      expect(callCountForHightedNonce).to.be.eq(1);
     });
   });
 });
