@@ -26,7 +26,6 @@ contract PropertyQuery is ForgeHelper {
 }
 
 contract ExecutorTest is ForgeHelper {
-
   // ============ Libraries ============
 
   using stdStorage for StdStorage;
@@ -68,7 +67,7 @@ contract ExecutorTest is ForgeHelper {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOriginSender.selector, "");
     // send tx
-    (bool success,) = executor.execute(
+    (bool success, ) = executor.execute(
       transferId,
       0,
       payable(address(query)),
@@ -86,14 +85,7 @@ contract ExecutorTest is ForgeHelper {
     bytes memory property = LibCrossDomainProperty.formatDomainAndSenderBytes(origin, originSender);
 
     // send tx
-    (bool success,) = executor.execute(
-      transferId,
-      0,
-      payable(address(query)),
-      NATIVE_ASSET,
-      property,
-      data
-    );
+    (bool success, ) = executor.execute(transferId, 0, payable(address(query)), NATIVE_ASSET, property, data);
     assertTrue(success);
     assertEq(query.originSender(), originSender);
   }
@@ -105,7 +97,7 @@ contract ExecutorTest is ForgeHelper {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOrigin.selector, "");
     // send tx
-    (bool success,) = executor.execute(
+    (bool success, ) = executor.execute(
       transferId,
       0,
       payable(address(query)),
@@ -115,7 +107,7 @@ contract ExecutorTest is ForgeHelper {
     );
     assertTrue(!success);
   }
-  
+
   // Should work
   function testOrigin() public {
     // Get the calldata
@@ -123,14 +115,7 @@ contract ExecutorTest is ForgeHelper {
     bytes memory property = LibCrossDomainProperty.formatDomainAndSenderBytes(origin, originSender);
 
     // send tx
-    (bool success,) = executor.execute(
-      transferId,
-      0,
-      payable(address(query)),
-      NATIVE_ASSET,
-      property,
-      data
-    );
+    (bool success, ) = executor.execute(transferId, 0, payable(address(query)), NATIVE_ASSET, property, data);
     assertTrue(success);
     assertEq(query.origin(), origin);
   }
@@ -148,5 +133,4 @@ contract ExecutorTest is ForgeHelper {
   // Should not set properties if it is the default value from LibCrossDomainProperty
 
   // Should set properties if they are provided
-
 }
