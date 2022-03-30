@@ -111,18 +111,22 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
   /**
    * @notice Mapping of router withdraw receipient addresses.
+   * @dev If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
+   * (if configured) or the router itself
    */
-  mapping(address => address) private _routerRecipients;
+  mapping(address => address) public routerRecipients;
 
   /**
    * @notice Mapping of router owners
+   * @dev If set, can update the routerRecipient
    */
-  mapping(address => address) private _routerOwners;
+  mapping(address => address) public routerOwners;
   
   /**
    * @notice Mapping of proposed router owners
+   * @dev Must wait timeout to set the 
    */
-  mapping(address => address) private _proposedRouterOwners;
+  mapping(address => address) public proposedRouterOwners;
 
 
   /**
@@ -221,18 +225,18 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     emit RouterRemoved(router, msg.sender);
 
     // Remove router owner
-    address _curOwner = _routerOwners[router];
+    address _curOwner = routerOwners[router];
 
     if(_curOwner != address(0)) {
       emit RouterOwnerAccepted(router, _curOwner, address(0));
-      _routerOwners[router] = address(0);
+      routerOwners[router] = address(0);
     }
     
     // Remove router recipient
-    address curRecipient = _routerRecipients[router];
+    address curRecipient = routerRecipients[router];
     if(curRecipient != address(0)) {
       emit RouterRecipientSet(router, curRecipient, address(0));
-      _routerRecipients[router] = address(0);
+      routerRecipients[router] = address(0);
     }
   }
 
@@ -256,13 +260,13 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
     // Update routerOwner (zero address possible)
     if(owner != address(0)) {
-      _routerOwners[router] = owner;
+      routerOwners[router] = owner;
       emit RouterOwnerAccepted(router, address(0), owner);
     }
     
     // Update router Recipient
     if(recipient != address(0)) {
-      _routerRecipients[router] = recipient;
+      routerRecipients[router] = recipient;
       emit RouterRecipientSet(router, address(0), recipient);
     }
   }
@@ -276,7 +280,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param recipient Recipient Address to set to router
    */
   function setRecipient(address router, address recipient) external {
-    address routerOwner = _routerOwners[router];
+    address routerOwner = routerOwners[router];
     
     if (routerOwner == address(0)) {
         require(msg.sender == router, "#SR:101");
@@ -285,10 +289,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Set recipient
-    address _prevRecipient = _routerRecipients[router];
+    address _prevRecipient = routerRecipients[router];
     require(_prevRecipient != recipient, "#SR:103");
 
-    _routerRecipients[router] = recipient;
+    routerRecipients[router] = recipient;
 
     //Emit event
     emit RouterRecipientSet(router, _prevRecipient, recipient);
@@ -300,7 +304,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param proposed Proposed owner Address to set to router
    */
   function proposeRouterOwner(address router, address proposed) external {
-    address routerOwner = _routerOwners[router];
+    address routerOwner = routerOwners[router];
     
     if (routerOwner == address(0)) {
         require(msg.sender == router, "#PR:001");
@@ -309,10 +313,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Set proposed owner
-    address _prevProposed = _proposedRouterOwners[router];
+    address _prevProposed = proposedRouterOwners[router];
     require(_prevProposed != proposed, "#PR:003");
 
-    _proposedRouterOwners[router] = proposed;
+    proposedRouterOwners[router] = proposed;
 
     //Emit event
     emit RouterOwnerProposed(router, _prevProposed, proposed);
@@ -323,8 +327,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param router Router address to set recipient
    */
   function acceptRouterOwner(address router) external {
-    address proposed = _proposedRouterOwners[router];
-    address _curOwner = _routerOwners[router];
+    address proposed = proposedRouterOwners[router];
+    address _curOwner = routerOwners[router];
 
     require(_curOwner != proposed, "#AR:101");
 
@@ -335,7 +339,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Accept proposed owner
-    _routerOwners[router] = proposed;
+    routerOwners[router] = proposed;
 
     //Emit event
     emit RouterOwnerAccepted(router, _curOwner, proposed);
@@ -458,7 +462,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address payable to
   ) external override nonReentrant {
     // transfer to specicfied recipient IF recipient not sest
-	  address _recipient = _routerRecipients[msg.sender];
+	  address _recipient = routerRecipients[msg.sender];
     _recipient =  _recipient == address(0) ? to : _recipient;
 
     // Sanity check: to is sensible
