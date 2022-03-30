@@ -7,7 +7,9 @@
     "src/mocks/*.ts",
     "src/types/*.ts",
     "test/**/*.ts",
-    "src/helpers/env.ts"
+    "src/helpers/env.ts",
+    "src/helpers/time.ts",
+    "src/helpers/shared.ts"
   ],
   "all": true
 }
