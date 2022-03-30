@@ -234,9 +234,9 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
+        internalType: "uint32",
+        name: "origin",
+        type: "uint32",
       },
       {
         indexed: true,
@@ -248,6 +248,12 @@ const _abi = [
         indexed: false,
         internalType: "address",
         name: "localAsset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "to",
         type: "address",
       },
       {
@@ -650,6 +656,11 @@ const _abi = [
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "_origin",
+        type: "uint32",
       },
       {
         internalType: "address",

@@ -115,7 +115,7 @@ export interface IConnextInterface extends utils.Interface {
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes,address))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
-    "reconcile(bytes32,address,address,uint256)": FunctionFragment;
+    "reconcile(bytes32,uint32,address,address,uint256)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRelayerFees(uint256,address)": FunctionFragment;
@@ -169,7 +169,7 @@ export interface IConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reconcile",
-    values: [BytesLike, string, string, BigNumberish]
+    values: [BytesLike, BigNumberish, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "removeAssetId",
@@ -241,7 +241,7 @@ export interface IConnextInterface extends utils.Interface {
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
-    "Reconciled(bytes32,address,address,address,uint256,tuple,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
@@ -344,9 +344,10 @@ export type LiquidityRemovedEventFilter =
 
 export interface ReconciledEventObject {
   transferId: string;
-  to: string;
+  origin: number;
   router: string;
   localAsset: string;
+  to: string;
   localAmount: BigNumber;
   executed: IConnext.ExecutedTransferStructOutput;
   caller: string;
@@ -354,6 +355,7 @@ export interface ReconciledEventObject {
 export type ReconciledEvent = TypedEvent<
   [
     string,
+    number,
     string,
     string,
     string,
@@ -500,6 +502,7 @@ export interface IConnext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
@@ -587,6 +590,7 @@ export interface IConnext extends BaseContract {
 
   reconcile(
     _transferId: BytesLike,
+    _origin: BigNumberish,
     _local: string,
     _recipient: string,
     _amount: BigNumberish,
@@ -668,6 +672,7 @@ export interface IConnext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
@@ -783,20 +788,22 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): LiquidityRemovedEventFilter;
 
-    "Reconciled(bytes32,address,address,address,uint256,tuple,address)"(
+    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)"(
       transferId?: BytesLike | null,
-      to?: string | null,
+      origin?: BigNumberish | null,
       router?: string | null,
       localAsset?: null,
+      to?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: BytesLike | null,
-      to?: string | null,
+      origin?: BigNumberish | null,
       router?: string | null,
       localAsset?: null,
+      to?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
@@ -896,6 +903,7 @@ export interface IConnext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
@@ -984,6 +992,7 @@ export interface IConnext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
