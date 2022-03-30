@@ -30,7 +30,7 @@ variable "full_image_name_sequencer" {
 variable "mnemonic" {
   type        = string
   description = "mnemonic"
-  default     = "blah blah blah blah blah blah blah blah blah blah blah blah"
+  default     = "female autumn drive capable scorpion congress hockey chunk mouse cherry blame trumpet"
 }
 
 variable "admin_token_router" {

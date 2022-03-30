@@ -109,8 +109,8 @@ resource "aws_security_group" "lb" {
 
   ingress {
     protocol         = "tcp"
-    from_port        = var.loadbalancer_port
-    to_port          = var.container_port
+    from_port        = 8000
+    to_port          = 9000
     cidr_blocks      = var.ingress_cdir_blocks
     ipv6_cidr_blocks = var.ingress_ipv6_cdir_blocks
   }
