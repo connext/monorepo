@@ -69,10 +69,12 @@ export const makeRouter = async () => {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
 
-    // TODO: Sanity checks on boot:
+    // TODO: Cold start housekeeping.
+    // - send a ping request to sequencer
     // - read subgraph to make sure router is approved
-    // - read subgraph for current liquidity in each asset, cache it
+    // - read contract or subgraph for current liquidity in each asset, cache it
     // - read subgraph to make sure each asset is (still) approved
+    // - bring cache up to speed
 
     // Set up bindings.
     // TODO: New diagnostic mode / cleanup mode?

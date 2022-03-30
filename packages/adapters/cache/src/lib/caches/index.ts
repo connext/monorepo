@@ -1,6 +1,6 @@
 import { Cache } from "./cache";
-import { TransactionsCache } from "./transactions";
+import { TransfersCache } from "./transfers";
 import { AuctionsCache } from "./auctions";
 import { ConsumersCache } from "./consumers";
 
-export { Cache, TransactionsCache, AuctionsCache, ConsumersCache };
+export { Cache, TransfersCache, AuctionsCache, ConsumersCache };
