@@ -32,7 +32,10 @@ export const pollSubgraph = async () => {
       // TODO: Convert domain to chainID ??
       const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
-      const latestNonce = await cache.transactions.getLatestNonce(domain);
+      console.log("here 1");
+
+      const latestNonce = await cache.transfers.getLatestNonce(domain);
+      console.log("here 2");
       logger.debug("Retrieved domain information for subgraph polling", undefined, undefined, {
         domain,
         latestBlockNumber,
@@ -49,7 +52,7 @@ export const pollSubgraph = async () => {
     logger.debug("Got transactions", requestContext, methodContext, {
       transactions,
     });
-    await cache.transactions.storeTxData(transactions);
+    await cache.transfers.storeTransfers(transactions);
   } catch (err: any) {
     logger.error("Error getting pending txs, waiting for next loop", requestContext, methodContext, jsonifyError(err));
   }

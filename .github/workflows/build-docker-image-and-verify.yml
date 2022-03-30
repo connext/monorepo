@@ -37,8 +37,8 @@ jobs:
       - name: Yarn build
         run: yarn build
 
-      - name: Yarn test
-        run: yarn test
+  #      - name: Yarn test
+  #       run: yarn test
 
   build-and-push-router-image:
     env:

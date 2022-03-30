@@ -33,7 +33,7 @@
     },
     {
       "address": "0xf4B146FbA71F41E0592668ffbF264F1D186b2Ca8",
-      "txHash": "0x8aa1f3617488bef56594f8d6b088a30f6f4e038999432bd35a8211eb801ce4f8",
+      "txHash": "0xd0f8a5388f2f641248eb4bf3fb2cead8970df4b8bcacd3bea513571bcac6855e",
       "kind": "beacon"
     }
   ],
@@ -826,7 +826,7 @@
     },
     "66e430293eaeb73cb0f4b052d2b1095035097adb295c86f6314e660ff2438023": {
       "address": "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726",
-      "txHash": "0x675983f1bf11b586516aca4f45fd49694c018a16992d764b8df32c5566dbb61e",
+      "txHash": "0x5aff5c0e2c11754e278cbe9d0b43b19df01262c2e8b920f81affab71258a3d42",
       "layout": {
         "storage": [
           {

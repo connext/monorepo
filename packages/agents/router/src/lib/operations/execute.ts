@@ -1,13 +1,4 @@
-import {
-  CallParams,
-  ExecuteArgs,
-  Bid,
-  createLoggingContext,
-  XTransfer,
-  XTransferSchema,
-  formatUrl,
-  ajv,
-} from "@connext/nxtp-utils";
+import { CallParams, ExecuteArgs, Bid, createLoggingContext, XTransfer, formatUrl } from "@connext/nxtp-utils";
 
 import axios, { AxiosResponse } from "axios";
 
@@ -51,7 +42,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   // }
 
   /// create a bid
-  const { originDomain, destinationDomain, transferId, to, xcall, callTo, callData } = params;
+  const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
   // generate bid params
   const callParams: CallParams = {
     to,
@@ -71,12 +62,11 @@ export const execute = async (params: XTransfer): Promise<void> => {
     params: callParams,
     local: executeLocalAsset,
     router: routerAddress,
-    feePercentage: RELAYER_FEE_PERCENTAGE,
     amount: receivingAmount,
-    index: 0,
-    transferId,
-    proof: [],
+    nonce: Number(nonce),
+    feePercentage: RELAYER_FEE_PERCENTAGE,
     relayerSignature: signature,
+    originSender: xcall.caller,
   };
 
   const bid: Bid = {

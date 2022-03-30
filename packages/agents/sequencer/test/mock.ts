@@ -1,6 +1,6 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance } from "sinon";
-import { AuctionsCache, StoreManager, TransactionsCache } from "@connext/nxtp-adapters-cache";
+import { AuctionsCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, ExecuteArgs } from "@connext/nxtp-utils";
@@ -69,7 +69,7 @@ export const mock = {
   adapter: {
     cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
-      const transactions = createStubInstance(TransactionsCache);
+      const transactions = createStubInstance(TransfersCache);
       const auctions = createStubInstance(AuctionsCache);
       // NOTE: if this override doesn't work, we should resort to just making a mock object with
       // these caches as properties.

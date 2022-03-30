@@ -263,6 +263,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     emit AssetRemoved(canonicalId, msg.sender);
   }
 
+  // ============ Public Functions ============
+
   /**
    * @notice Used to add relayer fees in the native asset
    * @param router - The router to credit
@@ -375,7 +377,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
     // Compute the transfer id
-    bytes32 _transferId = _getTransferId(nonce, _args.params);
+    bytes32 _transferId = _getTransferId(nonce, msg.sender, _args.params);
     // Update nonce
     nonce++;
 
@@ -430,7 +432,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       // by the user.
       reconciledTransfers[_transferId] = _getReconciledHash(_local, _recipient, _amount);
     } else {
-      // TODO: assert amount
+      // TODO: assert amount credited is reasonable (depends on fee scheme)
 
       // Credit router
       routerBalances[transaction.router][_local] += _amount;
@@ -463,11 +465,20 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Get the starting gas
     uint256 _start = gasleft();
 
+    // Calculate the transfer id
+    bytes32 _transferId = _getTransferId(_args.nonce, _args.originSender, _args.params);
+
     // Determine if this is fast liquidity
-    bool _isFast = reconciledTransfers[_args.transferId] == bytes32(0);
+    bytes32 _reconciledHash = reconciledTransfers[_transferId];
+    bool _isFast = _reconciledHash == bytes32(0);
 
     // Handle liquidity as needed
-    _handleLiquidity(_args.params, _args.transferId, _args.local, _args.router, _isFast, _args.amount);
+    if (_isFast) {
+      _decrementLiquidity(_transferId, _args.amount, _args.local, _args.router);
+    } else {
+      // Ensure the reconciled hash is correct (user not charged liq fee for slow-liq)
+      require(_reconciledHash == _getReconciledHash(_args.local, _args.params.to, _args.amount), "!slow params");
+    }
 
     // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
@@ -480,17 +491,18 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       // Send funds to interprepter
       _transferAssetFromContract(adopted, address(executor), amount);
       executor.execute(
-        _args.transferId,
+        _transferId,
+        amount,
         payable(_args.params.to),
         adopted,
-        amount,
+        _isFast ? LibCrossDomainProperty.EMPTY_BYTES : LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender),
         _args.params.callData
       );
     }
 
     // Save gas used
     if (_isFast) {
-      routedTransfersGas[_args.transferId] = GasInfo({
+      routedTransfersGas[_transferId] = GasInfo({
         gasPrice: tx.gasprice,
         gasUsed: _start - gasleft()
         // TODO: account for gas used in storage
@@ -500,11 +512,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Pay metatx relayer
     // NOTE: if this is done *without* fast liquidity, router will be address(0) and the relayer
     // will always be paid
-    _handleRelayerFees(_args.transferId, _args.router, _args.feePercentage, _args.relayerSignature);
+    _handleRelayerFees(_transferId, _args.router, _args.feePercentage, _args.relayerSignature);
 
     // Emit event
     emit Executed(
-      _args.transferId,
+      _transferId,
       _args.params.to,
       msg.sender,
       _args.params,
@@ -515,7 +527,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       msg.sender
     );
 
-    return _args.transferId;
+    return _transferId;
   }
 
   // ============ Private functions ============
@@ -599,8 +611,8 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _params - The call params of the transfer
    * @return The transfer id
    */
-  function _getTransferId(uint256 _nonce, CallParams calldata _params) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params));
+  function _getTransferId(uint256 _nonce, address _sender, CallParams calldata _params) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _sender, _params));
   }
 
   /**
@@ -759,28 +771,27 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     emit StableSwapAdded(_canonical.id, _canonical.domain, _stableSwap, msg.sender);
   }
 
-  /** */
-  function _handleLiquidity(
-    CallParams calldata _params,
+  /**
+   * @notice Decrements router liquidity for the fast-liquidity case.
+   * @dev Stores the router that supplied liquidity to credit on reconcile
+   */
+  function _decrementLiquidity(
     bytes32 _transferId,
+    uint256 _amount,
     address _local,
-    address _router,
-    bool _isFast,
-    uint256 _amount
+    address _router
   ) internal {
-    if (_isFast) {
-      // Ensure it has not been executed already
-      require(routedTransfers[_transferId].router == address(0), "!empty");
+    // Ensure it has not been executed already
+    require(routedTransfers[_transferId].router == address(0), "!empty");
 
-      // Decrement liquidity
-      routerBalances[_router][_local] -= _amount; 
+    // Decrement liquidity
+    routerBalances[_router][_local] -= _amount; 
 
-      // Store the router
-      routedTransfers[_transferId] = ExecutedTransfer({
-        router: _router,
-        amount: _amount // will be of the mad asset, not adopted
-      });
-    }
+    // Store the router
+    routedTransfers[_transferId] = ExecutedTransfer({
+      router: _router,
+      amount: _amount // will be of the mad asset, not adopted
+    });
   }
 
   /**

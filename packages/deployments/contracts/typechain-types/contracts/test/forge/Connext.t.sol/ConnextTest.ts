@@ -28,8 +28,10 @@ import type {
 export interface ConnextTestInterface extends utils.Interface {
   functions: {
     "IS_TEST()": FunctionFragment;
+    "NATIVE_ASSET()": FunctionFragment;
     "failed()": FunctionFragment;
     "setUp()": FunctionFragment;
+    "stdstore()": FunctionFragment;
     "testAddRouter()": FunctionFragment;
     "testAddRouterAlreadyApproved()": FunctionFragment;
     "testAddRouterNotApproved()": FunctionFragment;
@@ -44,8 +46,10 @@ export interface ConnextTestInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "IS_TEST"
+      | "NATIVE_ASSET"
       | "failed"
       | "setUp"
+      | "stdstore"
       | "testAddRouter"
       | "testAddRouterAlreadyApproved"
       | "testAddRouterNotApproved"
@@ -58,8 +62,13 @@ export interface ConnextTestInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "IS_TEST", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "NATIVE_ASSET",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "failed", values?: undefined): string;
   encodeFunctionData(functionFragment: "setUp", values?: undefined): string;
+  encodeFunctionData(functionFragment: "stdstore", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "testAddRouter",
     values?: undefined
@@ -95,8 +104,13 @@ export interface ConnextTestInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "vm", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "IS_TEST", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "NATIVE_ASSET",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "failed", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setUp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stdstore", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "testAddRouter",
     data: BytesLike
@@ -348,11 +362,24 @@ export interface ConnextTest extends BaseContract {
   functions: {
     IS_TEST(overrides?: CallOverrides): Promise<[boolean]>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<[string]>;
+
     failed(overrides?: CallOverrides): Promise<[boolean]>;
 
     setUp(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    stdstore(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, string, string] & {
+        _sig: string;
+        _depth: BigNumber;
+        _target: string;
+        _set: string;
+      }
+    >;
 
     testAddRouter(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -391,11 +418,24 @@ export interface ConnextTest extends BaseContract {
 
   IS_TEST(overrides?: CallOverrides): Promise<boolean>;
 
+  NATIVE_ASSET(overrides?: CallOverrides): Promise<string>;
+
   failed(overrides?: CallOverrides): Promise<boolean>;
 
   setUp(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  stdstore(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, string, string] & {
+      _sig: string;
+      _depth: BigNumber;
+      _target: string;
+      _set: string;
+    }
+  >;
 
   testAddRouter(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -434,9 +474,22 @@ export interface ConnextTest extends BaseContract {
   callStatic: {
     IS_TEST(overrides?: CallOverrides): Promise<boolean>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<string>;
+
     failed(overrides?: CallOverrides): Promise<boolean>;
 
     setUp(overrides?: CallOverrides): Promise<void>;
+
+    stdstore(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, string, string] & {
+        _sig: string;
+        _depth: BigNumber;
+        _target: string;
+        _set: string;
+      }
+    >;
 
     testAddRouter(overrides?: CallOverrides): Promise<void>;
 
@@ -544,11 +597,15 @@ export interface ConnextTest extends BaseContract {
   estimateGas: {
     IS_TEST(overrides?: CallOverrides): Promise<BigNumber>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<BigNumber>;
+
     failed(overrides?: CallOverrides): Promise<BigNumber>;
 
     setUp(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    stdstore(overrides?: CallOverrides): Promise<BigNumber>;
 
     testAddRouter(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -588,11 +645,15 @@ export interface ConnextTest extends BaseContract {
   populateTransaction: {
     IS_TEST(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    NATIVE_ASSET(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     failed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setUp(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    stdstore(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     testAddRouter(
       overrides?: Overrides & { from?: string | Promise<string> }
