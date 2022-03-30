@@ -43,12 +43,10 @@ export const getMainnetEquivalent = async (
 
   const domainId = await getDomainFromChainId(chainId, chainData);
   const chainInfo = chaindata?.get(domainId);
-
   const equiv = chainInfo
     ? chainInfo.assetId[utils.getAddress(assetId)] ??
       chainInfo.assetId[assetId.toLowerCase()] ??
-      chainInfo.assetId[assetId.toUpperCase()] ??
-      chainInfo.assetId[assetId]
+      chainInfo.assetId[assetId.toUpperCase()]
     : undefined;
 
   if (!equiv || !equiv.mainnetEquivalent) {
