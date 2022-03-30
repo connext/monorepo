@@ -1,4 +1,4 @@
-import { BigNumber, providers, Contract } from "ethers";
+import { BigNumber, providers, Contract, utils } from "ethers";
 import { ERC20Abi } from "..";
 
 export const getETHBalance = async (provider: providers.Provider, address: string): Promise<BigNumber> => {
@@ -16,3 +16,5 @@ export const getTokenBalance = async (
 export const getTokenDecimals = async (assetId: string, provider: providers.Provider): Promise<number> => {
   return new Contract(assetId, ERC20Abi, provider).decimals();
 };
+
+export const fetchJson = utils.fetchJson;

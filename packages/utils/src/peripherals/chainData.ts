@@ -1,7 +1,5 @@
 import * as fs from "fs";
-import { utils } from "ethers";
-
-const { fetchJson } = utils;
+import { fetchJson } from "../ethers";
 
 export const CHAIN_ID = {
   MAINNET: 1,

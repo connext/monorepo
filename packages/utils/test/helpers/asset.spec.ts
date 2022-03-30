@@ -9,7 +9,7 @@ import {
   getMainnetEquivalent,
 } from "../../src";
 import { constants, providers } from "ethers";
-import * as SharedFns from "../../src/helpers/shared";
+import * as SharedFns from "../../src/ethers/shared";
 import * as ChainDataFns from "../../src/peripherals/chainData";
 import { parseEther } from "ethers/lib/utils";
 
