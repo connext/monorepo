@@ -109,20 +109,14 @@ interface IConnext {
    * @param router - The address of the added router
    * @param caller - The account that called the function
    */
-  event RouterAdded(
-    address indexed router,
-    address caller
-  );
+  event RouterAdded(address indexed router, address caller);
 
   /**
    * @notice Emitted when an existing router is removed
    * @param router - The address of the removed router
    * @param caller - The account that called the function
    */
-  event RouterRemoved(
-    address indexed router,
-    address caller
-  );
+  event RouterRemoved(address indexed router, address caller);
 
   /**
    * @notice Emitted when the recipient of router is updated
@@ -130,11 +124,7 @@ interface IConnext {
    * @param prevRecipient  - The address of the previous recipient of the router
    * @param newRecipient  - The address of the new recipient of the router
    */
-  event RouterRecipientSet(
-    address indexed router,
-    address indexed prevRecipient,
-    address indexed newRecipient
-  );
+  event RouterRecipientSet(address indexed router, address indexed prevRecipient, address indexed newRecipient);
 
   /**
    * @notice Emitted when the owner of router is proposed
@@ -142,11 +132,7 @@ interface IConnext {
    * @param prevProposed  - The address of the previous proposed
    * @param newProposed  - The address of the new proposed
    */
-  event RouterOwnerProposed(
-    address indexed router,
-    address indexed prevProposed,
-    address indexed newProposed
-  );
+  event RouterOwnerProposed(address indexed router, address indexed prevProposed, address indexed newProposed);
 
   /**
    * @notice Emitted when the owner of router is accepted
@@ -154,11 +140,7 @@ interface IConnext {
    * @param prevOwner  - The address of the previous owner of the router
    * @param newOwner  - The address of the new owner of the router
    */
-  event RouterOwnerAccepted(
-    address indexed router,
-    address indexed prevOwner,
-    address indexed newOwner
-  );
+  event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);
 
   /**
    * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
@@ -204,13 +186,7 @@ interface IConnext {
    * @param amount - The amount of liquidity added
    * @param caller - The account that called the function
    */
-  event LiquidityAdded(
-    address indexed router,
-    address local,
-    bytes32 canonicalId,
-    uint256 amount,
-    address caller
-  );
+  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -299,18 +275,19 @@ interface IConnext {
 
   function removeRouter(address router) external;
 
-  function setupRouter(address router, address owner, address recipient) external;
+  function setupRouter(
+    address router,
+    address owner,
+    address recipient
+  ) external;
 
-  function setRecipient(address router , address recipient) external;
+  function setRecipient(address router, address recipient) external;
 
   function proposeRouterOwner(address router, address proposed) external;
 
-  function acceptRouterOwner(address router)  external; 
+  function acceptRouterOwner(address router) external;
 
-  function addStableSwapPool(
-    BridgeMessage.TokenId calldata canonical,
-    address stableSwapPool
-  ) external;
+  function addStableSwapPool(BridgeMessage.TokenId calldata canonical, address stableSwapPool) external;
 
   function setupAsset(
     BridgeMessage.TokenId calldata canonical,
