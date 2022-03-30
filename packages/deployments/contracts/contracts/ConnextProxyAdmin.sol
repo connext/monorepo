@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
  * explanation of why you would want to use this see the documentation for {TransparentUpgradeableProxy}.
  */
 contract ConnextProxyAdmin is ProxyAdmin {
-    constructor(address owner) ProxyAdmin(){
-      // We just need this for our hardhat tooling right now
+  constructor(address owner) ProxyAdmin() {
+    // We just need this for our hardhat tooling right now
   }
 }
