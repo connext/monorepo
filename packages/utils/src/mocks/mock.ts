@@ -21,8 +21,8 @@ export const mock: any = {
     B: "1338",
   },
   domain: {
-    A: "2000",
-    B: "3000",
+    A: "1337",
+    B: "1338",
   },
   asset: {
     A: {
