@@ -144,6 +144,7 @@ jobs:
           terraform apply -auto-approve
 
   terraform-services:
+    needs: [build-and-push-router-image, terraform-infra]
     env:
       TF_VAR_full_image_name_router: ${{ needs.build-and-push-router-image.outputs.router-tags }}
       TF_VAR_full_image_name_sequencer: ${{ needs.build-and-push-router-image.outputs.sequencer-tags }}
@@ -153,7 +154,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    needs: [terraform-infra]
 
     steps:
       - name: Setup Terraform
