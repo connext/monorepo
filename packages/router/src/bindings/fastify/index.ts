@@ -28,6 +28,7 @@ export const bindFastify = () =>
     const { wallet, contractWriter, config, logger, contractReader, isRouterContract, routerAddress } = getContext();
 
     const server = fastify();
+    const server_metrics = fastify();
 
     server.get("/ping", async () => {
       return "pong\n";
@@ -184,7 +185,7 @@ export const bindFastify = () =>
       },
     );
 
-    server.listen(config.metrics_port, config.metrics_host, (err, address) => {
+    server_metrics.listen(config.metrics_port, config.metrics_host, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
@@ -193,7 +194,7 @@ export const bindFastify = () =>
       res();
     });
 
-    server.get("/metrics", async (request, response) => {
+    server_metrics.get("/metrics", async (request, response) => {
       try {
         const res = await register.metrics();
         return response.status(200).send(res);
