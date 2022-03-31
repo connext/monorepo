@@ -26,12 +26,11 @@ const externalCallData: ExternalCall = {
 describe("Helpers:Encode", () => {
   describe("#encodeHandleRelayerFeeData", () => {
     it("happy case", () => {
-      const nonce = "1";
+      const transferId = getRandomBytes32();
       const feePercentage = "1";
-      let encodedData = encodeHandleRelayerFeeData(nonce, feePercentage);
+      let encodedData = encodeHandleRelayerFeeData(transferId, feePercentage);
       encodedData = encodedData.replace(/^0x/, "");
       expect(encodedData.length).to.be.eq(128);
-      expect(encodedData[63]).to.be.eq("1");
       expect(encodedData[127]).to.be.eq("1");
     });
   });

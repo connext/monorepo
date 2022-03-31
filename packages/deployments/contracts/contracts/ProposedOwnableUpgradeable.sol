@@ -23,7 +23,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * contract
  *
  */
-abstract contract ProposedOwnableUpgradeable  is Initializable {
+abstract contract ProposedOwnableUpgradeable is Initializable {
   // ========== Custom Errors ===========
 
   error ProposedOwnableUpgradeable__onlyOwner_029();
@@ -71,10 +71,9 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
 
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-
   /**
-    * @dev Initializes the contract setting the deployer as the initial
-    */
+   * @dev Initializes the contract setting the deployer as the initial
+   */
   function __ProposedOwnable_init() internal onlyInitializing {
     __ProposedOwnable_init_unchained();
   }
@@ -84,75 +83,75 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
   }
 
   /**
-    * @notice Returns the address of the current owner.
-    */
+   * @notice Returns the address of the current owner.
+   */
   function owner() public view virtual returns (address) {
     return _owner;
   }
 
   /**
-    * @notice Returns the address of the proposed owner.
-    */
+   * @notice Returns the address of the proposed owner.
+   */
   function proposed() public view virtual returns (address) {
     return _proposed;
   }
 
   /**
-    * @notice Returns the address of the proposed owner.
-    */
+   * @notice Returns the address of the proposed owner.
+   */
   function proposedTimestamp() public view virtual returns (uint256) {
     return _proposedOwnershipTimestamp;
   }
 
   /**
-    * @notice Returns the timestamp when router ownership was last proposed to be renounced
-    */
+   * @notice Returns the timestamp when router ownership was last proposed to be renounced
+   */
   function routerOwnershipTimestamp() public view virtual returns (uint256) {
     return _routerOwnershipTimestamp;
   }
 
   /**
-    * @notice Returns the timestamp when asset ownership was last proposed to be renounced
-    */
+   * @notice Returns the timestamp when asset ownership was last proposed to be renounced
+   */
   function assetOwnershipTimestamp() public view virtual returns (uint256) {
     return _assetOwnershipTimestamp;
   }
 
   /**
-    * @notice Returns the delay period before a new owner can be accepted.
-    */
+   * @notice Returns the delay period before a new owner can be accepted.
+   */
   function delay() public view virtual returns (uint256) {
     return _delay;
   }
 
   /**
-    * @notice Throws if called by any account other than the owner.
-    */
+   * @notice Throws if called by any account other than the owner.
+   */
   modifier onlyOwner() {
-      if (_owner != msg.sender) revert ProposedOwnableUpgradeable__onlyOwner_029();
-      _;
+    if (_owner != msg.sender) revert ProposedOwnableUpgradeable__onlyOwner_029();
+    _;
   }
 
   /**
-    * @notice Throws if called by any account other than the proposed owner.
-    */
+   * @notice Throws if called by any account other than the proposed owner.
+   */
   modifier onlyProposed() {
-      if (_proposed != msg.sender) revert ProposedOwnableUpgradeable__onlyProposed_035();
-      _;
+    if (_proposed != msg.sender) revert ProposedOwnableUpgradeable__onlyProposed_035();
+    _;
   }
 
   /**
-    * @notice Indicates if the ownership of the router whitelist has
-    * been renounced
-    */
+   * @notice Indicates if the ownership of the router whitelist has
+   * been renounced
+   */
   function isRouterOwnershipRenounced() public view returns (bool) {
     return _owner == address(0) || _routerOwnershipRenounced;
   }
 
   /**
-    * @notice Indicates if the ownership of the router whitelist has
-    * been renounced
-    */
+   * @notice Indicates if the ownership of the router whitelist has
+   * been renounced
+   */
   function proposeRouterOwnershipRenunciation() public virtual onlyOwner {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
@@ -163,9 +162,9 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
   }
 
   /**
-    * @notice Indicates if the ownership of the asset whitelist has
-    * been renounced
-    */
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
   function renounceRouterOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
@@ -175,24 +174,25 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     if (_routerOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceRouterOwnership_037();
 
     // Delay has elapsed
-    if ((block.timestamp - _routerOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__renounceRouterOwnership_030();
+    if ((block.timestamp - _routerOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableUpgradeable__renounceRouterOwnership_030();
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterOwnership(true);
   }
 
   /**
-    * @notice Indicates if the ownership of the asset whitelist has
-    * been renounced
-    */
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
   function isAssetOwnershipRenounced() public view returns (bool) {
     return _owner == address(0) || _assetOwnershipRenounced;
   }
 
   /**
-    * @notice Indicates if the ownership of the asset whitelist has
-    * been renounced
-    */
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
   function proposeAssetOwnershipRenunciation() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
@@ -203,9 +203,9 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
   }
 
   /**
-    * @notice Indicates if the ownership of the asset whitelist has
-    * been renounced
-    */
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
   function renounceAssetOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
@@ -215,27 +215,29 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     if (_assetOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceAssetOwnership_037();
 
     // Ensure delay has elapsed
-    if ((block.timestamp - _assetOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__renounceAssetOwnership_030();
+    if ((block.timestamp - _assetOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableUpgradeable__renounceAssetOwnership_030();
 
     // Set ownership, reset timestamp, emit event
     _setAssetOwnership(true);
   }
 
   /**
-    * @notice Indicates if the ownership has been renounced() by
-    * checking if current owner is address(0)
-    */
+   * @notice Indicates if the ownership has been renounced() by
+   * checking if current owner is address(0)
+   */
   function renounced() public view returns (bool) {
     return _owner == address(0);
   }
 
   /**
-    * @notice Sets the timestamp for an owner to be proposed, and sets the
-    * newly proposed owner as step 1 in a 2-step process
+   * @notice Sets the timestamp for an owner to be proposed, and sets the
+   * newly proposed owner as step 1 in a 2-step process
    */
   function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
     // Contract as source of truth
-    if (_proposed == newlyProposed && newlyProposed != address(0)) revert ProposedOwnableUpgradeable__proposeNewOwner_036();
+    if (_proposed == newlyProposed && newlyProposed != address(0))
+      revert ProposedOwnableUpgradeable__proposeNewOwner_036();
 
     // Sanity check: reasonable proposal
     if (_owner == newlyProposed) revert ProposedOwnableUpgradeable__proposeNewOwner_038();
@@ -244,14 +246,15 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
   }
 
   /**
-    * @notice Renounces ownership of the contract after a delay
-    */
+   * @notice Renounces ownership of the contract after a delay
+   */
   function renounceOwnership() public virtual onlyOwner {
     // Ensure there has been a proposal cycle started
     if (_proposedOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceOwnership_037();
 
     // Ensure delay has elapsed
-    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__renounceOwnership_030();
+    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableUpgradeable__renounceOwnership_030();
 
     // Require proposed is set to 0
     if (_proposed != address(0)) revert ProposedOwnableUpgradeable__renounceOwnership_036();
@@ -261,9 +264,9 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
   }
 
   /**
-    * @notice Transfers ownership of the contract to a new account (`newOwner`).
-    * Can only be called by the current owner.
-    */
+   * @notice Transfers ownership of the contract to a new account (`newOwner`).
+   * Can only be called by the current owner.
+   */
   function acceptProposedOwner() public virtual onlyProposed {
     // Contract as source of truth
     if (_owner == _proposed) revert ProposedOwnableUpgradeable__acceptProposedOwner_038();
@@ -274,7 +277,8 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
     // above)
 
     // Ensure delay has elapsed
-    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay) revert ProposedOwnableUpgradeable__acceptProposedOwner_030();
+    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableUpgradeable__acceptProposedOwner_030();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);
@@ -318,9 +322,9 @@ abstract contract ProposedOwnableUpgradeable  is Initializable {
   }
 
   /**
-    * @dev This empty reserved space is put in place to allow future versions to add new
-    * variables without shifting down storage in the inheritance chain.
-    * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    */
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * variables without shifting down storage in the inheritance chain.
+   * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+   */
   uint256[49] private __gap;
 }

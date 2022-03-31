@@ -721,6 +721,8 @@ __metadata:
     hardhat-contract-sizer: ^2.5.1
     hardhat-deploy: ^0.11.2
     hardhat-gas-reporter: ^1.0.8
+    prettier: ^2.6.1
+    prettier-plugin-solidity: ^1.0.0-beta.19
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^13.0.1
@@ -7145,6 +7147,13 @@ __metadata:
     minimalistic-assert: ^1.0.1
     minimalistic-crypto-utils: ^1.0.1
   checksum: d56d21fd04e97869f7ffcc92e18903b9f67f2d4637a23c860492fbbff5a3155fd9ca0184ce0c865dd6eb2487d234ce9551335c021c376cd2d3b7cb749c7d10f4
+  languageName: node
+  linkType: hard
+
+"emoji-regex@npm:^10.0.0":
+  version: 10.0.1
+  resolution: "emoji-regex@npm:10.0.1"
+  checksum: 8ab4b452e58ccd3e051f4ac2b3e1d5158e85bc233d8c8f0db5ce058e9bafb2dfb69a17339e90db12e9817a24ef9e0547d7b4d9eb7818733cac9fd93b74d46b19
   languageName: node
   linkType: hard
 
@@ -15281,6 +15290,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier-plugin-solidity@npm:^1.0.0-beta.19":
+  version: 1.0.0-dev.21
+  resolution: "prettier-plugin-solidity@npm:1.0.0-dev.21"
+  dependencies:
+    "@solidity-parser/parser": ^0.14.1
+    emoji-regex: ^10.0.0
+    escape-string-regexp: ^4.0.0
+    semver: ^7.3.5
+    solidity-comments-extractor: ^0.0.7
+    string-width: ^4.2.3
+  peerDependencies:
+    prettier: ^2.3.0
+  checksum: 3c43bb7404c380091310e59be718ec0161d268e4674e5e658723f7a7bc9b0f541df9816a8e7bd93b9e73a289f1e13ea1eab58027d4ee51d25460ea6e63c0c99e
+  languageName: node
+  linkType: hard
+
 "prettier@npm:^1.13.5":
   version: 1.19.1
   resolution: "prettier@npm:1.19.1"
@@ -15290,7 +15315,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.1.2, prettier@npm:^2.3.1, prettier@npm:^2.6.0":
+"prettier@npm:^2.1.2, prettier@npm:^2.3.1, prettier@npm:^2.6.0, prettier@npm:^2.6.1":
   version: 2.6.1
   resolution: "prettier@npm:2.6.1"
   bin:
@@ -17156,6 +17181,13 @@ __metadata:
   version: 0.4.31
   resolution: "solidity-ast@npm:0.4.31"
   checksum: 3b9b7cb0770e37de676ebcd5325081479e3b3c8a75bc31f6e570c7e8692845e6147d008b17be824c9cb1c75005ffdc59b659cc064cf06461fa024b8107852d4f
+  languageName: node
+  linkType: hard
+
+"solidity-comments-extractor@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "solidity-comments-extractor@npm:0.0.7"
+  checksum: a5cedf2310709969bc1783a6c336171478536f2f0ea96ad88437e0ef1e8844c0b37dd75591b0a824ec9c30640ea7e31b5f03128e871e6235bef3426617ce96c4
   languageName: node
   linkType: hard
 

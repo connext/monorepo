@@ -36,59 +36,56 @@ The Message Library should contain the following for each type of message:
    and return them in the form of Solidity arguments
 */
 library Message {
-    using TypedMemView for bytes;
-    using TypedMemView for bytes29;
+  using TypedMemView for bytes;
+  using TypedMemView for bytes29;
 
-    enum Types {
-        Invalid, // 0
-        A // 1 - a message which contains a single number
-    }
+  enum Types {
+    Invalid, // 0
+    A // 1 - a message which contains a single number
+  }
 
-    // ============ Formatters ============
+  // ============ Formatters ============
 
-    /**
-     * @notice Given the information needed for a message TypeA
-     * (in this example case, the information is just a single number)
-     * format a bytes message encoding the information
-     * @param _number The number to be included in the TypeA message
-     * @return The encoded bytes message
-     */
-    function formatTypeA(uint256 _number) internal pure returns (bytes memory) {
-        return abi.encodePacked(uint8(Types.A), _number);
-    }
+  /**
+   * @notice Given the information needed for a message TypeA
+   * (in this example case, the information is just a single number)
+   * format a bytes message encoding the information
+   * @param _number The number to be included in the TypeA message
+   * @return The encoded bytes message
+   */
+  function formatTypeA(uint256 _number) internal pure returns (bytes memory) {
+    return abi.encodePacked(uint8(Types.A), _number);
+  }
 
-    // ============ Identifiers ============
+  // ============ Identifiers ============
 
-    /**
-     * @notice Get the type that the TypedMemView is cast to
-     * @param _view The message
-     * @return _type The type of the message (one of the enum Types)
-     */
-    function messageType(bytes29 _view) internal pure returns (Types _type) {
-        _type = Types(uint8(_view.typeOf()));
-    }
+  /**
+   * @notice Get the type that the TypedMemView is cast to
+   * @param _view The message
+   * @return _type The type of the message (one of the enum Types)
+   */
+  function messageType(bytes29 _view) internal pure returns (Types _type) {
+    _type = Types(uint8(_view.typeOf()));
+  }
 
-    /**
-     * @notice Determine whether the message is a message TypeA
-     * @param _view The message
-     * @return _isTypeA True if the message is TypeA
-     */
-    function isTypeA(bytes29 _view) internal pure returns (bool _isTypeA) {
-        _isTypeA = messageType(_view) == Types.A;
-    }
+  /**
+   * @notice Determine whether the message is a message TypeA
+   * @param _view The message
+   * @return _isTypeA True if the message is TypeA
+   */
+  function isTypeA(bytes29 _view) internal pure returns (bool _isTypeA) {
+    _isTypeA = messageType(_view) == Types.A;
+  }
 
-    // ============ Getters ============
+  // ============ Getters ============
 
-    /**
-     * @notice Parse the number sent within a TypeA message
-     * @param _view The message
-     * @return _number The number encoded in the message
-     */
-    function number(bytes29 _view) internal pure returns (uint256 _number) {
-        require(
-            isTypeA(_view),
-            "MessageTemplate/number: view must be of type A"
-        );
-        _number = uint256(_view.index(0, 32));
-    }
+  /**
+   * @notice Parse the number sent within a TypeA message
+   * @param _view The message
+   * @return _number The number encoded in the message
+   */
+  function number(bytes29 _view) internal pure returns (uint256 _number) {
+    require(isTypeA(_view), "MessageTemplate/number: view must be of type A");
+    _number = uint256(_view.index(0, 32));
+  }
 }

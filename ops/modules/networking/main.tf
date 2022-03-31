@@ -81,10 +81,30 @@ resource "aws_security_group" "ecs_tasks" {
 
   ingress {
     protocol  = "tcp"
-    from_port = 8080
-    to_port   = 8080
+    from_port = 80
+    to_port   = 80
 
     # security_groups = ["${aws_security_group.lb.id}"]
+  }
+
+  egress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "allow_tls" {
+  description = "Allow all inbound traffic"
+  name        = "allow_tls"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -101,8 +121,8 @@ resource "aws_security_group" "allow_all" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -113,7 +133,6 @@ resource "aws_security_group" "allow_all" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
-
 }
 
 resource "aws_elasticache_subnet_group" "default" {
@@ -128,11 +147,11 @@ resource "aws_security_group" "str-sg" {
 
 resource "aws_security_group_rule" "allow-sequencer-to-router" {
   description              = "Allow sequencer to communicate with router"
-  from_port                = 8080
+  from_port                = 80
   protocol                 = "tcp"
   security_group_id        = aws_security_group.str-sg.id
   source_security_group_id = aws_security_group.ecs_tasks.id
-  to_port                  = 8080
+  to_port                  = 80
   type                     = "ingress"
 }
 

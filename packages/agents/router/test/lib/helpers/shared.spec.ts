@@ -12,12 +12,12 @@ describe("Helpers:Shared", () => {
     it("should return the local asset for the destination chain", async () => {
       const localAsset = await shared.getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
       // TODO: Write actual test when this is no longer a stub fn.
-      expect(localAsset).to.be.eq(mock.asset.A.address);
+      expect(localAsset).to.be.eq("0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2");
     });
     it("should return the predefined asset for the destination chain", async () => {
       const localAsset = await shared.getDestinationLocalAsset(mock.chain.A, undefined, mock.chain.B);
       // TODO: Write actual test when this is no longer a stub fn.
-      expect(localAsset).to.be.eq("0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d");
+      expect(localAsset).to.be.eq("0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2");
     });
   });
 

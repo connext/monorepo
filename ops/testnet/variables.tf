@@ -38,3 +38,7 @@ variable "admin_token_router" {
   description = "admin token"
   default     = "blahblah"
 }
+
+variable "certificate_arn_testnet" {
+  default = "arn:aws:acm:us-east-1:679752396206:certificate/755784f9-7321-41b1-baf0-bb3af2298ff2"
+}
