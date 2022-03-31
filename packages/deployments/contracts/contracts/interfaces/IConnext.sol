@@ -105,20 +105,6 @@ interface IConnext {
   // ============ Events ============
 
   /**
-   * @notice Emitted when a new router is added
-   * @param router - The address of the added router
-   * @param caller - The account that called the function
-   */
-  event RouterAdded(address router, address caller);
-
-  /**
-   * @notice Emitted when an existing router is removed
-   * @param router - The address of the removed router
-   * @param caller - The account that called the function
-   */
-  event RouterRemoved(address router, address caller);
-
-  /**
    * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
    * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
    * @param domain - The domain of the canonical token for the local <> adopted amm
@@ -162,7 +148,7 @@ interface IConnext {
    * @param amount - The amount of liquidity added
    * @param caller - The account that called the function
    */
-  event LiquidityAdded(address router, address local, bytes32 canonicalId, uint256 amount, address caller);
+  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -249,7 +235,11 @@ interface IConnext {
     address _wrappedNative
   ) external;
 
-  function addRouter(address router) external;
+  function setupRouter(
+    address router,
+    address owner,
+    address recipient
+  ) external;
 
   function removeRouter(address router) external;
 

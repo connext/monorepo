@@ -44,32 +44,34 @@ contract ConnextTest is ForgeHelper {
     stdstore.target(address(connext)).sig(connext.approvedAssets.selector).with_key(_asset).checked_write(writeVal);
   }
 
-  // ============ addRouter ============
+  // ============ setupRouter ============
 
-  // Fail if not called by owner
-  function testAddRouterOwnable() public {
+  //Fail if not called by owner
+  function testSetupRouterOwnable() public {
     vm.prank(address(0));
     vm.expectRevert(bytes("#OO:029"));
-    connext.addRouter(address(1));
+    connext.setupRouter(address(1), address(0), address(0));
   }
 
-  // Fail if adding address(0) as router
-  function testAddRouterZeroAddress() public {
-    vm.expectRevert(bytes("#AR:001"));
-    connext.addRouter(address(0));
+  //Fail if adding address(0) as router
+  function testSetupRouterZeroAddress() public {
+    vm.expectRevert(bytes("#SR:001"));
+    connext.setupRouter(address(0), address(0), address(0));
   }
 
   // Fail if adding a duplicate router
-  function testAddRouterAlreadyApproved() public {
+  function testSetupRouterAlreadyApproved() public {
     setApprovedRouter(address(1), true);
-    vm.expectRevert(bytes("#AR:032"));
-    connext.addRouter(address(1));
+    vm.expectRevert(bytes("#SR:002"));
+    connext.setupRouter(address(1), address(0), address(0));
   }
 
   // Should work
-  function testAddRouter() public {
-    connext.addRouter(address(1));
+  function testSetupRouter() public {
+    connext.setupRouter(address(1), address(2), address(3));
     assertTrue(connext.approvedRouters(address(1)));
+    assertEq(connext.routerOwners(address(1)), address(2));
+    assertEq(connext.routerRecipients(address(1)), address(3));
   }
 
   // ============ removeRouter ============
@@ -100,4 +102,6 @@ contract ConnextTest is ForgeHelper {
     connext.removeRouter(address(1));
     assertTrue(!connext.approvedRouters(address(1)));
   }
+
+  // ============ setRouterRecipient ============
 }
