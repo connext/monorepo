@@ -2,8 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as testWethSol from "./TestWeth.sol";
-export * as forge from "./forge";
-export { BeaconProxy__factory } from "./BeaconProxy__factory";
 export { Counter__factory } from "./Counter__factory";
 export { DummySwap__factory } from "./DummySwap__factory";
 export { FeeERC20__factory } from "./FeeERC20__factory";
@@ -14,4 +12,3 @@ export { TestBridgeMessage__factory } from "./TestBridgeMessage__factory";
 export { TestERC20__factory } from "./TestERC20__factory";
 export { TestProposedOwnable__factory } from "./TestProposedOwnable__factory";
 export { TestStableSwap__factory } from "./TestStableSwap__factory";
-export { UpgradeableBeacon__factory } from "./UpgradeableBeacon__factory";
