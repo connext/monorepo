@@ -306,8 +306,8 @@ describe("Connext", () => {
 
     // Setup router
     const routers = await Promise.all([
-      originTm.addRouter(router.address),
-      delay(100).then((_) => destinationTm.addRouter(router.address)),
+      originTm.setupRouter(router.address, router.address, router.address),
+      delay(100).then((_) => destinationTm.setupRouter(router.address, router.address, router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
   });
@@ -334,30 +334,6 @@ describe("Connext", () => {
     it("should set Wrapped Asset", async () => {
       const addr = await originTm.wrapper();
       expect(utils.isAddress(addr)).to.be.true;
-    });
-  });
-
-  describe("addRouter", () => {
-    it("should fail if not called by owner", async () => {
-      const toAdd = Wallet.createRandom().address;
-      await expect(originTm.connect(user).addRouter(toAdd)).to.be.revertedWith("#OO:029");
-    });
-
-    it("should fail if it is adding address0", async () => {
-      const toAdd = constants.AddressZero;
-      await expect(originTm.addRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#AR:001");
-    });
-
-    it("should fail if its already added", async () => {
-      await expect(originTm.addRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("#AR:032");
-    });
-
-    it("should work", async () => {
-      const toAdd = Wallet.createRandom().address;
-      const tx = await originTm.addRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS });
-      const receipt = await tx.wait();
-      await assertReceiptEvent(receipt, "RouterAdded", { caller: receipt.from, router: toAdd });
-      expect(await originTm.approvedRouters(toAdd)).to.be.true;
     });
   });
 
@@ -1058,10 +1034,10 @@ describe("Connext", () => {
     let reconciledTopics: any;
 
     beforeEach(async () => {
-      await originTm.addRouter(router2.address);
-      await originTm.addRouter(router3.address);
-      await destinationTm.addRouter(router2.address);
-      await destinationTm.addRouter(router3.address);
+      await originTm.setupRouter(router2.address, router2.address, router2.address);
+      await originTm.setupRouter(router3.address, router3.address, router3.address);
+      await destinationTm.setupRouter(router2.address, router2.address, router2.address);
+      await destinationTm.setupRouter(router3.address, router3.address, router3.address);
       // Mint to routers
       await local.mint(router2.address, parseEther("20")).then((r) => r.wait());
       await local.mint(router3.address, parseEther("20")).then((r) => r.wait());
@@ -1345,7 +1321,6 @@ describe("Connext", () => {
       const routersAmount = amount - 500;
       const routers = [router.address, router2.address, router3.address];
 
-      // Reverts on router3 math subtraction
       await expect(
         destinationTm.connect(router).execute({
           params,
