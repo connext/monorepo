@@ -2,9 +2,12 @@
 pragma solidity 0.8.11;
 
 import "./ProposedOwnableUpgradeable.sol";
+import "./RouterPermissionsManager.sol";
+
 import "./interfaces/IWrapped.sol";
 import "./interfaces/IStableSwap.sol";
 import "./interfaces/IConnext.sol";
+
 import "./interpreters/Executor.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
@@ -31,7 +34,13 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
 
-contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, IConnext {
+contract Connext is
+  Initializable,
+  ReentrancyGuardUpgradeable,
+  ProposedOwnableUpgradeable,
+  RouterPermissionsManager,
+  IConnext
+{
   // ============ Constants =============
 
   bytes32 internal EMPTY;
@@ -90,44 +99,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   uint256 public domain;
 
   /**
-   * @notice Mapping of router to available balance of an asset
-   * @dev Routers should always store liquidity that they can expect to receive via the bridge on
-   * this domain (the nomad local asset)
-   */
-  mapping(address => mapping(address => uint256)) public routerBalances;
-
-  /**
-   * @notice Mapping of router to available relayer fee
-   * @dev Right now, routers only store native asset onchain.
-   * TODO: allow for approved relaying assets
-   */
-  mapping(address => uint256) public routerRelayerFees;
-
-  /**
-   * @notice Mapping of whitelisted router addresses.
-   */
-  mapping(address => bool) public approvedRouters;
-
-  /**
-   * @notice Mapping of router withdraw receipient addresses.
-   * @dev If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
-   * (if configured) or the router itself
-   */
-  mapping(address => address) public routerRecipients;
-
-  /**
-   * @notice Mapping of router owners
-   * @dev If set, can update the routerRecipient
-   */
-  mapping(address => address) public routerOwners;
-
-  /**
-   * @notice Mapping of proposed router owners
-   * @dev Must wait timeout to set the
-   */
-  mapping(address => address) public proposedRouterOwners;
-
-  /**
    * @notice Mapping of whitelisted assets on same domain as contract
    * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
    * registry
@@ -155,6 +126,20 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   mapping(bytes32 => bytes32) public reconciledTransfers;
 
+  /**
+   * @notice Mapping of router to available relayer fee
+   * @dev Right now, routers only store native asset onchain.
+   * TODO: allow for approved relaying assets
+   */
+  mapping(address => uint256) public routerRelayerFees;
+
+  /**
+   * @notice Mapping of router to available balance of an asset
+   * @dev Routers should always store liquidity that they can expect to receive via the bridge on
+   * this domain (the nomad local asset)
+   */
+  mapping(address => mapping(address => uint256)) public routerBalances;
+
   // ============ Modifiers ============
 
   /**
@@ -175,6 +160,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
+    __RouterPermissionsManager_init();
 
     nonce = 0;
     domain = _domain;
@@ -188,57 +174,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // ============ Owner Functions ============
 
   /**
-   * @notice Used to add routers that can transact crosschain
-   * @param router Router address to add
-   */
-  function addRouter(address router) external override onlyOwner {
-    // Sanity check: not empty
-    require(router != address(0), "#AR:001");
-
-    // Sanity check: needs approval
-    require(approvedRouters[router] == false, "#AR:032");
-
-    // Update mapping
-    approvedRouters[router] = true;
-
-    // Emit event
-    emit RouterAdded(router, msg.sender);
-  }
-
-  /**
-   * @notice Used to remove routers that can transact crosschain
-   * @param router Router address to remove
-   */
-  function removeRouter(address router) external override onlyOwner {
-    // Sanity check: not empty
-    require(router != address(0), "#RR:001");
-
-    // Sanity check: needs removal
-    require(approvedRouters[router] == true, "#RR:033");
-
-    // Update mapping
-    approvedRouters[router] = false;
-
-    // Emit event
-    emit RouterRemoved(router, msg.sender);
-
-    // Remove router owner
-    address _curOwner = routerOwners[router];
-
-    if (_curOwner != address(0)) {
-      emit RouterOwnerAccepted(router, _curOwner, address(0));
-      routerOwners[router] = address(0);
-    }
-
-    // Remove router recipient
-    address curRecipient = routerRecipients[router];
-    if (curRecipient != address(0)) {
-      emit RouterRecipientSet(router, curRecipient, address(0));
-      routerRecipients[router] = address(0);
-    }
-  }
-
-  /**
    * @notice Used to set router initial properties
    * @param router Router address to setup
    * @param owner Initial Owner of router
@@ -249,102 +184,15 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address owner,
     address recipient
   ) external onlyOwner {
-    // Sanity check: not empty
-    require(router != address(0), "#SR:001");
-
-    // Sanity check: needs approval
-    require(approvedRouters[router] == false, "#SR:002");
-
-    approvedRouters[router] = true;
-
-    // Emit event
-    emit RouterAdded(router, msg.sender);
-
-    // Update routerOwner (zero address possible)
-    if (owner != address(0)) {
-      routerOwners[router] = owner;
-      emit RouterOwnerAccepted(router, address(0), owner);
-    }
-
-    // Update router Recipient
-    if (recipient != address(0)) {
-      routerRecipients[router] = recipient;
-      emit RouterRecipientSet(router, address(0), recipient);
-    }
+    _setupRouter(router, owner, recipient);
   }
 
   /**
-   * @notice Sets the designated recipient for a router
-   * @dev Router should only be able to set this once 
-          otherwise if router key compromised, 
-          no problem is solved since attacker could just update recipient
-   * @param router Router address to set recipient
-   * @param recipient Recipient Address to set to router
+   * @notice Used to remove routers that can transact crosschain
+   * @param router Router address to remove
    */
-  function setRecipient(address router, address recipient) external {
-    address routerOwner = routerOwners[router];
-
-    if (routerOwner == address(0)) {
-      require(msg.sender == router, "#SR:101");
-    } else {
-      require(msg.sender == routerOwner, "#SR:102");
-    }
-
-    // Set recipient
-    address _prevRecipient = routerRecipients[router];
-    require(_prevRecipient != recipient, "#SR:103");
-
-    routerRecipients[router] = recipient;
-
-    //Emit event
-    emit RouterRecipientSet(router, _prevRecipient, recipient);
-  }
-
-  /**
-   * @notice Current owner or router may propose a new router owner
-   * @param router Router address to set recipient
-   * @param proposed Proposed owner Address to set to router
-   */
-  function proposeRouterOwner(address router, address proposed) external {
-    address routerOwner = routerOwners[router];
-
-    if (routerOwner == address(0)) {
-      require(msg.sender == router, "#PR:001");
-    } else {
-      require(msg.sender == routerOwner, "#PR:002");
-    }
-
-    // Set proposed owner
-    address _prevProposed = proposedRouterOwners[router];
-    require(_prevProposed != proposed, "#PR:003");
-
-    proposedRouterOwners[router] = proposed;
-
-    //Emit event
-    emit RouterOwnerProposed(router, _prevProposed, proposed);
-  }
-
-  /**
-   * @notice New router owner must accept role, or previous if proposed is 0x0
-   * @param router Router address to set recipient
-   */
-  function acceptRouterOwner(address router) external {
-    address proposed = proposedRouterOwners[router];
-    address _curOwner = routerOwners[router];
-
-    require(_curOwner != proposed, "#AR:101");
-
-    if (proposed == address(0)) {
-      require(msg.sender == _curOwner, "#AR:102");
-    } else {
-      require(msg.sender == proposed, "#AR:103");
-    }
-
-    // Accept proposed owner
-    routerOwners[router] = proposed;
-
-    //Emit event
-    emit RouterOwnerAccepted(router, _curOwner, proposed);
+  function removeRouter(address router) external override onlyOwner {
+    _removeRouter(router);
   }
 
   /**
