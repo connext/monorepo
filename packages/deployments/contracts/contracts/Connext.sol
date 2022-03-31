@@ -38,25 +38,25 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // ========== Custom Errors ===========
 
   error Connext__onlyBridgeRouter_notBridge();
-  error Connext__addRouter_001();
-  error Connext__addRouter_032();
-  error Connext__removeRouter_001();
-  error Connext__removeRouter_033();
-  error Connext__removeAssetId_033();
+  error Connext__addRouter_routerEmpty();
+  error Connext__addRouter_alreadyAdded();
+  error Connext__removeRouter_routerEmpty();
+  error Connext__removeRouter_notAdded();
+  error Connext__removeAssetId_notAdded();
   error Connext__addRelayerFees_notValue();
-  error Connext__removeLiquidity_007();
-  error Connext__removeLiquidity_002();
-  error Connext__removeLiquidity_008();
+  error Connext__removeLiquidity_recipientEmpty();
+  error Connext__removeLiquidity_amountIsZero();
+  error Connext__removeLiquidity_insufficientFunds();
   error Connext__xcall_notSupportedAsset();
   error Connext__execute_notSlowParams();
-  error Connext__addLiquidityForRouter_001();
-  error Connext__addLiquidityForRouter_002();
-  error Connext__addLiquidityForRouter_003();
-  error Connext__addLiquidityForRouter_004();
+  error Connext__addLiquidityForRouter_routerEmpty();
+  error Connext__addLiquidityForRouter_amountIsZero();
+  error Connext__addLiquidityForRouter_badRouter();
+  error Connext__addLiquidityForRouter_badAsset();
   error Connext__transferAssetToContract_notAmount();
-  error Connext__transferAssetToContract_006();
+  error Connext__transferAssetToContract_ethWithErcTransfer();
   error Connext__transferAssetFromContract_notNative();
-  error Connext__addAssetId_032();
+  error Connext__addAssetId_alreadyAdded();
   error Connext__decrementLiquidity_notEmpty();
   error Connext__handleRelayerFees_notRtrSig();
 
@@ -202,10 +202,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function addRouter(address router) external override onlyOwner {
     // Sanity check: not empty
-    if (router == address(0)) revert Connext__addRouter_001();
+    if (router == address(0)) revert Connext__addRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (approvedRouters[router]) revert Connext__addRouter_032();
+    if (approvedRouters[router]) revert Connext__addRouter_alreadyAdded();
 
     // Update mapping
     approvedRouters[router] = true;
@@ -220,10 +220,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function removeRouter(address router) external override onlyOwner {
     // Sanity check: not empty
-    if (router == address(0)) revert Connext__removeRouter_001();
+    if (router == address(0)) revert Connext__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    if (!approvedRouters[router]) revert Connext__removeRouter_033();
+    if (!approvedRouters[router]) revert Connext__removeRouter_notAdded();
 
     // Update mapping
     approvedRouters[router] = false;
@@ -274,7 +274,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
     // Sanity check: already approval
-    if (!approvedAssets[canonicalId]) revert Connext__removeAssetId_033();
+    if (!approvedAssets[canonicalId]) revert Connext__removeAssetId_notAdded();
 
     // Update mapping
     delete approvedAssets[canonicalId];
@@ -354,14 +354,14 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address payable to
   ) external override nonReentrant {
     // Sanity check: to is sensible
-    if (to == address(0)) revert Connext__removeLiquidity_007();
+    if (to == address(0)) revert Connext__removeLiquidity_recipientEmpty();
 
     // Sanity check: nonzero amounts
-    if (amount == 0) revert Connext__removeLiquidity_002();
+    if (amount == 0) revert Connext__removeLiquidity_amountIsZero();
 
     uint256 routerBalance = routerBalances[msg.sender][local];
     // Sanity check: amount can be deducted for the router
-    if (routerBalance < amount) revert Connext__removeLiquidity_008();
+    if (routerBalance < amount) revert Connext__removeLiquidity_insufficientFunds();
 
     // Update router balances
     unchecked {
@@ -652,21 +652,21 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _router
   ) internal {
     // Sanity check: router is sensible
-    if (_router == address(0)) revert Connext__addLiquidityForRouter_001();
+    if (_router == address(0)) revert Connext__addLiquidityForRouter_routerEmpty();
 
     // Sanity check: nonzero amounts
-    if (_amount == 0) revert Connext__addLiquidityForRouter_002();
+    if (_amount == 0) revert Connext__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset id from the representation
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    if (!isRouterOwnershipRenounced() && !approvedRouters[_router]) revert Connext__addLiquidityForRouter_003();
+    if (!isRouterOwnershipRenounced() && !approvedRouters[_router]) revert Connext__addLiquidityForRouter_badRouter();
 
     // Asset is approved
-    if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_004();
+    if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to contract
+    // Transfer funds to coethWithErcTransferact
     (address _asset, uint256 _received) = _transferAssetToContract(_local, _amount);
 
     // Update the router balances. Happens after pulling funds to account for
@@ -742,7 +742,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function _addAssetId(BridgeMessage.TokenId calldata _canonical, address _adoptedAssetId) internal {
     // Sanity check: needs approval
-    if (approvedAssets[_canonical.id]) revert Connext__addAssetId_032();
+    if (approvedAssets[_canonical.id]) revert Connext__addAssetId_alreadyAdded();
 
     // Update approved assets mapping
     approvedAssets[_canonical.id] = true;

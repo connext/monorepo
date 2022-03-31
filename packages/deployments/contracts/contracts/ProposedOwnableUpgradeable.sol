@@ -26,23 +26,23 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 abstract contract ProposedOwnableUpgradeable is Initializable {
   // ========== Custom Errors ===========
 
-  error ProposedOwnableUpgradeable__onlyOwner_029();
-  error ProposedOwnableUpgradeable__onlyProposed_035();
-  error ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_038();
-  error ProposedOwnableUpgradeable__renounceRouterOwnership_038();
-  error ProposedOwnableUpgradeable__renounceRouterOwnership_037();
-  error ProposedOwnableUpgradeable__renounceRouterOwnership_030();
-  error ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_038();
-  error ProposedOwnableUpgradeable__renounceAssetOwnership_038();
-  error ProposedOwnableUpgradeable__renounceAssetOwnership_037();
-  error ProposedOwnableUpgradeable__renounceAssetOwnership_030();
-  error ProposedOwnableUpgradeable__proposeNewOwner_036();
-  error ProposedOwnableUpgradeable__proposeNewOwner_038();
-  error ProposedOwnableUpgradeable__renounceOwnership_037();
-  error ProposedOwnableUpgradeable__renounceOwnership_030();
-  error ProposedOwnableUpgradeable__renounceOwnership_036();
-  error ProposedOwnableUpgradeable__acceptProposedOwner_038();
-  error ProposedOwnableUpgradeable__acceptProposedOwner_030();
+  error ProposedOwnableUpgradeable__onlyOwner_notOwner();
+  error ProposedOwnableUpgradeable__onlyProposed_notProposedOwner();
+  error ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange();
+  error ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange();
+  error ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal();
+  error ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed();
+  error ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange();
+  error ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange();
+  error ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal();
+  error ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed();
+  error ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal();
+  error ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange();
+  error ProposedOwnableUpgradeable__renounceOwnership_noProposal();
+  error ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed();
+  error ProposedOwnableUpgradeable__renounceOwnership_invalidProposal();
+  error ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange();
+  error ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed();
 
   // ============ Properties ============
 
@@ -128,7 +128,7 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    if (_owner != msg.sender) revert ProposedOwnableUpgradeable__onlyOwner_029();
+    if (_owner != msg.sender) revert ProposedOwnableUpgradeable__onlyOwner_notOwner();
     _;
   }
 
@@ -136,7 +136,7 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
    * @notice Throws if called by any account other than the proposed owner.
    */
   modifier onlyProposed() {
-    if (_proposed != msg.sender) revert ProposedOwnableUpgradeable__onlyProposed_035();
+    if (_proposed != msg.sender) revert ProposedOwnableUpgradeable__onlyProposed_notProposedOwner();
     _;
   }
 
@@ -155,7 +155,7 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function proposeRouterOwnershipRenunciation() public virtual onlyOwner {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
-    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_038();
+    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange();
 
     // Begin delay, emit event
     _setRouterOwnershipTimestamp();
@@ -168,14 +168,14 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function renounceRouterOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__renounceRouterOwnership_038();
+    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange();
 
     // Ensure there has been a proposal cycle started
-    if (_routerOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceRouterOwnership_037();
+    if (_routerOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal();
 
     // Delay has elapsed
     if ((block.timestamp - _routerOwnershipTimestamp) <= _delay)
-      revert ProposedOwnableUpgradeable__renounceRouterOwnership_030();
+      revert ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed();
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterOwnership(true);
@@ -196,7 +196,7 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function proposeAssetOwnershipRenunciation() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_038();
+    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange();
 
     // Start cycle, emit event
     _setAssetOwnershipTimestamp();
@@ -209,14 +209,14 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function renounceAssetOwnership() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__renounceAssetOwnership_038();
+    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange();
 
     // Ensure there has been a proposal cycle started
-    if (_assetOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceAssetOwnership_037();
+    if (_assetOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal();
 
     // Ensure delay has elapsed
     if ((block.timestamp - _assetOwnershipTimestamp) <= _delay)
-      revert ProposedOwnableUpgradeable__renounceAssetOwnership_030();
+      revert ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed();
 
     // Set ownership, reset timestamp, emit event
     _setAssetOwnership(true);
@@ -237,10 +237,10 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function proposeNewOwner(address newlyProposed) public virtual onlyOwner {
     // Contract as source of truth
     if (_proposed == newlyProposed && newlyProposed != address(0))
-      revert ProposedOwnableUpgradeable__proposeNewOwner_036();
+      revert ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal();
 
     // Sanity check: reasonable proposal
-    if (_owner == newlyProposed) revert ProposedOwnableUpgradeable__proposeNewOwner_038();
+    if (_owner == newlyProposed) revert ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange();
 
     _setProposed(newlyProposed);
   }
@@ -250,14 +250,14 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
    */
   function renounceOwnership() public virtual onlyOwner {
     // Ensure there has been a proposal cycle started
-    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceOwnership_037();
+    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnableUpgradeable__renounceOwnership_noProposal();
 
     // Ensure delay has elapsed
     if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
-      revert ProposedOwnableUpgradeable__renounceOwnership_030();
+      revert ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed();
 
     // Require proposed is set to 0
-    if (_proposed != address(0)) revert ProposedOwnableUpgradeable__renounceOwnership_036();
+    if (_proposed != address(0)) revert ProposedOwnableUpgradeable__renounceOwnership_invalidProposal();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);
@@ -269,7 +269,7 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
    */
   function acceptProposedOwner() public virtual onlyProposed {
     // Contract as source of truth
-    if (_owner == _proposed) revert ProposedOwnableUpgradeable__acceptProposedOwner_038();
+    if (_owner == _proposed) revert ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange();
 
     // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because
     // the only time this would happen is if the _proposed was never
@@ -278,7 +278,7 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
 
     // Ensure delay has elapsed
     if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)
-      revert ProposedOwnableUpgradeable__acceptProposedOwner_030();
+      revert ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed();
 
     // Emit event, set new owner, reset timestamp
     _setOwner(_proposed);
