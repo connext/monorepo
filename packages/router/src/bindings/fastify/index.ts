@@ -185,12 +185,22 @@ export const bindFastify = () =>
       },
     );
 
+    server.listen(config.port, config.host, (err, address) => {
+      if (err) {
+        console.error(err);
+        process.exit(1);
+      }
+      logger.info(`Api server listening at ${address}`);
+      res();
+    });
+
+
     server_metrics.listen(config.metrics_port, config.metrics_host, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
       }
-      logger.info(`Server listening at ${address}`);
+      logger.info(`Metrics server listening at ${address}`);
       res();
     });
 
