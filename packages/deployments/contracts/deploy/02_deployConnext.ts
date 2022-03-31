@@ -43,10 +43,29 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     (await hre.deployments.getOrNull("TokenRegistry"))!.abi,
   ).connect(deployer);
 
+  // Deploy Connext logic libraries
+  const stableSwapLogic = await hre.deployments.deploy('StableSwapLogic', {
+    from: deployer.address,
+    log: true,
+  });
+  const assetLogic = await hre.deployments.deploy('AssetLogic', {
+    from: deployer.address,
+    log: true,
+  });
+  const connextUtils = await hre.deployments.deploy('ConnextUtils', {
+    from: deployer.address,
+    log: true,
+  });
+
   // Deploy connext contract
   const connext = await hre.deployments.deploy("Connext", {
     from: deployer.address,
     log: true,
+    libraries: {
+      StableSwapLogic: stableSwapLogic.address,
+      AssetLogic: assetLogic.address,
+      ConnextUtils: connextUtils.address,
+    },
     proxy: {
       execute: {
         init: {

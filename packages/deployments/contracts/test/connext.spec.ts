@@ -15,7 +15,6 @@ import {
   XAppConnectionManager,
   DummySwap,
   ProposedOwnableUpgradeable,
-  StableSwapLogic,
 } from "../typechain-types";
 
 import {
@@ -75,7 +74,7 @@ const executeProxyWrite = async <T extends Contract>(
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe.only("Connext", () => {
+describe("Connext", () => {
   // Get wallets
   const [admin, router, user] = waffle.provider.getWallets() as Wallet[];
 
@@ -157,13 +156,27 @@ describe.only("Connext", () => {
     );
 
     // Deploy Connext logic libraries
-    const stableSwapLogic = await deployContract<StableSwapLogic>("StableSwapLogic");
+    const stableSwapLogic = await deployContract("StableSwapLogic");
+    const assetLogic = await deployContract("AssetLogic");
+    const connextUtils = await deployContract("ConnextUtils");
 
     // Deploy transacion managers
-    originTm = await deployContractWithLibs<Connext>("Connext", {StableSwapLogic: stableSwapLogic.address});
+    originTm = await deployContractWithLibs<Connext>(
+      "Connext",
+      {
+        StableSwapLogic: stableSwapLogic.address,
+        AssetLogic: assetLogic.address,
+        ConnextUtils: connextUtils.address,
+    });
     await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address);
 
-    destinationTm = await deployContractWithLibs<Connext>("Connext", {StableSwapLogic: stableSwapLogic.address});
+    destinationTm = await deployContractWithLibs<Connext>(
+      "Connext",
+      {
+        StableSwapLogic: stableSwapLogic.address,
+        AssetLogic: assetLogic.address,
+        ConnextUtils: connextUtils.address,
+      });
     await destinationTm.initialize(
       destinationDomain,
       destinationBridge.address,
@@ -619,7 +632,7 @@ describe.only("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "Connext__transferAssetToContract_notAmount",
+        "AssetLogic__transferAssetToContract_notAmount",
       );
       expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
@@ -631,7 +644,7 @@ describe.only("Connext", () => {
 
       await expect(
         originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith("Connext__transferAssetToContract_notAmount");
+      ).to.be.revertedWith("AssetLogic__transferAssetToContract_notAmount");
       expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
@@ -641,7 +654,7 @@ describe.only("Connext", () => {
       const assetId = local.address;
       await expect(
         destinationTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith("Connext__transferAssetToContract_ethWithErcTransfer");
+      ).to.be.revertedWith("AssetLogic__transferAssetToContract_ethWithErcTransfer");
       expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
