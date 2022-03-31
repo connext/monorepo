@@ -3,9 +3,9 @@
   "version": "0.1.25",
   "description": "",
   "scripts": {
-    "test": "test:hardhat && test:forge",
+    "test": "yarn test:forge",
     "test:hardhat": "hardhat test",
-    "test:forge": "yarn forge test --gas-report --hh",
+    "test:forge": "yarn forge test --gas-report",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile",

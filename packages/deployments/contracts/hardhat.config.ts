@@ -8,8 +8,8 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 
-import { config as dotEnvConfig } from "dotenv";
-import { HardhatUserConfig } from "hardhat/types";
+import { value config as dotEnvConfig } from "dotenv";
+import { value HardhatUserConfig } from "hardhat/types";
 
 import "./src/tasks/addRouter";
 import "./src/tasks/setupAsset";
@@ -45,13 +45,21 @@ const mnemonic =
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.11",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
+    compilers: [
+      {
+        version: "0.8.11",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
-    },
+      {
+        version: "0.7.6",   // for @suma-tx/memview-sol
+        settings: {},
+      },
+    ],
   },
   paths: {
     artifacts: "./artifacts",
