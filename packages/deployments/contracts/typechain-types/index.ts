@@ -132,6 +132,8 @@ export type { PriceOracle } from "./contracts/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/PriceOracle__factory";
 export type { ProposedOwnableUpgradeable } from "./contracts/ProposedOwnableUpgradeable";
 export { ProposedOwnableUpgradeable__factory } from "./factories/contracts/ProposedOwnableUpgradeable__factory";
+export type { RouterPermissionsManager } from "./contracts/RouterPermissionsManager";
+export { RouterPermissionsManager__factory } from "./factories/contracts/RouterPermissionsManager__factory";
 export type { StableSwap } from "./contracts/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/StableSwap__factory";
 export type { BeaconProxy } from "./contracts/test/BeaconProxy";
