@@ -110,6 +110,7 @@ jobs:
       sequencer-labels: ${{ steps.meta-sequencer.outputs.labels }}
 
   terraform-infra:
+    if: github.ref == 'refs/heads/amarok'
     runs-on: ubuntu-latest
     needs: [build-and-push-router-image]
     permissions:
@@ -144,6 +145,7 @@ jobs:
           terraform apply -auto-approve
 
   terraform-services:
+    if: github.ref == 'refs/heads/amarok'
     needs: [build-and-push-router-image, terraform-infra]
     env:
       TF_VAR_full_image_name_router: ${{ needs.build-and-push-router-image.outputs.router-tags }}
