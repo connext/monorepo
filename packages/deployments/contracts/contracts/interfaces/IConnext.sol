@@ -36,14 +36,14 @@ interface IConnext {
   }
 
   /**
-   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a 
+   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a
    * transfer to properly reimburse router when funds come through the bridge.
    * @param router - Address of the router that supplied fast-liquidity
-   * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount` 
+   * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount`
    * user supplied comes through bridge
    */
   struct ExecutedTransfer {
-    address router;
+    address[] routers;
     uint256 amount;
   }
 
@@ -82,8 +82,8 @@ interface IConnext {
     uint256 amount;
   }
 
-    /**
-   * @notice 
+  /**
+   * @notice
    * @param params - The CallParams. These are consistent across sending and receiving chains
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
@@ -95,7 +95,7 @@ interface IConnext {
   struct ExecuteArgs {
     CallParams params;
     address local;
-    address router;
+    address[] routers;
     uint32 feePercentage;
     uint256 amount;
     uint256 nonce;
@@ -197,6 +197,13 @@ interface IConnext {
   );
 
   /**
+   * @notice Emitted when the maxRouters variable is updated
+   * @param maxRouters - The maxRouters new value
+   * @param caller - The account that called the function
+   */
+  event MaxRoutersUpdated(uint256 maxRouters, address caller);
+
+  /**
    * @notice Emitted when `xcall` is called on the origin domain
    * @param transferId - The unique identifier of the crosschain transfer
    * @param to - The CallParams.to provided, created as indexed parameter
@@ -227,7 +234,6 @@ interface IConnext {
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param to - The CallParams.recipient provided, created as indexed parameter
-   * @param router - The router that supplied fast liquidity, if applicable
    * @param localAsset - The asset that was provided by the bridge
    * @param localAmount - The amount that was provided by the bridge
    * @param executed - Record of the `ExecutedTransfer` stored onchain if fast liquidity is provided
@@ -236,7 +242,6 @@ interface IConnext {
   event Reconciled(
     bytes32 indexed transferId,
     address indexed to,
-    address indexed router,
     address localAsset,
     uint256 localAmount,
     ExecutedTransfer executed,
@@ -295,6 +300,8 @@ interface IConnext {
   ) external;
 
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external;
+
+  function setMaxRouters(uint256 newMaxRouters) external;
 
   // ============ Public Functions ===========
 

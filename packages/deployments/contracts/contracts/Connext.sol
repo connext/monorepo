@@ -139,6 +139,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   mapping(bytes32 => bytes32) public reconciledTransfers;
 
+  /**
+   * @notice The max amount of routers a payment can be routed through
+   */
+  uint256 public maxRouters;
+
   // ============ Modifiers ============
 
   /**
@@ -167,6 +172,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+    maxRouters = 5;
   }
 
   // ============ Owner Functions ============
@@ -282,7 +288,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function removeRelayerFees(uint256 amount, address payable to) external override {
     routerRelayerFees[msg.sender] -= amount;
-    
+
     AddressUpgradeable.sendValue(to, amount);
   }
 
@@ -339,10 +345,22 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Transfer from contract to specified to
-    _transferAssetFromContract(local, to, amount);    
+    _transferAssetFromContract(local, to, amount);
 
     // Emit event
     emit LiquidityRemoved(msg.sender, to, local, amount, msg.sender);
+  }
+
+  /**
+   * @notice Used to set the max amount of routers a payment can be routed through
+   * @param newMaxRouters The new max amount of routers
+   */
+  function setMaxRouters(uint256 newMaxRouters) external override onlyOwner {
+    require(newMaxRouters > 0, "invalid maxRouters");
+
+    maxRouters = newMaxRouters;
+
+    emit MaxRoutersUpdated(newMaxRouters, msg.sender);
   }
 
   /**
@@ -427,27 +445,24 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Find the router to credit
     ExecutedTransfer memory transaction = routedTransfers[_transferId];
 
-    if (transaction.router == address(0)) {
+    if (transaction.routers.length == 0) {
       // Nomad bridge executed faster than router, funds should become process-able
       // by the user.
       reconciledTransfers[_transferId] = _getReconciledHash(_local, _recipient, _amount);
     } else {
       // TODO: assert amount credited is reasonable (depends on fee scheme)
 
-      // Credit router
-      routerBalances[transaction.router][_local] += _amount;
+      uint256 routersLength = transaction.routers.length;
+      uint256 routerAmount = _amount / routersLength;
+
+      for (uint256 i; i < routersLength; i++) {
+        // Credit router
+        routerBalances[transaction.routers[i]][_local] += routerAmount;
+      }
     }
 
     // Emit event
-    emit Reconciled(
-      _transferId,
-      _recipient,
-      transaction.router,
-      _local,
-      _amount,
-      transaction,
-      msg.sender
-    );
+    emit Reconciled(_transferId, _recipient, _local, _amount, transaction, msg.sender);
   }
 
   /**
@@ -474,7 +489,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
     // Handle liquidity as needed
     if (_isFast) {
-      _decrementLiquidity(_transferId, _args.amount, _args.local, _args.router);
+      _decrementLiquidity(_transferId, _args.amount, _args.local, _args.routers);
     } else {
       // Ensure the reconciled hash is correct (user not charged liq fee for slow-liq)
       require(_reconciledHash == _getReconciledHash(_args.local, _args.params.to, _args.amount), "!slow params");
@@ -512,7 +527,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Pay metatx relayer
     // NOTE: if this is done *without* fast liquidity, router will be address(0) and the relayer
     // will always be paid
-    _handleRelayerFees(_transferId, _args.router, _args.feePercentage, _args.relayerSignature);
+    _handleRelayerFees(_transferId, _args.routers, _args.feePercentage, _args.relayerSignature);
 
     // Emit event
     emit Executed(
@@ -779,17 +794,22 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     bytes32 _transferId,
     uint256 _amount,
     address _local,
-    address _router
+    address[] calldata _routers
   ) internal {
     // Ensure it has not been executed already
-    require(routedTransfers[_transferId].router == address(0), "!empty");
+    require(routedTransfers[_transferId].routers.length == 0, "!empty");
+    uint256 routersLength = _routers.length;
+    require(routersLength <= maxRouters, "maxRouters exceeded");
+    uint256 routerAmount = _amount / routersLength;
 
-    // Decrement liquidity
-    routerBalances[_router][_local] -= _amount; 
+    for (uint256 i; i < routersLength; i++) {
+      // Decrement liquidity
+      routerBalances[_routers[i]][_local] -= routerAmount;
+    }
 
     // Store the router
     routedTransfers[_transferId] = ExecutedTransfer({
-      router: _router,
+      routers: _routers,
       amount: _amount // will be of the mad asset, not adopted
     });
   }
@@ -799,22 +819,26 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @dev Currently only supported on eip-1559 chains and only handles native assets.
    * Also only used in `execute` transfers
    * @param _transferId - The unique identifier of the transfer
-   * @param _router - The router you are sending the tx on behalf of
+   * @param _routers - The routers you are sending the tx on behalf of
    * @param _feePct - The percent over the basefee you are adding
    */
   function _handleRelayerFees(
     bytes32 _transferId,
-    address _router,
+    address[] calldata _routers,
     uint32 _feePct,
     bytes calldata _sig
   ) internal {
+    // NOTE: To not break the current working implementation in testnet, the first router is selected as the one to pay for the fees.
+    // This is a temporary solution until https://github.com/connext/nxtp/discussions/899 is implemented. 
+    address router = _routers[0];
+
     // If the sender *is* the router, do nothing
-    if (msg.sender == _router) {
+    if (msg.sender == router) {
       return;
     }
 
     // Check the signature of the router on the nonce + fee pct
-    require(_router == _recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
+    require(router == _recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
 
     // Handle 0 case
     if (_feePct == 0) {
@@ -828,7 +852,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     uint256 fee = block.basefee * _feePct / 100;
 
     // Decrement liquidity
-    routerRelayerFees[_router] -= fee;
+    routerRelayerFees[router] -= fee;
 
     // Pay sender
     AddressUpgradeable.sendValue(payable(msg.sender), fee);
@@ -878,7 +902,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   }
 
   receive() external payable {}
-
 
   /**
    * @dev This empty reserved space is put in place to allow future versions to add new
