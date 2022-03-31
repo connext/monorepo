@@ -153,7 +153,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
@@ -282,44 +282,6 @@ const _abi = [
       },
     ],
     name: "Reconciled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "RouterAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "RouterRemoved",
     type: "event",
   },
   {
@@ -488,19 +450,6 @@ const _abi = [
     name: "addRelayerFees",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "addRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -775,6 +724,29 @@ const _abi = [
       },
     ],
     name: "setupAsset",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

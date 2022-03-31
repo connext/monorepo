@@ -109,10 +109,10 @@ export declare namespace BridgeMessage {
 export interface ConnextInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "acceptProposedRouterOwner(address)": FunctionFragment;
     "addLiquidity(uint256,address)": FunctionFragment;
     "addLiquidityFor(uint256,address,address)": FunctionFragment;
     "addRelayerFees(address)": FunctionFragment;
-    "addRouter(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "adoptedToCanonical(address)": FunctionFragment;
     "adoptedToLocalPools(bytes32)": FunctionFragment;
@@ -132,8 +132,11 @@ export interface ConnextInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
+    "proposeRouterOwner(address,address)": FunctionFragment;
     "proposeRouterOwnershipRenunciation()": FunctionFragment;
     "proposed()": FunctionFragment;
+    "proposedRouterOwners(address)": FunctionFragment;
+    "proposedRouterTimestamp(address)": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "reconcile(bytes32,address,address,uint256)": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
@@ -148,9 +151,13 @@ export interface ConnextInterface extends utils.Interface {
     "routedTransfers(bytes32)": FunctionFragment;
     "routedTransfersGas(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
+    "routerOwners(address)": FunctionFragment;
     "routerOwnershipTimestamp()": FunctionFragment;
+    "routerRecipients(address)": FunctionFragment;
     "routerRelayerFees(address)": FunctionFragment;
+    "setRouterRecipient(address,address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
+    "setupRouter(address,address,address)": FunctionFragment;
     "tokenRegistry()": FunctionFragment;
     "wrapper()": FunctionFragment;
     "xcall(((address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
@@ -159,10 +166,10 @@ export interface ConnextInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
+      | "acceptProposedRouterOwner"
       | "addLiquidity"
       | "addLiquidityFor"
       | "addRelayerFees"
-      | "addRouter"
       | "addStableSwapPool"
       | "adoptedToCanonical"
       | "adoptedToLocalPools"
@@ -182,8 +189,11 @@ export interface ConnextInterface extends utils.Interface {
       | "owner"
       | "proposeAssetOwnershipRenunciation"
       | "proposeNewOwner"
+      | "proposeRouterOwner"
       | "proposeRouterOwnershipRenunciation"
       | "proposed"
+      | "proposedRouterOwners"
+      | "proposedRouterTimestamp"
       | "proposedTimestamp"
       | "reconcile"
       | "reconciledTransfers"
@@ -198,9 +208,13 @@ export interface ConnextInterface extends utils.Interface {
       | "routedTransfers"
       | "routedTransfersGas"
       | "routerBalances"
+      | "routerOwners"
       | "routerOwnershipTimestamp"
+      | "routerRecipients"
       | "routerRelayerFees"
+      | "setRouterRecipient"
       | "setupAsset"
+      | "setupRouter"
       | "tokenRegistry"
       | "wrapper"
       | "xcall"
@@ -209,6 +223,10 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptProposedRouterOwner",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
@@ -222,7 +240,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "addRelayerFees",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
   encodeFunctionData(
     functionFragment: "addStableSwapPool",
     values: [BridgeMessage.TokenIdStruct, string]
@@ -285,10 +302,22 @@ export interface ConnextInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "proposeRouterOwner",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "proposeRouterOwnershipRenunciation",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedRouterOwners",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposedRouterTimestamp",
+    values: [string]
+  ): string;
   encodeFunctionData(
     functionFragment: "proposedTimestamp",
     values?: undefined
@@ -343,16 +372,32 @@ export interface ConnextInterface extends utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "routerOwners",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "routerOwnershipTimestamp",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "routerRecipients",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "routerRelayerFees",
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "setRouterRecipient",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setupAsset",
     values: [BridgeMessage.TokenIdStruct, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setupRouter",
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenRegistry",
@@ -369,6 +414,10 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "acceptProposedRouterOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
@@ -380,7 +429,6 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "addRelayerFees",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addStableSwapPool",
     data: BytesLike
@@ -437,10 +485,22 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "proposeRouterOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposeRouterOwnershipRenunciation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedRouterOwners",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedRouterTimestamp",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposedTimestamp",
     data: BytesLike
@@ -492,14 +552,30 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "routerOwners",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "routerOwnershipTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "routerRecipients",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "routerRelayerFees",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRouterRecipient",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setupRouter",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "tokenRegistry",
     data: BytesLike
@@ -519,8 +595,11 @@ export interface ConnextInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Reconciled(bytes32,address,address,address,uint256,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
+    "RouterOwnerAccepted(address,address,address)": EventFragment;
+    "RouterOwnerProposed(address,address,address)": EventFragment;
     "RouterOwnershipRenounced(bool)": EventFragment;
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
+    "RouterRecipientSet(address,address,address)": EventFragment;
     "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
     "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
@@ -539,10 +618,13 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterOwnerAccepted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterOwnerProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterOwnershipRenounced"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "RouterOwnershipRenunciationProposed"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RouterRecipientSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
@@ -710,6 +792,32 @@ export type RouterAddedEvent = TypedEvent<
 
 export type RouterAddedEventFilter = TypedEventFilter<RouterAddedEvent>;
 
+export interface RouterOwnerAcceptedEventObject {
+  router: string;
+  prevOwner: string;
+  newOwner: string;
+}
+export type RouterOwnerAcceptedEvent = TypedEvent<
+  [string, string, string],
+  RouterOwnerAcceptedEventObject
+>;
+
+export type RouterOwnerAcceptedEventFilter =
+  TypedEventFilter<RouterOwnerAcceptedEvent>;
+
+export interface RouterOwnerProposedEventObject {
+  router: string;
+  prevProposed: string;
+  newProposed: string;
+}
+export type RouterOwnerProposedEvent = TypedEvent<
+  [string, string, string],
+  RouterOwnerProposedEventObject
+>;
+
+export type RouterOwnerProposedEventFilter =
+  TypedEventFilter<RouterOwnerProposedEvent>;
+
 export interface RouterOwnershipRenouncedEventObject {
   renounced: boolean;
 }
@@ -731,6 +839,19 @@ export type RouterOwnershipRenunciationProposedEvent = TypedEvent<
 
 export type RouterOwnershipRenunciationProposedEventFilter =
   TypedEventFilter<RouterOwnershipRenunciationProposedEvent>;
+
+export interface RouterRecipientSetEventObject {
+  router: string;
+  prevRecipient: string;
+  newRecipient: string;
+}
+export type RouterRecipientSetEvent = TypedEvent<
+  [string, string, string],
+  RouterRecipientSetEventObject
+>;
+
+export type RouterRecipientSetEventFilter =
+  TypedEventFilter<RouterRecipientSetEvent>;
 
 export interface RouterRemovedEventObject {
   router: string;
@@ -815,6 +936,11 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    acceptProposedRouterOwner(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -831,11 +957,6 @@ export interface Connext extends BaseContract {
     addRelayerFees(
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    addRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     addStableSwapPool(
@@ -909,11 +1030,27 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    proposeRouterOwner(
+      router: string,
+      proposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     proposeRouterOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedRouterOwners(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    proposedRouterTimestamp(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -986,17 +1123,37 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    routerOwners(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    routerRecipients(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    setRouterRecipient(
+      router: string,
+      recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
       stableSwapPool: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setupRouter(
+      router: string,
+      owner: string,
+      recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1011,6 +1168,11 @@ export interface Connext extends BaseContract {
   };
 
   acceptProposedOwner(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  acceptProposedRouterOwner(
+    router: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1030,11 +1192,6 @@ export interface Connext extends BaseContract {
   addRelayerFees(
     router: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  addRouter(
-    router: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   addStableSwapPool(
@@ -1102,11 +1259,27 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  proposeRouterOwner(
+    router: string,
+    proposed: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   proposeRouterOwnershipRenunciation(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedRouterOwners(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  proposedRouterTimestamp(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1179,17 +1352,34 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  routerOwners(arg0: string, overrides?: CallOverrides): Promise<string>;
+
   routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+  routerRecipients(arg0: string, overrides?: CallOverrides): Promise<string>;
 
   routerRelayerFees(
     arg0: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  setRouterRecipient(
+    router: string,
+    recipient: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setupAsset(
     canonical: BridgeMessage.TokenIdStruct,
     adoptedAssetId: string,
     stableSwapPool: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setupRouter(
+    router: string,
+    owner: string,
+    recipient: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1205,6 +1395,11 @@ export interface Connext extends BaseContract {
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
+    acceptProposedRouterOwner(
+      router: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -1219,8 +1414,6 @@ export interface Connext extends BaseContract {
     ): Promise<void>;
 
     addRelayerFees(router: string, overrides?: CallOverrides): Promise<void>;
-
-    addRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
     addStableSwapPool(
       canonical: BridgeMessage.TokenIdStruct,
@@ -1288,11 +1481,27 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    proposeRouterOwner(
+      router: string,
+      proposed: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     proposeRouterOwnershipRenunciation(
       overrides?: CallOverrides
     ): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedRouterOwners(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    proposedRouterTimestamp(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1356,17 +1565,34 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    routerOwners(arg0: string, overrides?: CallOverrides): Promise<string>;
+
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    routerRecipients(arg0: string, overrides?: CallOverrides): Promise<string>;
 
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setRouterRecipient(
+      router: string,
+      recipient: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
       stableSwapPool: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setupRouter(
+      router: string,
+      owner: string,
+      recipient: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1440,14 +1666,14 @@ export interface Connext extends BaseContract {
     ): ExecutedEventFilter;
 
     "LiquidityAdded(address,address,bytes32,uint256,address)"(
-      router?: null,
+      router?: string | null,
       local?: null,
       canonicalId?: null,
       amount?: null,
       caller?: null
     ): LiquidityAddedEventFilter;
     LiquidityAdded(
-      router?: null,
+      router?: string | null,
       local?: null,
       canonicalId?: null,
       amount?: null,
@@ -1505,10 +1731,32 @@ export interface Connext extends BaseContract {
     ): ReconciledEventFilter;
 
     "RouterAdded(address,address)"(
-      router?: null,
+      router?: string | null,
       caller?: null
     ): RouterAddedEventFilter;
-    RouterAdded(router?: null, caller?: null): RouterAddedEventFilter;
+    RouterAdded(router?: string | null, caller?: null): RouterAddedEventFilter;
+
+    "RouterOwnerAccepted(address,address,address)"(
+      router?: string | null,
+      prevOwner?: string | null,
+      newOwner?: string | null
+    ): RouterOwnerAcceptedEventFilter;
+    RouterOwnerAccepted(
+      router?: string | null,
+      prevOwner?: string | null,
+      newOwner?: string | null
+    ): RouterOwnerAcceptedEventFilter;
+
+    "RouterOwnerProposed(address,address,address)"(
+      router?: string | null,
+      prevProposed?: string | null,
+      newProposed?: string | null
+    ): RouterOwnerProposedEventFilter;
+    RouterOwnerProposed(
+      router?: string | null,
+      prevProposed?: string | null,
+      newProposed?: string | null
+    ): RouterOwnerProposedEventFilter;
 
     "RouterOwnershipRenounced(bool)"(
       renounced?: null
@@ -1524,11 +1772,25 @@ export interface Connext extends BaseContract {
       timestamp?: null
     ): RouterOwnershipRenunciationProposedEventFilter;
 
+    "RouterRecipientSet(address,address,address)"(
+      router?: string | null,
+      prevRecipient?: string | null,
+      newRecipient?: string | null
+    ): RouterRecipientSetEventFilter;
+    RouterRecipientSet(
+      router?: string | null,
+      prevRecipient?: string | null,
+      newRecipient?: string | null
+    ): RouterRecipientSetEventFilter;
+
     "RouterRemoved(address,address)"(
-      router?: null,
+      router?: string | null,
       caller?: null
     ): RouterRemovedEventFilter;
-    RouterRemoved(router?: null, caller?: null): RouterRemovedEventFilter;
+    RouterRemoved(
+      router?: string | null,
+      caller?: null
+    ): RouterRemovedEventFilter;
 
     "StableSwapAdded(bytes32,uint32,address,address)"(
       canonicalId?: null,
@@ -1572,6 +1834,11 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    acceptProposedRouterOwner(
+      router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -1588,11 +1855,6 @@ export interface Connext extends BaseContract {
     addRelayerFees(
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    addRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     addStableSwapPool(
@@ -1666,11 +1928,27 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    proposeRouterOwner(
+      router: string,
+      proposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     proposeRouterOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedRouterOwners(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    proposedRouterTimestamp(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1741,17 +2019,37 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    routerOwners(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    routerRecipients(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setRouterRecipient(
+      router: string,
+      recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
       stableSwapPool: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setupRouter(
+      router: string,
+      owner: string,
+      recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1767,6 +2065,11 @@ export interface Connext extends BaseContract {
 
   populateTransaction: {
     acceptProposedOwner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    acceptProposedRouterOwner(
+      router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1786,11 +2089,6 @@ export interface Connext extends BaseContract {
     addRelayerFees(
       router: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     addStableSwapPool(
@@ -1870,11 +2168,27 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    proposeRouterOwner(
+      router: string,
+      proposed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     proposeRouterOwnershipRenunciation(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedRouterOwners(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    proposedRouterTimestamp(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1945,7 +2259,17 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    routerOwners(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     routerOwnershipTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    routerRecipients(
+      arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1954,10 +2278,23 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setRouterRecipient(
+      router: string,
+      recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
       stableSwapPool: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setupRouter(
+      router: string,
+      owner: string,
+      recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
