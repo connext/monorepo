@@ -167,165 +167,128 @@ contract BridgeRouter is Version0, Router {
       _t.burn(msg.sender, _amount);
       _detailsHash = _t.detailsHash();
     }
+    // format Transfer Tokens action
+    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash, _enableFast, _externalHash);
+    bytes29 _tokenId = dispatchAction(_action, _token, _destination, _remote);
+    // emit Send event to record token sender
+    emit Send(
+      _token,
+      msg.sender,
+      _destination,
+      _recipient,
+      _amount,
+      _enableFast,
+      _externalHash,
+      BridgeMessage.formatMessage(_tokenId, _action)
+    );
+  }
 
-    // ======== External: Custom Tokens =========
+  function dispatchAction(
+    bytes29 _action,
+    address _token,
+    uint32 _destination,
+    bytes32 _remote
+  ) internal returns (bytes29) {
+    // get the tokenID
+    (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
+    bytes29 _tokenId = BridgeMessage.formatTokenId(_domain, _id);
+    // send message to remote chain via Nomad
+    Home(xAppConnectionManager.home()).dispatch(_destination, _remote, BridgeMessage.formatMessage(_tokenId, _action));
+    return _tokenId;
+  }
 
-    /**
-     * @notice Enroll a custom token. This allows projects to work with
-     * governance to specify a custom representation.
-     * @param _domain the domain of the canonical Token to enroll
-     * @param _id the bytes32 ID of the canonical of the Token to enroll
-     * @param _custom the address of the custom implementation to use.
-     */
-    function enrollCustom(
-        uint32 _domain,
-        bytes32 _id,
-        address _custom
-    ) external onlyOwner {
-        // Sanity check. Ensures that human error doesn't cause an
-        // unpermissioned contract to be enrolled.
-        IBridgeToken(_custom).mint(address(this), 1);
-        IBridgeToken(_custom).burn(address(this), 1);
-        tokenRegistry.enrollCustom(_domain, _id, _custom);
-    }
+  // ======== External: Fast Liquidity =========
 
-    /**
-     * @notice Migrate all tokens in a previous representation to the latest
-     * custom representation. This works by looking up local mappings and then
-     * burning old tokens and minting new tokens.
-     * @dev This is explicitly opt-in to allow dapps to decide when and how to
-     * upgrade to the new representation.
-     * @param _oldRepr The address of the old token to migrate
-     */
-    function migrate(address _oldRepr) external {
-        address _currentRepr = tokenRegistry.oldReprToCurrentRepr(_oldRepr);
-        require(_currentRepr != _oldRepr, "!different");
-        // burn the total balance of old tokens & mint the new ones
-        IBridgeToken _old = IBridgeToken(_oldRepr);
-        uint256 _bal = _old.balanceOf(msg.sender);
-        _old.burn(msg.sender, _bal);
-        IBridgeToken(_currentRepr).mint(msg.sender, _bal);
-    }
+  /**
+   * @notice Sets the transaction manager.
+   * @dev Transacion manager and bridge router store references to each other
+   * @param _connext the address of the transaction manager implementation
+   */
+  function setConnext(address _connext) external onlyOwner {
+    connext = IConnext(_connext);
+  }
 
-    // ============ Internal: Handle ============
+  // ======== External: Custom Tokens =========
 
-    /**
-     * @notice Handles an incoming Transfer message.
-     *
-     * If the token is of local origin, the amount is sent from escrow.
-     * Otherwise, a representation token is minted.
-     *
-     * @param _origin The domain of the chain from which the transfer originated
-     * @param _nonce The unique identifier for the message from origin to destination
-     * @param _tokenId The token ID
-     * @param _action The action
-     * @param _fastEnabled True if fast liquidity was enabled, False otherwise
-     */
-    function _handleTransfer(
-        uint32 _origin,
-        uint32 _nonce,
-        bytes29 _tokenId,
-        bytes29 _action,
-        bool _fastEnabled
-    ) internal {
-        // get the token contract for the given tokenId on this chain;
-        // (if the token is of remote origin and there is
-        // no existing representation token contract, the TokenRegistry will
-        // deploy a new one)
-        address _token = tokenRegistry.ensureLocalToken(
-            _tokenId.domain(),
-            _tokenId.id()
-        );
-        // load the original recipient of the tokens
-        address _recipient = _action.evmRecipient();
-        // load amount once
-        uint256 _amount = _action.amnt();
-        bytes32 _details = _action.detailsHash();
-        if (_fastEnabled) {
-            // Mint more of token if needed
-            _handleFundsDisbursal(address(connext), _token, _amount, _details);
+  /**
+   * @notice Enroll a custom token. This allows projects to work with
+   * governance to specify a custom representation.
+   * @param _domain the domain of the canonical Token to enroll
+   * @param _id the bytes32 ID of the canonical of the Token to enroll
+   * @param _custom the address of the custom implementation to use.
+   */
+  function enrollCustom(
+    uint32 _domain,
+    bytes32 _id,
+    address _custom
+  ) external onlyOwner {
+    // Sanity check. Ensures that human error doesn't cause an
+    // unpermissioned contract to be enrolled.
+    IBridgeToken(_custom).mint(address(this), 1);
+    IBridgeToken(_custom).burn(address(this), 1);
+    tokenRegistry.enrollCustom(_domain, _id, _custom);
+  }
 
-            // Call reconcile
-            connext.reconcile(
-                _action.externalHash(),
-                _origin,
-                _token,
-                _recipient,
-                _amount
-            );
-        } else {
-            _handleFundsDisbursal(_recipient, _token, _amount, _details);
+  /**
+   * @notice Migrate all tokens in a previous representation to the latest
+   * custom representation. This works by looking up local mappings and then
+   * burning old tokens and minting new tokens.
+   * @dev This is explicitly opt-in to allow dapps to decide when and how to
+   * upgrade to the new representation.
+   * @param _oldRepr The address of the old token to migrate
+   */
+  function migrate(address _oldRepr) external {
+    address _currentRepr = tokenRegistry.oldReprToCurrentRepr(_oldRepr);
+    require(_currentRepr != _oldRepr, "!different");
+    // burn the total balance of old tokens & mint the new ones
+    IBridgeToken _old = IBridgeToken(_oldRepr);
+    uint256 _bal = _old.balanceOf(msg.sender);
+    _old.burn(msg.sender, _bal);
+    IBridgeToken(_currentRepr).mint(msg.sender, _bal);
+  }
 
-            // dust the recipient if appropriate
-            _dust(_recipient);
-        }
-        
-        // emit Receive event
-        emit Receive(
-            _originAndNonce(_origin, _nonce),
-            _token,
-            _recipient,
-            address(0),
-            _amount
-        );
-    }
+  // ============ Internal: Handle ============
 
-    // ============ Internal: Fast Liquidity ============
+  /**
+   * @notice Handles an incoming Transfer message.
+   *
+   * If the token is of local origin, the amount is sent from escrow.
+   * Otherwise, a representation token is minted.
+   *
+   * @param _origin The domain of the chain from which the transfer originated
+   * @param _nonce The unique identifier for the message from origin to destination
+   * @param _tokenId The token ID
+   * @param _action The action
+   * @param _fastEnabled True if fast liquidity was enabled, False otherwise
+   */
+  function _handleTransfer(
+    uint32 _origin,
+    uint32 _nonce,
+    bytes29 _tokenId,
+    bytes29 _action,
+    bool _fastEnabled
+  ) internal {
+    // get the token contract for the given tokenId on this chain;
+    // (if the token is of remote origin and there is
+    // no existing representation token contract, the TokenRegistry will
+    // deploy a new one)
+    address _token = tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
+    // load the original recipient of the tokens
+    address _recipient = _action.evmRecipient();
+    // load amount once
+    uint256 _amount = _action.amnt();
+    bytes32 _details = _action.detailsHash();
+    if (_fastEnabled) {
+      // Mint more of token if needed
+      _handleFundsDisbursal(address(connext), _token, _amount, _details);
 
-    function _handleFundsDisbursal(address _recipient, address _token, uint256 _amount, bytes32 _details) internal {
-        if (tokenRegistry.isLocalOrigin(_token)) {
-            // if the token is of local origin, the tokens have been held in
-            // escrow in this contract
-            // while they have been circulating on remote chains;
-            // transfer the tokens to the recipient
-            IERC20Upgradeable(_token).safeTransfer(_recipient, _amount);
-        } else {
-            // if the token is of remote origin, mint the tokens to the
-            // recipient on this chain
-            IBridgeToken(_token).mint(_recipient, _amount);
-            // Tell the token what its detailsHash is
-            IBridgeToken(_token).setDetailsHash(_details);
-        }
-    }
+      // Call reconcile
+      connext.reconcile(_action.externalHash(), _origin, _token, _recipient, _amount);
+    } else {
+      _handleFundsDisbursal(_recipient, _token, _amount, _details);
 
-    /**
-     * @notice Calculate the token amount after
-     * taking a 5 bps (0.05%) liquidity provider fee
-     * @param _amnt The token amount before the fee is taken
-     * @return _amtAfterFee The token amount after the fee is taken
-     */
-    function _applyPreFillFee(uint256 _amnt)
-        internal
-        pure
-        returns (uint256 _amtAfterFee)
-    {
-        // overflow only possible if (2**256 / 9995) tokens sent once
-        // in which case, probably not a real token
-        _amtAfterFee =
-            (_amnt * PRE_FILL_FEE_NUMERATOR) /
-            PRE_FILL_FEE_DENOMINATOR;
-    }
-
-    /**
-     * @notice Dust the recipient. This feature allows chain operators to use
-     * the Bridge as a faucet if so desired. Any gas asset held by the
-     * bridge will be slowly sent to users who need initial gas bootstrapping
-     * @dev Does not dust if insufficient funds, or if user has funds already
-     */
-    function _dust(address _recipient) internal {
-        if (
-            _recipient.balance < DUST_AMOUNT &&
-            address(this).balance >= DUST_AMOUNT
-        ) {
-            // `send` gives execution 2300 gas and returns a `success` boolean.
-            // however, we do not care if the call fails. A failed call
-            // indicates a smart contract attempting to execute logic, which we
-            // specifically do not want.
-            // While we could check EXTCODESIZE, it seems sufficient to rely on
-            // the 2300 gas stipend to ensure that no state change logic can
-            // be executed.
-            payable(_recipient).send(DUST_AMOUNT);
-        }
+      // dust the recipient if appropriate
+      _dust(_recipient);
     }
 
     // emit Receive event
