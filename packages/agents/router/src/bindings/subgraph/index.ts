@@ -32,13 +32,15 @@ export const pollSubgraph = async () => {
       // TODO: Convert domain to chainID ??
       const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
+
       const latestNonce = await cache.transfers.getLatestNonce(domain);
-      logger.debug("Retrieved domain information for subgraph polling", undefined, undefined, {
-        domain,
-        latestBlockNumber,
-        safeConfirmations,
-        latestNonce,
-      });
+
+      // logger.debug("Retrieved domain information for subgraph polling", undefined, undefined, {
+      //   domain,
+      //   latestBlockNumber,
+      //   safeConfirmations,
+      //   latestNonce,
+      // });
       subgraphQueryMetaParams.set(domain, {
         maxXCallBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache

@@ -11,30 +11,22 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * reserves, simply swaps assets 1:1 based on reserves to simplify test assertions
  */
 contract DummySwap is IStableSwap {
-
   constructor() {}
 
-  event PoolCreated(
-    address assetA,
-    address assetB,
-    uint256 seedA,
-    uint256 seedB
-  );
+  event PoolCreated(address assetA, address assetB, uint256 seedA, uint256 seedB);
 
-  event Swapped(
-    address indexed buyer,
-    uint256 amountIn,
-    uint256 amountOut,
-    address assetIn,
-    address assetOut
-  );
+  event Swapped(address indexed buyer, uint256 amountIn, uint256 amountOut, address assetIn, address assetOut);
 
   // Hold mapping of swaps
   mapping(address => address) poolAssets;
 
   receive() external payable {}
 
-  function swapExact(uint256 amountIn, address assetIn, address assetOut) external payable returns (uint256) {
+  function swapExact(
+    uint256 amountIn,
+    address assetIn,
+    address assetOut
+  ) external payable returns (uint256) {
     // make sure pool is setup
     require(poolAssets[assetIn] == assetOut, "!setup");
 
@@ -61,13 +53,7 @@ contract DummySwap is IStableSwap {
     }
 
     // emit
-    emit Swapped(
-      msg.sender,
-      amountIn,
-      amountIn,
-      assetIn,
-      assetOut
-    );
+    emit Swapped(msg.sender, amountIn, amountIn, assetIn, assetOut);
 
     return amountIn;
   }
@@ -93,93 +79,91 @@ contract DummySwap is IStableSwap {
   }
 
   function calculateSwap(
-      uint8 tokenIndexFrom,
-      uint8 tokenIndexTo,
-      uint256 dx
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx
   ) external view returns (uint256) {
     require(false, "!implemented");
   }
 
-  function calculateTokenAmount(uint256[] calldata amounts, bool deposit)
-      external
-      view
-      returns (uint256) 
-  {
+  function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view returns (uint256) {
     require(false, "!implemented");
   }
 
-  function calculateRemoveLiquidity(uint256 amount)
-      external
-      view
-      returns (uint256[] memory) 
-  {
+  function calculateRemoveLiquidity(uint256 amount) external view returns (uint256[] memory) {
     require(false, "!implemented");
   }
 
-  function calculateRemoveLiquidityOneToken(
-      uint256 tokenAmount,
-      uint8 tokenIndex
-  ) external view returns (uint256 availableTokenAmount) {
+  function calculateRemoveLiquidityOneToken(uint256 tokenAmount, uint8 tokenIndex)
+    external
+    view
+    returns (uint256 availableTokenAmount)
+  {
     require(false, "!implemented");
   }
 
   function initialize(
-      IERC20[] memory pooledTokens,
-      uint8[] memory decimals,
-      string memory lpTokenName,
-      string memory lpTokenSymbol,
-      uint256 a,
-      uint256 fee,
-      uint256 adminFee,
-      address lpTokenTargetAddress
+    IERC20[] memory pooledTokens,
+    uint8[] memory decimals,
+    string memory lpTokenName,
+    string memory lpTokenSymbol,
+    uint256 a,
+    uint256 fee,
+    uint256 adminFee,
+    address lpTokenTargetAddress
   ) external {
     require(false, "!implemented");
   }
 
   function swap(
-      uint8 tokenIndexFrom,
-      uint8 tokenIndexTo,
-      uint256 dx,
-      uint256 minDy,
-      uint256 deadline
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx,
+    uint256 minDy,
+    uint256 deadline
   ) external returns (uint256) {
     require(false, "!implemented");
   }
 
   function addLiquidity(
-      uint256[] calldata amounts,
-      uint256 minToMint,
-      uint256 deadline
+    uint256[] calldata amounts,
+    uint256 minToMint,
+    uint256 deadline
   ) external returns (uint256) {
     require(false, "!implemented");
   }
 
   function removeLiquidity(
-      uint256 amount,
-      uint256[] calldata minAmounts,
-      uint256 deadline
+    uint256 amount,
+    uint256[] calldata minAmounts,
+    uint256 deadline
   ) external returns (uint256[] memory) {
     require(false, "!implemented");
   }
 
   function removeLiquidityOneToken(
-      uint256 tokenAmount,
-      uint8 tokenIndex,
-      uint256 minAmount,
-      uint256 deadline
+    uint256 tokenAmount,
+    uint8 tokenIndex,
+    uint256 minAmount,
+    uint256 deadline
   ) external returns (uint256) {
     require(false, "!implemented");
   }
 
   function removeLiquidityImbalance(
-      uint256[] calldata amounts,
-      uint256 maxBurnAmount,
-      uint256 deadline
+    uint256[] calldata amounts,
+    uint256 maxBurnAmount,
+    uint256 deadline
   ) external returns (uint256) {
     require(false, "!implemented");
   }
 
-  function setupPool(address assetA, address assetB, uint256 seedA, uint256 seedB) external payable {
+  function setupPool(
+    address assetA,
+    address assetB,
+    uint256 seedA,
+    uint256 seedB
+  ) external payable {
     // Save pool to swap A <-> B
     poolAssets[assetA] = assetB;
     poolAssets[assetB] = assetA;
@@ -197,11 +181,6 @@ contract DummySwap is IStableSwap {
       SafeERC20.safeTransferFrom(IERC20(assetB), msg.sender, address(this), seedB);
     }
 
-    emit PoolCreated(
-      assetA,
-      assetB,
-      seedA,
-      seedB
-    );
+    emit PoolCreated(assetA, assetB, seedA, seedB);
   }
 }

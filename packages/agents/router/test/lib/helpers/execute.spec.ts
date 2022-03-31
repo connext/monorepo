@@ -12,7 +12,7 @@ const mockReceivingAmount = BigNumber.from(mockTransactingAmount).sub(mockRouter
 
 let mockContext: any;
 
-describe("Helpers:Fulfill", () => {
+describe("Helpers:Execute", () => {
   before(() => {
     mockContext = stubContext();
   });

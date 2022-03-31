@@ -6,8 +6,10 @@
     "src/logging/*.ts",
     "src/mocks/*.ts",
     "src/types/*.ts",
+    "src/ethers/*.ts",
     "test/**/*.ts",
-    "src/helpers/env.ts"
+    "src/helpers/env.ts",
+    "src/helpers/time.ts"
   ],
   "all": true
 }

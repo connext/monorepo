@@ -88,11 +88,11 @@ export const mock = {
       return wallet;
     },
     cache: (): any => {
-      const transactions = createStubInstance(TransfersCache);
+      const transfers = createStubInstance(TransfersCache);
       const auctions = createStubInstance(AuctionsCache);
-      transactions.getLatestNonce.resolves(0);
+      transfers.getLatestNonce.resolves(0);
       return {
-        transactions,
+        transfers,
         auctions,
       };
     },

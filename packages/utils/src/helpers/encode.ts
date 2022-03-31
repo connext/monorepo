@@ -11,7 +11,7 @@ import { ExternalCall, ReconciledTransaction } from "..";
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
 export const SignedRelayerFeeDataEncoding = tidy(`tuple(
-  uint256 nonce,
+  bytes32 transferId,
   uint32 feePercentage
 )`);
 
@@ -30,13 +30,13 @@ export const ReconciledTransactionDataEncoding = tidy(`tuple(
 /**
  * Encodes a handleRelayerFee payload object, as defined in the Connext contract
  *
- * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
  * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Encoded handleRelayerFee payload
  */
-export const encodeHandleRelayerFeeData = (nonce: string, feePercentage: string): string => {
-  return defaultAbiCoder.encode([SignedRelayerFeeDataEncoding], [{ nonce, feePercentage }]);
+export const encodeHandleRelayerFeeData = (transferId: string, feePercentage: string): string => {
+  return defaultAbiCoder.encode([SignedRelayerFeeDataEncoding], [{ transferId, feePercentage }]);
 };
 
 /**

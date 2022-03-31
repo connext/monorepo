@@ -8,6 +8,7 @@ import {
   expect,
   Logger,
   mock,
+  chainDataToMap,
 } from "@connext/nxtp-utils";
 
 import { cachedPriceMap, ChainReader } from "../src/chainreader";
@@ -37,6 +38,61 @@ let context: RequestContext = {
   origin: "",
 };
 const { requestContext: requestContextMock } = mock.loggingContext();
+
+const mockChainData = chainDataToMap([
+  {
+    name: "Ethereum Testnet Rinkeby",
+    chainId: 4,
+    domainId: "2000",
+    type: "testnet",
+    confirmations: 1,
+    shortName: "rin",
+    network: "rinkeby",
+    assetId: {},
+  },
+  {
+    name: "Ethereum Testnet Kovan",
+    chainId: 42,
+    domainId: "3000",
+    type: "testnet",
+    confirmations: 1,
+    shortName: "kov",
+    chain: "ETH",
+    network: "kovan",
+    networkId: 42,
+    assetId: {},
+  },
+  {
+    name: "Local Testnet 1337",
+    chainId: 1337,
+    domainId: "1337",
+    type: "testnet",
+    confirmations: 1,
+    shortName: "lt-1337",
+    network: "lt-1337",
+    assetId: {},
+  },
+  {
+    name: "Local Testnet 1338",
+    chainId: 1338,
+    domainId: "1338",
+    type: "testnet",
+    confirmations: 1,
+    shortName: "lt-1338",
+    network: "lt-1338",
+    assetId: {},
+  },
+  {
+    name: "Optimistic Ethereum",
+    chainId: 10,
+    domainId: "10",
+    type: "mainnet",
+    confirmations: 1,
+    shortName: "optimism",
+    network: "optimism",
+    assetId: {},
+  },
+]);
 
 /// In these tests, we are testing the outer shell of chainreader - the interface, not the core functionality.
 /// For core functionality tests, see dispatch.spec.ts and provider.spec.ts.
@@ -506,7 +562,7 @@ describe("ChainReader", () => {
         18,
         "xcall",
         undefined,
-        undefined,
+        mockChainData,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(0);
@@ -521,7 +577,7 @@ describe("ChainReader", () => {
         18,
         "xcall",
         undefined,
-        undefined,
+        mockChainData,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4663795000000000);
@@ -536,26 +592,11 @@ describe("ChainReader", () => {
         18,
         "execute",
         undefined,
-        undefined,
+        mockChainData,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4737796428571428);
     });
-
-    // it("special case for chainId 10 cancel", async () => {
-    //   chainsPriceOraclesStub.value([1, 10]);
-    //   gasPriceStub.resolves(testGasPrice);
-    //   const result = await chainReader.calculateGasFee(
-    //     10,
-    //     mkAddress("0x0"),
-    //     18,
-    //     "cancel",
-    //     false,
-    //     undefined,
-    //     requestContextMock,
-    //   );
-    //   expect(result.toNumber()).to.be.eq(4832368571428571);
-    // });
 
     it("happy: should calculate for prepare with default data", async () => {
       const result = await chainReader.calculateGasFee(
@@ -564,7 +605,7 @@ describe("ChainReader", () => {
         18,
         "xcall",
         undefined,
-        undefined,
+        mockChainData,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(4207142857142857);
@@ -578,7 +619,7 @@ describe("ChainReader", () => {
         18,
         "execute",
         callDataParams,
-        undefined,
+        mockChainData,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(6642857142857142);
@@ -594,7 +635,7 @@ describe("ChainReader", () => {
         18,
         "execute",
         callDataParams,
-        undefined,
+        mockChainData,
         requestContextMock,
       );
       expect(result.toNumber()).to.be.eq(6642857142857142);

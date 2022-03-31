@@ -20,6 +20,10 @@ export const mock: any = {
     A: "1337",
     B: "1338",
   },
+  domain: {
+    A: "1337",
+    B: "1338",
+  },
   asset: {
     A: {
       name: "TEST-A",
@@ -58,18 +62,18 @@ export const mock: any = {
     callParams: (): CallParams => ({
       to: mkAddress("0xaaa"),
       callData: "0x",
-      originDomain: mock.chain.A,
-      destinationDomain: mock.chain.B,
+      originDomain: mock.domain.A,
+      destinationDomain: mock.domain.B,
     }),
     executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),
       local: mkAddress("0x111"),
       router: mkAddress("0x222"),
       feePercentage: "1",
-      nonce: 0,
       amount: utils.parseEther("1").toString(),
+      nonce: 0,
       relayerSignature: "0xsig",
-      originSender: mkAddress("0x333"),
+      originSender: "0xogsender",
     }),
     bid: (transferId = "0xtxid", data = mock.entity.executeArgs()): Bid => ({
       transferId,
@@ -173,66 +177,3 @@ export const mock: any = {
     },
   },
 };
-
-// export
-
-// export const invariantDataMock: InvariantTransactionData = {
-//   receivingChainTxManagerAddress: mkAddress("0xbb"),
-//   user: mkAddress("0xa"),
-//   router: mkAddress("0xb"),
-//   initiator: mkAddress("0xbb"),
-//   sendingAssetId: mkAddress("0xc"),
-//   receivingAssetId: mkAddress("0xd"),
-//   sendingChainFallback: mkAddress("0xe"),
-//   receivingAddress: mkAddress("0xf"),
-//   callTo: mkAddress("0xaa"),
-//   sendingChainId: 1337,
-//   receivingChainId: 1338,
-//   callDataHash: mkBytes32("0xa"),
-//   transactionId: mkBytes32("0xb"),
-// };
-
-// export const variantDataMock: VariantTransactionData = {
-//   amount: "1000000",
-//   expiry: Math.floor(Date.now() / 1000) + 24 * 3600 * 3,
-//   preparedBlockNumber: 1234,
-// };
-
-// export const txDataMock: TransactionData = {
-//   ...invariantDataMock,
-//   ...variantDataMock,
-// };
-
-// export const transactionSubgraphMock: any = {
-//   user: { id: txDataMock.user },
-//   router: { id: txDataMock.router },
-//   initiator: txDataMock.initiator,
-//   receivingChainTxManagerAddress: txDataMock.receivingChainTxManagerAddress,
-//   sendingChainId: txDataMock.sendingChainId,
-//   sendingAssetId: txDataMock.sendingAssetId,
-//   sendingChainFallback: txDataMock.sendingChainFallback,
-//   amount: txDataMock.amount,
-//   receivingChainId: txDataMock.receivingChainId,
-//   receivingAssetId: txDataMock.receivingAssetId,
-//   receivingAddress: txDataMock.receivingAddress,
-//   expiry: txDataMock.expiry,
-//   callDataHash: txDataMock.callDataHash,
-//   callTo: txDataMock.callTo,
-//   transactionId: txDataMock.transactionId,
-//   preparedBlockNumber: txDataMock.preparedBlockNumber,
-// };
-
-// export const receiverFulfillDataMock: TransactionFulfilledEvent = {
-//   txData: txDataMock,
-//   caller: mkAddress("0xf"),
-//   relayerFee: "5678",
-//   callData: "0x",
-//   signature: mkSig("0xeee"),
-// };
-
-// export const requestContextMock: RequestContext = {
-//   id: "0xf",
-//   origin: "0xe",
-// };
-
-// export const sigMock = "0xabcdef1c";

@@ -78,15 +78,17 @@ export class TransfersCache extends Cache {
       }
       // Retrieve latest nonce for this domain.
       let currentNonce = highestNonceByDomain[originDomain];
+
       if (!currentNonce) {
         // If we don't have a nonce recorded yet for this domain, we need to retrieve it from the cache.
         currentNonce = (await this.getLatestNonce(originDomain)) ?? 0;
         highestNonceByDomain[originDomain] = currentNonce;
+        nonceDidIncreaseForDomain[originDomain] = true;
       }
       if (nonce > currentNonce) {
         // If the new nonce is higher than the current one, we'll record it to later update the cache.
-        nonceDidIncreaseForDomain[originDomain] = true;
         highestNonceByDomain[originDomain] = nonce;
+        nonceDidIncreaseForDomain[originDomain] = true;
       }
     }
     // Publish NewXCall events for any new xcalls we found.
@@ -97,6 +99,7 @@ export class TransfersCache extends Cache {
     for (const [domain, nonce] of Object.entries(highestNonceByDomain)) {
       if (nonceDidIncreaseForDomain[domain]) {
         await this.data.hset(`${this.prefix}:${domain}`, "nonce", nonce);
+        await this.data.publish(StoreChannel.NewHighestNonce, JSON.stringify({ domain, nonce }));
       }
     }
   }

@@ -7,7 +7,6 @@ export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Pro
     adapters: { txservice, contracts },
     chainData,
   } = getContext();
-
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
@@ -22,7 +21,9 @@ export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Pro
     });
 
     return true;
-  } catch {
+  } catch (e) {
+    console.log(e);
+
     return false;
   }
 };

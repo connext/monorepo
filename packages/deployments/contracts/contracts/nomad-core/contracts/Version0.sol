@@ -6,5 +6,5 @@ pragma solidity >=0.6.11;
  * @notice Version getter for contracts
  **/
 contract Version0 {
-    uint8 public constant VERSION = 0;
+  uint8 public constant VERSION = 0;
 }

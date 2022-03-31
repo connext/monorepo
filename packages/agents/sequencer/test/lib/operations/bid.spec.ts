@@ -28,9 +28,8 @@ const mockExecuteArgs: ExecuteArgs[] = [
     router: mkAddress("0xa"),
     feePercentage: "0.1",
     amount: "10",
-    index: 0,
-    transferId: mockTransferId,
-    proof: ["0x"],
+    nonce: 0,
+    originSender: mkAddress("0xaaabbb"),
     relayerSignature: "0xsigsigsig",
   },
   {
@@ -44,9 +43,8 @@ const mockExecuteArgs: ExecuteArgs[] = [
     router: mkAddress("0xb"),
     feePercentage: "0.1",
     amount: "10",
-    index: 1,
-    transferId: mockTransferId,
-    proof: ["0x"],
+    nonce: 0,
+    originSender: mkAddress("0xaaabbb"),
     relayerSignature: "0xsigsigsig",
   },
 ];

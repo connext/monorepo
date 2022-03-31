@@ -58,7 +58,7 @@ RUN yarn build
 FROM node as runtime
 
 ENV NODE_ENV=production \
-    PORT=8001
+    PORT=8081
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
@@ -71,6 +71,6 @@ USER node
 
 WORKDIR /home/node/packages/agents/sequencer
 
-EXPOSE 8001
+EXPOSE 8081
 
 CMD ["node", "--trace-warnings", "dist/index.js"]

@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 
 const gelatoServer = "https://relay.gelato.digital";
 
-const gelatoSend = async (
+export const gelatoSend = async (
   chainId: number,
   dest: string,
   data: string,
@@ -23,12 +23,12 @@ const gelatoSend = async (
   return output;
 };
 
-const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
+export const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
   const chainsSupportedByGelato = await getGelatoRelayChains();
   return chainsSupportedByGelato.includes(chainId.toString());
 };
 
-const getGelatoRelayChains = async (): Promise<string[]> => {
+export const getGelatoRelayChains = async (): Promise<string[]> => {
   let result = [];
   try {
     const res = await axios.get(`${gelatoServer}/relays/`);
@@ -40,43 +40,30 @@ const getGelatoRelayChains = async (): Promise<string[]> => {
   return result;
 };
 
-const getEstimatedFee = async (
+export const getEstimatedFee = async (
   chainId: number,
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
 ): Promise<BigNumber> => {
-  const result = await _getEstimatedFee(chainId, paymentToken, gasLimit, isHighPriority);
-  return result;
-};
-
-const _getEstimatedFee = async (
-  chainId: number,
-  paymentToken: string,
-  gasLimit: number,
-  isHighPriority: boolean,
-): Promise<BigNumber> => {
+  let result = BigNumber.from("0");
   const params = { paymentToken, gasLimit, isHighPriority };
-  let result: BigNumber;
+
   try {
     const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
   } catch (error) {
-    let message: string = (error as Error).message;
-    if (axios.isAxiosError(error) && error.response) {
-      message = error.response?.data;
-    }
-    throw new Error(message);
+    console.error(error);
   }
   return result;
 };
 
-const isOracleActive = async (chainId: number): Promise<boolean> => {
+export const isOracleActive = async (chainId: number): Promise<boolean> => {
   const oracles = await getGelatoOracles();
   return oracles.includes(chainId.toString());
 };
 
-const getGelatoOracles = async (): Promise<string[]> => {
+export const getGelatoOracles = async (): Promise<string[]> => {
   let result = [];
   try {
     const res = await axios.get(`${gelatoServer}/oracles/`);
@@ -88,7 +75,7 @@ const getGelatoOracles = async (): Promise<string[]> => {
   return result;
 };
 
-const isPaymentTokenSupported = async (chainId: number, token: string): Promise<boolean> => {
+export const isPaymentTokenSupported = async (chainId: number, token: string): Promise<boolean> => {
   const paymentTokens = await getPaymentTokens(chainId);
   const lowerPaymentTokens = paymentTokens.map((address) => {
     return address.toLowerCase();
@@ -96,7 +83,7 @@ const isPaymentTokenSupported = async (chainId: number, token: string): Promise<
   return lowerPaymentTokens.includes(token.toString().toLowerCase());
 };
 
-const getPaymentTokens = async (chainId: number): Promise<string[]> => {
+export const getPaymentTokens = async (chainId: number): Promise<string[]> => {
   let result = [];
   try {
     const res = await axios.get(`${gelatoServer}/oracles/${chainId}/paymentTokens/`);
@@ -106,21 +93,4 @@ const getPaymentTokens = async (chainId: number): Promise<string[]> => {
   }
 
   return result;
-};
-
-export const formatUrl = (_url: string, endpoint: string, identifier?: string): string => {
-  let url = `${_url}/${endpoint}`;
-  if (identifier) {
-    url += `/${identifier}`;
-  }
-  return url;
-};
-
-export {
-  isChainSupportedByGelato,
-  gelatoSend,
-  isOracleActive,
-  getEstimatedFee,
-  getPaymentTokens,
-  isPaymentTokenSupported,
 };
