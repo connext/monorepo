@@ -63,7 +63,7 @@ variable "ingress_ipv6_cdir_blocks" {
 }
 
 variable "allow_all_cdir_blocks" {
-  default = [ "0.0.0.0/0" ]
+  default = ["0.0.0.0/0"]
 }
 
 variable "service_security_groups" {
@@ -75,4 +75,17 @@ variable "nxtp_config" {}
 
 variable "internal_lb" {
   default = false
+}
+
+variable "zone_id" {
+  description = "hosted zone id"
+}
+
+variable "cert_arn" {
+  description = "ACM certificate"
+}
+
+variable "base_domain" {
+  description = "base domain of the application"
+  default     = "connextapi.com"
 }
