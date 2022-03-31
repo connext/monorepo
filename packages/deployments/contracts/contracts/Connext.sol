@@ -7,6 +7,8 @@ import "./interfaces/IStableSwap.sol";
 import "./interfaces/IConnext.sol";
 import "./interpreters/Executor.sol";
 
+import {StableSwapLogic} from "./lib/logic/StableSwapLogic.sol";
+
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
 
@@ -402,7 +404,15 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
     // Swap to the local asset from the adopted
     // TODO: do we want to swap per call or per batch?
-    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
+    BridgeMessage.TokenId memory canonical = adoptedToCanonical[_transactingAssetId];
+    (uint256 _bridgedAmt, address _bridged) = StableSwapLogic.swapToLocalAssetIfNeeded(
+      canonical,
+      adoptedToLocalPools[canonical.id],
+      tokenRegistry,
+      _transactingAssetId,
+      _amount
+    );
+    // (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
 
     // Compute the transfer id
     bytes32 _transferId = _getTransferId(nonce, msg.sender, _args.params);
@@ -555,30 +565,30 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
-  function _swapToLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
-    // Check to see if the asset must be swapped because it is not the local asset
-    BridgeMessage.TokenId memory canonical = adoptedToCanonical[_asset];
-    if (canonical.id == bytes32(0)) {
-      // This is *not* the adopted asset, meaning it must be the local asset
-      return (_amount, _asset);
-    }
+  // function _swapToLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
+  //   // Check to see if the asset must be swapped because it is not the local asset
+  //   BridgeMessage.TokenId memory canonical = adoptedToCanonical[_asset];
+  //   if (canonical.id == bytes32(0)) {
+  //     // This is *not* the adopted asset, meaning it must be the local asset
+  //     return (_amount, _asset);
+  //   }
 
-    // Get the local token for this domain (may return canonical or representation)
-    address local = tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
+  //   // Get the local token for this domain (may return canonical or representation)
+  //   address local = tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
 
-    // Check the case where the adopted asset *is* the local asset
-    if (local == _asset) {
-      // No need to swap
-      return (_amount, _asset);
-    }
+  //   // Check the case where the adopted asset *is* the local asset
+  //   if (local == _asset) {
+  //     // No need to swap
+  //     return (_amount, _asset);
+  //   }
 
-    // Approve pool
-    IStableSwap pool = adoptedToLocalPools[canonical.id];
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
+  //   // Approve pool
+  //   IStableSwap pool = adoptedToLocalPools[canonical.id];
+  //   SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
 
-    // Swap the asset to the proper local asset
-    return (pool.swapExact(_amount, _asset, local), local);
-  }
+  //   // Swap the asset to the proper local asset
+  //   return (pool.swapExact(_amount, _asset, local), local);
+  // }
 
   /**
    * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
@@ -699,7 +709,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     } else {
       // Validate correct amounts are transferred
       uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-      if (msg.value != 0) revert Connext__transferAssetToContract_006();
+      if (msg.value != 0) revert Connext__transferAssetToContract_ethWithErcTransfer();
       SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
       // Calculate the *actual* amount that was sent here
       trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;

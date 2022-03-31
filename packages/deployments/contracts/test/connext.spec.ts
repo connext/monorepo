@@ -15,6 +15,7 @@ import {
   XAppConnectionManager,
   DummySwap,
   ProposedOwnableUpgradeable,
+  StableSwapLogic,
 } from "../typechain-types";
 
 import {
@@ -22,6 +23,7 @@ import {
   bridge,
   BridgeMessageTypes,
   deployContract,
+  deployContractWithLibs,
   formatTokenId,
   getDetailsHash,
   MAX_FEE_PER_GAS,
@@ -73,7 +75,7 @@ const executeProxyWrite = async <T extends Contract>(
 };
 
 const createFixtureLoader = waffle.createFixtureLoader;
-describe("Connext", () => {
+describe.only("Connext", () => {
   // Get wallets
   const [admin, router, user] = waffle.provider.getWallets() as Wallet[];
 
@@ -154,11 +156,14 @@ describe("Connext", () => {
       upgradeBeaconController.address,
     );
 
+    // Deploy Connext logic libraries
+    const stableSwapLogic = await deployContract<StableSwapLogic>("StableSwapLogic");
+
     // Deploy transacion managers
-    originTm = await deployContract<Connext>("Connext");
+    originTm = await deployContractWithLibs<Connext>("Connext", {StableSwapLogic: stableSwapLogic.address});
     await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address);
 
-    destinationTm = await deployContract<Connext>("Connext");
+    destinationTm = await deployContractWithLibs<Connext>("Connext", {StableSwapLogic: stableSwapLogic.address});
     await destinationTm.initialize(
       destinationDomain,
       destinationBridge.address,

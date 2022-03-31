@@ -11,6 +11,91 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
