@@ -74,6 +74,9 @@ const config: HardhatUserConfig = {
     rando: { default: 3 },
   },
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
+    },
     localhost: {
       accounts: {
         accountsBalance: "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
