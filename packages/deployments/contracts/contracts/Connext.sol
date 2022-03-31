@@ -2,9 +2,12 @@
 pragma solidity 0.8.11;
 
 import "./ProposedOwnableUpgradeable.sol";
+import "./RouterPermissionsManager.sol";
+
 import "./interfaces/IWrapped.sol";
 import "./interfaces/IStableSwap.sol";
 import "./interfaces/IConnext.sol";
+
 import "./interpreters/Executor.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
@@ -31,10 +34,13 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
 
-contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, IConnext {
-  // TODO: why is this breaking the build
-  // uint256 internal constant 3 = 3;
-
+contract Connext is
+  Initializable,
+  ReentrancyGuardUpgradeable,
+  ProposedOwnableUpgradeable,
+  RouterPermissionsManager,
+  IConnext
+{
   // ============ Constants =============
 
   bytes32 internal EMPTY;
@@ -93,25 +99,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   uint256 public domain;
 
   /**
-   * @notice Mapping of router to available balance of an asset
-   * @dev Routers should always store liquidity that they can expect to receive via the bridge on
-   * this domain (the nomad local asset)
-   */
-  mapping(address => mapping(address => uint256)) public routerBalances;
-
-  /**
-   * @notice Mapping of router to available relayer fee
-   * @dev Right now, routers only store native asset onchain.
-   * TODO: allow for approved relaying assets
-   */
-  mapping(address => uint256) public routerRelayerFees;
-
-  /**
-   * @notice Mapping of whitelisted router addresses.
-   */
-  mapping(address => bool) public approvedRouters;
-
-  /**
    * @notice Mapping of whitelisted assets on same domain as contract
    * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
    * registry
@@ -140,6 +127,20 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   mapping(bytes32 => bytes32) public reconciledTransfers;
 
   /**
+   * @notice Mapping of router to available relayer fee
+   * @dev Right now, routers only store native asset onchain.
+   * TODO: allow for approved relaying assets
+   */
+  mapping(address => uint256) public routerRelayerFees;
+
+  /**
+   * @notice Mapping of router to available balance of an asset
+   * @dev Routers should always store liquidity that they can expect to receive via the bridge on
+   * this domain (the nomad local asset)
+   */
+  mapping(address => mapping(address => uint256)) public routerBalances;
+
+  /**
    * @notice The max amount of routers a payment can be routed through
    */
   uint256 public maxRouters;
@@ -164,6 +165,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
+    __RouterPermissionsManager_init();
 
     nonce = 0;
     domain = _domain;
@@ -178,21 +180,17 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // ============ Owner Functions ============
 
   /**
-   * @notice Used to add routers that can transact crosschain
-   * @param router Router address to add
+   * @notice Used to set router initial properties
+   * @param router Router address to setup
+   * @param owner Initial Owner of router
+   * @param recipient Initial Recipient of router
    */
-  function addRouter(address router) external override onlyOwner {
-    // Sanity check: not empty
-    require(router != address(0), "#AR:001");
-
-    // Sanity check: needs approval
-    require(approvedRouters[router] == false, "#AR:032");
-
-    // Update mapping
-    approvedRouters[router] = true;
-
-    // Emit event
-    emit RouterAdded(router, msg.sender);
+  function setupRouter(
+    address router,
+    address owner,
+    address recipient
+  ) external onlyOwner {
+    _setupRouter(router, owner, recipient);
   }
 
   /**
@@ -200,26 +198,17 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param router Router address to remove
    */
   function removeRouter(address router) external override onlyOwner {
-    // Sanity check: not empty
-    require(router != address(0), "#RR:001");
-
-    // Sanity check: needs removal
-    require(approvedRouters[router] == true, "#RR:033");
-
-    // Update mapping
-    approvedRouters[router] = false;
-
-    // Emit event
-    emit RouterRemoved(router, msg.sender);
+    _removeRouter(router);
   }
 
   /**
    * @notice Adds a stable swap pool for the local <> adopted asset.
    */
-  function addStableSwapPool(
-    BridgeMessage.TokenId calldata canonical,
-    address stableSwapPool
-  ) external override onlyOwner {
+  function addStableSwapPool(BridgeMessage.TokenId calldata canonical, address stableSwapPool)
+    external
+    override
+    onlyOwner
+  {
     _addStableSwapPool(canonical, stableSwapPool);
   }
 
@@ -275,7 +264,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Used to add relayer fees in the native asset
    * @param router - The router to credit
    */
-  function addRelayerFees(address router) external override payable {
+  function addRelayerFees(address router) external payable override {
     require(msg.value > 0, "!value");
     routerRelayerFees[router] += msg.value;
   }
@@ -301,7 +290,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param router The router you are adding liquidity on behalf of
    */
-  function addLiquidityFor(uint256 amount, address local, address router) external payable override nonReentrant {
+  function addLiquidityFor(
+    uint256 amount,
+    address local,
+    address router
+  ) external payable override nonReentrant {
     _addLiquidityForRouter(amount, local, router);
   }
 
@@ -329,8 +322,12 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address local,
     address payable to
   ) external override nonReentrant {
+    // transfer to specicfied recipient IF recipient not sest
+    address _recipient = routerRecipients[msg.sender];
+    _recipient = _recipient == address(0) ? to : _recipient;
+
     // Sanity check: to is sensible
-    require(to != address(0), "#RL:007");
+    require(_recipient != address(0), "#RL:007");
 
     // Sanity check: nonzero amounts
     require(amount > 0, "#RL:002");
@@ -345,10 +342,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Transfer from contract to specified to
-    _transferAssetFromContract(local, to, amount);
+    _transferAssetFromContract(local, _recipient, amount);
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, to, local, amount, msg.sender);
+    emit LiquidityRemoved(msg.sender, _recipient, local, amount, msg.sender);
   }
 
   /**
@@ -371,19 +368,18 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @return The transfer id of the crosschain transfer
    */
   // TODO: add indicator if fast liquidity is allowed
-  function xcall(
-    XCallArgs calldata _args
-  ) external payable override returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable override returns (bytes32) {
     // Asset must be either adopted, canonical, or representation
     // TODO: why is this breaking the build
     // require(
-    //   adoptedToCanonical[_asset].id != bytes32(0) || 
+    //   adoptedToCanonical[_asset].id != bytes32(0) ||
     //   tokenRegistry.getLocalAddress(domain, _asset) != address(0),
     //   "!supported_asset"
     // );
 
     require(
-      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id != bytes32(0),
+      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id !=
+        bytes32(0),
       "!supported_asset"
     );
 
@@ -400,13 +396,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     nonce++;
 
     // Add to batch
-    _sendMessage(
-      _args.params.destinationDomain,
-      _args.params.to,
-      _bridged,
-      _bridgedAmt,
-      _transferId
-    );
+    _sendMessage(_args.params.destinationDomain, _args.params.to, _bridged, _bridgedAmt, _transferId);
 
     // Emit event
     emit XCalled(
@@ -474,9 +464,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _args - The `ExecuteArgs` for the transfer
    * @return bytes32 The transfer id of the crosschain transfer
    */
-  function execute(
-    ExecuteArgs calldata _args
-  ) external override returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external override returns (bytes32) {
     // Get the starting gas
     uint256 _start = gasleft();
 
@@ -510,7 +498,9 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
         amount,
         payable(_args.params.to),
         adopted,
-        _isFast ? LibCrossDomainProperty.EMPTY_BYTES : LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender),
+        _isFast
+          ? LibCrossDomainProperty.EMPTY_BYTES
+          : LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender),
         _args.params.callData
       );
     }
@@ -562,7 +552,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       // This is *not* the adopted asset, meaning it must be the local asset
       return (_amount, _asset);
     }
-  
+
     // Get the local token for this domain (may return canonical or representation)
     address local = tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
 
@@ -577,14 +567,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
 
     // Swap the asset to the proper local asset
-    return (
-      pool.swapExact(
-        _amount,
-        _asset,
-        local
-      ), 
-      local
-    );
+    return (pool.swapExact(_amount, _asset, local), local);
   }
 
   /**
@@ -610,14 +593,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
 
     // Otherwise, swap to adopted asset
-    return (
-      pool.swapExact(
-        _amount,
-        _asset,
-        adopted
-      ), 
-      adopted
-    );
+    return (pool.swapExact(_amount, _asset, adopted), adopted);
   }
 
   /**
@@ -626,7 +602,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _params - The call params of the transfer
    * @return The transfer id
    */
-  function _getTransferId(uint256 _nonce, address _sender, CallParams calldata _params) internal pure returns (bytes32) {
+  function _getTransferId(
+    uint256 _nonce,
+    address _sender,
+    CallParams calldata _params
+  ) internal pure returns (bytes32) {
     return keccak256(abi.encode(_nonce, _sender, _params));
   }
 
@@ -643,11 +623,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address _to,
     uint256 _amount
   ) internal pure returns (bytes32) {
-    ReconciledTransfer memory transfer = ReconciledTransfer({
-      local: _local,
-      amount: _amount,
-      to: _to
-    });
+    ReconciledTransfer memory transfer = ReconciledTransfer({local: _local, amount: _amount, to: _to});
 
     return keccak256(abi.encode(transfer));
   }
@@ -695,7 +671,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @notice Handles transferring funds from msg.sender to the Connext contract.
    * @dev If using the native asset, will automatically wrap
    * @param _assetId - The address to transfer
-   * @param _specifiedAmount - The specified amount to transfer. May not be the 
+   * @param _specifiedAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
    * @return The assetId of the transferred asset
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
@@ -708,7 +684,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
       require(msg.value == _specifiedAmount, "!amount");
-      wrapper.deposit{ value: _specifiedAmount }();
+      wrapper.deposit{value: _specifiedAmount}();
       _assetId = address(wrapper);
     } else {
       // Validate correct amounts are transferred
@@ -729,7 +705,11 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _to - The account that will receive the withdrawn funds
    * @param _amount - The amount to withdraw from contract
    */
-  function _transferAssetFromContract(address _assetId, address _to, uint256 _amount) internal {
+  function _transferAssetFromContract(
+    address _assetId,
+    address _to,
+    uint256 _amount
+  ) internal {
     // No native assets should ever be stored on this contract
     require(_assetId != address(0), "!native");
 
@@ -750,10 +730,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _adoptedAssetId - The used asset id for this domain (i.e. PoS USDC for
    * polygon)
    */
-  function _addAssetId(
-    BridgeMessage.TokenId calldata _canonical,
-    address _adoptedAssetId
-  ) internal {
+  function _addAssetId(BridgeMessage.TokenId calldata _canonical, address _adoptedAssetId) internal {
     // Sanity check: needs approval
     require(approvedAssets[_canonical.id] == false, "#AA:032");
 
@@ -776,10 +753,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param _canonical - The canonical TokenId to add (domain and id)
    * @param _stableSwap - The address of the amm to add
    */
-  function _addStableSwapPool(
-    BridgeMessage.TokenId calldata _canonical,
-    address _stableSwap
-  ) internal {
+  function _addStableSwapPool(BridgeMessage.TokenId calldata _canonical, address _stableSwap) internal {
     // Update the pool mapping
     adoptedToLocalPools[_canonical.id] = IStableSwap(_stableSwap);
 
@@ -829,7 +803,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     bytes calldata _sig
   ) internal {
     // NOTE: To not break the current working implementation in testnet, the first router is selected as the one to pay for the fees.
-    // This is a temporary solution until https://github.com/connext/nxtp/discussions/899 is implemented. 
+    // This is a temporary solution until https://github.com/connext/nxtp/discussions/899 is implemented.
     address router = _routers[0];
 
     // If the sender *is* the router, do nothing
@@ -849,7 +823,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // TODO: BASEFEE opcode will only be supported if the domain supports EIP1559
     // must be able to detect this dynamically
 
-    uint256 fee = block.basefee * _feePct / 100;
+    uint256 fee = (block.basefee * _feePct) / 100;
 
     // Decrement liquidity
     routerRelayerFees[router] -= fee;
@@ -877,14 +851,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     // Approve the bridge router
     SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_local), address(bridgeRouter), _amount);
 
-    bridgeRouter.send(
-      _local,
-      _amount,
-      _destination,
-      TypeCasts.addressToBytes32(_recipient),
-      true,
-      _id
-    );
+    bridgeRouter.send(_local, _amount, _destination, TypeCasts.addressToBytes32(_recipient), true, _id);
   }
 
   /**
@@ -895,10 +862,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   function _recoverSignature(bytes memory _encoded, bytes calldata _sig) internal pure returns (address) {
     // Recover
-    return ECDSAUpgradeable.recover(
-      ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)),
-      _sig
-    );
+    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
   }
 
   receive() external payable {}

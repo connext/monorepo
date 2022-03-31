@@ -17,9 +17,16 @@ data "aws_iam_role" "ecr_admin_role" {
   name = "erc_admin_role"
 }
 
+
+data "aws_route53_zone" "primary" {
+  zone_id = "Z26ELLSVRLDZAD"
+}
+
+
 module "router" {
   source                   = "../modules/service"
   region                   = var.region
+  zone_id                  = data.aws_route53_zone.primary.zone_id
   ecs_cluster_sg           = module.network.ecs_task_sg
   allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
@@ -32,7 +39,7 @@ module "router" {
   container_family         = "router"
   health_check_path        = "/ping"
   container_port           = 8080
-  loadbalancer_port        = 8080
+  loadbalancer_port        = 80
   cpu                      = 256
   memory                   = 512
   instance_count           = 1
@@ -43,12 +50,14 @@ module "router" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
 }
 
 
 module "sequencer" {
   source                   = "../modules/service"
   region                   = var.region
+  zone_id                  = data.aws_route53_zone.primary.zone_id
   ecs_cluster_sg           = module.network.ecs_task_sg
   allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
@@ -60,7 +69,7 @@ module "sequencer" {
   container_family         = "sequencer"
   health_check_path        = "/ping"
   container_port           = 8081
-  loadbalancer_port        = 8080
+  loadbalancer_port        = 80
   cpu                      = 256
   memory                   = 512
   instance_count           = 2
@@ -71,6 +80,7 @@ module "sequencer" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
 }
 
 

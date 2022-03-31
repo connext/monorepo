@@ -89,6 +89,19 @@ resource "aws_alb_target_group" "front_end" {
   }
 }
 
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_alb.lb.arn
+  port = "443"
+  protocol = "HTTPS"
+  ssl_policy = "ELBSecurityPolicy-2016-08"
+  certificate_arn = var.cert_arn
+
+  default_action {
+    type = "forward"
+    target_group_arn = aws_alb_target_group.front_end.arn
+  }
+}
+
 
 resource "aws_alb_listener" "front_end" {
   load_balancer_arn = aws_alb.lb.id
@@ -109,8 +122,8 @@ resource "aws_security_group" "lb" {
 
   ingress {
     protocol         = "tcp"
-    from_port        = 8000
-    to_port          = 9000
+    from_port        = var.loadbalancer_port
+    to_port          = var.container_port
     cidr_blocks      = var.ingress_cdir_blocks
     ipv6_cidr_blocks = var.ingress_ipv6_cdir_blocks
   }
@@ -123,5 +136,11 @@ resource "aws_security_group" "lb" {
   }
 }
 
-
+resource "aws_route53_record" "www" {
+  zone_id = var.zone_id
+  name    = "${var.environment}.${var.container_family}.${var.base_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.lb.dns_name]
+}
 

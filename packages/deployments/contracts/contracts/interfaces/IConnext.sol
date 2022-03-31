@@ -105,38 +105,13 @@ interface IConnext {
   // ============ Events ============
 
   /**
-   * @notice Emitted when a new router is added
-   * @param router - The address of the added router
-   * @param caller - The account that called the function
-   */
-  event RouterAdded(
-    address router,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when an existing router is removed
-   * @param router - The address of the removed router
-   * @param caller - The account that called the function
-   */
-  event RouterRemoved(
-    address router,
-    address caller
-  );
-
-  /**
    * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
    * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
    * @param domain - The domain of the canonical token for the local <> adopted amm
    * @param swapPool - The address of the AMM
    * @param caller - The account that called the function
    */
-  event StableSwapAdded(
-    bytes32 canonicalId,
-    uint32 domain,
-    address swapPool,
-    address caller
-  );
+  event StableSwapAdded(bytes32 canonicalId, uint32 domain, address swapPool, address caller);
 
   /**
    * @notice Emitted when a new asset is added
@@ -147,23 +122,14 @@ interface IConnext {
    * the address of the wrapped version will be stored
    * @param caller - The account that called the function
    */
-  event AssetAdded(
-    bytes32 canonicalId,
-    uint32 domain,
-    address adoptedAsset,
-    address supportedAsset,
-    address caller
-  );
+  event AssetAdded(bytes32 canonicalId, uint32 domain, address adoptedAsset, address supportedAsset, address caller);
 
   /**
    * @notice Emitted when an asset is removed from whitelists
    * @param canonicalId - The canonical identifier of the token removed
    * @param caller - The account that called the function
    */
-  event AssetRemoved(
-    bytes32 canonicalId,
-    address caller
-  );
+  event AssetRemoved(bytes32 canonicalId, address caller);
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
@@ -173,13 +139,7 @@ interface IConnext {
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
-  event LiquidityRemoved(
-    address indexed router,
-    address to,
-    address local,
-    uint256 amount,
-    address caller
-  );
+  event LiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
 
   /**
    * @notice Emitted when a router adds liquidity to the contract
@@ -188,13 +148,7 @@ interface IConnext {
    * @param amount - The amount of liquidity added
    * @param caller - The account that called the function
    */
-  event LiquidityAdded(
-    address router,
-    address local,
-    bytes32 canonicalId,
-    uint256 amount,
-    address caller
-  );
+  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
 
   /**
    * @notice Emitted when the maxRouters variable is updated
@@ -284,14 +238,15 @@ interface IConnext {
     address _wrappedNative
   ) external;
 
-  function addRouter(address router) external;
-    
+  function setupRouter(
+    address router,
+    address owner,
+    address recipient
+  ) external;
+
   function removeRouter(address router) external;
 
-  function addStableSwapPool(
-    BridgeMessage.TokenId calldata canonical,
-    address stableSwapPool
-  ) external;
+  function addStableSwapPool(BridgeMessage.TokenId calldata canonical, address stableSwapPool) external;
 
   function setupAsset(
     BridgeMessage.TokenId calldata canonical,
@@ -309,7 +264,11 @@ interface IConnext {
 
   function removeRelayerFees(uint256 amount, address payable to) external;
 
-  function addLiquidityFor(uint256 amount, address local, address router) external payable;
+  function addLiquidityFor(
+    uint256 amount,
+    address local,
+    address router
+  ) external payable;
 
   function addLiquidity(uint256 amount, address local) external payable;
 

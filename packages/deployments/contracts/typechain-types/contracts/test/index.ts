@@ -3,9 +3,6 @@
 /* eslint-disable */
 import type * as testWethSol from "./TestWeth.sol";
 export type { testWethSol };
-import type * as forge from "./forge";
-export type { forge };
-export type { BeaconProxy } from "./BeaconProxy";
 export type { Counter } from "./Counter";
 export type { DummySwap } from "./DummySwap";
 export type { FeeERC20 } from "./FeeERC20";
@@ -16,4 +13,3 @@ export type { TestBridgeMessage } from "./TestBridgeMessage";
 export type { TestERC20 } from "./TestERC20";
 export type { TestProposedOwnable } from "./TestProposedOwnable";
 export type { TestStableSwap } from "./TestStableSwap";
-export type { UpgradeableBeacon } from "./UpgradeableBeacon";

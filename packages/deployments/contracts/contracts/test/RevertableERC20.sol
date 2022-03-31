@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import '../interfaces/IERC20Minimal.sol';
+import "../interfaces/IERC20Minimal.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * Anybody can burn anyone else's tokens
  */
 contract RevertableERC20 is ERC20 {
-
   bool public shouldRevert = false;
 
   constructor() ERC20("Revertable Token", "RVRT") {
@@ -18,7 +17,7 @@ contract RevertableERC20 is ERC20 {
   }
 
   function mint(address account, uint256 amount) external {
-     require(!shouldRevert, "mint: SHOULD_REVERT");
+    require(!shouldRevert, "mint: SHOULD_REVERT");
     _mint(account, amount);
   }
 
