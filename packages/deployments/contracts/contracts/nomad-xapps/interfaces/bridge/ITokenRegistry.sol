@@ -9,27 +9,21 @@ import {BridgeMessage} from "../../contracts/bridge/BridgeMessage.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ITokenRegistry {
-    function isLocalOrigin(address _token) external view returns (bool);
+  function isLocalOrigin(address _token) external view returns (bool);
 
-    function ensureLocalToken(uint32 _domain, bytes32 _id) external returns (address _local);
+  function ensureLocalToken(uint32 _domain, bytes32 _id) external returns (address _local);
 
-    function mustHaveLocalToken(uint32 _domain, bytes32 _id) external view returns (IERC20);
+  function mustHaveLocalToken(uint32 _domain, bytes32 _id) external view returns (IERC20);
 
-    function getLocalAddress(uint32 _domain, bytes32 _id)
-    external
-    view
-    returns (address _local);
+  function getLocalAddress(uint32 _domain, bytes32 _id) external view returns (address _local);
 
-    function getTokenId(address _token)
-        external
-        view
-        returns (uint32, bytes32);
+  function getTokenId(address _token) external view returns (uint32, bytes32);
 
-    function enrollCustom(
-        uint32 _domain,
-        bytes32 _id,
-        address _custom
-    ) external;
+  function enrollCustom(
+    uint32 _domain,
+    bytes32 _id,
+    address _custom
+  ) external;
 
-    function oldReprToCurrentRepr(address _oldRepr) external view returns (address _currentRepr);
+  function oldReprToCurrentRepr(address _oldRepr) external view returns (address _currentRepr);
 }

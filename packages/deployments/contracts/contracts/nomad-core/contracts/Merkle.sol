@@ -11,29 +11,29 @@ import {MerkleLib} from "../libs/Merkle.sol";
  * exposes view functions for the tree.
  */
 contract MerkleTreeManager {
-    // ============ Libraries ============
+  // ============ Libraries ============
 
-    using MerkleLib for MerkleLib.Tree;
-    MerkleLib.Tree public tree;
+  using MerkleLib for MerkleLib.Tree;
+  MerkleLib.Tree public tree;
 
-    // ============ Upgrade Gap ============
+  // ============ Upgrade Gap ============
 
-    // gap for upgrade safety
-    uint256[49] private __GAP;
+  // gap for upgrade safety
+  uint256[49] private __GAP;
 
-    // ============ Public Functions ============
+  // ============ Public Functions ============
 
-    /**
-     * @notice Calculates and returns tree's current root
-     */
-    function root() public view returns (bytes32) {
-        return tree.root();
-    }
+  /**
+   * @notice Calculates and returns tree's current root
+   */
+  function root() public view returns (bytes32) {
+    return tree.root();
+  }
 
-    /**
-     * @notice Returns the number of inserted leaves in the tree (current index)
-     */
-    function count() public view returns (uint256) {
-        return tree.count;
-    }
+  /**
+   * @notice Returns the number of inserted leaves in the tree (current index)
+   */
+  function count() public view returns (uint256) {
+    return tree.count;
+  }
 }

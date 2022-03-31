@@ -44,17 +44,17 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
 /**
  * Generates a signature on the handleRelayerFee payload in `execute` transaction
  *
- * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
  * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Signature of the payload from the signer
  */
 export const signHandleRelayerFeePayload = async (
-  nonce: string,
+  transferId: string,
   feePercentage: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getHandleRelayerFeeHashToSign(nonce, feePercentage);
+  const hash = getHandleRelayerFeeHashToSign(transferId, feePercentage);
 
   return sign(hash, signer);
 };
@@ -62,13 +62,13 @@ export const signHandleRelayerFeePayload = async (
 /**
  * Generates a hash to sign of the handleRelayerFee payload in `execute` transaction
  *
- * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
+ * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
  * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Hash that should be signed
  */
-export const getHandleRelayerFeeHashToSign = (nonce: string, feePercentage: string): string => {
-  const payload = encodeHandleRelayerFeeData(nonce, feePercentage);
+export const getHandleRelayerFeeHashToSign = (transferId: string, feePercentage: string): string => {
+  const payload = encodeHandleRelayerFeeData(transferId, feePercentage);
   const hash = solidityKeccak256(["bytes"], [payload]);
   return hash;
 };
@@ -76,13 +76,16 @@ export const getHandleRelayerFeeHashToSign = (nonce: string, feePercentage: stri
 /**
  * Returns the recovered signer from the handleRelayerFee payload
  *
- * @param nonce - The nonce of the origin domain at the time the transaction was prepared. Used to generate
- * the transaction id for the crosschain transaction
+ * @param transferId - The transferId generated on the origin domain
  * @param feePercentage - The amount over the BASEFEE to tip the relayer
  * @returns Recovered address of signer
  */
-export const recoverHandleRelayerFeePayload = (nonce: string, feePercentage: string, signature: string): string => {
-  const payload = encodeHandleRelayerFeeData(nonce, feePercentage);
+export const recoverHandleRelayerFeePayload = (
+  transferId: string,
+  feePercentage: string,
+  signature: string,
+): string => {
+  const payload = encodeHandleRelayerFeeData(transferId, feePercentage);
   const hashed = solidityKeccak256(["bytes"], [payload]);
   return verifyMessage(arrayify(hashed), signature);
 };

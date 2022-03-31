@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import '../interfaces/IERC20Minimal.sol';
+import "../interfaces/IERC20Minimal.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -10,17 +10,17 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * Anybody can burn anyone else's tokens
  */
 contract TestERC20 is ERC20 {
-    constructor() ERC20("Test Token", "TEST") {
-        _mint(msg.sender, 1000000 ether);
-    }
+  constructor() ERC20("Test Token", "TEST") {
+    _mint(msg.sender, 1000000 ether);
+  }
 
-    fallback() external payable {}
+  fallback() external payable {}
 
-    function mint(address account, uint256 amount) external {
-        _mint(account, amount);
-    }
+  function mint(address account, uint256 amount) external {
+    _mint(account, amount);
+  }
 
-    function burn(address account, uint256 amount) external {
-        _burn(account, amount);
-    }
+  function burn(address account, uint256 amount) external {
+    _burn(account, amount);
+  }
 }

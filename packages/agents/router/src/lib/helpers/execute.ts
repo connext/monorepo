@@ -21,7 +21,9 @@ export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Pro
     });
 
     return true;
-  } catch {
+  } catch (e) {
+    console.log(e);
+
     return false;
   }
 };

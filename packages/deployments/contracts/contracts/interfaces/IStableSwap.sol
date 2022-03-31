@@ -8,52 +8,40 @@ interface IStableSwap {
 
   // events replicated from SwapUtils to make the ABI easier for dumb
   // clients
-  event TokenSwap(
-      address indexed buyer,
-      uint256 tokensSold,
-      uint256 tokensBought,
-      uint128 soldId,
-      uint128 boughtId
-  );
+  event TokenSwap(address indexed buyer, uint256 tokensSold, uint256 tokensBought, uint128 soldId, uint128 boughtId);
   event AddLiquidity(
-      address indexed provider,
-      uint256[] tokenAmounts,
-      uint256[] fees,
-      uint256 invariant,
-      uint256 lpTokenSupply
+    address indexed provider,
+    uint256[] tokenAmounts,
+    uint256[] fees,
+    uint256 invariant,
+    uint256 lpTokenSupply
   );
-  event RemoveLiquidity(
-      address indexed provider,
-      uint256[] tokenAmounts,
-      uint256 lpTokenSupply
-  );
+  event RemoveLiquidity(address indexed provider, uint256[] tokenAmounts, uint256 lpTokenSupply);
   event RemoveLiquidityOne(
-      address indexed provider,
-      uint256 lpTokenAmount,
-      uint256 lpTokenSupply,
-      uint256 boughtId,
-      uint256 tokensBought
+    address indexed provider,
+    uint256 lpTokenAmount,
+    uint256 lpTokenSupply,
+    uint256 boughtId,
+    uint256 tokensBought
   );
   event RemoveLiquidityImbalance(
-      address indexed provider,
-      uint256[] tokenAmounts,
-      uint256[] fees,
-      uint256 invariant,
-      uint256 lpTokenSupply
+    address indexed provider,
+    uint256[] tokenAmounts,
+    uint256[] fees,
+    uint256 invariant,
+    uint256 lpTokenSupply
   );
   event NewAdminFee(uint256 newAdminFee);
   event NewSwapFee(uint256 newSwapFee);
   event NewWithdrawFee(uint256 newWithdrawFee);
-  event RampA(
-      uint256 oldA,
-      uint256 newA,
-      uint256 initialTime,
-      uint256 futureTime
-  );
+  event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
   event StopRampA(uint256 currentA, uint256 time);
-  
-  
-  function swapExact(uint256 amountIn, address assetIn, address assetOut) external payable returns (uint256);
+
+  function swapExact(
+    uint256 amountIn,
+    address assetIn,
+    address assetOut
+  ) external payable returns (uint256);
 
   function getA() external view returns (uint256);
 
@@ -67,68 +55,62 @@ interface IStableSwap {
 
   // min return calculation functions
   function calculateSwap(
-      uint8 tokenIndexFrom,
-      uint8 tokenIndexTo,
-      uint256 dx
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx
   ) external view returns (uint256);
 
-  function calculateTokenAmount(uint256[] calldata amounts, bool deposit)
-      external
-      view
-      returns (uint256);
+  function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view returns (uint256);
 
-  function calculateRemoveLiquidity(uint256 amount)
-      external
-      view
-      returns (uint256[] memory);
+  function calculateRemoveLiquidity(uint256 amount) external view returns (uint256[] memory);
 
-  function calculateRemoveLiquidityOneToken(
-      uint256 tokenAmount,
-      uint8 tokenIndex
-  ) external view returns (uint256 availableTokenAmount);
+  function calculateRemoveLiquidityOneToken(uint256 tokenAmount, uint8 tokenIndex)
+    external
+    view
+    returns (uint256 availableTokenAmount);
 
   // state modifying functions
   function initialize(
-      IERC20[] memory pooledTokens,
-      uint8[] memory decimals,
-      string memory lpTokenName,
-      string memory lpTokenSymbol,
-      uint256 a,
-      uint256 fee,
-      uint256 adminFee,
-      address lpTokenTargetAddress
+    IERC20[] memory pooledTokens,
+    uint8[] memory decimals,
+    string memory lpTokenName,
+    string memory lpTokenSymbol,
+    uint256 a,
+    uint256 fee,
+    uint256 adminFee,
+    address lpTokenTargetAddress
   ) external;
 
   function swap(
-      uint8 tokenIndexFrom,
-      uint8 tokenIndexTo,
-      uint256 dx,
-      uint256 minDy,
-      uint256 deadline
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx,
+    uint256 minDy,
+    uint256 deadline
   ) external returns (uint256);
 
   function addLiquidity(
-      uint256[] calldata amounts,
-      uint256 minToMint,
-      uint256 deadline
+    uint256[] calldata amounts,
+    uint256 minToMint,
+    uint256 deadline
   ) external returns (uint256);
 
   function removeLiquidity(
-      uint256 amount,
-      uint256[] calldata minAmounts,
-      uint256 deadline
+    uint256 amount,
+    uint256[] calldata minAmounts,
+    uint256 deadline
   ) external returns (uint256[] memory);
 
   function removeLiquidityOneToken(
-      uint256 tokenAmount,
-      uint8 tokenIndex,
-      uint256 minAmount,
-      uint256 deadline
+    uint256 tokenAmount,
+    uint8 tokenIndex,
+    uint256 minAmount,
+    uint256 deadline
   ) external returns (uint256);
 
   function removeLiquidityImbalance(
-      uint256[] calldata amounts,
-      uint256 maxBurnAmount,
-      uint256 deadline
+    uint256[] calldata amounts,
+    uint256 maxBurnAmount,
+    uint256 deadline
   ) external returns (uint256);
 }

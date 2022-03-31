@@ -12,7 +12,6 @@ import "../contracts/Connext.sol";
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
 contract ConnextTest is ForgeHelper {
-
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
@@ -26,7 +25,7 @@ contract ConnextTest is ForgeHelper {
   address wrapper = address(3);
 
   // ============ Test set up ============
-  
+
   function setUp() public {
     connext = new Connext();
     connext.initialize(domain, payable(bridgeRouter), tokenRegistry, wrapper);
@@ -37,9 +36,7 @@ contract ConnextTest is ForgeHelper {
   // specifically here with overriding mappings: https://github.com/brockelmore/forge-std/blob/99107e3e39f27339d224575756d4548c08639bc0/src/test/StdStorage.t.sol#L189-L192
   function setApprovedRouter(address _router, bool _approved) internal {
     uint256 writeVal = _approved ? 1 : 0;
-    stdstore.target(address(connext)).sig(connext.approvedRouters.selector).with_key(_router).checked_write(
-      writeVal
-    );
+    stdstore.target(address(connext)).sig(connext.approvedRouters.selector).with_key(_router).checked_write(writeVal);
   }
 
   function setApprovedAsset(address _asset, bool _approved) internal {
