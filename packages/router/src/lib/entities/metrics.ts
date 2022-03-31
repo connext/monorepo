@@ -59,7 +59,6 @@ export const totalTransferredVolume = new Counter({
   name: "router_transfer_volume",
   help: "router_transfer_volume_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -120,7 +119,6 @@ export const receivedAuction = new Counter({
   name: "router_auction_received",
   help: "router_auction_received_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.ReceivingAssetId,
     METRICS.SendingChainId,
@@ -135,7 +133,6 @@ export const attemptedAuction = new Counter({
   name: "router_auction_attempt",
   help: "router_auction_attempt_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.ReceivingAssetId,
     METRICS.SendingChainId,
@@ -150,7 +147,6 @@ export const successfulAuction = new Counter({
   name: "router_auction_successful",
   help: "router_auction_successful_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.ReceivingAssetId,
     METRICS.SendingChainId,
@@ -169,7 +165,6 @@ export const attemptedTransfer = new Counter({
   name: "router_transfer_attempt",
   help: "router_transfer_attempt_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.ReceivingAssetId,
     METRICS.SendingChainId,
@@ -185,7 +180,6 @@ export const completedTransfer = new Counter({
   name: "router_transfer_successful",
   help: "router_transfer_successful_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.ReceivingAssetId,
     METRICS.SendingChainId,
@@ -204,7 +198,6 @@ export const feesCollected = new Counter({
   name: "router_fees_usd",
   help: "router_fees_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -221,7 +214,6 @@ export const gasConsumed = new Counter({
   name: "router_gas_consumed_usd",
   help: "router_gas_consumed_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -237,7 +229,6 @@ export const relayerFeesPaid = new Counter({
   name: "relayer_fees_paid_usd",
   help: "relayer_fees_paid_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -253,7 +244,7 @@ export const relayerFeesPaid = new Counter({
 export const liquiditySupplied = new Gauge({
   name: "liquidity_supplied_usd",
   help: "liquidity_supplied_usd_help",
-  labelNames: [METRICS.TransactionId, METRICS.AssetId, METRICS.ChainId, METRICS.AssetName],
+  labelNames: [METRICS.AssetId, METRICS.ChainId, METRICS.AssetName],
   async collect() {
     const liquidity = await collectExpressiveLiquidity();
     if (!liquidity) {
@@ -344,7 +335,6 @@ export const senderPrepared = new Counter({
   name: "sender_prepared",
   help: "sender_prepared_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -357,7 +347,6 @@ export const receiverPrepared = new Counter({
   name: "receiver_prepared",
   help: "receiver_prepared_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -370,7 +359,6 @@ export const senderCancelled = new Counter({
   name: "sender_cancel",
   help: "sender_cancel_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -383,7 +371,6 @@ export const receiverCancelled = new Counter({
   name: "receiver_cancel",
   help: "receiver_cancel_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -396,7 +383,6 @@ export const senderFulfilled = new Counter({
   name: "sender_fulfilled",
   help: "sender_fulfilled_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -409,7 +395,6 @@ export const receiverFulfilled = new Counter({
   name: "receiver_fulfilled",
   help: "receiver_fulfilled_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -422,7 +407,6 @@ export const senderExpired = new Counter({
   name: "sender_expired",
   help: "sender_expired_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -435,7 +419,6 @@ export const receiverExpired = new Counter({
   name: "receiver_expired",
   help: "receiver_expired_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -448,7 +431,6 @@ export const receiverFailedPrepare = new Counter({
   name: "receiver_failed_prepare",
   help: "receiver_failed_prepare_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -461,7 +443,6 @@ export const senderFailedFulfill = new Counter({
   name: "sender_failed_fulfill",
   help: "sender_failed_fulfill_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -474,7 +455,6 @@ export const senderFailedCancel = new Counter({
   name: "sender_failed_cancel",
   help: "sender_failed_cancel_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,
@@ -487,7 +467,6 @@ export const receiverFailedCancel = new Counter({
   name: "receiver_failed_cancel",
   help: "receiver_failed_cancel_help",
   labelNames: [
-    METRICS.TransactionId,
     METRICS.SendingAssetId,
     METRICS.SendingChainId,
     METRICS.ReceivingAssetId,

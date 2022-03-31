@@ -261,7 +261,6 @@ export const handleSingle = async (
       );
       successfulAuction.inc(
         {
-          transactionId: _transaction.crosschainTx.invariant.transactionId,
           sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -272,7 +271,6 @@ export const handleSingle = async (
         1,
       );
       senderPrepared.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -280,7 +278,6 @@ export const handleSingle = async (
         assetName: sendingAssetName,
       });
       receiverPrepared.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -289,7 +286,6 @@ export const handleSingle = async (
       });
       logger.info("Prepared receiver", requestContext, methodContext, { txHash: receipt?.transactionHash });
       attemptedTransfer.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -307,7 +303,6 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.receivingChainId,
       );
       receiverFailedPrepare.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -338,7 +333,6 @@ export const handleSingle = async (
             requestContext,
           );
           senderCancelled.inc({
-            transactionId: transaction.crosschainTx.invariant.transactionId,
             sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
             sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
             receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
@@ -349,7 +343,6 @@ export const handleSingle = async (
           // if successfully cancelled, was successful auction
           successfulAuction.inc(
             {
-              transactionId: _transaction.crosschainTx.invariant.transactionId,
               sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
               receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
               sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -361,7 +354,6 @@ export const handleSingle = async (
           );
         } catch (cancelErr: any) {
           senderFailedCancel.inc({
-            transactionId: _transaction.crosschainTx.invariant.transactionId,
             sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
             receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
             sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -453,7 +445,6 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.receivingChainId,
       );
       completedTransfer.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -463,7 +454,6 @@ export const handleSingle = async (
       });
       receiverFulfilled.inc(
         {
-          transactionId: _transaction.crosschainTx.invariant.transactionId,
           sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -474,7 +464,6 @@ export const handleSingle = async (
       );
       senderFulfilled.inc(
         {
-          transactionId: _transaction.crosschainTx.invariant.transactionId,
           sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
           receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
           sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -533,7 +522,6 @@ export const handleSingle = async (
       incrementFeesPromise();
     } catch (err: any) {
       senderFailedFulfill.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -585,7 +573,6 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.receivingChainId,
       );
       receiverCancelled.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -593,7 +580,6 @@ export const handleSingle = async (
         assetName: receivingAssetName,
       });
       receiverExpired.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
@@ -602,7 +588,6 @@ export const handleSingle = async (
       });
     } catch (err: any) {
       receiverFailedCancel.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -652,7 +637,6 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.sendingChainId,
       );
       senderCancelled.inc({
-        transactionId: transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
@@ -660,7 +644,6 @@ export const handleSingle = async (
         assetName: sendingAssetName,
       });
       senderExpired.inc({
-        transactionId: transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
@@ -746,7 +729,6 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.sendingChainId,
       );
       senderCancelled.inc({
-        transactionId: transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
@@ -755,7 +737,6 @@ export const handleSingle = async (
       });
     } catch (err: any) {
       senderFailedCancel.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,
@@ -806,7 +787,6 @@ export const handleSingle = async (
         _transaction.crosschainTx.invariant.sendingChainId,
       );
       senderCancelled.inc({
-        transactionId: transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: transaction.crosschainTx.invariant.sendingAssetId,
         sendingChainId: transaction.crosschainTx.invariant.sendingChainId,
         receivingAssetId: transaction.crosschainTx.invariant.receivingAssetId,
@@ -815,7 +795,6 @@ export const handleSingle = async (
       });
     } catch (err: any) {
       senderFailedCancel.inc({
-        transactionId: _transaction.crosschainTx.invariant.transactionId,
         sendingAssetId: _transaction.crosschainTx.invariant.sendingAssetId,
         receivingAssetId: _transaction.crosschainTx.invariant.receivingAssetId,
         sendingChainId: _transaction.crosschainTx.invariant.sendingChainId,

@@ -364,7 +364,6 @@ export const incrementFees = async (
   // Update counter
   feesCollected.inc(
     {
-      transactionId,
       sendingAssetId,
       sendingChainId,
       receivingAssetId,
@@ -441,7 +440,7 @@ export const incrementGasConsumed = async (
   // Update counter
   // TODO: reason type
   gasConsumed.inc(
-    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId },
+    { sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId },
     usd,
   );
 };
@@ -489,7 +488,7 @@ export const incrementRelayerFeesPaid = async (
   const usd = await convertToUsd(assetId, chainId, relayerFee, requestContext);
 
   relayerFeesPaid.inc(
-    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId, assetId },
+    { sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId, assetId },
     usd,
   );
 };
@@ -535,7 +534,6 @@ export const incrementTotalTransferredVolume = async (
 
   totalTransferredVolume.inc(
     {
-      transactionId,
       sendingAssetId,
       sendingChainId,
       receivingAssetId,
