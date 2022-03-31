@@ -41,7 +41,7 @@ jobs:
         run: yarn build
 
       - name: Yarn test
-        run: yarn test:all
+        run: forge install && yarn test:all
 
   build-and-push-router-image:
     env:
