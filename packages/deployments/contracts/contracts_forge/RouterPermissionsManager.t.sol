@@ -48,6 +48,10 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     stdstore.target(address(connext)).sig(connext.proposedRouterOwners.selector).with_key(_router).checked_write(_proposed);
   }
 
+  function setProposedTimestamp(address _router, uint256 _timestamp) internal {
+    stdstore.target(address(connext)).sig(connext.proposedRouterTimestamp.selector).with_key(_router).checked_write(_timestamp);
+  }
+
   // ============ setupRouter ============
 
   //Fail if not called by owner
@@ -158,11 +162,93 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   // ============ proposeRouterOwner ============
 
   //Fail if propose current owner
-  function testProposeRouterOwnerAlreadOwner() public {
+  function testProposeRouterOwnerAlreadyOwner() public {
     address _router = address(1);
     setRouterOwner(_router, address(3));
     vm.prank(address(3));
     vm.expectRevert(bytes("!diff")); 
     connext.proposeRouterOwner(_router, address(3));
+  }
+
+  //Fail if proposed owner is same as the previous proposed
+  function testProposeRouterOwnerAlreadyProposed() public {
+    address _router = address(1);
+    setRouterOwner(_router, address(3));
+    setProposedOwner(_router, address(2));
+    vm.prank(address(3));
+    vm.expectRevert(bytes("#PR:003")); 
+    connext.proposeRouterOwner(_router, address(2));
+  }
+
+  //Should work
+  function testProposeRouterOwnerOk() public {
+    address _router = address(1);
+    setRouterOwner(_router, address(3));
+    setProposedOwner(_router, address(0));
+    vm.prank(address(3));
+    connext.proposeRouterOwner(_router, address(2));
+    assertEq(connext.proposedRouterOwners(_router), address(2));
+  }
+
+  // ============ acceptProposedRouterOwner ============
+
+  //Fail if proposed == address(0) && (_owner != address(0) && msg.sender != router) || _owner != msg.sender
+  function testOnlyProposedRouterOwnerFailedWithZeroOwner() public {
+    address _router = address(1);
+    setRouterOwner(_router, address(0));
+    setProposedOwner(_router, address(0));
+    vm.prank(address(2));
+    vm.expectRevert(bytes("!router_owner"));   
+    connext.acceptProposedRouterOwner(_router);
+  }
+
+  //Fail if proposed == address(0) && (_owner != address(0) && msg.sender != router) || _owner != msg.sender
+  function testOnlyProposedRouterOwnerFailedWithNoZeroOwner() public {
+    address _router = address(1);
+    setRouterOwner(_router, address(3));
+    setProposedOwner(_router, address(0));
+    vm.prank(address(2));
+    vm.expectRevert(bytes("!router_owner")); 
+    connext.acceptProposedRouterOwner(_router);
+  }
+
+  //Fail if proposed != address(0) && msg.sender != _proposed
+  function testOnlyProposedRouterOwnerFailedWithNoZeroProposed() public {
+    address _router = address(1);
+    setProposedOwner(_router, address(1));
+    vm.prank(address(2));
+    vm.expectRevert(bytes("!proposed_router_owner")); 
+    connext.acceptProposedRouterOwner(_router);
+  }
+
+  //Should work if proposed == address(0)  && (_owner == address(0) && msg.sender == router) || _owner != msg.sender
+  function testOnlyProposedRouterOwnerOkWithZeroOwner() public {
+    address _router = address(1);
+    setRouterOwner(_router, address(0));
+    setProposedOwner(_router, address(0));
+    setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
+    vm.prank(_router); 
+    connext.acceptProposedRouterOwner(_router); 
+    assertEq(connext.routerOwners(_router), address(0));
+  }
+
+  //Should work if proposed == address(0)  &&  msg.sender == owner
+  function testOnlyProposedOwnerOkWithNoZeroOwner() public {
+    address _router = address(1);
+    setRouterOwner(_router, address(3));
+    setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
+    vm.prank(address(3));
+    connext.acceptProposedRouterOwner(_router); 
+    assertEq(connext.routerOwners(_router), address(0));
+  }
+
+  //Should work if proposed != address(0)  &&  msg.sender == _proposed
+  function testOnlyProposedOwnerOkWithNoZeroProposed() public {
+    address _router = address(1);
+    setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
+    setProposedOwner(_router, address(1));
+    vm.prank(address(1));
+    connext.acceptProposedRouterOwner(_router); 
+    assertEq(connext.routerOwners(_router), address(1));
   }
 }
