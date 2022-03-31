@@ -8,8 +8,8 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 
-import { value config as dotEnvConfig } from "dotenv";
-import { value HardhatUserConfig } from "hardhat/types";
+import { config as dotEnvConfig } from "dotenv";
+import { HardhatUserConfig } from "hardhat/types";
 
 import "./src/tasks/addRouter";
 import "./src/tasks/setupAsset";
@@ -56,7 +56,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        version: "0.7.6",   // for @suma-tx/memview-sol
+        version: "0.7.6", // for @suma-tx/memview-sol
         settings: {},
       },
     ],
