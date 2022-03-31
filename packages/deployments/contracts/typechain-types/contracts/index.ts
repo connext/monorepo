@@ -20,5 +20,4 @@ export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
 export type { Multicall } from "./Multicall";
 export type { PriceOracle } from "./PriceOracle";
 export type { ProposedOwnableUpgradeable } from "./ProposedOwnableUpgradeable";
-export type { RouterPermissionsManager } from "./RouterPermissionsManager";
 export type { StableSwap } from "./StableSwap";
