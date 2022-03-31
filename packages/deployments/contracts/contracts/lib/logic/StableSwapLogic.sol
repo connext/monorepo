@@ -10,6 +10,13 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 
 library StableSwapLogic {
 
+  bytes public constant EMPTY_BYTES = hex"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+  // HACK - for some reason Typechain is not generating the type if this is't here ¯\_(ツ)_/¯
+  function dummy() internal pure returns (bytes memory) {
+    return EMPTY_BYTES;
+  }
+
   /**
    * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
    * @dev Will not swap if the asset passed in is the local asset

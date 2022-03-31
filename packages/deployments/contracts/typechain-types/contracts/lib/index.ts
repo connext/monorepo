@@ -3,4 +3,6 @@
 /* eslint-disable */
 import type * as stableSwap from "./StableSwap";
 export type { stableSwap };
+import type * as logic from "./logic";
+export type { logic };
 export type { LibCrossDomainProperty } from "./LibCrossDomainProperty";

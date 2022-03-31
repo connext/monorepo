@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as stableSwap from "./StableSwap";
+export * as logic from "./logic";
 export { LibCrossDomainProperty__factory } from "./LibCrossDomainProperty__factory";

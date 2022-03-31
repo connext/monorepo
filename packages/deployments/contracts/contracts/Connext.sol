@@ -18,6 +18,7 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
+
 // TODOs:
 // Open questions:
 // 1. How to account for fees/specify amount used on receiving chain? How to specify slippage in prepare and in AMM?
@@ -557,14 +558,14 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
 
   // ============ Private functions ============
 
-  /**
-   * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
-   * @dev Will not swap if the asset passed in is the local asset
-   * @param _asset - The address of the adopted asset to swap into the local asset
-   * @param _amount - The amount of the adopted asset to swap
-   * @return The amount of local asset received from swap
-   * @return The address of asset received post-swap
-   */
+  // /**
+  //  * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
+  //  * @dev Will not swap if the asset passed in is the local asset
+  //  * @param _asset - The address of the adopted asset to swap into the local asset
+  //  * @param _amount - The amount of the adopted asset to swap
+  //  * @return The amount of local asset received from swap
+  //  * @return The address of asset received post-swap
+  //  */
   // function _swapToLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
   //   // Check to see if the asset must be swapped because it is not the local asset
   //   BridgeMessage.TokenId memory canonical = adoptedToCanonical[_asset];

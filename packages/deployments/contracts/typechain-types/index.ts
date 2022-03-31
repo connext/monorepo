@@ -68,6 +68,8 @@ export type { Executor } from "./contracts/interpreters/Executor";
 export { Executor__factory } from "./factories/contracts/interpreters/Executor__factory";
 export type { LibCrossDomainProperty } from "./contracts/lib/LibCrossDomainProperty";
 export { LibCrossDomainProperty__factory } from "./factories/contracts/lib/LibCrossDomainProperty__factory";
+export type { StableSwapLogic } from "./contracts/lib/logic/StableSwapLogic";
+export { StableSwapLogic__factory } from "./factories/contracts/lib/logic/StableSwapLogic__factory";
 export type { AmplificationUtils } from "./contracts/lib/StableSwap/AmplificationUtils";
 export { AmplificationUtils__factory } from "./factories/contracts/lib/StableSwap/AmplificationUtils__factory";
 export type { LPToken } from "./contracts/lib/StableSwap/LPToken";
