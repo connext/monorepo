@@ -288,119 +288,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "RouterAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "prevOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "RouterOwnerAccepted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "prevProposed",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newProposed",
-        type: "address",
-      },
-    ],
-    name: "RouterOwnerProposed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "prevRecipient",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newRecipient",
-        type: "address",
-      },
-    ],
-    name: "RouterRecipientSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "RouterRemoved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "bytes32",
         name: "canonicalId",
@@ -514,19 +401,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "acceptRouterOwner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -576,19 +450,6 @@ const _abi = [
     name: "addRelayerFees",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "addRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -735,24 +596,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "proposed",
-        type: "address",
-      },
-    ],
-    name: "proposeRouterOwner",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",
@@ -846,24 +689,6 @@ const _abi = [
       },
     ],
     name: "removeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
-      },
-    ],
-    name: "setRecipient",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

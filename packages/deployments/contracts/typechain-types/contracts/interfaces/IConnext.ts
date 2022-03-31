@@ -108,21 +108,17 @@ export declare namespace BridgeMessage {
 
 export interface IConnextInterface extends utils.Interface {
   functions: {
-    "acceptRouterOwner(address)": FunctionFragment;
     "addLiquidity(uint256,address)": FunctionFragment;
     "addLiquidityFor(uint256,address,address)": FunctionFragment;
     "addRelayerFees(address)": FunctionFragment;
-    "addRouter(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
     "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes,address))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
-    "proposeRouterOwner(address,address)": FunctionFragment;
     "reconcile(bytes32,address,address,uint256)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRelayerFees(uint256,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
-    "setRecipient(address,address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
     "xcall(((address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
@@ -130,30 +126,22 @@ export interface IConnextInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "acceptRouterOwner"
       | "addLiquidity"
       | "addLiquidityFor"
       | "addRelayerFees"
-      | "addRouter"
       | "addStableSwapPool"
       | "execute"
       | "initialize"
-      | "proposeRouterOwner"
       | "reconcile"
       | "removeAssetId"
       | "removeLiquidity"
       | "removeRelayerFees"
       | "removeRouter"
-      | "setRecipient"
       | "setupAsset"
       | "setupRouter"
       | "xcall"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "acceptRouterOwner",
-    values: [string]
-  ): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
     values: [BigNumberish, string]
@@ -166,7 +154,6 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "addRelayerFees",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "addRouter", values: [string]): string;
   encodeFunctionData(
     functionFragment: "addStableSwapPool",
     values: [BridgeMessage.TokenIdStruct, string]
@@ -178,10 +165,6 @@ export interface IConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [BigNumberish, string, string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposeRouterOwner",
-    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "reconcile",
@@ -204,10 +187,6 @@ export interface IConnextInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRecipient",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setupAsset",
     values: [BridgeMessage.TokenIdStruct, string, string]
   ): string;
@@ -221,10 +200,6 @@ export interface IConnextInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "acceptRouterOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
@@ -236,17 +211,12 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "addRelayerFees",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addRouter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addStableSwapPool",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposeRouterOwner",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "reconcile", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeAssetId",
@@ -264,10 +234,6 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRecipient",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setupRouter",
@@ -282,11 +248,6 @@ export interface IConnextInterface extends utils.Interface {
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "Reconciled(bytes32,address,address,address,uint256,tuple,address)": EventFragment;
-    "RouterAdded(address,address)": EventFragment;
-    "RouterOwnerAccepted(address,address,address)": EventFragment;
-    "RouterOwnerProposed(address,address,address)": EventFragment;
-    "RouterRecipientSet(address,address,address)": EventFragment;
-    "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
     "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
@@ -297,11 +258,6 @@ export interface IConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterOwnerAccepted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterOwnerProposed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterRecipientSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
@@ -412,67 +368,6 @@ export type ReconciledEvent = TypedEvent<
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
-export interface RouterAddedEventObject {
-  router: string;
-  caller: string;
-}
-export type RouterAddedEvent = TypedEvent<
-  [string, string],
-  RouterAddedEventObject
->;
-
-export type RouterAddedEventFilter = TypedEventFilter<RouterAddedEvent>;
-
-export interface RouterOwnerAcceptedEventObject {
-  router: string;
-  prevOwner: string;
-  newOwner: string;
-}
-export type RouterOwnerAcceptedEvent = TypedEvent<
-  [string, string, string],
-  RouterOwnerAcceptedEventObject
->;
-
-export type RouterOwnerAcceptedEventFilter =
-  TypedEventFilter<RouterOwnerAcceptedEvent>;
-
-export interface RouterOwnerProposedEventObject {
-  router: string;
-  prevProposed: string;
-  newProposed: string;
-}
-export type RouterOwnerProposedEvent = TypedEvent<
-  [string, string, string],
-  RouterOwnerProposedEventObject
->;
-
-export type RouterOwnerProposedEventFilter =
-  TypedEventFilter<RouterOwnerProposedEvent>;
-
-export interface RouterRecipientSetEventObject {
-  router: string;
-  prevRecipient: string;
-  newRecipient: string;
-}
-export type RouterRecipientSetEvent = TypedEvent<
-  [string, string, string],
-  RouterRecipientSetEventObject
->;
-
-export type RouterRecipientSetEventFilter =
-  TypedEventFilter<RouterRecipientSetEvent>;
-
-export interface RouterRemovedEventObject {
-  router: string;
-  caller: string;
-}
-export type RouterRemovedEvent = TypedEvent<
-  [string, string],
-  RouterRemovedEventObject
->;
-
-export type RouterRemovedEventFilter = TypedEventFilter<RouterRemovedEvent>;
-
 export interface StableSwapAddedEventObject {
   canonicalId: string;
   domain: number;
@@ -541,11 +436,6 @@ export interface IConnext extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    acceptRouterOwner(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -564,11 +454,6 @@ export interface IConnext extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    addRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     addStableSwapPool(
       canonical: BridgeMessage.TokenIdStruct,
       stableSwapPool: string,
@@ -585,12 +470,6 @@ export interface IConnext extends BaseContract {
       _bridgeRouter: string,
       _tokenRegistry: string,
       _wrappedNative: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    proposeRouterOwner(
-      router: string,
-      proposed: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -626,12 +505,6 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setRecipient(
-      router: string,
-      recipient: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
@@ -652,11 +525,6 @@ export interface IConnext extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  acceptRouterOwner(
-    router: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   addLiquidity(
     amount: BigNumberish,
     local: string,
@@ -675,11 +543,6 @@ export interface IConnext extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  addRouter(
-    router: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   addStableSwapPool(
     canonical: BridgeMessage.TokenIdStruct,
     stableSwapPool: string,
@@ -696,12 +559,6 @@ export interface IConnext extends BaseContract {
     _bridgeRouter: string,
     _tokenRegistry: string,
     _wrappedNative: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  proposeRouterOwner(
-    router: string,
-    proposed: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -737,12 +594,6 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setRecipient(
-    router: string,
-    recipient: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setupAsset(
     canonical: BridgeMessage.TokenIdStruct,
     adoptedAssetId: string,
@@ -763,8 +614,6 @@ export interface IConnext extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    acceptRouterOwner(router: string, overrides?: CallOverrides): Promise<void>;
-
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -779,8 +628,6 @@ export interface IConnext extends BaseContract {
     ): Promise<void>;
 
     addRelayerFees(router: string, overrides?: CallOverrides): Promise<void>;
-
-    addRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
     addStableSwapPool(
       canonical: BridgeMessage.TokenIdStruct,
@@ -798,12 +645,6 @@ export interface IConnext extends BaseContract {
       _bridgeRouter: string,
       _tokenRegistry: string,
       _wrappedNative: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    proposeRouterOwner(
-      router: string,
-      proposed: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -835,12 +676,6 @@ export interface IConnext extends BaseContract {
     ): Promise<void>;
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
-
-    setRecipient(
-      router: string,
-      recipient: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
@@ -956,54 +791,6 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): ReconciledEventFilter;
 
-    "RouterAdded(address,address)"(
-      router?: string | null,
-      caller?: null
-    ): RouterAddedEventFilter;
-    RouterAdded(router?: string | null, caller?: null): RouterAddedEventFilter;
-
-    "RouterOwnerAccepted(address,address,address)"(
-      router?: string | null,
-      prevOwner?: string | null,
-      newOwner?: string | null
-    ): RouterOwnerAcceptedEventFilter;
-    RouterOwnerAccepted(
-      router?: string | null,
-      prevOwner?: string | null,
-      newOwner?: string | null
-    ): RouterOwnerAcceptedEventFilter;
-
-    "RouterOwnerProposed(address,address,address)"(
-      router?: string | null,
-      prevProposed?: string | null,
-      newProposed?: string | null
-    ): RouterOwnerProposedEventFilter;
-    RouterOwnerProposed(
-      router?: string | null,
-      prevProposed?: string | null,
-      newProposed?: string | null
-    ): RouterOwnerProposedEventFilter;
-
-    "RouterRecipientSet(address,address,address)"(
-      router?: string | null,
-      prevRecipient?: string | null,
-      newRecipient?: string | null
-    ): RouterRecipientSetEventFilter;
-    RouterRecipientSet(
-      router?: string | null,
-      prevRecipient?: string | null,
-      newRecipient?: string | null
-    ): RouterRecipientSetEventFilter;
-
-    "RouterRemoved(address,address)"(
-      router?: string | null,
-      caller?: null
-    ): RouterRemovedEventFilter;
-    RouterRemoved(
-      router?: string | null,
-      caller?: null
-    ): RouterRemovedEventFilter;
-
     "StableSwapAdded(bytes32,uint32,address,address)"(
       canonicalId?: null,
       domain?: null,
@@ -1042,11 +829,6 @@ export interface IConnext extends BaseContract {
   };
 
   estimateGas: {
-    acceptRouterOwner(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -1065,11 +847,6 @@ export interface IConnext extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    addRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     addStableSwapPool(
       canonical: BridgeMessage.TokenIdStruct,
       stableSwapPool: string,
@@ -1086,12 +863,6 @@ export interface IConnext extends BaseContract {
       _bridgeRouter: string,
       _tokenRegistry: string,
       _wrappedNative: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    proposeRouterOwner(
-      router: string,
-      proposed: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1124,12 +895,6 @@ export interface IConnext extends BaseContract {
 
     removeRouter(
       router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setRecipient(
-      router: string,
-      recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1154,11 +919,6 @@ export interface IConnext extends BaseContract {
   };
 
   populateTransaction: {
-    acceptRouterOwner(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     addLiquidity(
       amount: BigNumberish,
       local: string,
@@ -1177,11 +937,6 @@ export interface IConnext extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    addRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     addStableSwapPool(
       canonical: BridgeMessage.TokenIdStruct,
       stableSwapPool: string,
@@ -1198,12 +953,6 @@ export interface IConnext extends BaseContract {
       _bridgeRouter: string,
       _tokenRegistry: string,
       _wrappedNative: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    proposeRouterOwner(
-      router: string,
-      proposed: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1236,12 +985,6 @@ export interface IConnext extends BaseContract {
 
     removeRouter(
       router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setRecipient(
-      router: string,
-      recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

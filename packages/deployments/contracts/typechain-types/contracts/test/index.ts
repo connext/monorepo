@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as testWethSol from "./TestWeth.sol";
 export type { testWethSol };
+import type * as forge from "./forge";
+export type { forge };
 export type { BeaconProxy } from "./BeaconProxy";
 export type { Counter } from "./Counter";
 export type { DummySwap } from "./DummySwap";
