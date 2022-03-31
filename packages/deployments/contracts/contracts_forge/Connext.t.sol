@@ -15,6 +15,8 @@ contract ConnextTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
+  event MaxRoutersUpdated(uint256 maxRouters, address caller);
+
   // ============ Storage ============
 
   Connext connext;
@@ -103,5 +105,33 @@ contract ConnextTest is ForgeHelper {
     assertTrue(!connext.approvedRouters(address(1)));
   }
 
-  // ============ setRouterRecipient ============
+  // ============ setMaxRouters ============
+
+  // Should work
+  function testSetMaxRouters() public {
+    require(connext.maxRouters() != 10);
+
+    connext.setMaxRouters(10);
+    assertEq(connext.maxRouters(), 10);
+  }
+
+  // Fail if not called by owner
+  function testSetMaxRoutersOwnable() public {
+    vm.prank(address(0));
+    vm.expectRevert(bytes("#OO:029"));
+    connext.setMaxRouters(10);
+  }
+
+  // Fail maxRouters is 0
+  function testSetMaxRoutersZeroValue() public {
+    vm.expectRevert(bytes("invalid maxRouters"));
+    connext.setMaxRouters(0);
+  }
+
+  // Emits MaxRoutersUpdated
+  function testSetMaxRoutersEvent() public {
+    vm.expectEmit(true,true,true,true);
+    emit MaxRoutersUpdated(10, address(this));
+    connext.setMaxRouters(10);
+  }
 }
