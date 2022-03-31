@@ -35,13 +35,13 @@ jobs:
         run: yarn install
 
       - name: Forge install
-        run: forge install
+        run: yarn workspace @connext/nxtp-contracts forge:install
 
       - name: Yarn build
         run: yarn build
 
       - name: Yarn test
-        run: forge install && yarn test:all
+        run: yarn test:all
 
   build-and-push-router-image:
     env:
