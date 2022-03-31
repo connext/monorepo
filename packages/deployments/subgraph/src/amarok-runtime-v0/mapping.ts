@@ -105,7 +105,7 @@ export function handleXCalled(event: XCalled): void {
 
   // Transaction XCalled
   transfer.xcalledTransactionHash = event.transaction.hash;
-  transfer.executedTimestamp = event.block.timestamp;
+  transfer.xcalledTimestamp = event.block.timestamp;
   transfer.xcalledGasPrice = event.transaction.gasPrice;
   transfer.xcalledGasLimit = event.transaction.gasLimit;
   transfer.xcalledBlockNumber = event.block.number;

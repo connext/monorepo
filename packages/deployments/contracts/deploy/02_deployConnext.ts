@@ -81,7 +81,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("connextAddress: ", connextAddress);
 
   // Add tm to bridge
-  if ((await bridge.connext) !== connextAddress) {
+  if ((await bridge.connext()) !== connextAddress) {
     console.log("setting connext on bridge");
     const addTm = await bridge.connect(deployer).setConnext(connextAddress);
     await addTm.wait();

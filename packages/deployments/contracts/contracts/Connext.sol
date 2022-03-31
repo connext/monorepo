@@ -2,9 +2,12 @@
 pragma solidity 0.8.11;
 
 import "./ProposedOwnableUpgradeable.sol";
+import "./RouterPermissionsManager.sol";
+
 import "./interfaces/IWrapped.sol";
 import "./interfaces/IStableSwap.sol";
 import "./interfaces/IConnext.sol";
+
 import "./interpreters/Executor.sol";
 
 import {StableSwapLogic} from "./lib/logic/StableSwapLogic.sol";
@@ -36,10 +39,13 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 // 1. Finalize BridgeMessage / BridgeRouter structure + backwards compatbility
 // 2. Gas optimizations
 
-contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable, IConnext {
-  // TODO: why is this breaking the build
-  // uint256 internal constant 3 = 3;
-
+contract Connext is
+  Initializable,
+  ReentrancyGuardUpgradeable,
+  ProposedOwnableUpgradeable,
+  RouterPermissionsManager,
+  IConnext
+{
   // ========== Custom Errors ===========
 
   error Connext__onlyBridgeRouter_notBridge();
@@ -120,25 +126,6 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   uint256 public domain;
 
   /**
-   * @notice Mapping of router to available balance of an asset
-   * @dev Routers should always store liquidity that they can expect to receive via the bridge on
-   * this domain (the nomad local asset)
-   */
-  mapping(address => mapping(address => uint256)) public routerBalances;
-
-  /**
-   * @notice Mapping of router to available relayer fee
-   * @dev Right now, routers only store native asset onchain.
-   * TODO: allow for approved relaying assets
-   */
-  mapping(address => uint256) public routerRelayerFees;
-
-  /**
-   * @notice Mapping of whitelisted router addresses.
-   */
-  mapping(address => bool) public approvedRouters;
-
-  /**
    * @notice Mapping of whitelisted assets on same domain as contract
    * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
    * registry
@@ -166,6 +153,20 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    */
   mapping(bytes32 => bytes32) public reconciledTransfers;
 
+  /**
+   * @notice Mapping of router to available relayer fee
+   * @dev Right now, routers only store native asset onchain.
+   * TODO: allow for approved relaying assets
+   */
+  mapping(address => uint256) public routerRelayerFees;
+
+  /**
+   * @notice Mapping of router to available balance of an asset
+   * @dev Routers should always store liquidity that they can expect to receive via the bridge on
+   * this domain (the nomad local asset)
+   */
+  mapping(address => mapping(address => uint256)) public routerBalances;
+
   // ============ Modifiers ============
 
   /**
@@ -186,6 +187,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
+    __RouterPermissionsManager_init();
 
     nonce = 0;
     domain = _domain;
@@ -199,21 +201,17 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
   // ============ Owner Functions ============
 
   /**
-   * @notice Used to add routers that can transact crosschain
-   * @param router Router address to add
+   * @notice Used to set router initial properties
+   * @param router Router address to setup
+   * @param owner Initial Owner of router
+   * @param recipient Initial Recipient of router
    */
-  function addRouter(address router) external override onlyOwner {
-    // Sanity check: not empty
-    if (router == address(0)) revert Connext__addRouter_routerEmpty();
-
-    // Sanity check: needs approval
-    if (approvedRouters[router]) revert Connext__addRouter_alreadyAdded();
-
-    // Update mapping
-    approvedRouters[router] = true;
-
-    // Emit event
-    emit RouterAdded(router, msg.sender);
+  function setupRouter(
+    address router,
+    address owner,
+    address recipient
+  ) external onlyOwner {
+    _setupRouter(router, owner, recipient);
   }
 
   /**
@@ -221,17 +219,7 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
    * @param router Router address to remove
    */
   function removeRouter(address router) external override onlyOwner {
-    // Sanity check: not empty
-    if (router == address(0)) revert Connext__removeRouter_routerEmpty();
-
-    // Sanity check: needs removal
-    if (!approvedRouters[router]) revert Connext__removeRouter_notAdded();
-
-    // Update mapping
-    approvedRouters[router] = false;
-
-    // Emit event
-    emit RouterRemoved(router, msg.sender);
+    _removeRouter(router);
   }
 
   /**
@@ -355,8 +343,12 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     address local,
     address payable to
   ) external override nonReentrant {
+    // transfer to specicfied recipient IF recipient not sest
+    address _recipient = routerRecipients[msg.sender];
+    _recipient = _recipient == address(0) ? to : _recipient;
+
     // Sanity check: to is sensible
-    if (to == address(0)) revert Connext__removeLiquidity_recipientEmpty();
+    if (_recipient == address(0)) revert Connext__removeLiquidity_recipientEmpty();
 
     // Sanity check: nonzero amounts
     if (amount == 0) revert Connext__removeLiquidity_amountIsZero();
@@ -371,10 +363,10 @@ contract Connext is Initializable, ReentrancyGuardUpgradeable, ProposedOwnableUp
     }
 
     // Transfer from contract to specified to
-    AssetLogic.transferAssetFromContract(local, to, amount, wrapper);
+    AssetLogic.transferAssetFromContract(local, _recipient, amount, wrapper);
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, to, local, amount, msg.sender);
+    emit LiquidityRemoved(msg.sender, _recipient, local, amount, msg.sender);
   }
 
   /**

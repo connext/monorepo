@@ -13,4 +13,5 @@ export { ConnextProxyAdmin__factory } from "./ConnextProxyAdmin__factory";
 export { Multicall__factory } from "./Multicall__factory";
 export { PriceOracle__factory } from "./PriceOracle__factory";
 export { ProposedOwnableUpgradeable__factory } from "./ProposedOwnableUpgradeable__factory";
+export { RouterPermissionsManager__factory } from "./RouterPermissionsManager__factory";
 export { StableSwap__factory } from "./StableSwap__factory";
