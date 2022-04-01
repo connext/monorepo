@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## 0.1.33
+
+- [contracts] Cronos chain deployments
+- [router] Metrics improvements
+
 ## 0.1.32
 
 - [utils] ChainId ABI encoding
