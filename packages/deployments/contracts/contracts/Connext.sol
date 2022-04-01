@@ -10,8 +10,9 @@ import "./interfaces/IConnext.sol";
 
 import "./interpreters/Executor.sol";
 
-import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
-import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
+import "./nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import "./nomad-xapps/interfaces/bridge/IBridgeRouter.sol";
+import "./nomad-core/libs/TypeCasts.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -50,7 +51,7 @@ contract Connext is
   /**
    * @notice The local nomad bridge router
    */
-  BridgeRouter public bridgeRouter;
+  IBridgeRouter public bridgeRouter;
 
   /**
    * @notice The address of the wrapper for the native asset on this domain
@@ -72,7 +73,7 @@ contract Connext is
   /**
    * @notice The local nomad token registry
    */
-  TokenRegistry public tokenRegistry;
+  ITokenRegistry public tokenRegistry;
 
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets
@@ -164,9 +165,9 @@ contract Connext is
 
     nonce = 0;
     domain = _domain;
-    bridgeRouter = BridgeRouter(_bridgeRouter);
+    bridgeRouter = IBridgeRouter(_bridgeRouter);
     executor = new Executor(address(this));
-    tokenRegistry = TokenRegistry(_tokenRegistry);
+    tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
   }

@@ -8,6 +8,7 @@ import {Router} from "../Router.sol";
 import {XAppConnectionClient} from "../XAppConnectionClient.sol";
 import {BridgeMessage} from "./BridgeMessage.sol";
 import {IBridgeToken} from "../../interfaces/bridge/IBridgeToken.sol";
+import {IBridgeRouter} from "../../interfaces/bridge/IBridgeRouter.sol";
 // ============ External Imports ============
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
@@ -19,7 +20,7 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 /**
  * @title BridgeRouter
  */
-contract BridgeRouter is Version0, Router {
+contract BridgeRouter is Version0, Router, IBridgeRouter {
   // ============ Libraries ============
 
   using TypedMemView for bytes;
@@ -146,7 +147,7 @@ contract BridgeRouter is Version0, Router {
     bytes32 _recipient,
     bool _enableFast,
     bytes32 _externalHash
-  ) external {
+  ) external override {
     require(_amount > 0, "!amnt");
     require(_recipient != bytes32(0), "!recip");
     // get remote BridgeRouter address; revert if not found
@@ -204,7 +205,7 @@ contract BridgeRouter is Version0, Router {
    * @dev Transacion manager and bridge router store references to each other
    * @param _connext the address of the transaction manager implementation
    */
-  function setConnext(address _connext) external onlyOwner {
+  function setConnext(address _connext) external override onlyOwner {
     connext = IConnext(_connext);
   }
 
@@ -221,7 +222,7 @@ contract BridgeRouter is Version0, Router {
     uint32 _domain,
     bytes32 _id,
     address _custom
-  ) external onlyOwner {
+  ) external override onlyOwner {
     // Sanity check. Ensures that human error doesn't cause an
     // unpermissioned contract to be enrolled.
     IBridgeToken(_custom).mint(address(this), 1);
@@ -237,7 +238,7 @@ contract BridgeRouter is Version0, Router {
    * upgrade to the new representation.
    * @param _oldRepr The address of the old token to migrate
    */
-  function migrate(address _oldRepr) external {
+  function migrate(address _oldRepr) external override  {
     address _currentRepr = tokenRegistry.oldReprToCurrentRepr(_oldRepr);
     require(_currentRepr != _oldRepr, "!different");
     // burn the total balance of old tokens & mint the new ones

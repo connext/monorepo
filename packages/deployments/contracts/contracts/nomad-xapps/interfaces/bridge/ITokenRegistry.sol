@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity >=0.6.11;
 
-// ============ Internal Imports ============
-import {IBridgeToken} from "./IBridgeToken.sol";
-import {BridgeMessage} from "../../contracts/bridge/BridgeMessage.sol";
-
 // ============ External Imports ============
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ITokenRegistry {
   function isLocalOrigin(address _token) external view returns (bool);
+
+  function getCanonicalTokenId(address _representation) external returns (uint32 _domain, bytes32 _id);
 
   function ensureLocalToken(uint32 _domain, bytes32 _id) external returns (address _local);
 
