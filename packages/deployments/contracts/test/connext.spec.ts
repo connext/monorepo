@@ -360,7 +360,7 @@ describe("Connext", () => {
     it("should work", async () => {
       const tx = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
       const receipt = await tx.wait();
-      await assertReceiptEvent(receipt, "RouterRemoved", { caller: receipt.from, router: router.address });
+      assertReceiptEvent(receipt, "RouterRemoved", { caller: receipt.from, router: router.address });
       expect(await originTm.approvedRouters(router.address)).to.be.false;
     });
   });
@@ -388,7 +388,7 @@ describe("Connext", () => {
         { maxFeePerGas: MAX_FEE_PER_GAS },
       );
       const receipt = await tx.wait();
-      await assertReceiptEvent(receipt, "StableSwapAdded", {
+      assertReceiptEvent(receipt, "StableSwapAdded", {
         caller: receipt.from,
         canonicalId: addressToBytes32(canonical.address).toLowerCase(),
         domain: originDomain,
@@ -449,7 +449,7 @@ describe("Connext", () => {
       );
       const receipt = await tx.wait();
       const supported = originAdopted.address == ZERO_ADDRESS ? weth.address : originAdopted.address;
-      await assertReceiptEvent(receipt, "AssetAdded", {
+      assertReceiptEvent(receipt, "AssetAdded", {
         caller: receipt.from,
         canonicalId: addressToBytes32(toAdd).toLowerCase(),
         domain: originDomain,
@@ -492,7 +492,7 @@ describe("Connext", () => {
       });
       const receipt = await tx.wait();
 
-      await assertReceiptEvent(receipt, "AssetRemoved", {
+      assertReceiptEvent(receipt, "AssetRemoved", {
         caller: receipt.from,
         canonicalId: addressToBytes32(toRemove).toLowerCase(),
       });
@@ -699,7 +699,7 @@ describe("Connext", () => {
       expect(receipt.status).to.be.eq(1);
 
       // Verify receipt events
-      await assertReceiptEvent(receipt, "LiquidityRemoved", {
+      assertReceiptEvent(receipt, "LiquidityRemoved", {
         router: router.address,
         local: assetId,
         caller: router.address,
@@ -740,7 +740,7 @@ describe("Connext", () => {
       expect(receipt.status).to.be.eq(1);
 
       // Verify receipt events
-      await assertReceiptEvent(receipt, "LiquidityRemoved", {
+      assertReceiptEvent(receipt, "LiquidityRemoved", {
         router: router.address,
         local: assetId,
         caller: router.address,

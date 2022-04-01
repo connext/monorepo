@@ -128,7 +128,7 @@ export const assertObject = (expected: any, returned: any) => {
   });
 };
 
-export const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
+export const assertReceiptEvent = (receipt: ContractReceipt, eventName: string, expected: any) => {
   expect(receipt.status).to.be.eq(1);
   const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
   expect(idx).to.not.be.eq(-1);
