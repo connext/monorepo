@@ -75,6 +75,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
+      // TODO: Remove this once https://github.com/connext/nxtp/pull/909 is done
       allowUnlimitedContractSize: true,
     },
     localhost: {
