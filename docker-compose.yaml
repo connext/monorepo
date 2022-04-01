@@ -14,7 +14,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/agents/router/config.json
   sequencer:
     image: ${SEQUENCER_IMAGE}
     restart: always

@@ -1,6 +1,6 @@
 {
   "logLevel": "debug",
-  "sequencerUrl": "http://${module.sequencer.dns_name}:8080",
+  "sequencerUrl": "http://sequencer:8080",
   "redisUrl": "redis://redis:6379",
   "server": {
     "adminToken": "a",
