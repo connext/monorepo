@@ -12,11 +12,7 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -115,81 +111,8 @@ export interface RouterPermissionsManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {
-    "RouterAdded(address,address)": EventFragment;
-    "RouterOwnerAccepted(address,address,address)": EventFragment;
-    "RouterOwnerProposed(address,address,address)": EventFragment;
-    "RouterRecipientSet(address,address,address)": EventFragment;
-    "RouterRemoved(address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterOwnerAccepted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterOwnerProposed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterRecipientSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
+  events: {};
 }
-
-export interface RouterAddedEventObject {
-  router: string;
-  caller: string;
-}
-export type RouterAddedEvent = TypedEvent<
-  [string, string],
-  RouterAddedEventObject
->;
-
-export type RouterAddedEventFilter = TypedEventFilter<RouterAddedEvent>;
-
-export interface RouterOwnerAcceptedEventObject {
-  router: string;
-  prevOwner: string;
-  newOwner: string;
-}
-export type RouterOwnerAcceptedEvent = TypedEvent<
-  [string, string, string],
-  RouterOwnerAcceptedEventObject
->;
-
-export type RouterOwnerAcceptedEventFilter =
-  TypedEventFilter<RouterOwnerAcceptedEvent>;
-
-export interface RouterOwnerProposedEventObject {
-  router: string;
-  prevProposed: string;
-  newProposed: string;
-}
-export type RouterOwnerProposedEvent = TypedEvent<
-  [string, string, string],
-  RouterOwnerProposedEventObject
->;
-
-export type RouterOwnerProposedEventFilter =
-  TypedEventFilter<RouterOwnerProposedEvent>;
-
-export interface RouterRecipientSetEventObject {
-  router: string;
-  prevRecipient: string;
-  newRecipient: string;
-}
-export type RouterRecipientSetEvent = TypedEvent<
-  [string, string, string],
-  RouterRecipientSetEventObject
->;
-
-export type RouterRecipientSetEventFilter =
-  TypedEventFilter<RouterRecipientSetEvent>;
-
-export interface RouterRemovedEventObject {
-  router: string;
-  caller: string;
-}
-export type RouterRemovedEvent = TypedEvent<
-  [string, string],
-  RouterRemovedEventObject
->;
-
-export type RouterRemovedEventFilter = TypedEventFilter<RouterRemovedEvent>;
 
 export interface RouterPermissionsManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -326,55 +249,7 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<void>;
   };
 
-  filters: {
-    "RouterAdded(address,address)"(
-      router?: string | null,
-      caller?: null
-    ): RouterAddedEventFilter;
-    RouterAdded(router?: string | null, caller?: null): RouterAddedEventFilter;
-
-    "RouterOwnerAccepted(address,address,address)"(
-      router?: string | null,
-      prevOwner?: string | null,
-      newOwner?: string | null
-    ): RouterOwnerAcceptedEventFilter;
-    RouterOwnerAccepted(
-      router?: string | null,
-      prevOwner?: string | null,
-      newOwner?: string | null
-    ): RouterOwnerAcceptedEventFilter;
-
-    "RouterOwnerProposed(address,address,address)"(
-      router?: string | null,
-      prevProposed?: string | null,
-      newProposed?: string | null
-    ): RouterOwnerProposedEventFilter;
-    RouterOwnerProposed(
-      router?: string | null,
-      prevProposed?: string | null,
-      newProposed?: string | null
-    ): RouterOwnerProposedEventFilter;
-
-    "RouterRecipientSet(address,address,address)"(
-      router?: string | null,
-      prevRecipient?: string | null,
-      newRecipient?: string | null
-    ): RouterRecipientSetEventFilter;
-    RouterRecipientSet(
-      router?: string | null,
-      prevRecipient?: string | null,
-      newRecipient?: string | null
-    ): RouterRecipientSetEventFilter;
-
-    "RouterRemoved(address,address)"(
-      router?: string | null,
-      caller?: null
-    ): RouterRemovedEventFilter;
-    RouterRemoved(
-      router?: string | null,
-      caller?: null
-    ): RouterRemovedEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     acceptProposedRouterOwner(

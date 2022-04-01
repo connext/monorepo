@@ -594,13 +594,8 @@ export interface ConnextInterface extends utils.Interface {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)": EventFragment;
-    "RouterAdded(address,address)": EventFragment;
-    "RouterOwnerAccepted(address,address,address)": EventFragment;
-    "RouterOwnerProposed(address,address,address)": EventFragment;
     "RouterOwnershipRenounced(bool)": EventFragment;
     "RouterOwnershipRenunciationProposed(uint256)": EventFragment;
-    "RouterRecipientSet(address,address,address)": EventFragment;
-    "RouterRemoved(address,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
     "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
@@ -617,15 +612,10 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterOwnerAccepted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterOwnerProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RouterOwnershipRenounced"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "RouterOwnershipRenunciationProposed"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterRecipientSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RouterRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
@@ -783,43 +773,6 @@ export type ReconciledEvent = TypedEvent<
 
 export type ReconciledEventFilter = TypedEventFilter<ReconciledEvent>;
 
-export interface RouterAddedEventObject {
-  router: string;
-  caller: string;
-}
-export type RouterAddedEvent = TypedEvent<
-  [string, string],
-  RouterAddedEventObject
->;
-
-export type RouterAddedEventFilter = TypedEventFilter<RouterAddedEvent>;
-
-export interface RouterOwnerAcceptedEventObject {
-  router: string;
-  prevOwner: string;
-  newOwner: string;
-}
-export type RouterOwnerAcceptedEvent = TypedEvent<
-  [string, string, string],
-  RouterOwnerAcceptedEventObject
->;
-
-export type RouterOwnerAcceptedEventFilter =
-  TypedEventFilter<RouterOwnerAcceptedEvent>;
-
-export interface RouterOwnerProposedEventObject {
-  router: string;
-  prevProposed: string;
-  newProposed: string;
-}
-export type RouterOwnerProposedEvent = TypedEvent<
-  [string, string, string],
-  RouterOwnerProposedEventObject
->;
-
-export type RouterOwnerProposedEventFilter =
-  TypedEventFilter<RouterOwnerProposedEvent>;
-
 export interface RouterOwnershipRenouncedEventObject {
   renounced: boolean;
 }
@@ -841,30 +794,6 @@ export type RouterOwnershipRenunciationProposedEvent = TypedEvent<
 
 export type RouterOwnershipRenunciationProposedEventFilter =
   TypedEventFilter<RouterOwnershipRenunciationProposedEvent>;
-
-export interface RouterRecipientSetEventObject {
-  router: string;
-  prevRecipient: string;
-  newRecipient: string;
-}
-export type RouterRecipientSetEvent = TypedEvent<
-  [string, string, string],
-  RouterRecipientSetEventObject
->;
-
-export type RouterRecipientSetEventFilter =
-  TypedEventFilter<RouterRecipientSetEvent>;
-
-export interface RouterRemovedEventObject {
-  router: string;
-  caller: string;
-}
-export type RouterRemovedEvent = TypedEvent<
-  [string, string],
-  RouterRemovedEventObject
->;
-
-export type RouterRemovedEventFilter = TypedEventFilter<RouterRemovedEvent>;
 
 export interface StableSwapAddedEventObject {
   canonicalId: string;
@@ -1737,34 +1666,6 @@ export interface Connext extends BaseContract {
       caller?: null
     ): ReconciledEventFilter;
 
-    "RouterAdded(address,address)"(
-      router?: string | null,
-      caller?: null
-    ): RouterAddedEventFilter;
-    RouterAdded(router?: string | null, caller?: null): RouterAddedEventFilter;
-
-    "RouterOwnerAccepted(address,address,address)"(
-      router?: string | null,
-      prevOwner?: string | null,
-      newOwner?: string | null
-    ): RouterOwnerAcceptedEventFilter;
-    RouterOwnerAccepted(
-      router?: string | null,
-      prevOwner?: string | null,
-      newOwner?: string | null
-    ): RouterOwnerAcceptedEventFilter;
-
-    "RouterOwnerProposed(address,address,address)"(
-      router?: string | null,
-      prevProposed?: string | null,
-      newProposed?: string | null
-    ): RouterOwnerProposedEventFilter;
-    RouterOwnerProposed(
-      router?: string | null,
-      prevProposed?: string | null,
-      newProposed?: string | null
-    ): RouterOwnerProposedEventFilter;
-
     "RouterOwnershipRenounced(bool)"(
       renounced?: null
     ): RouterOwnershipRenouncedEventFilter;
@@ -1778,26 +1679,6 @@ export interface Connext extends BaseContract {
     RouterOwnershipRenunciationProposed(
       timestamp?: null
     ): RouterOwnershipRenunciationProposedEventFilter;
-
-    "RouterRecipientSet(address,address,address)"(
-      router?: string | null,
-      prevRecipient?: string | null,
-      newRecipient?: string | null
-    ): RouterRecipientSetEventFilter;
-    RouterRecipientSet(
-      router?: string | null,
-      prevRecipient?: string | null,
-      newRecipient?: string | null
-    ): RouterRecipientSetEventFilter;
-
-    "RouterRemoved(address,address)"(
-      router?: string | null,
-      caller?: null
-    ): RouterRemovedEventFilter;
-    RouterRemoved(
-      router?: string | null,
-      caller?: null
-    ): RouterRemovedEventFilter;
 
     "StableSwapAdded(bytes32,uint32,address,address)"(
       canonicalId?: null,

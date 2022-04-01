@@ -56,6 +56,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     from: deployer.address,
     log: true,
   });
+  const routerPermissionsManagerLogic = await hre.deployments.deploy('RouterPermissionsManagerLogic', {
+    from: deployer.address,
+    log: true,
+  });
 
   // Deploy connext contract
   const connext = await hre.deployments.deploy("Connext", {
@@ -65,6 +69,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       StableSwapLogic: stableSwapLogic.address,
       AssetLogic: assetLogic.address,
       ConnextUtils: connextUtils.address,
+      RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
     },
     proxy: {
       execute: {

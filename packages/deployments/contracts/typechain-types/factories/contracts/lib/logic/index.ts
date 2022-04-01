@@ -3,3 +3,4 @@
 /* eslint-disable */
 export { AssetLogic__factory } from "./AssetLogic__factory";
 export { ConnextUtils__factory } from "./ConnextUtils__factory";
+export { RouterPermissionsManagerLogic__factory } from "./RouterPermissionsManagerLogic__factory";

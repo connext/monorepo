@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
+import {RouterPermissionsManagerLogic} from "./lib/logic/RouterPermissionsManagerLogic.sol";
+
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
@@ -22,59 +24,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * address, then it must be accepted by the current owner.
  */
 abstract contract RouterPermissionsManager is Initializable {
-  // ========== Custom Errors ===========
-
-  error RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
-  error RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
-  error RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
-  error RouterPermissionsManager__setRouterRecipient_notNewRecipient();
-  error RouterPermissionsManager__proposeRouterOwner_notNewOwner();
-  error RouterPermissionsManager__proposeRouterOwner_badRouter();
-  error RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
-  error RouterPermissionsManager__setupRouter_routerEmpty();
-  error RouterPermissionsManager__setupRouter_amountIsZero();
-  error RouterPermissionsManager__removeRouter_routerEmpty();
-  error RouterPermissionsManager__removeRouter_notAdded();
-
-  // ============ Events =============
-
-  /**
-   * @notice Emitted when a new router is added
-   * @param router - The address of the added router
-   * @param caller - The account that called the function
-   */
-  event RouterAdded(address indexed router, address caller);
-
-  /**
-   * @notice Emitted when an existing router is removed
-   * @param router - The address of the removed router
-   * @param caller - The account that called the function
-   */
-  event RouterRemoved(address indexed router, address caller);
-
-  /**
-   * @notice Emitted when the recipient of router is updated
-   * @param router - The address of the added router
-   * @param prevRecipient  - The address of the previous recipient of the router
-   * @param newRecipient  - The address of the new recipient of the router
-   */
-  event RouterRecipientSet(address indexed router, address indexed prevRecipient, address indexed newRecipient);
-
-  /**
-   * @notice Emitted when the owner of router is proposed
-   * @param router - The address of the added router
-   * @param prevProposed  - The address of the previous proposed
-   * @param newProposed  - The address of the new proposed
-   */
-  event RouterOwnerProposed(address indexed router, address indexed prevProposed, address indexed newProposed);
-
-  /**
-   * @notice Emitted when the owner of router is accepted
-   * @param router - The address of the added router
-   * @param prevOwner  - The address of the previous owner of the router
-   * @param newOwner  - The address of the new owner of the router
-   */
-  event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);
 
   // ============ Private storage =============
 
@@ -112,32 +61,6 @@ abstract contract RouterPermissionsManager is Initializable {
    */
   mapping(address => uint256) public proposedRouterTimestamp;
 
-  // ============ Modifiers =============
-
-  /**
-   * @notice Asserts caller is the router owner (if set) or the router itself
-   */
-  modifier onlyRouterOwner(address router) {
-    address _owner = routerOwners[router];
-    if (!((_owner == address(0) && msg.sender == router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
-    _;
-  }
-
-  /**
-   * @notice Asserts caller is the proposed router. If proposed router is address(0), then asserts
-   * the owner is calling the function (if set), or the router itself is calling the function
-   */
-  modifier onlyProposedRouterOwner(address router) {
-    address _owner = routerOwners[router];
-    address _proposed = proposedRouterOwners[router];
-    if (_proposed == address(0)) {
-      if (!((_owner == address(0) && msg.sender == router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
-    } else {
-      if (msg.sender != _proposed) revert RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
-    }
-    _;
-  }
-
   // ============ Initialize =============
 
   /**
@@ -160,16 +83,10 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to set recipient
    * @param recipient Recipient Address to set to router
    */
-  function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
-    // Check recipient is changing
-    address _prevRecipient = routerRecipients[router];
-    if (_prevRecipient == recipient) revert RouterPermissionsManager__setRouterRecipient_notNewRecipient();
+  function setRouterRecipient(address router, address recipient) external{
+    RouterPermissionsManagerLogic.onlyRouterOwner(router, routerOwners[router]);
 
-    // Set new recipient
-    routerRecipients[router] = recipient;
-
-    // Emit event
-    emit RouterRecipientSet(router, _prevRecipient, recipient);
+    RouterPermissionsManagerLogic.setRouterRecipient(router, recipient, routerRecipients);
   }
 
   /**
@@ -177,46 +94,34 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to set recipient
    * @param proposed Proposed owner Address to set to router
    */
-  function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
-    // Check that proposed is different than current owner
-    address _currentOwner = _getRouterOwner(router);
-    if (_currentOwner == proposed) revert RouterPermissionsManager__proposeRouterOwner_notNewOwner();
+  function proposeRouterOwner(address router, address proposed) external {
+    RouterPermissionsManagerLogic.onlyRouterOwner(router, routerOwners[router]);
 
-    // Check that proposed is different than current proposed
-    address _currentProposed = proposedRouterOwners[router];
-    if (_currentProposed == proposed) revert RouterPermissionsManager__proposeRouterOwner_badRouter();
+    RouterPermissionsManagerLogic.proposeRouterOwner(
+      router,
+      proposed,
+      RouterPermissionsManagerLogic.getRouterOwner(router, routerOwners),
+      proposedRouterOwners,
+      proposedRouterTimestamp
+    );
 
-    // Set proposed owner + timestamp
-    proposedRouterOwners[router] = proposed;
-    proposedRouterTimestamp[router] = block.timestamp;
-
-    // Emit event
-    emit RouterOwnerProposed(router, _currentProposed, proposed);
   }
 
   /**
    * @notice New router owner must accept role, or previous if proposed is 0x0
    * @param router Router address to set recipient
    */
-  function acceptProposedRouterOwner(address router) external onlyProposedRouterOwner(router) {
-    // Check timestamp has passed
-    if (block.timestamp - proposedRouterTimestamp[router] <= _delay) revert RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
+  function acceptProposedRouterOwner(address router) external {
+    RouterPermissionsManagerLogic.onlyProposedRouterOwner(router, routerOwners[router], proposedRouterOwners[router]);
 
-    // Get current owner + proposed
-    address _owner = _getRouterOwner(router);
-    address _proposed = proposedRouterOwners[router];
-
-    // Update the current owner
-    routerOwners[router] = _proposed;
-
-    // Reset proposal + timestamp
-    if (_proposed != address(0)) {
-      delete proposedRouterOwners[router];
-    }
-    proposedRouterTimestamp[router] = 0;
-
-    // Emit event
-    emit RouterOwnerAccepted(router, _owner, _proposed);
+    RouterPermissionsManagerLogic.acceptProposedRouterOwner(
+      router,
+      RouterPermissionsManagerLogic.getRouterOwner(router, routerOwners),
+      _delay,
+      routerOwners,
+      proposedRouterOwners,
+      proposedRouterTimestamp
+    );
   }
 
   // ============ Private methods =============
@@ -232,29 +137,7 @@ abstract contract RouterPermissionsManager is Initializable {
     address owner,
     address recipient
   ) internal {
-    // Sanity check: not empty
-    if (router == address(0)) revert RouterPermissionsManager__setupRouter_routerEmpty();
-
-    // Sanity check: needs approval
-    if (approvedRouters[router]) revert RouterPermissionsManager__setupRouter_amountIsZero();
-
-    // Approve router
-    approvedRouters[router] = true;
-
-    // Emit event
-    emit RouterAdded(router, msg.sender);
-
-    // Update routerOwner (zero address possible)
-    if (owner != address(0)) {
-      routerOwners[router] = owner;
-      emit RouterOwnerAccepted(router, address(0), owner);
-    }
-
-    // Update router recipient
-    if (recipient != address(0)) {
-      routerRecipients[router] = recipient;
-      emit RouterRecipientSet(router, address(0), recipient);
-    }
+    RouterPermissionsManagerLogic.setupRouter(router, owner, recipient, approvedRouters, routerOwners, routerRecipients);
   }
 
   /**
@@ -262,38 +145,6 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to remove
    */
   function _removeRouter(address router) internal {
-    // Sanity check: not empty
-    if (router == address(0)) revert RouterPermissionsManager__removeRouter_routerEmpty();
-
-    // Sanity check: needs removal
-    if (!approvedRouters[router]) revert RouterPermissionsManager__removeRouter_notAdded();
-
-    // Update mapping
-    approvedRouters[router] = false;
-
-    // Emit event
-    emit RouterRemoved(router, msg.sender);
-
-    // Remove router owner
-    address _owner = routerOwners[router];
-    if (_owner != address(0)) {
-      emit RouterOwnerAccepted(router, _owner, address(0));
-      delete routerOwners[router];
-    }
-
-    // Remove router recipient
-    address _recipient = routerRecipients[router];
-    if (_recipient != address(0)) {
-      emit RouterRecipientSet(router, _recipient, address(0));
-      delete routerRecipients[router];
-    }
-  }
-
-  /**
-   * @notice Returns the router owner if it is set, or the router itself if not
-   */
-  function _getRouterOwner(address router) internal returns (address) {
-    address _owner = routerOwners[router];
-    return _owner == address(0) ? router : _owner;
+    RouterPermissionsManagerLogic.removeRouter(router, approvedRouters, routerOwners, routerRecipients);
   }
 }

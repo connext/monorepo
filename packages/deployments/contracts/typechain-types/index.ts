@@ -72,6 +72,8 @@ export type { AssetLogic } from "./contracts/lib/logic/AssetLogic";
 export { AssetLogic__factory } from "./factories/contracts/lib/logic/AssetLogic__factory";
 export type { ConnextUtils } from "./contracts/lib/logic/ConnextUtils";
 export { ConnextUtils__factory } from "./factories/contracts/lib/logic/ConnextUtils__factory";
+export type { RouterPermissionsManagerLogic } from "./contracts/lib/logic/RouterPermissionsManagerLogic";
+export { RouterPermissionsManagerLogic__factory } from "./factories/contracts/lib/logic/RouterPermissionsManagerLogic__factory";
 export type { AmplificationUtils } from "./contracts/lib/StableSwap/AmplificationUtils";
 export { AmplificationUtils__factory } from "./factories/contracts/lib/StableSwap/AmplificationUtils__factory";
 export type { LPToken } from "./contracts/lib/StableSwap/LPToken";

@@ -3,3 +3,4 @@
 /* eslint-disable */
 export type { AssetLogic } from "./AssetLogic";
 export type { ConnextUtils } from "./ConnextUtils";
+export type { RouterPermissionsManagerLogic } from "./RouterPermissionsManagerLogic";

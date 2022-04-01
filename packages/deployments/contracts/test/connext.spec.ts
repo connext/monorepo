@@ -159,6 +159,7 @@ describe("Connext", () => {
     const stableSwapLogic = await deployContract("StableSwapLogic");
     const assetLogic = await deployContract("AssetLogic");
     const connextUtils = await deployContract("ConnextUtils");
+    const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
 
     // Deploy transacion managers
     originTm = await deployContractWithLibs<Connext>(
@@ -167,6 +168,7 @@ describe("Connext", () => {
         StableSwapLogic: stableSwapLogic.address,
         AssetLogic: assetLogic.address,
         ConnextUtils: connextUtils.address,
+        RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
     });
     await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address);
 
@@ -176,6 +178,7 @@ describe("Connext", () => {
         StableSwapLogic: stableSwapLogic.address,
         AssetLogic: assetLogic.address,
         ConnextUtils: connextUtils.address,
+        RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
       });
     await destinationTm.initialize(
       destinationDomain,
