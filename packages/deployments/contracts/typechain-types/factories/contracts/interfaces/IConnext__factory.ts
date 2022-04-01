@@ -227,6 +227,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "maxRouters",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "MaxRoutersUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "bytes32",
         name: "transferId",
@@ -239,21 +258,15 @@ const _abi = [
         type: "uint32",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
-        name: "router",
+        name: "to",
         type: "address",
       },
       {
         indexed: false,
         internalType: "address",
         name: "localAsset",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "to",
         type: "address",
       },
       {
@@ -265,9 +278,9 @@ const _abi = [
       {
         components: [
           {
-            internalType: "address",
-            name: "router",
-            type: "address",
+            internalType: "address[]",
+            name: "routers",
+            type: "address[]",
           },
           {
             internalType: "uint256",
@@ -525,9 +538,9 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "router",
-            type: "address",
+            internalType: "address[]",
+            name: "routers",
+            type: "address[]",
           },
           {
             internalType: "uint32",
@@ -700,6 +713,19 @@ const _abi = [
       },
     ],
     name: "removeRouter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "newMaxRouters",
+        type: "uint256",
+      },
+    ],
+    name: "setMaxRouters",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

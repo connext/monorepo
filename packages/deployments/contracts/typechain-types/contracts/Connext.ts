@@ -42,17 +42,20 @@ export declare namespace IConnext {
     destinationDomain: number;
   };
 
-  export type ExecutedTransferStruct = { router: string; amount: BigNumberish };
+  export type ExecutedTransferStruct = {
+    routers: string[];
+    amount: BigNumberish;
+  };
 
-  export type ExecutedTransferStructOutput = [string, BigNumber] & {
-    router: string;
+  export type ExecutedTransferStructOutput = [string[], BigNumber] & {
+    routers: string[];
     amount: BigNumber;
   };
 
   export type ExecuteArgsStruct = {
     params: IConnext.CallParamsStruct;
     local: string;
-    router: string;
+    routers: string[];
     feePercentage: BigNumberish;
     amount: BigNumberish;
     nonce: BigNumberish;
@@ -63,7 +66,7 @@ export declare namespace IConnext {
   export type ExecuteArgsStructOutput = [
     IConnext.CallParamsStructOutput,
     string,
-    string,
+    string[],
     number,
     BigNumber,
     BigNumber,
@@ -72,7 +75,7 @@ export declare namespace IConnext {
   ] & {
     params: IConnext.CallParamsStructOutput;
     local: string;
-    router: string;
+    routers: string[];
     feePercentage: number;
     amount: BigNumber;
     nonce: BigNumber;
@@ -123,11 +126,12 @@ export interface ConnextInterface extends utils.Interface {
     "canonicalToAdopted(bytes32)": FunctionFragment;
     "delay()": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32),address,address[],uint32,uint256,uint256,bytes,address))": FunctionFragment;
     "executor()": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
     "isAssetOwnershipRenounced()": FunctionFragment;
     "isRouterOwnershipRenounced()": FunctionFragment;
+    "maxRouters()": FunctionFragment;
     "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeAssetOwnershipRenunciation()": FunctionFragment;
@@ -155,6 +159,7 @@ export interface ConnextInterface extends utils.Interface {
     "routerOwnershipTimestamp()": FunctionFragment;
     "routerRecipients(address)": FunctionFragment;
     "routerRelayerFees(address)": FunctionFragment;
+    "setMaxRouters(uint256)": FunctionFragment;
     "setRouterRecipient(address,address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
@@ -185,6 +190,7 @@ export interface ConnextInterface extends utils.Interface {
       | "initialize"
       | "isAssetOwnershipRenounced"
       | "isRouterOwnershipRenounced"
+      | "maxRouters"
       | "nonce"
       | "owner"
       | "proposeAssetOwnershipRenunciation"
@@ -212,6 +218,7 @@ export interface ConnextInterface extends utils.Interface {
       | "routerOwnershipTimestamp"
       | "routerRecipients"
       | "routerRelayerFees"
+      | "setMaxRouters"
       | "setRouterRecipient"
       | "setupAsset"
       | "setupRouter"
@@ -289,6 +296,10 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isRouterOwnershipRenounced",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxRouters",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
@@ -388,6 +399,10 @@ export interface ConnextInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "setMaxRouters",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setRouterRecipient",
     values: [string, string]
   ): string;
@@ -474,6 +489,7 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "isRouterOwnershipRenounced",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "maxRouters", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -568,6 +584,10 @@ export interface ConnextInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setMaxRouters",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setRouterRecipient",
     data: BytesLike
   ): Result;
@@ -591,9 +611,10 @@ export interface ConnextInterface extends utils.Interface {
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
+    "MaxRoutersUpdated(uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address,address,uint256,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterOwnerAccepted(address,address,address)": EventFragment;
     "RouterOwnerProposed(address,address,address)": EventFragment;
@@ -614,6 +635,7 @@ export interface ConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MaxRoutersUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
@@ -734,6 +756,18 @@ export type LiquidityRemovedEvent = TypedEvent<
 export type LiquidityRemovedEventFilter =
   TypedEventFilter<LiquidityRemovedEvent>;
 
+export interface MaxRoutersUpdatedEventObject {
+  maxRouters: BigNumber;
+  caller: string;
+}
+export type MaxRoutersUpdatedEvent = TypedEvent<
+  [BigNumber, string],
+  MaxRoutersUpdatedEventObject
+>;
+
+export type MaxRoutersUpdatedEventFilter =
+  TypedEventFilter<MaxRoutersUpdatedEvent>;
+
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
@@ -760,9 +794,8 @@ export type OwnershipTransferredEventFilter =
 export interface ReconciledEventObject {
   transferId: string;
   origin: number;
-  router: string;
-  localAsset: string;
   to: string;
+  localAsset: string;
   localAmount: BigNumber;
   executed: IConnext.ExecutedTransferStructOutput;
   caller: string;
@@ -771,7 +804,6 @@ export type ReconciledEvent = TypedEvent<
   [
     string,
     number,
-    string,
     string,
     string,
     BigNumber,
@@ -1019,6 +1051,8 @@ export interface Connext extends BaseContract {
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<[boolean]>;
 
+    maxRouters(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -1111,7 +1145,7 @@ export interface Connext extends BaseContract {
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { router: string; amount: BigNumber }>;
+    ): Promise<[BigNumber] & { amount: BigNumber }>;
 
     routedTransfersGas(
       arg0: BytesLike,
@@ -1139,6 +1173,11 @@ export interface Connext extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     setRouterRecipient(
       router: string,
@@ -1249,6 +1288,8 @@ export interface Connext extends BaseContract {
 
   isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
 
+  maxRouters(overrides?: CallOverrides): Promise<BigNumber>;
+
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -1341,7 +1382,7 @@ export interface Connext extends BaseContract {
   routedTransfers(
     arg0: BytesLike,
     overrides?: CallOverrides
-  ): Promise<[string, BigNumber] & { router: string; amount: BigNumber }>;
+  ): Promise<BigNumber>;
 
   routedTransfersGas(
     arg0: BytesLike,
@@ -1366,6 +1407,11 @@ export interface Connext extends BaseContract {
     arg0: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  setMaxRouters(
+    newMaxRouters: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   setRouterRecipient(
     router: string,
@@ -1474,6 +1520,8 @@ export interface Connext extends BaseContract {
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<boolean>;
 
+    maxRouters(overrides?: CallOverrides): Promise<BigNumber>;
+
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -1555,7 +1603,7 @@ export interface Connext extends BaseContract {
     routedTransfers(
       arg0: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { router: string; amount: BigNumber }>;
+    ): Promise<BigNumber>;
 
     routedTransfersGas(
       arg0: BytesLike,
@@ -1580,6 +1628,11 @@ export interface Connext extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setRouterRecipient(
       router: string,
@@ -1700,6 +1753,15 @@ export interface Connext extends BaseContract {
       caller?: null
     ): LiquidityRemovedEventFilter;
 
+    "MaxRoutersUpdated(uint256,address)"(
+      maxRouters?: null,
+      caller?: null
+    ): MaxRoutersUpdatedEventFilter;
+    MaxRoutersUpdated(
+      maxRouters?: null,
+      caller?: null
+    ): MaxRoutersUpdatedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: string | null
     ): OwnershipProposedEventFilter;
@@ -1716,12 +1778,11 @@ export interface Connext extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)"(
+    "Reconciled(bytes32,uint32,address,address,uint256,tuple,address)"(
       transferId?: BytesLike | null,
       origin?: BigNumberish | null,
-      router?: string | null,
-      localAsset?: null,
       to?: null,
+      localAsset?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
@@ -1729,9 +1790,8 @@ export interface Connext extends BaseContract {
     Reconciled(
       transferId?: BytesLike | null,
       origin?: BigNumberish | null,
-      router?: string | null,
-      localAsset?: null,
       to?: null,
+      localAsset?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
@@ -1922,6 +1982,8 @@ export interface Connext extends BaseContract {
 
     isRouterOwnershipRenounced(overrides?: CallOverrides): Promise<BigNumber>;
 
+    maxRouters(overrides?: CallOverrides): Promise<BigNumber>;
+
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2039,6 +2101,11 @@ export interface Connext extends BaseContract {
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setRouterRecipient(
@@ -2163,6 +2230,8 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    maxRouters(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2285,6 +2354,11 @@ export interface Connext extends BaseContract {
     routerRelayerFees(
       arg0: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setRouterRecipient(

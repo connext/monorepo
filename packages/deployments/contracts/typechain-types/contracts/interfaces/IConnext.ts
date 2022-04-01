@@ -42,17 +42,20 @@ export declare namespace IConnext {
     destinationDomain: number;
   };
 
-  export type ExecutedTransferStruct = { router: string; amount: BigNumberish };
+  export type ExecutedTransferStruct = {
+    routers: string[];
+    amount: BigNumberish;
+  };
 
-  export type ExecutedTransferStructOutput = [string, BigNumber] & {
-    router: string;
+  export type ExecutedTransferStructOutput = [string[], BigNumber] & {
+    routers: string[];
     amount: BigNumber;
   };
 
   export type ExecuteArgsStruct = {
     params: IConnext.CallParamsStruct;
     local: string;
-    router: string;
+    routers: string[];
     feePercentage: BigNumberish;
     amount: BigNumberish;
     nonce: BigNumberish;
@@ -63,7 +66,7 @@ export declare namespace IConnext {
   export type ExecuteArgsStructOutput = [
     IConnext.CallParamsStructOutput,
     string,
-    string,
+    string[],
     number,
     BigNumber,
     BigNumber,
@@ -72,7 +75,7 @@ export declare namespace IConnext {
   ] & {
     params: IConnext.CallParamsStructOutput;
     local: string;
-    router: string;
+    routers: string[];
     feePercentage: number;
     amount: BigNumber;
     nonce: BigNumber;
@@ -112,13 +115,14 @@ export interface IConnextInterface extends utils.Interface {
     "addLiquidityFor(uint256,address,address)": FunctionFragment;
     "addRelayerFees(address)": FunctionFragment;
     "addStableSwapPool((uint32,bytes32),address)": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32),address,address,uint32,uint256,uint256,bytes,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32),address,address[],uint32,uint256,uint256,bytes,address))": FunctionFragment;
     "initialize(uint256,address,address,address)": FunctionFragment;
     "reconcile(bytes32,uint32,address,address,uint256)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
     "removeRelayerFees(uint256,address)": FunctionFragment;
     "removeRouter(address)": FunctionFragment;
+    "setMaxRouters(uint256)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
     "xcall(((address,bytes,uint32,uint32),address,uint256))": FunctionFragment;
@@ -137,6 +141,7 @@ export interface IConnextInterface extends utils.Interface {
       | "removeLiquidity"
       | "removeRelayerFees"
       | "removeRouter"
+      | "setMaxRouters"
       | "setupAsset"
       | "setupRouter"
       | "xcall"
@@ -187,6 +192,10 @@ export interface IConnextInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "setMaxRouters",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setupAsset",
     values: [BridgeMessage.TokenIdStruct, string, string]
   ): string;
@@ -234,6 +243,10 @@ export interface IConnextInterface extends utils.Interface {
     functionFragment: "removeRouter",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxRouters",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setupRouter",
@@ -247,7 +260,8 @@ export interface IConnextInterface extends utils.Interface {
     "Executed(bytes32,address,address,tuple,address,address,uint256,uint256,address)": EventFragment;
     "LiquidityAdded(address,address,bytes32,uint256,address)": EventFragment;
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
-    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)": EventFragment;
+    "MaxRoutersUpdated(uint256,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address,address,uint256,tuple,address)": EventFragment;
     "StableSwapAdded(bytes32,uint32,address,address)": EventFragment;
     "XCalled(bytes32,address,tuple,address,address,uint256,uint256,uint256,address)": EventFragment;
   };
@@ -257,6 +271,7 @@ export interface IConnextInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidityRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MaxRoutersUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Reconciled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StableSwapAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
@@ -344,12 +359,23 @@ export type LiquidityRemovedEvent = TypedEvent<
 export type LiquidityRemovedEventFilter =
   TypedEventFilter<LiquidityRemovedEvent>;
 
+export interface MaxRoutersUpdatedEventObject {
+  maxRouters: BigNumber;
+  caller: string;
+}
+export type MaxRoutersUpdatedEvent = TypedEvent<
+  [BigNumber, string],
+  MaxRoutersUpdatedEventObject
+>;
+
+export type MaxRoutersUpdatedEventFilter =
+  TypedEventFilter<MaxRoutersUpdatedEvent>;
+
 export interface ReconciledEventObject {
   transferId: string;
   origin: number;
-  router: string;
-  localAsset: string;
   to: string;
+  localAsset: string;
   localAmount: BigNumber;
   executed: IConnext.ExecutedTransferStructOutput;
   caller: string;
@@ -358,7 +384,6 @@ export type ReconciledEvent = TypedEvent<
   [
     string,
     number,
-    string,
     string,
     string,
     BigNumber,
@@ -508,6 +533,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
@@ -598,6 +628,11 @@ export interface IConnext extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setMaxRouters(
+    newMaxRouters: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setupAsset(
     canonical: BridgeMessage.TokenIdStruct,
     adoptedAssetId: string,
@@ -681,6 +716,11 @@ export interface IConnext extends BaseContract {
     ): Promise<void>;
 
     removeRouter(router: string, overrides?: CallOverrides): Promise<void>;
+
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
@@ -777,12 +817,20 @@ export interface IConnext extends BaseContract {
       caller?: null
     ): LiquidityRemovedEventFilter;
 
-    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)"(
+    "MaxRoutersUpdated(uint256,address)"(
+      maxRouters?: null,
+      caller?: null
+    ): MaxRoutersUpdatedEventFilter;
+    MaxRoutersUpdated(
+      maxRouters?: null,
+      caller?: null
+    ): MaxRoutersUpdatedEventFilter;
+
+    "Reconciled(bytes32,uint32,address,address,uint256,tuple,address)"(
       transferId?: BytesLike | null,
       origin?: BigNumberish | null,
-      router?: string | null,
-      localAsset?: null,
       to?: null,
+      localAsset?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
@@ -790,9 +838,8 @@ export interface IConnext extends BaseContract {
     Reconciled(
       transferId?: BytesLike | null,
       origin?: BigNumberish | null,
-      router?: string | null,
-      localAsset?: null,
       to?: null,
+      localAsset?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
@@ -906,6 +953,11 @@ export interface IConnext extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setupAsset(
       canonical: BridgeMessage.TokenIdStruct,
       adoptedAssetId: string,
@@ -994,6 +1046,11 @@ export interface IConnext extends BaseContract {
 
     removeRouter(
       router: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxRouters(
+      newMaxRouters: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
