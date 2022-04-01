@@ -47,10 +47,11 @@ export const allRouters = [
   "0x3582ec1c312819246fc1820475e3daa251a159ef",
   "0xb03422855AA56d6a4Bf00155dD4A55abE132a3EA",
   "0x54BD2Ad4a667e740D39eC2Dd2f885a5B41D7705C",
+  "0xb3ac2b73fa658ee49abf8bc691c1239557c5cc6d",
 ];
 
 const networks: string[] = [
-  "mainnet",
+  // "mainnet",
   "moonbeam",
   "optimism",
   "bsc",
@@ -67,7 +68,7 @@ const networks: string[] = [
   "boba",
 ];
 
-const routers: string[] = ["0x54BD2Ad4a667e740D39eC2Dd2f885a5B41D7705C"];
+const routers: string[] = ["0xb3ac2b73fa658ee49abf8bc691c1239557c5cc6d"];
 // const routers = allRouters;
 
 const run = async () => {
