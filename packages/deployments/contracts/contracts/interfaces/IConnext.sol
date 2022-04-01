@@ -180,18 +180,20 @@ interface IConnext {
   /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
-   * @param to - The CallParams.recipient provided, created as indexed parameter
+   * @param origin - The origin domain of the transfer
    * @param router - The router that supplied fast liquidity, if applicable
    * @param localAsset - The asset that was provided by the bridge
+   * @param to - The CallParams.recipient provided, created as indexed parameter
    * @param localAmount - The amount that was provided by the bridge
    * @param executed - Record of the `ExecutedTransfer` stored onchain if fast liquidity is provided
    * @param caller - The account that called the function
    */
   event Reconciled(
     bytes32 indexed transferId,
-    address indexed to,
+    uint32 indexed origin,
     address indexed router,
     address localAsset,
+    address to,
     uint256 localAmount,
     ExecutedTransfer executed,
     address caller
@@ -275,6 +277,7 @@ interface IConnext {
 
   function reconcile(
     bytes32 _transferId,
+    uint32 _origin,
     address _local,
     address _recipient,
     uint256 _amount

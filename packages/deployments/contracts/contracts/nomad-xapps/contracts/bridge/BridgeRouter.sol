@@ -283,7 +283,7 @@ contract BridgeRouter is Version0, Router {
       _handleFundsDisbursal(address(connext), _token, _amount, _details);
 
       // Call reconcile
-      connext.reconcile(_action.externalHash(), _token, _recipient, _amount);
+      connext.reconcile(_action.externalHash(), _origin, _token, _recipient, _amount);
     } else {
       _handleFundsDisbursal(_recipient, _token, _amount, _details);
 
