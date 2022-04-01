@@ -11,6 +11,61 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    name: "RouterPermissionsManager__acceptProposedRouterOwner_notElapsed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__onlyRouterOwner_notRouterOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__proposeRouterOwner_badRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__proposeRouterOwner_notNewOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__removeRouter_notAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__removeRouter_routerEmpty",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__setRouterRecipient_notNewRecipient",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__setupRouter_amountIsZero",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RouterPermissionsManager__setupRouter_routerEmpty",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {

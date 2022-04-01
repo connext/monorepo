@@ -140,8 +140,6 @@ export type { RouterPermissionsManager } from "./contracts/RouterPermissionsMana
 export { RouterPermissionsManager__factory } from "./factories/contracts/RouterPermissionsManager__factory";
 export type { StableSwap } from "./contracts/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/StableSwap__factory";
-export type { BeaconProxy } from "./contracts/test/BeaconProxy";
-export { BeaconProxy__factory } from "./factories/contracts/test/BeaconProxy__factory";
 export type { Counter } from "./contracts/test/Counter";
 export { Counter__factory } from "./factories/contracts/test/Counter__factory";
 export type { DummySwap } from "./contracts/test/DummySwap";
@@ -164,5 +162,3 @@ export type { TestStableSwap } from "./contracts/test/TestStableSwap";
 export { TestStableSwap__factory } from "./factories/contracts/test/TestStableSwap__factory";
 export type { WETH } from "./contracts/test/TestWeth.sol/WETH";
 export { WETH__factory } from "./factories/contracts/test/TestWeth.sol/WETH__factory";
-export type { UpgradeableBeacon } from "./contracts/test/UpgradeableBeacon";
-export { UpgradeableBeacon__factory } from "./factories/contracts/test/UpgradeableBeacon__factory";

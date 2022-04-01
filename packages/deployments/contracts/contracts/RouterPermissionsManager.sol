@@ -22,6 +22,20 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * address, then it must be accepted by the current owner.
  */
 abstract contract RouterPermissionsManager is Initializable {
+  // ========== Custom Errors ===========
+
+  error RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
+  error RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
+  error RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
+  error RouterPermissionsManager__setRouterRecipient_notNewRecipient();
+  error RouterPermissionsManager__proposeRouterOwner_notNewOwner();
+  error RouterPermissionsManager__proposeRouterOwner_badRouter();
+  error RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
+  error RouterPermissionsManager__setupRouter_routerEmpty();
+  error RouterPermissionsManager__setupRouter_amountIsZero();
+  error RouterPermissionsManager__removeRouter_routerEmpty();
+  error RouterPermissionsManager__removeRouter_notAdded();
+
   // ============ Events =============
 
   /**
@@ -105,7 +119,7 @@ abstract contract RouterPermissionsManager is Initializable {
    */
   modifier onlyRouterOwner(address router) {
     address _owner = routerOwners[router];
-    require((_owner == address(0) && msg.sender == router) || _owner == msg.sender, "!router_owner");
+    if (!((_owner == address(0) && msg.sender == router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
     _;
   }
 
@@ -117,9 +131,9 @@ abstract contract RouterPermissionsManager is Initializable {
     address _owner = routerOwners[router];
     address _proposed = proposedRouterOwners[router];
     if (_proposed == address(0)) {
-      require((_owner == address(0) && msg.sender == router) || _owner == msg.sender, "!router_owner");
+      if (!((_owner == address(0) && msg.sender == router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
     } else {
-      require(msg.sender == _proposed, "!proposed_router_owner");
+      if (msg.sender == _proposed) revert RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
     }
     _;
   }
@@ -149,7 +163,7 @@ abstract contract RouterPermissionsManager is Initializable {
   function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
     // Check recipient is changing
     address _prevRecipient = routerRecipients[router];
-    require(_prevRecipient != recipient, "#SR:103");
+    if (_prevRecipient == recipient) revert RouterPermissionsManager__setRouterRecipient_notNewRecipient();
 
     // Set new recipient
     routerRecipients[router] = recipient;
@@ -166,11 +180,11 @@ abstract contract RouterPermissionsManager is Initializable {
   function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
     // Check that proposed is different than current owner
     address _currentOwner = _getRouterOwner(router);
-    require(_currentOwner != proposed, "!diff");
+    if (_currentOwner == proposed) revert RouterPermissionsManager__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
     address _currentProposed = proposedRouterOwners[router];
-    require(_currentProposed != proposed, "#PR:003");
+    if (_currentProposed == proposed) revert RouterPermissionsManager__proposeRouterOwner_badRouter();
 
     // Set proposed owner + timestamp
     proposedRouterOwners[router] = proposed;
@@ -186,7 +200,7 @@ abstract contract RouterPermissionsManager is Initializable {
    */
   function acceptProposedRouterOwner(address router) external onlyProposedRouterOwner(router) {
     // Check timestamp has passed
-    require(block.timestamp - proposedRouterTimestamp[router] > _delay, "!elapsed");
+    if (block.timestamp - proposedRouterTimestamp[router] <= _delay) revert RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
     address _owner = _getRouterOwner(router);
@@ -219,10 +233,10 @@ abstract contract RouterPermissionsManager is Initializable {
     address recipient
   ) internal {
     // Sanity check: not empty
-    require(router != address(0), "#SR:001");
+    if (router == address(0)) revert RouterPermissionsManager__setupRouter_routerEmpty();
 
     // Sanity check: needs approval
-    require(approvedRouters[router] == false, "#SR:002");
+    if (approvedRouters[router]) revert RouterPermissionsManager__setupRouter_amountIsZero();
 
     // Approve router
     approvedRouters[router] = true;
@@ -249,10 +263,10 @@ abstract contract RouterPermissionsManager is Initializable {
    */
   function _removeRouter(address router) internal {
     // Sanity check: not empty
-    require(router != address(0), "#RR:001");
+    if (router == address(0)) revert RouterPermissionsManager__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    require(approvedRouters[router], "#RR:033");
+    if (!approvedRouters[router]) revert RouterPermissionsManager__removeRouter_notAdded();
 
     // Update mapping
     approvedRouters[router] = false;
