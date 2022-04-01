@@ -3,7 +3,7 @@
   "version": "0.1.25",
   "description": "",
   "scripts": {
-    "test": "yarn test:forge",
+    "test": "yarn test:hardhat && yarn test:forge",
     "test:hardhat": "hardhat test",
     "test:forge": "yarn forge test --gas-report",
     "forge": "forge",
