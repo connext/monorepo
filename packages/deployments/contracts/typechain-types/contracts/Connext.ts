@@ -138,7 +138,7 @@ export interface ConnextInterface extends utils.Interface {
     "proposedRouterOwners(address)": FunctionFragment;
     "proposedRouterTimestamp(address)": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "reconcile(bytes32,address,address,uint256)": FunctionFragment;
+    "reconcile(bytes32,uint32,address,address,uint256)": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "removeAssetId(bytes32,address)": FunctionFragment;
     "removeLiquidity(uint256,address,address)": FunctionFragment;
@@ -324,7 +324,7 @@ export interface ConnextInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reconcile",
-    values: [BytesLike, string, string, BigNumberish]
+    values: [BytesLike, BigNumberish, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "reconciledTransfers",
@@ -593,7 +593,7 @@ export interface ConnextInterface extends utils.Interface {
     "LiquidityRemoved(address,address,address,uint256,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Reconciled(bytes32,address,address,address,uint256,tuple,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)": EventFragment;
     "RouterAdded(address,address)": EventFragment;
     "RouterOwnerAccepted(address,address,address)": EventFragment;
     "RouterOwnerProposed(address,address,address)": EventFragment;
@@ -759,9 +759,10 @@ export type OwnershipTransferredEventFilter =
 
 export interface ReconciledEventObject {
   transferId: string;
-  to: string;
+  origin: number;
   router: string;
   localAsset: string;
+  to: string;
   localAmount: BigNumber;
   executed: IConnext.ExecutedTransferStructOutput;
   caller: string;
@@ -769,6 +770,7 @@ export interface ReconciledEventObject {
 export type ReconciledEvent = TypedEvent<
   [
     string,
+    number,
     string,
     string,
     string,
@@ -1056,6 +1058,7 @@ export interface Connext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
@@ -1285,6 +1288,7 @@ export interface Connext extends BaseContract {
 
   reconcile(
     _transferId: BytesLike,
+    _origin: BigNumberish,
     _local: string,
     _recipient: string,
     _amount: BigNumberish,
@@ -1507,6 +1511,7 @@ export interface Connext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
@@ -1711,20 +1716,22 @@ export interface Connext extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
-    "Reconciled(bytes32,address,address,address,uint256,tuple,address)"(
+    "Reconciled(bytes32,uint32,address,address,address,uint256,tuple,address)"(
       transferId?: BytesLike | null,
-      to?: string | null,
+      origin?: BigNumberish | null,
       router?: string | null,
       localAsset?: null,
+      to?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: BytesLike | null,
-      to?: string | null,
+      origin?: BigNumberish | null,
       router?: string | null,
       localAsset?: null,
+      to?: null,
       localAmount?: null,
       executed?: null,
       caller?: null
@@ -1954,6 +1961,7 @@ export interface Connext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,
@@ -2194,6 +2202,7 @@ export interface Connext extends BaseContract {
 
     reconcile(
       _transferId: BytesLike,
+      _origin: BigNumberish,
       _local: string,
       _recipient: string,
       _amount: BigNumberish,

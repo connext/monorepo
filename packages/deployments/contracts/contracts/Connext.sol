@@ -422,12 +422,14 @@ contract Connext is
    * `ExecutedTransaction` struct stored onchain. If no fast liqudity was provided, the hash
    * of the `ReconciledTransaction` is stored onchain to enforce correctness when `execute` is called
    * @param _transferId - Transfer UUID
+   * @param _origin - The origin domain of the transfer
    * @param _local - The address of the asset delivered by the bridge
    * @param _recipient - The address that will receive funds on the destination domain
    * @param _amount - The amount bridged
    */
   function reconcile(
     bytes32 _transferId,
+    uint32 _origin,
     address _local,
     address _recipient,
     uint256 _amount
@@ -452,7 +454,7 @@ contract Connext is
     }
 
     // Emit event
-    emit Reconciled(_transferId, _recipient, _local, _amount, transaction, msg.sender);
+    emit Reconciled(_transferId, _origin, _recipient, _local, _amount, transaction, msg.sender);
   }
 
   /**
