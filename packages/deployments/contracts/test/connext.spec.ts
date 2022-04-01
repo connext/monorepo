@@ -652,14 +652,6 @@ describe("Connext", () => {
   });
 
   describe("removeLiquidity", () => {
-    it("should revert if param recipient address is empty", async () => {
-      const amount = "1";
-      const assetId = ZERO_ADDRESS;
-
-      await expect(originTm.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "#RL:007",
-      );
-    });
 
     it("should revert if amount is 0", async () => {
       const amount = "0";
