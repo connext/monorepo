@@ -49,10 +49,6 @@ contract Connext is
   // ========== Custom Errors ===========
 
   error Connext__onlyBridgeRouter_notBridge();
-  error Connext__addRouter_routerEmpty();
-  error Connext__addRouter_alreadyAdded();
-  error Connext__removeRouter_routerEmpty();
-  error Connext__removeRouter_notAdded();
   error Connext__removeAssetId_notAdded();
   error Connext__addRelayerFees_notValue();
   error Connext__removeLiquidity_recipientEmpty();
