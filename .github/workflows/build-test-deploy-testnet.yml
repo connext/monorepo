@@ -126,8 +126,8 @@ jobs:
           bash docker/bin/wait-for-services.sh sequencer
 
     outputs:
-      router-tags: ${{ steps.meta-router.outputs.tags }}
-      sequencer-tags: ${{ steps.meta-sequencer.outputs.tags }}
+      router-tags: ${{ needs.build-and-push-router-image.outputs.router-tags }}
+      sequencer-tags: ${{ needs.build-and-push-router-image.outputs.sequencer-tags }}
 
   terraform-infra:
     if: github.ref == 'refs/heads/amarok'
