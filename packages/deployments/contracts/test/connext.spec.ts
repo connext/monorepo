@@ -31,6 +31,7 @@ import {
   deployUpgradeableProxy,
   FastTransferAction,
   Message,
+  getRoutersBalances,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
@@ -652,7 +653,6 @@ describe("Connext", () => {
   });
 
   describe("removeLiquidity", () => {
-
     it("should revert if amount is 0", async () => {
       const amount = "0";
       const assetId = ZERO_ADDRESS;
@@ -1075,195 +1075,68 @@ describe("Connext", () => {
       reconciledTopics = destinationTm.filters.Reconciled().topics as string[];
     });
 
-    it("should work with one router", async () => {
-      // Get pre-execute balances
-      const preExecute = await Promise.all([
-        destinationAdopted.balanceOf(user.address),
-        destinationTm.routerBalances(router.address, local.address),
-      ]);
+    const routerScenarios = [
+      [router.address],
+      [router.address, router2.address],
+      [router.address, router2.address, router3.address],
+    ];
 
-      // Fulfill with the router
-      const routersAmount = amount - 500;
-      const routers = [router.address];
-      const routerProportionalAmount = Math.floor(routersAmount / routers.length);
-      await destinationTm.connect(router).execute({
-        params,
-        nonce,
-        local: local.address,
-        amount: routersAmount,
-        feePercentage: constants.Zero,
-        relayerSignature: "0x",
-        routers,
-        originSender: user.address,
+    routerScenarios.forEach((routers) => {
+      it(`should work with ${routers.length} routers`, async () => {
+        // Get pre-execute balances
+        const userPreExecute = await destinationAdopted.balanceOf(user.address);
+        const preExecute = await getRoutersBalances(routers, destinationTm, local.address);
+
+        // Fulfill with the router
+        const routersAmount = amount - 500;
+        const routerProportionalAmount = Math.floor(routersAmount / routers.length);
+
+        await destinationTm.connect(router).execute({
+          params,
+          nonce,
+          local: local.address,
+          amount: routersAmount,
+          feePercentage: constants.Zero,
+          relayerSignature: "0x",
+          routers,
+          originSender: user.address,
+        });
+
+        // Check balance of user + bridge
+        const userPostExecute = await destinationAdopted.balanceOf(user.address);
+        const postExecute = await getRoutersBalances(routers, destinationTm, local.address);
+
+        expect(userPostExecute).to.be.eq(userPreExecute.add(routersAmount));
+        routers.forEach((_addr, i) => {
+          expect(postExecute[i]).to.be.eq(preExecute[i].sub(routerProportionalAmount));
+        });
+
+        // Reconcile via bridge
+        const preReconcile = await getRoutersBalances(routers, destinationTm, local.address);
+
+        const reconcile = await destinationBridge
+          .connect(admin)
+          .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
+
+        const reconcileReceipt = await reconcile.wait();
+        const reconciledEvent = destinationTm.interface.parseLog(
+          reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
+        );
+        expect(reconciledEvent.args.transferId).eql(transferId);
+        expect(reconciledEvent.args.to).eql(user.address);
+        expect(reconciledEvent.args.localAsset).eql(local.address);
+        expect(reconciledEvent.args.localAmount).eql(bridgedAmount);
+        expect(reconciledEvent.args.executed).eql([routers, BigNumber.from(routersAmount)]);
+        expect(reconciledEvent.args.caller).eql(destinationBridge.address);
+
+        const routerReconciledAmount = Math.floor(amount / routers.length);
+
+        const postReconcile = await getRoutersBalances(routers, destinationTm, local.address);
+
+        routers.forEach((_addr, i) => {
+          expect(postReconcile[i]).to.be.eq(preReconcile[i].add(routerReconciledAmount));
+        });
       });
-
-      // Check balance of user + bridge
-      const postExecute = await Promise.all([
-        destinationAdopted.balanceOf(user.address),
-        destinationTm.routerBalances(router.address, local.address),
-      ]);
-      expect(postExecute[0]).to.be.eq(preExecute[0].add(routersAmount));
-      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerProportionalAmount));
-
-      // Reconcile via bridge
-      const preReconcile = await Promise.all([destinationTm.routerBalances(router.address, local.address)]);
-
-      const reconcile = await destinationBridge
-        .connect(admin)
-        .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
-
-      const reconcileReceipt = await reconcile.wait();
-      const reconciledEvent = destinationTm.interface.parseLog(
-        reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
-      );
-      expect(reconciledEvent.args.transferId).eql(transferId);
-      expect(reconciledEvent.args.to).eql(user.address);
-      expect(reconciledEvent.args.localAsset).eql(local.address);
-      expect(reconciledEvent.args.localAmount).eql(bridgedAmount);
-      expect(reconciledEvent.args.executed).eql([routers, BigNumber.from(routersAmount)]);
-      expect(reconciledEvent.args.caller).eql(destinationBridge.address);
-
-      const routerReconciledAmount = Math.floor(amount / routers.length);
-      const postReconcile = await Promise.all([destinationTm.routerBalances(router.address, local.address)]);
-      expect(postReconcile[0]).to.be.eq(preReconcile[0].add(routerReconciledAmount));
-    });
-
-    it("should work with two routers", async () => {
-      // Get pre-execute balances
-      const preExecute = await Promise.all([
-        destinationAdopted.balanceOf(user.address),
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-      ]);
-
-      // Fulfill with the router
-      const routersAmount = amount - 500;
-      const routers = [router.address, router2.address];
-      const routerProportionalAmount = Math.floor(routersAmount / routers.length);
-
-      await destinationTm.connect(router).execute({
-        params,
-        nonce,
-        local: local.address,
-        amount: routersAmount,
-        feePercentage: constants.Zero,
-        relayerSignature: "0x",
-        routers,
-        originSender: user.address,
-      });
-
-      // Check balance of user + bridge
-      const postExecute = await Promise.all([
-        destinationAdopted.balanceOf(user.address),
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-      ]);
-      expect(postExecute[0]).to.be.eq(preExecute[0].add(routersAmount));
-      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerProportionalAmount));
-      expect(postExecute[2]).to.be.eq(preExecute[2].sub(routerProportionalAmount));
-
-      // Reconcile via bridge
-      const preReconcile = await Promise.all([
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-      ]);
-
-      const reconcile = await destinationBridge
-        .connect(admin)
-        .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
-
-      const reconcileReceipt = await reconcile.wait();
-      const reconciledEvent = destinationTm.interface.parseLog(
-        reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
-      );
-      expect(reconciledEvent.args.transferId).eql(transferId);
-      expect(reconciledEvent.args.to).eql(user.address);
-      expect(reconciledEvent.args.localAsset).eql(local.address);
-      expect(reconciledEvent.args.localAmount).eql(bridgedAmount);
-      expect(reconciledEvent.args.executed).eql([routers, BigNumber.from(routersAmount)]);
-      expect(reconciledEvent.args.caller).eql(destinationBridge.address);
-
-      const routerReconciledAmount = Math.floor(amount / routers.length);
-
-      const postReconcile = await Promise.all([
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-      ]);
-
-      expect(postReconcile[0]).to.be.eq(preReconcile[0].add(routerReconciledAmount));
-      expect(postReconcile[1]).to.be.eq(preReconcile[1].add(routerReconciledAmount));
-    });
-
-    it("should work with three routers", async () => {
-      // Get pre-execute balances
-      const preExecute = await Promise.all([
-        destinationAdopted.balanceOf(user.address),
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-        destinationTm.routerBalances(router3.address, local.address),
-      ]);
-
-      // Fulfill with the router
-      const routersAmount = amount - 500;
-      const routers = [router.address, router2.address, router3.address];
-      const routerProportionalAmount = Math.floor(routersAmount / routers.length);
-
-      await destinationTm.connect(router).execute({
-        params,
-        nonce,
-        local: local.address,
-        amount: routersAmount,
-        feePercentage: constants.Zero,
-        relayerSignature: "0x",
-        routers,
-        originSender: user.address,
-      });
-
-      // Check balance of user + bridge
-      const postExecute = await Promise.all([
-        destinationAdopted.balanceOf(user.address),
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-        destinationTm.routerBalances(router3.address, local.address),
-      ]);
-      expect(postExecute[0]).to.be.eq(preExecute[0].add(routersAmount));
-      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerProportionalAmount));
-      expect(postExecute[2]).to.be.eq(preExecute[2].sub(routerProportionalAmount));
-      expect(postExecute[3]).to.be.eq(preExecute[3].sub(routerProportionalAmount));
-
-      // Reconcile via bridge
-      const preReconcile = await Promise.all([
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-        destinationTm.routerBalances(router3.address, local.address),
-      ]);
-
-      const reconcile = await destinationBridge
-        .connect(admin)
-        .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
-
-      const reconcileReceipt = await reconcile.wait();
-      const reconciledEvent = destinationTm.interface.parseLog(
-        reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
-      );
-      expect(reconciledEvent.args.transferId).eql(transferId);
-      expect(reconciledEvent.args.to).eql(user.address);
-      expect(reconciledEvent.args.localAsset).eql(local.address);
-      expect(reconciledEvent.args.localAmount).eql(bridgedAmount);
-      expect(reconciledEvent.args.executed).eql([routers, BigNumber.from(routersAmount)]);
-      expect(reconciledEvent.args.caller).eql(destinationBridge.address);
-
-      const routerReconciledAmount = Math.floor(amount / routers.length);
-
-      const postReconcile = await Promise.all([
-        destinationTm.routerBalances(router.address, local.address),
-        destinationTm.routerBalances(router2.address, local.address),
-        destinationTm.routerBalances(router3.address, local.address),
-      ]);
-
-      expect(postReconcile[0]).to.be.eq(preReconcile[0].add(routerReconciledAmount));
-      expect(postReconcile[1]).to.be.eq(preReconcile[1].add(routerReconciledAmount));
-      expect(postReconcile[2]).to.be.eq(preReconcile[2].add(routerReconciledAmount));
     });
 
     it("should revert if one the routers does not have enough liquidity", async () => {
