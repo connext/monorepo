@@ -109,10 +109,27 @@ jobs:
       sequencer-tags: ${{ steps.meta-sequencer.outputs.tags }}
       sequencer-labels: ${{ steps.meta-sequencer.outputs.labels }}
 
+  smoke-tests:
+    runs-on: ubuntu-latest
+    needs: [build-and-push-router-image]
+    env:
+      ROUTER_IMAGE: ${{ needs.build-and-push-router-image.outputs.router-tags }}
+      SEQUENCER_IMAGE: ${{ needs.build-and-push-router-image.outputs.sequencer-tags }}
+    steps:
+      - name: run smoke tests
+        run: |
+          docker-compose up -d
+          bash docker/bin/wait-for-services.sh router
+          bash docker/bin/wait-for-services.sh sequencer
+
+    outputs:
+      router-tags: ${{ steps.meta-router.outputs.tags }}
+      sequencer-tags: ${{ steps.meta-sequencer.outputs.tags }}
+
   terraform-infra:
     if: github.ref == 'refs/heads/amarok'
     runs-on: ubuntu-latest
-    needs: [build-and-push-router-image]
+    needs: [smoke-tests]
     permissions:
       contents: read
       packages: write
@@ -146,10 +163,10 @@ jobs:
 
   terraform-services:
     if: github.ref == 'refs/heads/amarok'
-    needs: [build-and-push-router-image, terraform-infra]
+    needs: [smoke-tests, terraform-infra]
     env:
-      TF_VAR_full_image_name_router: ${{ needs.build-and-push-router-image.outputs.router-tags }}
-      TF_VAR_full_image_name_sequencer: ${{ needs.build-and-push-router-image.outputs.sequencer-tags }}
+      TF_VAR_full_image_name_router: ${{ needs.smoke-tests.outputs.router-tags }}
+      TF_VAR_full_image_name_sequencer: ${{ needs.smoke-tests.outputs.sequencer-tags }}
       TF_VAR_mnemonic: ${{ secrets.MNEMONIC_TESTNET }}
       TF_VAR_admin_token_router: ${{ secrets.ADMIN_TOKEN_ROUTER_TESTNET }}
     runs-on: ubuntu-latest
