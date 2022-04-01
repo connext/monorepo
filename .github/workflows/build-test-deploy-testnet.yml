@@ -116,6 +116,9 @@ jobs:
       ROUTER_IMAGE: ${{ needs.build-and-push-router-image.outputs.router-tags }}
       SEQUENCER_IMAGE: ${{ needs.build-and-push-router-image.outputs.sequencer-tags }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: run smoke tests
         run: |
           docker-compose up -d
