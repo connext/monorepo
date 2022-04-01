@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "service" {
       cpu         = var.cpu
       memory      = var.memory
       environment = [
-        { name = "NXTP_CONFIG", value = var.nxtp_config },
+        { name = var.service_config_name, value = var.service_config_value },
         { name = "NXTP_MNEMONIC", value = var.mnemonic },
         { name = "ENVIRONMENT", value = var.environment }
       ]
@@ -99,18 +99,6 @@ resource "aws_lb_listener" "https" {
   default_action {
     type = "forward"
     target_group_arn = aws_alb_target_group.front_end.arn
-  }
-}
-
-
-resource "aws_alb_listener" "front_end" {
-  load_balancer_arn = aws_alb.lb.id
-  port              = var.loadbalancer_port
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = aws_alb_target_group.front_end.id
-    type             = "forward"
   }
 }
 

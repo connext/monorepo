@@ -70,7 +70,8 @@ variable "service_security_groups" {
   type = list(string)
 }
 
-variable "nxtp_config" {}
+variable "service_config_value" {}
+variable "service_config_name" {}
 
 
 variable "internal_lb" {
