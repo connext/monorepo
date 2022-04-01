@@ -44,64 +44,11 @@ contract ConnextTest is ForgeHelper {
     stdstore.target(address(connext)).sig(connext.approvedAssets.selector).with_key(_asset).checked_write(writeVal);
   }
 
-  // ============ setupRouter ============
-
-  //Fail if not called by owner
-  function testSetupRouterOwnable() public {
-    vm.prank(address(0));
-    vm.expectRevert(bytes("#OO:029"));
-    connext.setupRouter(address(1), address(0), address(0));
+  function setRouterOwner(address _router, address _owner) internal {
+    stdstore.target(address(connext)).sig(connext.routerOwners.selector).with_key(_router).checked_write(_owner);
   }
 
-  //Fail if adding address(0) as router
-  function testSetupRouterZeroAddress() public {
-    vm.expectRevert(bytes("#SR:001"));
-    connext.setupRouter(address(0), address(0), address(0));
+  function setRouterRecipient(address _router, address _recipient) internal {
+    stdstore.target(address(connext)).sig(connext.routerRecipients.selector).with_key(_router).checked_write(_recipient);
   }
-
-  // Fail if adding a duplicate router
-  function testSetupRouterAlreadyApproved() public {
-    setApprovedRouter(address(1), true);
-    vm.expectRevert(bytes("#SR:002"));
-    connext.setupRouter(address(1), address(0), address(0));
-  }
-
-  // Should work
-  function testSetupRouter() public {
-    connext.setupRouter(address(1), address(2), address(3));
-    assertTrue(connext.approvedRouters(address(1)));
-    assertEq(connext.routerOwners(address(1)), address(2));
-    assertEq(connext.routerRecipients(address(1)), address(3));
-  }
-
-  // ============ removeRouter ============
-
-  // Fail if not called by owner
-  function testRemoveRouterOwnable() public {
-    vm.prank(address(0));
-    vm.expectRevert(bytes("#OO:029"));
-    connext.removeRouter(address(1));
-  }
-
-  // Fail if removing address(0) as router
-  function testRemoveRouterZeroAddress() public {
-    vm.expectRevert(bytes("#RR:001"));
-    connext.removeRouter(address(0));
-  }
-
-  // Fail if removing a non-existent router
-  function testAddRouterNotApproved() public {
-    setApprovedRouter(address(1), false);
-    vm.expectRevert(bytes("#RR:033"));
-    connext.removeRouter(address(1));
-  }
-
-  // Should work
-  function testRemoveRouter() public {
-    setApprovedRouter(address(1), true);
-    connext.removeRouter(address(1));
-    assertTrue(!connext.approvedRouters(address(1)));
-  }
-
-  // ============ setRouterRecipient ============
 }
