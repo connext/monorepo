@@ -1,26 +1,21 @@
 {
-  "logLevel": "debug",
-  "sequencerUrl": "http://localhost:8081",
-  "server": {
-    "adminToken": "blahblah"
-  },
   "chains": {
     "2000": {
-      "providers": ["https://rinkeby.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
+      "assets": [{ "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2", "name": "TEST" }],
+      "providers": ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
       "subgraph": {
-        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"],
-        "analytics": [""]
-      },
-      "assets": [{ "name": "TEST", "address": "0x80dA4efc379E9ab45D2032F9EDf4D4aBc4EF2f9d" }]
+        "analytics": [""],
+        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
+      }
     },
     "3000": {
-      "providers": ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
+      "assets": [{ "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", "name": "TEST" }],
+      "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
       "subgraph": {
-        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"],
-        "analytics": [""]
-      },
-      "assets": [{ "name": "TEST", "address": "0xe71678794fff8846bFF855f716b0Ce9d9a78E844" }]
+        "analytics": [""],
+        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
+      }
     }
   },
-  "mnemonic": "..."
+  "logLevel": "debug"
 }
