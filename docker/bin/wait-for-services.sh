@@ -23,7 +23,7 @@ echo "Testing for connectivity for service ${SERVICE} at port ${PORT}"
 function wait_for_service() {
     local attempt=1
 
-    until curl -f --max-time 1 "http://localhost:${PORT}/" &>/dev/null; do
+    until curl -f --max-time 1 "http://localhost:${PORT}/ping" &>/dev/null; do
         echo "${attempt}/12: Service not up, sleeping ${attempt} seconds..."
         sleep ${attempt}
         attempt=$((attempt + 1))
