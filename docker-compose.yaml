@@ -13,7 +13,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/sequencer/config.json:/home/node/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/agents/sequencer/config.json
   sequencer:
     image: ${SEQUENCER_IMAGE}
     restart: always
@@ -24,7 +25,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/sequencer/config.json:/home/node/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/agents/sequencer/config.json
   redis:
     image: redis:latest
     container_name: rd01
