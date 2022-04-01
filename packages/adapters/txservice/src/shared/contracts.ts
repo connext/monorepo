@@ -1,6 +1,5 @@
 import { utils } from "ethers";
 import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
-import { Interface } from "ethers/lib/utils";
 import {
   Connext as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
@@ -96,14 +95,15 @@ export const contractDeployments: ConnextContractDeployments = {
  * @returns An ethers Interface object initialized for the corresponding ABI.
  */
 
-export const getConnextInterface = () => new Interface(ConnextArtifact.abi) as TConnext["interface"];
+export const getConnextInterface = () => new utils.Interface(ConnextArtifact.abi) as TConnext["interface"];
 
 export const getPriceOracleInterface = () =>
   new utils.Interface(PriceOracleArtifact.abi) as TConnextPriceOracle["interface"];
 
-export const getTokenRegistryInterface = () => new Interface(TokenRegistryArtifact.abi) as TTokenRegistry["interface"];
+export const getTokenRegistryInterface = () =>
+  new utils.Interface(TokenRegistryArtifact.abi) as TTokenRegistry["interface"];
 
-export const getStableSwapInterface = () => new Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
+export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
 
 export type ConnextContractInterfaces = {
   connext: TConnext["interface"];
