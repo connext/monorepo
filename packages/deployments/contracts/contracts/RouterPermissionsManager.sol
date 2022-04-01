@@ -24,7 +24,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * address, then it must be accepted by the current owner.
  */
 abstract contract RouterPermissionsManager is Initializable {
-
   // ============ Private storage =============
 
   uint256 private _delay;
@@ -83,7 +82,7 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to set recipient
    * @param recipient Recipient Address to set to router
    */
-  function setRouterRecipient(address router, address recipient) external{
+  function setRouterRecipient(address router, address recipient) external {
     RouterPermissionsManagerLogic.onlyRouterOwner(router, routerOwners[router]);
 
     RouterPermissionsManagerLogic.setRouterRecipient(router, recipient, routerRecipients);
@@ -104,7 +103,6 @@ abstract contract RouterPermissionsManager is Initializable {
       proposedRouterOwners,
       proposedRouterTimestamp
     );
-
   }
 
   /**
@@ -137,7 +135,14 @@ abstract contract RouterPermissionsManager is Initializable {
     address owner,
     address recipient
   ) internal {
-    RouterPermissionsManagerLogic.setupRouter(router, owner, recipient, approvedRouters, routerOwners, routerRecipients);
+    RouterPermissionsManagerLogic.setupRouter(
+      router,
+      owner,
+      recipient,
+      approvedRouters,
+      routerOwners,
+      routerRecipients
+    );
   }
 
   /**

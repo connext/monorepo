@@ -6,7 +6,6 @@ import "../../interfaces/IWrapped.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library AssetLogic {
-
   error AssetLogic__transferAssetToContract_notAmount();
   error AssetLogic__transferAssetToContract_ethWithErcTransfer();
   error AssetLogic__transferAssetFromContract_notNative();
@@ -22,7 +21,11 @@ library AssetLogic {
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
    * if the token is a fee-on-transfer token)
    */
-  function transferAssetToContract(address _assetId, uint256 _specifiedAmount, IWrapped _wrapper) external returns (address, uint256) {
+  function transferAssetToContract(
+    address _assetId,
+    uint256 _specifiedAmount,
+    IWrapped _wrapper
+  ) external returns (address, uint256) {
     uint256 trueAmount = _specifiedAmount;
 
     if (_assetId == address(0)) {

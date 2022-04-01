@@ -155,7 +155,8 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function proposeRouterOwnershipRenunciation() public virtual onlyOwner {
     // Use contract as source of truth
     // Will fail if all ownership is renounced by modifier
-    if (_routerOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange();
+    if (_routerOwnershipRenounced)
+      revert ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange();
 
     // Begin delay, emit event
     _setRouterOwnershipTimestamp();
@@ -196,7 +197,8 @@ abstract contract ProposedOwnableUpgradeable is Initializable {
   function proposeAssetOwnershipRenunciation() public virtual onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
-    if (_assetOwnershipRenounced) revert ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange();
+    if (_assetOwnershipRenounced)
+      revert ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange();
 
     // Start cycle, emit event
     _setAssetOwnershipTimestamp();

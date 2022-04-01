@@ -23,7 +23,6 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-
 // TODOs:
 // Open questions:
 // 1. How to account for fees/specify amount used on receiving chain? How to specify slippage in prepare and in AMM?
@@ -388,7 +387,11 @@ contract Connext is
     ) revert Connext__xcall_notSupportedAsset();
 
     // Transfer funds to the contract
-    (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(_args.transactingAssetId, _args.amount, wrapper);
+    (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
+      _args.transactingAssetId,
+      _args.amount,
+      wrapper
+    );
 
     // Swap to the local asset from the adopted
     // TODO: do we want to swap per call or per batch?
@@ -407,7 +410,14 @@ contract Connext is
     nonce++;
 
     // Add to batch
-    ConnextUtils.sendMessage(bridgeRouter,_args.params.destinationDomain, _args.params.to, _bridged, _bridgedAmt, _transferId);
+    ConnextUtils.sendMessage(
+      bridgeRouter,
+      _args.params.destinationDomain,
+      _args.params.to,
+      _bridged,
+      _bridgedAmt,
+      _transferId
+    );
 
     // Emit event
     emit XCalled(

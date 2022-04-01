@@ -9,7 +9,6 @@ import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 library ConnextUtils {
-
   /**
    * @notice Gets unique identifier from nonce + domain
    * @param _nonce - The nonce of the contract
@@ -24,7 +23,6 @@ library ConnextUtils {
     return keccak256(abi.encode(_nonce, _sender, _params));
   }
 
-
   /**
    * @notice Gets the hash for information returned across the bridge
    * @param _local - The asset delivered by the bridge
@@ -38,7 +36,11 @@ library ConnextUtils {
     address _to,
     uint256 _amount
   ) external pure returns (bytes32) {
-    IConnext.ReconciledTransfer memory transfer = IConnext.ReconciledTransfer({local: _local, amount: _amount, to: _to});
+    IConnext.ReconciledTransfer memory transfer = IConnext.ReconciledTransfer({
+      local: _local,
+      amount: _amount,
+      to: _to
+    });
 
     return keccak256(abi.encode(transfer));
   }

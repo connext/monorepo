@@ -9,7 +9,6 @@ import "../../nomad-xapps/contracts/bridge/BridgeMessage.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library StableSwapLogic {
-
   /**
    * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
    * @dev Will not swap if the asset passed in is the local asset

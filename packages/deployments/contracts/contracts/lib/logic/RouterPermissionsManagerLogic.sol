@@ -2,7 +2,6 @@
 pragma solidity 0.8.11;
 
 library RouterPermissionsManagerLogic {
-
   // ========== Custom Errors ===========
   error RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
   error RouterPermissionsManager__setRouterRecipient_notNewRecipient();
@@ -15,7 +14,6 @@ library RouterPermissionsManagerLogic {
   error RouterPermissionsManager__setupRouter_amountIsZero();
   error RouterPermissionsManager__proposeRouterOwner_notNewOwner();
   error RouterPermissionsManager__proposeRouterOwner_badRouter();
-
 
   /**
    * @notice Emitted when a new router is added
@@ -59,16 +57,22 @@ library RouterPermissionsManagerLogic {
    * @notice Asserts caller is the router owner (if set) or the router itself
    */
   function onlyRouterOwner(address _router, address _owner) external {
-    if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
+    if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
+      revert RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
   }
 
   /**
    * @notice Asserts caller is the proposed router. If proposed router is address(0), then asserts
    * the owner is calling the function (if set), or the router itself is calling the function
    */
-  function onlyProposedRouterOwner(address _router, address _owner, address _proposed) external {
+  function onlyProposedRouterOwner(
+    address _router,
+    address _owner,
+    address _proposed
+  ) external {
     if (_proposed == address(0)) {
-      if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
+      if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
+        revert RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
     } else {
       if (msg.sender != _proposed) revert RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
     }
@@ -83,7 +87,11 @@ library RouterPermissionsManagerLogic {
    * @param router Router address to set recipient
    * @param recipient Recipient Address to set to router
    */
-  function setRouterRecipient(address router, address recipient, mapping(address => address) storage routerRecipients) external{
+  function setRouterRecipient(
+    address router,
+    address recipient,
+    mapping(address => address) storage routerRecipients
+  ) external {
     // Check recipient is changing
     address _prevRecipient = routerRecipients[router];
     if (_prevRecipient == recipient) revert RouterPermissionsManager__setRouterRecipient_notNewRecipient();
@@ -135,7 +143,8 @@ library RouterPermissionsManagerLogic {
     mapping(address => uint256) storage proposedRouterTimestamp
   ) external {
     // Check timestamp has passed
-    if (block.timestamp - proposedRouterTimestamp[router] <= _delay) revert RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
+    if (block.timestamp - proposedRouterTimestamp[router] <= _delay)
+      revert RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
     address _proposed = proposedRouterOwners[router];
@@ -229,11 +238,13 @@ library RouterPermissionsManagerLogic {
     }
   }
 
-
   /**
    * @notice Returns the router owner if it is set, or the router itself if not
    */
-  function getRouterOwner(address router, mapping(address => address) storage _routerOwners) external returns (address) {
+  function getRouterOwner(address router, mapping(address => address) storage _routerOwners)
+    external
+    returns (address)
+  {
     address _owner = _routerOwners[router];
     return _owner == address(0) ? router : _owner;
   }
