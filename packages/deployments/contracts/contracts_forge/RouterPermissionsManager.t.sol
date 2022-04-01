@@ -2,6 +2,8 @@
 import "./ForgeHelper.sol";
 
 import "../contracts/Connext.sol";
+import "../contracts/RouterPermissionsManager.sol";
+import "../contracts/ProposedOwnableUpgradeable.sol";
 
 contract RouterPermissionsManagerTest is ForgeHelper {
   // ============ Libraries ============
@@ -57,20 +59,20 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   //Fail if not called by owner
   function testSetupRouterOwnable() public {
     vm.prank(address(0));
-    vm.expectRevert(bytes("#OO:029"));
+    vm.expectRevert(abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector));
     connext.setupRouter(address(1), address(0), address(0));
   }
 
   //Fail if adding address(0) as router
   function testSetupRouterZeroAddress() public {
-    vm.expectRevert(bytes("#SR:001"));
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__setupRouter_routerEmpty.selector));
     connext.setupRouter(address(0), address(0), address(0));
   }
 
   // Fail if adding a duplicate router
   function testSetupRouterAlreadyApproved() public {
     setApprovedRouter(address(1), true);
-    vm.expectRevert(bytes("#SR:002"));
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__setupRouter_amountIsZero.selector));
     connext.setupRouter(address(1), address(0), address(0));
   }
 
@@ -87,20 +89,20 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   // Fail if not called by owner
   function testRemoveRouterOwnable() public {
     vm.prank(address(0));
-    vm.expectRevert(bytes("#OO:029"));
+    vm.expectRevert(abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector));
     connext.removeRouter(address(1));
   }
 
   // Fail if removing address(0) as router
   function testRemoveRouterZeroAddress() public {
-    vm.expectRevert(bytes("#RR:001"));
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__removeRouter_routerEmpty.selector));
     connext.removeRouter(address(0));
   }
 
   // Fail if removing a non-existent router
-  function testAddRouterNotApproved() public {
+  function testRemoveRouterNotApproved() public {
     setApprovedRouter(address(1), false);
-    vm.expectRevert(bytes("#RR:033"));
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__removeRouter_notAdded.selector));
     connext.removeRouter(address(1));
   }
 
@@ -118,7 +120,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     address _router = address(1);
     setRouterOwner(_router, address(0));
     vm.prank(address(2));
-    vm.expectRevert(bytes("!router_owner"));   
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__onlyRouterOwner_notRouterOwner.selector));
     connext.setRouterRecipient(_router, address(0));
   }
 
@@ -127,7 +129,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     address _router = address(1);
     setRouterOwner(_router, address(3));
     vm.prank(address(2));
-    vm.expectRevert(bytes("!router_owner")); 
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__onlyRouterOwner_notRouterOwner.selector));
     connext.setRouterRecipient(_router, address(0));
   }
 
@@ -135,8 +137,8 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   function testOnlyRouterOwnerOkWithZeroOwner() public {
     address _router = address(1);
     setRouterOwner(_router, address(0));
-    vm.prank(_router); 
-    connext.setRouterRecipient(_router, address(2));  
+    vm.prank(_router);
+    connext.setRouterRecipient(_router, address(2));
     assertEq(connext.routerRecipients(_router), address(2));
   }
 
@@ -145,7 +147,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     address _router = address(1);
     setRouterOwner(_router, address(3));
     vm.prank(address(3));
-    connext.setRouterRecipient(_router, address(2));  
+    connext.setRouterRecipient(_router, address(2));
     assertEq(connext.routerRecipients(_router), address(2));
   }
 
@@ -155,7 +157,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     setRouterOwner(_router, address(3));
     setRouterRecipient(_router, address(2));
     vm.prank(address(3));
-    vm.expectRevert(bytes("#SR:103")); 
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__setRouterRecipient_notNewRecipient.selector));
     connext.setRouterRecipient(_router, address(2));
   }
 
@@ -166,7 +168,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     address _router = address(1);
     setRouterOwner(_router, address(3));
     vm.prank(address(3));
-    vm.expectRevert(bytes("!diff")); 
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__proposeRouterOwner_notNewOwner.selector));
     connext.proposeRouterOwner(_router, address(3));
   }
 
@@ -176,7 +178,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     setRouterOwner(_router, address(3));
     setProposedOwner(_router, address(2));
     vm.prank(address(3));
-    vm.expectRevert(bytes("#PR:003")); 
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__proposeRouterOwner_badRouter.selector));
     connext.proposeRouterOwner(_router, address(2));
   }
 
@@ -198,7 +200,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     setRouterOwner(_router, address(0));
     setProposedOwner(_router, address(0));
     vm.prank(address(2));
-    vm.expectRevert(bytes("!router_owner"));   
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner.selector));
     connext.acceptProposedRouterOwner(_router);
   }
 
@@ -208,7 +210,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     setRouterOwner(_router, address(3));
     setProposedOwner(_router, address(0));
     vm.prank(address(2));
-    vm.expectRevert(bytes("!router_owner")); 
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner.selector));
     connext.acceptProposedRouterOwner(_router);
   }
 
@@ -217,7 +219,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     address _router = address(1);
     setProposedOwner(_router, address(1));
     vm.prank(address(2));
-    vm.expectRevert(bytes("!proposed_router_owner")); 
+    vm.expectRevert(abi.encodeWithSelector(RouterPermissionsManager.RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner.selector));
     connext.acceptProposedRouterOwner(_router);
   }
 
@@ -227,8 +229,8 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     setRouterOwner(_router, address(0));
     setProposedOwner(_router, address(0));
     setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
-    vm.prank(_router); 
-    connext.acceptProposedRouterOwner(_router); 
+    vm.prank(_router);
+    connext.acceptProposedRouterOwner(_router);
     assertEq(connext.routerOwners(_router), address(0));
   }
 
@@ -238,17 +240,17 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     setRouterOwner(_router, address(3));
     setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
     vm.prank(address(3));
-    connext.acceptProposedRouterOwner(_router); 
+    connext.acceptProposedRouterOwner(_router);
     assertEq(connext.routerOwners(_router), address(0));
   }
 
   //Should work if proposed != address(0)  &&  msg.sender == _proposed
   function testOnlyProposedOwnerOkWithNoZeroProposed() public {
     address _router = address(1);
-    setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
     setProposedOwner(_router, address(1));
+    setProposedTimestamp(_router, block.timestamp - 3600 * 24 * 8);
     vm.prank(address(1));
-    connext.acceptProposedRouterOwner(_router); 
+    connext.acceptProposedRouterOwner(_router);
     assertEq(connext.routerOwners(_router), address(1));
   }
 }

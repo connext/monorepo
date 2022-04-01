@@ -133,7 +133,7 @@ abstract contract RouterPermissionsManager is Initializable {
     if (_proposed == address(0)) {
       if (!((_owner == address(0) && msg.sender == router) || _owner == msg.sender)) revert RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
     } else {
-      if (msg.sender == _proposed) revert RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
+      if (msg.sender != _proposed) revert RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
     }
     _;
   }
