@@ -445,6 +445,7 @@ contract Connext is
       // TODO: assert amount credited is reasonable (depends on fee scheme)
 
       uint256 routersLength = transaction.routers.length;
+      // This division in some cases will generate a remainder that is not credited to any router
       uint256 routerAmount = _amount / routersLength;
 
       for (uint256 i; i < routersLength; i++) {
@@ -776,6 +777,7 @@ contract Connext is
     require(routedTransfers[_transferId].routers.length == 0, "!empty");
     uint256 routersLength = _routers.length;
     require(routersLength <= maxRouters, "maxRouters exceeded");
+    // This division in some cases will generate a remainder that is not decremented to any router
     uint256 routerAmount = _amount / routersLength;
 
     for (uint256 i; i < routersLength; i++) {
