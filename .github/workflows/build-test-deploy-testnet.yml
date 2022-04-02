@@ -43,11 +43,10 @@ jobs:
       - name: Yarn test
         run: yarn test:all
 
-  build-and-push-images:
+  build-and-push-router-image:
     env:
       REGISTRY: ghcr.io
-      ROUTER_IMAGE_NAME: connext/router
-      SEQUENCER_IMAGE_NAME: connext/sequencer
+      IMAGE_NAME: connext/router
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
@@ -65,56 +64,79 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker - router
-        id: meta-router
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.ROUTER_IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
-      - name: Build and push Docker image - router
+      - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          tags: ${{ steps.meta-router.outputs.tags }}
-          labels: ${{ steps.meta-router.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           file: docker/router/Dockerfile
 
-      - name: Extract metadata (tags, labels) for Docker - sequencer
-        id: meta-sequencer
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
+      labels: ${{ steps.meta.outputs.labels }}
+
+  build-and-push-sequencer-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/sequencer
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.SEQUENCER_IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
-      - name: Build and push Docker image - sequencer
+      - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          tags: ${{ steps.meta-sequencer.outputs.tags }}
-          labels: ${{ steps.meta-sequencer.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
     outputs:
-      router-tags: ${{ steps.meta-router.outputs.tags }}
-      router-labels: ${{ steps.meta-router.outputs.labels }}
-      sequencer-tags: ${{ steps.meta-sequencer.outputs.tags }}
-      sequencer-labels: ${{ steps.meta-sequencer.outputs.labels }}
+      tags: ${{ steps.meta.outputs.tags }}
+      labels: ${{ steps.meta.outputs.labels }}
 
   smoke-tests:
     runs-on: ubuntu-latest
-    needs: [build-and-push-images]
+    needs: [build-and-push-router-image, build-and-push-sequencer-image]
     env:
-      ROUTER_IMAGE: ${{ needs.build-and-push-images.outputs.router-tags }}
-      SEQUENCER_IMAGE: ${{ needs.build-and-push-images.outputs.sequencer-tags }}
+      ROUTER_IMAGE: ${{ needs.build-and-push-router-image.outputs.tags }}
+      SEQUENCER_IMAGE: ${{ needs.build-and-push-sequencer-image.outputs.tags }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -126,8 +148,8 @@ jobs:
           bash docker/bin/wait-for-services.sh sequencer
 
     outputs:
-      router-tags: ${{ needs.build-and-push-images.outputs.router-tags }}
-      sequencer-tags: ${{ needs.build-and-push-images.outputs.sequencer-tags }}
+      router-tags: ${{ needs.build-and-push-router-image.outputs.tags }}
+      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.tags }}
 
   terraform-infra:
     if: github.ref == 'refs/heads/amarok'
