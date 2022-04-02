@@ -89,7 +89,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
     await sanityCheck(bid, requestContext);
   } catch (e) {
     throw new SanityCheckFailed({
-      error: jsonifyError(e),
+      error: jsonifyError(e as Error),
       bid,
     });
   }
