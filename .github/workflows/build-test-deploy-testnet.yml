@@ -43,7 +43,7 @@ jobs:
       - name: Yarn test
         run: yarn test:all
 
-  build-and-push-router-image:
+  build-and-push-images:
     env:
       REGISTRY: ghcr.io
       ROUTER_IMAGE_NAME: connext/router
