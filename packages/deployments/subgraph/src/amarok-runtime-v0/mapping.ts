@@ -23,22 +23,20 @@ export function handleRouterAdded(event: RouterAdded): void {
   }
 }
 
-export function handleRouterRemoved(_event: RouterRemoved): void {}
-
-export function handleStableSwapAdded(_event: StableSwapAdded): void {}
+// export function handleStableSwapAdded(_event: StableSwapAdded): void {}
 
 export function handleAssetAdded(event: AssetAdded): void {
-  let asset = Asset.load(event.params.adoptedAsset.toHex());
+  let assetId = event.params.supportedAsset.toHex();
+  let asset = Asset.load(assetId);
   if (asset == null) {
-    asset = new Asset(event.params.adoptedAsset.toHex());
-    asset.assetId = event.params.adoptedAsset;
+    asset = new Asset(assetId);
+    asset.local = event.params.supportedAsset;
+    asset.adoptedAsset = event.params.adoptedAsset;
     asset.canonicalId = event.params.canonicalId;
-    asset.domain = event.params.domain;
+    asset.canonicalDomain = event.params.domain;
     asset.save();
   }
 }
-
-export function handleAssetRemoved(_event: AssetRemoved): void {}
 
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
@@ -46,13 +44,6 @@ export function handleAssetRemoved(_event: AssetRemoved): void {}
  * @param event - The contract event to update the subgraph record with
  */
 export function handleLiquidityAdded(event: LiquidityAdded): void {
-  let router = Router.load(event.params.router.toHex());
-  if (router == null) {
-    router = new Router(event.params.router.toHex());
-    router.save();
-  }
-
-  // ID is of the format ROUTER_ADDRESS-LOCAL
   const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // add new amount
@@ -128,25 +119,25 @@ export function handleXCalled(event: XCalled): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleExecuted(event: Executed): void {
-  let transfer = Transfer.load(event.params.transferId.toHexString());
-  // router should have liquidity but it may not
   let router = Router.load(event.params.router.toHex());
+
+  let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new Transfer(event.params.transferId.toHexString());
-
-    // Meta
-    transfer.originDomain = event.params.params.originDomain;
-    transfer.destinationDomain = event.params.params.destinationDomain;
-    transfer.chainId = getChainId();
-    transfer.status = "Executed";
-
-    // Transfer Data
-    transfer.transferId = event.params.transferId;
-    transfer.to = event.params.to;
-    transfer.router = router!.id;
-    transfer.callTo = event.params.params.to;
-    transfer.callData = event.params.params.callData;
   }
+
+  // Meta
+  transfer.originDomain = event.params.params.originDomain;
+  transfer.destinationDomain = event.params.params.destinationDomain;
+  transfer.chainId = getChainId();
+  transfer.status = "Executed";
+
+  // Transfer Data
+  transfer.transferId = event.params.transferId;
+  transfer.to = event.params.to;
+  transfer.router = router!.id;
+  transfer.callTo = event.params.params.to;
+  transfer.callData = event.params.params.callData;
 
   // Fulfill
   transfer.executedCaller = event.params.caller;
@@ -171,7 +162,35 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
-  //TODO
+  let transfer = Transfer.load(event.params.transferId.toHexString());
+  let router = Router.load(event.params.router.toHex());
+
+  if (transfer == null) {
+    transfer = new Transfer(event.params.transferId.toHexString());
+  }
+
+  // Meta
+  transfer.chainId = getChainId();
+  transfer.status = "Reconciled";
+
+  // Transfer Data
+  transfer.transferId = event.params.transferId;
+  transfer.to = event.params.to;
+  transfer.router = router!.id;
+
+  // Fulfill
+  transfer.reconciledCaller = event.params.caller;
+  transfer.reconciledLocalAmount = event.params.localAmount;
+  transfer.reconciledLocalAsset = event.params.localAsset;
+
+  // TransactionFulfilled
+  transfer.reconciledTransactionHash = event.transaction.hash;
+  transfer.reconciledTimestamp = event.block.timestamp;
+  transfer.reconciledGasPrice = event.transaction.gasPrice;
+  transfer.reconciledGasLimit = event.transaction.gasLimit;
+  transfer.reconciledBlockNumber = event.block.number;
+
+  transfer.save();
 }
 
 function getChainId(): BigInt {
@@ -217,13 +236,17 @@ function getChainId(): BigInt {
   return chainId;
 }
 
-function getOrCreateAssetBalance(local: Bytes, router: Address): AssetBalance {
-  let assetBalanceId = local.toHex() + "-" + router.toHex();
+function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBalance {
+  let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
+
   if (assetBalance == null) {
+    let router = Router.load(routerAddress.toHex());
+    let asset = Asset.load(local.toHex());
+
     assetBalance = new AssetBalance(assetBalanceId);
-    assetBalance.asset = local.toHex();
-    assetBalance.router = router.toHex();
+    assetBalance.asset = asset!.id;
+    assetBalance.router = router!.id;
     assetBalance.amount = new BigInt(0);
   }
   return assetBalance;
