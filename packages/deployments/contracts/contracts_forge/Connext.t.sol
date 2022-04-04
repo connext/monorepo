@@ -51,7 +51,9 @@ contract ConnextTest is ForgeHelper {
   }
 
   function setRouterRecipient(address _router, address _recipient) internal {
-    stdstore.target(address(connext)).sig(connext.routerRecipients.selector).with_key(_router).checked_write(_recipient);
+    stdstore.target(address(connext)).sig(connext.routerRecipients.selector).with_key(_router).checked_write(
+      _recipient
+    );
   }
 
   // ============ setMaxRouters ============

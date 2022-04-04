@@ -1,5 +1,7 @@
 import { XTransfer, XTransferStatus } from "@connext/nxtp-utils";
+
 import { StoreChannel } from "../entities";
+
 import { Cache } from ".";
 
 /**
@@ -111,7 +113,7 @@ export class TransfersCache extends Cache {
    * @returns true/false based on an "OK" from the store.
    * todo://getStatus() to verify that it's not already in the DB
    */
-  public async storeStatus(transferId: string, status: XTransferStatus): Promise<boolean> {
+  public async storeStatus(_transferId: string, _status: XTransferStatus): Promise<boolean> {
     // const prevStatus = await this.getStatus(transferId);
     // if (prevStatus == status) {
     //   return false;
@@ -130,7 +132,7 @@ export class TransfersCache extends Cache {
    * @param transferId - ID of the transfer to search the cache for
    * @returns Transfer's status or unfefined if it's not there.
    */
-  public async getStatus(transferId: string): Promise<XTransferStatus | undefined> {
+  public async getStatus(_transferId: string): Promise<XTransferStatus | undefined> {
     // const status = this.data.scanStream({
     //   match: `${transferId}`,
     // });

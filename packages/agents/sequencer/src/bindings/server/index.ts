@@ -25,7 +25,7 @@ export const bindServer = () =>
         const bid = (req as any).bid as Bid;
         await handleBid(bid, requestContext);
         return response.status(200).send({ message: "Sent bid to auctioneer", bid });
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
         return response.code(500).send({ err: jsonifyError(error as Error) });
       }
@@ -36,9 +36,9 @@ export const bindServer = () =>
       try {
         const pending = await cache.auctions.getAllTransactionsIdsWithPendingBids();
         return response.status(200).send({ pending });
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Pending Bid Get Error`, requestContext, methodContext);
-        return response.code(500).send({ err: jsonifyError(error) });
+        return response.code(500).send({ err: jsonifyError(error as Error) });
       }
     });
 
@@ -47,9 +47,9 @@ export const bindServer = () =>
       try {
         const bids = await cache.auctions.getBidsByTransactionId(request.params.transferId);
         return response.status(200).send({ bids });
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Bids by TransferId Get Error`, requestContext, methodContext);
-        return response.code(500).send({ err: jsonifyError(error) });
+        return response.code(500).send({ err: jsonifyError(error as Error) });
       }
     });
 

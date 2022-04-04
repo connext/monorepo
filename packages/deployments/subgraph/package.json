@@ -36,6 +36,7 @@
     "@types/js-yaml": "^4.0.5",
     "@types/mustache": "^4.1.2",
     "@types/yaml": "^1.9.7",
+    "eslint": "^8.11.0",
     "sinon": "^13.0.1"
   }
 }

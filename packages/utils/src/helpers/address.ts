@@ -37,7 +37,7 @@ export const compressPublicKey = (publicKey: string): Uint8Array => {
 export function validateAndParseAddress(address: string): string {
   try {
     return utils.getAddress(address);
-  } catch (error) {
+  } catch (error: unknown) {
     throw new Error(`${address} is not a valid address.`);
   }
 }

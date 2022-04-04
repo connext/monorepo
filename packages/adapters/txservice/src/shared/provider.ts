@@ -206,6 +206,7 @@ export class SyncProvider extends StaticJsonRpcProvider {
 
   private debugLog(message: string, ...args: any[]) {
     if (this.debugLogging) {
+      // eslint-disable-next-line
       console.log(`[${Date.now()}]`, `(${this.name})`, message, ...args);
     }
   }

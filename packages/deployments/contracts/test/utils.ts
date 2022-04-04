@@ -431,3 +431,29 @@ export async function forceAdvanceOneBlock(timestamp?: number): Promise<any> {
 export async function setTimestamp(timestamp: number): Promise<any> {
   return forceAdvanceOneBlock(timestamp);
 }
+
+export function send(method: string, params?: Array<any>) {
+  return ethers.provider.send(method, params === undefined ? [] : params);
+}
+
+export function mineBlock() {
+  return send("evm_mine");
+}
+
+/**
+ *  Takes a snapshot and returns the ID of the snapshot for restoring later.
+ */
+ export async function takeSnapshot(): Promise<number> {
+  const result = await send('evm_snapshot');
+  await mineBlock();
+  return result;
+}
+
+/**
+ *  Restores a snapshot that was previously taken with takeSnapshot
+ *  @param id The ID that was returned when takeSnapshot was called.
+ */
+export async function restoreSnapshot(id: number) {
+  await send('evm_revert', [id]);
+  await mineBlock();
+}

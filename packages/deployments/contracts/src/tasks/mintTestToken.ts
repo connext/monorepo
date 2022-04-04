@@ -1,10 +1,16 @@
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  amount: string;
+  receiver: string;
+  asset?: string;
+};
+
 export default task("mint", "Mint test tokens")
   .addParam("amount", "Amount (real units)")
   .addParam("receiver", "Override address to mint to")
   .addOptionalParam("asset", "Override token address")
-  .setAction(async ({ receiver, asset: _assetId, amount }, { deployments, getNamedAccounts, ethers }) => {
+  .setAction(async ({ receiver, asset: _assetId, amount }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
     console.log("namedAccounts: ", namedAccounts);
 

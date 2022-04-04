@@ -1,9 +1,9 @@
 import { task } from "hardhat/config";
 import { NomadMessage, NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
-import { NOMAD_DEPLOYMENTS } from "../constants";
+import { providers } from "ethers";
 
-import { JsonRpcProvider } from "@ethersproject/providers";
+import { NOMAD_DEPLOYMENTS } from "../constants";
 import config from "../../hardhat.config";
 
 // in-repo implementation of:
@@ -34,10 +34,17 @@ function printStatus(context: NomadContext, nomadStatus: NomadStatus) {
   const { status, events } = nomadStatus;
   const printable = {
     status: STATUS_TO_STRING[status],
-    events: events.map((event: any) => quietEvent(context, event)),
+    events: events.map((event) => quietEvent(context, event)),
   };
   console.log(JSON.stringify(printable, null, 2));
 }
+
+type TaskArgs = {
+  transaction: string;
+  destination: string;
+  messageHash?: string;
+  leafIndex?: string;
+};
 
 export default task("trace-message", "See the status of a nomad message")
   .addParam(
@@ -48,7 +55,10 @@ export default task("trace-message", "See the status of a nomad message")
   .addOptionalParam("messageHash", "Identifier of the message on nomad")
   .addOptionalParam("leafIndex", "Index of the message leaf in root")
   .setAction(
-    async ({ transaction, messageHash, leafIndex, destination: _destination }, { getNamedAccounts, ethers }) => {
+    async (
+      { transaction, messageHash, leafIndex, destination: _destination }: TaskArgs,
+      { getNamedAccounts, ethers },
+    ) => {
       const namedAccounts = await getNamedAccounts();
 
       const destination = +_destination;
@@ -79,14 +89,14 @@ export default task("trace-message", "See the status of a nomad message")
       context.registerProvider(originConfig.domain, ethers.provider);
 
       // Register destination provider
-      const [_, destHardhatConfig] =
-        Object.entries(config.networks ?? {}).find(([_, value]) => {
+      const [, destHardhatConfig] =
+        Object.entries(config.networks ?? {}).find(([, value]) => {
           return +destChain === value?.chainId;
         }) ?? [];
       if (!(destHardhatConfig as any).url) {
         throw new Error(`No provider url found in hardhat.config.ts for chain: ${destChain}`);
       }
-      context.registerProvider(destination, new JsonRpcProvider((destHardhatConfig as any).url));
+      context.registerProvider(destination, new providers.JsonRpcProvider((destHardhatConfig as any).url as string));
 
       // Get the receipt
       const receipt = await ethers.provider.getTransactionReceipt(transaction);

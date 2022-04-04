@@ -9,7 +9,8 @@ import {
   GetXCalledTransfersQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
-type Asset = {};
+// TODO: better typing
+type Asset = Record<string, unknown>;
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -151,7 +152,7 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        const { transfers } = await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
+        await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
           (client) =>
             client.GetExecutedAndReconciledTransfersByIds({
               transferIds,
