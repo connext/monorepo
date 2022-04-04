@@ -151,11 +151,11 @@ interface IConnext {
   event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
 
   /**
-   * @notice Emitted when the maxRouters variable is updated
-   * @param maxRouters - The maxRouters new value
+   * @notice Emitted when the maxRoutersPerTransfer variable is updated
+   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
    * @param caller - The account that called the function
    */
-  event MaxRoutersUpdated(uint256 maxRouters, address caller);
+  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -258,7 +258,7 @@ interface IConnext {
 
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external;
 
-  function setMaxRouters(uint256 newMaxRouters) external;
+  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external;
 
   // ============ Public Functions ===========
 

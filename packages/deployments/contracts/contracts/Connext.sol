@@ -165,7 +165,7 @@ contract Connext is
   /**
    * @notice The max amount of routers a payment can be routed through
    */
-  uint256 public maxRouters;
+  uint256 public maxRoutersPerTransfer;
 
   // ============ Modifiers ============
 
@@ -196,7 +196,7 @@ contract Connext is
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
-    maxRouters = 5;
+    maxRoutersPerTransfer = 5;
   }
 
   // ============ Owner Functions ============
@@ -374,12 +374,12 @@ contract Connext is
    * @notice Used to set the max amount of routers a payment can be routed through
    * @param newMaxRouters The new max amount of routers
    */
-  function setMaxRouters(uint256 newMaxRouters) external override onlyOwner {
-    require(newMaxRouters > 0, "invalid maxRouters");
+  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
+    require(newMaxRouters > 0, "invalid maxRoutersPerTransfer");
 
-    maxRouters = newMaxRouters;
+    maxRoutersPerTransfer = newMaxRouters;
 
-    emit MaxRoutersUpdated(newMaxRouters, msg.sender);
+    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
   }
 
   /**
@@ -676,7 +676,7 @@ contract Connext is
 
     // Ensure the routers is below max
     uint256 routersLength = _routers.length;
-    if (routersLength <= maxRouters) revert Connext__decrementLiquidity_maxRoutersExceeded();
+    if (routersLength <= maxRoutersPerTransfer) revert Connext__decrementLiquidity_maxRoutersExceeded();
 
     // This division in some cases will generate a remainder that is not decremented to any router
     uint256 routerAmount = _amount / routersLength;
@@ -709,10 +709,10 @@ contract Connext is
   ) internal {
     // NOTE: To not break the current working implementation in testnet, the first router is selected as the one to pay for the fees.
     // This is a temporary solution until https://github.com/connext/nxtp/discussions/899 is implemented.
-    address router = _routers[0];
+    address _router = _routers[0];
 
     // If the sender *is* the router, do nothing
-    if (msg.sender == router) {
+    if (msg.sender == _router) {
       return;
     }
 
@@ -732,7 +732,7 @@ contract Connext is
     uint256 fee = (block.basefee * _feePct) / 100;
 
     // Decrement liquidity
-    routerRelayerFees[router] -= fee;
+    routerRelayerFees[_router] -= fee;
 
     // Pay sender
     AddressUpgradeable.sendValue(payable(msg.sender), fee);
