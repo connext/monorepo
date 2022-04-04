@@ -14,14 +14,14 @@ export type SubgraphMap = Map<string, ChainSubgraphs>;
 export const SubgraphReaderChainConfigSchema = Type.Object({
   analytics: Type.Array(
     Type.Object({
-      query: Type.Array(Type.String()),
-      health: Type.Array(Type.String()),
+      query: Type.String(),
+      health: Type.String(),
     }),
   ), // Analytics subgraph uri(s).
   runtime: Type.Array(
     Type.Object({
-      query: Type.Array(Type.String()),
-      health: Type.Array(Type.String()),
+      query: Type.String(),
+      health: Type.String(),
     }),
   ), // Runtime subgraph uri(s).
   maxLag: Type.Integer({ minimum: MIN_SUBGRAPH_MAX_LAG }), // If subgraph is out of sync by this number, will not process actions.
