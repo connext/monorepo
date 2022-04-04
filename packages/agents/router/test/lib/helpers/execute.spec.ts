@@ -28,8 +28,7 @@ describe("Helpers:Execute", () => {
 
     it("happy", async () => {
       const mockBid = mock.entity.bid();
-      const result = await execute.sanityCheck(mockBid, mock.loggingContext().requestContext);
-      expect(result).to.be.true;
+      await execute.sanityCheck(mockBid, mock.loggingContext().requestContext);
       expect(mockContext.adapters.txservice.getGasEstimate).to.have.been.calledOnceWithExactly(
         Number(mockBid.data.params.destinationDomain),
         {
@@ -42,9 +41,11 @@ describe("Helpers:Execute", () => {
 
     it("returns false if gas estimate throws", async () => {
       const mockBid = mock.entity.bid();
-      mockContext.adapters.txservice.getGasEstimate.rejects(new Error("gas estimate error, oh no!"));
-      const result = await execute.sanityCheck(mockBid, mock.loggingContext().requestContext);
-      expect(result).to.be.false;
+      const err = new Error("gas estimate error, oh no!");
+      mockContext.adapters.txservice.getGasEstimate.rejects(err);
+      await expect(execute.sanityCheck(mockBid, mock.loggingContext().requestContext)).to.eventually.be.rejectedWith(
+        err,
+      );
     });
   });
 });
