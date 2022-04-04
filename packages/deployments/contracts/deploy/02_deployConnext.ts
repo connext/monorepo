@@ -44,10 +44,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Deploy Connext logic libraries
-  const stableSwapLogic = await hre.deployments.deploy('StableSwapLogic', {
-    from: deployer.address,
-    log: true,
-  });
   const assetLogic = await hre.deployments.deploy('AssetLogic', {
     from: deployer.address,
     log: true,
@@ -66,7 +62,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     from: deployer.address,
     log: true,
     libraries: {
-      StableSwapLogic: stableSwapLogic.address,
       AssetLogic: assetLogic.address,
       ConnextUtils: connextUtils.address,
       RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,

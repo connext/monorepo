@@ -156,7 +156,6 @@ describe("Connext", () => {
     );
 
     // Deploy Connext logic libraries
-    const stableSwapLogic = await deployContract("StableSwapLogic");
     const assetLogic = await deployContract("AssetLogic");
     const connextUtils = await deployContract("ConnextUtils");
     const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
@@ -165,7 +164,6 @@ describe("Connext", () => {
     originTm = await deployContractWithLibs<Connext>(
       "Connext",
       {
-        StableSwapLogic: stableSwapLogic.address,
         AssetLogic: assetLogic.address,
         ConnextUtils: connextUtils.address,
         RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
@@ -175,7 +173,6 @@ describe("Connext", () => {
     destinationTm = await deployContractWithLibs<Connext>(
       "Connext",
       {
-        StableSwapLogic: stableSwapLogic.address,
         AssetLogic: assetLogic.address,
         ConnextUtils: connextUtils.address,
         RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,

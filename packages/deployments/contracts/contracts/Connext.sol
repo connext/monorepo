@@ -10,7 +10,6 @@ import "./interfaces/IConnext.sol";
 
 import "./interpreters/Executor.sol";
 
-import {StableSwapLogic} from "./lib/Connext/StableSwapLogic.sol";
 import {AssetLogic} from "./lib/Connext/AssetLogic.sol";
 import {ConnextUtils} from "./lib/Connext/ConnextUtils.sol";
 
@@ -396,7 +395,7 @@ contract Connext is
     // Swap to the local asset from the adopted
     // TODO: do we want to swap per call or per batch?
     BridgeMessage.TokenId memory canonical = adoptedToCanonical[_transactingAssetId];
-    (uint256 _bridgedAmt, address _bridged) = StableSwapLogic.swapToLocalAssetIfNeeded(
+    (uint256 _bridgedAmt, address _bridged) = ConnextUtils.swapToLocalAssetIfNeeded(
       canonical,
       adoptedToLocalPools[canonical.id],
       tokenRegistry,
@@ -504,7 +503,7 @@ contract Connext is
 
     // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
-    (uint256 amount, address adopted) = StableSwapLogic.swapFromLocalAssetIfNeeded(
+    (uint256 amount, address adopted) = ConnextUtils.swapFromLocalAssetIfNeeded(
       canonicalToAdopted,
       adoptedToLocalPools,
       tokenRegistry,
