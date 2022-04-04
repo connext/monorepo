@@ -1,10 +1,16 @@
+type Asset @entity {
+  id: ID!
+  local: Bytes!
+  adoptedAsset: Bytes!
+  canonicalId: Bytes!
+  canonicalDomain: BigInt!
+}
+
 type AssetBalance @entity {
   id: ID!
   amount: BigInt!
   router: Router!
-  assetId: Bytes!
-  local: Bytes!
-  canonicalId: Bytes!
+  asset: Asset!
 }
 
 # Router represents a router and its associated liquidity
@@ -24,16 +30,16 @@ enum TransferStatus {
 type Transfer @entity {
   id: ID!
   # Meta
-  originDomain: BigInt!
-  destinationDomain: BigInt!
-  chainId: BigInt!
-  status: TransferStatus!
+  originDomain: BigInt
+  destinationDomain: BigInt
+  chainId: BigInt
+  status: TransferStatus
 
   # Transfer Data
-  to: Bytes!
-  transferId: Bytes!
-  callTo: Bytes!
-  callData: Bytes!
+  to: Bytes
+  transferId: Bytes
+  callTo: Bytes
+  callData: Bytes
   idx: BigInt
   nonce: BigInt
   router: Router
