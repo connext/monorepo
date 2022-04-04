@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {RouterPermissionsManagerLogic} from "./lib/logic/RouterPermissionsManagerLogic.sol";
+import {RouterPermissionsManagerLogic, RouterPermissionsManagerInfo} from "./lib/logic/RouterPermissionsManagerLogic.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -30,35 +30,7 @@ abstract contract RouterPermissionsManager is Initializable {
 
   // ============ Public Storage =============
 
-  /**
-   * @notice Mapping of whitelisted router addresses.
-   */
-  mapping(address => bool) public approvedRouters;
-
-  /**
-   * @notice Mapping of router withdraw receipient addresses.
-   * @dev If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
-   * (if configured) or the router itself
-   */
-  mapping(address => address) public routerRecipients;
-
-  /**
-   * @notice Mapping of router owners
-   * @dev If set, can update the routerRecipient
-   */
-  mapping(address => address) public routerOwners;
-
-  /**
-   * @notice Mapping of proposed router owners
-   * @dev Must wait timeout to set the
-   */
-  mapping(address => address) public proposedRouterOwners;
-
-  /**
-   * @notice Mapping of proposed router owners timestamps
-   * @dev When accepting a proposed owner, must wait for delay to elapse
-   */
-  mapping(address => uint256) public proposedRouterTimestamp;
+  RouterPermissionsManagerInfo internal routerInfo;
 
   // ============ Initialize =============
 
@@ -75,6 +47,26 @@ abstract contract RouterPermissionsManager is Initializable {
 
   // ============ Public methods =============
 
+  function approvedRouters(address _approved) public view returns (bool) {
+    return routerInfo.approvedRouters[_approved];
+  }
+
+  function routerRecipients(address _router) public view returns (address) {
+    return routerInfo.routerRecipients[_router];
+  }
+
+  function routerOwners(address _router) public view returns (address) {
+    return routerInfo.routerOwners[_router];
+  }
+
+  function proposedRouterOwners(address _router) public view returns (address) {
+    return routerInfo.proposedRouterOwners[_router];
+  }
+
+  function proposedRouterTimestamp(address _router) public view returns (uint256) {
+    return routerInfo.proposedRouterTimestamp[_router];
+  }
+
   /**
    * @notice Sets the designated recipient for a router
    * @dev Router should only be able to set this once otherwise if router key compromised,
@@ -83,7 +75,7 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param recipient Recipient Address to set to router
    */
   function setRouterRecipient(address router, address recipient) external {
-    RouterPermissionsManagerLogic.setRouterRecipient(router, recipient, routerOwners, routerRecipients);
+    RouterPermissionsManagerLogic.setRouterRecipient(router, recipient, routerInfo);
   }
 
   /**
@@ -92,13 +84,7 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param proposed Proposed owner Address to set to router
    */
   function proposeRouterOwner(address router, address proposed) external {
-    RouterPermissionsManagerLogic.proposeRouterOwner(
-      router,
-      proposed,
-      routerOwners,
-      proposedRouterOwners,
-      proposedRouterTimestamp
-    );
+    RouterPermissionsManagerLogic.proposeRouterOwner(router, proposed, routerInfo);
   }
 
   /**
@@ -106,13 +92,7 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to set recipient
    */
   function acceptProposedRouterOwner(address router) external {
-    RouterPermissionsManagerLogic.acceptProposedRouterOwner(
-      router,
-      _delay,
-      routerOwners,
-      proposedRouterOwners,
-      proposedRouterTimestamp
-    );
+    RouterPermissionsManagerLogic.acceptProposedRouterOwner(router, _delay, routerInfo);
   }
 
   // ============ Private methods =============
@@ -128,14 +108,7 @@ abstract contract RouterPermissionsManager is Initializable {
     address owner,
     address recipient
   ) internal {
-    RouterPermissionsManagerLogic.setupRouter(
-      router,
-      owner,
-      recipient,
-      approvedRouters,
-      routerOwners,
-      routerRecipients
-    );
+    RouterPermissionsManagerLogic.setupRouter(router, owner, recipient, routerInfo);
   }
 
   /**
@@ -143,6 +116,6 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to remove
    */
   function _removeRouter(address router) internal {
-    RouterPermissionsManagerLogic.removeRouter(router, approvedRouters, routerOwners, routerRecipients);
+    RouterPermissionsManagerLogic.removeRouter(router, routerInfo);
   }
 }

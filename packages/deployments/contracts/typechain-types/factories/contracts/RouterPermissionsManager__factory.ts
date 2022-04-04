@@ -27,7 +27,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_approved",
         type: "address",
       },
     ],
@@ -64,7 +64,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_router",
         type: "address",
       },
     ],
@@ -83,7 +83,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_router",
         type: "address",
       },
     ],
@@ -102,7 +102,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_router",
         type: "address",
       },
     ],
@@ -121,7 +121,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_router",
         type: "address",
       },
     ],

@@ -912,7 +912,7 @@ export interface Connext extends BaseContract {
     ): Promise<[boolean]>;
 
     approvedRouters(
-      arg0: string,
+      _approved: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -974,12 +974,12 @@ export interface Connext extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<[string]>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -1055,12 +1055,12 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    routerOwners(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+    routerOwners(_router: string, overrides?: CallOverrides): Promise<[string]>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     routerRecipients(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -1144,7 +1144,10 @@ export interface Connext extends BaseContract {
 
   approvedAssets(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
-  approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+  approvedRouters(
+    _approved: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1204,12 +1207,12 @@ export interface Connext extends BaseContract {
   proposed(overrides?: CallOverrides): Promise<string>;
 
   proposedRouterOwners(
-    arg0: string,
+    _router: string,
     overrides?: CallOverrides
   ): Promise<string>;
 
   proposedRouterTimestamp(
-    arg0: string,
+    _router: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -1285,11 +1288,11 @@ export interface Connext extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  routerOwners(arg0: string, overrides?: CallOverrides): Promise<string>;
+  routerOwners(_router: string, overrides?: CallOverrides): Promise<string>;
 
   routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  routerRecipients(arg0: string, overrides?: CallOverrides): Promise<string>;
+  routerRecipients(_router: string, overrides?: CallOverrides): Promise<string>;
 
   routerRelayerFees(
     arg0: string,
@@ -1369,7 +1372,10 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+    approvedRouters(
+      _approved: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     assetOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1427,12 +1433,12 @@ export interface Connext extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<string>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1499,11 +1505,14 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routerOwners(arg0: string, overrides?: CallOverrides): Promise<string>;
+    routerOwners(_router: string, overrides?: CallOverrides): Promise<string>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routerRecipients(arg0: string, overrides?: CallOverrides): Promise<string>;
+    routerRecipients(
+      _router: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     routerRelayerFees(
       arg0: string,
@@ -1767,7 +1776,7 @@ export interface Connext extends BaseContract {
     ): Promise<BigNumber>;
 
     approvedRouters(
-      arg0: string,
+      _approved: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1829,12 +1838,12 @@ export interface Connext extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1908,12 +1917,15 @@ export interface Connext extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routerOwners(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+    routerOwners(
+      _router: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     routerOwnershipTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     routerRecipients(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2002,7 +2014,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     approvedRouters(
-      arg0: string,
+      _approved: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2070,12 +2082,12 @@ export interface Connext extends BaseContract {
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2150,7 +2162,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     routerOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2159,7 +2171,7 @@ export interface Connext extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     routerRecipients(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

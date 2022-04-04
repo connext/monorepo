@@ -147,7 +147,7 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     approvedRouters(
-      arg0: string,
+      _approved: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -158,19 +158,19 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    routerOwners(arg0: string, overrides?: CallOverrides): Promise<[string]>;
+    routerOwners(_router: string, overrides?: CallOverrides): Promise<[string]>;
 
     routerRecipients(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -186,7 +186,10 @@ export interface RouterPermissionsManager extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+  approvedRouters(
+    _approved: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   proposeRouterOwner(
     router: string,
@@ -195,18 +198,18 @@ export interface RouterPermissionsManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   proposedRouterOwners(
-    arg0: string,
+    _router: string,
     overrides?: CallOverrides
   ): Promise<string>;
 
   proposedRouterTimestamp(
-    arg0: string,
+    _router: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  routerOwners(arg0: string, overrides?: CallOverrides): Promise<string>;
+  routerOwners(_router: string, overrides?: CallOverrides): Promise<string>;
 
-  routerRecipients(arg0: string, overrides?: CallOverrides): Promise<string>;
+  routerRecipients(_router: string, overrides?: CallOverrides): Promise<string>;
 
   setRouterRecipient(
     router: string,
@@ -220,7 +223,10 @@ export interface RouterPermissionsManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    approvedRouters(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+    approvedRouters(
+      _approved: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     proposeRouterOwner(
       router: string,
@@ -229,18 +235,21 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<void>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routerOwners(arg0: string, overrides?: CallOverrides): Promise<string>;
+    routerOwners(_router: string, overrides?: CallOverrides): Promise<string>;
 
-    routerRecipients(arg0: string, overrides?: CallOverrides): Promise<string>;
+    routerRecipients(
+      _router: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     setRouterRecipient(
       router: string,
@@ -258,7 +267,7 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<BigNumber>;
 
     approvedRouters(
-      arg0: string,
+      _approved: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -269,19 +278,22 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<BigNumber>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    routerOwners(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+    routerOwners(
+      _router: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     routerRecipients(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -299,7 +311,7 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     approvedRouters(
-      arg0: string,
+      _approved: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -310,22 +322,22 @@ export interface RouterPermissionsManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     proposedRouterOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposedRouterTimestamp(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     routerOwners(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     routerRecipients(
-      arg0: string,
+      _router: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
