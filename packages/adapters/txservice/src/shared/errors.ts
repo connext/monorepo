@@ -387,21 +387,37 @@ export const parseError = (error: any): NxtpError => {
   } else if (message.match(/already known|alreadyknown/)) {
     return new TransactionAlreadyKnown(context);
   } else if (message.match(/insufficient funds/)) {
-    return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
+    return new TransactionReverted(
+      TransactionReverted.reasons.InsufficientFunds,
+      error.receipt as providers.TransactionReceipt,
+      context,
+    );
   }
 
   switch (error.code) {
     case Logger.errors.TRANSACTION_REPLACED:
-      return new TransactionReplaced(error.receipt, error.replacement, {
-        ...context,
-        hash: error.hash,
-        reason: error.reason,
-        cancelled: error.cancelled,
-      });
+      return new TransactionReplaced(
+        error.receipt as providers.TransactionReceipt,
+        error.replacement as providers.TransactionResponse,
+        {
+          ...context,
+          hash: error.hash,
+          reason: error.reason,
+          cancelled: error.cancelled,
+        },
+      );
     case Logger.errors.INSUFFICIENT_FUNDS:
-      return new TransactionReverted(TransactionReverted.reasons.InsufficientFunds, error.receipt, context);
+      return new TransactionReverted(
+        TransactionReverted.reasons.InsufficientFunds,
+        error.receipt as providers.TransactionReceipt,
+        context,
+      );
     case Logger.errors.CALL_EXCEPTION:
-      return new TransactionReverted(TransactionReverted.reasons.CallException, error.receipt, context);
+      return new TransactionReverted(
+        TransactionReverted.reasons.CallException,
+        error.receipt as providers.TransactionReceipt,
+        context,
+      );
     case Logger.errors.NONCE_EXPIRED:
       return new BadNonce(BadNonce.reasons.NonceExpired, context);
     case Logger.errors.REPLACEMENT_UNDERPRICED:

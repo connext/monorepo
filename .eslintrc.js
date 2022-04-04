@@ -60,6 +60,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "@typescript-eslint/no-floating-promises": ["off"],
     "@typescript-eslint/no-misused-promises": ["off"],
+    "@typescript-eslint/no-implicit-any-catch": ["error", { allowExplicitAny: true }],
     "no-async-promise-executor": "off",
     quotes: ["warn", "double", { allowTemplateLiterals: true, avoidEscape: true }],
     semi: ["error", "always"],

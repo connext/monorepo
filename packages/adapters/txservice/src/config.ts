@@ -142,10 +142,10 @@ export const validateTransactionServiceConfig = (_config: any): TransactionServi
   };
   // For each chain, validate the config and merge it with the main config.
   const config: { [chainId: string]: ChainConfig } = {};
-  Object.entries(_config).forEach(([chainId, _chainConfig]) => {
+  Object.entries(_config as Record<string, any>).forEach(([chainId, _chainConfig]) => {
     const chainConfig = {
       ...defaultChainConfig,
-      ...(_chainConfig as any),
+      ..._chainConfig,
     };
     // Ignore non-number chainIds.
     if (isNaN(parseInt(chainId))) {
