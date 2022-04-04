@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
@@ -93,7 +93,10 @@ export class SubgraphReader {
     return allPrepared;
   }
 
-  public async getTransactionsWithStatuses(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+  public async getTransactionsWithStatuses(
+    agents: Map<string, SubgraphQueryMetaParams>,
+    status: XTransferStatus,
+  ): Promise<XTransfer[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
@@ -121,11 +124,14 @@ export class SubgraphReader {
         const tx = parser.xtransfer(s);
 
         // set into a map by destination domain
-        txIdsByDestinationDomain.set(
-          tx.destinationDomain,
-          (txIdsByDestinationDomain.get(tx.transferId) ?? []).concat([tx.transferId]),
-        );
-        return [s.transferId as string, tx];
+        const destinationDomainRecord = txIdsByDestinationDomain.get(tx.destinationDomain);
+        const txIds = destinationDomainRecord
+          ? destinationDomainRecord.includes(tx.transferId)
+            ? destinationDomainRecord
+            : destinationDomainRecord.concat(tx.transferId)
+          : [tx.transferId];
+        txIdsByDestinationDomain.set(tx.destinationDomain, txIds);
+        return [tx.transferId, tx];
       });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
@@ -142,7 +148,7 @@ export class SubgraphReader {
               maxXCalledBlockNumber: agents.get(destinationDomain)!.maxXCallBlockNumber.toString(),
             }), // TODO: maxPrepareBlockNumber
         );
-        transferIds.forEach((_tx) => {
+        transfers.forEach((_tx) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
           inMap.status = tx.status;
@@ -152,6 +158,6 @@ export class SubgraphReader {
     );
 
     // create array of all transactions by status
-    return [...allTxById.values()];
+    return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
   }
 }

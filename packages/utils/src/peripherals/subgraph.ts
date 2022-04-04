@@ -75,7 +75,17 @@ export const getSubgraphHealth = async (
    * }
    */
   if (res) {
-    return res.data.data;
+    const result = res.data.data.indexingStatusForCurrentVersion;
+    return {
+      chainHeadBlock: result.chains[0].chainHeadBlock.number,
+      latestBlock: result.chains[0].latestBlock.number,
+      lastHealthyBlock: result.chains[0].lastHealthyBlock,
+      network: result.chains[0].network,
+      fatalError: result.fatalError,
+      health: result.health,
+      synced: result.synced,
+      url: healthUrl,
+    };
   }
   return undefined;
 };

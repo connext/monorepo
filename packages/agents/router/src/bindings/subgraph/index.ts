@@ -1,4 +1,10 @@
-import { createLoggingContext, getSubgraphName, jsonifyError, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  getSubgraphName,
+  jsonifyError,
+  SubgraphQueryMetaParams,
+  XTransferStatus,
+} from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { getHelpers } from "../../lib/helpers";
 
@@ -46,7 +52,7 @@ export const pollSubgraph = async () => {
 
       if (latestBlockNumber === 0) {
         logger.error(
-          `Error getting the latestBlockNumber, domain: ${domain}, healthUrls: ${healthUrls}`,
+          `Error getting the latestBlockNumber, domain: ${domain}, healthUrls: ${healthUrls.flat()}`,
           requestContext,
           methodContext,
         );
@@ -68,8 +74,7 @@ export const pollSubgraph = async () => {
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
       });
     }
-
-    const transactions = await subgraph.getXCalls(subgraphQueryMetaParams);
+    const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
     logger.debug("Got transactions", requestContext, methodContext, {
       transactions,
     });
