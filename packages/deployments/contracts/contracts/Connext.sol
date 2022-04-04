@@ -10,9 +10,9 @@ import "./interfaces/IConnext.sol";
 
 import "./interpreters/Executor.sol";
 
-import {StableSwapLogic} from "./lib/logic/StableSwapLogic.sol";
-import {AssetLogic} from "./lib/logic/AssetLogic.sol";
-import {ConnextUtils} from "./lib/logic/ConnextUtils.sol";
+import {StableSwapLogic} from "./lib/Connext/StableSwapLogic.sol";
+import {AssetLogic} from "./lib/Connext/AssetLogic.sol";
+import {ConnextUtils} from "./lib/Connext/ConnextUtils.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
