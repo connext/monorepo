@@ -5,7 +5,7 @@
   "scripts": {
     "test": "yarn test:hardhat && yarn test:forge",
     "test:hardhat": "hardhat test",
-    "test:forge": "yarn forge build && yarn forge test --gas-report",
+    "test:forge": "yarn forge test --gas-report",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile",

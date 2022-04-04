@@ -56,7 +56,7 @@ library RouterPermissionsManagerLogic {
   /**
    * @notice Asserts caller is the router owner (if set) or the router itself
    */
-  function onlyRouterOwner(address _router, address _owner) external {
+  function _onlyRouterOwner(address _router, address _owner) internal {
     if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
       revert RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner();
   }
@@ -65,11 +65,11 @@ library RouterPermissionsManagerLogic {
    * @notice Asserts caller is the proposed router. If proposed router is address(0), then asserts
    * the owner is calling the function (if set), or the router itself is calling the function
    */
-  function onlyProposedRouterOwner(
+  function _onlyProposedRouterOwner(
     address _router,
     address _owner,
     address _proposed
-  ) external {
+  ) internal {
     if (_proposed == address(0)) {
       if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
         revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner();
@@ -90,8 +90,11 @@ library RouterPermissionsManagerLogic {
   function setRouterRecipient(
     address router,
     address recipient,
+    mapping(address => address) storage routerOwners,
     mapping(address => address) storage routerRecipients
   ) external {
+    _onlyRouterOwner(router, routerOwners[router]);
+
     // Check recipient is changing
     address _prevRecipient = routerRecipients[router];
     if (_prevRecipient == recipient) revert RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient();
@@ -111,12 +114,14 @@ library RouterPermissionsManagerLogic {
   function proposeRouterOwner(
     address router,
     address proposed,
-    address _currentOwner,
+    mapping(address => address) storage routerOwners,
     mapping(address => address) storage proposedRouterOwners,
     mapping(address => uint256) storage proposedRouterTimestamp
   ) external {
+    _onlyRouterOwner(router, routerOwners[router]);
+
     // Check that proposed is different than current owner
-    if (_currentOwner == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
+    if (_getRouterOwner(router, routerOwners) == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
     address _currentProposed = proposedRouterOwners[router];
@@ -136,12 +141,15 @@ library RouterPermissionsManagerLogic {
    */
   function acceptProposedRouterOwner(
     address router,
-    address _owner,
     uint256 _delay,
     mapping(address => address) storage routerOwners,
     mapping(address => address) storage proposedRouterOwners,
     mapping(address => uint256) storage proposedRouterTimestamp
   ) external {
+    _onlyProposedRouterOwner(router, routerOwners[router], proposedRouterOwners[router]);
+
+    address owner = _getRouterOwner(router, routerOwners);
+
     // Check timestamp has passed
     if (block.timestamp - proposedRouterTimestamp[router] <= _delay)
       revert RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();
@@ -159,7 +167,7 @@ library RouterPermissionsManagerLogic {
     proposedRouterTimestamp[router] = 0;
 
     // Emit event
-    emit RouterOwnerAccepted(router, _owner, _proposed);
+    emit RouterOwnerAccepted(router, owner, _proposed);
   }
 
   /**
@@ -241,8 +249,8 @@ library RouterPermissionsManagerLogic {
   /**
    * @notice Returns the router owner if it is set, or the router itself if not
    */
-  function getRouterOwner(address router, mapping(address => address) storage _routerOwners)
-    external
+  function _getRouterOwner(address router, mapping(address => address) storage _routerOwners)
+    internal
     returns (address)
   {
     address _owner = _routerOwners[router];

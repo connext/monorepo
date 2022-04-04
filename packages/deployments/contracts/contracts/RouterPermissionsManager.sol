@@ -83,9 +83,7 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param recipient Recipient Address to set to router
    */
   function setRouterRecipient(address router, address recipient) external {
-    RouterPermissionsManagerLogic.onlyRouterOwner(router, routerOwners[router]);
-
-    RouterPermissionsManagerLogic.setRouterRecipient(router, recipient, routerRecipients);
+    RouterPermissionsManagerLogic.setRouterRecipient(router, recipient, routerOwners, routerRecipients);
   }
 
   /**
@@ -94,12 +92,10 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param proposed Proposed owner Address to set to router
    */
   function proposeRouterOwner(address router, address proposed) external {
-    RouterPermissionsManagerLogic.onlyRouterOwner(router, routerOwners[router]);
-
     RouterPermissionsManagerLogic.proposeRouterOwner(
       router,
       proposed,
-      RouterPermissionsManagerLogic.getRouterOwner(router, routerOwners),
+      routerOwners,
       proposedRouterOwners,
       proposedRouterTimestamp
     );
@@ -110,11 +106,8 @@ abstract contract RouterPermissionsManager is Initializable {
    * @param router Router address to set recipient
    */
   function acceptProposedRouterOwner(address router) external {
-    RouterPermissionsManagerLogic.onlyProposedRouterOwner(router, routerOwners[router], proposedRouterOwners[router]);
-
     RouterPermissionsManagerLogic.acceptProposedRouterOwner(
       router,
-      RouterPermissionsManagerLogic.getRouterOwner(router, routerOwners),
       _delay,
       routerOwners,
       proposedRouterOwners,
