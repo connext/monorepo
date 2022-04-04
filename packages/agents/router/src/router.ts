@@ -18,6 +18,7 @@ import { getConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph, bindServer } from "./bindings";
 import { AppContext } from "./lib/entities";
 import { getOperations } from "./lib/operations";
+import axios from "axios";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -69,8 +70,22 @@ export const makeRouter = async () => {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
 
+    try {
+      const res = await axios.get(`${context.config.sequencerUrl}/ping`);
+      context.logger.info("Ping response received from sequencer", requestContext, methodContext, {
+        response: res.data,
+      });
+    } catch (e) {
+      context.logger.error(
+        "Ping error, could not reach sequencer. Exiting!",
+        requestContext,
+        methodContext,
+        jsonifyError(e as Error),
+      );
+      process.exit(1);
+    }
+
     // TODO: Cold start housekeeping.
-    // - send a ping request to sequencer
     // - read subgraph to make sure router is approved
     // - read contract or subgraph for current liquidity in each asset, cache it
     // - read subgraph to make sure each asset is (still) approved
