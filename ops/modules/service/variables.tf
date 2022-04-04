@@ -70,7 +70,8 @@ variable "service_security_groups" {
   type = list(string)
 }
 
-variable "nxtp_config" {}
+variable "service_config_value" {}
+variable "service_config_name" {}
 
 
 variable "internal_lb" {
@@ -87,5 +88,5 @@ variable "cert_arn" {
 
 variable "base_domain" {
   description = "base domain of the application"
-  default     = "connextapi.com"
+  default     = "connext.ninja"
 }

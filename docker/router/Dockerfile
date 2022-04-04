@@ -68,7 +68,7 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 # ----- Copy files required at runtime by the app -----
 COPY --from=build --chown=node:node /tmp/build /home/node
 #copy config
-COPY docker/router/config.json /home/node/agents/router/config.json
+COPY docker/router/config.testnet.json /home/node/agents/router/config.json
 
 # This user is created in the base image with uid and gid = 1000.
 USER node

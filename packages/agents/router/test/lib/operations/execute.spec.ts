@@ -4,7 +4,7 @@ import { SinonStub, stub } from "sinon";
 import { expect, formatUrl, mkAddress } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
-import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid } from "../../../src/lib/errors";
+import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid, SanityCheckFailed } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
 const { execute, sendBid } = ExecuteFns;
@@ -24,7 +24,7 @@ describe("Operations:Execute", () => {
     const mockFulfillLocalAsset = mock.asset.A.address;
     let sendBidStub: SinonStub;
     beforeEach(() => {
-      mock.helpers.execute.sanityCheck.resolves(true);
+      mock.helpers.execute.sanityCheck.resolves();
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
       mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
       sendBidStub = stub(ExecuteFns, "sendBid").resolves();
@@ -86,9 +86,10 @@ describe("Operations:Execute", () => {
       await expect(execute(mockXTransfer)).to.be.rejectedWith(SlippageInvalid);
     });
 
-    it("should not sendBid if sanityCheck returns false", async () => {
-      mock.helpers.execute.sanityCheck.resolves(false);
-      await expect(execute(mockXTransfer)).to.be.fulfilled;
+    it("should not sendBid if sanityCheck throws error", async () => {
+      const err = new Error("gas estimate error, oh no!");
+      mock.helpers.execute.sanityCheck.rejects(err);
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(SanityCheckFailed);
       expect(sendBidStub.callCount).to.equal(0);
     });
   });
