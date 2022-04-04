@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "service" {
       cpu         = var.cpu
       memory      = var.memory
       environment = [
-        { name = "NXTP_CONFIG", value = var.nxtp_config },
+        { name = var.service_config_name, value = var.service_config_value },
         { name = "NXTP_MNEMONIC", value = var.mnemonic },
         { name = "ENVIRONMENT", value = var.environment }
       ]
@@ -102,18 +102,6 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-
-resource "aws_alb_listener" "front_end" {
-  load_balancer_arn = aws_alb.lb.id
-  port              = var.loadbalancer_port
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = aws_alb_target_group.front_end.id
-    type             = "forward"
-  }
-}
-
 # ALB Security group
 # This is the group you need to edit if you want to restrict access to your application
 resource "aws_security_group" "lb" {
@@ -136,9 +124,10 @@ resource "aws_security_group" "lb" {
   }
 }
 
+
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id
-  name    = "${var.environment}.${var.container_family}.${var.base_domain}"
+  name    = "${var.container_family}.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]

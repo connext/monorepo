@@ -66,14 +66,18 @@ export const getEnvConfig = (
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
     // allow passed in address to override
     // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
-    if (!chainConfig.deployments?.connext) {
-      const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
-      if (!res) {
-        throw new Error(`No Connext contract address for domain ${domainId}`);
-      }
 
-      _sequencerConfig.chains[domainId].deployments.connext = res.address;
-    }
+    _sequencerConfig.chains[domainId].deployments = {
+      connext:
+        chainConfig.deployments?.connext ??
+        (() => {
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
+          if (!res) {
+            throw new Error(`No Connext contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+    };
 
     if (!chainConfig.subgraph.runtime) {
       _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraph ?? [];
