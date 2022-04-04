@@ -4,7 +4,7 @@ import { createLoggingContext } from "@connext/nxtp-utils";
 import { bidSelection } from "../../lib/operations";
 import { getContext } from "../../sequencer";
 
-export let BID_SELECTION_POLL_INTERVAL = 15 * 1_000;
+export const BID_SELECTION_POLL_INTERVAL = 15 * 1_000;
 
 export const bindBidSelection = async (_pollInterval = BID_SELECTION_POLL_INTERVAL) => {
   const { logger, config } = getContext();
