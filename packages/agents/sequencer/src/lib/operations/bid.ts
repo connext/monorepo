@@ -47,8 +47,10 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   logger.info("Estimated gas", requestContext, methodContext, {
     gas: gas.toString(),
   });
-
-  await cache.auctions.storeBid(bid);
+  const res = await cache.auctions.storeBid(bid);
+  logger.info("Stored bid to cache", requestContext, methodContext, {
+    res,
+  });
   return;
 };
 
