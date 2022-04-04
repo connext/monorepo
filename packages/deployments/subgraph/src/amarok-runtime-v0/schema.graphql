@@ -1,9 +1,9 @@
 type Asset @entity {
   id: ID!
-  assetId: Bytes!
-  domain: BigInt!
   local: Bytes!
+  adoptedAsset: Bytes!
   canonicalId: Bytes!
+  canonicalDomain: Bytes!
 }
 
 type AssetBalance @entity {
@@ -30,16 +30,16 @@ enum TransferStatus {
 type Transfer @entity {
   id: ID!
   # Meta
-  originDomain: BigInt!
-  destinationDomain: BigInt!
-  chainId: BigInt!
-  status: TransferStatus!
+  originDomain: BigInt
+  destinationDomain: BigInt
+  chainId: BigInt
+  status: TransferStatus
 
   # Transfer Data
-  to: Bytes!
-  transferId: Bytes!
-  callTo: Bytes!
-  callData: Bytes!
+  to: Bytes
+  transferId: Bytes
+  callTo: Bytes
+  callData: Bytes
   idx: BigInt
   nonce: BigInt
   router: Router
