@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.34
+
+- [router] Metrics fix
+
 ## 0.1.33
 
 - [contracts] Cronos chain deployments
