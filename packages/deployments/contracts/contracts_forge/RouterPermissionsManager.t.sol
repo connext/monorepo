@@ -5,7 +5,7 @@ import "./ForgeHelper.sol";
 
 import "../contracts/Connext.sol";
 import "../contracts/RouterPermissionsManager.sol";
-import {RouterPermissionsManagerLogic} from "../contracts/lib/logic/RouterPermissionsManagerLogic.sol";
+import {RouterPermissionsManagerLogic} from "../contracts/lib/Connext/RouterPermissionsManagerLogic.sol";
 import "../contracts/ProposedOwnableUpgradeable.sol";
 
 contract RouterPermissionsManagerTest is ForgeHelper {

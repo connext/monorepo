@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {RouterPermissionsManagerLogic, RouterPermissionsManagerInfo} from "./lib/logic/RouterPermissionsManagerLogic.sol";
+import {RouterPermissionsManagerLogic, RouterPermissionsManagerInfo} from "./lib/Connext/RouterPermissionsManagerLogic.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
