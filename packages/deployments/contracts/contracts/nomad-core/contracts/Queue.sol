@@ -13,42 +13,42 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * exposes view functions for the queue.
  **/
 contract QueueManager is Initializable {
-    // ============ Libraries ============
+  // ============ Libraries ============
 
-    using QueueLib for QueueLib.Queue;
-    QueueLib.Queue internal queue;
+  using QueueLib for QueueLib.Queue;
+  QueueLib.Queue internal queue;
 
-    // ============ Upgrade Gap ============
+  // ============ Upgrade Gap ============
 
-    // gap for upgrade safety
-    uint256[49] private __GAP;
+  // gap for upgrade safety
+  uint256[49] private __GAP;
 
-    // ============ Initializer ============
+  // ============ Initializer ============
 
-    function __QueueManager_initialize() internal initializer {
-        queue.initialize();
-    }
+  function __QueueManager_initialize() internal initializer {
+    queue.initialize();
+  }
 
-    // ============ Public Functions ============
+  // ============ Public Functions ============
 
-    /**
-     * @notice Returns number of elements in queue
-     */
-    function queueLength() external view returns (uint256) {
-        return queue.length();
-    }
+  /**
+   * @notice Returns number of elements in queue
+   */
+  function queueLength() external view returns (uint256) {
+    return queue.length();
+  }
 
-    /**
-     * @notice Returns TRUE iff `_item` is in the queue
-     */
-    function queueContains(bytes32 _item) external view returns (bool) {
-        return queue.contains(_item);
-    }
+  /**
+   * @notice Returns TRUE iff `_item` is in the queue
+   */
+  function queueContains(bytes32 _item) external view returns (bool) {
+    return queue.contains(_item);
+  }
 
-    /**
-     * @notice Returns last item enqueued to the queue
-     */
-    function queueEnd() external view returns (bytes32) {
-        return queue.lastItem();
-    }
+  /**
+   * @notice Returns last item enqueued to the queue
+   */
+  function queueEnd() external view returns (bytes32) {
+    return queue.lastItem();
+  }
 }

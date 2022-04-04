@@ -15,7 +15,7 @@ output "vpc_id" {
 }
 
 output "allow_all_sg" {
-  value = aws_security_group.allow_all.id
+  value = aws_security_group.allow_tls.id
 }
 
 output "ecs_task_sg" {

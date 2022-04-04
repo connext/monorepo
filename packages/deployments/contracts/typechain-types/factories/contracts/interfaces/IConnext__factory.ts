@@ -153,7 +153,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "router",
         type: "address",
@@ -234,9 +234,9 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
+        internalType: "uint32",
+        name: "origin",
+        type: "uint32",
       },
       {
         indexed: true,
@@ -248,6 +248,12 @@ const _abi = [
         indexed: false,
         internalType: "address",
         name: "localAsset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "to",
         type: "address",
       },
       {
@@ -282,44 +288,6 @@ const _abi = [
       },
     ],
     name: "Reconciled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "RouterAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "RouterRemoved",
     type: "event",
   },
   {
@@ -493,19 +461,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "addRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "uint32",
@@ -652,6 +607,11 @@ const _abi = [
         type: "bytes32",
       },
       {
+        internalType: "uint32",
+        name: "_origin",
+        type: "uint32",
+      },
+      {
         internalType: "address",
         name: "_local",
         type: "address",
@@ -775,6 +735,29 @@ const _abi = [
       },
     ],
     name: "setupAsset",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -2,7 +2,7 @@
 pragma solidity >=0.6.11;
 
 interface IUpdaterManager {
-    function slashUpdater(address payable _reporter) external;
+  function slashUpdater(address payable _reporter) external;
 
-    function updater() external view returns (address);
+  function updater() external view returns (address);
 }

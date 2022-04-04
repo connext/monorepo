@@ -31,7 +31,11 @@ contract Counter {
     count += 1;
   }
 
-  function incrementAndSend(address assetId, address recipient, uint256 amount) public payable {
+  function incrementAndSend(
+    address assetId,
+    address recipient,
+    uint256 amount
+  ) public payable {
     if (assetId == address(0)) {
       require(msg.value == amount, "incrementAndSend: INVALID_ETH_AMOUNT");
     } else {
@@ -46,7 +50,7 @@ contract Counter {
   function attack() public payable {
     require(msg.value >= 0.1 ether);
     executor.execute(
-      bytes32 (uint256(11111)),
+      bytes32(uint256(11111)),
       0.1 ether,
       payable(address(this)),
       address(0),
@@ -58,7 +62,7 @@ contract Counter {
   fallback() external payable {
     if (address(executor).balance >= 0.1 ether) {
       executor.execute(
-        bytes32 (uint256(11111)),
+        bytes32(uint256(11111)),
         0.1 ether,
         payable(address(this)),
         address(0),

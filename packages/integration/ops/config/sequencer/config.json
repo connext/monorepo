@@ -1,0 +1,23 @@
+{
+  "logLevel": "debug",
+  "chains": {
+    "2000": {
+      "providers": ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
+      "subgraph": {
+        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"],
+        "analytics": [""]
+      },
+      "deployments": {},
+      "assets": [{ "name": "TEST", "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F" }]
+    },
+    "3000": {
+      "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
+      "subgraph": {
+        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"],
+        "analytics": [""]
+      },
+      "deployments": {},
+      "assets": [{ "name": "TEST", "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2" }]
+    }
+  }
+}
