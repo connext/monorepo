@@ -6,6 +6,7 @@ import {
   XTransfer,
   formatUrl,
   jsonifyError,
+  RequestContext,
 } from "@connext/nxtp-utils";
 
 import axios, { AxiosResponse } from "axios";
@@ -100,7 +101,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
 };
 
 export const sendBid = async (bid: Bid, requestContext: RequestContext): Promise<any> => {
-  const { requestContext, methodContext } = createLoggingContext(sendBid.name);
+  const { methodContext } = createLoggingContext(sendBid.name, requestContext);
   const { logger, config } = getContext();
 
   /// TODO don't send the signature in logs, edit bid during logging
