@@ -2,9 +2,13 @@ import { task } from "hardhat/config";
 
 import { NOMAD_DEPLOYMENTS } from "../constants";
 
+type TaskArgs = {
+  tokenRegistry?: string;
+};
+
 export default task("set-local-domain", "Set the local domain of the token registry")
-  .addOptionalParam("tokenRegisry", "Override local token registry address")
-  .setAction(async ({ tokenRegistry: _tokenRegistry }, { deployments, getNamedAccounts, ethers }) => {
+  .addOptionalParam("tokenRegistry", "Override local token registry address")
+  .setAction(async ({ tokenRegistry: _tokenRegistry }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("namedAccounts: ", namedAccounts);

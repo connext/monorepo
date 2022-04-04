@@ -1,6 +1,17 @@
 import { BigNumber, constants, providers, utils } from "ethers";
 import { task } from "hardhat/config";
+
 import { canonizeId } from "../nomad";
+
+type TaskArgs = {
+  transactingAssetId?: string;
+  amount?: string;
+  to?: string;
+  originDomain?: string;
+  destinationDomain?: string;
+  callData?: string;
+  connextAddress?: string;
+};
 
 export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("transactingAssetId", "Transacting asset Id")
@@ -20,7 +31,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         callData,
         originDomain: _originDomain,
         destinationDomain: _destinationDomain,
-      },
+      }: TaskArgs,
       { deployments, ethers },
     ) => {
       let tx: providers.TransactionResponse;
@@ -51,38 +62,37 @@ export default task("xcall", "Prepare a cross-chain tx")
       // Get the transacting asset ID.
       let transactingAssetId = _transactingAssetId ?? process.env.TRANSACTING_ASSET_ID;
       if (!transactingAssetId) {
-        try {
-          // Alternatively, try defaulting to using the canonical token from the .env (if present) as the transacting asset ID,
-          // deriving the local asset using the token registry if applicable.
-          const canonicalDomain = process.env.CANONICAL_DOMAIN;
-          const canonicalAsset = process.env.CANONICAL_TOKEN;
-          if (!canonicalAsset || !canonicalDomain) {
-            throw new Error();
-          }
-          const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
-
-          // Retrieve the local asset from the token registry, if applicable.
-          if (canonicalDomain === originDomain) {
-            // Use the canonical asset as the local asset since we're on the canonical network.
-            transactingAssetId = canonicalAsset;
-          } else {
-            // Current network's domain is not canonical domain, so we need to get the local asset representation.
-            const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
-            const tokenRegistry = await ethers.getContractAt(
-              (
-                await deployments.getArtifact("TokenRegistry")
-              ).abi,
-              tokenRegistryAddress,
-            );
-            transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
-            if (transactingAssetId === constants.AddressZero) {
-              throw new Error();
-            }
-          }
-        } catch (e) {
-          // If the above attempt fails, then we default to telling the user to just specify the transacting asset ID.
-          throw new Error("Transacting asset ID must be specified as param or from env (TRANSACTING_ASSET_ID)");
+        // Alternatively, try defaulting to using the canonical token from the .env (if present) as the transacting asset ID,
+        // deriving the local asset using the token registry if applicable.
+        const canonicalDomain = process.env.CANONICAL_DOMAIN;
+        const canonicalAsset = process.env.CANONICAL_TOKEN;
+        if (!canonicalAsset || !canonicalDomain) {
+          throw new Error("No canonical domain or token in env");
         }
+        const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
+
+        // Retrieve the local asset from the token registry, if applicable.
+        if (canonicalDomain === originDomain) {
+          // Use the canonical asset as the local asset since we're on the canonical network.
+          transactingAssetId = canonicalAsset;
+        } else {
+          // Current network's domain is not canonical domain, so we need to get the local asset representation.
+          const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
+          const tokenRegistry = await ethers.getContractAt(
+            (
+              await deployments.getArtifact("TokenRegistry")
+            ).abi,
+            tokenRegistryAddress,
+          );
+          transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+          if (transactingAssetId === constants.AddressZero) {
+            throw new Error("Empty transactingAssetId on registry");
+          }
+        }
+      }
+      if (!transactingAssetId) {
+        // If the above attempt fails, then we default to telling the user to just specify the transacting asset ID.
+        throw new Error("Transacting asset ID must be specified as param or from env (TRANSACTING_ASSET_ID)");
       }
 
       console.log("originDomain: ", originDomain);

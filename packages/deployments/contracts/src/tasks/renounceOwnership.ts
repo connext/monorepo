@@ -1,10 +1,15 @@
 import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  type: "asset" | "router";
+  connextAddress?: string;
+};
+
 export default task("renounce-ownership", "Renounce Ownership")
   .addParam("type", "Type of ownership to renounce, either asset or router")
   .addOptionalParam("connextAddress", "Override connext address")
-  .setAction(async ({ type, connextAddress: _connextAddress }, { deployments, getNamedAccounts, ethers }) => {
+  .setAction(async ({ type, connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("type: ", type);
