@@ -80,11 +80,11 @@ export const getEnvConfig = (
     };
 
     if (!chainConfig.subgraph.runtime) {
-      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraph ?? [];
+      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraphs.runtime ?? [];
     }
 
     if (!chainConfig.subgraph.analytics) {
-      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.analyticsSubgraph ?? [];
+      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.subgraphs.analytics ?? [];
     }
 
     if (!chainConfig.confirmations) {

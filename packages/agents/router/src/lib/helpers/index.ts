@@ -1,5 +1,5 @@
 import { sanityCheck } from "./execute";
-import { getDestinationLocalAsset, getTransactionId, signHandleRelayerFeePayload } from "./shared";
+import { getDestinationLocalAsset, getTransactionId, signHandleRelayerFeePayload, getSubgraphHealth } from "./shared";
 
 export const getHelpers = () => {
   return {
@@ -10,6 +10,7 @@ export const getHelpers = () => {
       getDestinationLocalAsset,
       getTransactionId,
       signHandleRelayerFeePayload,
+      getSubgraphHealth,
     },
   };
 };

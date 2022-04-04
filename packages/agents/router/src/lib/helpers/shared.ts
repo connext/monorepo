@@ -1,4 +1,7 @@
-import { signHandleRelayerFeePayload as _signHandleRelayerFeePayload } from "@connext/nxtp-utils";
+import {
+  signHandleRelayerFeePayload as _signHandleRelayerFeePayload,
+  getSubgraphHealth as _getSubgraphHealth,
+} from "@connext/nxtp-utils";
 import { utils } from "ethers";
 
 /**
@@ -29,3 +32,5 @@ export const getTransactionId = (nonce: string, domain: string): string => {
 };
 
 export const signHandleRelayerFeePayload = _signHandleRelayerFeePayload;
+
+export const getSubgraphHealth = _getSubgraphHealth;

@@ -1,5 +1,6 @@
-import { createLoggingContext, jsonifyError, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { createLoggingContext, getSubgraphName, jsonifyError, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import interval from "interval-promise";
+import { getHelpers } from "../../lib/helpers";
 
 import { getContext } from "../../router";
 
@@ -26,13 +27,34 @@ export const pollSubgraph = async () => {
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
+  const {
+    shared: { getSubgraphHealth },
+  } = getHelpers();
   try {
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
     for (const domain of Object.keys(config.chains)) {
-      // TODO: Convert domain to chainID ??
-      const latestBlockNumber = await txservice.getBlockNumber(parseInt(domain));
-      const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
+      // TODO: Needs to implement the selection algorithm
+      const healthUrls = config.chains[domain].subgraph.runtime.map((url) => {
+        return { name: getSubgraphName(url.query), url: url.health };
+      });
+      let latestBlockNumber = 0;
+      for (const healthEp of healthUrls) {
+        const subgraphHealth = await getSubgraphHealth(healthEp.name, healthEp.url);
+        if (subgraphHealth && subgraphHealth.synced && subgraphHealth.latestBlock > latestBlockNumber)
+          latestBlockNumber = subgraphHealth.latestBlock;
+      }
 
+      if (latestBlockNumber === 0) {
+        logger.error(
+          `Error getting the latestBlockNumber, domain: ${domain}, healthUrls: ${healthUrls}`,
+          requestContext,
+          methodContext,
+        );
+
+        continue;
+      }
+
+      const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
       const latestNonce = await cache.transfers.getLatestNonce(domain);
 
       // logger.debug("Retrieved domain information for subgraph polling", undefined, undefined, {
