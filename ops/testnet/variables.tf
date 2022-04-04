@@ -18,13 +18,13 @@ variable "environment" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-be2a1ed"
+  default     = "ghcr.io/connext/router:sha-057ee0d"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-be2a1ed"
+  default     = "ghcr.io/connext/sequencer:sha-057ee0d"
 }
 
 variable "mnemonic" {
@@ -40,8 +40,6 @@ variable "admin_token_router" {
 }
 
 variable "certificate_arn_testnet" {
-  default = "arn:aws:acm:us-east-1:679752396206:certificate/b34b33a2-5038-458b-84c8-18cb243e8be4"
+  default = "arn:aws:acm:us-east-1:679752396206:certificate/849d038c-a8c8-4324-9773-ffb4c6afe0a3"
 }
 
-variable "logdna_key" {
-}

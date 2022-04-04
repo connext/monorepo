@@ -124,9 +124,10 @@ resource "aws_security_group" "lb" {
   }
 }
 
+
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id
-  name    = "${var.environment}.${var.container_family}.${var.base_domain}"
+  name    = "${var.container_family}.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]
