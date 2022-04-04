@@ -56,7 +56,7 @@ library RouterPermissionsManagerLogic {
   /**
    * @notice Asserts caller is the router owner (if set) or the router itself
    */
-  function _onlyRouterOwner(address _router, address _owner) internal {
+  function _onlyRouterOwner(address _router, address _owner) internal view {
     if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
       revert RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner();
   }
@@ -69,12 +69,13 @@ library RouterPermissionsManagerLogic {
     address _router,
     address _owner,
     address _proposed
-  ) internal {
+  ) internal view {
     if (_proposed == address(0)) {
       if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
         revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner();
     } else {
-      if (msg.sender != _proposed) revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner();
+      if (msg.sender != _proposed)
+        revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner();
     }
   }
 
@@ -121,7 +122,8 @@ library RouterPermissionsManagerLogic {
     _onlyRouterOwner(router, routerOwners[router]);
 
     // Check that proposed is different than current owner
-    if (_getRouterOwner(router, routerOwners) == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
+    if (_getRouterOwner(router, routerOwners) == proposed)
+      revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
     address _currentProposed = proposedRouterOwners[router];
@@ -251,6 +253,7 @@ library RouterPermissionsManagerLogic {
    */
   function _getRouterOwner(address router, mapping(address => address) storage _routerOwners)
     internal
+    view
     returns (address)
   {
     address _owner = _routerOwners[router];
