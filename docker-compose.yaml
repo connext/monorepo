@@ -2,6 +2,8 @@ version: "3.3"
 
 services:
   router:
+    depends_on:
+      - sequencer
     image: ${ROUTER_IMAGE}
     restart: always
     ports:
