@@ -32,8 +32,10 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
   const addr = await signer.getAddress();
   if (typeof (signer.provider as providers.Web3Provider)?.send === "function") {
     try {
-      return sanitizeSignature(await (signer.provider as providers.Web3Provider).send("personal_sign", [hash, addr]));
-    } catch (err) {
+      return sanitizeSignature(
+        (await (signer.provider as providers.Web3Provider).send("personal_sign", [hash, addr])) as string,
+      );
+    } catch (err: unknown) {
       // console.error("Error using personal_sign, falling back to signer.signMessage: ", err);
     }
   }

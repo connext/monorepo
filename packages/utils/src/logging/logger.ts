@@ -1,6 +1,7 @@
 import pino, { BaseLogger, Bindings, LoggerOptions } from "pino";
 
 import { NxtpErrorJson } from "..";
+
 import { createMethodContext, createRequestContext, MethodContext, RequestContext } from ".";
 
 export type LogLevel = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent";

@@ -42,7 +42,7 @@ export const isValidHexString = (value: any): boolean => !getHexStringError(valu
 export const getAddressError = (value: any): string | undefined => {
   const hexError = getHexStringError(value, 20);
   if (hexError) return hexError;
-  utils.getAddress(value);
+  utils.getAddress(value as string);
   return undefined;
 };
 
