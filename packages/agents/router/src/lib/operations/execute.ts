@@ -1,8 +1,17 @@
-import { CallParams, ExecuteArgs, Bid, createLoggingContext, XTransfer, formatUrl } from "@connext/nxtp-utils";
+import {
+  CallParams,
+  ExecuteArgs,
+  Bid,
+  createLoggingContext,
+  XTransfer,
+  formatUrl,
+  jsonifyError,
+  RequestContext,
+} from "@connext/nxtp-utils";
 
 import axios, { AxiosResponse } from "axios";
 
-import { SequencerResponseInvalid, ParamsInvalid } from "../errors";
+import { SequencerResponseInvalid, SanityCheckFailed } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -74,20 +83,25 @@ export const execute = async (params: XTransfer): Promise<void> => {
     data: executeArguments,
   };
 
-  const res = await sanityCheck(bid, requestContext);
+  logger.info("Bid created", requestContext, methodContext, { bid, signature, executeArguments });
 
-  if (res) {
-    /// send the bid to auctioneer
-    logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, executeArguments });
-    await sendBid(bid);
-  } else {
-    logger.info("Sanity check failed", requestContext, methodContext, { bid });
-    // sanity check failed
+  try {
+    // sanity check
+    await sanityCheck(bid, requestContext);
+  } catch (e) {
+    throw new SanityCheckFailed({
+      error: jsonifyError(e as Error),
+      bid,
+    });
   }
+
+  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, executeArguments });
+  const data = await sendBid(bid, requestContext);
+  logger.info("Sent bid to sequencer", requestContext, methodContext, { data });
 };
 
-export const sendBid = async (bid: Bid): Promise<any> => {
-  const { requestContext, methodContext } = createLoggingContext(sendBid.name);
+export const sendBid = async (bid: Bid, requestContext: RequestContext): Promise<any> => {
+  const { methodContext } = createLoggingContext(sendBid.name, requestContext);
   const { logger, config } = getContext();
 
   /// TODO don't send the signature in logs, edit bid during logging

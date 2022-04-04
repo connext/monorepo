@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  sequencer:
+    container_name: sequencer-test
+    image: "nxtp-sequencer:latest"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config/sequencer/config.json:/home/node/sequencer/config.json
+    networks:
+      - nxtp-test
+
+networks:
+  nxtp-test:

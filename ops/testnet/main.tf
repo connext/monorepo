@@ -19,7 +19,7 @@ data "aws_iam_role" "ecr_admin_role" {
 
 
 data "aws_route53_zone" "primary" {
-  zone_id = "Z26ELLSVRLDZAD"
+  zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
 
@@ -46,11 +46,12 @@ module "router" {
   timeout                  = 180
   environment              = var.environment
   mnemonic                 = var.mnemonic
-  nxtp_config              = local.local_router_config
+  service_config_value     = local.local_router_config
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
+  service_config_name      = "NXTP_CONFIG"
 }
 
 
@@ -72,15 +73,16 @@ module "sequencer" {
   loadbalancer_port        = 80
   cpu                      = 256
   memory                   = 512
-  instance_count           = 2
+  instance_count           = 1
   timeout                  = 180
   environment              = var.environment
   mnemonic                 = var.mnemonic
-  nxtp_config              = local.local_sequencer_config
+  service_config_value     = local.local_sequencer_config
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
+  service_config_name      = "SEQ_CONFIG"
 }
 
 
