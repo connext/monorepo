@@ -3,17 +3,17 @@ pragma solidity 0.8.11;
 
 library RouterPermissionsManagerLogic {
   // ========== Custom Errors ===========
-  error RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
-  error RouterPermissionsManager__setRouterRecipient_notNewRecipient();
-  error RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
-  error RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
-  error RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
-  error RouterPermissionsManager__removeRouter_routerEmpty();
-  error RouterPermissionsManager__removeRouter_notAdded();
-  error RouterPermissionsManager__setupRouter_routerEmpty();
-  error RouterPermissionsManager__setupRouter_amountIsZero();
-  error RouterPermissionsManager__proposeRouterOwner_notNewOwner();
-  error RouterPermissionsManager__proposeRouterOwner_badRouter();
+  error RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();
+  error RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient();
+  error RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner();
+  error RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner();
+  error RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner();
+  error RouterPermissionsManagerLogic__removeRouter_routerEmpty();
+  error RouterPermissionsManagerLogic__removeRouter_notAdded();
+  error RouterPermissionsManagerLogic__setupRouter_routerEmpty();
+  error RouterPermissionsManagerLogic__setupRouter_amountIsZero();
+  error RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
+  error RouterPermissionsManagerLogic__proposeRouterOwner_badRouter();
 
   /**
    * @notice Emitted when a new router is added
@@ -58,7 +58,7 @@ library RouterPermissionsManagerLogic {
    */
   function onlyRouterOwner(address _router, address _owner) external {
     if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
-      revert RouterPermissionsManager__onlyRouterOwner_notRouterOwner();
+      revert RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner();
   }
 
   /**
@@ -72,9 +72,9 @@ library RouterPermissionsManagerLogic {
   ) external {
     if (_proposed == address(0)) {
       if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
-        revert RouterPermissionsManager__onlyProposedRouterOwner_notRouterOwner();
+        revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner();
     } else {
-      if (msg.sender != _proposed) revert RouterPermissionsManager__onlyProposedRouterOwner_notProposedRouterOwner();
+      if (msg.sender != _proposed) revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner();
     }
   }
 
@@ -94,7 +94,7 @@ library RouterPermissionsManagerLogic {
   ) external {
     // Check recipient is changing
     address _prevRecipient = routerRecipients[router];
-    if (_prevRecipient == recipient) revert RouterPermissionsManager__setRouterRecipient_notNewRecipient();
+    if (_prevRecipient == recipient) revert RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient();
 
     // Set new recipient
     routerRecipients[router] = recipient;
@@ -116,11 +116,11 @@ library RouterPermissionsManagerLogic {
     mapping(address => uint256) storage proposedRouterTimestamp
   ) external {
     // Check that proposed is different than current owner
-    if (_currentOwner == proposed) revert RouterPermissionsManager__proposeRouterOwner_notNewOwner();
+    if (_currentOwner == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
     address _currentProposed = proposedRouterOwners[router];
-    if (_currentProposed == proposed) revert RouterPermissionsManager__proposeRouterOwner_badRouter();
+    if (_currentProposed == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_badRouter();
 
     // Set proposed owner + timestamp
     proposedRouterOwners[router] = proposed;
@@ -144,7 +144,7 @@ library RouterPermissionsManagerLogic {
   ) external {
     // Check timestamp has passed
     if (block.timestamp - proposedRouterTimestamp[router] <= _delay)
-      revert RouterPermissionsManager__acceptProposedRouterOwner_notElapsed();
+      revert RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
     address _proposed = proposedRouterOwners[router];
@@ -177,10 +177,10 @@ library RouterPermissionsManagerLogic {
     mapping(address => address) storage routerRecipients
   ) internal {
     // Sanity check: not empty
-    if (router == address(0)) revert RouterPermissionsManager__setupRouter_routerEmpty();
+    if (router == address(0)) revert RouterPermissionsManagerLogic__setupRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (approvedRouters[router]) revert RouterPermissionsManager__setupRouter_amountIsZero();
+    if (approvedRouters[router]) revert RouterPermissionsManagerLogic__setupRouter_amountIsZero();
 
     // Approve router
     approvedRouters[router] = true;
@@ -212,10 +212,10 @@ library RouterPermissionsManagerLogic {
     mapping(address => address) storage routerRecipients
   ) external {
     // Sanity check: not empty
-    if (router == address(0)) revert RouterPermissionsManager__removeRouter_routerEmpty();
+    if (router == address(0)) revert RouterPermissionsManagerLogic__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    if (!approvedRouters[router]) revert RouterPermissionsManager__removeRouter_notAdded();
+    if (!approvedRouters[router]) revert RouterPermissionsManagerLogic__removeRouter_notAdded();
 
     // Update mapping
     approvedRouters[router] = false;
