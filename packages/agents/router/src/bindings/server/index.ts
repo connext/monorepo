@@ -1,5 +1,5 @@
-import { jsonifyError } from "@connext/nxtp-utils";
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import { register } from "prom-client";
 
 import { getContext } from "../../router";
@@ -15,11 +15,7 @@ import {
 
 export const bindServer = () =>
   new Promise<FastifyInstance>((res) => {
-    const {
-      adapters: { wallet },
-      config,
-      logger,
-    } = getContext();
+    const { config, logger } = getContext();
 
     const server = fastify();
 
@@ -81,8 +77,8 @@ export const api = {
         return res.status(200).send({
           signerAddress: await wallet.getAddress(),
         });
-      } catch (e: any) {
-        const json = jsonifyError(e);
+      } catch (e: unknown) {
+        const json = jsonifyError(e as NxtpError);
         logger.error("Failed to get wallet address", undefined, undefined, json);
         return res.status(500).send(json);
       }
@@ -92,8 +88,8 @@ export const api = {
       try {
         const result = await register.metrics();
         return res.status(200).send(result);
-      } catch (e: any) {
-        const json = jsonifyError(e);
+      } catch (e: unknown) {
+        const json = jsonifyError(e as NxtpError);
         logger.error("Failed to collect metrics", undefined, undefined, json);
         return res.status(500).send(json);
       }
