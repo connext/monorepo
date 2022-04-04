@@ -1,6 +1,7 @@
 import { BidStatus, StoredBid, Bid, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
+
 import { Cache } from "./cache";
 
 export class AuctionsCache extends Cache {
@@ -40,7 +41,7 @@ export class AuctionsCache extends Cache {
       match: `${this.prefix}:*`,
     });
 
-    return new Promise((res, rej) => {
+    return new Promise((res, _rej) => {
       bidStream.on("data", async (resultKeys: string) => {
         for (const key of resultKeys) {
           const record = await this.data.hgetall(key);
@@ -66,7 +67,7 @@ export class AuctionsCache extends Cache {
       match: `${this.prefix}:${txid}:*`,
     });
 
-    return new Promise((res, rej) => {
+    return new Promise((res, _rej) => {
       bidStream.on("data", async (resultKeys: string) => {
         for (const key of resultKeys) {
           const fieldUpdated = await this.data.hset(key, "status", status);
@@ -118,7 +119,7 @@ export class AuctionsCache extends Cache {
       match: `${this.prefix}:${transactionId}:*`,
     });
 
-    return new Promise((res, rej) => {
+    return new Promise((res, _rej) => {
       bidStream.on("data", async (resultKeys: string) => {
         for (const key of resultKeys) {
           // 1 - "payload" - key

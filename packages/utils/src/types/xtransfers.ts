@@ -1,5 +1,6 @@
-import { TAddress, TDecimalString, TIntegerString } from ".";
 import { Type, Static } from "@sinclair/typebox";
+
+import { TAddress, TDecimalString, TIntegerString } from ".";
 
 export enum XTransferStatus {
   XCalled = "XCalled",

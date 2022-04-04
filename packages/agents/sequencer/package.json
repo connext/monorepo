@@ -49,9 +49,12 @@
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@sinclair/typebox": "^0.23.4",
+    "axios": "^0.26.1",
     "ethers": "^5.6.1",
     "fastify": "^3.27.4",
     "fastify-plugin": "^3.0.1",
+    "interval-promise": "^1.4.0",
     "pino": "^7.9.2",
     "tsc": "^2.0.4"
   },

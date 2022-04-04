@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BigNumber } from "ethers";
+
 import { Logger } from "../logging";
 import { jsonifyError } from "../types";
 
@@ -19,7 +20,7 @@ export const gelatoSend = async (
   try {
     const res = await axios.post(`${gelatoServer}/relays/${chainId}`, params);
     output = res.data;
-  } catch (error) {
+  } catch (error: unknown) {
     if (logger) logger.error("Error in gelato send", undefined, undefined, jsonifyError(error as Error));
     output = error;
   }
@@ -36,7 +37,7 @@ export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> =
   try {
     const res = await axios.get(`${gelatoServer}/relays/`);
     result = res.data.relays;
-  } catch (error) {
+  } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
   }
 
@@ -56,7 +57,7 @@ export const getEstimatedFee = async (
   try {
     const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
-  } catch (error) {
+  } catch (error: unknown) {
     if (logger) logger.error("Error in getEstimatedFee", undefined, undefined, jsonifyError(error as Error));
   }
   return result;
@@ -72,7 +73,7 @@ export const getGelatoOracles = async (logger?: Logger): Promise<string[]> => {
   try {
     const res = await axios.get(`${gelatoServer}/oracles/`);
     result = res.data.oracles;
-  } catch (error) {
+  } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoOracles", undefined, undefined, jsonifyError(error as Error));
   }
 
@@ -92,7 +93,7 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
   try {
     const res = await axios.get(`${gelatoServer}/oracles/${chainId}/paymentTokens/`);
     result = res.data.paymentTokens;
-  } catch (error) {
+  } catch (error: unknown) {
     if (logger) logger.error("Error in getPaymentTokens", undefined, undefined, jsonifyError(error as Error));
   }
 

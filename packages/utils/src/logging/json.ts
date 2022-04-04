@@ -16,7 +16,7 @@ const nullify = (_key: string, value: any) => (typeof value === "undefined" ? nu
 export const safeJsonStringify = (value: any): string => {
   try {
     return typeof value === "string" ? value : JSON.stringify(value, nullify);
-  } catch (e) {
+  } catch (e: unknown) {
     return value;
   }
 };
@@ -30,7 +30,7 @@ export const safeJsonStringify = (value: any): string => {
 export function safeJsonParse<T = any>(value: any): T {
   try {
     return typeof value === "string" ? JSON.parse(value, nullify) : value;
-  } catch (e) {
+  } catch (e: unknown) {
     return value;
   }
 }

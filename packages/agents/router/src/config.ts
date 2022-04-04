@@ -4,7 +4,6 @@ import * as fs from "fs";
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
-
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
@@ -84,7 +83,7 @@ export const getEnvConfig = (
 
   try {
     configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-  } catch (e) {
+  } catch (e: unknown) {
     console.info("No NXTP_CONFIG exists, using config file and individual env vars");
   }
   try {
@@ -95,7 +94,7 @@ export const getEnvConfig = (
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
     }
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("Error reading config file!");
     process.exit(1);
   }
@@ -184,7 +183,7 @@ export const getEnvConfig = (
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    throw new Error(validate.errors?.map((err: any) => JSON.stringify(err, null, 2)).join(","));
+    throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
   return nxtpConfig;

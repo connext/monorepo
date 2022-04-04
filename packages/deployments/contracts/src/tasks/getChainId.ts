@@ -1,8 +1,12 @@
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  connextAddress?: string;
+};
+
 export default task("get-chain-id", "Get chainId")
   .addOptionalParam("connextAddress", "Override tx manager address")
-  .setAction(async ({ connextAddress: _connextAddress }, { deployments, getNamedAccounts, ethers }) => {
+  .setAction(async ({ connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("namedAccounts: ", namedAccounts);

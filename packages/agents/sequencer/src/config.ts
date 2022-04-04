@@ -17,7 +17,7 @@ export const getEnvConfig = (
 
   try {
     configJson = JSON.parse(process.env.SEQ_CONFIG || "");
-  } catch (e) {
+  } catch (e: unknown) {
     console.info("No SEQ_CONFIG exists; using config file and individual env vars.");
   }
   try {
@@ -28,7 +28,7 @@ export const getEnvConfig = (
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
     }
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("Error reading config file!");
     process.exit(1);
   }

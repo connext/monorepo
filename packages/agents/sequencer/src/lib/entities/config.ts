@@ -1,5 +1,4 @@
 import { Type, Static } from "@sinclair/typebox";
-
 import { TAddress } from "@connext/nxtp-utils";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 

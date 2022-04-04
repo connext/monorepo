@@ -1,7 +1,7 @@
 import { providers, BigNumber, constants, utils } from "ethers";
 
-import { ChainData, getChainData } from "..";
-import { getETHBalance, getTokenBalance, getTokenDecimals } from "..";
+import { ChainData, getChainData , getETHBalance, getTokenBalance, getTokenDecimals } from "..";
+
 import { getDomainFromChainId } from "./nomad";
 
 export const getOnchainBalance = async (

@@ -1,10 +1,16 @@
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  router: string;
+  amount: string;
+  asset: string;
+};
+
 export default task("remove-relayer-fee", "remove relayer fee from router contract")
   .addParam("router", "The Router.sol contract address")
   .addParam("amount", "amount")
   .addParam("asset", "asset")
-  .setAction(async ({ router, amount, asset }, { ethers }) => {
+  .setAction(async ({ router, amount, asset }: TaskArgs, { ethers }) => {
     const deployer = await ethers.getNamedSigner("deployer");
 
     console.log("router: ", router);

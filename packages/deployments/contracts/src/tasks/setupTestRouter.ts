@@ -1,5 +1,12 @@
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  router: string;
+  assetId?: string;
+  amount?: string;
+  connextAddress?: string;
+};
+
 export default task("setup-test-router", "Add router and test assets")
   .addParam("router", "Router address")
   .addOptionalParam("assetId", "Override token address")
@@ -7,7 +14,7 @@ export default task("setup-test-router", "Add router and test assets")
   .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
     async (
-      { assetId: _assetId, router, connextAddress: _connextAddress, amount: _amount },
+      { assetId: _assetId, router, connextAddress: _connextAddress, amount: _amount }: TaskArgs,
       { deployments, getNamedAccounts, ethers, run },
     ) => {
       console.log("router: ", router);
@@ -23,7 +30,7 @@ export default task("setup-test-router", "Add router and test assets")
       console.log("connextAddress: ", connextAddress);
 
       let assetId = _assetId;
-      if (!_assetId) {
+      if (!assetId) {
         const assetIdDeployment = await deployments.get("TestERC20");
         assetId = assetIdDeployment.address;
       }

@@ -143,7 +143,8 @@ export class TransactionDispatch extends RpcProviderAggregator {
             await this.mine(transaction);
             this.minedBuffer.push(transaction);
             break;
-          } catch (error: any) {
+          } catch (_error: unknown) {
+            const error = _error as TransactionReverted;
             this.logger.debug("Received error waiting for transaction to be mined.", requestContext, methodContext, {
               chainId: this.chainId,
               txsId: transaction.uuid,
@@ -226,8 +227,8 @@ export class TransactionDispatch extends RpcProviderAggregator {
           await this.fail(transaction);
         }
       }
-    } catch (error: any) {
-      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error), {
+    } catch (error: unknown) {
+      this.logger.error("Error in mine loop.", requestContext, methodContext, jsonifyError(error as NxtpError), {
         handlingTransaction: transaction ? transaction.loggable : undefined,
       });
     }
@@ -442,9 +443,10 @@ export class TransactionDispatch extends RpcProviderAggregator {
                 }
               }
               await this.submit(transaction);
-            } catch (error: any) {
+            } catch (_error: unknown) {
+              const error = _error as NxtpError & { reason: string };
               if (error.type === BadNonce.type) {
-                lastErrorReceived = error.reason;
+                lastErrorReceived = new Error(error.reason);
                 ({ nonce, backfill, transactionCount } = await this.determineNonce(attemptedNonces, error));
                 continue;
               } else if (error.type === TransactionAlreadyKnown.type) {
@@ -465,8 +467,8 @@ export class TransactionDispatch extends RpcProviderAggregator {
           // Increment the successful nonce, and assign our local nonce to that value.
           this.nonce = nonce + 1;
           return { value: transaction, success: true };
-        } catch (error: any) {
-          return { value: error, success: false };
+        } catch (error: unknown) {
+          return { value: error as NxtpError, success: false };
         }
       },
     );
@@ -553,7 +555,8 @@ export class TransactionDispatch extends RpcProviderAggregator {
         transaction: transaction.loggable,
       });
       this.callbacks.onSubmit(transaction);
-    } catch (error: any) {
+    } catch (_error: unknown) {
+      const error = _error as NxtpError;
       // If we end up with an error, it should be thrown here. But first, log loudly if we get an insufficient
       // funds error.
       if (
@@ -713,12 +716,12 @@ export class TransactionDispatch extends RpcProviderAggregator {
     let receipt: providers.TransactionReceipt;
     try {
       receipt = await this.confirmTransaction(transaction, this.config.confirmations, timeout);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error(
         "Did not get enough confirmations for a *mined* transaction! Did a re-org occur?",
         requestContext,
         methodContext,
-        jsonifyError(error),
+        jsonifyError(error as NxtpError),
         {
           chainId: this.chainId,
           transaction: transaction.loggable,

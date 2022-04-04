@@ -3,11 +3,17 @@ import { task } from "hardhat/config";
 
 import { NOMAD_DEPLOYMENTS } from "../constants";
 
+type TaskArgs = {
+  handler: string;
+  chain: string;
+  local?: string;
+};
+
 export default task("enroll-handler", "Add a remote router")
   .addParam("handler", "Remote nomad handler address")
   .addParam("chain", "Chain of remote router")
   .addOptionalParam("local", "Override local router address")
-  .setAction(async ({ handler, local: _local, chain }, { deployments, getNamedAccounts, ethers }) => {
+  .setAction(async ({ handler, local: _local, chain }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
     console.log("handler:", handler);

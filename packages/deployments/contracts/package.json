@@ -5,6 +5,7 @@
   "scripts": {
     "test": "yarn test:hardhat && yarn test:forge",
     "test:hardhat": "hardhat test",
+    "test:hardhat:gas-report": "REPORT_GAS=true hardhat test",
     "test:forge": "yarn forge test --gas-report",
     "forge": "forge",
     "forge:install": "forge install",
@@ -14,7 +15,8 @@
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
     "export": "hardhat export --export-all ./deployments.json",
-    "lint:sol": "prettier --write './contracts/**/*.sol' && prettier --write './contracts_forge/**/*.sol'",
+    "lint:sol": "solhint --config ./.solhint.json \"contracts/**/*.sol\"",
+    "prettier:sol": "prettier --write './contracts/**/*.sol' && prettier --write './contracts_forge/**/*.sol'",
     "lint": "eslint ./src --ext .ts --env node && yarn lint:sol",
     "clean": "hardhat clean && forge clean && rimraf ./dist ./tsconfig.tsBuildInfo ./artifacts ./cache",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -61,6 +63,8 @@
     "rimraf": "^3.0.2",
     "sinclair": "^0.2.0",
     "sinon": "^13.0.1",
+    "solhint": "^3.3.7",
+    "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.7.20",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
