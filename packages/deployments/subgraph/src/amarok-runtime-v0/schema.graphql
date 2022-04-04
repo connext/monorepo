@@ -3,7 +3,7 @@ type Asset @entity {
   local: Bytes!
   adoptedAsset: Bytes!
   canonicalId: Bytes!
-  canonicalDomain: Bytes!
+  canonicalDomain: BigInt!
 }
 
 type AssetBalance @entity {
