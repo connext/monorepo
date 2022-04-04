@@ -95,10 +95,11 @@ export const execute = async (params: XTransfer): Promise<void> => {
   }
 
   logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, executeArguments });
-  await sendBid(bid);
+  const data = await sendBid(bid, requestContext);
+  logger.info("Sent bid to sequencer", requestContext, methodContext, { data });
 };
 
-export const sendBid = async (bid: Bid): Promise<any> => {
+export const sendBid = async (bid: Bid, requestContext: RequestContext): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
   const { logger, config } = getContext();
 
