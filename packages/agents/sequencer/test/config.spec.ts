@@ -222,6 +222,15 @@ describe("Config", () => {
       expect(() => getEnvConfig(mock.chainData(), mockDeployments)).not.throw();
     });
 
+    it("should error if no file fails", () => {
+      stub(process, "env").value({
+        ...process.env,
+        SEQ_CONFIG_FILE: "buggypath",
+      });
+      expect(() => getEnvConfig(mock.chainData(), mockDeployments)).throw();
+    });
+
+
     it("should error if validation fails", () => {
       stub(process, "env").value({
         ...process.env,
