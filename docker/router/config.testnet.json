@@ -1,7 +1,7 @@
 {
   "logLevel": "debug",
   "sequencerUrl": "http://sequencer:8081",
-  "redisUrl": "redis://redis:6379",
+  "redisUrl": "redis://router-cache:6379",
   "server": {
     "adminToken": "a",
     "port": 8080
