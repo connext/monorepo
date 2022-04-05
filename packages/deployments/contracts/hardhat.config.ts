@@ -75,10 +75,6 @@ const config: HardhatUserConfig = {
     rando: { default: 3 },
   },
   networks: {
-    hardhat: {
-      // TODO: Remove this once https://github.com/connext/nxtp/pull/909 is done
-      allowUnlimitedContractSize: true,
-    },
     localhost: {
       accounts: {
         accountsBalance: "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
