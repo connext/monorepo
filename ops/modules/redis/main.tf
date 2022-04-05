@@ -8,7 +8,7 @@ resource "aws_elasticache_cluster" "redis" {
   // engine_version        = "6.x"
   port                     = 6379
   subnet_group_name        = var.subnet_group_name
-  security_group_ids       = [aws_security_group.redis.id, aws_security_group.allow_all_redis.id]
+  security_group_ids       = [aws_security_group.redis.id]
   apply_immediately        = true
   snapshot_retention_limit = 0
 }
