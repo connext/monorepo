@@ -117,6 +117,10 @@ export function handleXCalled(event: XCalled): void {
  */
 export function handleExecuted(event: Executed): void {
   let router = Router.load(event.params.router.toHex());
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
 
   let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
@@ -132,7 +136,7 @@ export function handleExecuted(event: Executed): void {
   // Transfer Data
   transfer.transferId = event.params.transferId;
   transfer.to = event.params.to;
-  transfer.router = router!.id;
+  transfer.router = router.id;
   transfer.callTo = event.params.params.to;
   transfer.callData = event.params.params.callData;
 
@@ -159,9 +163,13 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
-  let transfer = Transfer.load(event.params.transferId.toHexString());
   let router = Router.load(event.params.router.toHex());
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
 
+  let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new Transfer(event.params.transferId.toHexString());
   }
@@ -238,14 +246,25 @@ function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBal
   let assetBalance = AssetBalance.load(assetBalanceId);
 
   let router = Router.load(routerAddress.toHex());
+  if (router == null) {
+    router = new Router(routerAddress.toHex());
+    router.save();
+  }
 
   if (assetBalance == null) {
-    let router = Router.load(routerAddress.toHex());
     let asset = Asset.load(local.toHex());
+    if (asset == null) {
+      asset = new Asset(local.toHex());
+      asset.local = local;
+      asset.adoptedAsset = new Bytes(20);
+      asset.canonicalId = new Bytes(32);
+      asset.canonicalDomain = new BigInt(0);
+      asset.save();
+    }
 
     assetBalance = new AssetBalance(assetBalanceId);
-    assetBalance.asset = asset!.id;
-    assetBalance.router = router!.id;
+    assetBalance.asset = asset.id;
+    assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
   }
   return assetBalance;
