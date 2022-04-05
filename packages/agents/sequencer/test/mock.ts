@@ -55,7 +55,7 @@ export const mock = {
       },
     },
     logLevel: "info",
-    redisUrl: "redis://localhost:6379",
+    redis: { host: "localhost", port: 6379 },
     server: {
       port: 3000,
       host: "0.0.0.0",
