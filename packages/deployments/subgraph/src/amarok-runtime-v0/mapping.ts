@@ -2,6 +2,7 @@
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import {
+  RouterAdded,
   LiquidityAdded,
   LiquidityRemoved,
   XCalled,
@@ -10,6 +11,16 @@ import {
   AssetAdded,
 } from "../../generated/Connext/Connext";
 import { Asset, AssetBalance, Router, Transfer } from "../../generated/schema";
+
+export function handleRouterAdded(event: RouterAdded): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
+}
 
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.supportedAsset.toHex();
@@ -225,6 +236,8 @@ function getChainId(): BigInt {
 function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBalance {
   let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
+
+  let router = Router.load(routerAddress.toHex());
 
   if (assetBalance == null) {
     let router = Router.load(routerAddress.toHex());
