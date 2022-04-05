@@ -4,9 +4,13 @@ import { XTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
+  GetAssetByLocalQuery,
   GetExecutedAndReconciledTransfersByIdsQuery,
   GetXCalledTransfersQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
+
+// TODO: better typing
+type Asset = Record<string, unknown>;
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -62,6 +66,19 @@ export class SubgraphReader {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async isAssetApproved(chain: number, asset: string) {
     throw new Error("Not implemented");
+  }
+
+  public async getAssetByLocal(chain: number, local: string): Promise<Asset | undefined> {
+    const subgraph = this.subgraphs.get(chain.toString());
+    // handle doesnt exist
+    const { assets } = await subgraph!.runtime.request<GetAssetByLocalQuery>((client) => {
+      return client.GetAssetByLocal({ local });
+    });
+    if (assets.length === 0) {
+      return undefined;
+    }
+    // convert to nice typescript type
+    return assets[0];
   }
 
   // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
@@ -135,7 +152,7 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        const { transfers } = await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
+        await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
           (client) =>
             client.GetExecutedAndReconciledTransfersByIds({
               transferIds,

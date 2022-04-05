@@ -1,10 +1,20 @@
-import { constants, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { task } from "hardhat/config";
+
 import { canonizeId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000000000000000000000";
 const DEFAULT_RELAYER_FEES_ETH = "0.02";
+
+type TaskArgs = {
+  router?: string;
+  domain?: string;
+  asset?: string;
+  amount?: string;
+  connextAddress?: string;
+  pool?: string;
+};
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
   .addOptionalParam("router", "Router address")
@@ -22,7 +32,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         domain: _domain,
         asset: _asset,
         pool: _pool,
-      },
+      }: TaskArgs,
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
       let connextAddress = _connextAddress;
@@ -111,7 +121,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       const erc20 = await ethers.getContractAt("TestERC20", localAsset);
       // The amount to mint / add liquidity for. Convert units, coerce to number to remove
       // decimal point, then back to string.
-      const targetLiquidity = Number(utils.formatUnits(_amount ?? DEFAULT_AMOUNT, await erc20.decimals())).toString();
+      const targetLiquidity = utils.formatUnits(_amount ?? DEFAULT_AMOUNT, (await erc20.decimals()) as BigNumber);
       const liquidity = await connext.routerBalances(router, localAsset);
       const namedAccounts = await getNamedAccounts();
       if (liquidity.lt(targetLiquidity)) {
@@ -142,7 +152,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       // Make sure the router's signer address has relayer fees by checking the
       // Connext contract on chain and reading the routerRelayerFees function.
       const targetRelayerFees = utils.parseEther(DEFAULT_RELAYER_FEES_ETH);
-      let relayerFees = await connext.routerRelayerFees(router);
+      let relayerFees: BigNumber = await connext.routerRelayerFees(router);
       console.log("\nRelayer Fees: ", relayerFees.toString());
       console.log("Target relayer fees: ", targetRelayerFees.toString(), `(${DEFAULT_RELAYER_FEES_ETH} ETH)`);
       if (relayerFees.lt(targetRelayerFees)) {

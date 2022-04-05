@@ -4,6 +4,14 @@ import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
 
+type TaskArgs = {
+  canonical: string;
+  domain: string;
+  adopted: string;
+  pool?: string;
+  connextAddress?: string;
+};
+
 export default task("setup-asset", "Configures an asset")
   .addParam("canonical", "Canonical token address")
   .addParam("domain", "Canonical domain of token")
@@ -12,7 +20,7 @@ export default task("setup-asset", "Configures an asset")
   .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
     async (
-      { pool, adopted, canonical, domain, connextAddress: _connextAddress },
+      { pool, adopted, canonical, domain, connextAddress: _connextAddress }: TaskArgs,
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();

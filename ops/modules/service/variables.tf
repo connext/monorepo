@@ -88,5 +88,5 @@ variable "cert_arn" {
 
 variable "base_domain" {
   description = "base domain of the application"
-  default     = "connextapi.com"
+  default     = "connext.ninja"
 }

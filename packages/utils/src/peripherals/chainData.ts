@@ -1,4 +1,5 @@
 import * as fs from "fs";
+
 import { fetchJson } from "../ethers";
 import { Logger } from "../logging";
 import { jsonifyError } from "../types";
@@ -77,11 +78,11 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   const noDomainIdFound: string[] = [];
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
-    const domainId = item.domainId;
+    const domainId = item.domainId as string | undefined;
     if (domainId) {
       chainData.set(domainId, item as ChainData);
     } else {
-      noDomainIdFound.push(item.chainId);
+      noDomainIdFound.push(item.chainId as string);
     }
   }
   if (noDomainIdFound.length > 0) {
@@ -99,7 +100,7 @@ export const getChainData = async (logger?: Logger): Promise<Map<string, ChainDa
   try {
     const data = await fetchJson(url);
     return chainDataToMap(data);
-  } catch (err) {
+  } catch (err: unknown) {
     // Check to see if we have the chain data cached locally.
     if (fs.existsSync("./chaindata.json")) {
       console.info("Using cached chain data.");

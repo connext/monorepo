@@ -111,6 +111,7 @@ export class TransactionService extends ChainReader {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
+    // eslint-disable-next-line
     this.evts[event].pipe(filter).attach(...(args as [number, any]));
   }
 
@@ -130,6 +131,7 @@ export class TransactionService extends ChainReader {
     timeout?: number,
   ): void {
     const args = [timeout, callback].filter((x) => !!x);
+    // eslint-disable-next-line
     this.evts[event].pipe(filter).attachOnce(...(args as [number, any]));
   }
 
@@ -161,7 +163,7 @@ export class TransactionService extends ChainReader {
     timeout: number,
     filter: (data: NxtpTxServiceEventPayloads[T]) => boolean = (_data: NxtpTxServiceEventPayloads[T]) => true,
   ): Promise<NxtpTxServiceEventPayloads[T]> {
-    return this.evts[event].pipe(filter).waitFor(timeout) as Promise<NxtpTxServiceEventPayloads[T]>;
+    return this.evts[event].pipe(filter).waitFor(timeout);
   }
 
   /// HELPERS

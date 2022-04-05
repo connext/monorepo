@@ -1,9 +1,15 @@
 import { Interface } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  inputData: string;
+  type: "execute";
+};
+
 export default task("decode-input-data", "Decodes input data")
   .addParam("inputData", "Input data")
-  .setAction(async ({ inputData, type }, { deployments }) => {
+  .addParam("type", "Function name to decode")
+  .setAction(async ({ inputData, type }: TaskArgs, { deployments }) => {
     console.log("inputData: ", inputData);
     console.log("type: ", type);
 
@@ -11,7 +17,7 @@ export default task("decode-input-data", "Decodes input data")
     const connextMinterface = new Interface(connextDeployment.abi);
 
     if (type === "execute") {
-      const decoded = connextMinterface.decodeFunctionData("execute", inputData);
+      const decoded = connextMinterface.decodeFunctionData(type, inputData);
       console.log("decoded: ", decoded);
     }
   });

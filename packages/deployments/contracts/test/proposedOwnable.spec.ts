@@ -166,7 +166,7 @@ describe("ProposedOwnableUpgradeable.sol", () => {
     it("should fail if router ownership is already renounced", async () => {
       await renounceRouterOwnership();
       await expect(proposedOwnable.connect(wallet).proposeRouterOwnershipRenunciation()).to.be.revertedWith(
-        "#PROR:038",
+        "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
       );
     });
 
@@ -178,16 +178,16 @@ describe("ProposedOwnableUpgradeable.sol", () => {
   describe("renounceRouterOwnership", () => {
     it("should fail if router ownership is already renounced", async () => {
       await renounceRouterOwnership();
-      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:038");
+      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange");
     });
 
     it("should fail if there is no proposal in place", async () => {
-      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:037");
+      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal");
     });
 
     it("should fail if delay has not elapsed", async () => {
       await proposeRouterOwnershipRenunciation();
-      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("#RRO:030");
+      await expect(proposedOwnable.connect(wallet).renounceRouterOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed");
     });
 
     it("should work", async () => {
@@ -212,7 +212,7 @@ describe("ProposedOwnableUpgradeable.sol", () => {
   describe("proposeAssetOwnershipRenunciation", () => {
     it("should fail if asset ownership already renounced", async () => {
       await renounceAssetOwnership();
-      await expect(proposedOwnable.connect(wallet).proposeAssetOwnershipRenunciation()).to.be.revertedWith("#PAOR:038");
+      await expect(proposedOwnable.connect(wallet).proposeAssetOwnershipRenunciation()).to.be.revertedWith("ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange");
     });
 
     it("should work", async () => {
@@ -223,16 +223,16 @@ describe("ProposedOwnableUpgradeable.sol", () => {
   describe("renounceAssetOwnership", () => {
     it("should fail if asset ownership is already renounced", async () => {
       await renounceAssetOwnership();
-      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:038");
+      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange");
     });
 
     it("should fail if no proposal was made", async () => {
-      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:037");
+      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal");
     });
 
     it("should fail if delay has not elapsed", async () => {
       await proposeAssetOwnershipRenunciation();
-      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("#RAO:030");
+      await expect(proposedOwnable.connect(wallet).renounceAssetOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed");
     });
 
     it("should work", async () => {
@@ -256,16 +256,16 @@ describe("ProposedOwnableUpgradeable.sol", () => {
 
   describe("proposeNewOwner", () => {
     it("should fail if not called by owner", async () => {
-      await expect(proposedOwnable.connect(other).proposeNewOwner(constants.AddressZero)).to.be.revertedWith("#OO:029");
+      await expect(proposedOwnable.connect(other).proposeNewOwner(constants.AddressZero)).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_notOwner");
     });
 
     it("should fail if proposing the same address as what is already proposed", async () => {
       await proposeNewOwner(other.address);
-      await expect(proposedOwnable.connect(wallet).proposeNewOwner(other.address)).to.be.revertedWith("#PNO:036");
+      await expect(proposedOwnable.connect(wallet).proposeNewOwner(other.address)).to.be.revertedWith("ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal");
     });
 
     it("should fail if proposing the owner", async () => {
-      await expect(proposedOwnable.connect(wallet).proposeNewOwner(wallet.address)).to.be.revertedWith("#PNO:038");
+      await expect(proposedOwnable.connect(wallet).proposeNewOwner(wallet.address)).to.be.revertedWith("ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange");
     });
 
     it("should work", async () => {
@@ -275,12 +275,12 @@ describe("ProposedOwnableUpgradeable.sol", () => {
 
   describe("renounceOwnership", () => {
     it("should fail if there was no proposal", async () => {
-      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("#RO:037");
+      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceOwnership_noProposal");
     });
 
     it("should fail if the delay hasnt elapsed", async () => {
       await proposeNewOwner(constants.AddressZero);
-      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("#RO:030");
+      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed");
     });
 
     it("should fail if the proposed != address(0)", async () => {
@@ -291,12 +291,12 @@ describe("ProposedOwnableUpgradeable.sol", () => {
       const { timestamp } = await ethers.provider.getBlock("latest");
       await setBlockTime(timestamp + eightDays);
 
-      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("#RO:036");
+      await expect(proposedOwnable.connect(wallet).renounceOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__renounceOwnership_invalidProposal");
     });
 
     it("should fail if not called by owner", async () => {
       await proposeNewOwner(constants.AddressZero);
-      await expect(proposedOwnable.connect(other).renounceOwnership()).to.be.revertedWith("#OO:029");
+      await expect(proposedOwnable.connect(other).renounceOwnership()).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_notOwner");
     });
 
     it("should work", async () => {
@@ -307,7 +307,7 @@ describe("ProposedOwnableUpgradeable.sol", () => {
   describe("acceptProposedOwner", () => {
     it("should fail if not called by proposed", async () => {
       await proposeNewOwner(other.address);
-      await expect(proposedOwnable.connect(wallet).acceptProposedOwner()).to.be.revertedWith("#OP:035");
+      await expect(proposedOwnable.connect(wallet).acceptProposedOwner()).to.be.revertedWith("ProposedOwnableUpgradeable__onlyProposed_notProposedOwner");
     });
 
     it("should fail if there is no effective change in ownership", async () => {
@@ -315,12 +315,12 @@ describe("ProposedOwnableUpgradeable.sol", () => {
       await transferOwnership(other.address);
 
       // Then try again
-      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("#APO:038");
+      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange");
     });
 
     it("should fail if delay has not elapsed", async () => {
       await proposeNewOwner(other.address);
-      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("#APO:030");
+      await expect(proposedOwnable.connect(other).acceptProposedOwner()).to.be.revertedWith("ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed");
     });
 
     it("should work", async () => {

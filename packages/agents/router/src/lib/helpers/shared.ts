@@ -4,16 +4,22 @@ import { utils } from "ethers";
 /**
  * Returns local asset address on destination domain corresponding to local asset on origin domain
  *
- * @param originDomain
- * @param originLocalAsset The asset sent over the bridge
- * @param destinationDomain
+ * @param _originDomain
+ * @param _originLocalAsset The asset sent over the bridge
+ * @param _destinationDomain
  * @returns
  */
 export const getDestinationLocalAsset = async (
-  originDomain: string,
-  originLocalAsset: string,
-  destinationDomain: string,
+  _originDomain: string,
+  _originLocalAsset: string,
+  _destinationDomain: string,
 ): Promise<string> => {
+  // use origin domain to get subgraph
+  // run query to get asset by originLocalAsset
+  // get canonical
+  // use destination domain to get subgraph
+  // query local asset on destination
+
   // TODO: Not implemented yet
 
   // const encoded = getTokenRegistryInterface().encodeFunctionData("getLocalAddress(uint32,address)", [

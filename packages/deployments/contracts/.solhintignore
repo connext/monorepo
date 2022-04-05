@@ -1,0 +1,8 @@
+node_modules
+lib/openzeppelin-contracts
+lib/openzeppelin-contracts-upgradeable
+lib/ds-test
+lib/forge-std
+contracts/nomad-core
+contracts/nomad-xapps
+contracts/test

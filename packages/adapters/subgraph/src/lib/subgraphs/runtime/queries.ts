@@ -189,3 +189,15 @@ export const getExecutedAndReconciledTransfersByIds = gql`
     }
   }
 `;
+
+export const getAssetByLocal = gql`
+  query GetAssetByLocal($local: Bytes!) {
+    assets(where: { local: $local }) {
+      id
+      assetId
+      domain
+      local
+      canonicalId
+    }
+  }
+`;

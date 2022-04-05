@@ -48,8 +48,8 @@ To set custom variables, you can set them with `export TF_ENV_<variable_name>=<v
 
 #### Testnet
 
-**sequencer**: https://testnet.sequencer.connextapi.com  
-**router**: https://testnet.router.connextapi.com/ping
+**sequencer**: https://sequencer.testnet.connext.ninja  
+**router**: https://router.testnet.connext.ninja
 
 
 

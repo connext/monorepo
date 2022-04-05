@@ -1,11 +1,20 @@
 import { task } from "hardhat/config";
 
+type TaskArgs = {
+  signer: string;
+  recipient: string;
+  routerFactoryAddress?: string;
+};
+
 export default task("create-router", "create a router")
   .addParam("signer", "The router's signer address")
   .addParam("recipient", "recipient address")
   .addOptionalParam("routerFactoryAddress", "Override tx manager address")
   .setAction(
-    async ({ signer, recipient, routerFactoryAddress: _routerFactoryAddress }, { deployments, ethers, run }) => {
+    async (
+      { signer, recipient, routerFactoryAddress: _routerFactoryAddress }: TaskArgs,
+      { deployments, ethers, run },
+    ) => {
       const deployer = await ethers.getNamedSigner("deployer");
 
       console.log("signer: ", signer);
@@ -21,7 +30,7 @@ export default task("create-router", "create a router")
       console.log("routerFactoryAddress: ", routerFactoryAddress);
 
       const routerFactory = await ethers.getContractAt("RouterFactory", routerFactoryAddress);
-      let routerAddress = await routerFactory.getRouterAddress(signer);
+      let routerAddress: string = await routerFactory.getRouterAddress(signer);
 
       const code = await deployer.provider!.getCode(routerAddress);
 
@@ -43,7 +52,7 @@ export default task("create-router", "create a router")
           address: routerAddress,
           constructorArguments: [routerFactoryAddress],
         });
-      } catch (e) {
+      } catch (e: unknown) {
         console.log("verification failed:", e);
       }
     },
