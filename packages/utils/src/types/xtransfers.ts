@@ -59,19 +59,29 @@ export type CallParams = Static<typeof CallParamsSchema>;
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
-  router: TAddress,
+  routers: Type.Array(TAddress),
   feePercentage: TDecimalString,
   amount: TDecimalString,
-  nonce: Type.Number(),
+  nonce: Type.Integer(),
   relayerSignature: Type.String(),
   originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
 
+// Bids should omit the routers field, since the sequencer will determine this based on
+// the auction round (i.e. in the event of multipath transfers, will be multiple routers' bids).
+export const BidDataSchema = Type.Omit(ExecuteArgsSchema, ["routers"]);
+
+export type BidData = Static<typeof BidDataSchema>;
+
 export const BidSchema = Type.Object({
   transferId: Type.String(),
-  data: ExecuteArgsSchema,
+  data: BidDataSchema,
+  router: TAddress,
+  // Which auction round this is - which determines how many router(s) the sequencer may split this
+  // transfer between.
+  round: Type.Integer(),
 });
 
 export type Bid = Static<typeof BidSchema>;
@@ -95,6 +105,7 @@ export enum BidStatus {
 
 export type SignedBid = {
   bid: Bid;
+  // NOTE: Signature should only be for [transferId, router, round].
   signature: string;
 };
 

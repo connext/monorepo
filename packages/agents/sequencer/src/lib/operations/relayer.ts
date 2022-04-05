@@ -19,7 +19,12 @@ export const sendToRelayer = async (bid: Bid, _requestContext: RequestContext) =
 
   const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.connext;
 
-  const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
+  const encodedData = contracts.connext.encodeFunctionData("execute", [
+    {
+      ...bid.data,
+      routers: [bid.router],
+    },
+  ]);
   const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
   if (!isSupportedByGelato) {
     throw new Error("Chain not supported by gelato.");

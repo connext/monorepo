@@ -12,7 +12,12 @@ export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Pro
   const { methodContext } = createLoggingContext(sanityCheck.name, requestContext);
   const destinationChainId = chainData.get(bid.data.params.destinationDomain)!.chainId;
 
-  const encodedData = contracts.connext.encodeFunctionData("execute", [bid.data]);
+  const encodedData = contracts.connext.encodeFunctionData("execute", [
+    {
+      ...bid.data,
+      routers: [bid.router],
+    },
+  ]);
   const destinationConnextAddress = config.chains[bid.data.params.destinationDomain].deployments.connext;
 
   logger.info("sanityCheck", requestContext, methodContext, {

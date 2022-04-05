@@ -1,7 +1,7 @@
 import {
   CallParams,
-  ExecuteArgs,
   Bid,
+  BidData,
   createLoggingContext,
   XTransfer,
   formatUrl,
@@ -66,10 +66,9 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
-  const executeArguments: ExecuteArgs = {
+  const executeArguments: BidData = {
     params: callParams,
     local: executeLocalAsset,
-    router: routerAddress,
     amount: receivingAmount,
     nonce: Number(nonce),
     feePercentage: RELAYER_FEE_PERCENTAGE,
@@ -80,6 +79,8 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const bid: Bid = {
     transferId,
     data: executeArguments,
+    router: routerAddress,
+    round: 1,
   };
 
   logger.info("Bid created", requestContext, methodContext, { bid, signature, executeArguments });

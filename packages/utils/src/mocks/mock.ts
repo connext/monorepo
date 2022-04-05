@@ -6,6 +6,7 @@ import {
   XTransferStatus,
   getRandomBytes32,
   Bid,
+  BidData,
   CallParams,
   ExecuteArgs,
   SignedBid,
@@ -69,17 +70,23 @@ export const mock: any = {
     }),
     executeArgs: (): ExecuteArgs => ({
       params: mock.entity.callParams(),
-      local: mkAddress("0x111"),
-      router: mkAddress("0x222"),
+      local: mock.asset.A.address,
+      routers: [mkAddress("0x222")],
       feePercentage: "1",
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       relayerSignature: "0xsig",
       originSender: "0xogsender",
     }),
-    bid: (transferId = "0xtxid", data = mock.entity.executeArgs()): Bid => ({
+    bidData: (): BidData => {
+      const { routers, ...bidData } = mock.entity.executeArgs();
+      return bidData;
+    },
+    bid: (transferId = "0xtxid", router = mock.address.router, round = 1, data = mock.entity.bidData()): Bid => ({
       transferId,
       data,
+      router,
+      round,
     }),
     signedBid: (): SignedBid => ({
       bid: mock.entity.bid(),

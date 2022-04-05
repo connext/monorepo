@@ -14,7 +14,7 @@ export class AuctionsCache extends Cache {
    */
   public async storeBid(bid: Bid): Promise<number> {
     const txid = bid.transferId;
-    const router = bid.data.router;
+    const { router } = bid;
     const curTimeInSecs = await getNtpTimeSeconds();
 
     await this.data.hset(
@@ -89,7 +89,7 @@ export class AuctionsCache extends Cache {
    */
   public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<number> {
     const txid = bid.transferId;
-    const router = bid.data.router;
+    const { router } = bid;
     const curTimeInSecs = await getNtpTimeSeconds();
 
     const res = await this.data.hset(
