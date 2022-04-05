@@ -36,7 +36,6 @@ variable "mnemonic" {
 variable "admin_token_router" {
   type        = string
   description = "admin token"
-  default     = "blahblah"
 }
 
 variable "certificate_arn_testnet" {
