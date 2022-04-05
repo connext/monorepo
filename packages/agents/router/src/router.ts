@@ -157,7 +157,7 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   });
 
   logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    host: redis.host, port: redis.port
+    host: redis.host, port: redis.port,
   });
 
   return cacheInstance;

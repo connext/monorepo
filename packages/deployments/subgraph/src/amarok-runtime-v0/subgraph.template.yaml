@@ -24,12 +24,12 @@ dataSources:
       eventHandlers:
         - event: RouterAdded(address,address)
           handler: handleRouterAdded
-        - event: RouterRemoved(address,address)
-          handler: handleRouterRemoved
         - event: AssetAdded(bytes32,uint32,address,address,address)
           handler: handleAssetAdded
         - event: LiquidityAdded(address,address,bytes32,uint256,address)
           handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,address,address,uint256,address)
+          handler: handleLiquidityRemoved
         - event: XCalled(indexed bytes32,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,address)

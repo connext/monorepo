@@ -69,7 +69,7 @@ export const setupCache = async (
   });
 
   logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    host: redis.host, port: redis.port
+    host: redis.host, port: redis.port,
   });
   return cacheInstance;
 };
