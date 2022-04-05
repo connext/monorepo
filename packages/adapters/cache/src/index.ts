@@ -25,19 +25,22 @@ export class StoreManager implements Store {
 
   private constructor({ redis, logger, mock }: StoreManagerParams) {
     this.logger = logger;
-    const { url } = redis ?? {};
+    const { host, port } = redis ?? {};
     this.transfers = new TransfersCache({
-      url,
+      host,
+      port,
       mock: !!mock,
       logger: this.logger.child({ name: "TransfersCache" }),
     });
     this.auctions = new AuctionsCache({
-      url,
+      host,
+      port,
       mock: !!mock,
       logger: this.logger.child({ name: "AuctionsCache" }),
     });
     this.consumers = new ConsumersCache({
-      url,
+      host,
+      port,
       mock: !!mock,
       logger: this.logger.child({ name: "ConsumersCache" }),
     });

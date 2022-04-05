@@ -28,7 +28,7 @@ export const makeSequencer = async () => {
     context.config = await getConfig(chainData, contractDeployments);
 
     // Set up adapters.
-    context.adapters.cache = await setupCache(context.config.redisUrl, context.logger, requestContext);
+    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
 
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
@@ -54,7 +54,7 @@ export const makeSequencer = async () => {
 };
 
 export const setupCache = async (
-  redisUrl: string | undefined,
+  redis: {host: string; port: number},
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<StoreManager> => {
@@ -63,13 +63,13 @@ export const setupCache = async (
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
-    redis: redisUrl ? { url: redisUrl } : undefined,
-    mock: redisUrl ? false : true,
+    redis: redis ? redis: undefined,
+    mock: redis ? false : true,
     logger: logger.child({ module: "StoreManager" }),
   });
 
   logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    redisUrl: redisUrl,
+    host: redis.host, port: redis.port
   });
   return cacheInstance;
 };

@@ -34,7 +34,11 @@ export const getEnvConfig = (
   }
 
   const _sequencerConfig: SequencerConfig = {
-    redisUrl: process.env.SEQ_REDIS_URL || configJson.redisUrl || configFile.redisUrl || process.env.NXTP_REDIS_URL,
+    redis: {
+      host: process.env.SEQ_REDIS_HOST || configJson.redis.host || configFile.redis.host || process.env.NXTP_REDIS_HOST,
+      port: process.env.SEQ_REDIS_PORT || configJson.redis.port || configFile.redis.port || process.env.NXTP_REDIS_PORT || 6379,
+    },
+
     chains: process.env.SEQ_CHAIN_CONFIG
       ? JSON.parse(process.env.SEQ_CHAIN_CONFIG)
       : configJson.chains

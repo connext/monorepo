@@ -111,7 +111,7 @@ export const makeRouter = async () => {
 
 export const setupCache = async (requestContext: RequestContext): Promise<StoreManager> => {
   const {
-    config: { redisUrl },
+    config: { redis },
     logger,
   } = context;
   const { execute } = getOperations();
@@ -120,8 +120,8 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
-    redis: redisUrl ? { url: redisUrl } : undefined,
-    mock: redisUrl ? false : true,
+    redis: redis ? redis : undefined,
+    mock: redis ? false : true,
     logger: logger.child({ module: "StoreManager" }),
   });
 
@@ -157,7 +157,7 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   });
 
   logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    redisUrl: redisUrl,
+    host: redis.host, port: redis.port
   });
 
   return cacheInstance;
