@@ -1,5 +1,9 @@
 locals {
   local_sequencer_config = jsonencode({
+    redis =  {
+      host: module.sequencer_cache.redis_instance_address,
+      port: module.sequencer_cache.redis_instance_port
+    },
     "logLevel" = "debug"
     "chains" = {
       "2000" = {
@@ -31,6 +35,10 @@ locals {
 
 locals {
   local_router_config = jsonencode({
+    redis =  {
+      host: module.router_cache.redis_instance_address,
+      port: module.router_cache.redis_instance_port
+    },
     logLevel     = "debug"
     sequencerUrl = "https://${module.sequencer.service_endpoint}"
     server = {
