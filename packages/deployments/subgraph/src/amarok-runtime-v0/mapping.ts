@@ -7,23 +7,9 @@ import {
   XCalled,
   Executed,
   Reconciled,
-  RouterAdded,
-  RouterRemoved,
-  StableSwapAdded,
   AssetAdded,
-  AssetRemoved,
 } from "../../generated/Connext/Connext";
 import { Asset, AssetBalance, Router, Transfer } from "../../generated/schema";
-
-export function handleRouterAdded(event: RouterAdded): void {
-  let router = Router.load(event.params.router.toHex());
-  if (router == null) {
-    router = new Router(event.params.router.toHex());
-    router.save();
-  }
-}
-
-// export function handleStableSwapAdded(_event: StableSwapAdded): void {}
 
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.supportedAsset.toHex();
