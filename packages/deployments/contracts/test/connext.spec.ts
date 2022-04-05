@@ -1248,7 +1248,7 @@ describe("Connext", () => {
 
     it("should revert if max routers is exceeded", async () => {
       // Update max routers
-      await destinationTm.setMaxRouters(2);
+      await destinationTm.setMaxRoutersPerTransfer(2);
 
       // Fulfill with the router
       const routersAmount = amount - 500;
@@ -1265,7 +1265,7 @@ describe("Connext", () => {
           routers,
           originSender: user.address,
         }),
-      ).to.revertedWith("maxRouters exceeded");
+      ).to.revertedWith("Connext__decrementLiquidity_maxRoutersExceeded()");
     });
   });
 });

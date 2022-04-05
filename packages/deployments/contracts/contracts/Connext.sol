@@ -62,6 +62,7 @@ contract Connext is
   error Connext__decrementLiquidity_notEmpty();
   error Connext__decrementLiquidity_maxRoutersExceeded();
   error Connext__handleRelayerFees_notRtrSig();
+  error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
   // ============ Constants =============
 
@@ -375,7 +376,7 @@ contract Connext is
    * @param newMaxRouters The new max amount of routers
    */
   function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
-    require(newMaxRouters > 0, "invalid maxRoutersPerTransfer");
+    if (newMaxRouters <= 0) revert Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
     maxRoutersPerTransfer = newMaxRouters;
 
@@ -672,11 +673,11 @@ contract Connext is
     address[] calldata _routers
   ) internal {
     // Ensure it has not been executed already
-    if (routedTransfers[_transferId].routers.length == 0) revert Connext__decrementLiquidity_notEmpty();
+    if (routedTransfers[_transferId].routers.length != 0) revert Connext__decrementLiquidity_notEmpty();
 
     // Ensure the routers is below max
     uint256 routersLength = _routers.length;
-    if (routersLength <= maxRoutersPerTransfer) revert Connext__decrementLiquidity_maxRoutersExceeded();
+    if (routersLength > maxRoutersPerTransfer) revert Connext__decrementLiquidity_maxRoutersExceeded();
 
     // This division in some cases will generate a remainder that is not decremented to any router
     uint256 routerAmount = _amount / routersLength;
