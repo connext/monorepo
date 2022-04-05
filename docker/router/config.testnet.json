@@ -3,7 +3,7 @@
   "sequencerUrl": "http://sequencer:8081",
   "redis": {
     "host": "router-cache",
-    "port": "6379"
+    "port": 6379
   },
   "server": {
     "adminToken": "a",
