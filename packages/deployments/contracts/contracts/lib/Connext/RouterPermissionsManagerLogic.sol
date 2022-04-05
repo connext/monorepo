@@ -1,6 +1,27 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
+/**
+ * @notice Contains RouterPermissionsManager related state
+ * @param approvedRouters - Mapping of whitelisted router addresses
+ * @param routerRecipients - Mapping of router withdraw recipient addresses.
+ * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
+ * (if configured) or the router itself
+ * @param routerOwners - Mapping of router owners
+ * If set, can update the routerRecipient
+ * @param proposedRouterOwners - Mapping of proposed router owners
+ * Must wait timeout to set the
+ * @param proposedRouterTimestamp - Mapping of proposed router owners timestamps
+ * When accepting a proposed owner, must wait for delay to elapse
+ */
+struct RouterPermissionsManagerInfo {
+  mapping(address => bool) approvedRouters;
+  mapping(address => address) routerRecipients;
+  mapping(address => address) routerOwners;
+  mapping(address => address) proposedRouterOwners;
+  mapping(address => uint256) proposedRouterTimestamp;
+}
+
 library RouterPermissionsManagerLogic {
   // ========== Custom Errors ===========
   error RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();
@@ -91,17 +112,16 @@ library RouterPermissionsManagerLogic {
   function setRouterRecipient(
     address router,
     address recipient,
-    mapping(address => address) storage routerOwners,
-    mapping(address => address) storage routerRecipients
+    RouterPermissionsManagerInfo storage routerInfo // mapping(address => address) storage routerOwners, // mapping(address => address) storage routerRecipients
   ) external {
-    _onlyRouterOwner(router, routerOwners[router]);
+    _onlyRouterOwner(router, routerInfo.routerOwners[router]);
 
     // Check recipient is changing
-    address _prevRecipient = routerRecipients[router];
+    address _prevRecipient = routerInfo.routerRecipients[router];
     if (_prevRecipient == recipient) revert RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient();
 
     // Set new recipient
-    routerRecipients[router] = recipient;
+    routerInfo.routerRecipients[router] = recipient;
 
     // Emit event
     emit RouterRecipientSet(router, _prevRecipient, recipient);
@@ -115,23 +135,21 @@ library RouterPermissionsManagerLogic {
   function proposeRouterOwner(
     address router,
     address proposed,
-    mapping(address => address) storage routerOwners,
-    mapping(address => address) storage proposedRouterOwners,
-    mapping(address => uint256) storage proposedRouterTimestamp
+    RouterPermissionsManagerInfo storage routerInfo
   ) external {
-    _onlyRouterOwner(router, routerOwners[router]);
+    _onlyRouterOwner(router, routerInfo.routerOwners[router]);
 
     // Check that proposed is different than current owner
-    if (_getRouterOwner(router, routerOwners) == proposed)
+    if (_getRouterOwner(router, routerInfo.routerOwners) == proposed)
       revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
-    address _currentProposed = proposedRouterOwners[router];
+    address _currentProposed = routerInfo.proposedRouterOwners[router];
     if (_currentProposed == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_badRouter();
 
     // Set proposed owner + timestamp
-    proposedRouterOwners[router] = proposed;
-    proposedRouterTimestamp[router] = block.timestamp;
+    routerInfo.proposedRouterOwners[router] = proposed;
+    routerInfo.proposedRouterTimestamp[router] = block.timestamp;
 
     // Emit event
     emit RouterOwnerProposed(router, _currentProposed, proposed);
@@ -144,29 +162,28 @@ library RouterPermissionsManagerLogic {
   function acceptProposedRouterOwner(
     address router,
     uint256 _delay,
-    mapping(address => address) storage routerOwners,
-    mapping(address => address) storage proposedRouterOwners,
-    mapping(address => uint256) storage proposedRouterTimestamp
+    RouterPermissionsManagerInfo storage routerInfo
   ) external {
-    _onlyProposedRouterOwner(router, routerOwners[router], proposedRouterOwners[router]);
+    _onlyProposedRouterOwner(router, routerInfo.routerOwners[router], routerInfo.proposedRouterOwners[router]);
 
-    address owner = _getRouterOwner(router, routerOwners);
+    address owner = _getRouterOwner(router, routerInfo.routerOwners);
 
     // Check timestamp has passed
-    if (block.timestamp - proposedRouterTimestamp[router] <= _delay)
+    if (block.timestamp - routerInfo.proposedRouterTimestamp[router] <= _delay)
       revert RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
-    address _proposed = proposedRouterOwners[router];
+    address _proposed = routerInfo.proposedRouterOwners[router];
 
     // Update the current owner
-    routerOwners[router] = _proposed;
+    routerInfo.routerOwners[router] = _proposed;
 
     // Reset proposal + timestamp
     if (_proposed != address(0)) {
-      delete proposedRouterOwners[router];
+      // delete proposedRouterOwners[router];
+      routerInfo.proposedRouterOwners[router] = address(0);
     }
-    proposedRouterTimestamp[router] = 0;
+    routerInfo.proposedRouterTimestamp[router] = 0;
 
     // Emit event
     emit RouterOwnerAccepted(router, owner, _proposed);
@@ -182,31 +199,29 @@ library RouterPermissionsManagerLogic {
     address router,
     address owner,
     address recipient,
-    mapping(address => bool) storage approvedRouters,
-    mapping(address => address) storage routerOwners,
-    mapping(address => address) storage routerRecipients
+    RouterPermissionsManagerInfo storage routerInfo
   ) internal {
     // Sanity check: not empty
     if (router == address(0)) revert RouterPermissionsManagerLogic__setupRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (approvedRouters[router]) revert RouterPermissionsManagerLogic__setupRouter_amountIsZero();
+    if (routerInfo.approvedRouters[router]) revert RouterPermissionsManagerLogic__setupRouter_amountIsZero();
 
     // Approve router
-    approvedRouters[router] = true;
+    routerInfo.approvedRouters[router] = true;
 
     // Emit event
     emit RouterAdded(router, msg.sender);
 
     // Update routerOwner (zero address possible)
     if (owner != address(0)) {
-      routerOwners[router] = owner;
+      routerInfo.routerOwners[router] = owner;
       emit RouterOwnerAccepted(router, address(0), owner);
     }
 
     // Update router recipient
     if (recipient != address(0)) {
-      routerRecipients[router] = recipient;
+      routerInfo.routerRecipients[router] = recipient;
       emit RouterRecipientSet(router, address(0), recipient);
     }
   }
@@ -215,36 +230,33 @@ library RouterPermissionsManagerLogic {
    * @notice Used to remove routers that can transact crosschain
    * @param router Router address to remove
    */
-  function removeRouter(
-    address router,
-    mapping(address => bool) storage approvedRouters,
-    mapping(address => address) storage routerOwners,
-    mapping(address => address) storage routerRecipients
-  ) external {
+  function removeRouter(address router, RouterPermissionsManagerInfo storage routerInfo) external {
     // Sanity check: not empty
     if (router == address(0)) revert RouterPermissionsManagerLogic__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    if (!approvedRouters[router]) revert RouterPermissionsManagerLogic__removeRouter_notAdded();
+    if (!routerInfo.approvedRouters[router]) revert RouterPermissionsManagerLogic__removeRouter_notAdded();
 
     // Update mapping
-    approvedRouters[router] = false;
+    routerInfo.approvedRouters[router] = false;
 
     // Emit event
     emit RouterRemoved(router, msg.sender);
 
     // Remove router owner
-    address _owner = routerOwners[router];
+    address _owner = routerInfo.routerOwners[router];
     if (_owner != address(0)) {
       emit RouterOwnerAccepted(router, _owner, address(0));
-      delete routerOwners[router];
+      // delete routerOwners[router];
+      routerInfo.routerOwners[router] = address(0);
     }
 
     // Remove router recipient
-    address _recipient = routerRecipients[router];
+    address _recipient = routerInfo.routerRecipients[router];
     if (_recipient != address(0)) {
       emit RouterRecipientSet(router, _recipient, address(0));
-      delete routerRecipients[router];
+      // delete routerRecipients[router];
+      routerInfo.routerRecipients[router] = address(0);
     }
   }
 
