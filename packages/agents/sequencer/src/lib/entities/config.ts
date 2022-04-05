@@ -13,9 +13,15 @@ export const TChainConfig = Type.Object({
 
 export type ChainConfig = Static<typeof TChainConfig>;
 
+
 export const TServerConfig = Type.Object({
   port: Type.Integer({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
+});
+
+export const TRedisConfig = Type.Object({
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  host: Type.String(),
 });
 
 export const TModeConfig = Type.Object({
@@ -34,7 +40,7 @@ export const SequencerConfigSchema = Type.Object({
     Type.Literal("silent"),
   ]),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  redis: TServerConfig,
+  redis: TRedisConfig,
   server: TServerConfig,
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),

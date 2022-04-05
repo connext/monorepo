@@ -42,7 +42,7 @@ export const TServerConfig = Type.Object({
 
 export const TRedisConfig = Type.Object({
   port: Type.Integer({ minimum: 1, maximum: 65535 }),
-  host: Type.String({ format: "ipv4" }),
+  host: Type.String(),
 });
 
 
