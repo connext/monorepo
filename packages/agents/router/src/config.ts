@@ -110,8 +110,8 @@ export const getEnvConfig = (
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     redis: {
-      host: process.env.NXTP_REDIS_HOST || configJson.redis.host || configFile.redis.host,
-      port: process.env.NXTP_REDIS_PORT || configJson.redis.port || configFile.redis.port || 6379,
+      host: process.env.NXTP_REDIS_HOST || configJson.redis?.host || configFile.redis?.host,
+      port: process.env.NXTP_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
     },
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
