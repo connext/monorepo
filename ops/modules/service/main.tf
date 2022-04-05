@@ -51,7 +51,7 @@ resource "aws_ecs_service" "service" {
   task_definition = "${aws_ecs_task_definition.service.family}:${max("${aws_ecs_task_definition.service.revision}", "${aws_ecs_task_definition.service.revision}")}"
 
   network_configuration {
-    security_groups = flatten([var.service_security_groups, aws_security_group.lb.id])
+    security_groups = var.service_security_groups
     subnets         = var.private_subnets
   }
 
