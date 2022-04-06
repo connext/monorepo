@@ -1,5 +1,5 @@
 import { SinonStub, stub } from "sinon";
-import { delay, XTransfer, expect } from "@connext/nxtp-utils";
+import { delay, XTransfer, expect, getRandomBytes32 } from "@connext/nxtp-utils";
 
 import * as bindCacheFns from "../../../src/bindings/cache/index";
 import { mock, stubContext } from "../../mock";
@@ -44,6 +44,9 @@ describe("Bindings:Cache", () => {
       const domainWithPending = "1234";
       const domainWithNoPending = "5678";
       const domainWithNoAssets = "9012";
+
+      // Add a fake pending transfer to the cache. This should be ignored by the method, since it won't have data in the cache.
+      mockPendingTransfers.push(getRandomBytes32());
 
       mockContext.adapters.cache.transfers.getPending.callsFake((domain: string) =>
         domain === domainWithPending ? mockPendingTransfers : [],

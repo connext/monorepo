@@ -143,8 +143,10 @@ export class TransfersCache extends Cache {
   private async removePending(domain: string, transferId: string): Promise<boolean> {
     const currentPending = await this.getPending(domain);
     const index = currentPending.findIndex((id) => id === transferId);
+    console.log("test", index);
     if (index >= 0) {
       currentPending.splice(index, 1);
+      await this.data.set(`${this.prefix}:pending:${domain}`, JSON.stringify(currentPending));
       return true;
     }
     return false;

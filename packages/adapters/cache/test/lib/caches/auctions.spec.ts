@@ -42,7 +42,7 @@ describe("AuctionCache", () => {
       console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
     });
 
-    auctions = new AuctionsCache({ url: "mock", mock: true, logger });
+    auctions = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   describe("AuctionCache", () => {
