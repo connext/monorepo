@@ -17,7 +17,11 @@ export abstract class Cache {
       this.data = new IoRedisMock();
     } else {
       this.data = new Redis({
-        port: port, host: host, tls: {},
+        host: host,
+        port: port,
+        connectTimeout: 17000,
+        maxRetriesPerRequest: 4,
+        retryStrategy: (times) => Math.min(times * 30, 1000),
       });
     }
   }
