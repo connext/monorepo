@@ -1,4 +1,4 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
 
 import {
   validateAndParseAddress,
