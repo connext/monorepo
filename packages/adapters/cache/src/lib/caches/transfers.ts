@@ -3,6 +3,7 @@ import { XTransfer } from "@connext/nxtp-utils";
 import { StoreChannel } from "../entities";
 
 import { Cache } from ".";
+import { getHelpers } from "../helpers";
 
 /**
  * Redis Store Details:
@@ -55,6 +56,7 @@ export class TransfersCache extends Cache {
    * @returns XTransfer data
    */
   public async storeTransfers(transfers: XTransfer[]): Promise<void> {
+    const { sanitizeNull } = getHelpers();
     const nonceDidIncreaseForDomain: { [domain: string]: boolean } = {};
     const highestNonceByDomain: { [domain: string]: number } = {};
     for (let transfer of transfers) {
@@ -66,7 +68,7 @@ export class TransfersCache extends Cache {
 
       // Update the existing transfer with the data from the new one; this will collate the transfer across
       // domains, since our cache is indexed by transferId.
-      transfer = existing ? { ...existing, ...transfer } : transfer;
+      transfer = existing ? { ...sanitizeNull(existing), ...sanitizeNull(transfer) } : transfer;
       const { xcall, execute, reconcile, transferId, nonce: _nonce, originDomain } = transfer;
       const nonce = Number(_nonce);
       const stringified = JSON.stringify(transfer);
@@ -143,7 +145,6 @@ export class TransfersCache extends Cache {
   private async removePending(domain: string, transferId: string): Promise<boolean> {
     const currentPending = await this.getPending(domain);
     const index = currentPending.findIndex((id) => id === transferId);
-    console.log("test", index);
     if (index >= 0) {
       currentPending.splice(index, 1);
       await this.data.set(`${this.prefix}:pending:${domain}`, JSON.stringify(currentPending));
