@@ -61,6 +61,10 @@ contract Connext is
   error Connext__addAssetId_alreadyAdded();
   error Connext__decrementLiquidity_notEmpty();
   error Connext__handleRelayerFees_notRtrSig();
+  error Connext__handleRelayerFees_notApprovedRelayer();
+  error Connext__setupRelayer_badAddress();
+  error Connext__setupRelayer_alreadyDid();
+
 
   // ============ Constants =============
 
@@ -153,6 +157,12 @@ contract Connext is
    * TODO: allow for approved relaying assets
    */
   mapping(address => uint256) public routerRelayerFees;
+
+  /**
+   * @notice Mapping of approved relayers
+   * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
+   */
+  mapping(address => bool) public approvedRelayers;
 
   /**
    * @notice Mapping of router to available balance of an asset
@@ -271,6 +281,19 @@ contract Connext is
 
     // Emit event
     emit AssetRemoved(canonicalId, msg.sender);
+  }
+
+  /**
+   * @notice Used to add approved relayer
+   * @param relayer - The relayer address to add or remove
+   * @param approved - approved or not
+   */
+  function setupRelayer(address relayer, bool approved) external override onlyOwner {
+    if (relayer == address(0)) revert Connext__setupRelayer_badAddress();
+    if (approvedRelayers[relayer] == approved) revert Connext__setupRelayer_alreadyDid();
+    approvedRelayers[relayer] = approved;
+
+    emit RelayerSetup(relayer, approved);
   }
 
   // ============ Public Functions ============
@@ -515,7 +538,7 @@ contract Connext is
       // Send funds to the user
       AssetLogic.transferAssetFromContract(adopted, _args.params.to, amount, wrapper);
     } else {
-      // Send funds to interprepter
+      // Send funds to executor
       AssetLogic.transferAssetFromContract(adopted, address(executor), amount, wrapper);
       executor.execute(
         _transferId,
@@ -677,6 +700,11 @@ contract Connext is
     // If the sender *is* the router, do nothing
     if (msg.sender == _router) {
       return;
+    }
+
+    // If the sender is not approved relayer, revert()
+    if (!approvedRelayers[msg.sender]) {
+      revert Connext__handleRelayerFees_notApprovedRelayer();
     }
 
     // Check the signature of the router on the nonce + fee pct
