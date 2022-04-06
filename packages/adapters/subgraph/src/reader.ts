@@ -158,7 +158,7 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
+        const { transfers } = await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
           (client) =>
             client.GetExecutedAndReconciledTransfersByIds({
               transferIds,
