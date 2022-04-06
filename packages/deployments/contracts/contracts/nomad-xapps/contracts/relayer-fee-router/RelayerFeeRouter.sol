@@ -70,6 +70,8 @@ contract RelayerFeeRouter is Version0, Router {
     bytes32[] transactionIds
   );
 
+  event SetConnext(address indexed connext);
+
   // ======== Receive =======
   receive() external payable {}
 
@@ -87,8 +89,11 @@ contract RelayerFeeRouter is Version0, Router {
 
   // ======== Initializer ========
 
-  function initialize(address _xAppConnectionManager) public initializer {
+  function initialize(address _xAppConnectionManager, address _connext) public initializer {
+    connext = IConnext(_connext);
     __XAppConnectionClient_initialize(_xAppConnectionManager);
+
+    emit SetConnext(_connext);
   }
 
   /**
@@ -98,6 +103,7 @@ contract RelayerFeeRouter is Version0, Router {
    */
   function setConnext(address _connext) external onlyOwner {
     connext = IConnext(_connext);
+    emit SetConnext(_connext);
   }
 
   // ======== External: Send Claim =========

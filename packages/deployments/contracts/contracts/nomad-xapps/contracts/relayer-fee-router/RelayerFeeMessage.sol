@@ -87,10 +87,10 @@ library RelayerFeeMessage {
   function transactionIds(bytes29 _view) internal pure returns (bytes32[] memory) {
     uint256 length = _view.indexUint(85, 32);
     // before = 1 byte identifier + 20 bytes recipient + 32 bytes amount + 32 bytes length = 85 bytes
-    bytes32[] memory transactionIds = new bytes32[](length);
+    bytes32[] memory _transactionIds = new bytes32[](length);
     for (uint256 i = 0; i < length; i++) {
-      transactionIds[i] = _view.index(85 + i * 32, 32);
+      _transactionIds[i] = _view.index(85 + i * 32, 32);
     }
-    return transactionIds;
+    return _transactionIds;
   }
 }
