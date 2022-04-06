@@ -14,7 +14,7 @@ import { getContractInterfaces, TransactionService, contractDeployments } from "
 import axios from "axios";
 
 import { getConfig } from "./config";
-import { bindMetrics, bindPrices, bindSubgraph, bindServer } from "./bindings";
+import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
 import { AppContext } from "./lib/entities";
 
 // AppContext instance used for interacting with adapters, config, etc.
@@ -98,6 +98,7 @@ export const makeRouter = async () => {
     await bindServer();
     await bindMetrics();
     await bindSubgraph();
+    await bindCache();
 
     logger.info("Router ready!");
   } catch (e: unknown) {

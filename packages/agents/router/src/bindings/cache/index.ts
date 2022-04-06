@@ -5,7 +5,7 @@ import { getOperations } from "../../lib/operations";
 
 import { getContext } from "../../router";
 
-export const CACHE_POLL_INTERVAL = 15_000;
+export const CACHE_POLL_INTERVAL = 20_000;
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
