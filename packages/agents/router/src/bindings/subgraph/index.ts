@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   getSubgraphName,
   jsonifyError,
+  NxtpError,
   SubgraphQueryMetaParams,
   XTransferStatus,
 } from "@connext/nxtp-utils";
@@ -28,7 +29,7 @@ export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL) => {
 
 export const pollSubgraph = async () => {
   const {
-    adapters: { cache, subgraph, txservice },
+    adapters: { cache, subgraph },
     logger,
     config,
   } = getContext();
