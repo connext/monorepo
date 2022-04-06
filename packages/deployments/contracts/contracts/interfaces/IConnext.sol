@@ -102,6 +102,19 @@ interface IConnext {
     bytes relayerSignature;
     address originSender;
   }
+
+  /**
+   * @notice Contains the information about fees available for claim by a relayer
+   * @param amount - The amount available for claim
+   * @param transferIds - Mapping of transferId that the relayer can claim for bumps
+   * If set to true, it is available for claim, otherwise, it was already claimed or not
+   * relayed by the relayer.
+   */
+  struct RelayerFees {
+    uint256 amount;
+    mapping(bytes32 => bool) transferIds;
+  }
+
   // ============ Events ============
 
   /**

@@ -168,6 +168,21 @@ contract Connext is
    */
   uint256 public maxRoutersPerTransfer;
 
+  /**
+   * @notice Mapping of the amount of fee in custody for a domain
+   */
+  mapping(uint32 => uint256) public outboundRelayerFee;
+
+  /**
+   * @notice Mapping of the amount of additional fees for a transfer
+   */
+  mapping(bytes32 => uint256) public transferBump;
+
+  /**
+   * @notice Mapping of relayer to fees for relayed transfers for a domain
+   */
+  mapping(address => mapping(uint32 => RelayerFees)) public relayerFees;
+
   // ============ Modifiers ============
 
   /**
