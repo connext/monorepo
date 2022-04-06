@@ -17,7 +17,8 @@ export abstract class Cache {
       this.data = new IoRedisMock();
     } else {
       this.data = new Redis({
-        port: port, host: host, tls: {},
+        port: port,
+        host: host,
       });
     }
   }
