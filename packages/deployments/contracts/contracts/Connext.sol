@@ -65,7 +65,6 @@ contract Connext is
   error Connext__setupRelayer_badAddress();
   error Connext__setupRelayer_alreadyDid();
 
-
   // ============ Constants =============
 
   bytes32 internal EMPTY;
