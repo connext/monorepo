@@ -138,4 +138,7 @@ resource "aws_security_group" "allow_all" {
 resource "aws_elasticache_subnet_group" "default" {
   name       = "redis-subnet-group-${var.environment}"
   subnet_ids = aws_subnet.main.*.id
+    lifecycle {
+      create_before_destroy = true
+  }
 }
