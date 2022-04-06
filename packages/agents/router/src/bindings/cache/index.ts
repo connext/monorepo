@@ -42,16 +42,36 @@ export const pollCache = async () => {
       // Retrieve the transfer data.
       const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
       if (!transfer) {
-        logger.warn("Error retrieving pending transfer from cache : not found", requestContext, methodContext, {
-          domain,
-          transferId,
-        });
+        // Sanity check: transfer should exist. This shouldn't happen unless the cache was manipulated outside of
+        // the context of this application.
+        logger.warn(
+          "Error retrieving pending transfer from cache : transfer not found!",
+          requestContext,
+          methodContext,
+          {
+            domain,
+            transferId,
+          },
+        );
+        continue;
+      } else if (!transfer.xcall) {
+        // Sanity check: this transfer should never have been labeled as pending.
+        logger.warn(
+          "Error retrieving pending transfer from cache : XCall not defined!",
+          requestContext,
+          methodContext,
+          {
+            domain,
+            transfer,
+          },
+        );
         continue;
       } else if (transfer.execute?.transactionHash || transfer.reconcile?.transactionHash) {
         // Transfer has already been processed, so skip it. This is possible if the transfer was just retrieved asynchronously
         // via subgraph polling in a separate thread.
         continue;
       }
+
       try {
         // Call execute to process the transfer.
         await execute(transfer);

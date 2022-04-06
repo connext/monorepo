@@ -37,7 +37,7 @@ export const XTransferSchema = Type.Object({
   router: Type.Optional(TAddress),
 
   // XCalled
-  xcall: XTransferMethodCallSchema,
+  xcall: Type.Optional(XTransferMethodCallSchema),
 
   // Executed
   execute: Type.Optional(XTransferMethodCallSchema),

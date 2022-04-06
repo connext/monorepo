@@ -50,6 +50,10 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   /// create a bid
   const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
+  if (!xcall) {
+    // TODO: add named error
+    throw new Error("xcall undefined");
+  }
   // generate bid params
   const callParams: CallParams = {
     to,
