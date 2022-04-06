@@ -1,4 +1,5 @@
 import { providers, constants, BigNumber, utils } from "ethers";
+
 import {
   chainDataToMap,
   XTransfer,
@@ -10,6 +11,7 @@ import {
   SignedBid,
   createLoggingContext,
 } from "..";
+
 import { mkAddress, mkBytes32, mkSig } from ".";
 
 /**
@@ -38,14 +40,14 @@ export const mock: any = {
     chainDataToMap([
       {
         name: "Unit Test Chain 1",
-        chainId: parseInt(mock.chain.A),
+        chainId: parseInt(mock.chain.A as string),
         domainId: mock.chain.A,
         confirmations: 1,
         assetId: {},
       },
       {
         name: "Unit Test Chain 2",
-        chainId: parseInt(mock.chain.B),
+        chainId: parseInt(mock.chain.B as string),
         domainId: mock.chain.B,
         confirmations: 1,
         assetId: {},
@@ -162,13 +164,13 @@ export const mock: any = {
   },
   contracts: {
     deployments: {
-      connext: function (chainId: number) {
+      connext: function (_: number) {
         return {
           address: mkAddress("0x123123"),
           abi: "fakeAbi()",
         };
       },
-      priceOracle: function (chainId: number) {
+      priceOracle: function (_: number) {
         return {
           address: mkAddress("0x321321"),
           abi: "fakeAbi()",

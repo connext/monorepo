@@ -10,6 +10,9 @@ import "./interfaces/IConnext.sol";
 
 import "./interpreters/Executor.sol";
 
+import {AssetLogic} from "./lib/Connext/AssetLogic.sol";
+import {ConnextUtils} from "./lib/Connext/ConnextUtils.sol";
+
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
 
@@ -41,6 +44,24 @@ contract Connext is
   RouterPermissionsManager,
   IConnext
 {
+  // ========== Custom Errors ===========
+
+  error Connext__onlyBridgeRouter_notBridge();
+  error Connext__removeAssetId_notAdded();
+  error Connext__addRelayerFees_notValue();
+  error Connext__removeLiquidity_recipientEmpty();
+  error Connext__removeLiquidity_amountIsZero();
+  error Connext__removeLiquidity_insufficientFunds();
+  error Connext__xcall_notSupportedAsset();
+  error Connext__execute_notSlowParams();
+  error Connext__addLiquidityForRouter_routerEmpty();
+  error Connext__addLiquidityForRouter_amountIsZero();
+  error Connext__addLiquidityForRouter_badRouter();
+  error Connext__addLiquidityForRouter_badAsset();
+  error Connext__addAssetId_alreadyAdded();
+  error Connext__decrementLiquidity_notEmpty();
+  error Connext__handleRelayerFees_notRtrSig();
+
   // ============ Constants =============
 
   bytes32 internal EMPTY;
@@ -146,7 +167,7 @@ contract Connext is
    * @notice Restricts the caller to the local bridge router
    */
   modifier onlyBridgeRouter() {
-    require(msg.sender == address(bridgeRouter), "!bridge");
+    if (msg.sender != address(bridgeRouter)) revert Connext__onlyBridgeRouter_notBridge();
     _;
   }
 
@@ -237,7 +258,7 @@ contract Connext is
    */
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
     // Sanity check: already approval
-    require(approvedAssets[canonicalId] == true, "#RA:033");
+    if (!approvedAssets[canonicalId]) revert Connext__removeAssetId_notAdded();
 
     // Update mapping
     delete approvedAssets[canonicalId];
@@ -259,7 +280,7 @@ contract Connext is
    * @param router - The router to credit
    */
   function addRelayerFees(address router) external payable override {
-    require(msg.value > 0, "!value");
+    if (msg.value == 0) revert Connext__addRelayerFees_notValue();
     routerRelayerFees[router] += msg.value;
   }
 
@@ -316,19 +337,19 @@ contract Connext is
     address local,
     address payable to
   ) external override nonReentrant {
-    // transfer to specicfied recipient IF recipient not sest
-    address _recipient = routerRecipients[msg.sender];
+    // transfer to specicfied recipient IF recipient not set
+    address _recipient = routerRecipients(msg.sender);
     _recipient = _recipient == address(0) ? to : _recipient;
 
     // Sanity check: to is sensible
-    require(_recipient != address(0), "#RL:007");
+    if (_recipient == address(0)) revert Connext__removeLiquidity_recipientEmpty();
 
     // Sanity check: nonzero amounts
-    require(amount > 0, "#RL:002");
+    if (amount == 0) revert Connext__removeLiquidity_amountIsZero();
 
     uint256 routerBalance = routerBalances[msg.sender][local];
     // Sanity check: amount can be deducted for the router
-    require(routerBalance >= amount, "#RL:008");
+    if (routerBalance < amount) revert Connext__removeLiquidity_insufficientFunds();
 
     // Update router balances
     unchecked {
@@ -336,7 +357,7 @@ contract Connext is
     }
 
     // Transfer from contract to specified to
-    _transferAssetFromContract(local, _recipient, amount);
+    AssetLogic.transferAssetFromContract(local, _recipient, amount, wrapper);
 
     // Emit event
     emit LiquidityRemoved(msg.sender, _recipient, local, amount, msg.sender);
@@ -359,26 +380,43 @@ contract Connext is
     //   "!supported_asset"
     // );
 
-    require(
-      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id !=
-        bytes32(0),
-      "!supported_asset"
-    );
+    if (
+      adoptedToCanonical[_args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId].id ==
+      bytes32(0)
+    ) revert Connext__xcall_notSupportedAsset();
 
     // Transfer funds to the contract
-    (address _transactingAssetId, uint256 _amount) = _transferAssetToContract(_args.transactingAssetId, _args.amount);
+    (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
+      _args.transactingAssetId,
+      _args.amount,
+      wrapper
+    );
 
     // Swap to the local asset from the adopted
     // TODO: do we want to swap per call or per batch?
-    (uint256 _bridgedAmt, address _bridged) = _swapToLocalAssetIfNeeded(_transactingAssetId, _amount);
+    BridgeMessage.TokenId memory canonical = adoptedToCanonical[_transactingAssetId];
+    (uint256 _bridgedAmt, address _bridged) = ConnextUtils.swapToLocalAssetIfNeeded(
+      canonical,
+      adoptedToLocalPools[canonical.id],
+      tokenRegistry,
+      _transactingAssetId,
+      _amount
+    );
 
     // Compute the transfer id
-    bytes32 _transferId = _getTransferId(nonce, msg.sender, _args.params);
+    bytes32 _transferId = ConnextUtils.getTransferId(nonce, msg.sender, _args.params);
     // Update nonce
     nonce++;
 
     // Add to batch
-    _sendMessage(_args.params.destinationDomain, _args.params.to, _bridged, _bridgedAmt, _transferId);
+    ConnextUtils.sendMessage(
+      bridgeRouter,
+      _args.params.destinationDomain,
+      _args.params.to,
+      _bridged,
+      _bridgedAmt,
+      _transferId
+    );
 
     // Emit event
     emit XCalled(
@@ -422,7 +460,7 @@ contract Connext is
     if (transaction.router == address(0)) {
       // Nomad bridge executed faster than router, funds should become process-able
       // by the user.
-      reconciledTransfers[_transferId] = _getReconciledHash(_local, _recipient, _amount);
+      reconciledTransfers[_transferId] = ConnextUtils.getReconciledHash(_local, _recipient, _amount);
     } else {
       // TODO: assert amount credited is reasonable (depends on fee scheme)
 
@@ -448,7 +486,7 @@ contract Connext is
     uint256 _start = gasleft();
 
     // Calculate the transfer id
-    bytes32 _transferId = _getTransferId(_args.nonce, _args.originSender, _args.params);
+    bytes32 _transferId = ConnextUtils.getTransferId(_args.nonce, _args.originSender, _args.params);
 
     // Determine if this is fast liquidity
     bytes32 _reconciledHash = reconciledTransfers[_transferId];
@@ -459,19 +497,26 @@ contract Connext is
       _decrementLiquidity(_transferId, _args.amount, _args.local, _args.router);
     } else {
       // Ensure the reconciled hash is correct (user not charged liq fee for slow-liq)
-      require(_reconciledHash == _getReconciledHash(_args.local, _args.params.to, _args.amount), "!slow params");
+      if (_reconciledHash != ConnextUtils.getReconciledHash(_args.local, _args.params.to, _args.amount))
+        revert Connext__execute_notSlowParams();
     }
 
     // Execute the the transaction
     // If this is a mad* asset, then swap on local AMM
-    (uint256 amount, address adopted) = _swapFromLocalAssetIfNeeded(_args.local, _args.amount);
+    (uint256 amount, address adopted) = ConnextUtils.swapFromLocalAssetIfNeeded(
+      canonicalToAdopted,
+      adoptedToLocalPools,
+      tokenRegistry,
+      _args.local,
+      _args.amount
+    );
 
     if (keccak256(_args.params.callData) == EMPTY) {
       // Send funds to the user
-      _transferAssetFromContract(adopted, _args.params.to, amount);
+      AssetLogic.transferAssetFromContract(adopted, _args.params.to, amount, wrapper);
     } else {
       // Send funds to interprepter
-      _transferAssetFromContract(adopted, address(executor), amount);
+      AssetLogic.transferAssetFromContract(adopted, address(executor), amount, wrapper);
       executor.execute(
         _transferId,
         amount,
@@ -517,97 +562,6 @@ contract Connext is
   // ============ Private functions ============
 
   /**
-   * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
-   * @dev Will not swap if the asset passed in is the local asset
-   * @param _asset - The address of the adopted asset to swap into the local asset
-   * @param _amount - The amount of the adopted asset to swap
-   * @return The amount of local asset received from swap
-   * @return The address of asset received post-swap
-   */
-  function _swapToLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
-    // Check to see if the asset must be swapped because it is not the local asset
-    BridgeMessage.TokenId memory canonical = adoptedToCanonical[_asset];
-    if (canonical.id == bytes32(0)) {
-      // This is *not* the adopted asset, meaning it must be the local asset
-      return (_amount, _asset);
-    }
-
-    // Get the local token for this domain (may return canonical or representation)
-    address local = tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
-
-    // Check the case where the adopted asset *is* the local asset
-    if (local == _asset) {
-      // No need to swap
-      return (_amount, _asset);
-    }
-
-    // Approve pool
-    IStableSwap pool = adoptedToLocalPools[canonical.id];
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
-
-    // Swap the asset to the proper local asset
-    return (pool.swapExact(_amount, _asset, local), local);
-  }
-
-  /**
-   * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
-   * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _asset - The address of the local asset to swap into the adopted asset
-   * @param _amount - The amount of the local asset to swap
-   * @return The amount of adopted asset received from swap
-   * @return The address of asset received post-swap
-   */
-  function _swapFromLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
-    // Get the token id
-    (, bytes32 id) = tokenRegistry.getCanonicalTokenId(_asset);
-
-    // If the adopted asset is the local asset, no need to swap
-    address adopted = canonicalToAdopted[id];
-    if (adopted == _asset) {
-      return (_amount, _asset);
-    }
-
-    // Approve pool
-    IStableSwap pool = adoptedToLocalPools[id];
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
-
-    // Otherwise, swap to adopted asset
-    return (pool.swapExact(_amount, _asset, adopted), adopted);
-  }
-
-  /**
-   * @notice Gets unique identifier from nonce + domain
-   * @param _nonce - The nonce of the contract
-   * @param _params - The call params of the transfer
-   * @return The transfer id
-   */
-  function _getTransferId(
-    uint256 _nonce,
-    address _sender,
-    CallParams calldata _params
-  ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _sender, _params));
-  }
-
-  /**
-   * @notice Gets the hash for information returned across the bridge
-   * @param _local - The asset delivered by the bridge
-   * @param _to - The address that should receive the funds, or fallback address if the external call
-   * fails
-   * @param _amount - The amount delivered through the bridge
-   * @return The hash of the `ReconciledTransfer`
-   */
-  function _getReconciledHash(
-    address _local,
-    address _to,
-    uint256 _amount
-  ) internal pure returns (bytes32) {
-    ReconciledTransfer memory transfer = ReconciledTransfer({local: _local, amount: _amount, to: _to});
-
-    return keccak256(abi.encode(transfer));
-  }
-
-  /**
    * @notice Contains the logic to verify + increment a given routers liquidity
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
@@ -621,22 +575,23 @@ contract Connext is
     address _router
   ) internal {
     // Sanity check: router is sensible
-    require(_router != address(0), "#AL:001");
+    if (_router == address(0)) revert Connext__addLiquidityForRouter_routerEmpty();
 
     // Sanity check: nonzero amounts
-    require(_amount > 0, "#AL:002");
+    if (_amount == 0) revert Connext__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset id from the representation
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    require(isRouterOwnershipRenounced() || approvedRouters[_router], "#AL:003");
+    if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
+      revert Connext__addLiquidityForRouter_badRouter();
 
     // Asset is approved
-    require(isAssetOwnershipRenounced() || approvedAssets[id], "#AL:004");
+    if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to contract
-    (address _asset, uint256 _received) = _transferAssetToContract(_local, _amount);
+    // Transfer funds to coethWithErcTransferact
+    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
@@ -647,63 +602,6 @@ contract Connext is
   }
 
   /**
-   * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically wrap
-   * @param _assetId - The address to transfer
-   * @param _specifiedAmount - The specified amount to transfer. May not be the
-   * actual amount transferred (i.e. fee on transfer tokens)
-   * @return The assetId of the transferred asset
-   * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
-   * if the token is a fee-on-transfer token)
-   */
-  function _transferAssetToContract(address _assetId, uint256 _specifiedAmount) internal returns (address, uint256) {
-    uint256 trueAmount = _specifiedAmount;
-
-    if (_assetId == address(0)) {
-      // When transferring native asset to the contract, always make sure that the
-      // asset is properly wrapped
-      require(msg.value == _specifiedAmount, "!amount");
-      wrapper.deposit{value: _specifiedAmount}();
-      _assetId = address(wrapper);
-    } else {
-      // Validate correct amounts are transferred
-      uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-      require(msg.value == 0, "#TA:006");
-      SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
-      // Calculate the *actual* amount that was sent here
-      trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
-    }
-
-    return (_assetId, trueAmount);
-  }
-
-  /**
-   * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically unwrap
-   * @param _assetId - The address to transfer
-   * @param _to - The account that will receive the withdrawn funds
-   * @param _amount - The amount to withdraw from contract
-   */
-  function _transferAssetFromContract(
-    address _assetId,
-    address _to,
-    uint256 _amount
-  ) internal {
-    // No native assets should ever be stored on this contract
-    require(_assetId != address(0), "!native");
-
-    if (_assetId == address(wrapper)) {
-      // If dealing with wrapped assets, make sure they are properly unwrapped
-      // before sending from contract
-      wrapper.withdraw(_amount);
-      AddressUpgradeable.sendValue(payable(_to), _amount);
-    } else {
-      // Transfer ERC20 asset
-      SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(_assetId), _to, _amount);
-    }
-  }
-
-  /**
    * @notice Used to add assets on same chain as contract that can be transferred.
    * @param _canonical - The canonical TokenId to add (domain and id)
    * @param _adoptedAssetId - The used asset id for this domain (i.e. PoS USDC for
@@ -711,7 +609,7 @@ contract Connext is
    */
   function _addAssetId(BridgeMessage.TokenId calldata _canonical, address _adoptedAssetId) internal {
     // Sanity check: needs approval
-    require(approvedAssets[_canonical.id] == false, "#AA:032");
+    if (approvedAssets[_canonical.id]) revert Connext__addAssetId_alreadyAdded();
 
     // Update approved assets mapping
     approvedAssets[_canonical.id] = true;
@@ -750,7 +648,7 @@ contract Connext is
     address _router
   ) internal {
     // Ensure it has not been executed already
-    require(routedTransfers[_transferId].router == address(0), "!empty");
+    if (routedTransfers[_transferId].router != address(0)) revert Connext__decrementLiquidity_notEmpty();
 
     // Decrement liquidity
     routerBalances[_router][_local] -= _amount;
@@ -782,7 +680,8 @@ contract Connext is
     }
 
     // Check the signature of the router on the nonce + fee pct
-    require(_router == _recoverSignature(abi.encode(_transferId, _feePct), _sig), "!rtr_sig");
+    if (_router != ConnextUtils.recoverSignature(abi.encode(_transferId, _feePct), _sig))
+      revert Connext__handleRelayerFees_notRtrSig();
 
     // Handle 0 case
     if (_feePct == 0) {
@@ -800,39 +699,6 @@ contract Connext is
 
     // Pay sender
     AddressUpgradeable.sendValue(payable(msg.sender), fee);
-  }
-
-  /**
-   * @notice Sends a message over the bridge
-   * @param _destination - The destination domain for the message
-   * @param _recipient - The address that should receive the funds, or fallback address if the external call
-   * fails
-   * @param _local - The asset delivered by the bridge
-   * @param _amount - The amount delivered through the bridge
-   * @param _id - The unique identifier of the transaction
-   */
-  function _sendMessage(
-    uint32 _destination,
-    address _recipient,
-    address _local,
-    uint256 _amount,
-    bytes32 _id
-  ) internal {
-    // Approve the bridge router
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_local), address(bridgeRouter), _amount);
-
-    bridgeRouter.send(_local, _amount, _destination, TypeCasts.addressToBytes32(_recipient), true, _id);
-  }
-
-  /**
-   * @notice Holds the logic to recover the signer from an encoded payload.
-   * @dev Will hash and convert to an eth signed message.
-   * @param _encoded The payload that was signed
-   * @param _sig The signature you are recovering the signer from
-   */
-  function _recoverSignature(bytes memory _encoded, bytes calldata _sig) internal pure returns (address) {
-    // Recover
-    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
   }
 
   receive() external payable {}

@@ -1,5 +1,12 @@
-import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
+
+type TaskArgs = {
+  router: string;
+  asset: string;
+  amount: string;
+  connextAddress?: string;
+  tokenRegistryAddress?: string;
+};
 
 export default task("add-liquidity", "Add liquidity for a router")
   .addParam("router", "Router address")
@@ -9,7 +16,7 @@ export default task("add-liquidity", "Add liquidity for a router")
   .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .setAction(
     async (
-      { asset, router, connextAddress: _connextAddress, amount, tokenRegistryAddress: _tokenRegistryAddress },
+      { asset, router, connextAddress: _connextAddress, amount, tokenRegistryAddress: _tokenRegistryAddress }: TaskArgs,
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();
@@ -51,7 +58,7 @@ export default task("add-liquidity", "Add liquidity for a router")
       }
 
       let tokenRegistryAddress = _tokenRegistryAddress;
-      if (!_tokenRegistryAddress) {
+      if (!tokenRegistryAddress) {
         const tokenRegistryDeployment = await deployments.get("TokenRegistryUpgradeBeaconProxy");
         tokenRegistryAddress = tokenRegistryDeployment.address;
       }

@@ -8,7 +8,7 @@ import {
   RequestContext,
 } from "@connext/nxtp-utils";
 import axios from "axios";
-import { BigNumber, Signer, Wallet, providers, constants, Contract, utils } from "ethers";
+import { BigNumber, Signer, Wallet, providers, constants, Contract, utils, BigNumberish } from "ethers";
 
 import { validateProviderConfig, ChainConfig } from "./config";
 import {
@@ -211,11 +211,11 @@ export class RpcProviderAggregator {
       reverted = [];
       // Populate a list of promises to retrieve every receipt for every hash.
       const _receipts: Promise<providers.TransactionReceipt | null>[] = transaction.responses.map(
-        async (response: any) => {
+        async (response: providers.TransactionResponse) => {
           try {
             return await this.getTransactionReceipt(response.hash);
-          } catch (error: any) {
-            errors.push(error);
+          } catch (error: unknown) {
+            errors.push(error as NxtpError);
             return null;
           }
         },
@@ -285,7 +285,7 @@ export class RpcProviderAggregator {
         } else {
           return await provider.call(tx, blockTag);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
       }
     });
@@ -312,8 +312,8 @@ export class RpcProviderAggregator {
           return this.execute<providers.TransactionResponse | null>(false, async (provider: SyncProvider) => {
             return await provider.getTransaction(response.hash);
           });
-        } catch (error: any) {
-          errors.push(error);
+        } catch (error: unknown) {
+          errors.push(error as NxtpError);
           return null;
         }
       }),
@@ -346,12 +346,12 @@ export class RpcProviderAggregator {
     return this.execute(false, async (provider: SyncProvider) => {
       // This call will prepare the transaction params for us (hexlify tx, etc).
       const args = provider.prepareRequest("estimateGas", { transaction });
-      const result = await provider.send(args[0], args[1]);
+      const result = (await provider.send(args[0], args[1])) as unknown as BigNumberish;
       try {
         return BigNumber.from(result).add(gasLimitInflation ? BigNumber.from(gasLimitInflation) : 0);
-      } catch (error: any) {
-        throw new GasEstimateInvalid(result, {
-          error: error.message,
+      } catch (error: unknown) {
+        throw new GasEstimateInvalid(result.toString(), {
+          error: (error as Error).message,
         });
       }
     });
@@ -396,7 +396,7 @@ export class RpcProviderAggregator {
       try {
         response = await axios.get(uri);
         if (response && response.data) {
-          const { fast } = response.data;
+          const { fast } = response.data as unknown as { fast: BigNumberish };
           if (fast) {
             gasPrice = utils.parseUnits(fast.toString(), "gwei");
             break;
@@ -406,11 +406,11 @@ export class RpcProviderAggregator {
           uri,
           data: response.data,
         });
-      } catch (e: any) {
+      } catch (e: unknown) {
         this.logger.debug("Gas station not responding correctly", requestContext, methodContext, {
           uri,
           res: response ? (response?.data ? response.data : response) : undefined,
-          error: jsonifyError(e),
+          error: jsonifyError(e as NxtpError),
         });
       }
     }
@@ -671,7 +671,7 @@ export class RpcProviderAggregator {
     for (const provider of shuffledProviders) {
       try {
         return await method(provider);
-      } catch (e) {
+      } catch (e: unknown) {
         // TODO: With the addition of SyncProvider, this parse call may be entirely redundant. Won't add any compute,
         // however, as it will return instantly if the error is already a NxtpError.
         const error = parseError(e);
@@ -714,7 +714,7 @@ export class RpcProviderAggregator {
       this.providers.map(async (p) => {
         try {
           await p.sync();
-        } catch (e) {}
+        } catch (e: unknown) {}
       }),
     );
 
@@ -804,7 +804,7 @@ export class RpcProviderAggregator {
       const currentBlock = await this.getBlock("latest");
       const previousBlock = await this.getBlock(currentBlock.parentHash);
       this.blockPeriod = currentBlock.timestamp - previousBlock.timestamp;
-    } catch (error) {
+    } catch (error: unknown) {
       // If we can't get the block period, we'll just use a default value.
       this.logger.warn("Could not get block period time, using default.", undefined, undefined, {
         chainId: this.chainId,

@@ -45,6 +45,6 @@
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "devDependencies": {
     "@types/eslint": "^7.28.0",
-    "eslint": "^7.32.0"
+    "eslint": "^8.11.0"
   }
 }

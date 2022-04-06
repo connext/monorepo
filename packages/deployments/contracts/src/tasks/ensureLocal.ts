@@ -5,15 +5,18 @@ import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
 
+type TaskArgs = {
+  domain: string;
+  canonical: string;
+  registry?: string;
+};
+
 export default task("ensure-local", "Ensures a local address exists for the given canonical token")
   .addParam("domain", "Canonical token domain")
   .addParam("canonical", "Address of canonical token")
   .addOptionalParam("registry", "Override token registry address")
   .setAction(
-    async (
-      { domain, custom: _custom, canonical, bridgeRouter: _bridgeRouter, registry: _registry },
-      { deployments, getNamedAccounts, ethers },
-    ) => {
+    async ({ domain, canonical, registry: _registry }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
       const namedAccounts = await getNamedAccounts();
 
       console.log("domain: ", domain);

@@ -43,6 +43,9 @@ jobs:
       - name: Yarn test
         run: yarn test:all
 
+      - name: Yarn lint
+        run: yarn lint:all
+
   build-and-push-router-image:
     env:
       REGISTRY: ghcr.io

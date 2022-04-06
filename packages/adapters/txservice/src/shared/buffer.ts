@@ -131,7 +131,7 @@ export class TransactionBuffer extends Array<OnchainTransaction> {
     };
     const msg = message ? `${this.id.name} BUFFER: ${message}` : `${this.id.name} BUFFER`;
     if (error) {
-      this.logger.error(msg, undefined, undefined, ctx);
+      this.logger.error(msg, undefined, undefined, undefined, ctx);
     } else {
       this.logger.debug(msg, undefined, undefined, ctx);
     }

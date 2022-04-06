@@ -1,4 +1,5 @@
 import { Bid, createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+
 import { getContext } from "../../router";
 
 export const sanityCheck = async (bid: Bid, requestContext: RequestContext): Promise<void> => {

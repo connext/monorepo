@@ -10,7 +10,7 @@ import { getHelpers } from "../../lib/helpers";
 
 import { getContext } from "../../router";
 
-export let SUBGRAPH_POLL_INTERVAL = 15_000;
+export const SUBGRAPH_POLL_INTERVAL = 15_000;
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
@@ -79,7 +79,12 @@ export const pollSubgraph = async () => {
       transactions,
     });
     await cache.transfers.storeTransfers(transactions);
-  } catch (err: any) {
-    logger.error("Error getting pending txs, waiting for next loop", requestContext, methodContext, jsonifyError(err));
+  } catch (err: unknown) {
+    logger.error(
+      "Error getting pending txs, waiting for next loop",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
   }
 };

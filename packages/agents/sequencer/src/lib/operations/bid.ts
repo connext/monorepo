@@ -1,8 +1,9 @@
 import { Bid, BidSchema, RequestContext, createLoggingContext, BidStatus, ajv } from "@connext/nxtp-utils";
 
-import { sendToRelayer } from "./relayer";
 import { ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
+
+import { sendToRelayer } from "./relayer";
 
 export const handleBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
@@ -47,8 +48,10 @@ export const handleBid = async (bid: Bid, _requestContext: RequestContext): Prom
   logger.info("Estimated gas", requestContext, methodContext, {
     gas: gas.toString(),
   });
-
-  await cache.auctions.storeBid(bid);
+  const res = await cache.auctions.storeBid(bid);
+  logger.info("Stored bid to cache", requestContext, methodContext, {
+    res,
+  });
   return;
 };
 
@@ -58,7 +61,6 @@ export const bidSelection = async (_requestContext: RequestContext) => {
   const {
     logger,
     adapters: { cache },
-    config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bidSelection.name, _requestContext);
 

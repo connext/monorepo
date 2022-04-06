@@ -3,3 +3,5 @@ cache
 artifacts_forge
 coverage.json
 deployments/*/solcInputs
+.openzeppelin/unknown-31337.json
+typechain-types

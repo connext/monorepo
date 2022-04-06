@@ -10,13 +10,15 @@ export abstract class Cache {
   protected readonly data!: Redis.Redis;
   protected readonly logger: Logger;
 
-  constructor({ url, mock, logger }: CacheParams) {
+  constructor({ host, port, mock, logger }: CacheParams) {
     this.logger = logger;
     if (mock) {
       const IoRedisMock = require("ioredis-mock");
       this.data = new IoRedisMock();
     } else {
-      this.data = new Redis(`${url}`);
+      this.data = new Redis({
+        port: port, host: host, tls: {},
+      });
     }
   }
 }

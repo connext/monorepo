@@ -1,11 +1,12 @@
 import { StoreChannel, Subscriptions, SubscriptionCallback, CacheParams } from "../entities";
+
 import { Cache } from ".";
 
 export class ConsumersCache extends Cache {
   public readonly subscriptions: Subscriptions = new Map();
 
-  constructor({ url, mock, logger }: CacheParams) {
-    super({ url, mock, logger });
+  constructor({ host, port, mock, logger }: CacheParams) {
+    super({ host, port, mock, logger });
     this.init();
   }
 

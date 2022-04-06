@@ -4,7 +4,6 @@ import * as fs from "fs";
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
-
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
@@ -41,6 +40,12 @@ export const TServerConfig = Type.Object({
   adminToken: Type.String(),
 });
 
+export const TRedisConfig = Type.Object({
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  host: Type.String(),
+});
+
+
 export const TModeConfig = Type.Object({
   diagnostic: Type.Boolean(),
   cleanup: Type.Boolean(),
@@ -60,7 +65,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
-  redisUrl: Type.Optional(Type.String({ format: "uri" })),
+  redis: TRedisConfig,
   sequencerUrl: Type.String({ format: "uri" }),
   server: TServerConfig,
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
@@ -84,7 +89,7 @@ export const getEnvConfig = (
 
   try {
     configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-  } catch (e) {
+  } catch (e: unknown) {
     console.info("No NXTP_CONFIG exists, using config file and individual env vars");
   }
   try {
@@ -95,7 +100,7 @@ export const getEnvConfig = (
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
     }
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("Error reading config file!");
     process.exit(1);
   }
@@ -104,7 +109,10 @@ export const getEnvConfig = (
   const nxtpConfig: NxtpRouterConfig = {
     mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
-    redisUrl: process.env.NXTP_REDIS_URL || configJson.redisUrl || configFile.redisUrl,
+    redis: {
+      host: process.env.NXTP_REDIS_HOST || configJson.redis?.host || configFile.redis?.host,
+      port: process.env.NXTP_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
+    },
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains
@@ -184,7 +192,7 @@ export const getEnvConfig = (
   const valid = validate(nxtpConfig);
 
   if (!valid) {
-    throw new Error(validate.errors?.map((err: any) => JSON.stringify(err, null, 2)).join(","));
+    throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
   return nxtpConfig;
