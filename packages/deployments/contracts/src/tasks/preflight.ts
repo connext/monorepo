@@ -1,5 +1,4 @@
 import { BigNumber, constants, utils } from "ethers";
-import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
@@ -15,7 +14,6 @@ type TaskArgs = {
   amount?: string;
   connextAddress?: string;
   pool?: string;
-  relayer?: string;
 };
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
@@ -25,7 +23,6 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("pool", "The adopted <> local stable swap pool address")
-  .addOptionalParam("relayer", "The relayer address to approve")
   .setAction(
     async (
       {
@@ -35,7 +32,6 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         domain: _domain,
         asset: _asset,
         pool: _pool,
-        relayer: _relayer,
       }: TaskArgs,
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
@@ -177,16 +173,6 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("*** Sufficient relayer fees added!");
       } else {
         console.log("*** Sufficient relayer fees present!");
-      }
-
-      // Add relayer
-      const relayer = _relayer ?? process.env.RELAYER_ADDRESS;
-      if (relayer && isAddress(relayer)) {
-        const tx = await connext.setupRelayer(relayer, true, {
-          from: namedAccounts.deployer,
-        });
-        console.log("setupRelayer tx:", tx.hash);
-        await tx.wait(1);
       }
     },
   );
