@@ -422,6 +422,7 @@ contract Connext is
     (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
       _args.transactingAssetId,
       _args.amount,
+      _args.relayerFee,
       wrapper
     );
 
@@ -440,6 +441,8 @@ contract Connext is
     bytes32 _transferId = ConnextUtils.getTransferId(nonce, msg.sender, _args.params);
     // Update nonce
     nonce++;
+    // Update destination domain fee custody
+    outboundRelayerFee[_args.params.destinationDomain] += _args.relayerFee;
 
     // Add to batch
     ConnextUtils.sendMessage(
@@ -448,7 +451,8 @@ contract Connext is
       _args.params.to,
       _bridged,
       _bridgedAmt,
-      _transferId
+      _transferId,
+      _args.relayerFee
     );
 
     // Emit event
@@ -479,14 +483,19 @@ contract Connext is
    * @param _local - The address of the asset delivered by the bridge
    * @param _recipient - The address that will receive funds on the destination domain
    * @param _amount - The amount bridged
+   * @param _relayerFee - The amount of relayer fee
    */
   function reconcile(
     bytes32 _transferId,
     uint32 _origin,
     address _local,
     address _recipient,
-    uint256 _amount
+    uint256 _amount,
+    uint256 _relayerFee
   ) external payable override onlyBridgeRouter {
+    // TOOD set relayer fee for transfer
+    _relayerFee;
+
     // Find the router to credit
     ExecutedTransfer memory transaction = routedTransfers[_transferId];
 
@@ -630,7 +639,7 @@ contract Connext is
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
     // Transfer funds to coethWithErcTransferact
-    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, wrapper);
+    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, 0, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens

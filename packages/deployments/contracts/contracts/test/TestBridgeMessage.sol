@@ -75,9 +75,10 @@ contract TestBridgeMessage {
     uint256 _amnt,
     bytes32 _detailsHash,
     bool _enableFast,
-    bytes32 _externalHash
+    bytes32 _externalHash,
+    uint256 _relayerFee
   ) external view returns (bytes memory) {
-    return BridgeMessage.formatTransfer(_to, _amnt, _detailsHash, _enableFast, _externalHash).clone();
+    return BridgeMessage.formatTransfer(_to, _amnt, _detailsHash, _enableFast, _externalHash, _relayerFee).clone();
   }
 
   function formatTokenId(uint32 _domain, bytes32 _id) external view returns (bytes memory) {
@@ -116,7 +117,8 @@ contract TestBridgeMessage {
       bytes32,
       address,
       uint256,
-      bytes32
+      bytes32,
+      uint256
     )
   {
     bytes29 transfer = _transfer.ref(uint40(BridgeMessage.Types.FastTransfer));
@@ -125,7 +127,8 @@ contract TestBridgeMessage {
     address evmRecipient = BridgeMessage.evmRecipient(transfer);
     uint256 amnt = BridgeMessage.amnt(transfer);
     bytes32 id = BridgeMessage.externalHash(transfer);
-    return (t, recipient, evmRecipient, amnt, id);
+    uint256 relayerFee = BridgeMessage.relayerFee(transfer);
+    return (t, recipient, evmRecipient, amnt, id, relayerFee);
   }
 
   function splitMessage(bytes memory _message) external view returns (bytes memory, bytes memory) {

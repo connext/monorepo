@@ -75,11 +75,13 @@ interface IConnext {
    * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param amount - The amount of transferring asset the tx called xcall with
+   * @param relayerFee - The amount of relayer fee the tx called xcall with
    */
   struct XCallArgs {
     CallParams params;
     address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
+    uint256 relayerFee;
   }
 
   /**
@@ -288,7 +290,8 @@ interface IConnext {
     uint32 _origin,
     address _local,
     address _recipient,
-    uint256 _amount
+    uint256 _amount,
+    uint256 _relayerFee
   ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);

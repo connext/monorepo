@@ -138,6 +138,8 @@ contract BridgeRouter is Version0, Router {
    * @param _destination The destination domain
    * @param _recipient The recipient address
    * @param _enableFast True to enable fast liquidity
+   * @param _externalHash - The unique identifier of the transaction
+   * @param _relayerFee - The amount of relayer fee
    */
   function send(
     address _token,
@@ -145,7 +147,8 @@ contract BridgeRouter is Version0, Router {
     uint32 _destination,
     bytes32 _recipient,
     bool _enableFast,
-    bytes32 _externalHash
+    bytes32 _externalHash,
+    uint256 _relayerFee
   ) external {
     require(_amount > 0, "!amnt");
     require(_recipient != bytes32(0), "!recip");
@@ -168,7 +171,14 @@ contract BridgeRouter is Version0, Router {
       _detailsHash = _t.detailsHash();
     }
     // format Transfer Tokens action
-    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash, _enableFast, _externalHash);
+    bytes29 _action = BridgeMessage.formatTransfer(
+      _recipient,
+      _amount,
+      _detailsHash,
+      _enableFast,
+      _externalHash,
+      _relayerFee
+    );
     bytes29 _tokenId = dispatchAction(_action, _token, _destination, _remote);
     // emit Send event to record token sender
     emit Send(
@@ -283,7 +293,8 @@ contract BridgeRouter is Version0, Router {
       _handleFundsDisbursal(address(connext), _token, _amount, _details);
 
       // Call reconcile
-      connext.reconcile(_action.externalHash(), _origin, _token, _recipient, _amount);
+      uint256 _relayerFee = _action.relayerFee();
+      connext.reconcile(_action.externalHash(), _origin, _token, _recipient, _amount, _relayerFee);
     } else {
       _handleFundsDisbursal(_recipient, _token, _amount, _details);
 

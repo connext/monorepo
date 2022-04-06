@@ -16,6 +16,8 @@ library AssetLogic {
    * @param _assetId - The address to transfer
    * @param _specifiedAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
+   * @param _additionalNativeAmount - Additional amount in native asset included as part of the transaction that
+   * should not be considered for the transfer amount.
    * @param _wrapper - The address of the wrapper for the native asset on this domain
    * @return The assetId of the transferred asset
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
@@ -24,6 +26,7 @@ library AssetLogic {
   function transferAssetToContract(
     address _assetId,
     uint256 _specifiedAmount,
+    uint256 _additionalNativeAmount,
     IWrapped _wrapper
   ) external returns (address, uint256) {
     uint256 trueAmount = _specifiedAmount;
@@ -31,13 +34,13 @@ library AssetLogic {
     if (_assetId == address(0)) {
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
-      if (msg.value != _specifiedAmount) revert AssetLogic__transferAssetToContract_notAmount();
+      if (msg.value != _specifiedAmount + _additionalNativeAmount) revert AssetLogic__transferAssetToContract_notAmount();
       _wrapper.deposit{value: _specifiedAmount}();
       _assetId = address(_wrapper);
     } else {
       // Validate correct amounts are transferred
       uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-      if (msg.value != 0) revert AssetLogic__transferAssetToContract_ethWithErcTransfer();
+      if (msg.value != _additionalNativeAmount) revert AssetLogic__transferAssetToContract_ethWithErcTransfer();
       SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
       // Calculate the *actual* amount that was sent here
       trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;

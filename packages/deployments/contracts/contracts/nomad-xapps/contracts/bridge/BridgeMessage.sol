@@ -38,8 +38,8 @@ library BridgeMessage {
 
   uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
   uint256 private constant IDENTIFIER_LEN = 1;
-  uint256 private constant TRANSFER_LEN = 129;
-  // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes external hash
+  uint256 private constant TRANSFER_LEN = 161;
+  // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes external hash + 32 relayer fee
 
   // ============ Modifiers ============
 
@@ -134,7 +134,10 @@ library BridgeMessage {
    * @notice Formats Transfer
    * @param _to The recipient address as bytes32
    * @param _amnt The transfer amount
+   * @param _detailsHash The asset details hash
    * @param _enableFast True to format FastTransfer, False to format regular Transfer
+   * @param _externalHash - The unique identifier of the transaction
+   * @param _relayerFee - The amount of relayer fee
    * @return
    */
   function formatTransfer(
@@ -142,10 +145,11 @@ library BridgeMessage {
     uint256 _amnt,
     bytes32 _detailsHash,
     bool _enableFast,
-    bytes32 _externalHash
+    bytes32 _externalHash,
+    uint256 _relayerFee
   ) internal pure returns (bytes29) {
     Types _type = _enableFast ? Types.FastTransfer : Types.Transfer;
-    return abi.encodePacked(_type, _to, _amnt, _detailsHash, _externalHash).ref(0).castTo(uint40(_type));
+    return abi.encodePacked(_type, _to, _amnt, _detailsHash, _externalHash, _relayerFee).ref(0).castTo(uint40(_type));
   }
 
   /**
@@ -295,6 +299,16 @@ library BridgeMessage {
   function externalHash(bytes29 _transferAction) internal pure returns (bytes32) {
     // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash = 97 bytes
     return _transferAction.index(97, 32);
+  }
+
+  /**
+   * @notice Retrieves the relayer fee from a Transfer
+   * @param _transferAction The message
+   * @return The relayer fee amount
+   */
+  function relayerFee(bytes29 _transferAction) internal pure returns (uint256) {
+    // before = 1 byte identifier + 32 bytes ID + 32 bytes amount + 32 bytes detailsHash + 32 external hash = 129 bytes
+    return _transferAction.indexUint(129, 32);
   }
 
   /**

@@ -188,6 +188,7 @@ export type TransferAction = {
   recipient: BytesLike;
   amount: number | BytesLike;
   detailsHash: BytesLike;
+  relayerFee: number | BytesLike;
 };
 
 export type FastTransferAction = {
@@ -196,6 +197,7 @@ export type FastTransferAction = {
   amount: number | BytesLike;
   detailsHash: BytesLike;
   externalHash: BytesLike;
+  relayerFee: number | BytesLike;
 };
 
 export type NxtpEnabledAction = {
@@ -260,11 +262,12 @@ export function formatTransfer(
   detailsHash: BytesLike,
   enableFast: boolean,
   externalHash: BytesLike,
+  relayerFee: number | BytesLike,
 ): BytesLike {
   const type = enableFast ? BridgeMessageTypes.FAST_TRANSFER : BridgeMessageTypes.TRANSFER;
   return ethers.utils.solidityPack(
-    ["uint8", "bytes32", "uint256", "bytes32", "bytes32"],
-    [type, to, amnt, detailsHash, externalHash],
+    ["uint8", "bytes32", "uint256", "bytes32", "bytes32", "uint256"],
+    [type, to, amnt, detailsHash, externalHash, relayerFee],
   );
 }
 
@@ -278,15 +281,15 @@ export function formatMessage(tokenId: BytesLike, action: BytesLike): BytesLike 
 }
 
 export function serializeTransferAction(transferAction: TransferAction): BytesLike {
-  const { type, recipient, amount, detailsHash } = transferAction;
+  const { type, recipient, amount, detailsHash, relayerFee } = transferAction;
   assert(type === BridgeMessageTypes.TRANSFER);
-  return formatTransfer(recipient, amount, detailsHash, false, "");
+  return formatTransfer(recipient, amount, detailsHash, false, "", relayerFee);
 }
 
 export function serializeFastTransferAction(transferAction: FastTransferAction): BytesLike {
-  const { type, recipient, amount, detailsHash, externalHash } = transferAction;
+  const { type, recipient, amount, detailsHash, externalHash, relayerFee } = transferAction;
   assert(type === BridgeMessageTypes.FAST_TRANSFER);
-  return formatTransfer(recipient, amount, detailsHash, true, externalHash);
+  return formatTransfer(recipient, amount, detailsHash, true, externalHash, relayerFee);
 }
 
 export function serializeNxtpEnabledAction(transferAction: NxtpEnabledAction): BytesLike {
@@ -443,8 +446,8 @@ export function mineBlock() {
 /**
  *  Takes a snapshot and returns the ID of the snapshot for restoring later.
  */
- export async function takeSnapshot(): Promise<number> {
-  const result = await send('evm_snapshot');
+export async function takeSnapshot(): Promise<number> {
+  const result = await send("evm_snapshot");
   await mineBlock();
   return result;
 }
@@ -454,6 +457,6 @@ export function mineBlock() {
  *  @param id The ID that was returned when takeSnapshot was called.
  */
 export async function restoreSnapshot(id: number) {
-  await send('evm_revert', [id]);
+  await send("evm_revert", [id]);
   await mineBlock();
 }
