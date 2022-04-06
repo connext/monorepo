@@ -25,7 +25,3 @@ output "ecs_task_sg" {
 output "vpc_cdir_block" {
   value = aws_vpc.main.cidr_block
 }
-
-output "sequencer-to-router-sg" {
-  value = aws_security_group.str-sg.id
-}

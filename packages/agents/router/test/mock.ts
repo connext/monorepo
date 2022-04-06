@@ -62,7 +62,7 @@ export const mock = {
     },
     mnemonic: "hello world",
     logLevel: "info",
-    redisUrl: "redis://localhost:6379",
+    redis: { port: 6379, host: "localhost" },
     sequencerUrl: "http://localhost:8081",
     server: {
       host: "0.0.0.0",

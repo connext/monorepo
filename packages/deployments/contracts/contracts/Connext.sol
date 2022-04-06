@@ -346,7 +346,7 @@ contract Connext is
     address payable to
   ) external override nonReentrant {
     // transfer to specicfied recipient IF recipient not set
-    address _recipient = routerRecipients[msg.sender];
+    address _recipient = routerRecipients(msg.sender);
     _recipient = _recipient == address(0) ? to : _recipient;
 
     // Sanity check: to is sensible
@@ -610,7 +610,8 @@ contract Connext is
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    if (!isRouterOwnershipRenounced() && !approvedRouters[_router]) revert Connext__addLiquidityForRouter_badRouter();
+    if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
+      revert Connext__addLiquidityForRouter_badRouter();
 
     // Asset is approved
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();

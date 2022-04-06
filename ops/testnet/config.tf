@@ -1,7 +1,10 @@
 locals {
   local_sequencer_config = jsonencode({
+    redis =  {
+      host: module.sequencer_cache.redis_instance_address,
+      port: module.sequencer_cache.redis_instance_port
+    },
     "logLevel" = "debug"
-    "redisUrl" = "redis://${module.sequencer_cache.redis_instance_address}:6379"
     "chains" = {
       "2000" = {
         "providers" = ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
@@ -32,9 +35,12 @@ locals {
 
 locals {
   local_router_config = jsonencode({
+    redis =  {
+      host: module.router_cache.redis_instance_address,
+      port: module.router_cache.redis_instance_port
+    },
     logLevel     = "debug"
     sequencerUrl = "https://${module.sequencer.service_endpoint}"
-    redisUrl     = "redis://${module.router_cache.redis_instance_address}:6379"
     server = {
       adminToken = var.admin_token_router
       port       = 8080

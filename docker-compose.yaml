@@ -27,8 +27,13 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.testnet.json:/home/node/packages/agents/sequencer/config.json
-  redis:
+
+  router-cache:
     image: redis:latest
-    container_name: rd01
     ports:
       - "6379:6379"
+
+  sequencer-cache:
+    image: redis:latest
+    ports:
+      - "6380:6379"

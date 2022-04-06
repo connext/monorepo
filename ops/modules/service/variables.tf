@@ -22,7 +22,7 @@ variable "container_port" {
 }
 
 variable "loadbalancer_port" {
-  default = 8080
+  default = 80
 }
 
 variable "cpu" {
