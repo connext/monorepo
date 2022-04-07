@@ -303,6 +303,7 @@ contract Connext is
 
     emit RelayerRemoved(relayer, msg.sender);
   }
+
   // ============ Public Functions ============
 
   /**
