@@ -11,53 +11,6 @@ import {
 import * as ConfigFns from "../src/config";
 import { configMock, chainDataMock } from "./utils";
 
-export const routerConfigMock = {
-  ...configMock,
-  chainConfig: {
-    1: {
-      confirmations: 10,
-      providers: ["http://example.com"],
-      subgraph: ["http://example.com"],
-      transactionManagerAddress: mkAddress("0xaaa"),
-      priceOracleAddress: mkAddress("0x0"),
-      multicallAddress: mkAddress("0x1"),
-      minGas: "100",
-      relayerFeeThreshold: 10,
-      subgraphSyncBuffer: 10,
-      gasStations: [],
-      allowRelay: true,
-      analyticsSubgraph: ["http://example.com"],
-    },
-    1337: {
-      confirmations: 1,
-      providers: ["http://example.com"],
-      subgraph: ["http://example.com"],
-      transactionManagerAddress: mkAddress("0xaaa"),
-      priceOracleAddress: mkAddress("0x0"),
-      multicallAddress: mkAddress("0x1"),
-      minGas: "100",
-      relayerFeeThreshold: 10,
-      subgraphSyncBuffer: 10,
-      gasStations: [],
-      allowRelay: true,
-      analyticsSubgraph: ["http://example.com"],
-    },
-    1338: {
-      confirmations: 1,
-      providers: ["http://example.com"],
-      subgraph: ["http://example.com"],
-      transactionManagerAddress: mkAddress("0xbbb"),
-      priceOracleAddress: mkAddress("0x0"),
-      multicallAddress: mkAddress("0x1"),
-      minGas: "100",
-      relayerFeeThreshold: 10,
-      subgraphSyncBuffer: 10,
-      gasStations: [],
-      allowRelay: true,
-      analyticsSubgraph: ["http://example.com"],
-    },
-  },
-};
 describe("Config", () => {
   let testChainId = 1336;
   let testAddress = "0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
@@ -160,7 +113,7 @@ describe("Config", () => {
         ...process.env,
         NXTP_CONFIG_FILE: "buggypath",
         NXTP_NETWORK: "testnet",
-        NXTP_CONFIG: JSON.stringify(routerConfigMock),
+        NXTP_CONFIG: JSON.stringify(configMock),
       });
 
       expect(() => getEnvConfig(chainDataMock)).not.throw();
@@ -171,7 +124,7 @@ describe("Config", () => {
         ...process.env,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
-          ...routerConfigMock,
+          ...configMock,
           chainConfig: {
             1337: {},
             1338: {},
@@ -187,7 +140,7 @@ describe("Config", () => {
         ...process.env,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
-          ...routerConfigMock,
+          ...configMock,
           chainConfig: {
             1337: { transactionManagerAddress: mkAddress("0xaaa"), subgraph: "http://example.com" },
             1338: { transactionManagerAddress: mkAddress("0xbbb"), subgraph: "http://example.com" },
@@ -202,7 +155,7 @@ describe("Config", () => {
       stub(process, "env").value({
         ...process.env,
         NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify(routerConfigMock),
+        NXTP_CONFIG: JSON.stringify(configMock),
       });
 
       let res;
@@ -220,7 +173,7 @@ describe("Config", () => {
     it("should read config from default filepath", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG: JSON.stringify(routerConfigMock),
+        NXTP_CONFIG: JSON.stringify(configMock),
       });
 
       expect(() => getEnvConfig(chainDataMock)).not.throw();
@@ -229,13 +182,13 @@ describe("Config", () => {
     it("should getEnvConfig", () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_AUTH_URL: routerConfigMock.authUrl,
-        NXTP_NATS_URL: routerConfigMock.natsUrl,
-        NXTP_MNEMONIC: routerConfigMock.mnemonic,
-        NXTP_ADMIN_TOKEN: routerConfigMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(routerConfigMock.chainConfig),
-        NXTP_SWAP_POOLS: JSON.stringify(routerConfigMock.swapPools),
-        NXTP_LOG_LEVEL: routerConfigMock.logLevel,
+        NXTP_AUTH_URL: configMock.authUrl,
+        NXTP_NATS_URL: configMock.natsUrl,
+        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_ADMIN_TOKEN: configMock.adminToken,
+        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chainConfig),
+        NXTP_SWAP_POOLS: JSON.stringify(configMock.swapPools),
+        NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
       expect(() => getEnvConfig(chainDataMock)).not.throw();
@@ -246,22 +199,8 @@ describe("Config", () => {
         ...process.env,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
-          ...routerConfigMock,
+          ...configMock,
           chainConfig: {
-            1: {
-              confirmations: 10,
-              providers: ["http://example.com"],
-              subgraph: ["http://example.com"],
-              transactionManagerAddress: mkAddress("0xaaa"),
-              priceOracleAddress: mkAddress("0x0"),
-              multicallAddress: mkAddress("0x1"),
-              minGas: "100",
-              relayerFeeThreshold: 10,
-              subgraphSyncBuffer: 10,
-              gasStations: [],
-              allowRelay: true,
-              analyticsSubgraph: ["http://example.com"],
-            },
             1337: {
               confirmations: 1,
               providers: ["http://example.com"],
@@ -288,13 +227,13 @@ describe("Config", () => {
     it("should work", async () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_AUTH_URL: routerConfigMock.authUrl,
-        NXTP_NATS_URL: routerConfigMock.natsUrl,
-        NXTP_MNEMONIC: routerConfigMock.mnemonic,
-        NXTP_ADMIN_TOKEN: routerConfigMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(routerConfigMock.chainConfig),
-        NXTP_SWAP_POOLS: JSON.stringify(routerConfigMock.swapPools),
-        NXTP_LOG_LEVEL: routerConfigMock.logLevel,
+        NXTP_AUTH_URL: configMock.authUrl,
+        NXTP_NATS_URL: configMock.natsUrl,
+        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_ADMIN_TOKEN: configMock.adminToken,
+        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chainConfig),
+        NXTP_SWAP_POOLS: JSON.stringify(configMock.swapPools),
+        NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
       const env = getEnvConfig(chainDataMock);
@@ -305,13 +244,13 @@ describe("Config", () => {
     it("should work without param", async () => {
       stub(process, "env").value({
         ...process.env,
-        NXTP_AUTH_URL: routerConfigMock.authUrl,
-        NXTP_NATS_URL: routerConfigMock.natsUrl,
-        NXTP_MNEMONIC: routerConfigMock.mnemonic,
-        NXTP_ADMIN_TOKEN: routerConfigMock.adminToken,
-        NXTP_CHAIN_CONFIG: JSON.stringify(routerConfigMock.chainConfig),
-        NXTP_SWAP_POOLS: JSON.stringify(routerConfigMock.swapPools),
-        NXTP_LOG_LEVEL: routerConfigMock.logLevel,
+        NXTP_AUTH_URL: configMock.authUrl,
+        NXTP_NATS_URL: configMock.natsUrl,
+        NXTP_MNEMONIC: configMock.mnemonic,
+        NXTP_ADMIN_TOKEN: configMock.adminToken,
+        NXTP_CHAIN_CONFIG: JSON.stringify(configMock.chainConfig),
+        NXTP_SWAP_POOLS: JSON.stringify(configMock.swapPools),
+        NXTP_LOG_LEVEL: configMock.logLevel,
       });
 
       const env = getEnvConfig(chainDataMock);

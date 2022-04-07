@@ -435,9 +435,6 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
 
   // validate there are the right providers in place (always need mainnet for pricing)
   const providersRequired = new Set(nxtpConfig.swapPools.flatMap((s) => s.assets).map((a) => a.chainId));
-  if (!Object.keys(nxtpConfig.chainConfig).includes("1337") && !Object.keys(nxtpConfig.chainConfig).includes("1338")) {
-    providersRequired.add(1);
-  }
 
   const missing = [...providersRequired].filter((chain) => !Object.keys(nxtpConfig.chainConfig).includes(`${chain}`));
   if (missing.length > 0) {
