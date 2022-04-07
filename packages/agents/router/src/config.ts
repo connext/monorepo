@@ -41,10 +41,9 @@ export const TServerConfig = Type.Object({
 });
 
 export const TRedisConfig = Type.Object({
-  port: Type.Integer({ minimum: 1, maximum: 65535 }),
-  host: Type.String(),
+  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  host: Type.Optional(Type.String()),
 });
-
 
 export const TModeConfig = Type.Object({
   diagnostic: Type.Boolean(),
