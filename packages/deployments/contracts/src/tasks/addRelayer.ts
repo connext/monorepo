@@ -34,11 +34,11 @@ export default task("add-relayer", "Add Relayer to whitelist")
         throw new Error("Already approved relayer");
       }
 
-      const tx = await connext.setupRelayer(relayer, true, {
+      const tx = await connext.addRelayer(relayer, {
         from: namedAccounts.deployer,
       });
-      console.log("setupRelayer tx: ", tx);
+      console.log("addRelayer tx: ", tx);
       const receipt = await tx.wait();
-      console.log("setupRelayer tx mined: ", receipt.transactionHash);
+      console.log("addRelayer tx mined: ", receipt.transactionHash);
     },
   );

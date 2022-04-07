@@ -34,11 +34,11 @@ export default task("remove-relayer", "Remove Relayer from whitelist")
         throw new Error("Not approved relayer");
       }
 
-      const tx = await connext.setupRelayer(relayer, false, {
+      const tx = await connext.removeRelayer(relayer, {
         from: namedAccounts.deployer,
       });
-      console.log("setupRelayer tx: ", tx);
+      console.log("removeRelayer tx: ", tx);
       const receipt = await tx.wait();
-      console.log("setupRelayer tx mined: ", receipt.transactionHash);
+      console.log("removeRelayer tx mined: ", receipt.transactionHash);
     },
   );

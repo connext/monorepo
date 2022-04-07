@@ -66,6 +66,11 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
       const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
 
+      const relayer = _relayer ?? process.env.RELAYER_ADDRESS;
+      if (!isAddress(relayer || "")) {
+        throw new Error("Relayer address must be specified as param of from env (RELAYER_ADDRESS)");
+      }
+
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;
       if (canonicalDomain === networkDomain) {
@@ -180,13 +185,11 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
 
       // Add relayer
-      const relayer = _relayer ?? process.env.RELAYER_ADDRESS;
-      if (relayer && isAddress(relayer)) {
-        const tx = await connext.setupRelayer(relayer, true, {
-          from: namedAccounts.deployer,
-        });
-        console.log("setupRelayer tx:", tx.hash);
-        await tx.wait(1);
-      }
+      const tx = await connext.addRelayer(relayer, {
+        from: namedAccounts.deployer,
+      });
+      console.log("addRelayer tx:", tx.hash);
+      await tx.wait(1);
+      console.log("Addred whitelist relayer:", relayer);
     },
   );
