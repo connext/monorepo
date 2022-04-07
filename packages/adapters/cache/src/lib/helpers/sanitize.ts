@@ -5,6 +5,6 @@
  * @param obj
  * @returns
  */
-export const sanitizeNull = (obj: any): any => {
+export const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 };

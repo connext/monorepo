@@ -1,9 +1,9 @@
 import { XTransfer } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
+import { getHelpers } from "../helpers";
 
 import { Cache } from ".";
-import { getHelpers } from "../helpers";
 
 /**
  * Redis Store Details:
