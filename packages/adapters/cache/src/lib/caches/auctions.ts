@@ -35,29 +35,32 @@ export class AuctionsCache extends Cache {
   }
 
   public async getAllTransactionsIdsWithPendingBids(): Promise<string[]> {
-    const pendingTxids: string[] = [];
-
     const bidStream = this.data.scanStream({
       match: `${this.prefix}:*`,
     });
 
-    return new Promise((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string) => {
-        for (const key of resultKeys) {
-          const record = await this.data.hgetall(key);
-          const bidStatus: BidStatus = record["status"] as BidStatus;
-          //found pending txid;
-          if (bidStatus === BidStatus.Pending) {
-            //get txid from longer key
-            const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
-            if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
-          }
-        }
+    let keys: string[] = [];
+    await new Promise<void>((res, _rej) => {
+      bidStream.on("data", (resultKeys: string[]) => {
+        keys = keys.concat(resultKeys);
       });
-      bidStream.on("end", async () => {
-        res(pendingTxids);
+      bidStream.on("end", () => {
+        res();
       });
     });
+
+    const pendingTxids: string[] = [];
+    for (const key of keys) {
+      const record = await this.data.hgetall(key);
+      const bidStatus: BidStatus = record["status"] as BidStatus;
+      //found pending txid;
+      if (bidStatus === BidStatus.Pending) {
+        //get txid from longer key
+        const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
+        if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
+      }
+    }
+    return pendingTxids;
   }
 
   public async updateAllBidsWithTransactionId(txid: string, status: BidStatus): Promise<number[] | void> {
