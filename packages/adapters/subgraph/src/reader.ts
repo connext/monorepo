@@ -96,7 +96,7 @@ export class SubgraphReader {
 
             return client.GetXCalledTransfers({
               destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxXCallBlockNumber.toString(),
+              maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
               nonce,
             });
           });
@@ -127,7 +127,7 @@ export class SubgraphReader {
 
             return client.GetXCalledTransfers({
               destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxXCallBlockNumber.toString(),
+              maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
               nonce,
             }); // TODO: nonce + maxPrepareBlockNumber
           });
@@ -162,14 +162,18 @@ export class SubgraphReader {
           (client) =>
             client.GetExecutedAndReconciledTransfersByIds({
               transferIds,
-              maxXCalledBlockNumber: agents.get(destinationDomain)!.maxXCallBlockNumber.toString(),
+              maxXCalledBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
             }), // TODO: maxPrepareBlockNumber
         );
         transfers.forEach((_tx) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
-          inMap.status = tx.status;
-          allTxById.set(tx.transferId, inMap);
+          const confirmedBlockNumber =
+            tx.status === XTransferStatus.Executed ? tx.execute!.blockNumber : tx.reconcile!.blockNumber;
+          if (confirmedBlockNumber < agents.get(destinationDomain)!.maxBlockNumber) {
+            inMap.status = tx.status;
+            allTxById.set(tx.transferId, inMap);
+          }
         });
       }),
     );

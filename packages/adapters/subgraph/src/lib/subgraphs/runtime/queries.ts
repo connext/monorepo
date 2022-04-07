@@ -126,16 +126,8 @@ export const getTransfer = gql`
 `;
 
 export const getExecutedAndReconciledTransfersByIds = gql`
-  query GetExecutedAndReconciledTransfersByIds($transferIds: [Bytes!], $maxXCalledBlockNumber: BigInt!) {
-    transfers(
-      where: {
-        transferId_in: $transferIds
-        xcalledBlockNumber_lte: $maxXCalledBlockNumber
-        status_in: [Executed, Reconciled]
-      }
-      orderBy: xcalledBlockNumber
-      orderDirection: desc
-    ) {
+  query GetExecutedAndReconciledTransfersByIds($transferIds: [Bytes!]) {
+    transfers(where: { transferId_in: $transferIds, status_in: [Executed, Reconciled] }) {
       id
       # Meta
       originDomain
