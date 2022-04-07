@@ -171,6 +171,7 @@ interface IConnext {
    * to the provided `transactingAsset`
    * @param transactingAmount - The amount of transferring asset the tx xcalled with
    * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
+   * @param relayerFee - The amount of relayer fee in native asset
    * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
    * for the transfer
    * @param caller - The account that called the function
@@ -183,6 +184,7 @@ interface IConnext {
     address localAsset,
     uint256 transactingAmount,
     uint256 localAmount,
+    uint256 relayerFee,
     uint256 nonce,
     address caller
   );

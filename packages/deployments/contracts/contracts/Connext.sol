@@ -464,6 +464,7 @@ contract Connext is
       _bridged,
       _amount,
       _bridgedAmt,
+      _args.relayerFee,
       nonce - 1,
       msg.sender
     );
