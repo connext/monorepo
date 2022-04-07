@@ -39,10 +39,10 @@ export class AuctionsCache extends Cache {
       match: `${this.prefix}:*`,
     });
 
-    let keys: string[] = [];
+    const keys: string[] = [];
     await new Promise<void>((res, _rej) => {
       bidStream.on("data", (resultKeys: string[]) => {
-        keys = keys.concat(resultKeys);
+        keys.push(...resultKeys);
       });
       bidStream.on("end", () => {
         res();
@@ -69,10 +69,10 @@ export class AuctionsCache extends Cache {
       match: `${this.prefix}:${txid}:*`,
     });
 
-    let keys: string[] = [];
-    new Promise<void>((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string) => {
-        keys = keys.concat(resultKeys);
+    const keys: string[] = [];
+    await new Promise<void>((res, _rej) => {
+      bidStream.on("data", (resultKeys: string[]) => {
+        keys.push(...resultKeys);
       });
       bidStream.on("end", async () => {
         res();
@@ -124,13 +124,13 @@ export class AuctionsCache extends Cache {
       match: `${this.prefix}:${transactionId}:*`,
     });
 
-    let keys: string[] = [];
-    new Promise((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string) => {
-        keys = keys.concat(resultKeys);
+    const keys: string[] = [];
+    await new Promise<void>((res, _rej) => {
+      bidStream.on("data", async (resultKeys: string[]) => {
+        keys.push(...resultKeys);
       });
       bidStream.on("end", async () => {
-        res(storedBids);
+        res();
       });
     });
 
