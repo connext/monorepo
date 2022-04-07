@@ -164,7 +164,9 @@ describe("collectExpressiveLiquidity", () => {
     (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(0).rejects(new Error("Fail"));
     (contractReaderMock.getExpressiveAssetBalances as SinonStub).onCall(1).resolves([]);
     const ret = await metrics.collectExpressiveLiquidity();
-    expect(ret).to.be.deep.eq({ [Object.keys(configMock.chainConfig)[1]]: [] });
+    expect(ret).to.be.deep.eq({
+      [Object.keys(configMock.chainConfig)[1]]: [],
+    });
     expect((contractReaderMock.getExpressiveAssetBalances as SinonStub).callCount).to.be.eq(
       Object.keys(configMock.chainConfig).length,
     );

@@ -78,7 +78,7 @@ describe("getContractAddress", () => {
     expect(shared.getContractAddress(1338)).to.be.eq(mkAddress("0xbbb"));
   });
   it("should throw error", () => {
-    expect(() => shared.getContractAddress(1)).to.throw(Error);
+    expect(() => shared.getContractAddress(56)).to.throw(Error);
   });
 });
 
