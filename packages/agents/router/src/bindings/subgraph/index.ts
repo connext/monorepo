@@ -7,8 +7,8 @@ import {
   XTransferStatus,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { getHelpers } from "../../lib/helpers";
 
+import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../router";
 
 export const SUBGRAPH_POLL_INTERVAL = 15_000;
@@ -70,8 +70,10 @@ export const pollSubgraph = async () => {
       });
     }
     const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
+
+    const transferIds = transactions.map((transaction) => transaction.transferId);
     logger.debug("Got transactions", requestContext, methodContext, {
-      transactions,
+      transferIds,
     });
 
     await cache.transfers.storeTransfers(transactions);

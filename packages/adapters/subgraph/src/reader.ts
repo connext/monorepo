@@ -168,8 +168,12 @@ export class SubgraphReader {
         transfers.forEach((_tx) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
-          const confirmedBlockNumber =
-            tx.status === XTransferStatus.Executed ? tx.execute!.blockNumber : tx.reconcile!.blockNumber;
+          let confirmedBlockNumber = 0;
+          if (tx.status === XTransferStatus.XCalled) {
+            confirmedBlockNumber = tx.execute!.blockNumber;
+          } else if (tx.status === XTransferStatus.Reconciled) {
+            confirmedBlockNumber = tx.reconcile!.blockNumber;
+          }
           if (confirmedBlockNumber < agents.get(destinationDomain)!.maxBlockNumber) {
             inMap.status = tx.status;
             allTxById.set(tx.transferId, inMap);
