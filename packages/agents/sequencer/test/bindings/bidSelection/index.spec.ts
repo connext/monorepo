@@ -1,5 +1,4 @@
-import { delay } from "@connext/nxtp-utils";
-import { expect } from "chai";
+import { expect, delay } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { ctxMock } from "../../globalTestHook";

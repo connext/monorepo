@@ -17,7 +17,6 @@ export class ConsumersCache extends Cache {
     this.data.subscribe(
       StoreChannel.NewBid,
       StoreChannel.NewHighestNonce,
-      StoreChannel.NewXCall,
       StoreChannel.NewStatus,
       (err: any, count) => {
         if (err) {

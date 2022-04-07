@@ -39,7 +39,7 @@ describe("AuctionCache", () => {
 
     RedisSub.subscribe(StoreChannel.NewBid);
 
-    auctions = new AuctionsCache({ mock: true, logger });
+    auctions = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   afterEach(async () => {
