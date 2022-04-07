@@ -1,4 +1,5 @@
 import { BigNumber, constants, utils } from "ethers";
+import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
@@ -14,6 +15,7 @@ type TaskArgs = {
   amount?: string;
   connextAddress?: string;
   pool?: string;
+  relayer?: string;
 };
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
@@ -23,6 +25,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("pool", "The adopted <> local stable swap pool address")
+  .addOptionalParam("relayer", "The relayer address to approve")
   .setAction(
     async (
       {
@@ -32,6 +35,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         domain: _domain,
         asset: _asset,
         pool: _pool,
+        relayer: _relayer,
       }: TaskArgs,
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
@@ -61,6 +65,11 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         throw new Error("Asset must be specified as param or from env (CANONICAL_TOKEN)");
       }
       const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
+
+      const relayer = _relayer ?? process.env.RELAYER_ADDRESS;
+      if (!isAddress(relayer || "")) {
+        throw new Error("Relayer address must be specified as param of from env (RELAYER_ADDRESS)");
+      }
 
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;
@@ -174,5 +183,13 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       } else {
         console.log("*** Sufficient relayer fees present!");
       }
+
+      // Add relayer
+      const tx = await connext.addRelayer(relayer, {
+        from: namedAccounts.deployer,
+      });
+      console.log("addRelayer tx:", tx.hash);
+      await tx.wait(1);
+      console.log("Addred whitelist relayer:", relayer);
     },
   );

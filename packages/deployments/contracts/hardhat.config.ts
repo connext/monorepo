@@ -12,7 +12,7 @@ import "hardhat-contract-sizer";
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 
-import "./src/tasks/addRouter";
+import "./src/tasks/setupRouter";
 import "./src/tasks/setupAsset";
 import "./src/tasks/createRouter";
 import "./src/tasks/removeRelayerFee";

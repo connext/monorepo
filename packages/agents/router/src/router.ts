@@ -120,8 +120,8 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
-    redis: redis ? redis : undefined,
-    mock: redis ? false : true,
+    redis: { host: redis.host, port: redis.port, instance: undefined },
+    mock: !redis.host || !redis.port,
     logger: logger.child({ module: "StoreManager" }),
   });
 
@@ -157,7 +157,8 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
   });
 
   logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    host: redis.host, port: redis.port,
+    host: redis.host,
+    port: redis.port,
   });
 
   return cacheInstance;
