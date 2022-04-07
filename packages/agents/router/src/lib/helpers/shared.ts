@@ -1,6 +1,9 @@
+import * as fs from "fs";
+
 import {
   signHandleRelayerFeePayload as _signHandleRelayerFeePayload,
   getSubgraphHealth as _getSubgraphHealth,
+  getSubgraphName as _getSubgraphName,
 } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 
@@ -40,3 +43,9 @@ export const getTransactionId = (nonce: string, domain: string): string => {
 export const signHandleRelayerFeePayload = _signHandleRelayerFeePayload;
 
 export const getSubgraphHealth = _getSubgraphHealth;
+
+export const getSubgraphName = _getSubgraphName;
+
+export const existsSync = fs.existsSync;
+
+export const readFileSync = fs.readFileSync;

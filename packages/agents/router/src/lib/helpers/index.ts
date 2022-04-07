@@ -1,5 +1,13 @@
 import { sanityCheck } from "./execute";
-import { getDestinationLocalAsset, getTransactionId, signHandleRelayerFeePayload, getSubgraphHealth } from "./shared";
+import {
+  getDestinationLocalAsset,
+  getTransactionId,
+  signHandleRelayerFeePayload,
+  getSubgraphHealth,
+  getSubgraphName,
+  existsSync,
+  readFileSync,
+} from "./shared";
 
 export const getHelpers = () => {
   return {
@@ -11,6 +19,9 @@ export const getHelpers = () => {
       getTransactionId,
       signHandleRelayerFeePayload,
       getSubgraphHealth,
+      getSubgraphName,
+      existsSync,
+      readFileSync,
     },
   };
 };

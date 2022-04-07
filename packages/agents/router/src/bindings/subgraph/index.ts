@@ -1,6 +1,5 @@
 import {
   createLoggingContext,
-  getSubgraphName,
   jsonifyError,
   NxtpError,
   SubgraphQueryMetaParams,
@@ -35,7 +34,7 @@ export const pollSubgraph = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
   const {
-    shared: { getSubgraphHealth },
+    shared: { getSubgraphHealth, getSubgraphName },
   } = getHelpers();
   try {
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
@@ -69,14 +68,17 @@ export const pollSubgraph = async () => {
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
       });
     }
-    const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
 
-    const transferIds = transactions.map((transaction) => transaction.transferId);
-    logger.debug("Got transactions", requestContext, methodContext, {
-      transferIds,
-    });
+    if ([...subgraphQueryMetaParams.keys()].length > 0) {
+      const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
 
-    await cache.transfers.storeTransfers(transactions);
+      const transferIds = transactions.map((transaction) => transaction.transferId);
+      logger.debug("Got transactions", requestContext, methodContext, {
+        transferIds,
+      });
+
+      await cache.transfers.storeTransfers(transactions);
+    }
   } catch (err: unknown) {
     logger.error(
       "Error getting pending txs, waiting for next loop",

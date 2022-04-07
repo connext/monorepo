@@ -36,8 +36,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -50,8 +50,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
