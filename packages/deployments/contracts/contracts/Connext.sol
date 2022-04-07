@@ -62,8 +62,8 @@ contract Connext is
   error Connext__decrementLiquidity_notEmpty();
   error Connext__handleRelayerFees_notRtrSig();
   error Connext__handleRelayerFees_notApprovedRelayer();
-  error Connext__setupRelayer_badAddress();
-  error Connext__setupRelayer_alreadyDid();
+  error Connext__addRelayer_alreadyApproved();
+  error Connext__removeRelayer_notApproved();
 
   // ============ Constants =============
 
@@ -284,17 +284,25 @@ contract Connext is
 
   /**
    * @notice Used to add approved relayer
-   * @param relayer - The relayer address to add or remove
-   * @param approved - approved or not
+   * @param relayer - The relayer address to add
    */
-  function setupRelayer(address relayer, bool approved) external override onlyOwner {
-    if (relayer == address(0)) revert Connext__setupRelayer_badAddress();
-    if (approvedRelayers[relayer] == approved) revert Connext__setupRelayer_alreadyDid();
-    approvedRelayers[relayer] = approved;
+  function addRelayer(address relayer) external override onlyOwner {
+    if (approvedRelayers[relayer]) revert Connext__addRelayer_alreadyApproved();
+    approvedRelayers[relayer] = true;
 
-    emit RelayerSetup(relayer, approved);
+    emit RelayerAdded(relayer, msg.sender);
   }
 
+  /**
+   * @notice Used to remove approved relayer
+   * @param relayer - The relayer address to remove
+   */
+  function removeRelayer(address relayer) external override onlyOwner {
+    if (!approvedRelayers[relayer]) revert Connext__removeRelayer_notApproved();
+    delete approvedRelayers[relayer];
+
+    emit RelayerRemoved(relayer, msg.sender);
+  }
   // ============ Public Functions ============
 
   /**

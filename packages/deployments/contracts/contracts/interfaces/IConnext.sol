@@ -134,9 +134,16 @@ interface IConnext {
   /**
    * @notice Emitted when a rlayer is added or removed from whitelists
    * @param relayer - The relayer address to be added or removed
-   * @param approved - Added or removed?
+   * @param caller - The account that called the function
    */
-  event RelayerSetup(address relayer, bool approved);
+  event RelayerAdded(address relayer, address caller);
+
+  /**
+   * @notice Emitted when a rlayer is added or removed from whitelists
+   * @param relayer - The relayer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event RelayerRemoved(address relayer, address caller);
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
@@ -260,7 +267,9 @@ interface IConnext {
 
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external;
 
-  function setupRelayer(address relayer, bool approved) external;
+  function addRelayer(address relayer) external;
+
+  function removeRelayer(address relayer) external;
 
   // ============ Public Functions ===========
 
