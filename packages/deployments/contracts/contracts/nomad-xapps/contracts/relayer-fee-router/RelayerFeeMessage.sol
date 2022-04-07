@@ -4,6 +4,8 @@ pragma solidity 0.8.11;
 // ============ External Imports ============
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
+import "../../../../lib/forge-std/src/console.sol";
+
 library RelayerFeeMessage {
   // ============ Libraries ============
 
@@ -18,6 +20,18 @@ library RelayerFeeMessage {
   enum Types {
     Invalid, // 0
     ClaimFees // 1
+  }
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Asserts a message is of type `_t`
+   * @param _view The message
+   * @param _t The expected type
+   */
+  modifier typeAssert(bytes29 _view, Types _t) {
+    _view.assertType(uint40(_t));
+    _;
   }
 
   // ============ Formatters ============
@@ -37,26 +51,6 @@ library RelayerFeeMessage {
     return abi.encodePacked(uint8(Types.ClaimFees), _recipient, _amount, _transactionIds.length, _transactionIds);
   }
 
-  // ============ Identifiers ============
-
-  /**
-   * @notice Get the type that the TypedMemView is cast to
-   * @param _view The message
-   * @return _type The type of the message (one of the enum Types)
-   */
-  function messageType(bytes29 _view) internal pure returns (Types _type) {
-    _type = Types(uint8(_view.typeOf()));
-  }
-
-  /**
-   * @notice Determine whether the message is a message Type ClaimFee
-   * @param _view The message
-   * @return _isTypeClaimFees True if the message is Type ClaimFee
-   */
-  function isTypeClaimFee(bytes29 _view) internal pure returns (bool _isTypeClaimFees) {
-    _isTypeClaimFees = messageType(_view) == Types.ClaimFees;
-  }
-
   // ============ Getters ============
 
   /**
@@ -64,7 +58,7 @@ library RelayerFeeMessage {
    * @param _view The message
    * @return The recipient address
    */
-  function recipient(bytes29 _view) internal pure returns (address) {
+  function recipient(bytes29 _view) internal pure typeAssert(_view, Types.ClaimFees) returns (address) {
     // before = 1 byte identifier
     return _view.indexAddress(1);
   }
@@ -74,7 +68,7 @@ library RelayerFeeMessage {
    * @param _view The message
    * @return The amount of fees
    */
-  function amount(bytes29 _view) internal pure returns (uint256) {
+  function amount(bytes29 _view) internal pure typeAssert(_view, Types.ClaimFees) returns (uint256) {
     // before = 1 byte identifier + 20 bytes address
     return _view.indexUint(21, 32);
   }
@@ -84,13 +78,48 @@ library RelayerFeeMessage {
    * @param _view The message
    * @return The group of transaction ids to claim for fee bumps
    */
-  function transactionIds(bytes29 _view) internal pure returns (bytes32[] memory) {
-    uint256 length = _view.indexUint(85, 32);
+  function transactionIds(bytes29 _view) internal view typeAssert(_view, Types.ClaimFees) returns (bytes32[] memory) {
+    // before length = 1 byte identifier + 20 bytes recipient + 32 bytes amount = 53 bytes
+    // check if there are transaction ids in the message
+    if (_view.len() == 53) return new bytes32[](0);
+    uint256 length = _view.indexUint(53, 32);
+
     // before = 1 byte identifier + 20 bytes recipient + 32 bytes amount + 32 bytes length = 85 bytes
-    bytes32[] memory _transactionIds = new bytes32[](length);
+    bytes32[] memory ids = new bytes32[](length);
     for (uint256 i = 0; i < length; i++) {
-      _transactionIds[i] = _view.index(85 + i * 32, 32);
+      ids[i] = _view.index(85 + i * 32, 32);
     }
-    return _transactionIds;
+    return ids;
+  }
+
+  /**
+   * @notice Checks that view is a valid message length
+   * @param _view The bytes string
+   * @return TRUE if message is valid
+   */
+  function isValidClaimFeesLength(bytes29 _view) internal pure returns (bool) {
+    uint256 _len = _view.len();
+    return _len >= 53;
+  }
+
+  /**
+   * @notice Converts to a ClaimFees
+   * @param _view The message
+   * @return The newly typed message
+   */
+  function tryAsClaimFees(bytes29 _view) internal pure returns (bytes29) {
+    if (isValidClaimFeesLength(_view)) {
+      return _view.castTo(uint40(Types.ClaimFees));
+    }
+    return TypedMemView.nullView();
+  }
+
+  /**
+   * @notice Asserts that the message is of type ClaimFees
+   * @param _view The message
+   * @return The message
+   */
+  function mustBeClaimFees(bytes29 _view) internal pure returns (bytes29) {
+    return tryAsClaimFees(_view).assertValid();
   }
 }

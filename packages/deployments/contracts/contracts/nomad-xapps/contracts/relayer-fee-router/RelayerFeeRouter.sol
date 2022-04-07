@@ -13,6 +13,8 @@ import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
+// import "../../../../lib/forge-std/src/console.sol";
+
 /**
  * @title BridgeRouter
  */
@@ -28,7 +30,6 @@ contract RelayerFeeRouter is Version0, Router {
   error RelayerFeeRouter__onlyConnext_notConnext();
   error RelayerFeeRouter__send_claimEmpty();
   error RelayerFeeRouter__send_recipientEmpty();
-  error RelayerFeeRouter__handle_invalidMessage();
 
   // ============ Public Storage ============
 
@@ -41,20 +42,19 @@ contract RelayerFeeRouter is Version0, Router {
 
   // ======== Events =========
 
-  // TODO - docs
-  event Send(
-    uint32 domain,
-    address recipient,
-    uint256 amount,
-    bytes32[] _transactionIds,
-    bytes32 remote,
-    uint32 localDomain,
-    bytes message
-  );
+  /**
+   * @notice Emitted when a fees claim has been initialized in this domain
+   * @param domain The domain where to claim the fees
+   * @param recipient The address of the relayer
+   * @param amount The amount of fees to claim
+   * @param transactionIds A group of transaction ids to claim for fee bumps
+   * @param remote Remote RelayerFeeRouter address
+   * @param message The message sent to the destination domain
+   */
+  event Send(uint32 domain, address recipient, uint256 amount, bytes32[] transactionIds, bytes32 remote, bytes message);
 
   /**
-   * @notice emitted when tokens are dispensed to an account on this domain
-   * emitted both when fast liquidity is provided, and when the transfer ultimately settles
+   * @notice Emitted when the a fees claim message has arrived to this domain
    * @param originAndNonce Domain where the transfer originated and the unique identifier
    * for the message from origin to destination, combined in a single field ((origin << 32) & nonce)
    * @param origin Domain where the transfer originated
@@ -70,6 +70,10 @@ contract RelayerFeeRouter is Version0, Router {
     bytes32[] transactionIds
   );
 
+  /**
+   * @notice Emitted when a new Connext address is set
+   * @param connext The new connext address
+   */
   event SetConnext(address indexed connext);
 
   // ======== Receive =======
@@ -125,14 +129,14 @@ contract RelayerFeeRouter is Version0, Router {
     if (_recipient == address(0)) revert RelayerFeeRouter__send_recipientEmpty();
 
     // get remote RelayerFeeRouter address; revert if not found
-    bytes32 _remote = _mustHaveRemote(_domain);
+    bytes32 remote = _mustHaveRemote(_domain);
 
     bytes memory message = RelayerFeeMessage.formatClaimFees(_recipient, _amount, _transactionIds);
 
-    Home(xAppConnectionManager.home()).dispatch(_domain, _remote, message);
+    xAppConnectionManager.home().dispatch(_domain, remote, message);
 
     // emit Send event
-    emit Send(_domain, _recipient, _amount, _transactionIds, _remote, _localDomain(), message);
+    emit Send(_domain, _recipient, _amount, _transactionIds, remote, message);
   }
 
   // ======== External: Handle =========
@@ -151,18 +155,16 @@ contract RelayerFeeRouter is Version0, Router {
     bytes memory _message
   ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
     // parse tokenId and action from message
-    bytes29 _msg = _message.ref(0);
+    bytes29 _msg = _message.ref(0).mustBeClaimFees();
 
-    if (!_msg.isTypeClaimFee()) revert RelayerFeeRouter__handle_invalidMessage();
-
-    address _recipient = _msg.recipient();
-    uint256 _amount = _msg.amount();
-    bytes32[] memory _transactionIds = _msg.transactionIds();
+    address recipient = _msg.recipient();
+    uint256 amount = _msg.amount();
+    bytes32[] memory transactionIds = _msg.transactionIds();
 
     // TODO - claim fee in connext
 
     // emit Receive event
-    emit Receive(_originAndNonce(_origin, _nonce), _origin, _recipient, _amount, _transactionIds);
+    emit Receive(_originAndNonce(_origin, _nonce), _origin, recipient, amount, transactionIds);
   }
 
   /**
