@@ -74,7 +74,7 @@ export class AuctionsCache extends Cache {
       bidStream.on("data", (resultKeys: string[]) => {
         keys.push(...resultKeys);
       });
-      bidStream.on("end", async () => {
+      bidStream.on("end", () => {
         res();
       });
     });
@@ -126,10 +126,10 @@ export class AuctionsCache extends Cache {
 
     const keys: string[] = [];
     await new Promise<void>((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string[]) => {
+      bidStream.on("data", (resultKeys: string[]) => {
         keys.push(...resultKeys);
       });
-      bidStream.on("end", async () => {
+      bidStream.on("end", () => {
         res();
       });
     });
