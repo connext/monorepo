@@ -7,7 +7,7 @@ locals {
     "logLevel" = "debug"
     "chains" = {
       "2000" = {
-        "providers" = ["https://rinkeby.infura.io/v3/${var.infura_api_key}"]
+        "providers" = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}"]
         "subgraph" = {
           "runtime"   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
           "analytics" = [""]
@@ -18,7 +18,7 @@ locals {
         }]
       }
       "3000" = {
-        "providers" = ["https://kovan.infura.io/v3/${var.infura_api_key}"]
+        "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
         "subgraph" = {
           "runtime" = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
           "analytics" : [""]
@@ -47,7 +47,7 @@ locals {
     }
     chains = {
       2000 = {
-        providers = ["https://rinkeby.infura.io/v3/${var.infura_api_key}"]
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
         subgraph = {
           runtime = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
           analytics : [""]
@@ -60,7 +60,7 @@ locals {
         ]
       }
       3000 = {
-        providers = ["https://kovan.infura.io/v3/${var.infura_api_key}"]
+        "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
         subgraph = {
           runtime   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
           analytics = [""]
