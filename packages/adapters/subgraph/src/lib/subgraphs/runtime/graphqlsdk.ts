@@ -849,6 +849,13 @@ export type GetAssetByLocalQueryVariables = Exact<{
 
 export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any }> };
 
+export type GetAssetByCanonicalIdQueryVariables = Exact<{
+  canonicalId: Scalars['Bytes'];
+}>;
+
+
+export type GetAssetByCanonicalIdQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any }> };
+
 
 export const GetXCalledTransfersDocument = gql`
     query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
@@ -1013,6 +1020,17 @@ export const GetAssetByLocalDocument = gql`
   }
 }
     `;
+export const GetAssetByCanonicalIdDocument = gql`
+    query GetAssetByCanonicalId($canonicalId: Bytes!) {
+  assets(where: {canonicalId: $canonicalId}) {
+    id
+    local
+    adoptedAsset
+    canonicalId
+    canonicalDomain
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -1032,6 +1050,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetAssetByLocal(variables: GetAssetByLocalQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByLocalQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByLocalQuery>(GetAssetByLocalDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByLocal', 'query');
+    },
+    GetAssetByCanonicalId(variables: GetAssetByCanonicalIdQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByCanonicalIdQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByCanonicalIdQuery>(GetAssetByCanonicalIdDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByCanonicalId', 'query');
     }
   };
 }
