@@ -193,6 +193,21 @@ describe("Config", () => {
 
       expect(() => getEnvConfig(chainDataMock)).not.throw();
     });
+
+    it("should fail if there are missing chainConfigs", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_NETWORK: "local",
+        NXTP_CONFIG: JSON.stringify({
+          ...configMock,
+          chainConfig: {
+            1337: {},
+          },
+        }),
+      });
+
+      expect(() => getEnvConfig(chainDataMock)).throw(`Missing "chainConfig" entries for: ${[1338]}`);
+    });
   });
 
   describe("getConfig", () => {

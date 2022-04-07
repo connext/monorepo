@@ -433,6 +433,14 @@ export const getEnvConfig = (crossChainData: Map<string, any> | undefined): Nxtp
     throw new Error(validate.errors?.map((err: any) => err.message).join(","));
   }
 
+  // validate there are the right providers in place (always need mainnet for pricing)
+  const providersRequired = new Set([1, ...nxtpConfig.swapPools.flatMap((s) => s.assets).map((a) => a.chainId)]);
+
+  const missing = [...providersRequired].filter((chain) => !Object.keys(nxtpConfig.chainConfig).includes(`${chain}`));
+  if (missing.length > 0) {
+    throw new Error(`Missing "chainConfig" entries for: ${missing}`);
+  }
+
   return nxtpConfig;
 };
 
