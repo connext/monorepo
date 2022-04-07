@@ -21,13 +21,14 @@ export class TransfersCache extends Cache {
 
   /// MARK - Latest Nonce
   /**
-   * Retrieve currently stored latest nonce for the specified domain.
+   * Retrieve currently stored latest nonce for the specified domain. If no nonce is
+   * stored, returns 0 by default.
    *
-   * @param domain - The chain's domain that we're going to get the latest nonce on.
-   * @returns latest nonce for that domain
+   * @param domain - The domain whose latest nonce we're retrieving.
+   * @returns latest nonce we've recorded for that domain
    */
   public async getLatestNonce(domain: string): Promise<number> {
-    const res = await this.data.hget(`${this.prefix}:${domain}`, "nonce");
+    const res = await this.data.hget(`${this.prefix}:nonce`, domain);
     if (res) {
       return parseInt(res);
     }
@@ -148,7 +149,7 @@ export class TransfersCache extends Cache {
     const index = currentPending.findIndex((id) => id === transferId);
     if (index >= 0) {
       currentPending.splice(index, 1);
-      await this.data.hset(`${this.prefix}:pending:${domain}`, JSON.stringify(currentPending));
+      await this.data.hset(`${this.prefix}:pending`, domain, JSON.stringify(currentPending));
       return true;
     }
     return false;

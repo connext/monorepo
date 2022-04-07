@@ -29,7 +29,7 @@ describe("TransfersCache", () => {
   });
 
   describe("#getLatestNonce", () => {
-    it("should get default nonce if no exists", async () => {
+    it("should get default nonce if none exists", async () => {
       await transfersCache.storeTransfers([fakeTxs[1]]);
       const latestNonce = await transfersCache.getLatestNonce("1");
       expect(latestNonce).to.be.equal(0);
