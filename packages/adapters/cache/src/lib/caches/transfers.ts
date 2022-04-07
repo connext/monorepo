@@ -105,7 +105,7 @@ export class TransfersCache extends Cache {
     // Set the new highest nonce, and publish NewHighestNonce events for any new highest nonces we found.
     for (const [domain, nonce] of Object.entries(highestNonceByDomain)) {
       if (nonceDidIncreaseForDomain[domain]) {
-        await this.data.hset(`${this.prefix}:${domain}`, "nonce", nonce);
+        await this.data.hset(`${this.prefix}:nonce`, domain, nonce);
         await this.data.publish(StoreChannel.NewHighestNonce, JSON.stringify({ domain, nonce }));
       }
     }
@@ -119,7 +119,7 @@ export class TransfersCache extends Cache {
    * @param domain - Domain to get pending transfers for.
    */
   public async getPending(domain: string): Promise<string[]> {
-    return JSON.parse((await this.data.get(`${this.prefix}:pending:${domain}`)) ?? "[]");
+    return JSON.parse((await this.data.hget(`${this.prefix}:pending`, domain)) ?? "[]");
   }
 
   /**
@@ -131,7 +131,7 @@ export class TransfersCache extends Cache {
   private async addPending(domain: string, transferId: string) {
     const currentPending = await this.getPending(domain);
     if (!currentPending.includes(transferId)) {
-      await this.data.set(`${this.prefix}:pending:${domain}`, JSON.stringify([...currentPending, transferId]));
+      await this.data.hset(`${this.prefix}:pending`, domain, JSON.stringify([...currentPending, transferId]));
     }
   }
 
@@ -148,7 +148,7 @@ export class TransfersCache extends Cache {
     const index = currentPending.findIndex((id) => id === transferId);
     if (index >= 0) {
       currentPending.splice(index, 1);
-      await this.data.set(`${this.prefix}:pending:${domain}`, JSON.stringify(currentPending));
+      await this.data.hset(`${this.prefix}:pending:${domain}`, JSON.stringify(currentPending));
       return true;
     }
     return false;

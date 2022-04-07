@@ -1,6 +1,6 @@
 import fastify, { FastifyInstance } from "fastify";
 import pino from "pino";
-import { Bid, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { Bid, createLoggingContext, jsonifyError, mock } from "@connext/nxtp-utils";
 
 import { handleBid } from "../../lib/operations";
 import { getContext } from "../../sequencer";
@@ -49,6 +49,23 @@ export const bindServer = () =>
         return response.status(200).send({ bids });
       } catch (error: unknown) {
         logger.error(`Bids by TransferId Get Error`, requestContext, methodContext);
+        return response.code(500).send({ err: jsonifyError(error as Error) });
+      }
+    });
+
+    server.post("/test/cache/fakebid", {}, async (request, response) => {
+      const { requestContext, methodContext } = createLoggingContext("POST /bid endpoint");
+      try {
+        const bid: Bid = mock.entities.bid();
+        const { transferId } = bid;
+        await handleBid(bid, requestContext);
+        const res = await cache.auctions.storeBid(bid);
+        logger.info("Stored bid to cache", requestContext, methodContext, {
+          res,
+        });
+        return response.status(200).send({ message: `Stored a fake bid under transfer ID: ${transferId}` });
+      } catch (error: unknown) {
+        logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
         return response.code(500).send({ err: jsonifyError(error as Error) });
       }
     });
