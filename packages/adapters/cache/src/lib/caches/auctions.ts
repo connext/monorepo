@@ -35,49 +35,56 @@ export class AuctionsCache extends Cache {
   }
 
   public async getAllTransactionsIdsWithPendingBids(): Promise<string[]> {
-    const pendingTxids: string[] = [];
-
     const bidStream = this.data.scanStream({
       match: `${this.prefix}:*`,
     });
 
-    return new Promise((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string) => {
-        for (const key of resultKeys) {
-          const record = await this.data.hgetall(key);
-          const bidStatus: BidStatus = record["status"] as BidStatus;
-          //found pending txid;
-          if (bidStatus === BidStatus.Pending) {
-            //get txid from longer key
-            const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
-            if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
-          }
-        }
+    const keys: string[] = [];
+    await new Promise<void>((res, _rej) => {
+      bidStream.on("data", (resultKeys: string[]) => {
+        keys.push(...resultKeys);
       });
-      bidStream.on("end", async () => {
-        res(pendingTxids);
+      bidStream.on("end", () => {
+        res();
       });
     });
+
+    const pendingTxids: string[] = [];
+    for (const key of keys) {
+      const record = await this.data.hgetall(key);
+      const bidStatus: BidStatus = record["status"] as BidStatus;
+      //found pending txid;
+      if (bidStatus === BidStatus.Pending) {
+        //get txid from longer key
+        const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
+        if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
+      }
+    }
+    return pendingTxids;
   }
 
   public async updateAllBidsWithTransactionId(txid: string, status: BidStatus): Promise<number[] | void> {
     //gets all the keys that match for the txid (all bids)
-    const statusSetResults: number[] = [];
     const bidStream = this.data.scanStream({
       match: `${this.prefix}:${txid}:*`,
     });
 
-    return new Promise((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string) => {
-        for (const key of resultKeys) {
-          const fieldUpdated = await this.data.hset(key, "status", status);
-          statusSetResults.push(fieldUpdated);
-        }
+    const keys: string[] = [];
+    await new Promise<void>((res, _rej) => {
+      bidStream.on("data", (resultKeys: string[]) => {
+        keys.push(...resultKeys);
       });
-      bidStream.on("end", async () => {
-        res(statusSetResults);
+      bidStream.on("end", () => {
+        res();
       });
     });
+
+    const statusSetResults: number[] = [];
+    for (const key of keys) {
+      const fieldUpdated = await this.data.hset(key, "status", status);
+      statusSetResults.push(fieldUpdated);
+    }
+    return statusSetResults;
   }
 
   /**
@@ -113,35 +120,38 @@ export class AuctionsCache extends Cache {
    * @returns Auction bids that were stored with the status
    */
   public async getBidsByTransactionId(transactionId: string): Promise<StoredBid[]> {
-    const storedBids: StoredBid[] = [];
-
     const bidStream = this.data.scanStream({
       match: `${this.prefix}:${transactionId}:*`,
     });
 
-    return new Promise((res, _rej) => {
-      bidStream.on("data", async (resultKeys: string) => {
-        for (const key of resultKeys) {
-          // 1 - "payload" - key
-          // 2 - value for the `payload`
-          // 3 - "status" - key
-          // 4 - value for the `status`
-          // 5 - `lastUpdate` - key
-          // 6 - value for the `lastUpdate`
-          const record = await this.data.hgetall(key);
-          const bidStatus = record["status"];
-          const lastUpdate = Number(record["lastUpdate"]);
-
-          storedBids.push({
-            payload: JSON.parse(record["payload"]) as Bid,
-            status: bidStatus as BidStatus,
-            lastUpdate,
-          });
-        }
+    const keys: string[] = [];
+    await new Promise<void>((res, _rej) => {
+      bidStream.on("data", (resultKeys: string[]) => {
+        keys.push(...resultKeys);
       });
-      bidStream.on("end", async () => {
-        res(storedBids);
+      bidStream.on("end", () => {
+        res();
       });
     });
+
+    const storedBids: StoredBid[] = [];
+    for (const key of keys) {
+      // 1 - "payload" - key
+      // 2 - value for the `payload`
+      // 3 - "status" - key
+      // 4 - value for the `status`
+      // 5 - `lastUpdate` - key
+      // 6 - value for the `lastUpdate`
+      const record = await this.data.hgetall(key);
+      const bidStatus = record["status"];
+      const lastUpdate = Number(record["lastUpdate"]);
+
+      storedBids.push({
+        payload: JSON.parse(record["payload"]) as Bid,
+        status: bidStatus as BidStatus,
+        lastUpdate,
+      });
+    }
+    return storedBids;
   }
 }

@@ -20,9 +20,9 @@ export type Scalars = {
 
 export type Asset = {
   __typename?: 'Asset';
-  assetId: Scalars['Bytes'];
+  adoptedAsset: Scalars['Bytes'];
+  canonicalDomain: Scalars['BigInt'];
   canonicalId: Scalars['Bytes'];
-  domain: Scalars['BigInt'];
   id: Scalars['ID'];
   local: Scalars['Bytes'];
 };
@@ -102,26 +102,26 @@ export enum AssetBalance_OrderBy {
 }
 
 export type Asset_Filter = {
-  assetId?: InputMaybe<Scalars['Bytes']>;
-  assetId_contains?: InputMaybe<Scalars['Bytes']>;
-  assetId_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  assetId_not?: InputMaybe<Scalars['Bytes']>;
-  assetId_not_contains?: InputMaybe<Scalars['Bytes']>;
-  assetId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  adoptedAsset?: InputMaybe<Scalars['Bytes']>;
+  adoptedAsset_contains?: InputMaybe<Scalars['Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  adoptedAsset_not?: InputMaybe<Scalars['Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['Bytes']>;
   canonicalId_contains?: InputMaybe<Scalars['Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['Bytes']>>;
   canonicalId_not?: InputMaybe<Scalars['Bytes']>;
   canonicalId_not_contains?: InputMaybe<Scalars['Bytes']>;
   canonicalId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -139,9 +139,9 @@ export type Asset_Filter = {
 };
 
 export enum Asset_OrderBy {
-  AssetId = 'assetId',
+  AdoptedAsset = 'adoptedAsset',
+  CanonicalDomain = 'canonicalDomain',
   CanonicalId = 'canonicalId',
-  Domain = 'domain',
   Id = 'id',
   Local = 'local'
 }
@@ -394,10 +394,10 @@ export type SubscriptionTransfersArgs = {
 
 export type Transfer = {
   __typename?: 'Transfer';
-  callData: Scalars['Bytes'];
-  callTo: Scalars['Bytes'];
-  chainId: Scalars['BigInt'];
-  destinationDomain: Scalars['BigInt'];
+  callData?: Maybe<Scalars['Bytes']>;
+  callTo?: Maybe<Scalars['Bytes']>;
+  chainId?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['Bytes']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
@@ -411,7 +411,7 @@ export type Transfer = {
   id: Scalars['ID'];
   idx?: Maybe<Scalars['BigInt']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  originDomain: Scalars['BigInt'];
+  originDomain?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
   reconciledCaller?: Maybe<Scalars['Bytes']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
@@ -421,9 +421,9 @@ export type Transfer = {
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledTransactionHash?: Maybe<Scalars['Bytes']>;
   router?: Maybe<Router>;
-  status: TransferStatus;
-  to: Scalars['Bytes'];
-  transferId: Scalars['Bytes'];
+  status?: Maybe<TransferStatus>;
+  to?: Maybe<Scalars['Bytes']>;
+  transferId?: Maybe<Scalars['Bytes']>;
   xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
   xcalledCaller?: Maybe<Scalars['Bytes']>;
   xcalledGasLimit?: Maybe<Scalars['BigInt']>;
@@ -818,6 +818,14 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
+export type GetTransfersQueryVariables = Exact<{
+  destinationDomains?: InputMaybe<Array<Scalars['BigInt']> | Scalars['BigInt']>;
+  nonce: Scalars['BigInt'];
+}>;
+
+
+export type GetTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+
 export type GetXCalledTransfersQueryVariables = Exact<{
   destinationDomains?: InputMaybe<Array<Scalars['BigInt']> | Scalars['BigInt']>;
   maxXCallBlockNumber: Scalars['BigInt'];
@@ -825,14 +833,14 @@ export type GetXCalledTransfersQueryVariables = Exact<{
 }>;
 
 
-export type GetXCalledTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransferStatus, to: any, transferId: any, callTo: any, callData: any, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetXCalledTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
 export type GetTransferQueryVariables = Exact<{
   transferId: Scalars['Bytes'];
 }>;
 
 
-export type GetTransferQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransferStatus, to: any, transferId: any, callTo: any, callData: any, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetTransferQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
 export type GetExecutedAndReconciledTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
@@ -840,16 +848,68 @@ export type GetExecutedAndReconciledTransfersByIdsQueryVariables = Exact<{
 }>;
 
 
-export type GetExecutedAndReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain: any, destinationDomain: any, chainId: any, status: TransferStatus, to: any, transferId: any, callTo: any, callData: any, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetExecutedAndReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
 export type GetAssetByLocalQueryVariables = Exact<{
   local: Scalars['Bytes'];
 }>;
 
 
-export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, assetId: any, domain: any, local: any, canonicalId: any }> };
+export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any }> };
 
 
+export const GetTransfersDocument = gql`
+    query GetTransfers($destinationDomains: [BigInt!], $nonce: BigInt!) {
+  transfers(
+    where: {destinationDomain_in: $destinationDomains, nonce_gte: $nonce}
+    orderBy: xcalledBlockNumber
+    orderDirection: desc
+  ) {
+    id
+    originDomain
+    destinationDomain
+    chainId
+    status
+    to
+    transferId
+    callTo
+    callData
+    idx
+    nonce
+    router {
+      id
+    }
+    xcalledCaller
+    xcalledTransactingAmount
+    xcalledLocalAmount
+    xcalledTransactingAsset
+    xcalledLocalAsset
+    xcalledTransactionHash
+    xcalledTimestamp
+    xcalledGasPrice
+    xcalledGasLimit
+    xcalledBlockNumber
+    executedCaller
+    executedTransactingAmount
+    executedLocalAmount
+    executedTransactingAsset
+    executedLocalAsset
+    executedTransactionHash
+    executedTimestamp
+    executedGasPrice
+    executedGasLimit
+    executedBlockNumber
+    reconciledCaller
+    reconciledLocalAsset
+    reconciledLocalAmount
+    reconciledTransactionHash
+    reconciledTimestamp
+    reconciledGasPrice
+    reconciledGasLimit
+    reconciledBlockNumber
+  }
+}
+    `;
 export const GetXCalledTransfersDocument = gql`
     query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
   transfers(
@@ -1006,10 +1066,10 @@ export const GetAssetByLocalDocument = gql`
     query GetAssetByLocal($local: Bytes!) {
   assets(where: {local: $local}) {
     id
-    assetId
-    domain
     local
+    adoptedAsset
     canonicalId
+    canonicalDomain
   }
 }
     `;
@@ -1021,6 +1081,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    GetTransfers(variables: GetTransfersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransfersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetTransfersQuery>(GetTransfersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransfers', 'query');
+    },
     GetXCalledTransfers(variables: GetXCalledTransfersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetXCalledTransfersQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetXCalledTransfersQuery>(GetXCalledTransfersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetXCalledTransfers', 'query');
     },
