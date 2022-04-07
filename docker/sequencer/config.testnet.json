@@ -8,16 +8,26 @@
       "assets": [{ "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2", "name": "TEST" }],
       "providers": ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
       "subgraph": {
-        "analytics": [""],
-        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
+        "runtime": [
+          {
+            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby",
+            "health": "https://api.thegraph.com/index-node/graphql"
+          }
+        ],
+        "analytics": []
       }
     },
     "3000": {
       "assets": [{ "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", "name": "TEST" }],
       "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
       "subgraph": {
-        "analytics": [""],
-        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
+        "runtime": [
+          {
+            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan",
+            "health": "https://api.thegraph.com/index-node/graphql"
+          }
+        ],
+        "analytics": []
       }
     }
   },
