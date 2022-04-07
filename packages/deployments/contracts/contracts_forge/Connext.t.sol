@@ -3,6 +3,10 @@ import "./ForgeHelper.sol";
 
 import "../contracts/Connext.sol";
 import "../contracts/ProposedOwnableUpgradeable.sol";
+import "../contracts/test/TestERC20.sol";
+import "../contracts/test/TestWeth.sol";
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -12,26 +16,88 @@ import "../contracts/ProposedOwnableUpgradeable.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
+contract TestDummyBridgeRouter {
+  uint256 public relayerFeeFromCall;
+
+  function send(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _recipient,
+    bool _enableFast,
+    bytes32 _externalHash,
+    uint256 _relayerFee
+  ) external {
+    relayerFeeFromCall = _relayerFee;
+  }
+}
+
 contract ConnextTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
   event MaxRoutersPerTransferUpdated(uint256 maxRouters, address caller);
+  event XCalled(
+    bytes32 indexed transferId,
+    address indexed to,
+    IConnext.CallParams params,
+    address transactingAsset,
+    address localAsset,
+    uint256 transactingAmount,
+    uint256 localAmount,
+    uint256 relayerFee,
+    uint256 nonce,
+    address caller
+  );
 
   // ============ Storage ============
 
   Connext connext;
 
-  uint256 domain = 1;
-  address bridgeRouter = address(1);
+  uint32 domain = 1;
+  uint32 destinationDomain = 2;
+  TestDummyBridgeRouter bridgeRouter;
   address tokenRegistry = address(2);
-  address wrapper = address(3);
+  WETH wrapper;
+  address canonical = address(4);
+  address local = address(5);
+  TestERC20 originAdopted;
+  address destinationAdopted = address(6);
+  address stableSwap = address(7);
 
   // ============ Test set up ============
 
   function setUp() public {
     connext = new Connext();
-    connext.initialize(domain, payable(bridgeRouter), tokenRegistry, wrapper);
+
+    originAdopted = new TestERC20();
+    bridgeRouter = new TestDummyBridgeRouter();
+    wrapper = new WETH();
+
+    connext.initialize(uint256(domain), payable(address(bridgeRouter)), tokenRegistry, address(wrapper));
+
+    // Setup asset
+    connext.setupAsset(
+      BridgeMessage.TokenId(domain, bytes32(abi.encodePacked(canonical))),
+      address(originAdopted),
+      stableSwap
+    );
+
+    // Setup asset wrapper
+    connext.setupAsset(
+      BridgeMessage.TokenId(domain, bytes32(abi.encodePacked(address(wrapper)))),
+      address(wrapper),
+      stableSwap
+    );
+
+    // Mocks
+    vm.mockCall(address(originAdopted), abi.encodeWithSelector(IERC20.balanceOf.selector), abi.encode(0));
+    vm.mockCall(address(originAdopted), abi.encodeWithSelector(IERC20.transferFrom.selector), abi.encode(true));
+    vm.mockCall(
+      address(tokenRegistry),
+      abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+      abi.encode(address(originAdopted))
+    );
   }
 
   // ============ Utils ============
@@ -89,5 +155,141 @@ contract ConnextTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit MaxRoutersPerTransferUpdated(10, address(this));
     connext.setMaxRoutersPerTransfer(10);
+  }
+
+  // ============ xCall ============
+
+  function testXCallIncreasesOutboundRelayerFee() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    assertEq(connext.outboundRelayerFee(destinationDomain), 0);
+
+    connext.xcall{value: relayerFee}(args);
+
+    assertEq(connext.outboundRelayerFee(destinationDomain), relayerFee);
+  }
+
+  function testXCallEmitsRelayerFee() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    vm.expectEmit(false, false, false, true);
+    emit XCalled(
+      bytes32("0x"),
+      to,
+      callParams,
+      address(originAdopted),
+      address(originAdopted),
+      0,
+      0,
+      relayerFee,
+      0,
+      address(this)
+    );
+    connext.xcall{value: relayerFee}(args);
+  }
+
+  function testXCallSendsRelayerFeeToBridgeRouter() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    connext.xcall{value: relayerFee}(args);
+
+    assertEq(bridgeRouter.relayerFeeFromCall(), relayerFee);
+  }
+
+  function testXCallWorksWithZeroRelayerFee() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    connext.xcall{value: relayerFee}(args);
+  }
+
+  function testXCallConsidersRelayerFeeValueInTokenTransfer() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    connext.xcall{value: relayerFee}(args);
+  }
+
+  function testXCallConsidersRelayerFeeValueInNativeTransfer() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(0);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    vm.mockCall(
+      address(tokenRegistry),
+      abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+      abi.encode(address(wrapper))
+    );
+
+    connext.xcall{value: amount + relayerFee}(args);
+  }
+
+  function testXCallConsidersRelayerFeeValueInTokenTransferRevert() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    connext.xcall{value: relayerFee - 1}(args);
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    connext.xcall{value: relayerFee + 1}(args);
+  }
+
+  function testXCallConsidersRelayerFeeValueInNativeTransferRevert() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(0);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    vm.mockCall(
+      address(tokenRegistry),
+      abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+      abi.encode(address(wrapper))
+    );
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    connext.xcall{value: amount + relayerFee - 1}(args);
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    connext.xcall{value: amount + relayerFee + 1}(args);
   }
 }
