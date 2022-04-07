@@ -7,7 +7,7 @@ locals {
     "logLevel" = "debug"
     "chains" = {
       "2000" = {
-        "providers" = ["https://rinkeby.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
+        "providers" = ["https://rinkeby.infura.io/v3/${var.infura_api_key}"]
         "subgraph" = {
           "runtime"   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
           "analytics" = [""]
@@ -18,7 +18,7 @@ locals {
         }]
       }
       "3000" = {
-        "providers" = ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
+        "providers" = ["https://kovan.infura.io/v3/${var.infura_api_key}"]
         "subgraph" = {
           "runtime" = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
           "analytics" : [""]
@@ -47,7 +47,7 @@ locals {
     }
     chains = {
       2000 = {
-        providers = ["https://rinkeby.infura.io/v3/38f8f85747014e87b48035d84398a97c"]
+        providers = ["https://rinkeby.infura.io/v3/${var.infura_api_key}"]
         subgraph = {
           runtime = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
           analytics : [""]
@@ -60,7 +60,7 @@ locals {
         ]
       }
       3000 = {
-        providers = ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"]
+        providers = ["https://kovan.infura.io/v3/${var.infura_api_key}"]
         subgraph = {
           runtime   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
           analytics = [""]

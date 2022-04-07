@@ -197,6 +197,7 @@ jobs:
       TF_VAR_full_image_name_sequencer: ${{ needs.smoke-tests.outputs.sequencer-tags }}
       TF_VAR_mnemonic: ${{ secrets.MNEMONIC_TESTNET }}
       TF_VAR_admin_token_router: ${{ secrets.ADMIN_TOKEN_ROUTER_TESTNET }}
+      TF_VAR_infura_api_key: ${{ secrets.INFURA_API_KEY }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
