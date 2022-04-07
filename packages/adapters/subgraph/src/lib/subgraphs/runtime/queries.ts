@@ -194,10 +194,10 @@ export const getAssetByLocal = gql`
   query GetAssetByLocal($local: Bytes!) {
     assets(where: { local: $local }) {
       id
-      assetId
-      domain
       local
+      adoptedAsset
       canonicalId
+      canonicalDomain
     }
   }
 `;
