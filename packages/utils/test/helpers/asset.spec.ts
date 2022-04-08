@@ -1,17 +1,11 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
 import { restore, reset, stub } from "sinon";
-import {
-  getDecimalsForAsset,
-  mkAddress,
-  getOnchainBalance,
-  mock,
-  chainDataToMap,
-  getMainnetEquivalent,
-} from "../../src";
 import { constants, providers } from "ethers";
+import { parseEther } from "ethers/lib/utils";
+
+import { getDecimalsForAsset, mkAddress, getOnchainBalance, chainDataToMap, getMainnetEquivalent } from "../../src";
 import * as SharedFns from "../../src/ethers/shared";
 import * as ChainDataFns from "../../src/peripherals/chainData";
-import { parseEther } from "ethers/lib/utils";
 
 const mockProvider = new providers.JsonRpcProvider("https://mock.io");
 const mockChainData = chainDataToMap([
