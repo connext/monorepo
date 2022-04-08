@@ -69,7 +69,7 @@ locals {
               query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
               health = "https://api.thegraph.com/index-node/graphql"
           }]
-          analytics: [ ]
+          analytics: []
         }
         deployments = {}
         assets = [
@@ -86,7 +86,7 @@ locals {
             query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"
             health = "https://api.thegraph.com/index-node/graphql"
           }]
-          analytics = [""]
+          analytics = []
         }
         deployments = {}
         assets = [
