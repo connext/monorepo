@@ -83,6 +83,8 @@ export const BidResponseSchema = Type.Object({
   error: Type.Optional(NxtpErrorJsonSchema),
 });
 
+export type BidResponse = Static<typeof BidResponseSchema>;
+
 export type ExternalCall = {
   to: string;
   callData: string;

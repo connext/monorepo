@@ -1,6 +1,14 @@
 import fastify, { FastifyInstance } from "fastify";
 import pino from "pino";
-import { Bid, createLoggingContext, jsonifyError, mock } from "@connext/nxtp-utils";
+import {
+  Bid,
+  createLoggingContext,
+  jsonifyError,
+  mock,
+  BidSchema,
+  BidResponseSchema,
+  BidResponse,
+} from "@connext/nxtp-utils";
 
 import { handleBid } from "../../lib/operations";
 import { getContext } from "../../sequencer";
@@ -18,18 +26,30 @@ export const bindServer = () =>
       return res.code(200).send("pong\n");
     });
 
-    server.post("/bid", {}, async (request, response) => {
-      const { requestContext, methodContext } = createLoggingContext("POST /bid endpoint");
-      try {
-        const { body: req } = request;
-        const bid = (req as any).bid as Bid;
-        await handleBid(bid, requestContext);
-        return response.status(200).send({ message: "Sent bid to auctioneer", bid });
-      } catch (error: unknown) {
-        logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
-        return response.code(500).send({ err: jsonifyError(error as Error) });
-      }
-    });
+    server.post<{ Body: Bid; Reply: BidResponse }>(
+      "/bid",
+      {
+        schema: {
+          body: BidSchema,
+          response: {
+            200: BidResponseSchema,
+            500: BidResponseSchema,
+          },
+        },
+      },
+      async (request, response) => {
+        const { requestContext, methodContext } = createLoggingContext("POST /bid endpoint");
+        try {
+          const { body: bid } = request;
+          // const bid = (req as any).bid as Bid;
+          await handleBid(bid, requestContext);
+          return response.status(200).send({ message: "Sent bid to auctioneer", bid });
+        } catch (error: unknown) {
+          logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
+          return response.code(500).send({ message: "Bid Post Error", error: jsonifyError(error as Error) });
+        }
+      },
+    );
 
     server.get("/pending", {}, async (_, response) => {
       const { requestContext, methodContext } = createLoggingContext("GET /pending endpoint");
