@@ -7,12 +7,18 @@ import "../../interfaces/IStableSwap.sol";
 import "../../nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "../../nomad-xapps/contracts/bridge/BridgeMessage.sol";
 import "../../nomad-xapps/contracts/bridge/BridgeRouter.sol";
+import "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library ConnextUtils {
+  // ========== Custom Errors ===========
+  error ConnextUtils__initiateClaim_notRelayer(bytes32 transferId);
+
+  // ========== Logic ===========
+
   /**
    * @notice Gets unique identifier from nonce + domain
    * @param _nonce - The nonce of the contract
@@ -157,5 +163,60 @@ library ConnextUtils {
 
     // Otherwise, swap to adopted asset
     return (pool.swapExact(_amount, _asset, adopted), adopted);
+  }
+
+  /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _domain - domain to claim funds on
+   * @param _transferIds - transferIds to claim
+   */
+  // TODO - Is this the proper place?
+  function initiateClaim(
+    address _recipient,
+    uint32 _domain,
+    bytes32[] calldata _transferIds,
+    RelayerFeeRouter relayerFeeRouter,
+    mapping(bytes32 => address) storage transferRelayer
+  ) public {
+    // Ensure the relayer can claim all transfers specified
+    for (uint256 i; i < _transferIds.length; ) {
+      if (transferRelayer[_transferIds[i]] != msg.sender)
+        revert ConnextUtils__initiateClaim_notRelayer(_transferIds[i]);
+      unchecked {
+        i++;
+      }
+    }
+
+    // Send transferIds via nomad
+    relayerFeeRouter.send(_domain, _recipient, _transferIds);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   */
+  // TODO - Is this the proper place?
+  function claim(
+    address _recipient,
+    bytes32[] calldata _transferIds,
+    mapping(bytes32 => uint256) storage relayerFees
+  ) public {
+    // Tally amounts owed
+    uint256 total;
+    for (uint256 i; i < _transferIds.length; ) {
+      // TODO: maybe assert gas here to ensure you have enough to include
+      // transferId and buffer to send? That way you can at least claim *some*
+      // of the transfers
+      total += relayerFees[_transferIds[i]];
+      relayerFees[_transferIds[i]] = 0;
+      unchecked {
+        i++;
+      }
+    }
+
+    AddressUpgradeable.sendValue(payable(_recipient), total);
   }
 }

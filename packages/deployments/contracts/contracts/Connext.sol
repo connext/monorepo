@@ -65,7 +65,6 @@ contract Connext is
   error Connext__handleRelayerFees_notRtrSig();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
   error Connext__onlyRelayerFeeRouter_notRelayerFeeRouter();
-  error Connext__initiateClaim_notRelayer(bytes32 transferId);
 
   // ============ Constants =============
 
@@ -629,16 +628,8 @@ contract Connext is
     uint32 _domain,
     bytes32[] calldata _transferIds
   ) public {
-    // Ensure the relayer can claim all transfers specified
-    for (uint256 i; i < _transferIds.length; ) {
-      if (transferRelayer[_transferIds[i]] != msg.sender) revert Connext__initiateClaim_notRelayer(_transferIds[i]);
-      unchecked {
-        i++;
-      }
-    }
-
-    // Send transferIds via nomad
-    relayerFeeRouter.send(_domain, _recipient, _transferIds);
+    ConnextUtils.initiateClaim(_recipient, _domain, _transferIds, relayerFeeRouter, transferRelayer);
+    // TODO - emit event?
   }
 
   /**
@@ -648,20 +639,8 @@ contract Connext is
    */
   // TODO - move to lib
   function claim(address _recipient, bytes32[] calldata _transferIds) public onlyRelayerFeeRouter {
-    // Tally amounts owed
-    uint256 total;
-    for (uint256 i; i < _transferIds.length; ) {
-      // TODO: maybe assert gas here to ensure you have enough to include
-      // transferId and buffer to send? That way you can at least claim *some*
-      // of the transfers
-      total += relayerFees[_transferIds[i]];
-      relayerFees[_transferIds[i]] = 0;
-      unchecked {
-        i++;
-      }
-    }
-
-    AddressUpgradeable.sendValue(payable(_recipient), total);
+    ConnextUtils.claim(_recipient, _transferIds, relayerFees);
+    // TODO - emit event?
   }
 
   // ============ Private functions ============
