@@ -168,14 +168,14 @@ library ConnextUtils {
   /**
    * @notice Called by relayer when they want to claim owed funds on a given domain
    * @dev Domain should be the origin domain of all the transfer ids
-   * @param _recipient - address on origin chain to send claimed funds to
    * @param _domain - domain to claim funds on
+   * @param _recipient - address on origin chain to send claimed funds to
    * @param _transferIds - transferIds to claim
    */
   // TODO - Is this the proper place?
   function initiateClaim(
-    address _recipient,
     uint32 _domain,
+    address _recipient,
     bytes32[] calldata _transferIds,
     RelayerFeeRouter relayerFeeRouter,
     mapping(bytes32 => address) storage transferRelayer

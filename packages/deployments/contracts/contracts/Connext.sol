@@ -624,11 +624,11 @@ contract Connext is
    */
   // TODO - move to lib
   function initiateClaim(
-    address _recipient,
     uint32 _domain,
+    address _recipient,
     bytes32[] calldata _transferIds
   ) public {
-    ConnextUtils.initiateClaim(_recipient, _domain, _transferIds, relayerFeeRouter, transferRelayer);
+    ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
     // TODO - emit event?
   }
 
