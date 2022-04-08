@@ -4,8 +4,6 @@ pragma solidity 0.8.11;
 // ============ External Imports ============
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
-import "../../../../lib/forge-std/src/console.sol";
-
 library RelayerFeeMessage {
   // ============ Libraries ============
 
@@ -21,6 +19,19 @@ library RelayerFeeMessage {
     Invalid, // 0
     ClaimFees // 1
   }
+
+  // ============ Constants ============
+
+  // before: 1 byte identifier + 20 bytes recipient + 32 bytes length + 32 bytes 1 transfer id = 85 bytes
+  uint256 private constant MIN_CLAIM_LEN = 85;
+  // before: 1 byte identifier + 20 bytes recipient = 21 bytes
+  uint256 private constant LENGTH_ID_START = 21;
+  uint8 private constant LENGTH_ID_LEN = 32;
+  // before: 1 byte identifier
+  uint256 private constant RECIPIENT_START = 1;
+  // before: 1 byte identifier + 20 bytes recipient + 32 bytes length = 53 bytes
+  uint256 private constant TRANSFER_IDS_START = 53;
+  uint8 private constant TRANSFER_ID_LEN = 32;
 
   // ============ Modifiers ============
 
@@ -39,16 +50,15 @@ library RelayerFeeMessage {
   /**
    * @notice Formats an claim fees message
    * @param _recipient The address of the relayer
-   * @param _amount The amount of fees to claim
    * @param _transactionIds A group of transaction ids to claim for fee bumps
    * @return The formatted message
    */
-  function formatClaimFees(
-    address _recipient,
-    uint256 _amount,
-    bytes32[] calldata _transactionIds
-  ) internal pure returns (bytes memory) {
-    return abi.encodePacked(uint8(Types.ClaimFees), _recipient, _amount, _transactionIds.length, _transactionIds);
+  function formatClaimFees(address _recipient, bytes32[] calldata _transactionIds)
+    internal
+    pure
+    returns (bytes memory)
+  {
+    return abi.encodePacked(uint8(Types.ClaimFees), _recipient, _transactionIds.length, _transactionIds);
   }
 
   // ============ Getters ============
@@ -64,30 +74,16 @@ library RelayerFeeMessage {
   }
 
   /**
-   * @notice Parse the amount of fees claimed
-   * @param _view The message
-   * @return The amount of fees
-   */
-  function amount(bytes29 _view) internal pure typeAssert(_view, Types.ClaimFees) returns (uint256) {
-    // before = 1 byte identifier + 20 bytes address
-    return _view.indexUint(21, 32);
-  }
-
-  /**
    * @notice Parse The group of transaction ids to claim for fee bumps
    * @param _view The message
    * @return The group of transaction ids to claim for fee bumps
    */
   function transactionIds(bytes29 _view) internal view typeAssert(_view, Types.ClaimFees) returns (bytes32[] memory) {
-    // before length = 1 byte identifier + 20 bytes recipient + 32 bytes amount = 53 bytes
-    // check if there are transaction ids in the message
-    if (_view.len() == 53) return new bytes32[](0);
-    uint256 length = _view.indexUint(53, 32);
+    uint256 length = _view.indexUint(LENGTH_ID_START, LENGTH_ID_LEN);
 
-    // before = 1 byte identifier + 20 bytes recipient + 32 bytes amount + 32 bytes length = 85 bytes
     bytes32[] memory ids = new bytes32[](length);
     for (uint256 i = 0; i < length; i++) {
-      ids[i] = _view.index(85 + i * 32, 32);
+      ids[i] = _view.index(TRANSFER_IDS_START + i * TRANSFER_ID_LEN, TRANSFER_ID_LEN);
     }
     return ids;
   }
@@ -99,7 +95,8 @@ library RelayerFeeMessage {
    */
   function isValidClaimFeesLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
-    return _len >= 53;
+    // at least 1 transfer id where the excess is multiplier of transfer id length
+    return _len >= MIN_CLAIM_LEN && (_len - TRANSFER_IDS_START) % TRANSFER_ID_LEN == 0;
   }
 
   /**

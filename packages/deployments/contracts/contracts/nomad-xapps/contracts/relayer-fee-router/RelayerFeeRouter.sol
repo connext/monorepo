@@ -13,10 +13,8 @@ import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
-// import "../../../../lib/forge-std/src/console.sol";
-
 /**
- * @title BridgeRouter
+ * @title RelayerFeeRouter
  */
 contract RelayerFeeRouter is Version0, Router {
   // ============ Libraries ============
@@ -46,12 +44,11 @@ contract RelayerFeeRouter is Version0, Router {
    * @notice Emitted when a fees claim has been initialized in this domain
    * @param domain The domain where to claim the fees
    * @param recipient The address of the relayer
-   * @param amount The amount of fees to claim
    * @param transactionIds A group of transaction ids to claim for fee bumps
    * @param remote Remote RelayerFeeRouter address
    * @param message The message sent to the destination domain
    */
-  event Send(uint32 domain, address recipient, uint256 amount, bytes32[] transactionIds, bytes32 remote, bytes message);
+  event Send(uint32 domain, address recipient, bytes32[] transactionIds, bytes32 remote, bytes message);
 
   /**
    * @notice Emitted when the a fees claim message has arrived to this domain
@@ -59,14 +56,12 @@ contract RelayerFeeRouter is Version0, Router {
    * for the message from origin to destination, combined in a single field ((origin << 32) & nonce)
    * @param origin Domain where the transfer originated
    * @param recipient The address of the relayer
-   * @param amount The amount of fees to claim
    * @param transactionIds A group of transaction ids to claim for fee bumps
    */
   event Receive(
     uint64 indexed originAndNonce,
     uint32 indexed origin,
     address indexed recipient,
-    uint256 amount,
     bytes32[] transactionIds
   );
 
@@ -93,15 +88,12 @@ contract RelayerFeeRouter is Version0, Router {
 
   // ======== Initializer ========
 
-  function initialize(address _xAppConnectionManager, address _connext) public initializer {
-    connext = IConnext(_connext);
+  function initialize(address _xAppConnectionManager) public initializer {
     __XAppConnectionClient_initialize(_xAppConnectionManager);
-
-    emit SetConnext(_connext);
   }
 
   /**
-   * @notice Sets the transaction manager.
+   * @notice Sets the Connext.
    * @dev Connext and relayer fee router store references to each other
    * @param _connext The address of the Connext implementation
    */
@@ -116,27 +108,25 @@ contract RelayerFeeRouter is Version0, Router {
    * @notice Sends a request to claim the fees in the originated domain
    * @param _domain The domain where to claim the fees
    * @param _recipient The address of the relayer
-   * @param _amount The amount of fees to claim
    * @param _transactionIds A group of transaction ids to claim for fee bumps
    */
   function send(
     uint32 _domain,
     address _recipient,
-    uint256 _amount,
     bytes32[] calldata _transactionIds
   ) external onlyConnext {
-    if (_amount == 0 && _transactionIds.length == 0) revert RelayerFeeRouter__send_claimEmpty();
+    if (_transactionIds.length == 0) revert RelayerFeeRouter__send_claimEmpty();
     if (_recipient == address(0)) revert RelayerFeeRouter__send_recipientEmpty();
 
     // get remote RelayerFeeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_domain);
 
-    bytes memory message = RelayerFeeMessage.formatClaimFees(_recipient, _amount, _transactionIds);
+    bytes memory message = RelayerFeeMessage.formatClaimFees(_recipient, _transactionIds);
 
     xAppConnectionManager.home().dispatch(_domain, remote, message);
 
     // emit Send event
-    emit Send(_domain, _recipient, _amount, _transactionIds, remote, message);
+    emit Send(_domain, _recipient, _transactionIds, remote, message);
   }
 
   // ======== External: Handle =========
@@ -158,13 +148,12 @@ contract RelayerFeeRouter is Version0, Router {
     bytes29 _msg = _message.ref(0).mustBeClaimFees();
 
     address recipient = _msg.recipient();
-    uint256 amount = _msg.amount();
     bytes32[] memory transactionIds = _msg.transactionIds();
 
     // TODO - claim fee in connext
 
     // emit Receive event
-    emit Receive(_originAndNonce(_origin, _nonce), _origin, recipient, amount, transactionIds);
+    emit Receive(_originAndNonce(_origin, _nonce), _origin, recipient, transactionIds);
   }
 
   /**

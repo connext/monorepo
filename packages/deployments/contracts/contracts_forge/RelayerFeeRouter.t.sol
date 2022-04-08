@@ -34,20 +34,12 @@ contract RelayerFeeRouterTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
-  event Send(
-    uint32 domain,
-    address recipient,
-    uint256 amount,
-    bytes32[] _transactionIds,
-    bytes32 remote,
-    bytes message
-  );
+  event Send(uint32 domain, address recipient, bytes32[] transactionIds, bytes32 remote, bytes message);
 
   event Receive(
     uint64 indexed originAndNonce,
     uint32 indexed origin,
     address indexed recipient,
-    uint256 amount,
     bytes32[] transactionIds
   );
 
@@ -86,10 +78,11 @@ contract RelayerFeeRouterTest is ForgeHelper {
 
     proxy = new ERC1967Proxy(
       address(relayerFeeRouterImplementation),
-      abi.encodeWithSelector(RelayerFeeRouter.initialize.selector, xAppConnectionManager, connext)
+      abi.encodeWithSelector(RelayerFeeRouter.initialize.selector, xAppConnectionManager)
     );
 
     relayerFeeRouter = RelayerFeeRouter(payable(address(proxy)));
+    relayerFeeRouter.setConnext(connext);
 
     // Shouldn't enrollRemoteRouter be protected by onlyOwner?
     relayerFeeRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
@@ -129,16 +122,16 @@ contract RelayerFeeRouterTest is ForgeHelper {
     transactionIds[0] = "AAA";
     transactionIds[1] = "BBB";
 
-    relayerFeeRouter.send(remoteDomain, recipient, 1, transactionIds);
+    relayerFeeRouter.send(remoteDomain, recipient, transactionIds);
   }
 
-  // Fail if not no amount and no transaction ids
+  // Fail if no transaction ids
   function testSendClaimEmpty() public {
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__send_claimEmpty.selector));
 
     bytes32[] memory transactionIds = new bytes32[](0);
 
-    relayerFeeRouter.send(remoteDomain, recipient, 0, transactionIds);
+    relayerFeeRouter.send(remoteDomain, recipient, transactionIds);
   }
 
   // Fail if empty recipient
@@ -149,56 +142,30 @@ contract RelayerFeeRouterTest is ForgeHelper {
     transactionIds[0] = "AAA";
     transactionIds[1] = "BBB";
 
-    relayerFeeRouter.send(remoteDomain, address(0), 1, transactionIds);
+    relayerFeeRouter.send(remoteDomain, address(0), transactionIds);
   }
 
   // Should work
-  function testSend(bytes32[] calldata _transactionIds, uint256 _amount) public {
-    vm.assume(_amount != 0 || _transactionIds.length != 0);
-    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _amount, _transactionIds);
-
-    vm.expectCall(home, abi.encodeWithSelector(MockHome.dispatch.selector, remoteDomain, remote, message));
-    vm.expectEmit(true, true, true, true);
-    emit Send(remoteDomain, recipient, _amount, _transactionIds, remote, message);
-
-    relayerFeeRouter.send(remoteDomain, recipient, _amount, _transactionIds);
-  }
-
-  function testSend0Amount(bytes32[] calldata _transactionIds) public {
+  function testSend(bytes32[] calldata _transactionIds) public {
     vm.assume(_transactionIds.length != 0);
-    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, 0, _transactionIds);
+    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transactionIds);
 
     vm.expectCall(home, abi.encodeWithSelector(MockHome.dispatch.selector, remoteDomain, remote, message));
     vm.expectEmit(true, true, true, true);
-    emit Send(remoteDomain, recipient, 0, _transactionIds, remote, message);
+    emit Send(remoteDomain, recipient, _transactionIds, remote, message);
 
-    relayerFeeRouter.send(remoteDomain, recipient, 0, _transactionIds);
+    relayerFeeRouter.send(remoteDomain, recipient, _transactionIds);
   }
 
   // ============ handle ============
   // Should work
-  function testHandle(
-    bytes32[] calldata _transactionIds,
-    uint32 _nonce,
-    uint256 _amount
-  ) public {
-    vm.assume(_amount != 0 || _transactionIds.length != 0);
-    uint64 originAndNonce = (uint64(remoteDomain) << 32) | _nonce;
-    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _amount, _transactionIds);
-
-    vm.expectEmit(true, true, true, true);
-    emit Receive(originAndNonce, remoteDomain, recipient, _amount, _transactionIds);
-
-    relayerFeeRouter.handle(remoteDomain, _nonce, remote, message);
-  }
-
-  function testHandle0Amount(bytes32[] calldata _transactionIds, uint32 _nonce) public {
+  function testHandle(bytes32[] calldata _transactionIds, uint32 _nonce) public {
     vm.assume(_transactionIds.length != 0);
     uint64 originAndNonce = (uint64(remoteDomain) << 32) | _nonce;
-    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, 0, _transactionIds);
+    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transactionIds);
 
     vm.expectEmit(true, true, true, true);
-    emit Receive(originAndNonce, remoteDomain, recipient, 0, _transactionIds);
+    emit Receive(originAndNonce, remoteDomain, recipient, _transactionIds);
 
     relayerFeeRouter.handle(remoteDomain, _nonce, remote, message);
   }
