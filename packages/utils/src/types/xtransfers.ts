@@ -1,6 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { TAddress, TDecimalString, TIntegerString } from ".";
+import { NxtpErrorJsonSchema } from "./error";
 
 export enum XTransferStatus {
   XCalled = "XCalled",
@@ -75,6 +76,12 @@ export const BidSchema = Type.Object({
 });
 
 export type Bid = Static<typeof BidSchema>;
+
+export const BidResponseSchema = Type.Object({
+  message: Type.String(),
+  bid: Type.Optional(BidSchema),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
 
 export type ExternalCall = {
   to: string;
