@@ -169,19 +169,17 @@ contract Connext is
   uint256 public maxRoutersPerTransfer;
 
   /**
-   * @notice Mapping of the amount of fee in custody for a domain
+   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
+   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
    */
-  mapping(uint32 => uint256) public outboundRelayerFee;
+  mapping(bytes32 => uint256) public relayerFees;
 
   /**
-   * @notice Mapping of the amount of additional fees for a transfer
+   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
+   * for transfer
+   * @dev When relayer claims, must check that the msg.sender has forwarded transfer
    */
-  mapping(bytes32 => uint256) public transferBump;
-
-  /**
-   * @notice Mapping of relayer to fees for relayed transfers for a domain
-   */
-  mapping(address => mapping(uint32 => RelayerFees)) public relayerFees;
+  mapping(bytes32 => address) public transferRelayer;
 
   // ============ Modifiers ============
 
