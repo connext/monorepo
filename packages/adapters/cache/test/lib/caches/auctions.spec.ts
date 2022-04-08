@@ -32,17 +32,18 @@ const mockBids = [
 ];
 
 describe("AuctionCache", () => {
-  before(async () => {
+  let RedisSub: any;
+  beforeEach(async () => {
     logger.debug(`Subscribing to Channels for Redis Pub/Sub`);
-    const RedisSub = new RedisMock();
+    RedisSub = new RedisMock();
 
     RedisSub.subscribe(StoreChannel.NewBid);
 
-    RedisSub.on("message", (chan: any, msg: any) => {
-      console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
-    });
+    auctions = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
+  });
 
-    auctions = new AuctionsCache({ url: "mock", mock: true, logger });
+  afterEach(async () => {
+    RedisSub.flushall();
   });
 
   describe("AuctionCache", () => {
@@ -86,8 +87,10 @@ describe("AuctionCache", () => {
         expect(res.length).to.be.eq(1);
       });
     });
+
     describe("#updateAllBidsWithTransactionId", () => {
       it("should be ok", async () => {
+        await auctions.storeBid(mockBids[0]);
         let txids = await auctions.getAllTransactionsIdsWithPendingBids();
         expect(txids[0]).to.be.eq(mockTransferId);
         expect(txids.length).to.be.eq(1);

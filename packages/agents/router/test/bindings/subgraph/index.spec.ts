@@ -1,6 +1,5 @@
 import { SinonStub, stub, restore, reset } from "sinon";
-import { expect } from "chai";
-import { XTransferStatus, delay } from "@connext/nxtp-utils";
+import { expect, XTransferStatus, delay } from "@connext/nxtp-utils";
 
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
@@ -41,9 +40,9 @@ describe("Bindings:Subgraph", () => {
       await delay(10);
       expect(pollStub.callCount).to.be.gte(1);
     });
+
     it("happy: should read default interval", async () => {
-      bindSubgraphFns.SUBGRAPH_POLL_INTERVAL = 10;
-      bindSubgraphFns.bindSubgraph();
+      bindSubgraphFns.bindSubgraph(10);
       await delay(20);
       mockContext.config.mode.cleanup = true;
       expect(pollStub.callCount).to.be.gte(1);

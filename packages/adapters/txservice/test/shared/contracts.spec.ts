@@ -1,5 +1,4 @@
-import { expect } from "chai";
-import { mkAddress } from "@connext/nxtp-utils";
+import { expect, mkAddress } from "@connext/nxtp-utils";
 import Sinon, { reset, restore, SinonStub } from "sinon";
 import { ConnextPriceOracle as TConnextPriceOracle } from "@connext/nxtp-contracts/typechain-types";
 import * as ContractFns from "../../src/shared/contracts";

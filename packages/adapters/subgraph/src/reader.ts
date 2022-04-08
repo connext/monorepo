@@ -7,6 +7,7 @@ import {
   GetAssetByLocalQuery,
   GetExecutedAndReconciledTransfersByIdsQuery,
   GetXCalledTransfersQuery,
+  GetTransfersQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
 // TODO: better typing
@@ -81,7 +82,25 @@ export class SubgraphReader {
     return assets[0];
   }
 
-  // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
+  /**
+   * Get all transfers on a domain from a specified nonce that are routing to one of the given destination domains.
+   *
+   * @param domain - The domain you want to get transfers from.
+   * @param fromNonce - The nonce to start from (inclusive).
+   * @param destinationDomains - The domains which the retrieved transfers must be going to.
+   * @returns an array of XTransfers.
+   */
+  public async getTransfers(
+    domain: string,
+    fromNonce: number,
+    destinationDomains: string[] = [...this.subgraphs.keys()],
+  ): Promise<XTransfer[]> {
+    const { parser } = getHelpers();
+    const { transfers } = await this.subgraphs.get(domain)!.runtime.request<GetTransfersQuery>((client) => {
+      return client.GetTransfers({ destinationDomains, nonce: fromNonce });
+    });
+    return transfers.map(parser.xtransfer);
+  }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const destinationDomains = [...this.subgraphs.keys()];

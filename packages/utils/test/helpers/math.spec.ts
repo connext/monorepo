@@ -1,4 +1,6 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
+
 import {
   calculateExchangeAmount,
   calculateExchangeWad,
@@ -9,7 +11,6 @@ import {
   sanitizeDecimals,
   toWad,
 } from "../../src";
-import { BigNumber } from "ethers";
 
 describe("Helpers:Math", () => {
   describe("#toWad", () => {

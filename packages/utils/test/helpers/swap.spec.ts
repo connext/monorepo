@@ -1,5 +1,6 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
+
 import { getReceiverAmount, getSwapRate } from "../../src";
 
 describe("Helpers:Swap", () => {
