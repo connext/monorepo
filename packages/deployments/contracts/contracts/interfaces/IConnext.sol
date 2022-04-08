@@ -238,7 +238,8 @@ interface IConnext {
     uint256 _domain,
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) external;
 
   function setupRouter(

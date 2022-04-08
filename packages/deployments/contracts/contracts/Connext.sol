@@ -15,6 +15,7 @@ import {ConnextUtils} from "./lib/Connext/ConnextUtils.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
+import "./nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -63,6 +64,8 @@ contract Connext is
   error Connext__decrementLiquidity_maxRoutersExceeded();
   error Connext__handleRelayerFees_notRtrSig();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error Connext__onlyRelayerFeeRouter_notRelayerFeeRouter();
+  error Connext__initiateClaim_notRelayer(bytes32 transferId);
 
   // ============ Constants =============
 
@@ -74,6 +77,11 @@ contract Connext is
    * @notice The local nomad bridge router
    */
   BridgeRouter public bridgeRouter;
+
+  /**
+   * @notice The local nomad relayer fee router
+   */
+  RelayerFeeRouter public relayerFeeRouter;
 
   /**
    * @notice The address of the wrapper for the native asset on this domain
@@ -191,13 +199,22 @@ contract Connext is
     _;
   }
 
+  /**
+   * @notice Restricts the caller to the local relayer fee router
+   */
+  modifier onlyRelayerFeeRouter() {
+    if (msg.sender != address(relayerFeeRouter)) revert Connext__onlyRelayerFeeRouter_notRelayerFeeRouter();
+    _;
+  }
+
   // ========== Initializer ============
 
   function initialize(
     uint256 _domain,
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
@@ -206,6 +223,7 @@ contract Connext is
     nonce = 0;
     domain = _domain;
     bridgeRouter = BridgeRouter(_bridgeRouter);
+    relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
     executor = new Executor(address(this));
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
@@ -596,6 +614,54 @@ contract Connext is
     );
 
     return _transferId;
+  }
+
+  /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _domain - domain to claim funds on
+   * @param _transferIds - transferIds to claim
+   */
+  // TODO - move to lib
+  function initiateClaim(
+    address _recipient,
+    uint32 _domain,
+    bytes32[] calldata _transferIds
+  ) public {
+    // Ensure the relayer can claim all transfers specified
+    for (uint256 i; i < _transferIds.length; ) {
+      if (transferRelayer[_transferIds[i]] != msg.sender) revert Connext__initiateClaim_notRelayer(_transferIds[i]);
+      unchecked {
+        i++;
+      }
+    }
+
+    // Send transferIds via nomad
+    relayerFeeRouter.send(_domain, _recipient, _transferIds);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   */
+  // TODO - move to lib
+  function claim(address _recipient, bytes32[] calldata _transferIds) public onlyRelayerFeeRouter {
+    // Tally amounts owed
+    uint256 total;
+    for (uint256 i; i < _transferIds.length; ) {
+      // TODO: maybe assert gas here to ensure you have enough to include
+      // transferId and buffer to send? That way you can at least claim *some*
+      // of the transfers
+      total += relayerFees[_transferIds[i]];
+      relayerFees[_transferIds[i]] = 0;
+      unchecked {
+        i++;
+      }
+    }
+
+    AddressUpgradeable.sendValue(payable(_recipient), total);
   }
 
   // ============ Private functions ============
