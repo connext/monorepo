@@ -188,7 +188,6 @@ export type TransferAction = {
   recipient: BytesLike;
   amount: number | BytesLike;
   detailsHash: BytesLike;
-  relayerFee: number | BytesLike;
 };
 
 export type FastTransferAction = {
@@ -197,7 +196,6 @@ export type FastTransferAction = {
   amount: number | BytesLike;
   detailsHash: BytesLike;
   externalHash: BytesLike;
-  relayerFee: number | BytesLike;
 };
 
 export type NxtpEnabledAction = {
@@ -262,12 +260,11 @@ export function formatTransfer(
   detailsHash: BytesLike,
   enableFast: boolean,
   externalHash: BytesLike,
-  relayerFee: number | BytesLike,
 ): BytesLike {
   const type = enableFast ? BridgeMessageTypes.FAST_TRANSFER : BridgeMessageTypes.TRANSFER;
   return ethers.utils.solidityPack(
-    ["uint8", "bytes32", "uint256", "bytes32", "bytes32", "uint256"],
-    [type, to, amnt, detailsHash, externalHash, relayerFee],
+    ["uint8", "bytes32", "uint256", "bytes32", "bytes32"],
+    [type, to, amnt, detailsHash, externalHash],
   );
 }
 
@@ -281,15 +278,15 @@ export function formatMessage(tokenId: BytesLike, action: BytesLike): BytesLike 
 }
 
 export function serializeTransferAction(transferAction: TransferAction): BytesLike {
-  const { type, recipient, amount, detailsHash, relayerFee } = transferAction;
+  const { type, recipient, amount, detailsHash } = transferAction;
   assert(type === BridgeMessageTypes.TRANSFER);
-  return formatTransfer(recipient, amount, detailsHash, false, "", relayerFee);
+  return formatTransfer(recipient, amount, detailsHash, false, "");
 }
 
 export function serializeFastTransferAction(transferAction: FastTransferAction): BytesLike {
-  const { type, recipient, amount, detailsHash, externalHash, relayerFee } = transferAction;
+  const { type, recipient, amount, detailsHash, externalHash } = transferAction;
   assert(type === BridgeMessageTypes.FAST_TRANSFER);
-  return formatTransfer(recipient, amount, detailsHash, true, externalHash, relayerFee);
+  return formatTransfer(recipient, amount, detailsHash, true, externalHash);
 }
 
 export function serializeNxtpEnabledAction(transferAction: NxtpEnabledAction): BytesLike {

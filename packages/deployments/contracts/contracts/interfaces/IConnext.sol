@@ -292,8 +292,7 @@ interface IConnext {
     uint32 _origin,
     address _local,
     address _recipient,
-    uint256 _amount,
-    uint256 _relayerFee
+    uint256 _amount
   ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);

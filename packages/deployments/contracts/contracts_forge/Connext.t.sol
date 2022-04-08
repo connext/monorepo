@@ -17,19 +17,14 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
 contract TestDummyBridgeRouter {
-  uint256 public relayerFeeFromCall;
-
   function send(
     address _token,
     uint256 _amount,
     uint32 _destination,
     bytes32 _recipient,
     bool _enableFast,
-    bytes32 _externalHash,
-    uint256 _relayerFee
-  ) external {
-    relayerFeeFromCall = _relayerFee;
-  }
+    bytes32 _externalHash
+  ) external {}
 }
 
 contract ConnextTest is ForgeHelper {
@@ -159,7 +154,7 @@ contract ConnextTest is ForgeHelper {
 
   // ============ xCall ============
 
-  function testXCallIncreasesOutboundRelayerFee() public {
+  function testXCallIncreasesRelayerFees() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -168,11 +163,13 @@ contract ConnextTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
-    assertEq(connext.outboundRelayerFee(destinationDomain), 0);
+    bytes32 id = keccak256(abi.encode(0, address(this), callParams));
+
+    assertEq(connext.relayerFees(id), 0);
 
     connext.xcall{value: relayerFee}(args);
 
-    assertEq(connext.outboundRelayerFee(destinationDomain), relayerFee);
+    assertEq(connext.relayerFees(id), relayerFee);
   }
 
   function testXCallEmitsRelayerFee() public {
@@ -198,19 +195,6 @@ contract ConnextTest is ForgeHelper {
       address(this)
     );
     connext.xcall{value: relayerFee}(args);
-  }
-
-  function testXCallSendsRelayerFeeToBridgeRouter() public {
-    address to = address(100);
-    uint256 amount = 1 ether;
-    uint256 relayerFee = 0.01 ether;
-    address transactingAssetId = address(originAdopted);
-
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
-    connext.xcall{value: relayerFee}(args);
-
-    assertEq(bridgeRouter.relayerFeeFromCall(), relayerFee);
   }
 
   function testXCallWorksWithZeroRelayerFee() public {

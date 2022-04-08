@@ -69,7 +69,6 @@ library ConnextUtils {
    * @param _local - The asset delivered by the bridge
    * @param _amount - The amount delivered through the bridge
    * @param _id - The unique identifier of the transaction
-   * @param _relayerFee - The amount of relayer fee
    */
   function sendMessage(
     BridgeRouter _bridgeRouter,
@@ -77,13 +76,12 @@ library ConnextUtils {
     address _recipient,
     address _local,
     uint256 _amount,
-    bytes32 _id,
-    uint256 _relayerFee
+    bytes32 _id
   ) external {
     // Approve the bridge router
     SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_local), address(_bridgeRouter), _amount);
 
-    _bridgeRouter.send(_local, _amount, _destination, TypeCasts.addressToBytes32(_recipient), true, _id, _relayerFee);
+    _bridgeRouter.send(_local, _amount, _destination, TypeCasts.addressToBytes32(_recipient), true, _id);
   }
 
   /**

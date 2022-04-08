@@ -1049,7 +1049,6 @@ describe("Connext", () => {
       amount: 1000,
       detailsHash: expectedDetailsHash,
       externalHash: getRandomBytes32().toLowerCase(),
-      relayerFee: 100,
     };
     const serializedAction = bridge.serializeFastTransferAction(action);
     const testTransfer = await bridgeMessage.formatTransfer(
@@ -1058,20 +1057,16 @@ describe("Connext", () => {
       action.detailsHash,
       true,
       action.externalHash,
-      action.relayerFee,
     );
     expect(testTransfer).to.be.eq(serializedAction);
 
     // Test split transfer
-    const [type, recipient, recipientAddr, amount, externalHash, relayerFee] = await bridgeMessage.splitTransfer(
-      testTransfer,
-    );
+    const [type, recipient, recipientAddr, amount, externalHash] = await bridgeMessage.splitTransfer(testTransfer);
     expect(type).to.be.eq(action.type);
     expect(recipient).to.be.eq(action.recipient);
     expect(recipientAddr.toLowerCase()).to.be.eq(user.address.toLowerCase());
     expect(externalHash).to.be.eq(action.externalHash);
     expect(amount.toNumber()).to.be.eq(action.amount);
-    expect(relayerFee.toNumber()).to.be.eq(action.relayerFee);
 
     // Test format message
     const transferMessage: Message = {

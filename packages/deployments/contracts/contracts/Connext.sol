@@ -441,8 +441,8 @@ contract Connext is
     bytes32 _transferId = ConnextUtils.getTransferId(nonce, msg.sender, _args.params);
     // Update nonce
     nonce++;
-    // Update destination domain fee custody
-    outboundRelayerFee[_args.params.destinationDomain] += _args.relayerFee;
+    // Store the relayer fee
+    relayerFees[_transferId] = _args.relayerFee;
 
     // Add to batch
     ConnextUtils.sendMessage(
@@ -451,8 +451,7 @@ contract Connext is
       _args.params.to,
       _bridged,
       _bridgedAmt,
-      _transferId,
-      _args.relayerFee
+      _transferId
     );
 
     // Emit event
@@ -484,19 +483,14 @@ contract Connext is
    * @param _local - The address of the asset delivered by the bridge
    * @param _recipient - The address that will receive funds on the destination domain
    * @param _amount - The amount bridged
-   * @param _relayerFee - The amount of relayer fee
    */
   function reconcile(
     bytes32 _transferId,
     uint32 _origin,
     address _local,
     address _recipient,
-    uint256 _amount,
-    uint256 _relayerFee
+    uint256 _amount
   ) external payable override onlyBridgeRouter {
-    // TOOD set relayer fee for transfer
-    _relayerFee;
-
     // Find the router to credit
     ExecutedTransfer memory transaction = routedTransfers[_transferId];
 
