@@ -18,38 +18,47 @@ import { AuctionsCache } from "../../../src/index";
 const RedisMock = require("ioredis-mock");
 const redis = new RedisMock();
 
-describe.only("AuctionCache", () => {
+describe("AuctionCache", () => {
   const prefix = "auctions";
   // Helpers for accessing mock cache directly and altering state.
   const mockRedisHelpers = {
     setAuction: async (transferId: string, auction: Auction) =>
       await redis.hset(`${prefix}:auction`, transferId, JSON.stringify(auction)),
-    getAuction: async (transferId: string): Promise<Auction | null> =>
-      await redis.hget(`${prefix}:auction`, transferId),
+    getAuction: async (transferId: string): Promise<Auction | null> => {
+      const res = await redis.hget(`${prefix}:auction`, transferId);
+      return res ? JSON.parse(res) : null;
+    },
 
     setStatus: async (transferId: string, status: AuctionStatus) =>
-      await redis.hset(`${prefix}:status`, transferId, JSON.stringify(status)),
-    getStatus: async (transferId: string): Promise<AuctionStatus | null> =>
-      await redis.hget(`${prefix}:status`, transferId),
+      await redis.hset(`${prefix}:status`, transferId, status.toString()),
+    getStatus: async (transferId: string): Promise<AuctionStatus | null> => {
+      const res = await redis.hget(`${prefix}:status`, transferId);
+      return res ? AuctionStatus[res as AuctionStatus] : null;
+    },
 
     setTask: async (transferId: string, task: AuctionTask) =>
       await redis.hset(`${prefix}:task`, transferId, JSON.stringify(task)),
-    getTask: async (transferId: string): Promise<AuctionTask | null> => await redis.hget(`${prefix}:task`, transferId),
+    getTask: async (transferId: string): Promise<AuctionTask | null> => {
+      const res = await redis.hget(`${prefix}:task`, transferId);
+      return res ? JSON.parse(res) : null;
+    },
 
     setBidData: async (transferId: string, bid: BidData) =>
       await redis.hset(`${prefix}:bidData`, transferId, JSON.stringify(bid)),
-    getBidData: async (transferId: string): Promise<BidData | null> =>
-      await redis.hget(`${prefix}:bidData`, transferId),
+    getBidData: async (transferId: string): Promise<BidData | null> => {
+      const res = await redis.hget(`${prefix}:bidData`, transferId);
+      return res ? JSON.parse(res) : null;
+    },
   };
 
   const logger = new Logger({ level: "debug" });
   let cache: AuctionsCache;
-  beforeEach(async () => {
+  beforeEach(() => {
     cache = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   afterEach(async () => {
-    redis.flushall();
+    await redis.flushall();
   });
 
   describe("AuctionCache", () => {
@@ -91,10 +100,10 @@ describe.only("AuctionCache", () => {
         const transferId = "1";
         const args = mockUpsertAuctionArgs(transferId, "2", "3");
         const res = await cache.upsertAuction(args);
-        expect(res).to.eq(0);
+        expect(res).to.eq(1);
         expect(getAuctionStub.calledOnce).to.be.true;
         const { timestamp, ...auction } = await mockRedisHelpers.getAuction(transferId);
-        expect(timestamp).to.be.a("number");
+        expect(Number(timestamp)).to.be.a("number");
         expect(auction).to.deep.eq({
           origin: args.origin,
           destination: args.destination,
@@ -117,20 +126,21 @@ describe.only("AuctionCache", () => {
         const args = mockUpsertAuctionArgs(transferId, origin, destination, firstBid);
 
         const firstCallRes = await cache.upsertAuction(args);
-        expect(firstCallRes).to.eq(0);
+        expect(firstCallRes).to.eq(1);
 
         const { timestamp: firstCallTimestamp } = await mockRedisHelpers.getAuction(transferId);
         getAuctionStub.resolves({
           ...args,
           origin,
           destination,
+          bids: [firstBid],
         });
 
         const secondCallRes = await cache.upsertAuction({
           ...args,
           bid: secondBid,
         });
-        expect(secondCallRes).to.eq(1);
+        expect(secondCallRes).to.eq(0);
 
         const auction = await mockRedisHelpers.getAuction(transferId);
         expect(auction).to.deep.eq({
@@ -165,11 +175,11 @@ describe.only("AuctionCache", () => {
         const transferId = getRandomBytes32();
 
         const resOne = await cache.setStatus(transferId, AuctionStatus.Queued);
-        expect(resOne).to.eq(0);
+        expect(resOne).to.eq(1);
         expect(await mockRedisHelpers.getStatus(transferId)).to.eq(AuctionStatus.Queued);
 
         const resTwo = await cache.setStatus(transferId, AuctionStatus.Sent);
-        expect(resTwo).to.eq(1);
+        expect(resTwo).to.eq(0);
         expect(await mockRedisHelpers.getStatus(transferId)).to.eq(AuctionStatus.Sent);
       });
     });
@@ -184,7 +194,7 @@ describe.only("AuctionCache", () => {
         };
         await mockRedisHelpers.setTask(transferId, task);
         const res = await cache.getTask(transferId);
-        expect(res).to.eq(task);
+        expect(res).to.deep.eq(task);
       });
 
       it("sad: should return undefined if auction task does not exist", async () => {
@@ -203,10 +213,18 @@ describe.only("AuctionCache", () => {
           transferId,
           taskId,
         });
-        expect(resOne).to.eq(0);
+        expect(resOne).to.eq(1);
 
         const { timestamp: firstCallTimestamp, ...firstEntry } = await mockRedisHelpers.getTask(transferId);
         expect(firstEntry).to.deep.eq({
+          taskId,
+          attempts: 1,
+        });
+
+        // Overwrite timestamp for testing:
+        const timestamp = (getNtpTimeSeconds() - 400).toString();
+        await mockRedisHelpers.setTask(transferId, {
+          timestamp,
           taskId,
           attempts: 1,
         });
@@ -216,7 +234,7 @@ describe.only("AuctionCache", () => {
           transferId,
           taskId: updatedTaskId,
         });
-        expect(resTwo).to.eq(1);
+        expect(resTwo).to.eq(0);
 
         const { timestamp: secondCallTimestamp, ...secondEntry } = await mockRedisHelpers.getTask(transferId);
         expect(secondEntry).to.deep.eq({
@@ -224,7 +242,7 @@ describe.only("AuctionCache", () => {
           attempts: 2,
         });
         // Ts should be overwritten with latest in this case.
-        expect(firstCallTimestamp).to.not.be.eq(secondCallTimestamp);
+        expect(secondCallTimestamp).to.not.be.eq(timestamp);
       });
     });
 
@@ -296,10 +314,10 @@ describe.only("AuctionCache", () => {
         const bidData = mock.entity.bidData();
 
         const resOne = await cache.setBidData(transferId, bidData);
-        expect(resOne).to.eq(0);
+        expect(resOne).to.eq(1);
 
         const resTwo = await cache.setBidData(transferId, bidData);
-        expect(resTwo).to.eq(1);
+        expect(resTwo).to.eq(0);
 
         const entry = await mockRedisHelpers.getBidData(transferId);
         expect(entry).to.deep.eq(bidData);

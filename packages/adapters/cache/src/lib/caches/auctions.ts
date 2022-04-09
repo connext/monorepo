@@ -43,7 +43,7 @@ export class AuctionsCache extends Cache {
    * @param data.destination - The destination domain of the transfer.
    * @param data.bid - The actual bid from the router, including signatures by round.
    *
-   * @returns 1 if updated, 0 if created
+   * @returns 0 if updated, 1 if created
    */
   public async upsertAuction({
     transferId,
@@ -92,7 +92,7 @@ export class AuctionsCache extends Cache {
    * @param data.transferId - The ID of transfer we are auctioning.
    * @param data.taskId - Auction task ID from relayer.
    *
-   * @returns 1 if updated, 0 if created
+   * @returns 0 if updated, 1 if created
    */
   public async upsertTask({ transferId, taskId }: { transferId: string; taskId: string }): Promise<number> {
     const existing = await this.getTask(transferId);
@@ -113,8 +113,10 @@ export class AuctionsCache extends Cache {
    * @returns AuctionStatus if exists, AuctionStatus.None if no entry was found.
    */
   public async getStatus(transferId: string): Promise<AuctionStatus> {
-    const res = await this.data.hget(`${this.prefix}:auction`, transferId);
-    return res && res in AuctionStatus ? AuctionStatus[res as AuctionStatus] : AuctionStatus.None;
+    const res = await this.data.hget(`${this.prefix}:status`, transferId);
+    return res && Object.values(AuctionStatus).includes(res as AuctionStatus)
+      ? AuctionStatus[res as AuctionStatus]
+      : AuctionStatus.None;
   }
 
   public async setStatus(transferId: string, status: AuctionStatus): Promise<number> {
@@ -127,21 +129,24 @@ export class AuctionsCache extends Cache {
    * @returns An array of transfer IDs.
    */
   public async getQueuedTransfers(): Promise<string[]> {
-    const stream = this.data.scanStream({
-      match: `${this.prefix}:status`,
-    });
-    const keys: string[] = [];
+    const stream = this.data.hscanStream(`${this.prefix}:status`);
+    let keys: string[] = [];
     await new Promise((res) => {
-      stream.on("data", (keys = []) => {
-        keys = keys.concat(keys);
+      stream.on("data", (resultKeys) => {
+        keys = keys.concat(resultKeys);
       });
       stream.on("end", async () => {
         res(undefined);
       });
     });
-    return keys
-      .filter(async (key) => (await this.getStatus(key)) === AuctionStatus.Queued)
-      .map((key) => key.split(":")[1]);
+    let filtered: string[] = [];
+    for (const key of keys) {
+      const status = await this.getStatus(key);
+      if (status === AuctionStatus.Queued) {
+        filtered.push(key);
+      }
+    }
+    return filtered;
   }
 
   /// MARK - Bid Data
@@ -168,7 +173,7 @@ export class AuctionsCache extends Cache {
    * @param transferId - The ID of the transfer we are auctioning.
    * @param data - Bid data to store.
    *
-   * @returns 1 if updated, 0 if created
+   * @returns 0 if updated, 1 if created
    */
   public async setBidData(transferId: string, data: BidData): Promise<number> {
     return await this.data.hset(`${this.prefix}:bidData`, transferId, JSON.stringify(data));
