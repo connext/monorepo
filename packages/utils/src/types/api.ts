@@ -30,15 +30,12 @@ export const BidDataSchema = Type.Object({
 
 export type BidData = Static<typeof BidDataSchema>;
 
-export const AuctionsApiPostBidReqSchema = Type.Intersect([
-  Type.Object({
-    transferId: Type.String(),
-    // TODO: See Bid Data TODO above. This should be deprecated.
-    data: BidDataSchema,
-    bid: BidSchema,
-  }),
-  AuctionHeaderSchema,
-]);
+export const AuctionsApiPostBidReqSchema = Type.Object({
+  transferId: Type.String(),
+  // TODO: See Bid Data TODO above. This should be deprecated.
+  data: BidDataSchema,
+  bid: BidSchema,
+});
 
 export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
 

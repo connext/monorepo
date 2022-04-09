@@ -5,13 +5,12 @@ import { GelatoSendFailed } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
-export const sendToRelayer = async (selectedRouters: string[], bidData: BidData, _requestContext: RequestContext) => {
-  const {
-    logger,
-    chainData,
-    adapters: { contracts },
-    config,
-  } = getContext();
+export const sendToRelayer = async (
+  selectedRouters: string[],
+  bidData: BidData,
+  _requestContext: RequestContext,
+): Promise<string> => {
+  const { logger, chainData, config } = getContext();
   const {
     auctions: { encodeExecuteFromBid },
     relayer: { gelatoSend, isChainSupportedByGelato },
@@ -45,11 +44,13 @@ export const sendToRelayer = async (selectedRouters: string[], bidData: BidData,
   if ((result as AxiosError).isAxiosError) {
     throw new GelatoSendFailed({ result });
   } else {
+    const { taskId } = result;
     logger.info("Sent to Gelato network", requestContext, methodContext, {
       result,
-      taskId: result.taskId,
+      taskId,
       // response: response.data,
     });
+    return taskId;
   }
 
   // const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));

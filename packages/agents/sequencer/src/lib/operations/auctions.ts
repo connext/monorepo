@@ -147,6 +147,7 @@ export const selectBids = async (_requestContext: RequestContext) => {
       continue;
     }
 
+    const selected: Bid[] = [];
     for (let round = 1; round <= 5; round++) {
       // TODO: For now, selecting at random, but we should take fee % into account.
       const availableBids = bids.filter((bid) => round.toString() in Array.from(Object.keys(bid.signatures)));
@@ -157,15 +158,23 @@ export const selectBids = async (_requestContext: RequestContext) => {
       }
 
       // Now we select the bids for this round from the available bids.
-      const selected: Bid[] = [];
       for (let i = 0; i < round; i++) {
         const random = Math.floor(Math.random() * availableBids.length);
         const selectedBid: Bid = availableBids.splice(random, 1)[0];
         selected.push(selectedBid);
       }
+      break;
+    }
 
-      // We have our bids selected.
-      await sendToRelayer(
+    if (selected.length === 0) {
+      // We weren't able to select bids for this transfer.
+      continue;
+    }
+
+    let taskId: string;
+    try {
+      // Send the relayer request based on chosen bids.
+      taskId = await sendToRelayer(
         selected.map((bid) => bid.router),
         {
           ...bidData,
@@ -173,12 +182,21 @@ export const selectBids = async (_requestContext: RequestContext) => {
           // TODO: This will be deprecated in favor of using generic router-sig proof on-chain...
           // Also dependent on #818 relayer fees.
           // For now, the on-chain check is done on the *first* router in the list for multipath.
-          relayerSignature: selected[0].signatures[round.toString()],
+          relayerSignature: Object.values(selected[0].signatures)[0],
         },
         requestContext,
       );
-
-      await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
+    } catch (err: any) {
+      logger.error("Failed to send to relayer", requestContext, methodContext, err, {
+        transferId,
+        origin,
+        destination,
+        bids,
+      });
+      continue;
     }
+
+    await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
+    await cache.auctions.upsertTask({ transferId, taskId });
   }
 };
