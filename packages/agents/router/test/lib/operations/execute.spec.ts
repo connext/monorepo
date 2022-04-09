@@ -1,7 +1,7 @@
 import axios from "axios";
 import { utils } from "ethers";
 import { SinonStub, stub } from "sinon";
-import { expect, formatUrl, mkAddress } from "@connext/nxtp-utils";
+import { Bid, BidData, DEFAULT_ROUTER_FEE, expect, formatUrl, mkAddress } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
 import { SlippageInvalid, SequencerResponseInvalid, ParamsInvalid, SanityCheckFailed } from "../../../src/lib/errors";
@@ -11,6 +11,9 @@ const { execute, sendBid } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
 const mockXTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockRouter = mock.address.router;
+
+const { requestContext } = mock.loggingContext("BID-TEST");
 
 describe("Operations:Execute", () => {
   let mockContext: any;
@@ -35,23 +38,26 @@ describe("Operations:Execute", () => {
     });
 
     it("happy", async () => {
-      const expectedBid = {
-        transferId: mockXTransfer.transferId,
-        data: {
-          params: {
-            to: mockXTransfer.to,
-            callData: mockXTransfer.callData,
-            originDomain: mockXTransfer.originDomain,
-            destinationDomain: mockXTransfer.destinationDomain,
-          },
-          local: mockFulfillLocalAsset,
-          router: mockXTransfer.router,
-          feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
-          amount: mockXTransfer.xcall.localAmount,
-          nonce: 1234,
-          originSender: mkAddress("0xfaded"),
-          relayerSignature: mock.signature,
+      const expectedBid: Bid = {
+        fee: DEFAULT_ROUTER_FEE,
+        router: mockRouter,
+        signatures: {
+          "1": mock.signature,
         },
+      };
+      const expectedBidData: BidData = {
+        params: {
+          to: mockXTransfer.to,
+          callData: mockXTransfer.callData,
+          originDomain: mockXTransfer.originDomain,
+          destinationDomain: mockXTransfer.destinationDomain,
+        },
+        local: mockFulfillLocalAsset,
+        feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
+        amount: mockXTransfer.xcall.localAmount,
+        nonce: mockXTransfer.nonce,
+        originSender: mkAddress("0xfaded"),
+        relayerSignature: mock.signature,
       };
 
       await expect(execute(mockXTransfer)).to.be.fulfilled;
@@ -64,7 +70,7 @@ describe("Operations:Execute", () => {
       ]);
       expect(mock.helpers.shared.signHandleRelayerFeePayload.callCount).to.equal(1);
       expect(mock.helpers.execute.sanityCheck.callCount).to.equal(1);
-      expect(mock.helpers.execute.sanityCheck.getCall(0).args[0]).to.deep.equal(expectedBid);
+      expect(mock.helpers.execute.sanityCheck.getCall(0).args[0]).to.deep.equal(expectedBidData);
       expect(sendBidStub.getCall(0).args[0]).to.deep.equal(expectedBid);
     });
 
@@ -108,7 +114,7 @@ describe("Operations:Execute", () => {
     });
 
     it("happy", async () => {
-      const result = await sendBid(mockBid);
+      const result = await sendBid(mockBid, requestContext);
       expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "bid"), {
         bid: mockBid,
       });
@@ -117,12 +123,12 @@ describe("Operations:Execute", () => {
 
     it("throws SequencerResponseInvalid if no response", async () => {
       axiosPostStub.resolves();
-      await expect(sendBid(mockBid)).to.be.rejectedWith(SequencerResponseInvalid);
+      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(SequencerResponseInvalid);
     });
 
     it("throws SequencerResponseInvalid if no response.data", async () => {
       axiosPostStub.resolves({ data: undefined });
-      await expect(sendBid(mockBid)).to.be.rejectedWith(SequencerResponseInvalid);
+      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(SequencerResponseInvalid);
     });
   });
 });
