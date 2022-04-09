@@ -1,7 +1,5 @@
 import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask, BidData } from "@connext/nxtp-utils";
 
-import { StoreChannel } from "../entities";
-
 import { Cache } from "./cache";
 
 /**
@@ -132,14 +130,14 @@ export class AuctionsCache extends Cache {
     const stream = this.data.hscanStream(`${this.prefix}:status`);
     let keys: string[] = [];
     await new Promise((res) => {
-      stream.on("data", (resultKeys) => {
+      stream.on("data", (resultKeys: string[] = []) => {
         keys = keys.concat(resultKeys);
       });
       stream.on("end", async () => {
         res(undefined);
       });
     });
-    let filtered: string[] = [];
+    const filtered: string[] = [];
     for (const key of keys) {
       const status = await this.getStatus(key);
       if (status === AuctionStatus.Queued) {

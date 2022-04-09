@@ -8,11 +8,13 @@ import {
   AuctionStatus,
   getNtpTimeSeconds,
   Auction,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 
 import { AuctionExpired, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
+
 import { getOperations } from ".";
 
 // TODO: Move elsewhere
@@ -194,7 +196,7 @@ export const selectBids = async (_requestContext: RequestContext) => {
         requestContext,
       );
     } catch (err: any) {
-      logger.error("Failed to send to relayer", requestContext, methodContext, err, {
+      logger.error("Failed to send to relayer", requestContext, methodContext, jsonifyError(err), {
         transferId,
         origin,
         destination,

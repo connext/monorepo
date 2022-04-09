@@ -1,6 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { AuctionHeaderSchema, BidSchema } from "./auctions";
+import { BidSchema } from "./auctions";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TDecimalString } from "./primitives";
 

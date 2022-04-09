@@ -11,10 +11,10 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-
-import { mkAddress, mkBytes32, mkSig } from ".";
 import { Auction } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
+
+import { mkAddress, mkBytes32, mkSig } from ".";
 
 /**
  * General mock toolset used for testing globally.
@@ -99,7 +99,7 @@ export const mock: any = {
       ...overrides,
     }),
     bidData: (): BidData => {
-      const { routers, ...bidData } = mock.entity.executeArgs();
+      const { routers: _, ...bidData } = mock.entity.executeArgs();
       return bidData;
     },
     xtransfer: (

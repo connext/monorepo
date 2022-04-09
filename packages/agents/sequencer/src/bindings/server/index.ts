@@ -1,6 +1,6 @@
 import fastify, { FastifyInstance } from "fastify";
 import pino from "pino";
-import { AuctionStatus, Bid, createLoggingContext, jsonifyError, AuctionsApiPostBidReq } from "@connext/nxtp-utils";
+import { AuctionStatus, createLoggingContext, jsonifyError, AuctionsApiPostBidReq } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 import { getOperations } from "../../lib/operations";
