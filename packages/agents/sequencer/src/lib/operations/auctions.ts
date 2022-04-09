@@ -196,7 +196,7 @@ export const selectBids = async (_requestContext: RequestContext) => {
         requestContext,
       );
     } catch (err: any) {
-      logger.error("Failed to send to relayer", requestContext, methodContext, jsonifyError(err), {
+      logger.error("Failed to send to relayer", requestContext, methodContext, jsonifyError(err as Error), {
         transferId,
         origin,
         destination,

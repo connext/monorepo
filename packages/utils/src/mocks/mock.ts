@@ -99,7 +99,8 @@ export const mock: any = {
       ...overrides,
     }),
     bidData: (): BidData => {
-      const { routers: _, ...bidData } = mock.entity.executeArgs();
+      const bidData = mock.entity.executeArgs();
+      delete bidData["routers"];
       return bidData;
     },
     xtransfer: (
