@@ -55,7 +55,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should succeed to post a bid", async () => {
-      storeBidStub.resolves(null);
+      storeBidStub.resolves();
       const transferId = getRandomBytes32();
       const bid = mock.entity.bid();
       const bidData = mock.entity.bidData();
@@ -68,7 +68,7 @@ describe("Bindings:Server", () => {
       const response = await fastifyApp.inject({
         method: "POST",
         url: "/auctions",
-        payload: data,
+        payload: { data },
       });
 
       expect(response.statusCode).to.be.eq(200);
@@ -90,14 +90,13 @@ describe("Bindings:Server", () => {
       expect(getQueuedTransfersStub.callCount).to.be.eq(1);
     });
 
-    it("happy: should get 500 on wrong transfer id", async () => {
-      storeBidStub.resolves(null);
+    it("happy: should get 500 on non-existent auction", async () => {
+      getStatusStub.resolves(AuctionStatus.None);
       const response = await fastifyApp.inject({
         method: "GET",
-        url: "/auctions/noid",
+        url: "/auctions/badid",
       });
-      expect(response.statusCode).to.be.eq(200);
-      expect(JSON.parse(response.payload).bids.length).to.eq(0);
+      expect(response.statusCode).to.be.eq(500);
     });
 
     it("happy: should receive 500 error if handling the bid fails", async () => {

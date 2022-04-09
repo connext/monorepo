@@ -1,4 +1,4 @@
-import { Bid, RequestContext, createLoggingContext, BidData } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, BidData } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { GelatoSendFailed } from "../errors";

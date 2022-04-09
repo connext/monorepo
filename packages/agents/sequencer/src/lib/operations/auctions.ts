@@ -28,7 +28,7 @@ export const storeBid = async (
   const {
     logger,
     chainData,
-    adapters: { chainreader, cache, contracts },
+    adapters: { chainreader, cache },
     config,
   } = getContext();
   const {
@@ -155,7 +155,9 @@ export const selectBids = async (_requestContext: RequestContext) => {
     const selected: Bid[] = [];
     for (let round = 1; round <= 5; round++) {
       // TODO: For now, selecting at random, but we should take fee % into account.
-      const availableBids = bids.filter((bid) => round.toString() in Array.from(Object.keys(bid.signatures)));
+      const availableBids = bids.filter((bid) => {
+        return Array.from(Object.keys(bid.signatures)).includes(round.toString());
+      });
       if (availableBids.length < round) {
         // Not enough router bids to form a transfer for this round.
         // (e.g. for round 3, we need 3 router bids to form a multipath transfer)

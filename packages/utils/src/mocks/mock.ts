@@ -25,8 +25,8 @@ export const mock: any = {
     B: "1338",
   },
   domain: {
-    A: "4123",
-    B: "9999",
+    A: "1337",
+    B: "1338",
   },
   asset: {
     A: {
@@ -43,14 +43,14 @@ export const mock: any = {
       {
         name: "Unit Test Chain 1",
         chainId: parseInt(mock.chain.A as string),
-        domainId: mock.chain.A,
+        domainId: mock.domain.A,
         confirmations: 1,
         assetId: {},
       },
       {
         name: "Unit Test Chain 2",
         chainId: parseInt(mock.chain.B as string),
-        domainId: mock.chain.B,
+        domainId: mock.domain.B,
         confirmations: 1,
         assetId: {},
       },
@@ -74,7 +74,7 @@ export const mock: any = {
       params: mock.entity.callParams(),
       local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
-      feePercentage: "1",
+      feePercentage: "0.05",
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       relayerSignature: "0xsig",
