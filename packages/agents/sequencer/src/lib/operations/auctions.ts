@@ -82,16 +82,21 @@ export const storeBid = async (
     gas: gas.toString(),
   });
 
-  await cache.auctions.upsertAuction({
+  const res = await cache.auctions.upsertAuction({
     transferId,
     origin: bidData.params.originDomain,
     destination: bidData.params.destinationDomain,
     bid,
   });
-  logger.info("Upserted auction", requestContext, methodContext, {
+  logger.info("Updated auction", requestContext, methodContext, {
+    new: res === 0,
     auction: await cache.auctions.getAuction(transferId),
     status: await cache.auctions.getStatus(transferId),
   });
+
+  if (status === AuctionStatus.None) {
+    await cache.auctions.setBidData(transferId, bidData);
+  }
 
   return;
 };

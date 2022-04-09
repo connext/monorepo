@@ -1,15 +1,16 @@
 import { expect, delay } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
-import { ctxMock } from "../../globalTestHook";
-import { bindBidSelection } from "../../../src/bindings";
-import * as BindBidSelectionFns from "../../../src/bindings/bidSelection";
-import * as BidFns from "../../../src/lib/operations/bid";
+import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
+import { bindAuctions } from "../../../src/bindings";
+import * as BindAuctionsFns from "../../../src/bindings/auctions";
 
 describe("bidSelection", () => {
   describe("#bidSelection", () => {
     let bidSelectionStub: SinonStub;
     beforeEach(() => {
+      getOperationsStub = stub(operations, "getOperations");
+      getOperationsStub.returns(mock);
       bidSelectionStub = stub(BidFns, "bidSelection").resolves(null);
     });
 
