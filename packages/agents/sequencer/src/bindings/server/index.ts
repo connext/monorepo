@@ -2,7 +2,7 @@ import fastify, { FastifyInstance } from "fastify";
 import pino from "pino";
 import { Bid, createLoggingContext, jsonifyError, mock } from "@connext/nxtp-utils";
 
-import { handleBid } from "../../lib/operations";
+import { storeBid } from "../../lib/operations";
 import { getContext } from "../../sequencer";
 
 export const bindServer = () =>
@@ -18,12 +18,12 @@ export const bindServer = () =>
       return res.code(200).send("pong\n");
     });
 
-    server.post("/bid", {}, async (request, response) => {
+    server.post("/bid/:transferId", {}, async (request, response) => {
       const { requestContext, methodContext } = createLoggingContext("POST /bid endpoint");
       try {
         const { body: req } = request;
         const bid = (req as any).bid as Bid;
-        await handleBid(bid, requestContext);
+        await storeBid(bid, requestContext);
         return response.status(200).send({ message: "Sent bid to auctioneer", bid });
       } catch (error: unknown) {
         logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
@@ -58,7 +58,7 @@ export const bindServer = () =>
       try {
         const bid: Bid = mock.entities.bid();
         const { transferId } = bid;
-        await handleBid(bid, requestContext);
+        await storeBid(bid, requestContext);
         const res = await cache.auctions.storeBid(bid);
         logger.info("Stored bid to cache", requestContext, methodContext, {
           res,

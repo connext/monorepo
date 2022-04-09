@@ -14,18 +14,13 @@ export class ConsumersCache extends Cache {
    * Publishes a message to the specific channel
    */
   protected init() {
-    this.data.subscribe(
-      StoreChannel.NewBid,
-      StoreChannel.NewHighestNonce,
-      StoreChannel.NewStatus,
-      (err: any, count) => {
-        if (err) {
-          this.logger.error(`Failed to subscribe: ${err.message}`);
-        } else {
-          this.logger.debug(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
-        }
-      },
-    );
+    this.data.subscribe(StoreChannel.NewHighestNonce, (err: any, count) => {
+      if (err) {
+        this.logger.error(`Failed to subscribe: ${err.message}`);
+      } else {
+        this.logger.debug(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
+      }
+    });
 
     this.data.on("message", (channel: string, message: string) => {
       const callback = this.subscriptions.get(channel);

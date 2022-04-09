@@ -9,11 +9,12 @@ import {
   BidData,
   CallParams,
   ExecuteArgs,
-  SignedBid,
   createLoggingContext,
 } from "..";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
+import { Auction } from "../types";
+import { getNtpTimeSeconds } from "../helpers";
 
 /**
  * General mock toolset used for testing globally.
@@ -24,8 +25,8 @@ export const mock: any = {
     B: "1338",
   },
   domain: {
-    A: "1337",
-    B: "1338",
+    A: "4123",
+    B: "9999",
   },
   asset: {
     A: {
@@ -62,13 +63,14 @@ export const mock: any = {
   },
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
-    callParams: (): CallParams => ({
+    callParams: (overrides: Partial<CallParams> = {}): CallParams => ({
       to: mkAddress("0xaaa"),
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
+      ...overrides,
     }),
-    executeArgs: (): ExecuteArgs => ({
+    executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
       params: mock.entity.callParams(),
       local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
@@ -77,21 +79,29 @@ export const mock: any = {
       nonce: 0,
       relayerSignature: "0xsig",
       originSender: "0xogsender",
+      ...overrides,
+    }),
+    auction: (overrides: Partial<Auction>): Auction => ({
+      timestamp: getNtpTimeSeconds().toString(),
+      origin: mock.domain.A,
+      destination: mock.domain.B,
+      bids: [mock.entity.bid()],
+      ...overrides,
+    }),
+    bid: (overrides: Partial<Bid> = {}): Bid => ({
+      router: mock.address.router,
+      fee: "0.05",
+      signatures: {
+        "1": getRandomBytes32(),
+        "2": getRandomBytes32(),
+        "3": getRandomBytes32(),
+      },
+      ...overrides,
     }),
     bidData: (): BidData => {
       const { routers, ...bidData } = mock.entity.executeArgs();
       return bidData;
     },
-    bid: (transferId = "0xtxid", router = mock.address.router, round = 1, data = mock.entity.bidData()): Bid => ({
-      transferId,
-      data,
-      router,
-      round,
-    }),
-    signedBid: (): SignedBid => ({
-      bid: mock.entity.bid(),
-      signature: "0xsig",
-    }),
     xtransfer: (
       originDomain: string,
       destinationDomain: string,

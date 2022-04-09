@@ -7,6 +7,7 @@ import {
   formatUrl,
   jsonifyError,
   RequestContext,
+  DEFAULT_ROUTER_FEE,
 } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
@@ -69,7 +70,9 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
-  const executeArguments: BidData = {
+
+  // TODO: Eventually, sending the bid data to the sequencer should be deprecated.
+  const bidData: BidData = {
     params: callParams,
     local: executeLocalAsset,
     amount: receivingAmount,
@@ -79,18 +82,21 @@ export const execute = async (params: XTransfer): Promise<void> => {
     originSender: xcall.caller,
   };
 
+  const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
-    transferId,
-    data: executeArguments,
     router: routerAddress,
-    round: 1,
+    fee,
+    // TODO: This list of signatures should reflect the auction rounds we want to bid on;
+    // we should eventually calculate which rounds we can afford to bid on, and then pass those in.
+    // For now, this is hardcoded to bid only on the first auction round.
+    signatures: {
+      "1": signature,
+    },
   };
-
-  logger.info("Bid created", requestContext, methodContext, { bid, signature, executeArguments });
 
   try {
     // sanity check
-    await sanityCheck(bid, requestContext);
+    await sanityCheck(bidData, requestContext);
   } catch (e: unknown) {
     throw new SanityCheckFailed({
       error: jsonifyError(e as Error),
@@ -98,7 +104,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, executeArguments });
+  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, bidData });
   const data = await sendBid(bid, requestContext);
   logger.info("Sent bid to sequencer", requestContext, methodContext, { data });
 };

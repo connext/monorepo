@@ -1,8 +1,7 @@
 import { BigNumber } from "ethers";
 
+import { DEFAULT_ROUTER_FEE } from "../";
 import { getRateFromPercentage, calculateExchangeAmount, calculateExchangeWad } from ".";
-
-const ROUTER_FEE = "0.05"; // 0.05%
 
 /**
  * Returns the swapRate
@@ -36,7 +35,7 @@ export const getReceiverAmount = async (
   const amountAfterSwapRate = calculateExchangeWad(BigNumber.from(amount), inputDecimals, swapRate, outputDecimals);
 
   // 2. flat fee by Router
-  const routerFeeRate = getRateFromPercentage(ROUTER_FEE);
+  const routerFeeRate = getRateFromPercentage(DEFAULT_ROUTER_FEE);
   const receivingAmountFloat = calculateExchangeAmount(amountAfterSwapRate.toString(), routerFeeRate);
 
   const receivingAmount = receivingAmountFloat.split(".")[0];

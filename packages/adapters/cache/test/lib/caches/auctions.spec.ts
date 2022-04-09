@@ -1,102 +1,308 @@
-import { Logger, expect, mock, mkAddress, ExecuteArgs, BidStatus, getRandomBytes32 } from "@connext/nxtp-utils";
+import { stub, SinonStub } from "sinon";
+import {
+  Logger,
+  expect,
+  mock,
+  mkAddress,
+  Auction,
+  AuctionStatus,
+  AuctionTask,
+  getRandomBytes32,
+  Bid,
+  getNtpTimeSeconds,
+  BidData,
+} from "@connext/nxtp-utils";
+
 import { AuctionsCache } from "../../../src/index";
-import { StoreChannel } from "../../../src/lib/entities";
 
-const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
-let auctions: AuctionsCache;
+const redis = new RedisMock();
 
-const mockTransferId = getRandomBytes32();
+describe.only("AuctionCache", () => {
+  const prefix = "auctions";
+  // Helpers for accessing mock cache directly and altering state.
+  const mockRedisHelpers = {
+    setAuction: async (transferId: string, auction: Auction) =>
+      await redis.hset(`${prefix}:auction`, transferId, JSON.stringify(auction)),
+    getAuction: async (transferId: string): Promise<Auction | null> =>
+      await redis.hget(`${prefix}:auction`, transferId),
 
-const mockExecuteArgs: ExecuteArgs[] = [
-  {
-    ...mock.entity.executeArgs(),
-    router: mkAddress("0xa"),
-    feePercentage: "0.1",
-    amount: "10",
-    relayerSignature: "0xsigsigsig",
-  },
-  {
-    ...mock.entity.executeArgs(),
-    router: mkAddress("0xb"),
-    feePercentage: "0.1",
-    amount: "10",
-    relayerSignature: "0xsigsigsig",
-  },
-];
+    setStatus: async (transferId: string, status: AuctionStatus) =>
+      await redis.hset(`${prefix}:status`, transferId, JSON.stringify(status)),
+    getStatus: async (transferId: string): Promise<AuctionStatus | null> =>
+      await redis.hget(`${prefix}:status`, transferId),
 
-const mockBids = [
-  mock.entity.bid(mockTransferId, mockExecuteArgs[0]),
-  mock.entity.bid(mockTransferId, mockExecuteArgs[1]),
-  mock.entity.bid(),
-];
+    setTask: async (transferId: string, task: AuctionTask) =>
+      await redis.hset(`${prefix}:task`, transferId, JSON.stringify(task)),
+    getTask: async (transferId: string): Promise<AuctionTask | null> => await redis.hget(`${prefix}:task`, transferId),
 
-describe("AuctionCache", () => {
-  let RedisSub: any;
+    setBidData: async (transferId: string, bid: BidData) =>
+      await redis.hset(`${prefix}:bidData`, transferId, JSON.stringify(bid)),
+    getBidData: async (transferId: string): Promise<BidData | null> =>
+      await redis.hget(`${prefix}:bidData`, transferId),
+  };
+
+  const logger = new Logger({ level: "debug" });
+  let cache: AuctionsCache;
   beforeEach(async () => {
-    logger.debug(`Subscribing to Channels for Redis Pub/Sub`);
-    RedisSub = new RedisMock();
-
-    RedisSub.subscribe(StoreChannel.NewBid);
-
-    auctions = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
+    cache = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   afterEach(async () => {
-    RedisSub.flushall();
+    redis.flushall();
   });
 
   describe("AuctionCache", () => {
-    describe("#storeBid", () => {
-      it("happy case: should return the number of bids", async () => {
-        let count = await auctions.storeBid(mockBids[0]);
-        expect(count).to.be.eq(1);
-        count = await auctions.storeBid(mockBids[1]);
-        expect(count).to.be.eq(2);
+    describe("#getAuction", () => {
+      it("happy: should retrieve existing auction data", async () => {
+        const transferId = getRandomBytes32();
+        const auction = mock.entity.auction({
+          transferId,
+        });
+        await mockRedisHelpers.setAuction(transferId, auction);
+        const res = await cache.getAuction(transferId);
+        expect(res).to.deep.eq(auction);
+      });
+
+      it("sad: should return undefined if auction data does not exist", async () => {
+        const transferId = getRandomBytes32();
+        const res = await cache.getAuction(transferId);
+        expect(res).to.be.undefined;
       });
     });
 
-    describe("#updateBid", () => {
-      it("happy case: should return 1 if added", async () => {
-        const result = await auctions.updateBid(mockBids[2], BidStatus.Pending);
-        expect(result).to.be.eq(1);
+    describe("#upsertAuction", () => {
+      const mockUpsertAuctionArgs = (transferId: string, origin: string, destination: string, bid?: Bid) => ({
+        transferId,
+        origin,
+        destination,
+        bid: bid ?? mock.entity.bid(),
+      });
+      let getAuctionStub: SinonStub;
+      beforeEach(() => {
+        getAuctionStub = stub(cache, "getAuction").resolves(undefined);
       });
 
-      it("happy case: should return 0 if updated", async () => {
-        const result = await auctions.updateBid(mockBids[2], BidStatus.Sent);
-        expect(result).to.be.eq(0);
+      afterEach(() => {
+        getAuctionStub.restore();
+      });
+
+      it("happy: should create new auction data", async () => {
+        const transferId = "1";
+        const args = mockUpsertAuctionArgs(transferId, "2", "3");
+        const res = await cache.upsertAuction(args);
+        expect(res).to.eq(0);
+        expect(getAuctionStub.calledOnce).to.be.true;
+        const { timestamp, ...auction } = await mockRedisHelpers.getAuction(transferId);
+        expect(timestamp).to.be.a("number");
+        expect(auction).to.deep.eq({
+          origin: args.origin,
+          destination: args.destination,
+          bids: [args.bid],
+        });
+      });
+
+      it("happy: should update existing auction data with subsuquent bids", async () => {
+        const transferId = getRandomBytes32();
+        const origin = mock.domain.A;
+        const destination = mock.domain.B;
+
+        const firstBid: Bid = mock.entity.bid({
+          router: mkAddress("0x1"),
+        });
+        const secondBid: Bid = mock.entity.bid({
+          router: mkAddress("0x2"),
+        });
+
+        const args = mockUpsertAuctionArgs(transferId, origin, destination, firstBid);
+
+        const firstCallRes = await cache.upsertAuction(args);
+        expect(firstCallRes).to.eq(0);
+
+        const { timestamp: firstCallTimestamp } = await mockRedisHelpers.getAuction(transferId);
+        getAuctionStub.resolves({
+          ...args,
+          origin,
+          destination,
+        });
+
+        const secondCallRes = await cache.upsertAuction({
+          ...args,
+          bid: secondBid,
+        });
+        expect(secondCallRes).to.eq(1);
+
+        const auction = await mockRedisHelpers.getAuction(transferId);
+        expect(auction).to.deep.eq({
+          // Timestamp shouldn't have been overwritten.
+          timestamp: firstCallTimestamp,
+          origin,
+          destination,
+          bids: [firstBid, secondBid],
+        });
       });
     });
 
-    describe("#getBidsByTransactionId", () => {
-      it("should return empty array if no exists", async () => {
-        const res = await auctions.getBidsByTransactionId("0x111");
-        expect(res.length).to.be.eq(0);
+    describe("#getStatus", () => {
+      it("happy: should retrieve existing auction status", async () => {
+        for (const status of [AuctionStatus.Queued, AuctionStatus.Sent, AuctionStatus.Executed]) {
+          const transferId = getRandomBytes32();
+          await mockRedisHelpers.setStatus(transferId, status);
+          const res = await cache.getStatus(transferId);
+          expect(res).to.eq(status);
+        }
       });
 
-      it("happy case: should return data", async () => {
-        const res = await auctions.getBidsByTransactionId(mockTransferId);
-        expect(res[0].payload.transferId).to.be.eq(mockTransferId);
-        expect(res[1].payload.transferId).to.be.eq(mockTransferId);
-      });
-    });
-    describe("#getAllTransactionsIdsWithPendingBids", () => {
-      it("should return transacionIds with pending bids", async () => {
-        const res = await auctions.getAllTransactionsIdsWithPendingBids();
-        expect(res[0]).to.be.eq(mockTransferId);
-        expect(res.length).to.be.eq(1);
+      it("sad: should return AuctionStatus.None if auction status does not exist", async () => {
+        const transferId = getRandomBytes32();
+        const res = await cache.getStatus(transferId);
+        expect(res).to.eq(AuctionStatus.None);
       });
     });
 
-    describe("#updateAllBidsWithTransactionId", () => {
-      it("should be ok", async () => {
-        await auctions.storeBid(mockBids[0]);
-        let txids = await auctions.getAllTransactionsIdsWithPendingBids();
-        expect(txids[0]).to.be.eq(mockTransferId);
-        expect(txids.length).to.be.eq(1);
-        const res = await auctions.updateAllBidsWithTransactionId(mockTransferId, BidStatus.Sent);
-        txids = await auctions.getAllTransactionsIdsWithPendingBids();
-        expect(txids.length).to.be.eq(0);
+    describe("#setStatus", () => {
+      it("happy: should set status", async () => {
+        const transferId = getRandomBytes32();
+
+        const resOne = await cache.setStatus(transferId, AuctionStatus.Queued);
+        expect(resOne).to.eq(0);
+        expect(await mockRedisHelpers.getStatus(transferId)).to.eq(AuctionStatus.Queued);
+
+        const resTwo = await cache.setStatus(transferId, AuctionStatus.Sent);
+        expect(resTwo).to.eq(1);
+        expect(await mockRedisHelpers.getStatus(transferId)).to.eq(AuctionStatus.Sent);
+      });
+    });
+
+    describe("#getTask", () => {
+      it("happy: should retrieve existing auction task", async () => {
+        const transferId = getRandomBytes32();
+        const task: AuctionTask = {
+          timestamp: getNtpTimeSeconds().toString(),
+          taskId: getRandomBytes32(),
+          attempts: 7,
+        };
+        await mockRedisHelpers.setTask(transferId, task);
+        const res = await cache.getTask(transferId);
+        expect(res).to.eq(task);
+      });
+
+      it("sad: should return undefined if auction task does not exist", async () => {
+        const transferId = getRandomBytes32();
+        const res = await cache.getTask(transferId);
+        expect(res).to.eq(undefined);
+      });
+    });
+
+    describe("#setTask", () => {
+      it("happy: should set/update task", async () => {
+        const transferId = getRandomBytes32();
+
+        const taskId = getRandomBytes32();
+        const resOne = await cache.upsertTask({
+          transferId,
+          taskId,
+        });
+        expect(resOne).to.eq(0);
+
+        const { timestamp: firstCallTimestamp, ...firstEntry } = await mockRedisHelpers.getTask(transferId);
+        expect(firstEntry).to.deep.eq({
+          taskId,
+          attempts: 1,
+        });
+
+        const updatedTaskId = getRandomBytes32();
+        const resTwo = await cache.upsertTask({
+          transferId,
+          taskId: updatedTaskId,
+        });
+        expect(resTwo).to.eq(1);
+
+        const { timestamp: secondCallTimestamp, ...secondEntry } = await mockRedisHelpers.getTask(transferId);
+        expect(secondEntry).to.deep.eq({
+          taskId: updatedTaskId,
+          attempts: 2,
+        });
+        // Ts should be overwritten with latest in this case.
+        expect(firstCallTimestamp).to.not.be.eq(secondCallTimestamp);
+      });
+    });
+
+    describe("#getQueuedTransfers", () => {
+      const mockTransferIdBatch = (count: number) => new Array(count).fill(0).map(() => getRandomBytes32());
+
+      it("happy: should retrieve existing queued transfers", async () => {
+        const transferIds = mockTransferIdBatch(10);
+        for (const transferId of transferIds) {
+          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Queued);
+        }
+
+        const res = await cache.getQueuedTransfers();
+        expect(res).to.deep.eq(transferIds);
+      });
+
+      it("should not retrieve transfers of other statuses", async () => {
+        const queuedTransferIds = mockTransferIdBatch(10);
+        for (const transferId of queuedTransferIds) {
+          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Queued);
+        }
+
+        // Simulate: a lot have been sent already.
+        const sentTransferIds = mockTransferIdBatch(1234);
+        for (const transferId of sentTransferIds) {
+          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Sent);
+        }
+
+        const res = await cache.getQueuedTransfers();
+        expect(res).to.deep.eq(queuedTransferIds);
+      });
+
+      it("should return empty array if no transfers have queued status", async () => {
+        const sentTransferIds = mockTransferIdBatch(27);
+        for (const transferId of sentTransferIds) {
+          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Sent);
+        }
+
+        const res = await cache.getQueuedTransfers();
+        expect(res).to.deep.eq([]);
+      });
+
+      it("sad: should return empty array if no queued transfers exist", async () => {
+        const res = await cache.getQueuedTransfers();
+        expect(res).to.deep.eq([]);
+      });
+    });
+
+    describe("#getBidData", () => {
+      it("happy: should retrieve existing bid data", async () => {
+        const transferId = getRandomBytes32();
+        const bidData: BidData = mock.entity.bidData();
+
+        await mockRedisHelpers.setBidData(transferId, bidData);
+        const res = await cache.getBidData(transferId);
+        expect(res).to.deep.eq(bidData);
+      });
+
+      it("sad: should return undefined if bid data does not exist", async () => {
+        const transferId = getRandomBytes32();
+        const res = await cache.getBidData(transferId);
+        expect(res).to.deep.eq(undefined);
+      });
+    });
+
+    describe("#setBidData", () => {
+      it("happy: should set/update bid data", async () => {
+        const transferId = getRandomBytes32();
+        const bidData = mock.entity.bidData();
+
+        const resOne = await cache.setBidData(transferId, bidData);
+        expect(resOne).to.eq(0);
+
+        const resTwo = await cache.setBidData(transferId, bidData);
+        expect(resTwo).to.eq(1);
+
+        const entry = await mockRedisHelpers.getBidData(transferId);
+        expect(entry).to.deep.eq(bidData);
       });
     });
   });
