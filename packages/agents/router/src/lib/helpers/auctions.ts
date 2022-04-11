@@ -43,7 +43,7 @@ export const sendBid = async (
     logger.info("Sent bid to sequencer", requestContext, methodContext, { data: response.data });
     return response.data;
   } catch (error: any) {
-    logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error), { transferId });
+    logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
     throw error;
   }
 };
@@ -61,7 +61,7 @@ export const getAuctionStatus = async (
     const response = await axios.get(url);
     return response.data;
   } catch (error: any) {
-    logger.error(`Bids by TransferId Get Error`, requestContext, methodContext, jsonifyError(error));
+    logger.error(`Bids by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
     throw error;
   }
 };
