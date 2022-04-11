@@ -622,25 +622,27 @@ contract Connext is
    * @param _domain - domain to claim funds on
    * @param _transferIds - transferIds to claim
    */
-  // TODO - move to lib
   function initiateClaim(
     uint32 _domain,
     address _recipient,
     bytes32[] calldata _transferIds
   ) public {
     ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
-    // TODO - emit event?
+
+    emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
   }
 
   /**
    * @notice Pays out a relayer for the given fees
    * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
    * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
    */
-  // TODO - move to lib
   function claim(address _recipient, bytes32[] calldata _transferIds) public onlyRelayerFeeRouter {
-    ConnextUtils.claim(_recipient, _transferIds, relayerFees);
-    // TODO - emit event?
+    uint256 total = ConnextUtils.claim(_recipient, _transferIds, relayerFees);
+
+    emit Claimed(_recipient, total, _transferIds);
   }
 
   // ============ Private functions ============

@@ -29,6 +29,8 @@ contract ConnextTest is ForgeHelper {
   using stdStorage for StdStorage;
 
   event MaxRoutersPerTransferUpdated(uint256 maxRouters, address caller);
+  event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
+  event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
 
   // ============ Storage ============
 
@@ -150,12 +152,15 @@ contract ConnextTest is ForgeHelper {
       abi.encodeWithSelector(MockRelayerFeeRouter.send.selector, uint32(domain), kakaroto, transactionIds)
     );
 
+    vm.expectEmit(true, true, true, true);
+    emit InitiatedClaim(uint32(domain), kakaroto, kakaroto, transactionIds);
+
     connext.initiateClaim(uint32(domain), kakaroto, transactionIds);
   }
 
   // ============ claim ============
 
-  // Fail if if the caller isn't RelayerFeeRouter
+  // Fail if the caller isn't RelayerFeeRouter
   function testClaimOnlyRelayerFeeRouter() public {
     bytes32[] memory transactionIds = new bytes32[](2);
     transactionIds[0] = "AAA";
@@ -184,6 +189,9 @@ contract ConnextTest is ForgeHelper {
     vm.prank(address(relayerFeeRouter));
 
     uint256 balanceBefore = kakaroto.balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Claimed(kakaroto, aaaFee + bbbFee, transactionIds);
 
     connext.claim(kakaroto, transactionIds);
 

@@ -172,7 +172,6 @@ library ConnextUtils {
    * @param _recipient - address on origin chain to send claimed funds to
    * @param _transferIds - transferIds to claim
    */
-  // TODO - Is this the proper place?
   function initiateClaim(
     uint32 _domain,
     address _recipient,
@@ -198,18 +197,14 @@ library ConnextUtils {
    * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
    * asserted before dispatching the message.
    */
-  // TODO - Is this the proper place?
   function claim(
     address _recipient,
     bytes32[] calldata _transferIds,
     mapping(bytes32 => uint256) storage relayerFees
-  ) public {
+  ) public returns (uint256) {
     // Tally amounts owed
     uint256 total;
     for (uint256 i; i < _transferIds.length; ) {
-      // TODO: maybe assert gas here to ensure you have enough to include
-      // transferId and buffer to send? That way you can at least claim *some*
-      // of the transfers
       total += relayerFees[_transferIds[i]];
       relayerFees[_transferIds[i]] = 0;
       unchecked {
@@ -218,5 +213,7 @@ library ConnextUtils {
     }
 
     AddressUpgradeable.sendValue(payable(_recipient), total);
+
+    return total;
   }
 }
