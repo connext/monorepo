@@ -1,4 +1,4 @@
-import "../nomad-xapps/contracts/bridge/BridgeMessage.sol";
+import "../nomad-xapps/contracts/connext/ConnextMessage.sol";
 
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
@@ -24,52 +24,6 @@ interface IConnext {
   }
 
   /**
-   * @notice Contains the external call information
-   * @dev Used to create a hash to pass the external call information through the bridge
-   * @param to - The address that should receive the funds on the destination domain if no call is
-   * specified, or the fallback if an external call fails
-   * @param callData - The data to execute on the receiving chain
-   */
-  struct ExternalCall {
-    address to;
-    bytes callData;
-  }
-
-  /**
-   * @notice Contains information stored when `execute` is used in a fast-liquidity manner on a
-   * transfer to properly reimburse router when funds come through the bridge.
-   * @param router - Address of the router that supplied fast-liquidity
-   * @param amount - Amount of liquidity router provided. Used to prevent price-gauging when `amount`
-   * user supplied comes through bridge
-   */
-  struct ExecutedTransfer {
-    address router;
-    uint256 amount;
-  }
-
-  /**
-   * @notice Contains information about the gas consumed in a `execute` call
-   * @param gasUsed - The gas consumed for a execute transfer (including external call)
-   * @param gasPrice - The tx.gasPrice on the execute transfer
-   */
-  struct GasInfo {
-    uint256 gasUsed;
-    uint256 gasPrice;
-  }
-
-  /**
-   * @notice Struct containing the information that comes through the bridge provided by the user on `xcall`
-   * @param local - The address of the bridged asset
-   * @param amount - The amount forwarded through the bridge
-   * @param to - The address that gets the funds on the destination chain
-   */
-  struct ReconciledTransfer {
-    address local;
-    uint256 amount;
-    address to;
-  }
-
-  /**
    * @notice The arguments you supply to the `xcall` function called by user on origin domain
    * @param params - The CallParams. These are consistent across sending and receiving chains
    * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
@@ -90,18 +44,18 @@ interface IConnext {
    * @param router - The router who you are sending the funds on behalf of
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
-   * @param feePercentage - The amount over the BASEFEE to tip the relayer
+   * @param nonce - The nonce used to generate transfer id
+   * @param originSender - The msg.sender of the xcall on origin domain
    */
   struct ExecuteArgs {
     CallParams params;
-    address local;
+    address local; // Canonical token id
     address router;
-    uint32 feePercentage;
-    uint256 amount;
+    uint256 amount; // amount bridged
     uint256 nonce;
-    bytes relayerSignature;
     address originSender;
   }
+
   // ============ Events ============
 
   /**
@@ -188,6 +142,7 @@ interface IConnext {
     uint256 transactingAmount,
     uint256 localAmount,
     uint256 nonce,
+    bytes message,
     address caller
   );
 
@@ -196,20 +151,16 @@ interface IConnext {
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
    * @param router - The router that supplied fast liquidity, if applicable
-   * @param localAsset - The asset that was provided by the bridge
-   * @param to - The CallParams.recipient provided, created as indexed parameter
-   * @param localAmount - The amount that was provided by the bridge
-   * @param executed - Record of the `ExecutedTransfer` stored onchain if fast liquidity is provided
+   * @param asset - The asset that was provided by the bridge
+   * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
    */
   event Reconciled(
     bytes32 indexed transferId,
     uint32 indexed origin,
     address indexed router,
-    address localAsset,
-    address to,
-    uint256 localAmount,
-    ExecutedTransfer executed,
+    address asset,
+    uint256 amount,
     address caller
   );
 
@@ -219,11 +170,8 @@ interface IConnext {
    * @param transferId - The unique identifier of the crosschain transfer
    * @param to - The CallParams.to provided, created as indexed parameter
    * @param router - The router that supplied fast liquidity, if applicable
-   * @param params - The CallParams provided to the function
-   * @param localAsset - The asset that was provided by the bridge
    * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
-   * @param localAmount - The amount that was provided by the bridge
    * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
    * executed with
    * @param caller - The account that called the function
@@ -232,10 +180,8 @@ interface IConnext {
     bytes32 indexed transferId,
     address indexed to,
     address indexed router,
-    CallParams params,
-    address localAsset,
+    ExecuteArgs args,
     address transactingAsset,
-    uint256 localAmount,
     uint256 transactingAmount,
     address caller
   );
@@ -244,7 +190,7 @@ interface IConnext {
 
   function initialize(
     uint256 _domain,
-    address payable _bridgeRouter,
+    address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative
   ) external;
@@ -257,10 +203,10 @@ interface IConnext {
 
   function removeRouter(address router) external;
 
-  function addStableSwapPool(BridgeMessage.TokenId calldata canonical, address stableSwapPool) external;
+  function addStableSwapPool(ConnextMessage.TokenId calldata canonical, address stableSwapPool) external;
 
   function setupAsset(
-    BridgeMessage.TokenId calldata canonical,
+    ConnextMessage.TokenId calldata canonical,
     address adoptedAssetId,
     address stableSwapPool
   ) external;
@@ -272,10 +218,6 @@ interface IConnext {
   function removeRelayer(address relayer) external;
 
   // ============ Public Functions ===========
-
-  function addRelayerFees(address router) external payable;
-
-  function removeRelayerFees(uint256 amount, address payable to) external;
 
   function addLiquidityFor(
     uint256 amount,
@@ -292,14 +234,6 @@ interface IConnext {
   ) external;
 
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
-
-  function reconcile(
-    bytes32 _transferId,
-    uint32 _origin,
-    address _local,
-    address _recipient,
-    uint256 _amount
-  ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
 }

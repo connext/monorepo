@@ -4,9 +4,8 @@ pragma solidity 0.8.11;
 import "../../interfaces/IConnext.sol";
 import "../../interfaces/IStableSwap.sol";
 
-import "../../nomad-xapps/contracts/bridge/TokenRegistry.sol";
-import "../../nomad-xapps/contracts/bridge/BridgeMessage.sol";
-import "../../nomad-xapps/contracts/bridge/BridgeRouter.sol";
+import "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
@@ -28,28 +27,6 @@ library ConnextUtils {
   }
 
   /**
-   * @notice Gets the hash for information returned across the bridge
-   * @param _local - The asset delivered by the bridge
-   * @param _to - The address that should receive the funds, or fallback address if the external call
-   * fails
-   * @param _amount - The amount delivered through the bridge
-   * @return The hash of the `ReconciledTransfer`
-   */
-  function getReconciledHash(
-    address _local,
-    address _to,
-    uint256 _amount
-  ) external pure returns (bytes32) {
-    IConnext.ReconciledTransfer memory transfer = IConnext.ReconciledTransfer({
-      local: _local,
-      amount: _amount,
-      to: _to
-    });
-
-    return keccak256(abi.encode(transfer));
-  }
-
-  /**
    * @notice Holds the logic to recover the signer from an encoded payload.
    * @dev Will hash and convert to an eth signed message.
    * @param _encoded The payload that was signed
@@ -58,30 +35,6 @@ library ConnextUtils {
   function recoverSignature(bytes memory _encoded, bytes calldata _sig) external pure returns (address) {
     // Recover
     return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
-  }
-
-  /**
-   * @notice Sends a message over the bridge
-   * @param _bridgeRouter - The local nomad bridge router
-   * @param _destination - The destination domain for the message
-   * @param _recipient - The address that should receive the funds, or fallback address if the external call
-   * fails
-   * @param _local - The asset delivered by the bridge
-   * @param _amount - The amount delivered through the bridge
-   * @param _id - The unique identifier of the transaction
-   */
-  function sendMessage(
-    BridgeRouter _bridgeRouter,
-    uint32 _destination,
-    address _recipient,
-    address _local,
-    uint256 _amount,
-    bytes32 _id
-  ) external {
-    // Approve the bridge router
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_local), address(_bridgeRouter), _amount);
-
-    _bridgeRouter.send(_local, _amount, _destination, TypeCasts.addressToBytes32(_recipient), true, _id);
   }
 
   /**
@@ -96,9 +49,9 @@ library ConnextUtils {
    * @return The address of asset received post-swap
    */
   function swapToLocalAssetIfNeeded(
-    BridgeMessage.TokenId memory _canonical,
+    ConnextMessage.TokenId memory _canonical,
     IStableSwap _pool,
-    TokenRegistry _tokenRegistry,
+    ITokenRegistry _tokenRegistry,
     address _asset,
     uint256 _amount
   ) external returns (uint256, address) {
@@ -110,6 +63,11 @@ library ConnextUtils {
 
     // Get the local token for this domain (may return canonical or representation)
     address local = _tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
+
+    // if theres no amount, no need to swap
+    if (_amount == 0) {
+      return (_amount, local);
+    }
 
     // Check the case where the adopted asset *is* the local asset
     if (local == _asset) {
@@ -138,12 +96,12 @@ library ConnextUtils {
   function swapFromLocalAssetIfNeeded(
     mapping(bytes32 => address) storage _canonicalToAdopted,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    TokenRegistry _tokenRegistry,
+    ITokenRegistry _tokenRegistry,
     address _asset,
     uint256 _amount
   ) external returns (uint256, address) {
     // Get the token id
-    (, bytes32 id) = _tokenRegistry.getCanonicalTokenId(_asset);
+    (, bytes32 id) = _tokenRegistry.getTokenId(_asset);
 
     // If the adopted asset is the local asset, no need to swap
     address adopted = _canonicalToAdopted[id];

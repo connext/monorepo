@@ -4,7 +4,7 @@ pragma solidity >=0.6.11;
 // ============ Internal Imports ============
 import {IBridgeToken} from "../../interfaces/bridge/IBridgeToken.sol";
 import {ERC20} from "./vendored/OZERC20.sol";
-import {BridgeMessage} from "./BridgeMessage.sol";
+import {ConnextMessage} from "./ConnextMessage.sol";
 // ============ External Imports ============
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
@@ -93,7 +93,7 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
     // these once. After the first transfer is made, detailsHash will be
     // set, allowing anyone to supply correct name/symbols/decimals
     require(
-      _isFirstDetails || BridgeMessage.getDetailsHash(_newName, _newSymbol, _newDecimals) == detailsHash,
+      _isFirstDetails || ConnextMessage.formatDetailsHash(_newName, _newSymbol, _newDecimals) == detailsHash,
       "!committed details"
     );
     // careful with naming convention change here

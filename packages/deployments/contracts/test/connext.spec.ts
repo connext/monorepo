@@ -4,17 +4,16 @@ import { solidity } from "ethereum-waffle";
 use(solidity);
 
 import {
-  BridgeRouter,
   Home,
   TestERC20,
   TokenRegistry,
-  Connext,
   TestBridgeMessage,
   WETH,
   UpgradeBeaconController,
   XAppConnectionManager,
   DummySwap,
   ProposedOwnableUpgradeable,
+  ConnextHandler,
 } from "../typechain-types";
 
 import {
@@ -22,7 +21,6 @@ import {
   bridge,
   BridgeMessageTypes,
   deployContract,
-  deployContractWithLibs,
   formatTokenId,
   getDetailsHash,
   MAX_FEE_PER_GAS,
@@ -40,7 +38,7 @@ import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "eth
 import { hexZeroPad, parseEther } from "ethers/lib/utils";
 import { delay, getOnchainBalance, getRandomBytes32 } from "@connext/nxtp-utils";
 
-const SEED = 1_000_000;
+const SEED = utils.parseEther("1");
 
 const addressToBytes32 = (addr: string) => {
   return hexZeroPad(addr, 32);
@@ -101,10 +99,8 @@ describe("Connext", () => {
   let canonical: TestERC20;
   let local: TestERC20;
   let weth: WETH;
-  let originBridge: BridgeRouter;
-  let destinationBridge: BridgeRouter;
-  let originTm: Connext;
-  let destinationTm: Connext;
+  let originBridge: ConnextHandler;
+  let destinationBridge: ConnextHandler;
   let stableSwap: DummySwap;
   let home: Home;
   let bridgeMessage: TestBridgeMessage;
@@ -143,46 +139,38 @@ describe("Connext", () => {
     // Deploy dummy stable swap
     stableSwap = await deployContract<DummySwap>("DummySwap");
 
-    // Deploy bridge
-    originBridge = await deployUpgradeableProxy<BridgeRouter>(
-      "BridgeRouter",
-      [originTokenRegistry.address, originXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-    destinationBridge = await deployUpgradeableProxy<BridgeRouter>(
-      "BridgeRouter",
-      [destinationTokenRegistry.address, destinationXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
-
     // Deploy Connext logic libraries
     const assetLogic = await deployContract("AssetLogic");
     const connextUtils = await deployContract("ConnextUtils");
     const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
 
-    // Deploy transacion managers
-    originTm = await deployContractWithLibs<Connext>(
-      "Connext",
-      {
-        AssetLogic: assetLogic.address,
-        ConnextUtils: connextUtils.address,
-        RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
-    });
-    await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address);
+    // Deploy bridge
+    originBridge = (
+      await deployUpgradeableProxy<ConnextHandler>(
+        "ConnextHandler",
+        [originDomain, originXappConnectionManager.address, originTokenRegistry.address, weth.address],
+        upgradeBeaconController.address,
+        {
+          AssetLogic: assetLogic.address,
+          ConnextUtils: connextUtils.address,
+          RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
+        },
+      )
+    ).connect(admin);
 
-    destinationTm = await deployContractWithLibs<Connext>(
-      "Connext",
-      {
-        AssetLogic: assetLogic.address,
-        ConnextUtils: connextUtils.address,
-        RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
-      });
-    await destinationTm.initialize(
-      destinationDomain,
-      destinationBridge.address,
-      destinationTokenRegistry.address,
-      weth.address,
-    );
+    destinationBridge = (
+      await deployUpgradeableProxy<ConnextHandler>(
+        "ConnextHandler",
+        [destinationDomain, destinationXappConnectionManager.address, destinationTokenRegistry.address, weth.address],
+        upgradeBeaconController.address,
+        {
+          AssetLogic: assetLogic.address,
+          ConnextUtils: connextUtils.address,
+          RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
+        },
+      )
+    ).connect(admin);
+
     // Deploy home
     home = await deployContract<Home>("Home", originDomain);
     // Deploy test bridge message
@@ -217,7 +205,7 @@ describe("Connext", () => {
     const setupWeth = await executeProxyWrite(admin, destinationTokenRegistry, "enrollCustom", [
       originDomain,
       addressToBytes32(weth.address),
-      local.address,
+      canonical.address,
     ]);
     await setupWeth.wait();
 
@@ -264,19 +252,13 @@ describe("Connext", () => {
 
     // Approvals
     const approvals = await Promise.all([
-      originAdopted.approve(stableSwap.address, SEED * 3),
-      delay(100).then((_) => destinationAdopted.approve(stableSwap.address, SEED * 2)),
-      delay(200).then((_) => local.approve(stableSwap.address, SEED * 2)),
+      originAdopted.approve(stableSwap.address, SEED.mul(3)),
+      delay(100).then((_) => destinationAdopted.approve(stableSwap.address, SEED.mul(2))),
+      delay(200).then((_) => local.approve(stableSwap.address, SEED.mul(2))),
       delay(300).then((_) => canonical.approve(stableSwap.address, SEED)),
       delay(400).then((_) => weth.approve(stableSwap.address, SEED)),
     ]);
     await Promise.all(approvals.map((a) => a.wait()));
-
-    // Set transaction manager on BridgeRouter
-    const setOriginTm = await originBridge.connect(admin).setConnext(originTm.address);
-    await setOriginTm.wait();
-    const setDestinationTm = await destinationBridge.connect(admin).setConnext(destinationTm.address);
-    await setDestinationTm.wait();
 
     // Set remote on BridgeRouter
     const setRemote = await originBridge
@@ -285,7 +267,7 @@ describe("Connext", () => {
     await setRemote.wait();
 
     // Setup transaction manager assets
-    const setupOriginAsset = await originTm.setupAsset(
+    const setupOriginAsset = await originBridge.connect(admin).setupAsset(
       {
         id: addressToBytes32(canonical.address),
         domain: originDomain,
@@ -294,7 +276,7 @@ describe("Connext", () => {
       stableSwap.address,
     );
     await setupOriginAsset.wait();
-    const setupOriginWeth = await originTm.setupAsset(
+    const setupOriginWeth = await originBridge.setupAsset(
       {
         id: addressToBytes32(weth.address),
         domain: originDomain,
@@ -304,7 +286,7 @@ describe("Connext", () => {
     );
     await setupOriginWeth.wait();
 
-    const setupDestAsset = await destinationTm.setupAsset(
+    const setupDestAsset = await destinationBridge.setupAsset(
       {
         id: addressToBytes32(canonical.address),
         domain: originDomain,
@@ -313,7 +295,7 @@ describe("Connext", () => {
       stableSwap.address,
     );
     await setupDestAsset.wait();
-    const setupDestWeth = await destinationTm.setupAsset(
+    const setupDestWeth = await destinationBridge.setupAsset(
       {
         id: addressToBytes32(weth.address),
         domain: originDomain,
@@ -325,8 +307,8 @@ describe("Connext", () => {
 
     // Setup router
     const routers = await Promise.all([
-      originTm.setupRouter(router.address, router.address, router.address),
-      delay(100).then((_) => destinationTm.setupRouter(router.address, router.address, router.address)),
+      originBridge.setupRouter(router.address, router.address, router.address),
+      delay(100).then((_) => destinationBridge.setupRouter(router.address, router.address, router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
   });
@@ -342,85 +324,90 @@ describe("Connext", () => {
 
   describe("constructor", async () => {
     it("should deploy", async () => {
-      expect(originTm.address).to.be.a("string");
+      expect(originBridge.address).to.be.a("string");
     });
 
     it("should set domain for original Connext", async () => {
-      expect(await originTm.domain()).to.eq(originDomain);
-    });
-
-    it("should set Bridge Router", async () => {
-      const addr = await originTm.bridgeRouter();
-      expect(utils.isAddress(addr)).to.be.true;
+      expect(await originBridge.domain()).to.eq(originDomain);
     });
 
     it("should set Token Registry", async () => {
-      const addr = await originTm.tokenRegistry();
-      expect(utils.isAddress(addr)).to.be.true;
+      const addr = await originBridge.tokenRegistry();
+      expect(addr).to.be.eq(originTokenRegistry.address);
     });
 
     it("should set Wrapped Asset", async () => {
-      const addr = await originTm.wrapper();
-      expect(utils.isAddress(addr)).to.be.true;
+      const addr = await originBridge.wrapper();
+      expect(addr).to.be.eq(weth.address);
     });
   });
 
   xdescribe("setupRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(originTm.connect(user).setupRouter(toAdd,toAdd,toAdd)).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_notOwner");
+      await expect(originBridge.connect(user).setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
+        "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+      );
     });
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originTm.setupRouter(toAdd,toAdd,toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("Connext__addRouter_routerEmpty");
+      await expect(originBridge.setupRouter(toAdd, toAdd, toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith(
+        "Connext__addRouter_routerEmpty",
+      );
     });
 
     it("should fail if its already added", async () => {
-      await expect(originTm.setupRouter(router.address, router.address, router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("Connext__addRouter_alreadyAdded");
+      await expect(
+        originBridge.setupRouter(router.address, router.address, router.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
+      ).to.be.revertedWith("Connext__addRouter_alreadyAdded");
     });
 
     it("should work", async () => {
       const toAdd = Wallet.createRandom().address;
-      const tx = await originTm.setupRouter(toAdd, toAdd, toAdd, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const tx = await originBridge.setupRouter(toAdd, toAdd, toAdd, { maxFeePerGas: MAX_FEE_PER_GAS });
       const receipt = await tx.wait();
       await assertReceiptEvent(receipt, "RouterAdded", { caller: receipt.from, router: toAdd });
-      expect(await originTm.approvedRouters(toAdd)).to.be.true;
+      expect(await originBridge.approvedRouters(toAdd)).to.be.true;
     });
   });
 
   xdescribe("removeRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
-      await expect(originTm.connect(user).removeRouter(toAdd)).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_notOwner");
+      await expect(originBridge.connect(user).removeRouter(toAdd)).to.be.revertedWith(
+        "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+      );
     });
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originTm.removeRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith("Connext__removeRouter_routerEmpty");
+      await expect(originBridge.removeRouter(toAdd, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith(
+        "Connext__removeRouter_routerEmpty",
+      );
     });
 
     it("should fail if its already removed", async () => {
-      const tx = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const tx = await originBridge.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
       await tx.wait();
 
-      await expect(originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith(
+      await expect(originBridge.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS })).to.be.revertedWith(
         "Connext__removeRouter_notAdded",
       );
     });
 
     it("should work", async () => {
-      const tx = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const tx = await originBridge.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
       const receipt = await tx.wait();
       await assertReceiptEvent(receipt, "RouterRemoved", { caller: receipt.from, router: router.address });
-      expect(await originTm.approvedRouters(router.address)).to.be.false;
+      expect(await originBridge.approvedRouters(router.address)).to.be.false;
     });
   });
 
   describe("addStableSwapPool", () => {
     it("should fail if not called by owner", async () => {
       await expect(
-        originTm.connect(user).addStableSwapPool(
+        originBridge.connect(user).addStableSwapPool(
           {
             id: addressToBytes32(canonical.address),
             domain: originDomain,
@@ -431,7 +418,7 @@ describe("Connext", () => {
     });
 
     it("should work", async () => {
-      const tx = await originTm.addStableSwapPool(
+      const tx = await originBridge.addStableSwapPool(
         {
           id: addressToBytes32(canonical.address),
           domain: originDomain,
@@ -446,14 +433,16 @@ describe("Connext", () => {
         domain: originDomain,
         swapPool: stableSwap.address,
       });
-      expect(await originTm.adoptedToLocalPools(addressToBytes32(canonical.address))).to.be.equal(stableSwap.address);
+      expect(await originBridge.adoptedToLocalPools(addressToBytes32(canonical.address))).to.be.equal(
+        stableSwap.address,
+      );
     });
   });
 
   describe("setupAsset", () => {
     it("should fail if not called by owner", async () => {
       await expect(
-        originTm
+        originBridge
           .connect(user)
           .setupAsset(
             { id: addressToBytes32(canonical.address), domain: originDomain },
@@ -465,7 +454,7 @@ describe("Connext", () => {
 
     it("should fail if it is already approved canonical", async () => {
       const toAdd = Wallet.createRandom().address;
-      const tx = await originTm.setupAsset(
+      const tx = await originBridge.setupAsset(
         {
           id: addressToBytes32(toAdd),
           domain: originDomain,
@@ -477,7 +466,7 @@ describe("Connext", () => {
       await tx.wait();
 
       await expect(
-        originTm.setupAsset(
+        originBridge.setupAsset(
           {
             id: addressToBytes32(toAdd),
             domain: originDomain,
@@ -491,7 +480,7 @@ describe("Connext", () => {
 
     it("should work", async () => {
       const toAdd = Wallet.createRandom().address;
-      const tx = await originTm.setupAsset(
+      const tx = await originBridge.setupAsset(
         { id: addressToBytes32(toAdd), domain: originDomain },
         originAdopted.address,
         stableSwap.address,
@@ -509,27 +498,29 @@ describe("Connext", () => {
         supportedAsset: supported,
       });
 
-      expect(await originTm.approvedAssets(addressToBytes32(toAdd))).to.be.true;
+      expect(await originBridge.approvedAssets(addressToBytes32(toAdd))).to.be.true;
     });
   });
 
   describe("removeAssetId", () => {
     it("should fail if not called by owner", async () => {
       await expect(
-        originTm.connect(user).removeAssetId(addressToBytes32(canonical.address), originAdopted.address),
+        originBridge.connect(user).removeAssetId(addressToBytes32(canonical.address), originAdopted.address),
       ).to.be.revertedWith("ProposedOwnableUpgradeable__onlyOwner_notOwner");
     });
 
     it("should fail if it is not approved canonical", async () => {
       const toRemove = Wallet.createRandom().address;
       await expect(
-        originTm.removeAssetId(addressToBytes32(toRemove), originAdopted.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
+        originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address, {
+          maxFeePerGas: MAX_FEE_PER_GAS,
+        }),
       ).to.be.revertedWith("Connext__removeAssetId_notAdded");
     });
 
     it("should work", async () => {
       const toRemove = Wallet.createRandom().address;
-      const addTx = await originTm.setupAsset(
+      const addTx = await originBridge.setupAsset(
         { id: addressToBytes32(toRemove), domain: originDomain },
         originAdopted.address,
         stableSwap.address,
@@ -539,7 +530,7 @@ describe("Connext", () => {
       );
       await addTx.wait();
 
-      const tx = await originTm.removeAssetId(addressToBytes32(toRemove), originAdopted.address, {
+      const tx = await originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address, {
         maxFeePerGas: MAX_FEE_PER_GAS,
       });
       const receipt = await tx.wait();
@@ -549,39 +540,8 @@ describe("Connext", () => {
         canonicalId: addressToBytes32(toRemove).toLowerCase(),
       });
 
-      expect(await originTm.approvedAssets(addressToBytes32(toRemove))).to.be.false;
-      expect(await originTm.adoptedToLocalPools(addressToBytes32(toRemove))).to.be.eq(ZERO_ADDRESS);
-    });
-  });
-
-  describe("addRelayerFees", () => {
-    it("should work", async () => {
-      const beforeRouterFee = await originTm.routerRelayerFees(router.address);
-      const tx = await originTm.addRelayerFees(router.address, {
-        maxFeePerGas: MAX_FEE_PER_GAS,
-        value: parseEther("1"),
-      });
-      await tx.wait();
-
-      expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("1")));
-    });
-  });
-
-  describe("removeRelayerFees", () => {
-    it("should work", async () => {
-      const beforeRouterFee = await originTm.routerRelayerFees(router.address);
-      const addTx = await originTm.addRelayerFees(router.address, {
-        maxFeePerGas: MAX_FEE_PER_GAS,
-        value: parseEther("1"),
-      });
-      await addTx.wait();
-
-      const beforeBalance = await user.getBalance();
-      const removeTx = await originTm.connect(router).removeRelayerFees(parseEther("0.5"), user.address);
-      await removeTx.wait();
-
-      expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("0.5")));
-      expect(await user.getBalance()).to.be.eq(beforeBalance.add(parseEther("0.5")));
+      expect(await originBridge.approvedAssets(addressToBytes32(toRemove))).to.be.false;
+      expect(await originBridge.adoptedToLocalPools(addressToBytes32(toRemove))).to.be.eq(ZERO_ADDRESS);
     });
   });
 
@@ -590,17 +550,17 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
 
-      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
+      await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
         "Connext__addLiquidityForRouter_routerEmpty",
       );
-      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+      expect(await originBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
     it("should fail if amount is 0", async () => {
       const amount = "0";
       const assetId = ZERO_ADDRESS;
 
-      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+      await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
         "Connext__addLiquidityForRouter_amountIsZero",
       );
     });
@@ -610,19 +570,19 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       // Remove router
-      const remove = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const remove = await originBridge.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
       await remove.wait();
-      expect(await originTm.approvedRouters(router.address)).to.be.false;
+      expect(await originBridge.approvedRouters(router.address)).to.be.false;
 
       await expect(
-        originTm.addLiquidityFor(amount, assetId, router.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
+        originBridge.addLiquidityFor(amount, assetId, router.address, { maxFeePerGas: MAX_FEE_PER_GAS }),
       ).to.be.revertedWith("Connext__addLiquidityForRouter_badRouter");
     });
 
     it("should fail if its an unapproved asset && ownership isnt renounced", async () => {
       const amount = "10";
       const assetId = Wallet.createRandom().address;
-      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+      await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
         "Connext__addLiquidityForRouter_badAsset",
       );
     });
@@ -631,10 +591,10 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
 
-      await expect(originTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
+      await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
         "AssetLogic__transferAssetToContract_notAmount",
       );
-      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
+      expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
     it("should fail if msg.value != amount for native asset", async () => {
@@ -643,9 +603,9 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(
-        originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
+        originBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
       ).to.be.revertedWith("AssetLogic__transferAssetToContract_notAmount");
-      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
+      expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
     it("should fail if msg.value != 0 for ERC20 token", async () => {
@@ -653,18 +613,18 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = local.address;
       await expect(
-        destinationTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
+        destinationBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
       ).to.be.revertedWith("AssetLogic__transferAssetToContract_ethWithErcTransfer");
-      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+      expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
     it("should fail if transferFromERC20 fails", async () => {
-      const amount = SEED * 5;
+      const amount = SEED.mul(5);
       const assetId = local.address;
-      await expect(destinationTm.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "ERC20: insufficient allowance",
-      );
-      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
+      await expect(
+        destinationBridge.connect(router).addLiquidityFor(amount, assetId, router.address),
+      ).to.be.revertedWith("ERC20: insufficient allowance");
+      expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
     it("should work if it is renounced && using an unapproved router", async () => {
@@ -672,34 +632,39 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       // Remove asset
-      const remove = await originTm.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
+      const remove = await originBridge.removeRouter(router.address, { maxFeePerGas: MAX_FEE_PER_GAS });
       await remove.wait();
-      expect(await originTm.approvedRouters(router.address)).to.be.false;
+      expect(await originBridge.approvedRouters(router.address)).to.be.false;
 
       // Renounce ownership
-      await transferOwnershipOnContract(ZERO_ADDRESS, admin, originTm as unknown as ProposedOwnableUpgradeable, admin);
+      await transferOwnershipOnContract(
+        ZERO_ADDRESS,
+        admin,
+        originBridge as unknown as ProposedOwnableUpgradeable,
+        admin,
+      );
 
-      await originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
-      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));
+      await originBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
+      expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));
     });
 
     it("should work for an approved router in approved native asset", async () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
-      await originTm.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
-      expect(await originTm.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));
+      await originBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount });
+      expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(amount));
     });
 
     it("should work for an approved router in approved erc20", async () => {
       const amount = SEED;
       const assetId = local.address;
 
-      const approveLiq = await local.connect(router).approve(destinationTm.address, amount);
+      const approveLiq = await local.connect(router).approve(destinationBridge.address, amount);
       await approveLiq.wait();
-      const addLiq = await destinationTm.connect(router).addLiquidity(amount, assetId);
+      const addLiq = await destinationBridge.connect(router).addLiquidity(amount, assetId);
       await addLiq.wait();
 
-      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
+      expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
     });
   });
 
@@ -709,7 +674,7 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
 
-      await expect(originTm.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
+      await expect(originBridge.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
         "Connext__removeLiquidity_recipientEmpty",
       );
     });
@@ -718,7 +683,7 @@ describe("Connext", () => {
       const amount = "0";
       const assetId = ZERO_ADDRESS;
 
-      await expect(originTm.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
+      await expect(originBridge.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
         "Connext__removeLiquidity_amountIsZero",
       );
     });
@@ -727,7 +692,7 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
 
-      await expect(originTm.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
+      await expect(originBridge.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
         "Connext__removeLiquidity_insufficientFunds",
       );
     });
@@ -736,17 +701,17 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = weth.address;
 
-      await originTm.connect(router).addLiquidityFor(amount, ZERO_ADDRESS, router.address, { value: amount });
-      expect(await originTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
+      await originBridge.connect(router).addLiquidityFor(amount, ZERO_ADDRESS, router.address, { value: amount });
+      expect(await originBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
 
       // Get starting + expected  balance
       const startingBalance = await getOnchainBalance(ZERO_ADDRESS, router.address, ethers.provider);
       const expectedBalance = startingBalance.add(amount);
 
-      const startingLiquidity = await originTm.routerBalances(router.address, assetId);
+      const startingLiquidity = await originBridge.routerBalances(router.address, assetId);
       const expectedLiquidity = startingLiquidity.sub(amount);
 
-      const tx = await originTm.connect(router).removeLiquidity(amount, assetId, router.address);
+      const tx = await originBridge.connect(router).removeLiquidity(amount, assetId, router.address);
 
       const receipt = await tx.wait();
       expect(receipt.status).to.be.eq(1);
@@ -761,7 +726,7 @@ describe("Connext", () => {
       });
 
       // Check liquidity
-      const liquidity = await originTm.routerBalances(router.address, assetId);
+      const liquidity = await originBridge.routerBalances(router.address, assetId);
       expect(liquidity).to.be.eq(expectedLiquidity);
 
       // Check balance
@@ -773,21 +738,21 @@ describe("Connext", () => {
       const amount = "1";
       const assetId = local.address;
 
-      const approveLiq = await local.connect(router).approve(destinationTm.address, amount);
+      const approveLiq = await local.connect(router).approve(destinationBridge.address, amount);
       await approveLiq.wait();
-      const addLiq = await destinationTm.connect(router).addLiquidity(amount, assetId);
+      const addLiq = await destinationBridge.connect(router).addLiquidity(amount, assetId);
       await addLiq.wait();
 
-      expect(await destinationTm.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
+      expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(amount));
 
       // Get starting + expected  balance
       const startingBalance = await getOnchainBalance(assetId, router.address, ethers.provider);
       const expectedBalance = startingBalance.add(amount);
 
-      const startingLiquidity = await destinationTm.routerBalances(router.address, assetId);
+      const startingLiquidity = await destinationBridge.routerBalances(router.address, assetId);
       const expectedLiquidity = startingLiquidity.sub(amount);
 
-      const tx = await destinationTm.connect(router).removeLiquidity(amount, assetId, router.address);
+      const tx = await destinationBridge.connect(router).removeLiquidity(amount, assetId, router.address);
 
       const receipt = await tx.wait();
       expect(receipt.status).to.be.eq(1);
@@ -802,7 +767,7 @@ describe("Connext", () => {
       });
 
       // Check liquidity
-      const liquidity = await destinationTm.routerBalances(router.address, assetId);
+      const liquidity = await destinationBridge.routerBalances(router.address, assetId);
       expect(liquidity).to.be.eq(expectedLiquidity);
 
       // Check balance
@@ -816,7 +781,7 @@ describe("Connext", () => {
   // - oTM swaps adopted for canonical
   // - router pays in local
   // - dTM swaps local for adopted
-  it("should work for tokens", async () => {
+  it.only("should work for tokens", async () => {
     // Setup stable swap for adopted => canonical on origin
     const swapCanonical = await stableSwap
       .connect(admin)
@@ -826,17 +791,17 @@ describe("Connext", () => {
     // Setup stable swap for local => adopted on dest
     const swapLocal = await stableSwap
       .connect(admin)
-      .setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
+      .setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
     await swapLocal.wait();
 
     // Add router liquidity
-    const approveLiq = await local.connect(router).approve(destinationTm.address, parseEther("100000"));
+    const approveLiq = await local.connect(router).approve(destinationBridge.address, parseEther("100000"));
     await approveLiq.wait();
-    const addLiq = await destinationTm.connect(router).addLiquidity(parseEther("0.1"), local.address);
+    const addLiq = await destinationBridge.connect(router).addLiquidity(parseEther("0.1"), local.address);
     await addLiq.wait();
 
     // Approve user
-    const approveAmt = await originAdopted.connect(user).approve(originTm.address, parseEther("100000"));
+    const approveAmt = await originAdopted.connect(user).approve(originBridge.address, parseEther("100000"));
     await approveAmt.wait();
 
     // Get pre-prepare balances
@@ -853,8 +818,9 @@ describe("Connext", () => {
       destinationDomain,
     };
     const transactingAssetId = originAdopted.address;
-    const amount = 1000;
-    const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount });
+
+    const amount = utils.parseEther("0.001");
+    const prepare = await originBridge.connect(user).xcall({ params, transactingAssetId, amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -866,30 +832,26 @@ describe("Connext", () => {
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
     // Get the message + id from the events
-    const topics = originBridge.filters.Send().topics as string[];
-    const bridgeEvent = originBridge.interface.parseLog(prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!);
-    const message = (bridgeEvent!.args as any).message;
-
-    const originTmEvent = (await originTm.queryFilter(originTm.filters.XCalled())).find(
+    const originTmEvent = (await originBridge.queryFilter(originBridge.filters.XCalled())).find(
       (a) => a.blockNumber === prepareReceipt.blockNumber,
     );
     const nonce = (originTmEvent!.args as any).nonce;
+    const message = (originTmEvent!.args as any).message;
 
     // Get pre-execute balances
     const preExecute = await Promise.all([
       destinationAdopted.balanceOf(user.address),
-      destinationTm.routerBalances(router.address, local.address),
+      destinationBridge.routerBalances(router.address, local.address),
     ]);
 
     // Fulfill with the router
-    const routerAmount = amount - 500;
-    const execute = await destinationTm.connect(router).execute({
+    // const routerAmount = amount.mul(9995).div(10000);
+    const routerAmount = amount;
+    const execute = await destinationBridge.connect(router).execute({
       params,
       nonce,
       local: local.address,
-      amount: routerAmount,
-      feePercentage: constants.Zero,
-      relayerSignature: "0x",
+      amount,
       router: router.address,
       originSender: user.address,
     });
@@ -898,18 +860,18 @@ describe("Connext", () => {
     // Check balance of user + bridge
     const postExecute = await Promise.all([
       destinationAdopted.balanceOf(user.address),
-      destinationTm.routerBalances(router.address, local.address),
+      destinationBridge.routerBalances(router.address, local.address),
     ]);
     expect(postExecute[0]).to.be.eq(preExecute[0].add(routerAmount));
     expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerAmount));
 
     // Reconcile via bridge
-    const preReconcile = await destinationTm.routerBalances(router.address, local.address);
+    const preReconcile = await destinationBridge.routerBalances(router.address, local.address);
     const reconcile = await destinationBridge
       .connect(admin)
       .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
     await reconcile.wait();
-    const postReconcile = await destinationTm.routerBalances(router.address, local.address);
+    const postReconcile = await destinationBridge.routerBalances(router.address, local.address);
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 
@@ -922,15 +884,15 @@ describe("Connext", () => {
     // Setup stable swap for local => adopted on dest
     const swapLocal = await stableSwap
       .connect(admin)
-      .setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
+      .setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
     await swapLocal.wait();
 
     // Add router liquidity
     await local
       .connect(router)
-      .approve(destinationTm.address, parseEther("20"))
+      .approve(destinationBridge.address, parseEther("20"))
       .then((r) => r.wait());
-    const addLiq = await destinationTm.connect(router).addLiquidity(parseEther("1"), local.address);
+    const addLiq = await destinationBridge.connect(router).addLiquidity(parseEther("1"), local.address);
     await addLiq.wait();
 
     // // Approve user
@@ -948,8 +910,8 @@ describe("Connext", () => {
       destinationDomain,
     };
     const transactingAssetId = constants.AddressZero;
-    const amount = 1000;
-    const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount }, { value: amount });
+    const amount = utils.parseEther("0.0001");
+    const prepare = await originBridge.connect(user).xcall({ params, transactingAssetId, amount }, { value: amount });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -960,50 +922,45 @@ describe("Connext", () => {
     expect(postXcall[1]).to.be.eq(preXcall[1].add(amount));
 
     // Get the message + id from the events
-    const topics = originBridge.filters.Send().topics as string[];
-    const bridgeEvent = originBridge.interface.parseLog(prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!);
-    const message = (bridgeEvent!.args as any).message;
-
     const originTmEvent = await (
-      await originTm.queryFilter(originTm.filters.XCalled())
+      await originBridge.queryFilter(originBridge.filters.XCalled())
     ).find((a) => a.blockNumber === prepareReceipt.blockNumber);
     const nonce = (originTmEvent!.args as any).nonce;
+    const message = (originTmEvent!.args as any).message;
 
     // Get pre-fulfill balances
     const preFulfill = await Promise.all([
       destinationAdopted.balanceOf(user.address),
-      destinationTm.routerBalances(router.address, local.address),
+      destinationBridge.routerBalances(router.address, local.address),
     ]);
 
     // Fulfill with the router
-    const routerAmount = amount - 500;
-    const fulfill = await destinationTm.connect(router).execute({
+    const routerAmount = amount.mul(9_995).div(10_000);
+    const fulfill = await destinationBridge.connect(router).execute({
       params,
       nonce,
       local: local.address,
-      amount: routerAmount,
-      relayerSignature: "0x",
+      amount,
       router: router.address,
       originSender: user.address,
-      feePercentage: constants.Zero,
     });
     await fulfill.wait();
 
     // Check balance of user + bridge
     const postFulfill = await Promise.all([
       destinationAdopted.balanceOf(user.address),
-      destinationTm.routerBalances(router.address, local.address),
+      destinationBridge.routerBalances(router.address, local.address),
     ]);
     expect(postFulfill[0]).to.be.eq(preFulfill[0].add(routerAmount));
     expect(postFulfill[1]).to.be.eq(preFulfill[1].sub(routerAmount));
 
     // Reconcile via bridge
-    const preReconcile = await destinationTm.routerBalances(router.address, local.address);
+    const preReconcile = await destinationBridge.routerBalances(router.address, local.address);
     const reconcile = await destinationBridge
       .connect(admin)
       .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
     await reconcile.wait();
-    const postReconcile = await destinationTm.routerBalances(router.address, local.address);
+    const postReconcile = await destinationBridge.routerBalances(router.address, local.address);
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 

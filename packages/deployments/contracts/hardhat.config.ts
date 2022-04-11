@@ -75,6 +75,9 @@ const config: HardhatUserConfig = {
     rando: { default: 3 },
   },
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
+    },
     localhost: {
       accounts: {
         accountsBalance: "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -83,16 +86,19 @@ const config: HardhatUserConfig = {
       chainId,
       saveDeployments: false,
       url: urlOverride || "http://localhost:8545",
+      allowUnlimitedContractSize: true,
     },
     local_1337: {
       accounts: { mnemonic },
       chainId: 1337,
       url: urlOverride || "http://localhost:8545",
+      allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
       url: urlOverride || "http://localhost:8546",
+      allowUnlimitedContractSize: true,
     },
     mainnet: {
       accounts: { mnemonic },
