@@ -7,6 +7,7 @@ import {
   formatUrl,
   jsonifyError,
   RequestContext,
+  BidResponse,
 } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
@@ -109,7 +110,7 @@ export const sendBid = async (bid: Bid, requestContext: RequestContext): Promise
   /// TODO don't send the signature in logs, edit bid during logging
   logger.info("Method start", requestContext, methodContext, { bid });
 
-  const response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
+  const response = await axios.post<BidResponse>(formatUrl(config.sequencerUrl, "bid"), {
     bid,
   });
 
