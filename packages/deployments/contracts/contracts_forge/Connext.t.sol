@@ -154,6 +154,7 @@ contract ConnextTest is ForgeHelper {
 
   // ============ xCall ============
 
+  // Update relayerFees mapping
   function testXCallIncreasesRelayerFees() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -172,6 +173,7 @@ contract ConnextTest is ForgeHelper {
     assertEq(connext.relayerFees(id), relayerFee);
   }
 
+  // Emit relayerFees in XCalled event
   function testXCallEmitsRelayerFee() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -197,6 +199,7 @@ contract ConnextTest is ForgeHelper {
     connext.xcall{value: relayerFee}(args);
   }
 
+  // Work if relayerFee is set to 0
   function testXCallWorksWithZeroRelayerFee() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -206,9 +209,16 @@ contract ConnextTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
+    bytes32 id = keccak256(abi.encode(0, address(this), callParams));
+
+    assertEq(connext.relayerFees(id), 0);
+
     connext.xcall{value: relayerFee}(args);
+
+    assertEq(connext.relayerFees(id), 0);
   }
 
+  // Correctly account for relayerFee in token transfer
   function testXCallConsidersRelayerFeeValueInTokenTransfer() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -218,9 +228,14 @@ contract ConnextTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
+    bytes32 id = keccak256(abi.encode(0, address(this), callParams));
+
     connext.xcall{value: relayerFee}(args);
+
+    assertEq(connext.relayerFees(id), relayerFee);
   }
 
+  // Correctly account for relayerFee in native transfer
   function testXCallConsidersRelayerFeeValueInNativeTransfer() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -230,6 +245,8 @@ contract ConnextTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
+    bytes32 id = keccak256(abi.encode(0, address(this), callParams));
+
     vm.mockCall(
       address(tokenRegistry),
       abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
@@ -237,8 +254,11 @@ contract ConnextTest is ForgeHelper {
     );
 
     connext.xcall{value: amount + relayerFee}(args);
+
+    assertEq(connext.relayerFees(id), relayerFee);
   }
 
+  // Fail if relayerFee in param and value does not match in token transfer
   function testXCallConsidersRelayerFeeValueInTokenTransferRevert() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -249,12 +269,16 @@ contract ConnextTest is ForgeHelper {
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    connext.xcall{value: 0}(args);
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
     connext.xcall{value: relayerFee - 1}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
     connext.xcall{value: relayerFee + 1}(args);
   }
 
+  // Fail if relayerFee in param and value does not match in native transfer
   function testXCallConsidersRelayerFeeValueInNativeTransferRevert() public {
     address to = address(100);
     uint256 amount = 1 ether;
@@ -269,6 +293,9 @@ contract ConnextTest is ForgeHelper {
       abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
       abi.encode(address(wrapper))
     );
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    connext.xcall{value: amount}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
     connext.xcall{value: amount + relayerFee - 1}(args);
