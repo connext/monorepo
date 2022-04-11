@@ -158,6 +158,10 @@ export const mock = {
     },
   },
   helpers: {
+    auctions: {
+      getAuctionStatus: stub(),
+      sendBid: stub(),
+    },
     execute: {
       sanityCheck: stub(),
     },
@@ -185,17 +189,17 @@ export const stubContext = (_context?: AppContext) => {
       return mockContext;
     });
   } catch (e) {}
-  // getContextStub.resetHistory();
   return mockContext;
 };
 
 let getHelpersStub: SinonStub;
 export const stubHelpers = () => {
-  if (!getHelpersStub) {
-    getHelpersStub = stub(helpers, "getHelpers");
-  }
-  getHelpersStub.resetHistory();
-  getHelpersStub.returns(mock.helpers);
+  try {
+    getHelpersStub.restore();
+  } catch (e) {}
+  try {
+    getHelpersStub = stub(helpers, "getHelpers").returns(mock.helpers);
+  } catch (e) {}
 };
 
 let getOperationsStub: SinonStub;

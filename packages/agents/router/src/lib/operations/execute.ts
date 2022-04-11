@@ -4,14 +4,11 @@ import {
   BidData,
   createLoggingContext,
   XTransfer,
-  formatUrl,
   jsonifyError,
-  RequestContext,
   DEFAULT_ROUTER_FEE,
 } from "@connext/nxtp-utils";
-import axios, { AxiosResponse } from "axios";
 
-import { SequencerResponseInvalid, SanityCheckFailed } from "../errors";
+import { SanityCheckFailed } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -32,6 +29,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
     routerAddress,
   } = getContext();
   const {
+    auctions: { sendBid },
     execute: { sanityCheck },
     shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
   } = getHelpers();
@@ -104,25 +102,5 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, bidData });
-  const data = await sendBid(bid, requestContext);
-  logger.info("Sent bid to sequencer", requestContext, methodContext, { data });
-};
-
-export const sendBid = async (bid: Bid, requestContext: RequestContext): Promise<any> => {
-  const { methodContext } = createLoggingContext(sendBid.name, requestContext);
-  const { logger, config } = getContext();
-
-  /// TODO don't send the signature in logs, edit bid during logging
-  logger.info("Method start", requestContext, methodContext, { bid });
-
-  const response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
-    bid,
-  });
-
-  if (!response || !response.data) {
-    throw new SequencerResponseInvalid({ response });
-  } else {
-    return response.data;
-  }
+  await sendBid(transferId, bid, bidData, requestContext);
 };
