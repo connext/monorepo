@@ -56,7 +56,7 @@ export const getAuctionStatus = async (
   const { sequencerUrl } = config;
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
 
-  const url = `http://${sequencerUrl}/auctions/${transferId}`;
+  const url = `${sequencerUrl}/auctions/${transferId}`;
   try {
     const response = await axios.get(url);
     return response.data;
