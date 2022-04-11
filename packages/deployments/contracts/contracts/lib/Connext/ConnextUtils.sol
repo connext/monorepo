@@ -171,17 +171,19 @@ library ConnextUtils {
    * @param _domain - domain to claim funds on
    * @param _recipient - address on origin chain to send claimed funds to
    * @param _transferIds - transferIds to claim
+   * @param _relayerFeeRouter - The local nomad relayer fee router
+   * @param _transferRelayer - Mapping of transactionIds to relayer
    */
   function initiateClaim(
     uint32 _domain,
     address _recipient,
     bytes32[] calldata _transferIds,
-    RelayerFeeRouter relayerFeeRouter,
-    mapping(bytes32 => address) storage transferRelayer
-  ) public {
+    RelayerFeeRouter _relayerFeeRouter,
+    mapping(bytes32 => address) storage _transferRelayer
+  ) external {
     // Ensure the relayer can claim all transfers specified
     for (uint256 i; i < _transferIds.length; ) {
-      if (transferRelayer[_transferIds[i]] != msg.sender)
+      if (_transferRelayer[_transferIds[i]] != msg.sender)
         revert ConnextUtils__initiateClaim_notRelayer(_transferIds[i]);
       unchecked {
         i++;
@@ -189,24 +191,27 @@ library ConnextUtils {
     }
 
     // Send transferIds via nomad
-    relayerFeeRouter.send(_domain, _recipient, _transferIds);
+    _relayerFeeRouter.send(_domain, _recipient, _transferIds);
   }
 
   /**
    * @notice Pays out a relayer for the given fees
    * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
    * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   * @param _relayerFees - Mapping of transactionIds to fee
    */
   function claim(
     address _recipient,
     bytes32[] calldata _transferIds,
-    mapping(bytes32 => uint256) storage relayerFees
-  ) public returns (uint256) {
+    mapping(bytes32 => uint256) storage _relayerFees
+  ) external returns (uint256) {
     // Tally amounts owed
     uint256 total;
     for (uint256 i; i < _transferIds.length; ) {
-      total += relayerFees[_transferIds[i]];
-      relayerFees[_transferIds[i]] = 0;
+      total += _relayerFees[_transferIds[i]];
+      _relayerFees[_transferIds[i]] = 0;
       unchecked {
         i++;
       }

@@ -234,10 +234,10 @@ interface IConnext {
 
   /**
    * @notice Emitted when `initiateClaim` is called on the destination chain
-   * @param recipient - Address on origin chain to send claimed funds to
    * @param domain - Domain to claim funds on
-   * @param transferIds - TransferIds to claim
+   * @param recipient - Address on origin chain to send claimed funds to
    * @param caller - The account that called the function
+   * @param transferIds - TransferIds to claim
    */
   event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
 

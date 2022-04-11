@@ -196,5 +196,7 @@ contract ConnextTest is ForgeHelper {
     connext.claim(kakaroto, transactionIds);
 
     assertEq(kakaroto.balance, balanceBefore + aaaFee + bbbFee);
+    assertEq(connext.relayerFees(bytes32("AAA")), 0);
+    assertEq(connext.relayerFees(bytes32("BBB")), 0);
   }
 }
