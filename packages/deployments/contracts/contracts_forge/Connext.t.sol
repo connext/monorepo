@@ -44,6 +44,7 @@ contract ConnextTest is ForgeHelper {
     uint256 nonce,
     address caller
   );
+  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
   // ============ Storage ============
 
@@ -302,5 +303,71 @@ contract ConnextTest is ForgeHelper {
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
     connext.xcall{value: amount + relayerFee + 1}(args);
+  }
+
+  // ============ bumpTransfer ============
+
+  // Increases relayerFees set by xcall
+  function testBumpTransferIncreasesXCallRelayerFees() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    bytes32 id = keccak256(abi.encode(0, address(this), callParams));
+
+    assertEq(connext.relayerFees(id), 0);
+
+    connext.xcall{value: relayerFee}(args);
+
+    assertEq(connext.relayerFees(id), relayerFee);
+
+    uint256 relayerFeeBump = 0.3 ether;
+    connext.bumpTransfer{value: relayerFeeBump}(id);
+
+    assertEq(connext.relayerFees(id), relayerFee + relayerFeeBump);
+  }
+
+  // Increases relayerFees for the transfer
+  function testBumpTransferIncreasesRelayerFees() public {
+    bytes32 transferId = bytes32("0x123");
+
+    assertEq(connext.relayerFees(transferId), 0);
+
+    uint256 amount1 = 1 ether;
+    connext.bumpTransfer{value: amount1}(transferId);
+
+    assertEq(connext.relayerFees(transferId), amount1);
+
+    uint256 amount2 = 2 ether;
+    connext.bumpTransfer{value: amount2}(transferId);
+
+    assertEq(connext.relayerFees(transferId), amount1 + amount2);
+  }
+
+  // Emits TransferRelayerFeesUpdated with updated relayerFees
+  function testBumpTransferEmitsEvent() public {
+    bytes32 transferId = bytes32("0x123");
+    uint256 bump1 = 1 ether;
+    uint256 bump2 = 2 ether;
+
+    vm.expectEmit(true, false, false, true);
+    emit TransferRelayerFeesUpdated(transferId, bump1, address(this));
+    connext.bumpTransfer{value: bump1}(transferId);
+
+    vm.expectEmit(true, false, false, true);
+    emit TransferRelayerFeesUpdated(transferId, bump1 + bump2, address(this));
+    connext.bumpTransfer{value: bump2}(transferId);
+  }
+
+  // Fail if zero value
+  function testBumpTransferZeroValueRevert() public {
+    bytes32 transferId = bytes32("0x123");
+
+    vm.expectRevert(abi.encodeWithSelector(Connext.Connext__bumpTransfer_valueIsZero.selector));
+    connext.bumpTransfer{value: 0}(transferId);
   }
 }
