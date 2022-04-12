@@ -71,11 +71,6 @@ contract RelayerFeeRouter is Version0, Router {
    */
   event SetConnext(address indexed connext);
 
-  // ======== Receive =======
-  receive() external payable {}
-
-  fallback() external payable {}
-
   // ============ Modifiers ============
 
   /**

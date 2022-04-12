@@ -70,7 +70,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: {
         init: {
           methodName: "initialize",
-          args: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
+          // TODO - Use real RelayerFeeRouter
+          args: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth, hre.ethers.constants.AddressZero],
         },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
