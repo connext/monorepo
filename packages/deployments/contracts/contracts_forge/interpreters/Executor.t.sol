@@ -19,11 +19,13 @@ contract PropertyQuery is ForgeHelper {
   uint32 public origin;
 
   function setOriginSender() public returns (address) {
-    return IExecutor(msg.sender).originSender();
+    originSender = IExecutor(msg.sender).originSender();
+    return originSender;
   }
 
   function setOrigin() public returns (uint32) {
-    return IExecutor(msg.sender).origin();
+    origin = IExecutor(msg.sender).origin();
+    return origin;
   }
 }
 
