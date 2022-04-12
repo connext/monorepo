@@ -49,6 +49,13 @@ library ConnextUtils {
     return keccak256(abi.encode(transfer));
   }
 
+  function verifyRouterPermit(
+    IConnext.RouterPermit calldata _permit,
+    bytes calldata _sig,
+  ) external view returns (bool) {
+    return IConnext.recoverSignature(abi.encode(_permit), transferId);
+  }
+
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
    * @dev Will hash and convert to an eth signed message.

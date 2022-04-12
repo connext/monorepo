@@ -545,6 +545,27 @@ contract Connext is
     // Calculate the transfer id
     bytes32 _transferId = ConnextUtils.getTransferId(_args.nonce, _args.originSender, _args.params);
 
+    // Check router signatures
+    for (uint256 i; i < _args.routers.length; i++) {
+      // If the sender *is* the router, skip
+      if (msg.sender == _router) {
+        continue;
+      }
+      // TODO: Use Error type, revert
+      require(
+        ConnextUtils.verifyRouterPermit(
+          RouterPermit({
+            _transferId,
+            _args.params,
+            _args.localAsset,
+            _args.routers.length,
+          }),
+          _args.signatures[i],
+        ),
+        "!verify_router_signature"
+      );
+    }
+
     // Determine if this is fast liquidity
     bytes32 _reconciledHash = reconciledTransfers[_transferId];
     bool _isFast = _reconciledHash == bytes32(0);
