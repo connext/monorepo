@@ -262,3 +262,15 @@ export const getAssetByLocal = gql`
     }
   }
 `;
+
+export const getAssetByCanonicalId = gql`
+  query GetAssetByCanonicalId($canonicalId: Bytes!) {
+    assets(where: { canonicalId: $canonicalId }) {
+      id
+      local
+      adoptedAsset
+      canonicalId
+      canonicalDomain
+    }
+  }
+`;
