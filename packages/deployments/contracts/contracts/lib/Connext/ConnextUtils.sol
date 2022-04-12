@@ -50,26 +50,26 @@ library ConnextUtils {
   }
 
   function verifyRouterPermit(
-    IConnext.RouterPermit calldata _permit,
-    bytes[] calldata _signatures,
+    bytes32 _permit,
+    address[] calldata _routers,
+    bytes[] calldata _signatures
   ) external view {
-    bytes memory _hashed = keccak256(abi.encode(_permit));
     for (uint i = 0; i < _signatures.length; i++) {
-      // If the sender *is* the router, skip
-      if (msg.sender == _router) {
+      // TODO: If the sender *is* the router, skip
+      if (msg.sender == _routers[i]) {
         continue;
       }
       // TODO: Use Error type, revert
-      require(recoverHashedSignature(_hashed, _signatures[i]), "Invalid signature");
+      require(recoverHashedSignature(_permit, _signatures[i]) == _routers[i], "Invalid signature");
     }
   }
 
   /**
    * @notice Holds the logic to recover the signer from a hashed encoded payload.
-   * @param _hashed - The payload that was signed
+   * @param _hashed - The bytes32 payload that was signed
    * @param _sig - The signature you are recovering the signer from
    */
-  function recoverHashedSignature(bytes memory _hashed, bytes calldata _sig) public pure returns (address) {
+  function recoverHashedSignature(bytes32 _hashed, bytes calldata _sig) public pure returns (address) {
     return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(_hashed), _sig);
   }
 

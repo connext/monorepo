@@ -547,14 +547,10 @@ contract Connext is
 
     // Check router signatures
     ConnextUtils.verifyRouterPermit(
-      RouterPermit({
-        _transferId,
-        _args.params,
-        _args.localAsset,
-        _args.routers.length,
-      }),
-      _args.signatures,
-    )
+      keccak256(abi.encode(_transferId, _args.params, _args.local, _args.routers.length)),
+      _args.routers,
+      _args.signatures
+    );
 
     // Determine if this is fast liquidity
     bytes32 _reconciledHash = reconciledTransfers[_transferId];

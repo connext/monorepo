@@ -112,14 +112,14 @@ interface IConnext {
    * @param params - The CallParams. These are consistent across sending and receiving chains.
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
-   * @param round - The length of the routers array. Indicates how many routers this router assents to
+   * @param quorum - The length of the routers array. Indicates how many routers this router assents to
    * conducting a multipath transfer with.
    */
   struct RouterPermit {
     bytes transferId;
     CallParams params;
     address local;
-    uint16 round;
+    uint16 quorum;
   }
   // ============ Events ============
 
