@@ -53,6 +53,7 @@ contract Connext is
   error Connext__removeLiquidity_amountIsZero();
   error Connext__removeLiquidity_insufficientFunds();
   error Connext__xcall_notSupportedAsset();
+  error Connext__xcall_relayerFeeIsZero();
   error Connext__execute_notSlowParams();
   error Connext__addLiquidityForRouter_routerEmpty();
   error Connext__addLiquidityForRouter_amountIsZero();
@@ -418,6 +419,8 @@ contract Connext is
       bytes32(0)
     ) revert Connext__xcall_notSupportedAsset();
 
+    if (_args.relayerFee == 0) revert Connext__xcall_relayerFeeIsZero();
+
     // Transfer funds to the contract
     (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
       _args.transactingAssetId,
@@ -633,7 +636,7 @@ contract Connext is
     // Asset is approved
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to coethWithErcTransferact
+    // Transfer funds to contract
     (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, 0, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
