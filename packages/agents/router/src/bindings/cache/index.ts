@@ -2,7 +2,6 @@ import { createLoggingContext, jsonifyError, XTransfer } from "@connext/nxtp-uti
 import interval from "interval-promise";
 
 import { getOperations } from "../../lib/operations";
-
 import { getContext } from "../../router";
 
 export const CACHE_POLL_INTERVAL = 20_000;
