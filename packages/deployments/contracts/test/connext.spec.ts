@@ -561,37 +561,6 @@ describe("Connext", () => {
     });
   });
 
-  // describe("addRelayerFees", () => {
-  //   it("should work", async () => {
-  //     const beforeRouterFee = await originTm.routerRelayerFees(router.address);
-  //     const tx = await originTm.addRelayerFees(router.address, {
-  //       maxFeePerGas: MAX_FEE_PER_GAS,
-  //       value: parseEther("1"),
-  //     });
-  //     await tx.wait();
-
-  //     expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("1")));
-  //   });
-  // });
-
-  // describe("removeRelayerFees", () => {
-  //   it("should work", async () => {
-  //     const beforeRouterFee = await originTm.routerRelayerFees(router.address);
-  //     const addTx = await originTm.addRelayerFees(router.address, {
-  //       maxFeePerGas: MAX_FEE_PER_GAS,
-  //       value: parseEther("1"),
-  //     });
-  //     await addTx.wait();
-
-  //     const beforeBalance = await user.getBalance();
-  //     const removeTx = await originTm.connect(router).removeRelayerFees(parseEther("0.5"), user.address);
-  //     await removeTx.wait();
-
-  //     expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("0.5")));
-  //     expect(await user.getBalance()).to.be.eq(beforeBalance.add(parseEther("0.5")));
-  //   });
-  // });
-
   describe("addLiquidity / addLiquidityFor", () => {
     it("should revert if router address is empty", async () => {
       const amount = "1";
@@ -896,8 +865,6 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount: routerAmount,
-      // feePercentage: constants.Zero,
-      // relayerSignature: "0x",
       routers: [router.address],
       originSender: user.address,
     });
@@ -1000,10 +967,8 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount: routerAmount,
-      // relayerSignature: "0x",
       routers: [router.address],
       originSender: user.address,
-      // feePercentage: constants.Zero,
     });
     const execReceipt = await fulfill.wait();
 
@@ -1183,8 +1148,6 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
-          // feePercentage: constants.Zero,
-          // relayerSignature: "0x",
           routers,
           originSender: user.address,
         });
@@ -1251,8 +1214,6 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
-          // feePercentage: constants.Zero,
-          // relayerSignature: "0x",
           routers,
           originSender: user.address,
         }),
@@ -1267,8 +1228,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount: routersAmount,
-        // feePercentage: constants.Zero,
-        // relayerSignature: "0x",
         routers,
         originSender: user.address,
       });
@@ -1288,8 +1247,6 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
-          // feePercentage: constants.Zero,
-          // relayerSignature: "0x",
           routers,
           originSender: user.address,
         }),
