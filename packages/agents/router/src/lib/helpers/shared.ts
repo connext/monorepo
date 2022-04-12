@@ -1,5 +1,6 @@
 import { signHandleRelayerFeePayload as _signHandleRelayerFeePayload } from "@connext/nxtp-utils";
 import { utils } from "ethers";
+
 import { getContext } from "../../router";
 
 /**
@@ -22,7 +23,7 @@ export const getDestinationLocalAsset = async (
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(Number(_originDomain), _originLocalAsset);
 
-  const canonicalId = sendingDomainAsset!.canonicalId;
+  const canonicalId = sendingDomainAsset!.canonicalId as string;
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(Number(_destinationDomain), canonicalId);
 
