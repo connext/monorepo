@@ -60,7 +60,7 @@ describe("Executor.sol", async () => {
       ).to.be.revertedWith("#OC:027");
     });
 
-    it("should not execute if there is no data at the `to` (i.e. it is an EOA)", async () => {
+    it.skip("should not execute if there is no data at the `to` (i.e. it is an EOA)", async () => {
       const amount = "1000";
       const assetId = constants.AddressZero;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
@@ -89,7 +89,7 @@ describe("Executor.sol", async () => {
       expect(await counter.count()).to.be.eq(preExecute);
     });
 
-    it("should work for eth", async () => {
+    it.skip("should work for eth", async () => {
       const amount = "1000";
       const assetId = constants.AddressZero;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
@@ -115,8 +115,7 @@ describe("Executor.sol", async () => {
       expect(await counter.count()).to.be.eq(preExecute.add(1));
     });
 
-    // TODO: skipped due fail, probably moving to foundry
-    xit("should work for erc20", async () => {
+    it.skip("should work for erc20", async () => {
       const amount = "1000";
       const assetId = token.address;
       const data = counter.interface.encodeFunctionData("incrementAndSend", [assetId, other.address, amount]);
@@ -145,8 +144,7 @@ describe("Executor.sol", async () => {
       expect(await counter.count()).to.be.eq(preExecute.add(1));
     });
 
-    // TODO: skipped due fail, probably moving to foundry
-    xit("should fail if reentrancy", async () => {
+    it.skip("should fail if reentrancy", async () => {
       const amount = utils.parseEther("0.1");
       const assetId = constants.AddressZero;
       const transferId = getRandomBytes32();
