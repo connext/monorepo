@@ -26,7 +26,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
   }
-  console.log("nomadConfig: ", nomadConfig);
   const { domainInfo } = getDomainInfoFromChainId(+chainId);
 
   // Get BridgeRouter and TokenRegistry deployments.

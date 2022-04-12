@@ -143,7 +143,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
   }
-  console.log("nomadConfig: ", nomadConfig);
   const { name, domainInfo } = getDomainInfoFromChainId(+chainId);
 
   // ========== Start: Nomad BridgeRouter Deployment ==========
@@ -198,9 +197,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         nomadConfig.protocol.networks[replicaName].domain,
       );
       const tx = await enroll.wait();
-      console.log(`enrolled replica for ${chainId}: ${tx.transactionHash}`);
+      console.log(`enrolled replica for ${replicaName}: ${tx.transactionHash}`);
     } else {
-      console.log(`replica for ${chainId} enrolled`);
+      console.log(`replica for ${replicaName} enrolled`);
     }
   }
 
