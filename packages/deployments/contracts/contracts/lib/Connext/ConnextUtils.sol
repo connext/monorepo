@@ -51,18 +51,36 @@ library ConnextUtils {
 
   function verifyRouterPermit(
     IConnext.RouterPermit calldata _permit,
-    bytes calldata _sig,
-  ) external view returns (bool) {
-    return IConnext.recoverSignature(abi.encode(_permit), transferId);
+    bytes[] calldata _signatures,
+  ) external view {
+    bytes memory _hashed = keccak256(abi.encode(_permit));
+    for (uint i = 0; i < _signatures.length; i++) {
+      // If the sender *is* the router, skip
+      if (msg.sender == _router) {
+        continue;
+      }
+      // TODO: Use Error type, revert
+      require(recoverHashedSignature(_hashed, _signatures[i]), "Invalid signature");
+    }
   }
+
+  /**
+   * @notice Holds the logic to recover the signer from a hashed encoded payload.
+   * @param _hashed - The payload that was signed
+   * @param _sig - The signature you are recovering the signer from
+   */
+  function recoverHashedSignature(bytes memory _hashed, bytes calldata _sig) public pure returns (address) {
+    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(_hashed), _sig);
+  }
+
 
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
    * @dev Will hash and convert to an eth signed message.
-   * @param _encoded The payload that was signed
-   * @param _sig The signature you are recovering the signer from
+   * @param _encoded - The payload that was signed
+   * @param _sig - The signature you are recovering the signer from
    */
-  function recoverSignature(bytes memory _encoded, bytes calldata _sig) external pure returns (address) {
+  function recoverSignature(bytes memory _encoded, bytes calldata _sig) public pure returns (address) {
     // Recover
     return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
   }
