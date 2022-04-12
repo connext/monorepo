@@ -60,10 +60,12 @@ contract Connext is
   error Connext__addLiquidityForRouter_badAsset();
   error Connext__addAssetId_alreadyAdded();
   error Connext__decrementLiquidity_notEmpty();
+  error Connext__decrementLiquidity_maxRoutersExceeded();
   error Connext__handleRelayerFees_notRtrSig();
   error Connext__handleRelayerFees_notApprovedRelayer();
   error Connext__addRelayer_alreadyApproved();
   error Connext__removeRelayer_notApproved();
+  error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
   // ============ Constants =============
 
@@ -170,6 +172,11 @@ contract Connext is
    */
   mapping(address => mapping(address => uint256)) public routerBalances;
 
+  /**
+   * @notice The max amount of routers a payment can be routed through
+   */
+  uint256 public maxRoutersPerTransfer;
+
   // ============ Modifiers ============
 
   /**
@@ -199,6 +206,7 @@ contract Connext is
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+    maxRoutersPerTransfer = 5;
   }
 
   // ============ Owner Functions ============
@@ -395,6 +403,18 @@ contract Connext is
   }
 
   /**
+   * @notice Used to set the max amount of routers a payment can be routed through
+   * @param newMaxRouters The new max amount of routers
+   */
+  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
+    if (newMaxRouters <= 0) revert Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+
+    maxRoutersPerTransfer = newMaxRouters;
+
+    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
+  }
+
+  /**
    * @notice This function is called by a user who is looking to bridge funds
    * @dev This contract must have approval to transfer the adopted assets. They are then swapped to
    * the local nomad assets via the configured AMM and sent over the bridge router.
@@ -488,19 +508,25 @@ contract Connext is
     // Find the router to credit
     ExecutedTransfer memory transaction = routedTransfers[_transferId];
 
-    if (transaction.router == address(0)) {
+    if (transaction.routers.length == 0) {
       // Nomad bridge executed faster than router, funds should become process-able
       // by the user.
       reconciledTransfers[_transferId] = ConnextUtils.getReconciledHash(_local, _recipient, _amount);
     } else {
       // TODO: assert amount credited is reasonable (depends on fee scheme)
 
-      // Credit router
-      routerBalances[transaction.router][_local] += _amount;
+      uint256 routersLength = transaction.routers.length;
+      // This division in some cases will generate a remainder that is not credited to any router
+      uint256 routerAmount = _amount / routersLength;
+
+      for (uint256 i; i < routersLength; i++) {
+        // Credit router
+        routerBalances[transaction.routers[i]][_local] += routerAmount;
+      }
     }
 
     // Emit event
-    emit Reconciled(_transferId, _origin, _recipient, transaction.router, _local, _amount, transaction, msg.sender);
+    emit Reconciled(_transferId, _origin, _recipient, _local, _amount, transaction, msg.sender);
   }
 
   /**
@@ -525,7 +551,7 @@ contract Connext is
 
     // Handle liquidity as needed
     if (_isFast) {
-      _decrementLiquidity(_transferId, _args.amount, _args.local, _args.router);
+      _decrementLiquidity(_transferId, _args.amount, _args.local, _args.routers);
     } else {
       // Ensure the reconciled hash is correct (user not charged liq fee for slow-liq)
       if (_reconciledHash != ConnextUtils.getReconciledHash(_args.local, _args.params.to, _args.amount))
@@ -572,7 +598,7 @@ contract Connext is
     // Pay metatx relayer
     // NOTE: if this is done *without* fast liquidity, router will be address(0) and the relayer
     // will always be paid
-    _handleRelayerFees(_transferId, _args.router, _args.feePercentage, _args.relayerSignature);
+    _handleRelayerFees(_transferId, _args.routers, _args.feePercentage, _args.relayerSignature);
 
     // Emit event
     emit Executed(
@@ -676,17 +702,26 @@ contract Connext is
     bytes32 _transferId,
     uint256 _amount,
     address _local,
-    address _router
+    address[] calldata _routers
   ) internal {
     // Ensure it has not been executed already
-    if (routedTransfers[_transferId].router != address(0)) revert Connext__decrementLiquidity_notEmpty();
+    if (routedTransfers[_transferId].routers.length != 0) revert Connext__decrementLiquidity_notEmpty();
 
-    // Decrement liquidity
-    routerBalances[_router][_local] -= _amount;
+    // Ensure the routers is below max
+    uint256 routersLength = _routers.length;
+    if (routersLength > maxRoutersPerTransfer) revert Connext__decrementLiquidity_maxRoutersExceeded();
+
+    // This division in some cases will generate a remainder that is not decremented to any router
+    uint256 routerAmount = _amount / routersLength;
+
+    for (uint256 i; i < routersLength; i++) {
+      // Decrement liquidity
+      routerBalances[_routers[i]][_local] -= routerAmount;
+    }
 
     // Store the router
     routedTransfers[_transferId] = ExecutedTransfer({
-      router: _router,
+      routers: _routers,
       amount: _amount // will be of the mad asset, not adopted
     });
   }
@@ -696,15 +731,19 @@ contract Connext is
    * @dev Currently only supported on eip-1559 chains and only handles native assets.
    * Also only used in `execute` transfers
    * @param _transferId - The unique identifier of the transfer
-   * @param _router - The router you are sending the tx on behalf of
+   * @param _routers - The routers you are sending the tx on behalf of
    * @param _feePct - The percent over the basefee you are adding
    */
   function _handleRelayerFees(
     bytes32 _transferId,
-    address _router,
+    address[] calldata _routers,
     uint32 _feePct,
     bytes calldata _sig
   ) internal {
+    // NOTE: To not break the current working implementation in testnet, the first router is selected as the one to pay for the fees.
+    // This is a temporary solution until https://github.com/connext/nxtp/discussions/899 is implemented.
+    address _router = _routers[0];
+
     // If the sender *is* the router, do nothing
     if (msg.sender == _router) {
       return;

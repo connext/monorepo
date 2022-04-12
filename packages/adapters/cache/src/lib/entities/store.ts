@@ -6,6 +6,7 @@ export type StoreManagerParams = {
   logger: Logger;
   mock?: boolean;
 };
+
 export enum TxStatus {
   Completed = "Completed",
   Pending = "Pending",

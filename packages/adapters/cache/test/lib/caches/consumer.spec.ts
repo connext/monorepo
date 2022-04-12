@@ -1,13 +1,5 @@
-import {
-  Logger,
-  XTransferStatus,
-  expect,
-  mock,
-  getRandomBytes32,
-  mkAddress,
-  XTransfer,
-  delay,
-} from "@connext/nxtp-utils";
+import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress, delay } from "@connext/nxtp-utils";
+
 import { ConsumersCache, TransfersCache, AuctionsCache } from "../../../src/index";
 import { StoreChannel, SubscriptionCallback } from "../../../src/lib/entities";
 
@@ -38,19 +30,12 @@ const highestNonceHandler: SubscriptionCallback = async (msg: any, err?: any) =>
   console.log(`${highestNonceHandler.name} ===> Received message: ${msg}`);
 };
 
-let callCountForNewBid = 0;
-const newBidHandler: SubscriptionCallback = async (msg: any, err?: any) => {
-  callCountForNewBid++;
-  console.log(`${newBidHandler.name} ===> Received message: ${msg}`);
-};
-
 describe("ConsumersCache", () => {
   before(async () => {
     logger.debug(`Subscribing to Channels for Redis Pub/Sub`);
     const RedisSub = new RedisMock();
 
     RedisSub.subscribe(StoreChannel.NewHighestNonce);
-    RedisSub.subscribe(StoreChannel.NewBid);
 
     RedisSub.on("message", (chan: any, msg: any) => {
       console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
@@ -65,9 +50,6 @@ describe("ConsumersCache", () => {
     it("should be ok", async () => {
       await consumers.subscribe(StoreChannel.NewHighestNonce, highestNonceHandler);
       expect(consumers.subscriptions.has(StoreChannel.NewHighestNonce)).to.be.eq(true);
-
-      await consumers.subscribe(StoreChannel.NewBid, newBidHandler);
-      expect(consumers.subscriptions.has(StoreChannel.NewBid));
     });
   });
 
@@ -78,12 +60,6 @@ describe("ConsumersCache", () => {
       await transactions.storeTransfers([fakeTxs[0]]);
       await delay(100);
       expect(callCountForHighestNonce).to.be.eq(1);
-
-      // StoreChannel.NewBid
-      expect(callCountForNewBid).to.be.eq(0);
-      await auctions.storeBid(mock.entity.bid());
-      await delay(100);
-      expect(callCountForNewBid).to.be.eq(1);
     });
   });
 });

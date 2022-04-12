@@ -60,30 +60,15 @@ export type CallParams = Static<typeof CallParamsSchema>;
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
-  router: TAddress,
+  routers: Type.Array(TAddress),
   feePercentage: TDecimalString,
   amount: TDecimalString,
-  nonce: Type.Number(),
+  nonce: Type.Integer(),
   relayerSignature: Type.String(),
   originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
-
-export const BidSchema = Type.Object({
-  transferId: Type.String(),
-  data: ExecuteArgsSchema,
-});
-
-export type Bid = Static<typeof BidSchema>;
-
-export const BidResponseSchema = Type.Object({
-  message: Type.String(),
-  bid: Type.Optional(BidSchema),
-  error: Type.Optional(NxtpErrorJsonSchema),
-});
-
-export type BidResponse = Static<typeof BidResponseSchema>;
 
 export type ExternalCall = {
   to: string;
@@ -95,20 +80,4 @@ export type ReconciledTransaction = {
   local: string;
   amount: string;
   recipient: string;
-};
-
-export enum BidStatus {
-  Pending = "Pending",
-  Sent = "Sent",
-}
-
-export type SignedBid = {
-  bid: Bid;
-  signature: string;
-};
-
-export type StoredBid = {
-  payload: Bid;
-  status: BidStatus;
-  lastUpdate: number;
 };
