@@ -1,7 +1,6 @@
 import { BigNumber } from "ethers";
 import { XTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 
-import { Asset } from "./lib/subgraphs/runtime/graphqlsdk";
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
@@ -9,6 +8,7 @@ import {
   GetExecutedAndReconciledTransfersByIdsQuery,
   GetXCalledTransfersQuery,
   GetTransfersQuery,
+  Asset,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
