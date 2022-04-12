@@ -422,7 +422,7 @@ contract Connext is
     if (_args.relayerFee == 0) revert Connext__xcall_relayerFeeIsZero();
 
     // Transfer funds to the contract
-    (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
+    (address _transactingAssetId, uint256 _amount) = AssetLogic.handleIncomingAsset(
       _args.transactingAssetId,
       _args.amount,
       _args.relayerFee,
@@ -637,7 +637,7 @@ contract Connext is
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract
-    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, 0, wrapper);
+    (address _asset, uint256 _received) = AssetLogic.handleIncomingAsset(_local, _amount, 0, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
