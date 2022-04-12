@@ -27,10 +27,10 @@ export default task("enroll-handler", "Add a remote router")
     }
     console.log("local: ", local);
 
-    const { domainInfo } = getDomainInfoFromChainId(+chain);
+    const { domain } = getDomainInfoFromChainId(+chain);
 
     const localRouter = await ethers.getContractAt((await deployments.getArtifact("BridgeRouter")).abi, local);
-    const enrollTx = await localRouter.enrollRemoteRouter(domainInfo.domain, hexZeroPad(handler, 32));
+    const enrollTx = await localRouter.enrollRemoteRouter(domain, hexZeroPad(handler, 32));
     console.log("enroll tx:", enrollTx);
     const receipt = await enrollTx.wait();
     console.log("enroll tx mined:", receipt);

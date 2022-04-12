@@ -71,14 +71,14 @@ export default task("trace-message", "See the status of a nomad message")
 
       // Get the domain + context
       const network = await ethers.provider.getNetwork();
-      const { domainInfo: originConfig } = getDomainInfoFromChainId(network.chainId);
+      const { domain: originDomain } = getDomainInfoFromChainId(network.chainId);
 
       const context = BridgeContext.fromNomadContext(
         MAINNET_CHAINS.includes(network.chainId) ? new NomadContext("development") : new NomadContext("production"),
       );
 
       // Register origin provider
-      context.registerProvider(originConfig.domain, ethers.provider);
+      context.registerProvider(originDomain, ethers.provider);
 
       // Register destination provider
       const [, destHardhatConfig] =

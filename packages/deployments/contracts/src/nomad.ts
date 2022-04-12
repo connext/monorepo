@@ -100,21 +100,34 @@ export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const getDomainInfoFromChainId = (chainId: number): { name: string; domainInfo: configuration.Domain } => {
+export type NomadDomainInfo = {
+  name: string;
+  domain: number;
+  contracts: {
+    bridge: configuration.BridgeContracts;
+    core: configuration.CoreContracts;
+  };
+};
+
+export const getDomainInfoFromChainId = (chainId: number): NomadDomainInfo => {
   const env = MAINNET_CHAINS.includes(chainId) ? "production" : "development";
-  const nomadConfig = configuration.getBuiltin(env);
+  const nomadConfig: configuration.NomadConfig = configuration.getBuiltin(env);
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
   }
-  const [name, domainInfo] =
+  const [name, domainConfig] =
     Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {
       return info.specs.chainId === chainId;
     }) ?? [];
-  if (!domainInfo || !name) {
+  if (!domainConfig || !name) {
     throw new Error(`No nomad domain info found for ${chainId}`);
   }
   return {
     name,
-    domainInfo,
+    domain: domainConfig.domain,
+    contracts: {
+      bridge: nomadConfig.bridge[name],
+      core: nomadConfig.core[name],
+    },
   };
 };

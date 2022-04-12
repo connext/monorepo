@@ -21,10 +21,10 @@ export default task("set-local-domain", "Set the local domain of the token regis
     console.log("tokenRegistry: ", tokenRegistry);
     const { chainId } = await ethers.provider.getNetwork();
 
-    const { domainInfo } = getDomainInfoFromChainId(+chainId);
+    const { domain } = getDomainInfoFromChainId(+chainId);
 
     const registry = await ethers.getContractAt((await deployments.getArtifact("TokenRegistry")).abi, tokenRegistry);
-    const setLocalTx = await registry.setLocalDomain(domainInfo.domain);
+    const setLocalTx = await registry.setLocalDomain(domain);
     console.log("set local domain tx:", setLocalTx);
     const receipt = await setLocalTx.wait();
     console.log("set local domain tx mined:", receipt);
