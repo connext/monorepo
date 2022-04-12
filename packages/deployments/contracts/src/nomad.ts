@@ -1,4 +1,7 @@
 import { utils } from "ethers";
+import * as configuration from "@nomad-xyz/configuration";
+
+import { MAINNET_CHAINS } from "./constants";
 
 export type Address = string;
 
@@ -96,3 +99,22 @@ export function evmId(data: utils.BytesLike): Address {
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const getDomainInfoFromChainId = (chainId: number): { name: string; domainInfo: configuration.Domain } => {
+  const env = MAINNET_CHAINS.includes(chainId) ? "production" : "development";
+  const nomadConfig = configuration.getBuiltin(env);
+  if (!nomadConfig) {
+    throw new Error(`No nomad config found for ${env}`);
+  }
+  const [name, domainInfo] =
+    Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {
+      return info.specs.chainId === chainId;
+    }) ?? [];
+  if (!domainInfo || !name) {
+    throw new Error(`No nomad domain info found for ${chainId}`);
+  }
+  return {
+    name,
+    domainInfo,
+  };
+};

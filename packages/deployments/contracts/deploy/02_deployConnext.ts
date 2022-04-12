@@ -1,7 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import * as configuration from "@nomad-xyz/configuration";
 
-import { NOMAD_DEPLOYMENTS, SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
+import { MAINNET_CHAINS, SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
+import { getDomainInfoFromChainId } from "../src/nomad";
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -19,10 +21,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("============================= Deploying Connext ===============================");
   console.log("deployer: ", deployer.address);
 
-  const nomadConfig = NOMAD_DEPLOYMENTS.get(Number(chainId));
+  const env = MAINNET_CHAINS.includes(+chainId) ? "production" : "development";
+  const nomadConfig = configuration.getBuiltin(env);
   if (!nomadConfig) {
-    throw new Error(`No mapping exists for chain ${chainId}`);
+    throw new Error(`No nomad config found for ${env}`);
   }
+  console.log("nomadConfig: ", nomadConfig);
+  const { domainInfo } = getDomainInfoFromChainId(+chainId);
 
   // Get BridgeRouter and TokenRegistry deployments.
   const bridgeRouterDeployment = await hre.deployments.getOrNull("BridgeRouterUpgradeBeaconProxy");
@@ -44,15 +49,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Deploy Connext logic libraries
-  const assetLogic = await hre.deployments.deploy('AssetLogic', {
+  const assetLogic = await hre.deployments.deploy("AssetLogic", {
     from: deployer.address,
     log: true,
   });
-  const connextUtils = await hre.deployments.deploy('ConnextUtils', {
+  const connextUtils = await hre.deployments.deploy("ConnextUtils", {
     from: deployer.address,
     log: true,
   });
-  const routerPermissionsManagerLogic = await hre.deployments.deploy('RouterPermissionsManagerLogic', {
+  const routerPermissionsManagerLogic = await hre.deployments.deploy("RouterPermissionsManagerLogic", {
     from: deployer.address,
     log: true,
   });
@@ -70,7 +75,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: {
         init: {
           methodName: "initialize",
-          args: [nomadConfig.domain, bridge.address, tokenRegistry.address, nomadConfig.wrappedEth],
+          args: [domainInfo.domain, bridge.address, tokenRegistry.address, WRAPPED_ETH_MAP.get(+chainId)],
         },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
@@ -95,8 +100,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     let deployedPriceOracleAddress;
     try {
       deployedPriceOracleAddress = (await hre.deployments.get("ConnextPriceOracle")).address;
-    } catch (e) {
-      console.log("ConnextPriceOracle not deployed yet");
+    } catch (e: unknown) {
+      console.log("ConnextPriceOracle not deployed yet:", (e as Error).message);
     }
     await hre.deployments.deploy("ConnextPriceOracle", {
       from: deployer.address,
