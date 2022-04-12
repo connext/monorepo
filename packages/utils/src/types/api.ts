@@ -1,6 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
+import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TDecimalString } from "./primitives";
 
@@ -39,15 +40,37 @@ export const AuctionsApiPostBidReqSchema = Type.Object({
 
 export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
 
-export type AuctionsApiGetAuctionStatusRes = {
-  bids: number; // Number of bids that have been received.
-  status: string; // The AuctionStatus for a given transfer (“none” | “queued” | “sent” | “executed”).
-  attempts: number; // Number of times we’ve sent a meta tx to the relayer (in case multiple attempts needed).
-  taskId: string; // Gelato task ID if transfer is “sent”.
-  timestamps: {
-    start: string; // When the auction started (first bid arrived).
-    sent: string; // When we last sent a meta tx to the relayer.
-  };
-};
+export const AuctionsApiBidResponseSchema = Type.Object({
+  message: Type.String(),
+  transferId: Type.String(),
+  bid: BidSchema,
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+export type AuctionsApiBidResponse = Static<typeof AuctionsApiBidResponseSchema>;
+
+export const AuctionsApiGetAuctionsStatusResponseSchema = Type.Object({
+  bids: Type.Array(BidSchema),
+  status: Type.String(),
+  attempts: Type.Optional(Type.Number()),
+  taskId: Type.Optional(Type.String()),
+  timestamps: Type.Object({
+    start: Type.String(),
+    sent: Type.Optional(Type.String()),
+  }),
+});
+
+export type AuctionsApiGetAuctionStatusResponse = Static<typeof AuctionsApiGetAuctionsStatusResponseSchema>;
+
+export const AuctionsApiGetQueuedResponseSchema = Type.Object({
+  queued: Type.Array(Type.String()),
+});
+
+export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
+
+export const AuctionsApiErrorResponseSchema = Type.Object({
+  message: Type.String(),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+export type AuctionsApiErrorResponse = Static<typeof AuctionsApiErrorResponseSchema>;
 
 /// MARK - Router API -------------------------------------------------------------------------------

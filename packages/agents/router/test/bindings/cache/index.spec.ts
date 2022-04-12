@@ -38,7 +38,18 @@ describe("Bindings:Cache", () => {
       const mockPendingTransfers: string[] = [];
       for (let i = 0; i < 10; i++) {
         const mockTransfer: XTransfer = mock.entity.xtransfer();
-        mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
+        const rand_num = i % 3;
+        if (rand_num === 0) {
+          mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
+        } else if (rand_num === 1) {
+          mockCachedTransfers[mockTransfer.transferId] = { ...mockTransfer, xcall: undefined };
+        } else {
+          mockCachedTransfers[mockTransfer.transferId] = {
+            ...mockTransfer,
+            execute: { ...mockTransfer.execute, transactionHash: getRandomBytes32() },
+          };
+        }
+
         mockPendingTransfers.push(mockTransfer.transferId);
       }
       const domainWithPending = "1234";
@@ -50,6 +61,10 @@ describe("Bindings:Cache", () => {
 
       mockContext.adapters.cache.transfers.getPending.callsFake((domain: string) =>
         domain === domainWithPending ? mockPendingTransfers : [],
+      );
+
+      mockContext.adapters.cache.transfers.getTransfer.callsFake(
+        (transferId: string) => mockCachedTransfers[transferId],
       );
 
       mockContext.config.chains = {
