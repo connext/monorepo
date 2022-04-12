@@ -861,8 +861,10 @@ describe("Connext", () => {
     };
     const transactingAssetId = originAdopted.address;
     const amount = 1000;
-    const relayerFee = 0;
-    const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount, relayerFee });
+    const relayerFee = 1;
+    const prepare = await originTm
+      .connect(user)
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -957,16 +959,19 @@ describe("Connext", () => {
     };
     const transactingAssetId = constants.AddressZero;
     const amount = 1000;
-    const relayerFee = 0;
+    const relayerFee = 1;
     const prepare = await originTm
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount });
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount + relayerFee });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
     const postXcall = await Promise.all([user.getBalance(), weth.balanceOf(originBridge.address)]);
     expect(postXcall[0]).to.be.eq(
-      preXcall[0].sub(amount).sub(prepareReceipt.cumulativeGasUsed.mul(prepareReceipt.effectiveGasPrice)),
+      preXcall[0]
+        .sub(amount)
+        .sub(relayerFee)
+        .sub(prepareReceipt.cumulativeGasUsed.mul(prepareReceipt.effectiveGasPrice)),
     );
     expect(postXcall[1]).to.be.eq(preXcall[1].add(amount));
 
@@ -1127,8 +1132,10 @@ describe("Connext", () => {
 
       // Prepare from the user
       const transactingAssetId = originAdopted.address;
-      const relayerFee = 0;
-      const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount, relayerFee });
+      const relayerFee = 1;
+      const prepare = await originTm
+        .connect(user)
+        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
 
       // Get the message + id from the events
