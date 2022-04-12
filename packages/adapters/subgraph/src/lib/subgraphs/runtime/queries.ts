@@ -2,6 +2,67 @@ import { gql } from "graphql-request";
 
 // Contains all subgraph queries used by router
 
+export const getTransfers = gql`
+  query GetTransfers($destinationDomains: [BigInt!], $nonce: BigInt!) {
+    transfers(
+      where: { destinationDomain_in: $destinationDomains, nonce_gte: $nonce }
+      orderBy: xcalledBlockNumber
+      orderDirection: desc
+    ) {
+      id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledCaller
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }
+  }
+`;
+
 export const getXCalledTransfers = gql`
   query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
     transfers(

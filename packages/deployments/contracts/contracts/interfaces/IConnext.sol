@@ -43,7 +43,7 @@ interface IConnext {
    * user supplied comes through bridge
    */
   struct ExecutedTransfer {
-    address router;
+    address[] routers;
     uint256 amount;
   }
 
@@ -95,7 +95,7 @@ interface IConnext {
   struct ExecuteArgs {
     CallParams params;
     address local;
-    address router;
+    address[] routers;
     uint32 feePercentage;
     uint256 amount;
     uint256 nonce;
@@ -132,6 +132,20 @@ interface IConnext {
   event AssetRemoved(bytes32 canonicalId, address caller);
 
   /**
+   * @notice Emitted when a rlayer is added or removed from whitelists
+   * @param relayer - The relayer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event RelayerAdded(address relayer, address caller);
+
+  /**
+   * @notice Emitted when a rlayer is added or removed from whitelists
+   * @param relayer - The relayer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event RelayerRemoved(address relayer, address caller);
+
+  /**
    * @notice Emitted when a router withdraws liquidity from the contract
    * @param router - The router you are removing liquidity from
    * @param to - The address the funds were withdrawn to
@@ -149,6 +163,13 @@ interface IConnext {
    * @param caller - The account that called the function
    */
   event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when the maxRoutersPerTransfer variable is updated
+   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
+   * @param caller - The account that called the function
+   */
+  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -181,9 +202,8 @@ interface IConnext {
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
-   * @param router - The router that supplied fast liquidity, if applicable
-   * @param localAsset - The asset that was provided by the bridge
    * @param to - The CallParams.recipient provided, created as indexed parameter
+   * @param localAsset - The asset that was provided by the bridge
    * @param localAmount - The amount that was provided by the bridge
    * @param executed - Record of the `ExecutedTransfer` stored onchain if fast liquidity is provided
    * @param caller - The account that called the function
@@ -191,9 +211,8 @@ interface IConnext {
   event Reconciled(
     bytes32 indexed transferId,
     uint32 indexed origin,
-    address indexed router,
-    address localAsset,
     address to,
+    address localAsset,
     uint256 localAmount,
     ExecutedTransfer executed,
     address caller
@@ -252,6 +271,12 @@ interface IConnext {
   ) external;
 
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external;
+
+  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external;
+
+  function addRelayer(address relayer) external;
+
+  function removeRelayer(address relayer) external;
 
   // ============ Public Functions ===========
 
