@@ -1,7 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { TAddress, TDecimalString, TIntegerString } from ".";
-import { NxtpErrorJsonSchema } from "./error";
 
 export enum XTransferStatus {
   XCalled = "XCalled",
