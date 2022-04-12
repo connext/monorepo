@@ -68,7 +68,7 @@ describe("Bindings:Server", () => {
       const response = await fastifyApp.inject({
         method: "POST",
         url: "/auctions",
-        payload: { data },
+        payload: data,
       });
 
       expect(response.statusCode).to.be.eq(200);
@@ -101,11 +101,21 @@ describe("Bindings:Server", () => {
 
     it("happy: should receive 500 error if handling the bid fails", async () => {
       storeBidStub.throws(new Error("Handling the bid failed!"));
+      const transferId = getRandomBytes32();
+      const bid = mock.entity.bid();
+      const bidData = mock.entity.bidData();
+      const data: AuctionsApiPostBidReq = {
+        transferId,
+        bid,
+        data: bidData,
+      };
+
       const response = await fastifyApp.inject({
         method: "POST",
         url: "/auctions",
-        payload: mock.entity.bid(),
+        payload: data,
       });
+
       expect(response.statusCode).to.be.eq(500);
     });
   });

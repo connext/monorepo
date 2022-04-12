@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import {
-  AuctionsApiGetAuctionStatusRes,
+  AuctionsApiGetAuctionStatusResponse,
   AuctionsApiPostBidReq,
   Bid,
   RequestContext,
@@ -51,7 +51,7 @@ export const sendBid = async (
 export const getAuctionStatus = async (
   transferId: string,
   _requestContext: RequestContext,
-): Promise<AuctionsApiGetAuctionStatusRes> => {
+): Promise<AuctionsApiGetAuctionStatusResponse> => {
   const { config, logger } = getContext();
   const { sequencerUrl } = config;
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);

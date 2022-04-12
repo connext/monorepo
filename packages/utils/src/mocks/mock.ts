@@ -78,7 +78,7 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       relayerSignature: "0xsig",
-      originSender: "0xogsender",
+      originSender: mkAddress(),
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({
