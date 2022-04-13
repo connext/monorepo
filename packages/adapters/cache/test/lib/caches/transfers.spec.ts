@@ -1,10 +1,10 @@
 import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+
 import { TransfersCache } from "../../../src/index";
-import { StoreChannel } from "../../../src/lib/entities";
 
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
-let transactions: TransfersCache;
+let transfersCache: TransfersCache;
 
 const fakeTxs = [
   mock.entity.xtransfer("3000", "4000"),
@@ -21,31 +21,24 @@ const fakeTxs = [
 ];
 
 describe("TransfersCache", () => {
-  before(async () => {
-    logger.debug(`Subscribing to Channels for Redis Pub/Sub`);
-    const RedisSub = new RedisMock();
+  beforeEach(async () => {
+    transfersCache = new TransfersCache({ host: "mock", port: 1234, mock: true, logger });
+  });
 
-    RedisSub.subscribe(StoreChannel.NewHighestNonce);
-    RedisSub.subscribe(StoreChannel.NewXCall);
-    RedisSub.subscribe(StoreChannel.NewStatus);
-
-    RedisSub.on("message", (chan: any, msg: any) => {
-      console.log(`Got Subscribed Message Channel: ${chan as string}, Message Data: ${msg as string}`);
-    });
-
-    transactions = new TransfersCache({ url: "mock", mock: true, logger });
+  afterEach(async () => {
+    new RedisMock().flushall();
   });
 
   describe("#getLatestNonce", () => {
-    it("should get default nonce if no exists", async () => {
-      await transactions.storeTransfers([fakeTxs[1]]);
-      const latestNonce = await transactions.getLatestNonce("1");
+    it("should get default nonce if none exists", async () => {
+      await transfersCache.storeTransfers([fakeTxs[1]]);
+      const latestNonce = await transfersCache.getLatestNonce("1");
       expect(latestNonce).to.be.equal(0);
     });
 
     it("should get domain's latest nonce according to the cache", async () => {
-      await transactions.storeTransfers([fakeTxs[1]]);
-      const latestNonce = await transactions.getLatestNonce("3000");
+      await transfersCache.storeTransfers([fakeTxs[1]]);
+      const latestNonce = await transfersCache.getLatestNonce("3000");
       expect(latestNonce).to.be.equal(fakeTxs[1].nonce);
     });
   });
@@ -54,8 +47,8 @@ describe("TransfersCache", () => {
     it("happy: should store transaction data", async () => {
       const mockXTransfer = mock.entity.xtransfer("100", "200");
       //add fake txid's status, should fire off event.
-      await transactions.storeTransfers([mockXTransfer]);
-      let latestNonce = await transactions.getLatestNonce("100");
+      await transfersCache.storeTransfers([mockXTransfer]);
+      let latestNonce = await transfersCache.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1234);
     });
 
@@ -79,44 +72,55 @@ describe("TransfersCache", () => {
         transferId,
         1234,
       );
-      await transactions.storeTransfers([mockXTransfer1]);
-      await transactions.storeTransfers([mockXTransfer2]);
-      let latestNonce = await transactions.getLatestNonce("100");
+      await transfersCache.storeTransfers([mockXTransfer1]);
+      await transfersCache.storeTransfers([mockXTransfer2]);
+      let latestNonce = await transfersCache.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1234);
     });
 
     it("happy: should delete the stall transfer", async () => {
       const mockXTransfer = mock.entity.xtransfer("100", "200", "1000", XTransferStatus.Executed);
       //add fake txid's status, should fire off event.
-      await transactions.storeTransfers([mockXTransfer]);
-      await transactions.storeTransfers([mockXTransfer]);
-      let latestNonce = await transactions.getLatestNonce("100");
+      await transfersCache.storeTransfers([mockXTransfer]);
+      await transfersCache.storeTransfers([mockXTransfer]);
+      let latestNonce = await transfersCache.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1234);
     });
 
     it("should update latest nonce", async () => {
-      let latestNonce = await transactions.getLatestNonce("100");
-      expect(latestNonce).to.be.eq(1234);
-
-      const mockXTransfer = mock.entity.xtransfer(
+      const mockTransfer = mock.entity.xtransfer(
         "100",
         "200",
         "1000",
         XTransferStatus.XCalled,
-        mkAddress("0xaaa"),
-        getRandomBytes32(),
+        undefined,
+        undefined,
+        1234,
+      );
+      //add fake txid's status, should fire off event.
+      await transfersCache.storeTransfers([mockTransfer]);
+      let latestNonce = await transfersCache.getLatestNonce("100");
+      expect(latestNonce).to.be.eq(1234);
+
+      const mockNewTransfer = mock.entity.xtransfer(
+        "100",
+        undefined,
+        undefined,
+        XTransferStatus.Executed,
+        undefined,
+        undefined,
         1235,
         mkAddress("0xa"),
       );
-      const res = await transactions.storeTransfers([mockXTransfer]);
-      latestNonce = await transactions.getLatestNonce("100");
+      const res = await transfersCache.storeTransfers([mockNewTransfer]);
+      latestNonce = await transfersCache.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1235);
     });
   });
 
-  describe("#getTransferByTransferId", () => {
+  describe("#getTransfer", () => {
     it("should return null if no exists", async () => {
-      const res = await transactions.getTransferByTransferId(getRandomBytes32());
+      const res = await transfersCache.getTransfer(getRandomBytes32());
       expect(res).to.be.undefined;
     });
 
@@ -132,25 +136,79 @@ describe("TransfersCache", () => {
         1234,
         mkAddress("0xa"),
       );
-      await transactions.storeTransfers([mockXTransfer]);
+      await transfersCache.storeTransfers([mockXTransfer]);
 
-      const res = await transactions.getTransferByTransferId(transferId);
+      const res = await transfersCache.getTransfer(transferId);
       expect(res.transferId).to.eq(transferId);
     });
   });
 
-  describe("#storeStatus", () => {
-    it("Not implemented", () => {
+  describe("#getPending", () => {
+    it("happy: returns pending transfer IDs", async () => {
+      // First, store
       const transferId = getRandomBytes32();
-      expect(transactions.storeStatus(transferId, XTransferStatus.XCalled)).to.eventually.be.throw(
-        new Error("Not implemented"),
-      );
+      const domain = "1234";
+      await (transfersCache as any).addPending(domain, transferId);
+      const res = await transfersCache.getPending(domain);
+      expect(res).to.deep.eq([transferId]);
+    });
+
+    it("should create a new domain entry if it doesn't exist and return empty array", async () => {
+      const res = await transfersCache.getPending("1234");
+      expect(res).to.deep.eq([]);
     });
   });
-  describe("#getStatus", () => {
-    it("Not implemented", () => {
+
+  describe("#addPending", () => {
+    it("happy: adds new pending transfer ID", async () => {
+      const domain = "1234";
       const transferId = getRandomBytes32();
-      expect(transactions.getStatus(transferId)).to.eventually.be.throw(new Error("Not implemented"));
+      await (transfersCache as any).addPending(domain, transferId);
+      const res = await transfersCache.getPending(domain);
+      expect(res).to.deep.eq([transferId]);
+    });
+
+    it("should append to current array, not overwrite", async () => {
+      const domain = "1234";
+      const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
+      for (const transferId of transferIds) {
+        await (transfersCache as any).addPending(domain, transferId);
+      }
+      const res = await transfersCache.getPending(domain);
+      expect(res).to.deep.eq(transferIds);
+    });
+  });
+
+  describe("#removePending", () => {
+    it("happy: should remove from array of pending transfers", async () => {
+      const domain = "1234";
+      const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
+      for (const transferId of transferIds) {
+        await (transfersCache as any).addPending(domain, transferId);
+      }
+      const indexToRemove = 4;
+      const successful = await (transfersCache as any).removePending(domain, transferIds[indexToRemove]);
+      expect(successful).to.be.true;
+
+      transferIds.splice(indexToRemove, 1);
+
+      const res = await transfersCache.getPending(domain);
+      expect(res).to.deep.eq(transferIds);
+    });
+
+    it("shouldn't remove anything if non-existant transfer ID is passed in", async () => {
+      const domain = "1234";
+      const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
+      for (const transferId of transferIds) {
+        await (transfersCache as any).addPending(domain, transferId);
+      }
+      // Removal should be unsuccessful.
+      const successful = await (transfersCache as any).removePending(domain, getRandomBytes32());
+      expect(successful).to.be.false;
+
+      // Should be the same.
+      const res = await transfersCache.getPending(domain);
+      expect(res).to.deep.eq(transferIds);
     });
   });
 });
