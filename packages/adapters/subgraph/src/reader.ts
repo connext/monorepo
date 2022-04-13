@@ -8,10 +8,8 @@ import {
   GetExecutedAndReconciledTransfersByIdsQuery,
   GetXCalledTransfersQuery,
   GetTransfersQuery,
+  Asset,
 } from "./lib/subgraphs/runtime/graphqlsdk";
-
-// TODO: better typing
-type Asset = Record<string, unknown>;
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -82,6 +80,20 @@ export class SubgraphReader {
     return assets[0];
   }
 
+  public async getAssetByCanonicalId(chain: number, canonicalId: string): Promise<Asset | undefined> {
+    const subgraph = this.subgraphs.get(chain.toString());
+    // handle doesnt exist
+    const { assets } = await subgraph!.runtime.request<GetAssetByLocalQuery>((client) => {
+      return client.GetAssetByCanonicalId({ canonicalId });
+    });
+    if (assets.length === 0) {
+      return undefined;
+    }
+    // convert to nice typescript type
+    return assets[0];
+  }
+
+  // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
   /**
    * Get all transfers on a domain from a specified nonce that are routing to one of the given destination domains.
    *

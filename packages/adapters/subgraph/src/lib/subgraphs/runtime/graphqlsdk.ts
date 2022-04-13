@@ -1022,6 +1022,22 @@ export type GetAssetByLocalQuery = {
   }>;
 };
 
+export type GetAssetByCanonicalIdQueryVariables = Exact<{
+  canonicalId: Scalars["Bytes"];
+}>;
+
+export type GetAssetByCanonicalIdQuery = {
+  __typename?: "Query";
+  assets: Array<{
+    __typename?: "Asset";
+    id: string;
+    local: any;
+    adoptedAsset: any;
+    canonicalId: any;
+    canonicalDomain: any;
+  }>;
+};
+
 export const GetTransfersDocument = gql`
   query GetTransfers($destinationDomains: [BigInt!], $nonce: BigInt!) {
     transfers(
@@ -1238,6 +1254,17 @@ export const GetAssetByLocalDocument = gql`
     }
   }
 `;
+export const GetAssetByCanonicalIdDocument = gql`
+  query GetAssetByCanonicalId($canonicalId: Bytes!) {
+    assets(where: { canonicalId: $canonicalId }) {
+      id
+      local
+      adoptedAsset
+      canonicalId
+      canonicalDomain
+    }
+  }
+`;
 
 export type SdkFunctionWrapper = <T>(
   action: (requestHeaders?: Record<string, string>) => Promise<T>,
@@ -1317,6 +1344,20 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
             ...wrappedRequestHeaders,
           }),
         "GetAssetByLocal",
+        "query",
+      );
+    },
+    GetAssetByCanonicalId(
+      variables: GetAssetByCanonicalIdQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"],
+    ): Promise<GetAssetByCanonicalIdQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetAssetByCanonicalIdQuery>(GetAssetByCanonicalIdDocument, variables, {
+            ...requestHeaders,
+            ...wrappedRequestHeaders,
+          }),
+        "GetAssetByCanonicalId",
         "query",
       );
     },

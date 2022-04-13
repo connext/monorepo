@@ -1,9 +1,9 @@
 import { utils, BigNumber } from "ethers";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, ExecuteArgs } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
@@ -125,6 +125,24 @@ export const mock = {
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
       };
+    },
+  },
+  helpers: {
+    relayer: {
+      gelatoSend: stub(),
+      isChainSupportedByGelato: stub(),
+    },
+    auctions: {
+      encodeExecuteFromBid: stub(),
+    },
+  },
+  operations: {
+    auctions: {
+      storeBid: stub(),
+      selectBids: stub(),
+    },
+    relayer: {
+      sendToRelayer: stub(),
     },
   },
 };

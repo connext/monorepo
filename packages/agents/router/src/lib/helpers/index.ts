@@ -1,3 +1,4 @@
+import { getAuctionStatus, sendBid } from "./auctions";
 import { sanityCheck } from "./execute";
 import {
   getDestinationLocalAsset,
@@ -11,6 +12,10 @@ import {
 
 export const getHelpers = () => {
   return {
+    auctions: {
+      getAuctionStatus,
+      sendBid,
+    },
     execute: {
       sanityCheck,
     },

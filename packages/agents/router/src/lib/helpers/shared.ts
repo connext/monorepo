@@ -7,6 +7,8 @@ import {
 } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 
+import { getContext } from "../../router";
+
 /**
  * Returns local asset address on destination domain corresponding to local asset on origin domain
  *
@@ -20,20 +22,19 @@ export const getDestinationLocalAsset = async (
   _originLocalAsset: string,
   _destinationDomain: string,
 ): Promise<string> => {
-  // use origin domain to get subgraph
-  // run query to get asset by originLocalAsset
-  // get canonical
-  // use destination domain to get subgraph
-  // query local asset on destination
+  const {
+    adapters: { subgraph },
+  } = getContext();
 
-  // TODO: Not implemented yet
+  // get canonical asset from orgin domain.
+  const sendingDomainAsset = await subgraph.getAssetByLocal(Number(_originDomain), _originLocalAsset);
 
-  // const encoded = getTokenRegistryInterface().encodeFunctionData("getLocalAddress(uint32,address)", [
-  //   originDomain,
-  //   originLocalAsset
-  // ]);
+  const canonicalId = sendingDomainAsset!.canonicalId as string;
 
-  return "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2";
+  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(Number(_destinationDomain), canonicalId);
+
+  const localAddress = destinationDomainAsset!.local;
+  return localAddress;
 };
 
 export const getTransactionId = (nonce: string, domain: string): string => {
