@@ -11,7 +11,6 @@ import {
   GetExecutedTransfersByIdsQuery,
   GetReconciledTransfersByIdsQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
-import { getExecutedTransfersByIds } from "./lib/subgraphs/runtime/queries";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
