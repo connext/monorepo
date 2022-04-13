@@ -52,6 +52,7 @@ contract Connext is
   error Connext__removeLiquidity_amountIsZero();
   error Connext__removeLiquidity_insufficientFunds();
   error Connext__xcall_notSupportedAsset();
+  error Connext__xcall_relayerFeeIsZero();
   error Connext__execute_notSlowParams();
   error Connext__addLiquidityForRouter_routerEmpty();
   error Connext__addLiquidityForRouter_amountIsZero();
@@ -61,6 +62,8 @@ contract Connext is
   error Connext__decrementLiquidity_notEmpty();
   error Connext__decrementLiquidity_maxRoutersExceeded();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error Connext__bumpTransfer_invalidTransfer();
+  error Connext__bumpTransfer_valueIsZero();
 
   // ============ Constants =============
 
@@ -388,8 +391,10 @@ contract Connext is
       bytes32(0)
     ) revert Connext__xcall_notSupportedAsset();
 
+    if (_args.relayerFee == 0) revert Connext__xcall_relayerFeeIsZero();
+
     // Transfer funds to the contract
-    (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
+    (address _transactingAssetId, uint256 _amount) = AssetLogic.handleIncomingAsset(
       _args.transactingAssetId,
       _args.amount,
       _args.relayerFee,
@@ -440,6 +445,19 @@ contract Connext is
 
     // Return the transfer id
     return _transferId;
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId) external payable {
+    if (relayerFees[_transferId] == 0) revert Connext__bumpTransfer_invalidTransfer();
+    if (msg.value == 0) revert Connext__bumpTransfer_valueIsZero();
+
+    relayerFees[_transferId] += msg.value;
+
+    emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
   }
 
   /**
@@ -601,8 +619,8 @@ contract Connext is
     // Asset is approved
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to coethWithErcTransferact
-    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, 0, wrapper);
+    // Transfer funds to contract
+    (address _asset, uint256 _received) = AssetLogic.handleIncomingAsset(_local, _amount, 0, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens

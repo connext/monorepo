@@ -187,6 +187,14 @@ interface IConnext {
   );
 
   /**
+   * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param relayerFee - The updated amount of relayer fee in native asset
+   * @param caller - The account that called the function
+   */
+  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+
+  /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
