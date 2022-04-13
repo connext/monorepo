@@ -199,7 +199,7 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        const { executedTransfers } = await subgraph.runtime.request<GetExecutedTransfersByIdsQuery>(
+        const executed = await subgraph.runtime.request<GetExecutedTransfersByIdsQuery>(
           (client: {
             GetExecutedTransfersByIds: (arg0: { transferIds: string[]; maxExecutedBlockNumber: any }) => any;
           }) =>
@@ -208,14 +208,14 @@ export class SubgraphReader {
               maxExecutedBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
             }),
         );
-        executedTransfers.forEach((_tx: any) => {
+        executed.transfers.forEach((_tx: any) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
           inMap.status = tx.status;
           allTxById.set(tx.transferId, inMap);
         });
 
-        const { reconciledTransfers } = await subgraph.runtime.request<GetReconciledTransfersByIdsQuery>(
+        const reconciled = await subgraph.runtime.request<GetReconciledTransfersByIdsQuery>(
           (client: {
             GetReconciledTransfersByIds: (arg0: { transferIds: string[]; maxReconciledBlockNumber: any }) => any;
           }) =>
@@ -225,7 +225,7 @@ export class SubgraphReader {
             }),
         );
 
-        reconciledTransfers.forEach((_tx: any) => {
+        reconciled.transfers.forEach((_tx: any) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
           inMap.status = tx.status;
