@@ -1,5 +1,6 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
+
 import { mock, getChainIdFromDomain, getDomainFromChainId } from "../../src";
 import * as ChainDataFns from "../../src/peripherals/chainData";
 

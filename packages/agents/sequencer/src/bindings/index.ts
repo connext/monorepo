@@ -1,2 +1,2 @@
 export { bindServer } from "./server";
-export { bindBidSelection } from "./bidSelection";
+export { bindAuctions } from "./auctions";

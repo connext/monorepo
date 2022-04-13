@@ -27,25 +27,25 @@ describe("Helpers:Execute", () => {
     });
 
     it("happy", async () => {
-      const mockBid = mock.entity.bid();
-      await execute.sanityCheck(mockBid, mock.loggingContext().requestContext);
+      const mockBidData = mock.entity.bidData();
+      await execute.sanityCheck(mockBidData, mock.loggingContext().requestContext);
       expect(mockContext.adapters.txservice.getGasEstimate).to.have.been.calledOnceWithExactly(
-        Number(mockBid.data.params.destinationDomain),
+        Number(mockBidData.params.destinationDomain),
         {
           chainId: Number(mock.chain.B),
-          to: mockContext.config.chains[mockBid.data.params.destinationDomain].deployments.connext,
+          to: mockContext.config.chains[mockBidData.params.destinationDomain].deployments.connext,
           data: mockEncodedData,
         },
       );
     });
 
     it("returns false if gas estimate throws", async () => {
-      const mockBid = mock.entity.bid();
+      const mockBidData = mock.entity.bidData();
       const err = new Error("gas estimate error, oh no!");
       mockContext.adapters.txservice.getGasEstimate.rejects(err);
-      await expect(execute.sanityCheck(mockBid, mock.loggingContext().requestContext)).to.eventually.be.rejectedWith(
-        err,
-      );
+      await expect(
+        execute.sanityCheck(mockBidData, mock.loggingContext().requestContext),
+      ).to.eventually.be.rejectedWith(err);
     });
   });
 });
