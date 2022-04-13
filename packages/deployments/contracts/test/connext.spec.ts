@@ -1314,7 +1314,7 @@ describe("Connext", () => {
     });
   });
 
-  describe.only("relayerFee", () => {
+  describe("relayerFee", () => {
     const params = {
       to: user.address,
       callData: "0x",
@@ -1334,139 +1334,86 @@ describe("Connext", () => {
       await stableSwap.connect(admin).setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
     });
 
-    it(`should allow relayer to collect fees from multiple transfers`, async () => {
-      const amounts = [1000, 500, 300];
-      const relayerFees = [100, 300, 200];
+    const bumpScenarios = [
+      [0, 0, 0],
+      [100, 400, 200],
+    ];
+    bumpScenarios.forEach((bumps) => {
+      it(`should allow relayer to collect fees from multiple transfers ${
+        bumps[0] > 0 ? "with bumps" : ""
+      }`, async () => {
+        const amounts = [1000, 500, 300];
+        const relayerFees = [100, 300, 200];
 
-      // Initiate transfers
-      const transferIds = [];
-      for (let i = 0; i < amounts.length; i++) {
-        const id = await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originTm);
-        transferIds.push(id);
-      }
+        // Initiate transfers
+        const transferIds = [];
+        for (let i = 0; i < amounts.length; i++) {
+          const id = await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originTm);
+          transferIds.push(id);
+        }
 
-      // Validate stored relayer fees
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i]);
-      }
+        // Validate stored relayer fees
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i]);
+        }
 
-      // Execute transfers
-      for (let i = 0; i < transferIds.length; i++) {
-        await destinationTm.connect(router).execute({
-          params,
-          nonce: transferIds[i].nonce,
-          local: local.address,
-          amount: amounts[i],
-          routers: [router.address],
-          originSender: user.address,
-        });
-      }
+        // Bump transfer
+        for (let i = 0; i < amounts.length; i++) {
+          if (bumps[i] > 0) {
+            await originTm.bumpTransfer(transferIds[i].transferId, { value: bumps[i] });
+          }
+        }
 
-      // Validate relayer address for transfers
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await destinationTm.transferRelayer(transferIds[i].transferId)).to.be.eq(router.address);
-      }
+        // Validate stored relayer fees
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i] + bumps[i]);
+        }
 
-      // initiate claim
-      const ids = transferIds.map((transfer) => transfer.transferId);
-      const initiateClaimTx = await destinationTm.connect(router).initiateClaim(originDomain, router.address, ids);
-      const initiateClaimTxReceipt = await initiateClaimTx.wait();
+        // Execute transfers
+        for (let i = 0; i < transferIds.length; i++) {
+          await destinationTm.connect(router).execute({
+            params,
+            nonce: transferIds[i].nonce,
+            local: local.address,
+            amount: amounts[i],
+            routers: [router.address],
+            originSender: user.address,
+          });
+        }
 
-      const initiateClaimSendRouterEvent = (
-        await destinationRelayerFeeRouter.connect(admin).queryFilter(destinationRelayerFeeRouter.filters.Send())
-      ).find((a: { blockNumber: any }) => a.blockNumber === initiateClaimTxReceipt.blockNumber);
+        // Validate relayer address for transfers
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await destinationTm.transferRelayer(transferIds[i].transferId)).to.be.eq(router.address);
+        }
 
-      const message = (initiateClaimSendRouterEvent!.args as any).message;
-      const nonce = (await destinationHome.count()).sub(1);
+        // initiate claim
+        const ids = transferIds.map((transfer) => transfer.transferId);
+        const initiateClaimTx = await destinationTm.connect(router).initiateClaim(originDomain, router.address, ids);
+        const initiateClaimTxReceipt = await initiateClaimTx.wait();
 
-      const balanceBeforeClaim = await ethers.provider.getBalance(router.address);
+        const initiateClaimSendRouterEvent = (
+          await destinationRelayerFeeRouter.connect(admin).queryFilter(destinationRelayerFeeRouter.filters.Send())
+        ).find((a: { blockNumber: any }) => a.blockNumber === initiateClaimTxReceipt.blockNumber);
 
-      // execute claim
-      await originRelayerFeeRouter
-        .connect(admin)
-        .handle(destinationDomain, nonce, addressToBytes32(destinationRelayerFeeRouter.address), message);
+        const message = (initiateClaimSendRouterEvent!.args as any).message;
+        const nonce = (await destinationHome.count()).sub(1);
 
-      const balanceAfterClaim = await ethers.provider.getBalance(router.address);
+        const balanceBeforeClaim = await ethers.provider.getBalance(router.address);
 
-      // Validate collected fees
-      const totalFees = relayerFees.reduce((a, b) => a + b, 0);
-      expect(balanceAfterClaim).to.eq(balanceBeforeClaim.add(totalFees));
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(0);
-      }
-    });
-    it(`should allow relayer to collect fees from multiple transfers with bumps`, async () => {
-      const amounts = [1000, 500, 300];
-      const relayerFees = [100, 300, 200];
-      const bumps = [100, 100, 100];
+        // execute claim
+        await originRelayerFeeRouter
+          .connect(admin)
+          .handle(destinationDomain, nonce, addressToBytes32(destinationRelayerFeeRouter.address), message);
 
-      // Initiate transfers
-      const transferIds = [];
-      for (let i = 0; i < amounts.length; i++) {
-        const id = await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originTm);
-        transferIds.push(id);
-      }
+        const balanceAfterClaim = await ethers.provider.getBalance(router.address);
 
-      // Validate stored relayer fees
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i]);
-      }
-
-      // Bump transfer
-      for (let i = 0; i < amounts.length; i++) {
-        await originTm.bumpTransfer(transferIds[i].transferId, { value: bumps[i] });
-        await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originTm);
-      }
-
-      // Validate stored relayer fees
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i] + bumps[i]);
-      }
-
-      // Execute transfers
-      for (let i = 0; i < transferIds.length; i++) {
-        await destinationTm.connect(router).execute({
-          params,
-          nonce: transferIds[i].nonce,
-          local: local.address,
-          amount: amounts[i],
-          routers: [router.address],
-          originSender: user.address,
-        });
-      }
-
-      // Validate relayer address for transfers
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await destinationTm.transferRelayer(transferIds[i].transferId)).to.be.eq(router.address);
-      }
-
-      // initiate claim
-      const ids = transferIds.map((transfer) => transfer.transferId);
-      const initiateClaimTx = await destinationTm.connect(router).initiateClaim(originDomain, router.address, ids);
-      const initiateClaimTxReceipt = await initiateClaimTx.wait();
-
-      const initiateClaimSendRouterEvent = (
-        await destinationRelayerFeeRouter.connect(admin).queryFilter(destinationRelayerFeeRouter.filters.Send())
-      ).find((a: { blockNumber: any }) => a.blockNumber === initiateClaimTxReceipt.blockNumber);
-
-      const message = (initiateClaimSendRouterEvent!.args as any).message;
-      const nonce = (await destinationHome.count()).sub(1);
-
-      const balanceBeforeClaim = await ethers.provider.getBalance(router.address);
-
-      // execute claim
-      await originRelayerFeeRouter
-        .connect(admin)
-        .handle(destinationDomain, nonce, addressToBytes32(destinationRelayerFeeRouter.address), message);
-
-      const balanceAfterClaim = await ethers.provider.getBalance(router.address);
-
-      // Validate collected fees
-      const totalFees = relayerFees.reduce((a, b) => a + b, 0) + bumps.reduce((a, b) => a + b, 0);
-      expect(balanceAfterClaim).to.eq(balanceBeforeClaim.add(totalFees));
-      for (let i = 0; i < transferIds.length; i++) {
-        expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(0);
-      }
+        // Validate collected fees
+        const totalFees = relayerFees.reduce((a, b) => a + b, 0) + bumps.reduce((a, b) => a + b, 0);
+        expect(balanceAfterClaim).to.eq(balanceBeforeClaim.add(totalFees));
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await originTm.relayerFees(transferIds[i].transferId)).to.be.eq(0);
+        }
+      });
     });
   });
 });
