@@ -6,7 +6,7 @@ import { ChainReader, getContractInterfaces, contractDeployments } from "@connex
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindServer, bindBidSelection } from "./bindings";
+import { bindServer, bindAuctions } from "./bindings";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -42,7 +42,7 @@ export const makeSequencer = async () => {
     // Create server, set up routes, and start listening.
     await bindServer();
 
-    await bindBidSelection();
+    await bindAuctions();
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
       port: context.config.server.port,
@@ -54,7 +54,7 @@ export const makeSequencer = async () => {
 };
 
 export const setupCache = async (
-  redis: {host: string; port: number},
+  redis: { host?: string; port?: number },
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<StoreManager> => {
@@ -63,13 +63,14 @@ export const setupCache = async (
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
 
   const cacheInstance = StoreManager.getInstance({
-    redis: redis ? redis: undefined,
-    mock: redis ? false : true,
+    redis: { host: redis.host, port: redis.port, instance: undefined },
+    mock: !redis.host || !redis.port,
     logger: logger.child({ module: "StoreManager" }),
   });
 
   logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    host: redis.host, port: redis.port,
+    host: redis.host,
+    port: redis.port,
   });
   return cacheInstance;
 };

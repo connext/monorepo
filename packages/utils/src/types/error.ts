@@ -1,3 +1,5 @@
+import { Type, Static } from "@sinclair/typebox";
+
 export type Values<E> = E[keyof E];
 
 /**
@@ -18,13 +20,15 @@ export const jsonifyError = (error: NxtpError | Error): NxtpErrorJson => {
   };
 };
 
+export const NxtpErrorJsonSchema = Type.Object({
+  message: Type.String(),
+  context: Type.Any(),
+  type: Type.String(),
+  stack: Type.Optional(Type.String()),
+});
+
 // Abstract error for package
-export type NxtpErrorJson = {
-  message: string;
-  context: any;
-  type: string;
-  stack?: string;
-};
+export type NxtpErrorJson = Static<typeof NxtpErrorJsonSchema>;
 
 /**
  * @classdesc The error class used throughout this repo. Defines a context object in addition to the standard message and name fields. The context can hold any information in json form that is relevant to the error

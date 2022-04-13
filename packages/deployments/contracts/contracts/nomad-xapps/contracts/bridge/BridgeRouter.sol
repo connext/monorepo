@@ -148,7 +148,6 @@ contract BridgeRouter is Version0, Router {
     bool _enableFast,
     bytes32 _externalHash
   ) external {
-    require(_amount > 0, "!amnt");
     require(_recipient != bytes32(0), "!recip");
     // get remote BridgeRouter address; revert if not found
     bytes32 _remote = _mustHaveRemote(_destination);
@@ -159,13 +158,17 @@ contract BridgeRouter is Version0, Router {
     if (tokenRegistry.isLocalOrigin(_token)) {
       // if the token originates on this chain,
       // hold the tokens in escrow in the Router
-      IERC20Upgradeable(_token).safeTransferFrom(msg.sender, address(this), _amount);
+      if (_amount > 0) {
+        IERC20Upgradeable(_token).safeTransferFrom(msg.sender, address(this), _amount);
+      }      
       // query token contract for details and calculate detailsHash
       _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
     } else {
       // if the token originates on a remote chain,
       // burn the representation tokens on this chain
-      _t.burn(msg.sender, _amount);
+      if (_amount > 0) {
+        _t.burn(msg.sender, _amount);
+      }
       _detailsHash = _t.detailsHash();
     }
     // format Transfer Tokens action
@@ -304,7 +307,8 @@ contract BridgeRouter is Version0, Router {
     uint256 _amount,
     bytes32 _details
   ) internal {
-    if (tokenRegistry.isLocalOrigin(_token)) {
+    bool _hasFunds = _amount > 0;
+    if (tokenRegistry.isLocalOrigin(_token) && _hasFunds) {
       // if the token is of local origin, the tokens have been held in
       // escrow in this contract
       // while they have been circulating on remote chains;
@@ -313,7 +317,9 @@ contract BridgeRouter is Version0, Router {
     } else {
       // if the token is of remote origin, mint the tokens to the
       // recipient on this chain
-      IBridgeToken(_token).mint(_recipient, _amount);
+      if (_hasFunds) {
+        IBridgeToken(_token).mint(_recipient, _amount);
+      }
       // Tell the token what its detailsHash is
       IBridgeToken(_token).setDetailsHash(_details);
     }

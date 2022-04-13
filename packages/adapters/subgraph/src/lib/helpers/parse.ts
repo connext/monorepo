@@ -17,43 +17,49 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     router: subgEntity.router,
 
     // XCall
-    xcall: {
-      caller: subgEntity.xcalledCaller,
-      transferringAmount: subgEntity.xcalledTransactingAmount,
-      localAmount: subgEntity.xcalledLocalAmount,
-      transferringAsset: subgEntity.xcalledTransactingAsset,
-      localAsset: subgEntity.xcalledLocalAsset,
-      transactionHash: subgEntity.xcalledTransactionHash,
-      timestamp: subgEntity.xcalledTimestamp,
-      gasPrice: subgEntity.xcalledGasPrice,
-      gasLimit: subgEntity.xcalledGasLimit,
-      blockNumber: subgEntity.xcalledBlockNumber,
-    },
+    xcall: subgEntity.xcalledTransactionHash
+      ? {
+          caller: subgEntity.xcalledCaller,
+          transferringAmount: subgEntity.xcalledTransactingAmount,
+          localAmount: subgEntity.xcalledLocalAmount,
+          transferringAsset: subgEntity.xcalledTransactingAsset,
+          localAsset: subgEntity.xcalledLocalAsset,
+          transactionHash: subgEntity.xcalledTransactionHash,
+          timestamp: subgEntity.xcalledTimestamp,
+          gasPrice: subgEntity.xcalledGasPrice,
+          gasLimit: subgEntity.xcalledGasLimit,
+          blockNumber: subgEntity.xcalledBlockNumber,
+        }
+      : undefined,
 
-    execute: {
-      caller: subgEntity.executedCaller,
-      transferringAmount: subgEntity.executedTransactingAmount,
-      localAmount: subgEntity.executedLocalAmount,
-      transferringAsset: subgEntity.executedTransactingAsset,
-      localAsset: subgEntity.executedLocalAsset,
-      transactionHash: subgEntity.executedTransactionHash,
-      timestamp: subgEntity.executedTimestamp,
-      gasPrice: subgEntity.executedGasPrice,
-      gasLimit: subgEntity.executedGasLimit,
-      blockNumber: subgEntity.executedBlockNumber,
-    },
+    execute: subgEntity.executedTransactionHash
+      ? {
+          caller: subgEntity.executedCaller,
+          transferringAmount: subgEntity.executedTransactingAmount,
+          localAmount: subgEntity.executedLocalAmount,
+          transferringAsset: subgEntity.executedTransactingAsset,
+          localAsset: subgEntity.executedLocalAsset,
+          transactionHash: subgEntity.executedTransactionHash,
+          timestamp: subgEntity.executedTimestamp,
+          gasPrice: subgEntity.executedGasPrice,
+          gasLimit: subgEntity.executedGasLimit,
+          blockNumber: subgEntity.executedBlockNumber,
+        }
+      : undefined,
 
-    reconcile: {
-      caller: subgEntity.reconciledCaller,
-      transferringAmount: subgEntity.reconciledTransactingAmount,
-      localAmount: subgEntity.reconciledLocalAmount,
-      transferringAsset: subgEntity.reconciledTransactingAsset,
-      localAsset: subgEntity.reconciledLocalAsset,
-      transactionHash: subgEntity.reconciledTransactionHash,
-      timestamp: subgEntity.reconciledTimestamp,
-      gasPrice: subgEntity.reconciledGasPrice,
-      gasLimit: subgEntity.reconciledGasLimit,
-      blockNumber: subgEntity.reconciledBlockNumber,
-    },
+    reconcile: subgEntity.reconciledTransactionHash
+      ? {
+          caller: subgEntity.reconciledCaller,
+          transferringAmount: subgEntity.reconciledTransactingAmount,
+          localAmount: subgEntity.reconciledLocalAmount,
+          transferringAsset: subgEntity.reconciledTransactingAsset,
+          localAsset: subgEntity.reconciledLocalAsset,
+          transactionHash: subgEntity.reconciledTransactionHash,
+          timestamp: subgEntity.reconciledTimestamp,
+          gasPrice: subgEntity.reconciledGasPrice,
+          gasLimit: subgEntity.reconciledGasLimit,
+          blockNumber: subgEntity.reconciledBlockNumber,
+        }
+      : undefined,
   };
 };

@@ -3,14 +3,19 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { mkAddress } from "@connext/nxtp-utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
-import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+
 import { AppContext } from "../src/lib/entities/context";
 import * as SequencerFns from "../src/sequencer";
 import { mock } from "./mock";
+import * as operations from "../src/lib/operations";
+import * as helpers from "../src/lib/helpers";
 
 export let ctxMock: AppContext;
 export let subgraphMock: SinonStubbedInstance<SubgraphReader>;
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
+export let getOperationsStub: SinonStub;
+export let getHelpersStub: SinonStub;
 
 export const mochaHooks = {
   async beforeEach() {
@@ -25,8 +30,14 @@ export const mochaHooks = {
     ]);
 
     // setup cache
-    const cacheParams = { url: "mock", mock: true, logger: mock.context().logger };
+    const cacheParams = { host: "mock", port: 1234, mock: true, logger: mock.context().logger };
     const cacheInstance = StoreManager.getInstance(cacheParams);
+
+    getOperationsStub = stub(operations, "getOperations");
+    getOperationsStub.returns(mock.operations);
+
+    getHelpersStub = stub(helpers, "getHelpers");
+    getHelpersStub.returns(mock.helpers);
 
     chainReaderMock = createStubInstance(ChainReader);
     chainReaderMock.getGasEstimate.resolves(parseUnits("1", 9));
@@ -37,7 +48,7 @@ export const mochaHooks = {
         chainreader: chainReaderMock,
         contracts: mock.context().adapters.contracts,
       },
-      config: mock.context().config,
+      config: mock.config(),
       chainData: mock.context().chainData,
       logger: mock.context().logger,
     };
