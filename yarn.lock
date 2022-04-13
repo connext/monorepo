@@ -699,8 +699,8 @@ __metadata:
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
     "@nomad-xyz/configuration": ^0.1.0-rc.9
-    "@nomad-xyz/sdk": 2.0.0-rc.4
-    "@nomad-xyz/sdk-bridge": ^1.0.0-rc.4
+    "@nomad-xyz/sdk": ^2.0.0-rc.5
+    "@nomad-xyz/sdk-bridge": ^1.0.0-rc.5
     "@nomiclabs/hardhat-ethers": ^2.0.5
     "@nomiclabs/hardhat-etherscan": ^3.0.3
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -2275,13 +2275,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:0.1.0-rc.6":
-  version: 0.1.0-rc.6
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.6"
-  checksum: 350e508ee75335262c2953d64452aa1a91083ef8b5748914dd599702d0fbd8cb9b0cd48eb1055bebb2ba421e800a205217dbd92f998268ac6663a19ed3acd004
-  languageName: node
-  linkType: hard
-
 "@nomad-xyz/configuration@npm:^0.1.0-rc.9":
   version: 0.1.0-rc.9
   resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.9"
@@ -2335,28 +2328,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk-bridge@npm:^1.0.0-rc.4":
-  version: 1.0.0-rc.4
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.4"
+"@nomad-xyz/sdk-bridge@npm:^1.0.0-rc.5":
+  version: 1.0.0-rc.5
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.5"
   dependencies:
-    "@nomad-xyz/configuration": 0.1.0-rc.6
+    "@nomad-xyz/configuration": ^0.1.0-rc.9
     "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
-    "@nomad-xyz/sdk": ^2.0.0-rc.4
-    ethers: ^5.4.6
+    "@nomad-xyz/sdk": ^2.0.0-rc.5
+    ethers: ^5.0.0
     web3: ^1.6.1
-  checksum: 7da7ba96028aff517cbfc01c7c855816031ad56a4dd763dd9042988a5b6eeb1a2bd2d81dd887ece0d69d9816b1ad96660cf2043e623267079c2857ce761812dc
+  checksum: 947f34780e2c4cb45510272ba2a3e924d47aef9a3b937b3b737ed9add6f1bd889691290f71a93660e8e3509627b22f56afc56e26fd825c5093bae4ef53c9a6cb
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk@npm:2.0.0-rc.4, @nomad-xyz/sdk@npm:^2.0.0-rc.4":
-  version: 2.0.0-rc.4
-  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.4"
+"@nomad-xyz/sdk@npm:^2.0.0-rc.5":
+  version: 2.0.0-rc.5
+  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.5"
   dependencies:
-    "@nomad-xyz/configuration": 0.1.0-rc.6
+    "@nomad-xyz/configuration": ^0.1.0-rc.9
     "@nomad-xyz/contracts-core": ^1.0.0-rc.2
     "@nomad-xyz/multi-provider": ^1.0.0-rc.3
-    ethers: ^5.4.6
-  checksum: f4a30049285d8008590e40d42ef1451706f92a6af563b02e172a677a36722978177890231a6b4f4d9966fc4522a8c3603d5590f9ab881c9f7185ea575760f79a
+    ethers: ^5.0.0
+  checksum: b032e2278402e86a59a22e0511cb549f5b2eb1f177dc2b5ef6f2bd2d3baee6ed66cda974306b3d8f35ad9a7307996eb74be8c1010edeb6b89c06d4d94aa4e3ab
   languageName: node
   linkType: hard
 
@@ -8458,7 +8451,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.6, ethers@npm:^5.5.2, ethers@npm:^5.6.1":
+"ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.6, ethers@npm:^5.5.2, ethers@npm:^5.6.1":
   version: 5.6.2
   resolution: "ethers@npm:5.6.2"
   dependencies:
