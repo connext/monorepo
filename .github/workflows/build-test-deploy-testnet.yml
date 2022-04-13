@@ -240,7 +240,7 @@ jobs:
 
       - name: Decrypt Testnet Secrets
         id: decrypt
-        run: sops -d ops/env/secrets.testnet.json > ops/testnet/tfvars.json
+        run: sops -d ops/env/testnet/secrets.staging.json > ops/testnet/tfvars.json
 
       - name: Terraform Plan
         id: plan
