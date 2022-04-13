@@ -326,6 +326,9 @@ describe("Connext", () => {
       delay(100).then((_) => destinationTm.setupRouter(router.address, router.address, router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
+
+    // add relayer
+    await destinationTm.addRelayer(router.address);
   });
 
   beforeEach(async () => {
