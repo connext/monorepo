@@ -39,8 +39,6 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomad-xyz/sdk": "2.0.0-rc.4",
-    "@nomad-xyz/sdk-bridge": "1.0.0-rc.4",
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
@@ -71,6 +69,9 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@nomad-xyz/multi-provider": "^1.0.0-rc.3",
+    "@nomad-xyz/sdk": "2.0.0-rc.4",
+    "@nomad-xyz/sdk-bridge": "1.0.0-rc.4",
     "@openzeppelin/hardhat-upgrades": "^1.16.1",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "adv": "^0.1.5",
