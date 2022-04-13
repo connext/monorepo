@@ -5,11 +5,13 @@ import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
   GetAssetByLocalQuery,
-  GetExecutedAndReconciledTransfersByIdsQuery,
   GetXCalledTransfersQuery,
   GetTransfersQuery,
   Asset,
+  GetExecutedTransfersByIdsQuery,
+  GetReconciledTransfersByIdsQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
+import { getExecutedTransfersByIds } from "./lib/subgraphs/runtime/queries";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -153,15 +155,23 @@ export class SubgraphReader {
     const allOrigin: [string, XTransfer][] = (
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
-          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>((client) => {
-            const nonce = agents.get(domain)!.latestNonce;
+          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>(
+            (client: {
+              GetXCalledTransfers: (arg0: {
+                destinationDomains: string[];
+                maxXCallBlockNumber: any;
+                nonce: any;
+              }) => any;
+            }) => {
+              const nonce = agents.get(domain)!.latestNonce;
 
-            return client.GetXCalledTransfers({
-              destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
-              nonce,
-            }); // TODO: nonce + maxPrepareBlockNumber
-          });
+              return client.GetXCalledTransfers({
+                destinationDomains,
+                maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
+                nonce,
+              }); // TODO: nonce + maxPrepareBlockNumber
+            },
+          );
           return transfers;
         }),
       )
@@ -189,26 +199,37 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        const { transfers } = await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
-          (client) =>
-            client.GetExecutedAndReconciledTransfersByIds({
+        const { executedTransfers } = await subgraph.runtime.request<GetExecutedTransfersByIdsQuery>(
+          (client: {
+            GetExecutedTransfersByIds: (arg0: { transferIds: string[]; maxExecutedBlockNumber: any }) => any;
+          }) =>
+            client.GetExecutedTransfersByIds({
               transferIds,
-              maxXCalledBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
-            }), // TODO: maxPrepareBlockNumber
+              maxExecutedBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
+            }),
         );
-        transfers.forEach((_tx) => {
+        executedTransfers.forEach((_tx: any) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
-          let confirmedBlockNumber = 0;
-          if (tx.status === XTransferStatus.XCalled) {
-            confirmedBlockNumber = tx.execute!.blockNumber;
-          } else if (tx.status === XTransferStatus.Reconciled) {
-            confirmedBlockNumber = tx.reconcile!.blockNumber;
-          }
-          if (confirmedBlockNumber < agents.get(destinationDomain)!.maxBlockNumber) {
-            inMap.status = tx.status;
-            allTxById.set(tx.transferId, inMap);
-          }
+          inMap.status = tx.status;
+          allTxById.set(tx.transferId, inMap);
+        });
+
+        const { reconciledTransfers } = await subgraph.runtime.request<GetReconciledTransfersByIdsQuery>(
+          (client: {
+            GetReconciledTransfersByIds: (arg0: { transferIds: string[]; maxReconciledBlockNumber: any }) => any;
+          }) =>
+            client.GetReconciledTransfersByIds({
+              transferIds,
+              maxReconciledBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
+            }),
+        );
+
+        reconciledTransfers.forEach((_tx: any) => {
+          const tx = parser.xtransfer(_tx);
+          const inMap = allTxById.get(tx.transferId)!;
+          inMap.status = tx.status;
+          allTxById.set(tx.transferId, inMap);
         });
       }),
     );

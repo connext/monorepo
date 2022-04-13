@@ -177,8 +177,8 @@ export const getEnvConfig = (
 
     const maxLag = chainConfig.subgraph?.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
     nxtpConfig.chains[domainId].subgraph = {
-      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraphs.runtime ?? [],
-      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.subgraphs.analytics ?? [],
+      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraphs?.runtime ?? [],
+      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.subgraphs?.analytics ?? [],
       // 25 blocks minimum.
       maxLag: maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag,
     };
