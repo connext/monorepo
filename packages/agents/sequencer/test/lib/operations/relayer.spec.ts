@@ -1,13 +1,12 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { mkAddress, ExecuteArgs, expect, getRandomBytes32 } from "@connext/nxtp-utils";
+import { mkAddress, expect, getRandomBytes32, BidData } from "@connext/nxtp-utils";
 
 import { mock } from "../../mock";
 import { sendToRelayer } from "../../../src/lib/operations/relayer";
-import * as RelayerFns from "../../../src/lib/helpers/relayer";
 import { GelatoSendFailed } from "../../../src/lib/errors";
+import { getHelpersStub } from "../../globalTestHook";
 
-const mockTransferId = getRandomBytes32();
-const mockExecuteArgs: ExecuteArgs[] = [
+const mockBidDatas: BidData[] = [
   {
     params: {
       to: mkAddress("0xbeefdead"),
@@ -16,13 +15,11 @@ const mockExecuteArgs: ExecuteArgs[] = [
       destinationDomain: "1338",
     },
     local: mkAddress("0xdedddddddddddddd"),
-    router: mkAddress("0xa"),
     feePercentage: "0.1",
     amount: "10",
-    index: 0,
-    transferId: mockTransferId,
-    proof: ["0x"],
+    nonce: 0,
     relayerSignature: "0xsigsigsig",
+    originSender: mkAddress("0xsenderorigin"),
   },
   {
     params: {
@@ -32,20 +29,17 @@ const mockExecuteArgs: ExecuteArgs[] = [
       destinationDomain: "1338",
     },
     local: mkAddress("0xdedddddddddddddd"),
-    router: mkAddress("0xb"),
     feePercentage: "0.1",
     amount: "10",
-    index: 1,
-    transferId: mockTransferId,
-    proof: ["0x"],
+    nonce: 7,
     relayerSignature: "0xsigsigsig",
+    originSender: mkAddress("0xoriginsender"),
   },
 ];
 
-const mockBids = [
-  mock.entity.bid(mockTransferId, mockExecuteArgs[0]),
-  mock.entity.bid(mockTransferId, mockExecuteArgs[1]),
-];
+const mockBids = [mock.entity.bid(mockBidDatas[0]), mock.entity.bid(mockBidDatas[1])];
+const mockSelectedRouters = mockBids.map((bid) => bid.router);
+
 const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 const mockAxiosSuccessResponse = { taskId: 1, msg: "success" };
 const loggingContext = mock.loggingContext("RELAYER-TEST");
@@ -53,10 +47,21 @@ describe("#relayer", () => {
   describe("#sendToRelayer", () => {
     let gelatoSendStub: SinonStub;
     let isChainSupportedByGelatoStub: SinonStub;
+    let encodeExecuteFromBidStub: SinonStub;
     beforeEach(() => {
-      gelatoSendStub = stub(RelayerFns, "gelatoSend");
+      gelatoSendStub = stub();
+      isChainSupportedByGelatoStub = stub();
+      encodeExecuteFromBidStub = stub();
 
-      isChainSupportedByGelatoStub = stub(RelayerFns, "isChainSupportedByGelato");
+      getHelpersStub.returns({
+        relayer: {
+          gelatoSend: gelatoSendStub,
+          isChainSupportedByGelato: isChainSupportedByGelatoStub,
+        },
+        auctions: {
+          encodeExecuteFromBid: encodeExecuteFromBidStub,
+        },
+      });
     });
     afterEach(() => {
       restore();
@@ -65,19 +70,23 @@ describe("#relayer", () => {
 
     it("should error if gelato doesn't support", async () => {
       isChainSupportedByGelatoStub.resolves(false);
-      expect(sendToRelayer(mockBids[0], loggingContext.requestContext)).to.eventually.be.throw(
-        new Error("Chain not supported by gelato."),
-      );
+      expect(
+        sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext),
+      ).to.eventually.be.throw(new Error("Chain not supported by gelato."));
     });
+
     it("should error if gelato returns error", async () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosErrorResponse);
-      expect(sendToRelayer(mockBids[0], loggingContext.requestContext)).to.eventually.be.throw(new GelatoSendFailed());
+      expect(
+        sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext),
+      ).to.eventually.be.throw(new GelatoSendFailed());
     });
+
     it("should send the bid to the sequencer", async () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosSuccessResponse);
-      await sendToRelayer(mockBids[0], loggingContext.requestContext);
+      await sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext);
       expect(gelatoSendStub.callCount).to.be.eq(1);
     });
   });

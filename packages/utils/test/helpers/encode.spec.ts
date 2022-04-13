@@ -1,5 +1,6 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
 import { keccak256 } from "ethers/lib/utils";
+
 import {
   encodeHandleRelayerFeeData,
   encodeReconcileData,

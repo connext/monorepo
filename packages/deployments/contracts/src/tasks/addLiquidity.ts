@@ -1,3 +1,4 @@
+import { BigNumberish, utils } from "ethers";
 import { task } from "hardhat/config";
 
 type TaskArgs = {
@@ -16,7 +17,13 @@ export default task("add-liquidity", "Add liquidity for a router")
   .addOptionalParam("tokenRegistryAddress", "Override token registry address")
   .setAction(
     async (
-      { asset, router, connextAddress: _connextAddress, amount, tokenRegistryAddress: _tokenRegistryAddress }: TaskArgs,
+      {
+        asset,
+        router,
+        connextAddress: _connextAddress,
+        amount: _amount,
+        tokenRegistryAddress: _tokenRegistryAddress,
+      }: TaskArgs,
       { deployments, getNamedAccounts, ethers },
     ) => {
       const namedAccounts = await getNamedAccounts();
@@ -33,9 +40,11 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("connextAddress: ", connextAddress);
 
       const connext = await ethers.getContractAt("Connext", connextAddress);
+      let amount;
       if (asset !== ethers.constants.AddressZero) {
         const erc20 = await ethers.getContractAt("TestERC20", asset);
         const balance = await erc20.balanceOf(namedAccounts.deployer);
+        amount = utils.parseUnits(_amount, (await erc20.decimals()) as BigNumberish);
         console.log("balance: ", balance.toString());
         if (balance.lt(amount)) {
           throw new Error("Not enough balance");
@@ -49,6 +58,8 @@ export default task("add-liquidity", "Add liquidity for a router")
         } else {
           console.log(`Sufficient allowance: ${allowance.toString()}`);
         }
+      } else {
+        amount = utils.parseEther(_amount);
       }
 
       const approvedRouter = await connext.approvedRouters(router);
