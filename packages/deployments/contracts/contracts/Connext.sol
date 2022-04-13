@@ -64,6 +64,8 @@ contract Connext is
   error Connext__decrementLiquidity_maxRoutersExceeded();
   error Connext__handleRelayerFees_notRtrSig();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error Connext__bumpTransfer_invalidTransfer();
+  error Connext__bumpTransfer_valueIsZero();
 
   // ============ Constants =============
 
@@ -473,6 +475,19 @@ contract Connext is
 
     // Return the transfer id
     return _transferId;
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId) external payable {
+    if (relayerFees[_transferId] == 0) revert Connext__bumpTransfer_invalidTransfer();
+    if (msg.value == 0) revert Connext__bumpTransfer_valueIsZero();
+
+    relayerFees[_transferId] += msg.value;
+
+    emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
   }
 
   /**
