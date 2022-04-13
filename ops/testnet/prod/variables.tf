@@ -15,6 +15,12 @@ variable "environment" {
   default     = "testnet"
 }
 
+variable "stage" {
+  description = "stage of deployment"
+  default     = "prod"
+}
+
+
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
