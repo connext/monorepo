@@ -1,10 +1,11 @@
 import { BigNumber, constants, utils } from "ethers";
+import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
-const DEFAULT_AMOUNT = "2500000000000000000000000";
+const DEFAULT_AMOUNT = "2500000";
 const DEFAULT_RELAYER_FEES_ETH = "0.02";
 
 type TaskArgs = {
@@ -14,6 +15,7 @@ type TaskArgs = {
   amount?: string;
   connextAddress?: string;
   pool?: string;
+  relayer?: string;
 };
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
@@ -23,6 +25,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("pool", "The adopted <> local stable swap pool address")
+  .addOptionalParam("relayer", "The relayer address to approve")
   .setAction(
     async (
       {
@@ -32,6 +35,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         domain: _domain,
         asset: _asset,
         pool: _pool,
+        relayer: _relayer,
       }: TaskArgs,
       { deployments, ethers, run, getNamedAccounts, network },
     ) => {
@@ -62,6 +66,11 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
       const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
 
+      const relayer = _relayer ?? process.env.RELAYER_ADDRESS;
+      if (relayer && !isAddress(relayer)) {
+        throw new Error("Supplied relayer address invalid");
+      }
+
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;
       if (canonicalDomain === networkDomain) {
@@ -91,7 +100,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       console.log("\nRouter: ", router, " is approved: ", isRouterApproved);
       if (!isRouterApproved) {
         console.log("*** Approving router!");
-        await run("add-router", { router, connextAddress });
+        await run("setup-router", { router, connextAddress });
       }
       console.log("*** Router approved!");
 
@@ -121,7 +130,8 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       const erc20 = await ethers.getContractAt("TestERC20", localAsset);
       // The amount to mint / add liquidity for. Convert units, coerce to number to remove
       // decimal point, then back to string.
-      const targetLiquidity = utils.formatUnits(_amount ?? DEFAULT_AMOUNT, (await erc20.decimals()) as BigNumber);
+      const amount = _amount ?? DEFAULT_AMOUNT;
+      const targetLiquidity = utils.parseUnits(amount, (await erc20.decimals()) as BigNumber);
       const liquidity = await connext.routerBalances(router, localAsset);
       const namedAccounts = await getNamedAccounts();
       if (liquidity.lt(targetLiquidity)) {
@@ -131,7 +141,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           if (balance.lt(targetLiquidity)) {
             console.log("*** Minting tokens!");
             await run("mint", {
-              amount: targetLiquidity,
+              amount,
               asset: localAsset,
               receiver: namedAccounts.deployer,
             });
@@ -142,7 +152,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         }
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Adding liquidity!");
-        await run("add-liquidity", { router, asset: localAsset, amount: targetLiquidity, connextAddress });
+        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress });
         console.log("*** Sufficient liquidity added!");
       } else {
         console.log("\nLiquidity: ", liquidity.toString());
@@ -173,6 +183,19 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("*** Sufficient relayer fees added!");
       } else {
         console.log("*** Sufficient relayer fees present!");
+      }
+
+      if (relayer) {
+        console.log("*** Whitelisting relayer!");
+        // Add relayer
+        const tx = await connext.addRelayer(relayer, {
+          from: namedAccounts.deployer,
+        });
+        console.log("addRelayer tx:", tx.hash);
+        await tx.wait(1);
+        console.log("*** Added relayer to whitelist", relayer);
+      } else {
+        console.log("*** No relayer to whitelist!");
       }
     },
   );

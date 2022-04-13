@@ -1,4 +1,5 @@
-import { expect } from "chai";
+import { expect } from "@connext/nxtp-utils";
+
 import { parseHostname, formatUrl } from "../../src";
 
 describe("Helpers:Parse", () => {

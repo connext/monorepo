@@ -42,3 +42,18 @@ variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/849d038c-a8c8-4324-9773-ffb4c6afe0a3"
 }
 
+variable "rinkeby_alchemy_key_0" {
+  type = string
+}
+
+variable "kovan_alchemy_key_0" {
+  type = string
+}
+
+variable "rinkeby_alchemy_key_1" {
+  type = string
+}
+
+variable "kovan_alchemy_key_1" {
+  type = string
+}

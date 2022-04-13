@@ -1,3 +1,4 @@
+import { restore, reset } from "sinon";
 import { expect } from "@connext/nxtp-utils";
 
 import { getHelpers } from "../../../src/lib/helpers";
@@ -6,18 +7,20 @@ import { mock, stubContext } from "../../mock";
 const { shared } = getHelpers();
 
 describe("Helpers:Shared", () => {
-  const mockContext = stubContext();
-
+  afterEach(() => {
+    restore();
+    reset();
+  });
   describe("#getDestinationLocalAsset", () => {
     it("should return the local asset for the destination chain", async () => {
+      const mockContext = stubContext();
+      const mockLocalAsset = "0x456";
+      mockContext.adapters.subgraph.getAssetByLocal.resolves({ canonicalId: "0x123" });
+      mockContext.adapters.subgraph.getAssetByCanonicalId.resolves({ local: mockLocalAsset });
+
       const localAsset = await shared.getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
       // TODO: Write actual test when this is no longer a stub fn.
-      expect(localAsset).to.be.eq("0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2");
-    });
-    it("should return the predefined asset for the destination chain", async () => {
-      const localAsset = await shared.getDestinationLocalAsset(mock.chain.A, undefined, mock.chain.B);
-      // TODO: Write actual test when this is no longer a stub fn.
-      expect(localAsset).to.be.eq("0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2");
+      expect(localAsset).to.be.eq(mockLocalAsset);
     });
   });
 
