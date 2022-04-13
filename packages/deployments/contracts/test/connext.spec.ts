@@ -167,18 +167,22 @@ describe("Connext", () => {
       ConnextUtils: connextUtils.address,
       RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
     });
-    await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address);
+    // TODO - Use real RelayerFeeRouter
+    await originTm.initialize(originDomain, originBridge.address, originTokenRegistry.address, weth.address, ZERO_ADDRESS);
 
     destinationTm = await deployContractWithLibs<Connext>("Connext", {
       AssetLogic: assetLogic.address,
       ConnextUtils: connextUtils.address,
       RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
     });
+
+    // TODO - Use real RelayerFeeRouter
     await destinationTm.initialize(
       destinationDomain,
       destinationBridge.address,
       destinationTokenRegistry.address,
       weth.address,
+      ZERO_ADDRESS
     );
     // Deploy home
     home = await deployContract<Home>("Home", originDomain);

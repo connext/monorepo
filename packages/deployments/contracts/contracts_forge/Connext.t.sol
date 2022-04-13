@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.11;
+
 import "./ForgeHelper.sol";
 
 import "../contracts/Connext.sol";
@@ -27,6 +29,16 @@ contract TestDummyBridgeRouter {
   ) external {}
 }
 
+contract MockRelayerFeeRouter {
+  function send(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transactionIds
+  ) external {
+    1 == 1;
+  }
+}
+
 contract ConnextTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
@@ -45,6 +57,8 @@ contract ConnextTest is ForgeHelper {
     address caller
   );
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+  event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
+  event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
 
   // ============ Storage ============
 
@@ -60,17 +74,27 @@ contract ConnextTest is ForgeHelper {
   TestERC20 originAdopted;
   address destinationAdopted = address(6);
   address stableSwap = address(7);
+  address kakaroto = address(4);
+
+  MockRelayerFeeRouter relayerFeeRouter;
 
   // ============ Test set up ============
 
   function setUp() public {
+    relayerFeeRouter = new MockRelayerFeeRouter();
     connext = new Connext();
 
     originAdopted = new TestERC20();
     bridgeRouter = new TestDummyBridgeRouter();
     wrapper = new WETH();
 
-    connext.initialize(uint256(domain), payable(address(bridgeRouter)), tokenRegistry, address(wrapper));
+    connext.initialize(
+      uint256(domain),
+      payable(address(bridgeRouter)),
+      tokenRegistry,
+      address(wrapper),
+      address(relayerFeeRouter)
+    );
 
     // Setup asset
     connext.setupAsset(
@@ -121,6 +145,12 @@ contract ConnextTest is ForgeHelper {
 
   function setRelayerFees(bytes32 _transferId, uint256 _fee) internal {
     stdstore.target(address(connext)).sig(connext.relayerFees.selector).with_key(_transferId).checked_write(_fee);
+  }
+
+  function setTransferRelayer(bytes32 _transferId, address _relayer) internal {
+    stdstore.target(address(connext)).sig(connext.transferRelayer.selector).with_key(_transferId).checked_write(
+      _relayer
+    );
   }
 
   // ============ setMaxRouters ============
@@ -386,5 +416,86 @@ contract ConnextTest is ForgeHelper {
 
     vm.expectRevert(abi.encodeWithSelector(Connext.Connext__bumpTransfer_invalidTransfer.selector));
     connext.bumpTransfer{value: 100}(transferId);
+  }
+
+  // ============ initiateClaim ============
+
+  // Fail if any of the transaction id was not executed by relayer
+  function testInitiateClaimNotRelayer() public {
+    bytes32[] memory transactionIds = new bytes32[](2);
+    transactionIds[0] = "AAA";
+    transactionIds[1] = "BBB";
+
+    setTransferRelayer("AAA", kakaroto);
+    vm.prank(kakaroto);
+
+    vm.expectRevert(
+      abi.encodeWithSelector(ConnextUtils.ConnextUtils__initiateClaim_notRelayer.selector, bytes32("BBB"))
+    );
+
+    connext.initiateClaim(uint32(1), kakaroto, transactionIds);
+  }
+
+  // Should work
+  function testInitiateClaim() public {
+    bytes32[] memory transactionIds = new bytes32[](2);
+    transactionIds[0] = "AAA";
+    transactionIds[1] = "BBB";
+
+    setTransferRelayer(bytes32("AAA"), kakaroto);
+    setTransferRelayer(bytes32("BBB"), kakaroto);
+    vm.prank(kakaroto);
+
+    vm.expectCall(
+      address(relayerFeeRouter),
+      abi.encodeWithSelector(MockRelayerFeeRouter.send.selector, uint32(domain), kakaroto, transactionIds)
+    );
+
+    vm.expectEmit(true, true, true, true);
+    emit InitiatedClaim(uint32(domain), kakaroto, kakaroto, transactionIds);
+
+    connext.initiateClaim(uint32(domain), kakaroto, transactionIds);
+  }
+
+  // ============ claim ============
+
+  // Fail if the caller isn't RelayerFeeRouter
+  function testClaimOnlyRelayerFeeRouter() public {
+    bytes32[] memory transactionIds = new bytes32[](2);
+    transactionIds[0] = "AAA";
+    transactionIds[1] = "BBB";
+
+    vm.prank(address(20));
+    vm.expectRevert(abi.encodeWithSelector(Connext.Connext__onlyRelayerFeeRouter_notRelayerFeeRouter.selector));
+
+    connext.claim(kakaroto, transactionIds);
+  }
+
+  // Should work
+  function testClaim() public {
+    bytes32[] memory transactionIds = new bytes32[](2);
+    transactionIds[0] = "AAA";
+    transactionIds[1] = "BBB";
+
+    uint256 aaaFee = 123;
+    uint256 bbbFee = 456;
+
+    setRelayerFees(bytes32("AAA"), aaaFee);
+    setRelayerFees(bytes32("BBB"), bbbFee);
+
+    address(connext).call{value: (aaaFee + bbbFee)}("");
+
+    vm.prank(address(relayerFeeRouter));
+
+    uint256 balanceBefore = kakaroto.balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Claimed(kakaroto, aaaFee + bbbFee, transactionIds);
+
+    connext.claim(kakaroto, transactionIds);
+
+    assertEq(kakaroto.balance, balanceBefore + aaaFee + bbbFee);
+    assertEq(connext.relayerFees(bytes32("AAA")), 0);
+    assertEq(connext.relayerFees(bytes32("BBB")), 0);
   }
 }
