@@ -23,11 +23,9 @@ library PromiseMessage {
   // ============ Constants ============
   uint256 private constant IDENTIFIER_LEN = 1;
   // 1 byte identifier + 32 bytes transferId + 20 bytes callback + 32 bytes length + x bytes data
-  int256 private constant MIN_PROMISE_LEN = 85;
-  
   // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 53 bytes
   uint256 private constant LENGTH_CALLDATA_START = 53;
-  uint8 private constant LENGTH_ID_LEN = 32;
+  uint8 private constant LENGTH_CALLDATA_LEN = 32;
 
   // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback + 32 bytes length = 85 bytes
   uint256 private constant CALLDATA_START = 85;
@@ -65,7 +63,7 @@ library PromiseMessage {
   // ============ Getters ============
 
   /**
-   * @notice Parse the transferId from the callback message
+   * @notice Parse the transferId from the message
    * @param _view The message
    * @return The transferId
    */
@@ -75,7 +73,7 @@ library PromiseMessage {
   }
 
   /**
-   * @notice Parse the callback address from the callback message
+   * @notice Parse the callback address from the message
    * @param _view The message
    * @return The callback address
    */
@@ -85,12 +83,22 @@ library PromiseMessage {
   }
 
   /**
+   * @notice Parse the calldata length from the message
+   * @param _view The message
+   * @return The calldata length
+   */
+  function lengthOfCalldata(bytes29 _view) internal pure typeAssert(_view, Types.PromiseCallback) returns (uint256) {
+    return _view.indexUint(LENGTH_CALLDATA_START, LENGTH_CALLDATA_LEN);
+  }
+
+
+  /**
    * @notice Parse callback data from the message
    * @param _view The message
    * @return The calldata
    */
   function callbackData(bytes29 _view) internal view typeAssert(_view, Types.PromiseCallback) returns (bytes memory result) {
-    uint256 length = _view.indexUint(LENGTH_CALLDATA_START, LENGTH_CALLDATA_LEN);
+    uint256 length = lengthOfCalldata();
 
     uint8 bitLength = length * 8;
     uint256 _loc = _view.loc();
@@ -108,7 +116,10 @@ library PromiseMessage {
    */
   function isValidPromiseCallbackLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
-    return _len > MIN_PROMISE_LEN;
+    uint256 _length = lengthOfCalldata();
+    // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 32 bytes length + x bytes data
+    // nonzero callback data
+    return _len > CALLDATA_START && _length > 0 && (CALLDATA_START + _length) == _len;
   }
 
   /**
