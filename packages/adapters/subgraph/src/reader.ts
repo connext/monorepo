@@ -1,14 +1,15 @@
 import { BigNumber } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
   GetAssetByLocalQuery,
-  GetExecutedAndReconciledTransfersByIdsQuery,
   GetXCalledTransfersQuery,
   GetTransfersQuery,
   Asset,
+  GetExecutedTransfersByIdsQuery,
+  GetReconciledTransfersByIdsQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
@@ -127,7 +128,7 @@ export class SubgraphReader {
 
             return client.GetXCalledTransfers({
               destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxXCallBlockNumber.toString(),
+              maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
               nonce,
             });
           });
@@ -141,7 +142,10 @@ export class SubgraphReader {
     return allPrepared;
   }
 
-  public async getTransactionsWithStatuses(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+  public async getTransactionsWithStatuses(
+    agents: Map<string, SubgraphQueryMetaParams>,
+    status: XTransferStatus,
+  ): Promise<XTransfer[]> {
     const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
@@ -150,15 +154,23 @@ export class SubgraphReader {
     const allOrigin: [string, XTransfer][] = (
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
-          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>((client) => {
-            const nonce = agents.get(domain)!.latestNonce;
+          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>(
+            (client: {
+              GetXCalledTransfers: (arg0: {
+                destinationDomains: string[];
+                maxXCallBlockNumber: any;
+                nonce: any;
+              }) => any;
+            }) => {
+              const nonce = agents.get(domain)!.latestNonce;
 
-            return client.GetXCalledTransfers({
-              destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxXCallBlockNumber.toString(),
-              nonce,
-            }); // TODO: nonce + maxPrepareBlockNumber
-          });
+              return client.GetXCalledTransfers({
+                destinationDomains,
+                maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
+                nonce,
+              }); // TODO: nonce + maxPrepareBlockNumber
+            },
+          );
           return transfers;
         }),
       )
@@ -169,11 +181,14 @@ export class SubgraphReader {
         const tx = parser.xtransfer(s);
 
         // set into a map by destination domain
-        txIdsByDestinationDomain.set(
-          tx.destinationDomain,
-          (txIdsByDestinationDomain.get(tx.transferId) ?? []).concat([tx.transferId]),
-        );
-        return [s.transferId as string, tx];
+        const destinationDomainRecord = txIdsByDestinationDomain.get(tx.destinationDomain);
+        const txIds = destinationDomainRecord
+          ? destinationDomainRecord.includes(tx.transferId)
+            ? destinationDomainRecord
+            : destinationDomainRecord.concat(tx.transferId)
+          : [tx.transferId];
+        txIdsByDestinationDomain.set(tx.destinationDomain, txIds);
+        return [tx.transferId, tx];
       });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
@@ -183,14 +198,33 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        await subgraph.runtime.request<GetExecutedAndReconciledTransfersByIdsQuery>(
-          (client) =>
-            client.GetExecutedAndReconciledTransfersByIds({
+        const executed = await subgraph.runtime.request<GetExecutedTransfersByIdsQuery>(
+          (client: {
+            GetExecutedTransfersByIds: (arg0: { transferIds: string[]; maxExecutedBlockNumber: any }) => any;
+          }) =>
+            client.GetExecutedTransfersByIds({
               transferIds,
-              maxXCalledBlockNumber: agents.get(destinationDomain)!.maxXCallBlockNumber.toString(),
-            }), // TODO: maxPrepareBlockNumber
+              maxExecutedBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
+            }),
         );
-        transferIds.forEach((_tx) => {
+        executed.transfers.forEach((_tx: any) => {
+          const tx = parser.xtransfer(_tx);
+          const inMap = allTxById.get(tx.transferId)!;
+          inMap.status = tx.status;
+          allTxById.set(tx.transferId, inMap);
+        });
+
+        const reconciled = await subgraph.runtime.request<GetReconciledTransfersByIdsQuery>(
+          (client: {
+            GetReconciledTransfersByIds: (arg0: { transferIds: string[]; maxReconciledBlockNumber: any }) => any;
+          }) =>
+            client.GetReconciledTransfersByIds({
+              transferIds,
+              maxReconciledBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
+            }),
+        );
+
+        reconciled.transfers.forEach((_tx: any) => {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
           inMap.status = tx.status;
@@ -200,6 +234,6 @@ export class SubgraphReader {
     );
 
     // create array of all transactions by status
-    return [...allTxById.values()];
+    return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
   }
 }

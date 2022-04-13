@@ -1,11 +1,12 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
-import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments } from "@connext/nxtp-txservice";
+
+import { getHelpers } from "./lib/helpers";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
@@ -94,9 +95,12 @@ export const getEnvConfig = (
   try {
     let json: string;
 
+    const {
+      shared: { existsSync, readFileSync },
+    } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
-    if (fs.existsSync(path)) {
-      json = fs.readFileSync(path, { encoding: "utf-8" });
+    if (existsSync(path)) {
+      json = readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
     }
   } catch (e: unknown) {
@@ -173,8 +177,8 @@ export const getEnvConfig = (
 
     const maxLag = chainConfig.subgraph?.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
     nxtpConfig.chains[domainId].subgraph = {
-      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraph ?? [],
-      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.analyticsSubgraph ?? [],
+      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraphs?.runtime ?? [],
+      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.subgraphs?.analytics ?? [],
       // 25 blocks minimum.
       maxLag: maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag,
     };
