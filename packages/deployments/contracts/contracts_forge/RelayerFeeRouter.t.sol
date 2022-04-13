@@ -3,6 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
+import "../contracts/interfaces/IConnext.sol";
 import "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 
@@ -26,6 +27,12 @@ contract MockHome {
   }
 }
 
+contract MockConnext {
+  function claim(address _recipient, bytes32[] calldata _transferIds) external {
+    1 == 1;
+  }
+}
+
 contract RelayerFeeRouterTest is ForgeHelper {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -34,14 +41,9 @@ contract RelayerFeeRouterTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
-  event Send(uint32 domain, address recipient, bytes32[] transactionIds, bytes32 remote, bytes message);
+  event Send(uint32 domain, address recipient, bytes32[] transferIds, bytes32 remote, bytes message);
 
-  event Receive(
-    uint64 indexed originAndNonce,
-    uint32 indexed origin,
-    address indexed recipient,
-    bytes32[] transactionIds
-  );
+  event Receive(uint64 indexed originAndNonce, uint32 indexed origin, address indexed recipient, bytes32[] transferIds);
 
   event SetConnext(address indexed connext);
 
@@ -58,7 +60,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
 
   address internal xAppConnectionManager = address(1);
   address internal home;
-  address internal connext = address(this);
+  MockConnext internal connext;
   address internal connext2 = address(3);
   address internal recipient = address(4);
   bytes32 internal remote = "remote";
@@ -68,10 +70,10 @@ contract RelayerFeeRouterTest is ForgeHelper {
   // ============ Test set up ============
 
   function setUp() public {
+    connext = new MockConnext();
     home = address(new MockHome());
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("isReplica(address)"), abi.encode(bool(true)));
-    // vm.mockCall(home, abi.encodeWithSelector(Home.dispatch.selector), bytes("0x"));
     vm.mockCall(home, abi.encodeWithSignature("localDomain()"), abi.encode(localDomain));
 
     relayerFeeRouterImplementation = new RelayerFeeRouter();
@@ -82,7 +84,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
     );
 
     relayerFeeRouter = RelayerFeeRouter(payable(address(proxy)));
-    relayerFeeRouter.setConnext(connext);
+    relayerFeeRouter.setConnext(address(connext));
 
     // Shouldn't enrollRemoteRouter be protected by onlyOwner?
     relayerFeeRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
@@ -118,54 +120,59 @@ contract RelayerFeeRouterTest is ForgeHelper {
     vm.prank(address(0));
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__onlyConnext_notConnext.selector));
 
-    bytes32[] memory transactionIds = new bytes32[](2);
-    transactionIds[0] = "AAA";
-    transactionIds[1] = "BBB";
+    bytes32[] memory transferIds = new bytes32[](2);
+    transferIds[0] = "AAA";
+    transferIds[1] = "BBB";
 
-    relayerFeeRouter.send(remoteDomain, recipient, transactionIds);
+    relayerFeeRouter.send(remoteDomain, recipient, transferIds);
   }
 
   // Fail if no transaction ids
   function testSendClaimEmpty() public {
+    vm.prank(address(connext));
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__send_claimEmpty.selector));
 
-    bytes32[] memory transactionIds = new bytes32[](0);
+    bytes32[] memory transferIds = new bytes32[](0);
 
-    relayerFeeRouter.send(remoteDomain, recipient, transactionIds);
+    relayerFeeRouter.send(remoteDomain, recipient, transferIds);
   }
 
   // Fail if empty recipient
   function testSendRecipientEmpty() public {
+    vm.prank(address(connext));
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__send_recipientEmpty.selector));
 
-    bytes32[] memory transactionIds = new bytes32[](2);
-    transactionIds[0] = "AAA";
-    transactionIds[1] = "BBB";
+    bytes32[] memory transferIds = new bytes32[](2);
+    transferIds[0] = "AAA";
+    transferIds[1] = "BBB";
 
-    relayerFeeRouter.send(remoteDomain, address(0), transactionIds);
+    relayerFeeRouter.send(remoteDomain, address(0), transferIds);
   }
 
   // Should work
-  function testSend(bytes32[] calldata _transactionIds) public {
-    vm.assume(_transactionIds.length != 0);
-    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transactionIds);
+  function testSend(bytes32[] calldata _transferIds) public {
+    vm.prank(address(connext));
+    vm.assume(_transferIds.length != 0);
+    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transferIds);
 
     vm.expectCall(home, abi.encodeWithSelector(MockHome.dispatch.selector, remoteDomain, remote, message));
     vm.expectEmit(true, true, true, true);
-    emit Send(remoteDomain, recipient, _transactionIds, remote, message);
+    emit Send(remoteDomain, recipient, _transferIds, remote, message);
 
-    relayerFeeRouter.send(remoteDomain, recipient, _transactionIds);
+    relayerFeeRouter.send(remoteDomain, recipient, _transferIds);
   }
 
   // ============ handle ============
   // Should work
-  function testHandle(bytes32[] calldata _transactionIds, uint32 _nonce) public {
-    vm.assume(_transactionIds.length != 0);
+  function testHandle(bytes32[] calldata _transferIds, uint32 _nonce) public {
+    vm.assume(_transferIds.length != 0);
     uint64 originAndNonce = (uint64(remoteDomain) << 32) | _nonce;
-    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transactionIds);
+    bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transferIds);
+
+    vm.expectCall(address(connext), abi.encodeWithSelector(MockConnext.claim.selector, recipient, _transferIds));
 
     vm.expectEmit(true, true, true, true);
-    emit Receive(originAndNonce, remoteDomain, recipient, _transactionIds);
+    emit Receive(originAndNonce, remoteDomain, recipient, _transferIds);
 
     relayerFeeRouter.handle(remoteDomain, _nonce, remote, message);
   }

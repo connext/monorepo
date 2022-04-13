@@ -328,4 +328,12 @@ interface IConnext {
   ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
+
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external;
+
+  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 }

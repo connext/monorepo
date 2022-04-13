@@ -657,7 +657,7 @@ contract Connext is
     uint32 _domain,
     address _recipient,
     bytes32[] calldata _transferIds
-  ) external {
+  ) external override {
     ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
 
     emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
@@ -670,7 +670,7 @@ contract Connext is
    * @param _recipient - address on origin chain to send claimed funds to
    * @param _transferIds - transferIds to claim
    */
-  function claim(address _recipient, bytes32[] calldata _transferIds) external onlyRelayerFeeRouter {
+  function claim(address _recipient, bytes32[] calldata _transferIds) external override onlyRelayerFeeRouter {
     uint256 total = ConnextUtils.claim(_recipient, _transferIds, relayerFees);
 
     emit Claimed(_recipient, total, _transferIds);
