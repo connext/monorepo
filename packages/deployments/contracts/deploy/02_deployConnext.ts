@@ -60,19 +60,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
   });
 
-  console.log(
-    deployer.address,
-    {
-      AssetLogic: assetLogic.address,
-      ConnextUtils: connextUtils.address,
-      RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
-    },
-    domain,
-    bridge.address,
-    tokenRegistry.address,
-    WRAPPED_ETH_MAP.get(+chainId),
-  );
-
   // Deploy connext contract
   console.log("Deploying connext...");
   const connext = await hre.deployments.deploy("Connext", {
