@@ -13,8 +13,13 @@
     "2000": {
       "providers": ["https://rinkeby.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
       "subgraph": {
-        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"],
-        "analytics": [""]
+        "runtime": [
+          {
+            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby",
+            "health": "https://api.thegraph.com/index-node/graphql"
+          }
+        ],
+        "analytics": []
       },
       "assets": [
         {
@@ -26,8 +31,13 @@
     "3000": {
       "providers": ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
       "subgraph": {
-        "runtime": ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"],
-        "analytics": [""]
+        "runtime": [
+          {
+            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan",
+            "health": "https://api.thegraph.com/index-node/graphql"
+          }
+        ],
+        "analytics": []
       },
       "assets": [
         {
