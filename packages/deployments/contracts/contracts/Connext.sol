@@ -61,7 +61,7 @@ contract Connext is
   error Connext__addAssetId_alreadyAdded();
   error Connext__decrementLiquidity_notEmpty();
   error Connext__decrementLiquidity_maxRoutersExceeded();
-  error Connext__handleRelayerFees_notApprovedRelayer();
+  error Connext__execute_notApprovedRelayer();
   error Connext__addRelayer_alreadyApproved();
   error Connext__removeRelayer_notApproved();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
@@ -544,6 +544,11 @@ contract Connext is
    * @return bytes32 The transfer id of the crosschain transfer
    */
   function execute(ExecuteArgs calldata _args) external override returns (bytes32) {
+    // If the sender is not approved relayer, revert()
+    if (!approvedRelayers[msg.sender]) {
+      revert Connext__execute_notApprovedRelayer();
+    }
+
     // Get the starting gas
     uint256 _start = gasleft();
 
