@@ -696,8 +696,8 @@ __metadata:
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
     "@nomad-xyz/multi-provider": ^1.0.0-rc.4
-    "@nomad-xyz/sdk": 2.0.0-rc.6
-    "@nomad-xyz/sdk-bridge": 1.0.0-rc.6
+    "@nomad-xyz/sdk": 2.0.0-rc.7
+    "@nomad-xyz/sdk-bridge": 1.0.0-rc.7
     "@nomiclabs/hardhat-ethers": ^2.0.5
     "@nomiclabs/hardhat-etherscan": ^3.0.3
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -2286,7 +2286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:^0.1.0-rc.10, @nomad-xyz/configuration@npm:^0.1.0-rc.9":
+"@nomad-xyz/configuration@npm:^0.1.0-rc.10":
   version: 0.1.0-rc.10
   resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.10"
   checksum: 8917abd840bfc2247609b7c70134488dee39035d1c37a53455141be60d4b4a6171f62fe48d7b5ce70ea8712211ff04d502869e5b90bdd3adef3fd8009826ef48
@@ -2339,32 +2339,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.6":
-  version: 1.0.0-rc.6
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.6"
+"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.7":
+  version: 1.0.0-rc.7
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.7"
   dependencies:
-    "@nomad-xyz/configuration": ^0.1.0-rc.9
+    "@nomad-xyz/configuration": ^0.1.0-rc.10
     "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
-    "@nomad-xyz/sdk": ^2.0.0-rc.6
+    "@nomad-xyz/sdk": ^2.0.0-rc.7
     ethers: ^5.0.0
     web3: ^1.6.1
-  checksum: afb861462129be18c13ca032a6ff18c71fe8ba1c8aca9ce20170b163d0e77eaf8a7cbe82095c33e8b173c884c1ea9251e7b2d8ed678f3f8dfbfe622b418dc116
+  checksum: 317473a74622635d172c6105aa2a1022f1a40a9ea685af479c991994ee7653b55c753f3e855117d67e347024a1954648a242951dedc3f169c0daefe96bd0c03c
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk@npm:2.0.0-rc.6":
-  version: 2.0.0-rc.6
-  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.6"
-  dependencies:
-    "@nomad-xyz/configuration": ^0.1.0-rc.9
-    "@nomad-xyz/contracts-core": ^1.0.0-rc.2
-    "@nomad-xyz/multi-provider": ^1.0.0-rc.4
-    ethers: ^5.0.0
-  checksum: cd86f43620978c43b410429b5dc6fc638eb415989935d3a24801ca4705233bc12ef3e2ecc20859ac352efb4b361fbc3dc1aa751d9042f570d736f0453f34438e
-  languageName: node
-  linkType: hard
-
-"@nomad-xyz/sdk@npm:^2.0.0-rc.6":
+"@nomad-xyz/sdk@npm:2.0.0-rc.7, @nomad-xyz/sdk@npm:^2.0.0-rc.7":
   version: 2.0.0-rc.7
   resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.7"
   dependencies:
