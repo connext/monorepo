@@ -93,19 +93,21 @@ library PromiseMessage {
 
 
   /**
-   * @notice Parse callback data from the message
+   * @notice Parse calldata from the message
    * @param _view The message
-   * @return The calldata
+   * @return returnData
    */
-  function callbackData(bytes29 _view) internal view typeAssert(_view, Types.PromiseCallback) returns (bytes memory result) {
-    uint256 length = lengthOfCalldata();
+  function returnCallData(bytes29 _view) internal view typeAssert(_view, Types.PromiseCallback) returns (bytes memory returnData) {
+    uint256 length = lengthOfCalldata(_view);
 
-    uint8 bitLength = length * 8;
+    uint8 bitLength = uint8(length * 8);
     uint256 _loc = _view.loc();
-    uint256 _mask = _view.leftMask(bitLength);
+    
+    uint256 _mask;
     assembly {
         // solium-disable-previous-line security/no-inline-assembly
-        result := and(mload(add(_loc, CALLDATA_START)), _mask)
+        _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
+        returnData := and(mload(add(_loc, CALLDATA_START)), _mask)
     }
   }
 
@@ -116,7 +118,7 @@ library PromiseMessage {
    */
   function isValidPromiseCallbackLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
-    uint256 _length = lengthOfCalldata();
+    uint256 _length = lengthOfCalldata(_view);
     // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 32 bytes length + x bytes data
     // nonzero callback data
     return _len > CALLDATA_START && _length > 0 && (CALLDATA_START + _length) == _len;
