@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-testnet"
+    bucket = "nxtp-terraform-testnet-prod"
     key    = "state/"
     region = "us-east-1"
   }
