@@ -45,7 +45,8 @@
     "docker:local:services": "yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh"
   },
   "resolutions": {
-    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
+    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz",
+    "@nomad-xyz/sdk": "2.0.0-rc.4"
   },
   "packageManager": "yarn@3.2.0"
 }
