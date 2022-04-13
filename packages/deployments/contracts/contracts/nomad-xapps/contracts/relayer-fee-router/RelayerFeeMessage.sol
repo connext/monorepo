@@ -50,15 +50,11 @@ library RelayerFeeMessage {
   /**
    * @notice Formats an claim fees message
    * @param _recipient The address of the relayer
-   * @param _transactionIds A group of transaction ids to claim for fee bumps
+   * @param _transferIds A group of transfers ids to claim for fee bumps
    * @return The formatted message
    */
-  function formatClaimFees(address _recipient, bytes32[] calldata _transactionIds)
-    internal
-    pure
-    returns (bytes memory)
-  {
-    return abi.encodePacked(uint8(Types.ClaimFees), _recipient, _transactionIds.length, _transactionIds);
+  function formatClaimFees(address _recipient, bytes32[] calldata _transferIds) internal pure returns (bytes memory) {
+    return abi.encodePacked(uint8(Types.ClaimFees), _recipient, _transferIds.length, _transferIds);
   }
 
   // ============ Getters ============
@@ -74,11 +70,11 @@ library RelayerFeeMessage {
   }
 
   /**
-   * @notice Parse The group of transaction ids to claim for fee bumps
+   * @notice Parse The group of transfers ids to claim for fee bumps
    * @param _view The message
-   * @return The group of transaction ids to claim for fee bumps
+   * @return The group of transfers ids to claim for fee bumps
    */
-  function transactionIds(bytes29 _view) internal view typeAssert(_view, Types.ClaimFees) returns (bytes32[] memory) {
+  function transferIds(bytes29 _view) internal pure typeAssert(_view, Types.ClaimFees) returns (bytes32[] memory) {
     uint256 length = _view.indexUint(LENGTH_ID_START, LENGTH_ID_LEN);
 
     bytes32[] memory ids = new bytes32[](length);

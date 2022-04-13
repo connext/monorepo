@@ -44,11 +44,11 @@ contract RelayerFeeRouter is Version0, Router {
    * @notice Emitted when a fees claim has been initialized in this domain
    * @param domain The domain where to claim the fees
    * @param recipient The address of the relayer
-   * @param transactionIds A group of transaction ids to claim for fee bumps
+   * @param transferIds A group of transaction ids to claim for fee bumps
    * @param remote Remote RelayerFeeRouter address
    * @param message The message sent to the destination domain
    */
-  event Send(uint32 domain, address recipient, bytes32[] transactionIds, bytes32 remote, bytes message);
+  event Send(uint32 domain, address recipient, bytes32[] transferIds, bytes32 remote, bytes message);
 
   /**
    * @notice Emitted when the a fees claim message has arrived to this domain
@@ -56,14 +56,9 @@ contract RelayerFeeRouter is Version0, Router {
    * for the message from origin to destination, combined in a single field ((origin << 32) & nonce)
    * @param origin Domain where the transfer originated
    * @param recipient The address of the relayer
-   * @param transactionIds A group of transaction ids to claim for fee bumps
+   * @param transferIds A group of transaction ids to claim for fee bumps
    */
-  event Receive(
-    uint64 indexed originAndNonce,
-    uint32 indexed origin,
-    address indexed recipient,
-    bytes32[] transactionIds
-  );
+  event Receive(uint64 indexed originAndNonce, uint32 indexed origin, address indexed recipient, bytes32[] transferIds);
 
   /**
    * @notice Emitted when a new Connext address is set
@@ -103,25 +98,25 @@ contract RelayerFeeRouter is Version0, Router {
    * @notice Sends a request to claim the fees in the originated domain
    * @param _domain The domain where to claim the fees
    * @param _recipient The address of the relayer
-   * @param _transactionIds A group of transaction ids to claim for fee bumps
+   * @param _transferIds A group of transfer ids to claim for fee bumps
    */
   function send(
     uint32 _domain,
     address _recipient,
-    bytes32[] calldata _transactionIds
+    bytes32[] calldata _transferIds
   ) external onlyConnext {
-    if (_transactionIds.length == 0) revert RelayerFeeRouter__send_claimEmpty();
+    if (_transferIds.length == 0) revert RelayerFeeRouter__send_claimEmpty();
     if (_recipient == address(0)) revert RelayerFeeRouter__send_recipientEmpty();
 
     // get remote RelayerFeeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_domain);
 
-    bytes memory message = RelayerFeeMessage.formatClaimFees(_recipient, _transactionIds);
+    bytes memory message = RelayerFeeMessage.formatClaimFees(_recipient, _transferIds);
 
     xAppConnectionManager.home().dispatch(_domain, remote, message);
 
     // emit Send event
-    emit Send(_domain, _recipient, _transactionIds, remote, message);
+    emit Send(_domain, _recipient, _transferIds, remote, message);
   }
 
   // ======== External: Handle =========
@@ -143,12 +138,13 @@ contract RelayerFeeRouter is Version0, Router {
     bytes29 _msg = _message.ref(0).mustBeClaimFees();
 
     address recipient = _msg.recipient();
-    bytes32[] memory transactionIds = _msg.transactionIds();
+    bytes32[] memory transferIds = _msg.transferIds();
 
     // TODO - claim fee in connext
+    connext.claim(recipient, transferIds);
 
     // emit Receive event
-    emit Receive(_originAndNonce(_origin, _nonce), _origin, recipient, transactionIds);
+    emit Receive(_originAndNonce(_origin, _nonce), _origin, recipient, transferIds);
   }
 
   /**
