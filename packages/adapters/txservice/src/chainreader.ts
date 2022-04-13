@@ -200,7 +200,7 @@ export class ChainReader {
 
     const cachedPriceKey = chainId.toString().concat("-").concat(assetId).concat(blockTag.toString());
     const cachedTokenPrice = cachedPriceMap.get(cachedPriceKey);
-    const curTimeInSecs = await getNtpTimeSeconds();
+    const curTimeInSecs = getNtpTimeSeconds();
 
     // If it's been less than a minute since we retrieved token price, send the last update in token price.
     if (cachedTokenPrice && cachedTokenPrice.timestamp >= curTimeInSecs - 60) {

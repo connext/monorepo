@@ -37,7 +37,7 @@ export const XTransferSchema = Type.Object({
   router: Type.Optional(TAddress),
 
   // XCalled
-  xcall: XTransferMethodCallSchema,
+  xcall: Type.Optional(XTransferMethodCallSchema),
 
   // Executed
   execute: Type.Optional(XTransferMethodCallSchema),
@@ -69,23 +69,6 @@ export const ExecuteArgsSchema = Type.Object({
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
 
-// Bids should omit the routers field, since the sequencer will determine this based on
-// the auction round (i.e. in the event of multipath transfers, will be multiple routers' bids).
-export const BidDataSchema = Type.Omit(ExecuteArgsSchema, ["routers"]);
-
-export type BidData = Static<typeof BidDataSchema>;
-
-export const BidSchema = Type.Object({
-  transferId: Type.String(),
-  data: BidDataSchema,
-  router: TAddress,
-  // Which auction round this is - which determines how many router(s) the sequencer may split this
-  // transfer between.
-  round: Type.Integer(),
-});
-
-export type Bid = Static<typeof BidSchema>;
-
 export type ExternalCall = {
   to: string;
   callData: string;
@@ -96,21 +79,4 @@ export type ReconciledTransaction = {
   local: string;
   amount: string;
   recipient: string;
-};
-
-export enum BidStatus {
-  Pending = "Pending",
-  Sent = "Sent",
-}
-
-export type SignedBid = {
-  bid: Bid;
-  // NOTE: Signature should only be for [transferId, router, round].
-  signature: string;
-};
-
-export type StoredBid = {
-  payload: Bid;
-  status: BidStatus;
-  lastUpdate: number;
 };

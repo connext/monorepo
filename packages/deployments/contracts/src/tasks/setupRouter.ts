@@ -1,19 +1,32 @@
+import { constants } from "ethers";
 import { task } from "hardhat/config";
 
 type TaskArgs = {
   router: string;
+  owner?: string;
+  recipient: string;
   connextAddress?: string;
 };
 
-export default task("add-router", "Add a router")
+export default task("setup-router", "Setup a router")
   .addParam("router", "The router's address to add")
+  .addOptionalParam("owner", "The router owner's address")
+  .addOptionalParam("recipient", "The rotuer recipient's address")
   .addOptionalParam("connextAddress", "Override connext address")
   .setAction(
-    async ({ router, connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
+    async (
+      { router, owner: _owner, recipient: _recipient, connextAddress: _connextAddress }: TaskArgs,
+      { deployments, getNamedAccounts, ethers },
+    ) => {
       const namedAccounts = await getNamedAccounts();
 
       console.log("router: ", router);
+      console.log("owner: ", _owner);
+      console.log("recipient: ", _recipient);
       console.log("namedAccounts: ", namedAccounts);
+
+      const recipient = _recipient || constants.AddressZero;
+      const owner = _owner || constants.AddressZero;
 
       let connextAddress = _connextAddress;
       if (!connextAddress) {
@@ -29,10 +42,10 @@ export default task("add-router", "Add a router")
         return;
       }
 
-      const tx = await connext.addRouter(router, { from: namedAccounts.deployer });
-      console.log("addRouter tx: ", tx);
+      const tx = await connext.setupRouter(router, owner, recipient, { from: namedAccounts.deployer });
+      console.log("setupRouter tx: ", tx);
       const receipt = await tx.wait();
-      console.log("addRouter tx mined: ", receipt.transactionHash);
+      console.log("setupRouter tx mined: ", receipt.transactionHash);
 
       const isRouterApproved = await connext.approvedRouters(router);
       console.log("isRouterApproved: ", isRouterApproved);
