@@ -695,9 +695,9 @@ __metadata:
   resolution: "@connext/nxtp-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@nomad-xyz/multi-provider": ^1.0.0-rc.3
-    "@nomad-xyz/sdk": 2.0.0-rc.4
-    "@nomad-xyz/sdk-bridge": 1.0.0-rc.4
+    "@nomad-xyz/multi-provider": ^1.0.0-rc.4
+    "@nomad-xyz/sdk": 2.0.0-rc.6
+    "@nomad-xyz/sdk-bridge": 1.0.0-rc.6
     "@nomiclabs/hardhat-ethers": ^2.0.5
     "@nomiclabs/hardhat-etherscan": ^3.0.3
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -2286,10 +2286,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:0.1.0-rc.6":
-  version: 0.1.0-rc.6
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.6"
-  checksum: 350e508ee75335262c2953d64452aa1a91083ef8b5748914dd599702d0fbd8cb9b0cd48eb1055bebb2ba421e800a205217dbd92f998268ac6663a19ed3acd004
+"@nomad-xyz/configuration@npm:^0.1.0-rc.9":
+  version: 0.1.0-rc.9
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.9"
+  checksum: 5954d114dc4b7ec512ea7cabfe45e05be572a84f3a3feabb90d3c95014cbbf37dff4574263f993bc638fc0f10fbd2aeacd681ac43312e431949cca31cd4505e9
   languageName: node
   linkType: hard
 
@@ -2329,38 +2329,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/multi-provider@npm:^1.0.0-rc.3":
-  version: 1.0.0-rc.3
-  resolution: "@nomad-xyz/multi-provider@npm:1.0.0-rc.3"
-  dependencies:
-    ethers: ^5.4.6
-    web3: ^1.6.1
-  checksum: 9f093740ad7b2f6cad97b8f2c5c1039bc0bfccab2985b4d2acf62f24152e98092f53f832562376e48e0785b1edf02ffb684ebd3ea26fe4888d719528762d576b
-  languageName: node
-  linkType: hard
-
-"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.4":
+"@nomad-xyz/multi-provider@npm:^1.0.0-rc.4":
   version: 1.0.0-rc.4
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.4"
+  resolution: "@nomad-xyz/multi-provider@npm:1.0.0-rc.4"
   dependencies:
-    "@nomad-xyz/configuration": 0.1.0-rc.6
-    "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
-    "@nomad-xyz/sdk": ^2.0.0-rc.4
     ethers: ^5.4.6
     web3: ^1.6.1
-  checksum: 7da7ba96028aff517cbfc01c7c855816031ad56a4dd763dd9042988a5b6eeb1a2bd2d81dd887ece0d69d9816b1ad96660cf2043e623267079c2857ce761812dc
+  checksum: c92517e4b561ec75249d447735673e1e3fd40b8a610174bf02afe6a11837ce2395b48a148f95698de2b85758e0022af212b75d05a9aa2b3b748f57cce65c8a98
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk@npm:2.0.0-rc.4":
-  version: 2.0.0-rc.4
-  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.4"
+"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.6":
+  version: 1.0.0-rc.6
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.6"
   dependencies:
-    "@nomad-xyz/configuration": 0.1.0-rc.6
+    "@nomad-xyz/configuration": ^0.1.0-rc.9
+    "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
+    "@nomad-xyz/sdk": ^2.0.0-rc.6
+    ethers: ^5.0.0
+    web3: ^1.6.1
+  checksum: afb861462129be18c13ca032a6ff18c71fe8ba1c8aca9ce20170b163d0e77eaf8a7cbe82095c33e8b173c884c1ea9251e7b2d8ed678f3f8dfbfe622b418dc116
+  languageName: node
+  linkType: hard
+
+"@nomad-xyz/sdk@npm:2.0.0-rc.6, @nomad-xyz/sdk@npm:^2.0.0-rc.6":
+  version: 2.0.0-rc.6
+  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.6"
+  dependencies:
+    "@nomad-xyz/configuration": ^0.1.0-rc.9
     "@nomad-xyz/contracts-core": ^1.0.0-rc.2
-    "@nomad-xyz/multi-provider": ^1.0.0-rc.3
-    ethers: ^5.4.6
-  checksum: f4a30049285d8008590e40d42ef1451706f92a6af563b02e172a677a36722978177890231a6b4f4d9966fc4522a8c3603d5590f9ab881c9f7185ea575760f79a
+    "@nomad-xyz/multi-provider": ^1.0.0-rc.4
+    ethers: ^5.0.0
+  checksum: cd86f43620978c43b410429b5dc6fc638eb415989935d3a24801ca4705233bc12ef3e2ecc20859ac352efb4b361fbc3dc1aa751d9042f570d736f0453f34438e
   languageName: node
   linkType: hard
 
@@ -8265,7 +8265,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
@@ -8521,7 +8521,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.6, ethers@npm:^5.5.2, ethers@npm:^5.6.1":
+"ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.4.6, ethers@npm:^5.5.2, ethers@npm:^5.6.1":
   version: 5.6.3
   resolution: "ethers@npm:5.6.3"
   dependencies:

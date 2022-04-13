@@ -69,9 +69,9 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@nomad-xyz/multi-provider": "^1.0.0-rc.3",
-    "@nomad-xyz/sdk": "2.0.0-rc.4",
-    "@nomad-xyz/sdk-bridge": "1.0.0-rc.4",
+    "@nomad-xyz/multi-provider": "^1.0.0-rc.4",
+    "@nomad-xyz/sdk": "2.0.0-rc.6",
+    "@nomad-xyz/sdk-bridge": "1.0.0-rc.6",
     "@openzeppelin/hardhat-upgrades": "^1.16.1",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "adv": "^0.1.5",
