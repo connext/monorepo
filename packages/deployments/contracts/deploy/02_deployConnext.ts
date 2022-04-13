@@ -44,15 +44,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Deploy Connext logic libraries
-  const assetLogic = await hre.deployments.deploy('AssetLogic', {
+  const assetLogic = await hre.deployments.deploy("AssetLogic", {
     from: deployer.address,
     log: true,
   });
-  const connextUtils = await hre.deployments.deploy('ConnextUtils', {
+  const connextUtils = await hre.deployments.deploy("ConnextUtils", {
     from: deployer.address,
     log: true,
   });
-  const routerPermissionsManagerLogic = await hre.deployments.deploy('RouterPermissionsManagerLogic', {
+  const routerPermissionsManagerLogic = await hre.deployments.deploy("RouterPermissionsManagerLogic", {
     from: deployer.address,
     log: true,
   });
