@@ -49,6 +49,7 @@ export const allRouters = [
   "0x54BD2Ad4a667e740D39eC2Dd2f885a5B41D7705C",
   "0xb3ac2b73fa658ee49abf8bc691c1239557c5cc6d",
   "0xED9B9d7F1732f720A467834cc2E536CC1A867853",
+  "0xe582536964B3B262907e55DD8BDBCF6DfF47e5E4",
 ];
 
 const networks: string[] = [
@@ -69,7 +70,7 @@ const networks: string[] = [
   "boba",
 ];
 
-const routers: string[] = ["0xED9B9d7F1732f720A467834cc2E536CC1A867853"];
+const routers: string[] = ["0xe582536964B3B262907e55DD8BDBCF6DfF47e5E4"];
 // const routers = allRouters;
 
 const run = async () => {
