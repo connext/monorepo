@@ -195,12 +195,6 @@ jobs:
     env:
       TF_VAR_full_image_name_router: ${{ needs.smoke-tests.outputs.router-tags }}
       TF_VAR_full_image_name_sequencer: ${{ needs.smoke-tests.outputs.sequencer-tags }}
-      TF_VAR_mnemonic: ${{ secrets.MNEMONIC_TESTNET }}
-      TF_VAR_admin_token_router: ${{ secrets.ADMIN_TOKEN_ROUTER_TESTNET }}
-      TF_VAR_rinkeby_alchemy_key_0: ${{ secrets.RINKEBY_ALCHEMY_KEY_0 }}
-      TF_VAR_rinkeby_alchemy_key_1: ${{ secrets.RINKEBY_ALCHEMY_KEY_1 }}
-      TF_VAR_kovan_alchemy_key_0: ${{ secrets.KOVAN_ALCHEMY_KEY_0 }}
-      TF_VAR_kovan_alchemy_key_1: ${{ secrets.KOVAN_ALCHEMY_KEY_1 }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -212,14 +206,20 @@ jobs:
         with:
           terraform_version: 1.1.7
 
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: '3.7.2'
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.DEPLOYER_AWS_ROLE_ARN }}
           aws-region: eu-central-1
 
       - name: Terraform fmt
@@ -238,15 +238,19 @@ jobs:
         working-directory: ./ops/testnet
         run: terraform validate -no-color
 
+      - name: Decrypt Testnet Secrets
+        id: decrypt
+        run: sops -d ops/env/testnet/secrets.staging.json > ops/testnet/tfvars.json
+
       - name: Terraform Plan
         id: plan
         working-directory: ./ops/testnet
         run: |
-          terraform plan -no-color
+          terraform plan -var-file=tfvars.json
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops/testnet
         run: |
-          terraform apply -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve
