@@ -2,6 +2,7 @@ import { chainDataToMap, expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
+import * as SharedFns from "../src/lib/helpers/shared";
 import { mock } from "./mock";
 
 const mockConfig = mock.config();
@@ -106,7 +107,16 @@ describe("Config", () => {
           ...mockConfig,
           chains: {
             ...mockConfig.chains,
-            [alteredMockChain]: { assets: [], providers: [], deployments: { connext: null } },
+            [alteredMockChain]: {
+              assets: [],
+              providers: [],
+              deployments: { connext: null },
+              subgraph: {
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
+                maxLag: 10,
+              },
+            },
           },
         }),
       });
@@ -123,8 +133,20 @@ describe("Config", () => {
         NXTP_CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
-            1337: { subgraph: "http://example.com" },
-            1338: { subgraph: "http://example.com" },
+            1337: {
+              subgraph: {
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
+                maxLag: 10,
+              },
+            },
+            1338: {
+              subgraph: {
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
+                maxLag: 10,
+              },
+            },
           },
         }),
       });
@@ -152,9 +174,11 @@ describe("Config", () => {
     });
 
     it("should read config from default filepath", () => {
+      stub(SharedFns, "existsSync").returns(true);
+      stub(SharedFns, "readFileSync").returns(JSON.stringify(mockConfig));
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG: JSON.stringify(mockConfig),
+        NXTP_CONFIG_FILE: "buggypath",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();

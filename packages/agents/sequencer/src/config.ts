@@ -35,8 +35,8 @@ export const getEnvConfig = (
 
   const _sequencerConfig: SequencerConfig = {
     redis: {
-      host: process.env.SEQ_REDIS_HOST|| configJson.redis?.host || configFile.redis?.host,
-      port: process.env.SEQ_REDIS_PORT|| configJson.redis?.port || configFile.redis?.port || 6379,
+      host: process.env.SEQ_REDIS_HOST || configJson.redis?.host || configFile.redis?.host,
+      port: process.env.SEQ_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
     },
 
     chains: process.env.SEQ_CHAIN_CONFIG
@@ -84,11 +84,11 @@ export const getEnvConfig = (
     };
 
     if (!chainConfig.subgraph.runtime) {
-      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraph ?? [];
+      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraphs.runtime ?? [];
     }
 
     if (!chainConfig.subgraph.analytics) {
-      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.analyticsSubgraph ?? [];
+      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.subgraphs.analytics ?? [];
     }
 
     if (!chainConfig.confirmations) {

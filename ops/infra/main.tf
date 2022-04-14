@@ -14,3 +14,7 @@ provider "aws" {
 module "iam" {
   source = "../modules/iam"
 }
+
+module "kms" {
+  source = "../modules/kms"
+}

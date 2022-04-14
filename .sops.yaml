@@ -1,0 +1,7 @@
+creation_rules:
+  - path_regex: config/env/testnet/*
+    kms: arn:aws:kms:us-east-1:679752396206:key/mrk-54aad40d249942528d55826577537536
+    aws_profile: aws-deployer-connext
+  - path_regex: ops/env/*
+    kms: arn:aws:kms:us-east-1:679752396206:key/mrk-54aad40d249942528d55826577537536
+    aws_profile: aws-deployer-connext
