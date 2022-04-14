@@ -33,6 +33,7 @@ import "./src/tasks/xcall";
 import "./src/tasks/setLocalDomain";
 import "./src/tasks/traceMessage";
 import "./src/tasks/preflight";
+import "./src/tasks/addRelayer";
 
 dotEnvConfig();
 
