@@ -8,7 +8,6 @@ variable "stage" {
   description = "stage of deployment"
 }
 
-
 variable "environment" {
   description = "env we're deploying to"
 }

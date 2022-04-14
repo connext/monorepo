@@ -52,6 +52,7 @@ module "router" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   service_config_name      = "NXTP_CONFIG"
+  stage                    = var.stage
 }
 
 
@@ -83,6 +84,7 @@ module "sequencer" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   service_config_name      = "SEQ_CONFIG"
+  stage                    = var.stage
 }
 
 

@@ -93,5 +93,4 @@ variable "base_domain" {
 
 variable "stage" {
   description = "stage of deployment"
-  default     = "staging"
 }
