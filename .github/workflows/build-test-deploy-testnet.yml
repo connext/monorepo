@@ -219,7 +219,6 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
-          role-to-assume: ${{ secrets.DEPLOYER_AWS_ROLE_ARN }}
           aws-region: eu-central-1
 
       - name: Decrypt Testnet Secrets
@@ -294,7 +293,6 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
-          role-to-assume: ${{ secrets.DEPLOYER_AWS_ROLE_ARN }}
           aws-region: eu-central-1
 
       - name: Decrypt Testnet Production Secrets
