@@ -244,9 +244,10 @@ jobs:
 
       - name: Terraform Docker Image onto AWS
         id: apply
-        working-directory: ./ops/testnet
+        working-directory: ./ops/testnet/staging
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
+
     outputs:
       router-tags: ${{ needs.build-and-push-router-image.outputs.tags }}
       sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.tags }}
