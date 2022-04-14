@@ -4,6 +4,11 @@ variable "az_count" {
 
 variable "cidr_block" {}
 
+variable "stage" {
+  description = "stage of deployment"
+}
+
+
 variable "environment" {
-  type = string
+  description = "env we're deploying to"
 }

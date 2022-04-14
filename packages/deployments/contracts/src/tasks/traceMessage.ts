@@ -3,8 +3,9 @@ import { NomadMessage, NomadContext, NomadStatus, MessageStatus, AnnotatedLifecy
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { providers } from "ethers";
 
-import { NOMAD_DEPLOYMENTS } from "../constants";
 import config from "../../hardhat.config";
+import { getDomainInfoFromChainId } from "../nomad";
+import { MAINNET_CHAINS } from "../constants";
 
 // in-repo implementation of:
 // https://github.com/nomad-xyz/nomad-monorepo/blob/main/typescript/nomad-monitor/src/trace.ts
@@ -51,7 +52,7 @@ export default task("trace-message", "See the status of a nomad message")
     "transaction",
     "Transaction hash where there has been a nomad message sent joined by commas (i.e. txHash1,txHash2,..)",
   )
-  .addParam("destination", "The destination domain")
+  .addParam("destination", "The destination chain id")
   .addOptionalParam("messageHash", "Identifier of the message on nomad")
   .addOptionalParam("leafIndex", "Index of the message leaf in root")
   .setAction(
@@ -70,31 +71,22 @@ export default task("trace-message", "See the status of a nomad message")
 
       // Get the domain + context
       const network = await ethers.provider.getNetwork();
-      const originConfig = NOMAD_DEPLOYMENTS.get(network.chainId);
-      if (!originConfig) {
-        throw new Error(`No nomad config for ${network.chainId}`);
-      }
-      const [destChain, destConfig] =
-        [...NOMAD_DEPLOYMENTS].find(([_, nomadConfig]) => {
-          return nomadConfig.domain === destination;
-        }) ?? [];
-      if (!destConfig || typeof destChain === "undefined") {
-        throw new Error(`No nomad config for ${destination}`);
-      }
+      const { domain: originDomain } = getDomainInfoFromChainId(network.chainId);
+
       const context = BridgeContext.fromNomadContext(
-        originConfig.isDev ? new NomadContext("development") : new NomadContext("production"),
+        MAINNET_CHAINS.includes(network.chainId) ? new NomadContext("development") : new NomadContext("production"),
       );
 
       // Register origin provider
-      context.registerProvider(originConfig.domain, ethers.provider);
+      context.registerProvider(originDomain, ethers.provider);
 
       // Register destination provider
       const [, destHardhatConfig] =
         Object.entries(config.networks ?? {}).find(([, value]) => {
-          return +destChain === value?.chainId;
+          return +destination === value?.chainId;
         }) ?? [];
       if (!(destHardhatConfig as any).url) {
-        throw new Error(`No provider url found in hardhat.config.ts for chain: ${destChain}`);
+        throw new Error(`No provider url found in hardhat.config.ts for chain: ${destination}`);
       }
       context.registerProvider(destination, new providers.JsonRpcProvider((destHardhatConfig as any).url as string));
 

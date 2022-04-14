@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-testnet"
+    bucket = "nxtp-terraform-testnet-staging"
     key    = "state/"
     region = "us-east-1"
   }
@@ -24,7 +24,7 @@ data "aws_route53_zone" "primary" {
 
 
 module "router" {
-  source                   = "../modules/service"
+  source                   = "../../modules/service"
   region                   = var.region
   zone_id                  = data.aws_route53_zone.primary.zone_id
   ecs_cluster_sg           = module.network.ecs_task_sg
@@ -45,6 +45,7 @@ module "router" {
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
+  stage                    = var.stage
   mnemonic                 = var.mnemonic
   service_config_value     = local.local_router_config
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -56,7 +57,7 @@ module "router" {
 
 
 module "sequencer" {
-  source                   = "../modules/service"
+  source                   = "../../modules/service"
   region                   = var.region
   zone_id                  = data.aws_route53_zone.primary.zone_id
   ecs_cluster_sg           = module.network.ecs_task_sg
@@ -76,6 +77,7 @@ module "sequencer" {
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
+  stage                    = var.stage
   mnemonic                 = var.mnemonic
   service_config_value     = local.local_sequencer_config
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -87,32 +89,37 @@ module "sequencer" {
 
 
 module "network" {
-  source      = "../modules/networking"
+  source      = "../../modules/networking"
   cidr_block  = var.cidr_block
   environment = var.environment
+  stage       = var.stage
 }
 
 module "ecs" {
-  source           = "../modules/ecs"
-  ecs_cluster_name = "nxtp-testnet-ecs"
-  vpc_id           = module.network.vpc_id
-  private_subnets  = module.network.private_subnets
-  public_subnets   = module.network.public_subnets
+  source                  = "../../modules/ecs"
+  stage                   = var.stage
+  environment             = var.environment
+  ecs_cluster_name_prefix = "nxtp-ecs"
+  vpc_id                  = module.network.vpc_id
+  private_subnets         = module.network.private_subnets
+  public_subnets          = module.network.public_subnets
 }
 
 module "sequencer_cache" {
-  environment       = var.environment
+  source            = "../../modules/redis"
   family            = "sequencer"
-  source            = "../modules/redis"
+  stage             = var.stage
+  environment       = var.environment
   sg_id             = module.network.ecs_task_sg
   subnet_group_name = module.network.redis_subnet_group
   vpc_id            = module.network.vpc_id
 }
 
 module "router_cache" {
-  environment       = var.environment
+  source            = "../../modules/redis"
   family            = "router"
-  source            = "../modules/redis"
+  stage             = var.stage
+  environment       = var.environment
   sg_id             = module.network.ecs_task_sg
   subnet_group_name = module.network.redis_subnet_group
   vpc_id            = module.network.vpc_id

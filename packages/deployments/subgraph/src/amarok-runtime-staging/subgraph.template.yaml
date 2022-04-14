@@ -1,0 +1,62 @@
+specVersion: 0.0.4
+schema:
+  file: ./src/amarok-runtime-staging/schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Connext
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: Connext
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - AssetBalance
+        - Router
+        - Transaction
+      abis:
+        - name: Connext
+          file: ./src/amarok-runtime-staging/abis/Connext.json
+      eventHandlers:
+        - event: AssetAdded(bytes32,uint32,address,address,address)
+          handler: handleAssetAdded
+        - event: RelayerAdded(address,address)
+          handler: handleRelayerAdded
+        - event: LiquidityAdded(indexed address,address,bytes32,uint256,address)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,address,address,uint256,address)
+          handler: handleLiquidityRemoved
+        - event: MaxRoutersPerTransferUpdated(uint256,address)
+          handler: handleMaxRoutersPerTransferUpdated
+        - event: XCalled(indexed bytes32,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
+          handler: handleXCalled
+        - event: Executed(indexed bytes32,indexed address,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,address)
+          handler: handleExecuted
+        - event: Reconciled(indexed bytes32,indexed uint32,address,address,uint256,(address[],uint256),address)
+          handler: handleReconciled
+      file: ./src/amarok-runtime-staging/mapping.ts
+  # - kind: ethereum/contract
+  #   name: TokenRegistry
+  #   network: "{{network}}"
+  #   source:
+  #     address: "{{address}}"
+  #     abi: TokenRegistry
+  #     # prettier-ignore
+  #     startBlock: {{startBlock}}
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.6
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Token
+  #     abis:
+  #       - name: TokenRegistry
+  #         file: ./src/amarok-runtime-v0/abis/TokenRegistry.json
+  #     eventHandlers:
+  #       - event: TokenDeployed(indexed uint32,indexed bytes32,indexed address)
+  #         handler: handleTokenDeployed
+  #     file: ./src/amarok-runtime-v0/mapping.ts

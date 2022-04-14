@@ -1,9 +1,9 @@
 resource "aws_cloudwatch_log_group" "container" {
-  name = "${var.environment}-${var.container_family}"
+  name = "${var.environment}-${var.stage}-${var.container_family}"
 }
 
 resource "aws_ecs_task_definition" "service" {
-  family                   = "${var.environment}-${var.container_family}"
+  family                   = "${var.environment}-${var.stage}-${var.container_family}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.cpu
@@ -11,7 +11,7 @@ resource "aws_ecs_task_definition" "service" {
   execution_role_arn       = var.execution_role_arn
   container_definitions    = jsonencode([
     {
-      name        = "${var.environment}-${var.container_family}"
+      name        = "${var.environment}-${var.stage}-${var.container_family}"
       image       = var.docker_image
       cpu         = var.cpu
       memory      = var.memory
@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "service" {
 }
 
 resource "aws_ecs_service" "service" {
-  name          = "${var.environment}-${var.container_family}"
+  name          = "${var.environment}-${var.stage}-${var.container_family}"
   cluster       = var.cluster_id
   desired_count = var.instance_count
 
@@ -57,7 +57,7 @@ resource "aws_ecs_service" "service" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.front_end.id
-    container_name   = "${var.environment}-${var.container_family}"
+    container_name   = "${var.environment}-${var.stage}-${var.container_family}"
     container_port   = var.container_port
   }
 }
@@ -69,7 +69,7 @@ resource "aws_alb" "lb" {
   enable_deletion_protection = false
   idle_timeout               = var.timeout
   tags = {
-    Family = "${var.environment}-${var.container_family}"
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
   }
 }
 
@@ -124,10 +124,12 @@ resource "aws_security_group" "lb" {
   }
 }
 
+#var.environment != "prod" ? "${var.environment}.${var.hosted_zone_url}" : var.hosted_zone_url
+
 
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id
-  name    = "${var.container_family}.${var.environment}.${var.base_domain}"
+  name    =  var.stage != "prod" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]

@@ -101,8 +101,8 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                runtime: ["http://example.com"],
-                analytics: ["http://example.com"],
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -111,8 +111,8 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                runtime: ["http://example.com"],
-                analytics: ["http://example.com"],
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -136,7 +136,7 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                analytics: ["http://example.com"],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -145,7 +145,7 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                analytics: ["http://example.com"],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -169,7 +169,7 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                runtime: ["http://example.com"],
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -178,7 +178,7 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                runtime: ["http://example.com"],
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -201,8 +201,8 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                runtime: ["http://example.com"],
-                analytics: ["http://example.com"],
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -210,8 +210,8 @@ describe("Config", () => {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
-                runtime: ["http://example.com"],
-                analytics: ["http://example.com"],
+                runtime: [{ query: "http://example.com", health: "http://example.com" }],
+                analytics: [{ query: "http://example.com", health: "http://example.com" }],
                 maxLag: 10,
               },
             },
@@ -229,7 +229,6 @@ describe("Config", () => {
       });
       expect(() => getEnvConfig(mock.chainData(), mockDeployments)).throw();
     });
-
 
     it("should error if validation fails", () => {
       stub(process, "env").value({
