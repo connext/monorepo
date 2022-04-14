@@ -1,5 +1,4 @@
-variable "ecs_cluster_name" {
-  default = "nxtp-ecs"
+variable "ecs_cluster_name_prefix" {
 }
 
 variable "private_subnets" {
@@ -11,3 +10,12 @@ variable "public_subnets" {
 }
 
 variable "vpc_id" {}
+
+variable "stage" {
+  description = "stage of deployment"
+}
+
+
+variable "environment" {
+  description = "env we're deploying to"
+}

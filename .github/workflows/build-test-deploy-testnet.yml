@@ -189,7 +189,7 @@ jobs:
         run: |
           terraform apply -auto-approve
 
-  terraform-services:
+  terraform-services-staging:
     if: github.ref == 'refs/heads/amarok'
     needs: [smoke-tests, terraform-infra]
     env:
@@ -222,29 +222,18 @@ jobs:
           role-to-assume: ${{ secrets.DEPLOYER_AWS_ROLE_ARN }}
           aws-region: eu-central-1
 
-      - name: Terraform fmt
-        id: fmt
-        working-directory: ./ops/testnet
-        run: terraform fmt -check
-        continue-on-error: true
+      - name: Decrypt Testnet Secrets
+        id: decrypt
+        run: sops -d ops/env/testnet/secrets.staging.json > ops/testnet/staging/tfvars.json
 
       - name: Terraform Init
         id: init
-        working-directory: ./ops/testnet
+        working-directory: ./ops/testnet/staging
         run: terraform init
-
-      - name: Terraform Validate
-        id: validate
-        working-directory: ./ops/testnet
-        run: terraform validate -no-color
-
-      - name: Decrypt Testnet Secrets
-        id: decrypt
-        run: sops -d ops/env/testnet/secrets.staging.json > ops/testnet/tfvars.json
 
       - name: Terraform Plan
         id: plan
-        working-directory: ./ops/testnet
+        working-directory: ./ops/testnet/staging
         run: |
           terraform plan -var-file=tfvars.json
         continue-on-error: true
@@ -252,5 +241,80 @@ jobs:
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops/testnet
+        run: |
+          terraform apply -var-file=tfvars.json -auto-approve
+    outputs:
+      router-tags: ${{ needs.build-and-push-router-image.outputs.tags }}
+      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.tags }}
+
+  e2e-tests:
+    if: github.ref == 'refs/heads/amarok' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    needs: [terraform-services-staging]
+    env:
+      ROUTER_IMAGE: ${{ needs.terraform-services-staging.outputs.router-tags }}
+      SEQUENCER_IMAGE: ${{ needs.terraform-services-staging.outputs.sequencer-tags }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: run smoke tests
+        run: echo "to be implemented..."
+
+    outputs:
+      router-tags: ${{ needs.terraform-services-staging.outputs.router-tags }}
+      sequencer-tags: ${{ needs.terraform-services-staging.outputs.sequencer-tags }}
+
+  terraform-services-prod:
+    if: github.ref == 'refs/heads/amarok'
+    needs: [e2e-tests]
+    env:
+      TF_VAR_full_image_name_router: ${{ needs.e2e-tests.outputs.router-tags }}
+      TF_VAR_full_image_name_sequencer: ${{ needs.e2e-tests.outputs.sequencer-tags }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: '3.7.2'
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.DEPLOYER_AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Decrypt Testnet Production Secrets
+        id: decrypt
+        run: sops -d ops/env/testnet/secrets.prod.json > ops/testnet/prod/tfvars.json
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops/testnet/prod
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops/testnet/prod
+        run: |
+          terraform plan -var-file=tfvars.json
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops/testnet/prod
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
