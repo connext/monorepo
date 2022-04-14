@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import { NomadMessage, NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { providers } from "ethers";
+import { NetworkUserConfig } from "hardhat/types";
 
 import config from "../../hardhat.config";
 import { getDomainInfoFromChainId } from "../nomad";
@@ -52,7 +53,7 @@ export default task("trace-message", "See the status of a nomad message")
     "transaction",
     "Transaction hash where there has been a nomad message sent joined by commas (i.e. txHash1,txHash2,..)",
   )
-  .addParam("destination", "The destination chain id")
+  .addParam("destination", "The destination domain id")
   .addOptionalParam("messageHash", "Identifier of the message on nomad")
   .addOptionalParam("leafIndex", "Index of the message leaf in root")
   .setAction(
@@ -74,8 +75,9 @@ export default task("trace-message", "See the status of a nomad message")
       const { domain: originDomain } = getDomainInfoFromChainId(network.chainId);
 
       const context = BridgeContext.fromNomadContext(
-        MAINNET_CHAINS.includes(network.chainId) ? new NomadContext("development") : new NomadContext("production"),
+        MAINNET_CHAINS.includes(network.chainId) ? new NomadContext("production") : new NomadContext("development"),
       );
+      const destinationChainId = context.mustGetDomain(destination).specs.chainId;
 
       // Register origin provider
       context.registerProvider(originDomain, ethers.provider);
@@ -83,9 +85,9 @@ export default task("trace-message", "See the status of a nomad message")
       // Register destination provider
       const [, destHardhatConfig] =
         Object.entries(config.networks ?? {}).find(([, value]) => {
-          return +destination === value?.chainId;
+          return destinationChainId === value?.chainId;
         }) ?? [];
-      if (!(destHardhatConfig as any).url) {
+      if (!destHardhatConfig || !(destHardhatConfig as any).url) {
         throw new Error(`No provider url found in hardhat.config.ts for chain: ${destination}`);
       }
       context.registerProvider(destination, new providers.JsonRpcProvider((destHardhatConfig as any).url as string));
