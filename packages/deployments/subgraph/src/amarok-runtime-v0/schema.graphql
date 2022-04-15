@@ -16,6 +16,11 @@ type AssetBalance @entity {
 # Router represents a router and its associated liquidity
 type Router @entity {
   id: ID!
+  isActive: Boolean!
+  owner: Bytes
+  recipient: Bytes
+  proposedOwner: Bytes
+  proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
   transfers: [Transfer!]! @derivedFrom(field: "router")
 }
