@@ -100,7 +100,7 @@ export const selectBids = async (_requestContext: RequestContext) => {
       const auction = await cache.auctions.getAuction(transferId);
       if (auction) {
         const startTime = Number(auction.timestamp);
-        const elapsed = getNtpTimeSeconds() - startTime;
+        const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
         if (elapsed > AUCTION_PERIOD) {
           auctions[transferId] = auction;
         }
@@ -111,6 +111,12 @@ export const selectBids = async (_requestContext: RequestContext) => {
   await Promise.all(
     Object.keys(auctions).map(async (transferId) => {
       const { bids, origin, destination } = auctions[transferId];
+      logger.info("Started selecting bids", requestContext, methodContext, {
+        bids,
+        origin,
+        destination,
+        transferId,
+      });
 
       // TODO: deprecate... necessary for now
       const bidData = await cache.auctions.getBidData(transferId);
@@ -129,6 +135,10 @@ export const selectBids = async (_requestContext: RequestContext) => {
         return Array.from(Object.keys(bid.signatures)).includes("1");
       });
       if (availableBids.length < 1) {
+        logger.warn("No bids available for this round", requestContext, methodContext, {
+          availableBids,
+          transferId,
+        });
         // Not enough router bids to form a transfer for this round.
         // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
         return;
@@ -144,6 +154,9 @@ export const selectBids = async (_requestContext: RequestContext) => {
       let taskId: string | undefined;
       for (const randomBid of randomized) {
         try {
+          logger.info("Sending bid to relayer", requestContext, methodContext, {
+            randomBid,
+          });
           // Send the relayer request based on chosen bids.
           taskId = await sendToRelayer(
             [randomBid.router],
@@ -157,6 +170,9 @@ export const selectBids = async (_requestContext: RequestContext) => {
             },
             requestContext,
           );
+          logger.info("Sent bid to relayer", requestContext, methodContext, {
+            taskId,
+          });
           break;
         } catch (err: any) {
           logger.error(
@@ -175,7 +191,7 @@ export const selectBids = async (_requestContext: RequestContext) => {
       }
       if (!taskId) {
         logger.error(
-          "No bids successfully sent to relayer",
+          "No bids sent to relayer",
           requestContext,
           methodContext,
           jsonifyError(new Error("No successfully sent bids")),
