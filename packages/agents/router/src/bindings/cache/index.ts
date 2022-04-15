@@ -78,7 +78,7 @@ export const pollCache = async () => {
         await execute(transfer);
       } catch (error: any) {
         // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
-        const isNewError = await cache.transfers.saveError(transferId, error.toString());
+        const isNewError = await cache.transfers.saveError(transferId, (error as Error).toString());
         if (isNewError) {
           logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(error as Error), {
             transferId,

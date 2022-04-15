@@ -183,23 +183,6 @@ export class ChainReader {
     return await this.getProvider(chainId).getGasEstimate(tx);
   }
 
-  /**
-   * Checks estimate for gas limit for given transaction on given chain. Includes revert
-   * error codes if failure occurs.
-   *
-   * @param chainId - chain on which the transaction is intended to be executed.
-   * @param tx - transaction to check gas limit for.
-   *
-   * @returns BigNumber representing the estimated gas limit in gas units.
-   * @throws Error if the transaction is invalid, or would be reverted onchain.
-   */
-  public async getGasEstimateWithRevertCode(
-    chainId: number,
-    tx: ReadTransaction | WriteTransaction,
-  ): Promise<BigNumber> {
-    return await this.getProvider(chainId).estimateGas(tx);
-  }
-
   /// CONTRACT READ METHODS
   /**
    * Gets token price in usd from cache or price oracle
