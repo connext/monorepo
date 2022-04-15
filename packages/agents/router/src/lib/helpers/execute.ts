@@ -29,9 +29,11 @@ export const sanityCheck = async (bidData: BidData, requestContext: RequestConte
   });
 
   // Validate the bid's fulfill call will succeed on chain.
-  await txservice.getGasEstimate(Number(bidData.params.destinationDomain), {
+  // TODO: We need to use the target relayer as the `from` value!
+  await txservice.getGasEstimateWithRevertCode(Number(bidData.params.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,
+    from: router,
     data: encodedData,
   });
 };
