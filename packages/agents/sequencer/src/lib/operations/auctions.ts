@@ -141,7 +141,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             destination,
             bids,
           });
-          return;
+          continue;
         }
 
         // TODO: Reimplement auction rounds!
@@ -157,7 +157,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           });
           // Not enough router bids to form a transfer for this round.
           // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
-          return;
+          continue;
         }
 
         // TODO: Sort by fee amount, selecting the best bid available.
@@ -168,9 +168,11 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           .map(({ value }) => value);
 
         let taskId: string | undefined;
+        // Try every bid until we find one that works.
         for (const randomBid of randomized) {
           try {
             logger.info("Sending bid to relayer", requestContext, methodContext, {
+              transferId,
               randomBid,
             });
             // Send the relayer request based on chosen bids.
@@ -187,20 +189,21 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               requestContext,
             );
             logger.info("Sent bid to relayer", requestContext, methodContext, {
+              transferId,
               taskId,
+              origin,
+              destination,
             });
             break;
-          } catch (err: any) {
+          } catch (error: any) {
             logger.error(
               "Failed to send to relayer, trying next bid if possible",
               requestContext,
               methodContext,
-              jsonifyError(err as Error),
+              jsonifyError(error as Error),
               {
                 transferId,
-                origin,
-                destination,
-                bids,
+                availableBidsCount: availableBids.length,
               },
             );
           }
@@ -218,7 +221,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               bids,
             },
           );
-          return;
+          continue;
         }
         await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
         await cache.auctions.upsertTask({ transferId, taskId });
