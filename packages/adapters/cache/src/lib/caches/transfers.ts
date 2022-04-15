@@ -1,4 +1,4 @@
-import { NxtpError, XTransfer } from "@connext/nxtp-utils";
+import { XTransfer } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { getHelpers } from "../helpers";
