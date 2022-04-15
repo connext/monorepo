@@ -124,6 +124,7 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           file: docker/sequencer/Dockerfile
 
     outputs:
@@ -192,8 +193,8 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_router: ${{ fromJSON(needs.smoke-tests.outputs.router-tags.json).tags[0] }}
-      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.sequencer.router-tags.json).tags[0] }}
+      TF_VAR_full_image_name_router: ${{ fromJSON(needs.smoke-tests.outputs.router-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.sequencer.router-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -253,8 +254,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [terraform-services-staging]
     env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.router-tags.json).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.sequencer-tags.json).tags[0] }}
+      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.router-tags).tags[0] }}
+      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.sequencer-tags).tags[0] }}
 
     steps:
       - name: Checkout repository
