@@ -146,8 +146,8 @@ jobs:
           bash docker/bin/wait-for-services.sh sequencer
 
     outputs:
-      router-tags: ${{ needs.build-and-push-router-image.outputs }}
-      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs }}
+      router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
+      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
 
   terraform-infra:
 #    if: github.ref == 'refs/heads/amarok'
@@ -245,8 +245,8 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      router-tags: ${{ needs.build-and-push-router-image.outputs }}
-      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs }}
+      router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
+      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
 
   e2e-tests:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -264,8 +264,8 @@ jobs:
         run: echo "to be implemented..."
 
     outputs:
-      router-tags: ${{ needs.terraform-services-staging.outputs.router-tags }}
-      sequencer-tags: ${{ needs.terraform-services-staging.outputs.sequencer-tags }}
+      router-tags: ${{ needs.terraform-services-staging.outputs.router-tags.json }}
+      sequencer-tags: ${{ needs.terraform-services-staging.outputs.sequencer-tags.json }}
 
   terraform-services-prod:
 #    if: github.ref == 'refs/heads/amarok'
