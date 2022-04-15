@@ -144,7 +144,7 @@ export class TransfersCache extends Cache {
    * @returns boolean indicating whether the transfer ID was successfully removed from the
    * list of pending transfers.
    */
-  private async removePending(domain: string, transferId: string): Promise<boolean> {
+  public async removePending(domain: string, transferId: string): Promise<boolean> {
     const currentPending = await this.getPending(domain);
     const index = currentPending.findIndex((id) => id === transferId);
     if (index >= 0) {
