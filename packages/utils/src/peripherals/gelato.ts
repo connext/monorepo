@@ -38,8 +38,8 @@ export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger):
     const res = await axios.get(`${gelatoServer}/relays/${chainId}/address`);
     result = res.data.address;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
-    throw new Error("Error in getGelatoRelayChains");
+    if (logger) logger.error("Error in getGelatoRelayerAddress", undefined, undefined, jsonifyError(error as Error));
+    throw new Error("Error in getGelatoRelayerAddress");
   }
 
   return result;
@@ -52,7 +52,6 @@ export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> =
     result = res.data.relays;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
-    throw new Error("Error in getGelatoRelayChains");
   }
 
   return result;
