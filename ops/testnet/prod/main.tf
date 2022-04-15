@@ -99,7 +99,7 @@ module "ecs" {
   source           = "../../modules/ecs"
   stage                   = var.stage
   environment             = var.environment
-  ecs_cluster_name_prefix = "nxtp-ecs-"
+  ecs_cluster_name_prefix = "nxtp-ecs"
   vpc_id           = module.network.vpc_id
   private_subnets  = module.network.private_subnets
   public_subnets   = module.network.public_subnets
