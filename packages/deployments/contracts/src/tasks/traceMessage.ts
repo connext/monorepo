@@ -1,15 +1,15 @@
 import { task } from "hardhat/config";
-import { NomadMessage, NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent } from "@nomad-xyz/sdk";
+import { NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent, NomadMessage } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { providers } from "ethers";
-import { NetworkUserConfig } from "hardhat/types";
+import * as nomadConfig from "@nomad-xyz/configuration";
 
 import config from "../../hardhat.config";
 import { getDomainInfoFromChainId } from "../nomad";
 import { MAINNET_CHAINS } from "../constants";
 
 // in-repo implementation of:
-// https://github.com/nomad-xyz/nomad-monorepo/blob/main/typescript/nomad-monitor/src/trace.ts
+// https://github.com/nomad-xyz/monorepo/blob/main/packages/monitor/src/trace.ts
 
 const STATUS_TO_STRING = {
   [MessageStatus.Dispatched]: "Dispatched on Home",
@@ -74,9 +74,9 @@ export default task("trace-message", "See the status of a nomad message")
       const network = await ethers.provider.getNetwork();
       const { domain: originDomain } = getDomainInfoFromChainId(network.chainId);
 
-      const context = BridgeContext.fromNomadContext(
-        MAINNET_CHAINS.includes(network.chainId) ? new NomadContext("production") : new NomadContext("development"),
-      );
+      const env = MAINNET_CHAINS.includes(network.chainId) ? "production" : "development";
+
+      const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig.getBuiltin(env)));
       const destinationChainId = context.mustGetDomain(destination).specs.chainId;
 
       // Register origin provider
@@ -99,7 +99,7 @@ export default task("trace-message", "See the status of a nomad message")
       }
 
       // Trace the message
-      const [message] = NomadMessage.baseFromReceipt(context, destination, receipt);
+      const [message] = NomadMessage.baseFromReceipt(context, originDomain, receipt);
 
       const status = await message.events();
       printStatus(context, status);
