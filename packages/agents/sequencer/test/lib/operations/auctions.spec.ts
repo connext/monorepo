@@ -236,7 +236,7 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0].length).to.eq(1);
     });
 
-    it("should handle multipath", async () => {
+    it.skip("should handle multipath", async () => {
       const taskId = getRandomBytes32();
       sendToRelayerStub.resolves(taskId);
 

@@ -59,31 +59,6 @@ export const storeBid = async (
     });
   }
 
-  // TODO: Should this be moved to just *before* we send an excecute to the relayer?
-  // Sanity check : estimateGas.
-  const destinationChainId = chainData.get(bidData.params.destinationDomain)!.chainId;
-
-  const encodedData = encodeExecuteFromBid([bid.router], bidData);
-  const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
-
-  logger.info("Prepared data for sending", requestContext, methodContext, {
-    encodedData,
-    destinationTransactonManagerAddress: destinationConnextAddress,
-    domain: bidData.params.destinationDomain,
-    bid,
-  });
-
-  // Validate the bid's fulfill call will succeed on chain.
-  const gas = await chainreader.getGasEstimate(Number(bidData.params.destinationDomain), {
-    chainId: destinationChainId,
-    to: destinationConnextAddress,
-    data: encodedData,
-  });
-
-  logger.info("Estimated gas", requestContext, methodContext, {
-    gas: gas.toString(),
-  });
-
   const res = await cache.auctions.upsertAuction({
     transferId,
     origin: bidData.params.originDomain,
@@ -139,73 +114,88 @@ export const selectBids = async (_requestContext: RequestContext) => {
     }),
   );
 
-  for (const transferId of Object.keys(auctions)) {
-    const { bids, origin, destination } = auctions[transferId];
+  await Promise.all(
+    Object.keys(auctions).map(async (transferId) => {
+      const { bids, origin, destination } = auctions[transferId];
 
-    // TODO: deprecate... necessary for now
-    const bidData = await cache.auctions.getBidData(transferId);
-    if (!bidData) {
-      logger.error("Bid data not found for transfer!", requestContext, methodContext, undefined, {
-        transferId,
-        origin,
-        destination,
-        bids,
-      });
-      continue;
-    }
+      // TODO: deprecate... necessary for now
+      const bidData = await cache.auctions.getBidData(transferId);
+      if (!bidData) {
+        logger.error("Bid data not found for transfer!", requestContext, methodContext, undefined, {
+          transferId,
+          origin,
+          destination,
+          bids,
+        });
+        return;
+      }
 
-    const selected: Bid[] = [];
-    for (let round = 1; round <= 5; round++) {
-      // TODO: For now, selecting at random, but we should take fee % into account.
+      // hardcoded round 1
       const availableBids = bids.filter((bid) => {
-        return Array.from(Object.keys(bid.signatures)).includes(round.toString());
+        return Array.from(Object.keys(bid.signatures)).includes("1");
       });
-      if (availableBids.length < round) {
+      if (availableBids.length < 1) {
         // Not enough router bids to form a transfer for this round.
         // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
-        continue;
+        return;
       }
 
-      // Now we select the bids for this round from the available bids.
-      for (let i = 0; i < round; i++) {
-        const random = Math.floor(Math.random() * availableBids.length);
-        const selectedBid: Bid = availableBids.splice(random, 1)[0];
-        selected.push(selectedBid);
+      // nifty random sort
+      // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+      const randomized = availableBids
+        .map((value) => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
+
+      let taskId: string | undefined;
+      for (const randomBid of randomized) {
+        try {
+          // Send the relayer request based on chosen bids.
+          taskId = await sendToRelayer(
+            [randomBid.router],
+            {
+              ...bidData,
+
+              // TODO: This will be deprecated in favor of using generic router-sig proof on-chain...
+              // Also dependent on #818 relayer fees.
+              // For now, the on-chain check is done on the *first* router in the list for multipath.
+              relayerSignature: Object.values(randomBid.signatures)[0],
+            },
+            requestContext,
+          );
+          break;
+        } catch (err: any) {
+          logger.error(
+            "Failed to send to relayer, trying next bid if possible",
+            requestContext,
+            methodContext,
+            jsonifyError(err as Error),
+            {
+              transferId,
+              origin,
+              destination,
+              bids,
+            },
+          );
+        }
       }
-      break;
-    }
-
-    if (selected.length === 0) {
-      // We weren't able to select bids for this transfer.
-      continue;
-    }
-
-    let taskId: string;
-    try {
-      // Send the relayer request based on chosen bids.
-      taskId = await sendToRelayer(
-        selected.map((bid) => bid.router),
-        {
-          ...bidData,
-
-          // TODO: This will be deprecated in favor of using generic router-sig proof on-chain...
-          // Also dependent on #818 relayer fees.
-          // For now, the on-chain check is done on the *first* router in the list for multipath.
-          relayerSignature: Object.values(selected[0].signatures)[0],
-        },
-        requestContext,
-      );
-    } catch (err: any) {
-      logger.error("Failed to send to relayer", requestContext, methodContext, jsonifyError(err as Error), {
-        transferId,
-        origin,
-        destination,
-        bids,
-      });
-      continue;
-    }
-
-    await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
-    await cache.auctions.upsertTask({ transferId, taskId });
-  }
+      if (!taskId) {
+        logger.error(
+          "No bids successfully sent to relayer",
+          requestContext,
+          methodContext,
+          jsonifyError(new Error("No successfully sent bids")),
+          {
+            transferId,
+            origin,
+            destination,
+            bids,
+          },
+        );
+        return;
+      }
+      await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
+      await cache.auctions.upsertTask({ transferId, taskId });
+    }),
+  );
 };

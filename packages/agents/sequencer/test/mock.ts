@@ -17,10 +17,10 @@ export const mock = {
   context: (): AppContext => {
     return {
       adapters: {
-        subgraph: mock.adapter.subgraph(),
-        cache: mock.adapter.cache(),
-        chainreader: mock.adapter.chainreader(),
-        contracts: mock.adapter.contracts(),
+        subgraph: mock.adapters.subgraph(),
+        cache: mock.adapters.cache(),
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.adapters.contracts(),
       },
       config: mock.config(),
       chainData: mock.chainData(),

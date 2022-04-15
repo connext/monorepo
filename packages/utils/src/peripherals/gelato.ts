@@ -22,7 +22,7 @@ export const gelatoSend = async (
     output = res.data;
   } catch (error: unknown) {
     if (logger) logger.error("Error in gelato send", undefined, undefined, jsonifyError(error as Error));
-    output = error;
+    throw new Error("Error in Gelato send");
   }
   return output;
 };
@@ -32,6 +32,19 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
   return chainsSupportedByGelato.includes(chainId.toString());
 };
 
+export const getGelatoRelayerAddress = async (logger?: Logger): Promise<string> => {
+  let result = [];
+  try {
+    const res = await axios.get(`${gelatoServer}/relays/`);
+    result = res.data.relays;
+  } catch (error: unknown) {
+    if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
+    throw new Error("Error in getGelatoRelayChains");
+  }
+
+  return result.address;
+};
+
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
@@ -39,6 +52,7 @@ export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> =
     result = res.data.relays;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
+    throw new Error("Error in getGelatoRelayChains");
   }
 
   return result;

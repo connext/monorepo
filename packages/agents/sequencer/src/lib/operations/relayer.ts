@@ -10,10 +10,15 @@ export const sendToRelayer = async (
   bidData: BidData,
   _requestContext: RequestContext,
 ): Promise<string> => {
-  const { logger, chainData, config } = getContext();
+  const {
+    logger,
+    chainData,
+    config,
+    adapters: { chainreader },
+  } = getContext();
   const {
     auctions: { encodeExecuteFromBid },
-    relayer: { gelatoSend, isChainSupportedByGelato },
+    relayer: { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
@@ -28,6 +33,19 @@ export const sendToRelayer = async (
   if (!isSupportedByGelato) {
     throw new Error("Chain not supported by gelato.");
   }
+
+  // Validate the bid's fulfill call will succeed on chain.
+  const relayerAddress = await getGelatoRelayerAddress(destinationChainId);
+  const gas = await chainreader.getGasEstimateWithRevertCode(Number(bidData.params.destinationDomain), {
+    chainId: destinationChainId,
+    to: destinationConnextAddress,
+    data: encodedData,
+    from: relayerAddress,
+  });
+
+  logger.info("Estimated gas", requestContext, methodContext, {
+    gas: gas.toString(),
+  });
 
   logger.info("Sending to Gelato network", requestContext, methodContext, {
     encodedData,
