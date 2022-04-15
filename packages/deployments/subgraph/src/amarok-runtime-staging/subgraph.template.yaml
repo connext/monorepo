@@ -2,6 +2,45 @@ specVersion: 0.0.4
 schema:
   file: ./src/amarok-runtime-staging/schema.graphql
 dataSources:
+  # RouterPermissionsManagerLogic.sol events
+  - kind: ethereum/contract
+    name: RouterPermissionsManagerLogic
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: RouterPermissionsManagerLogic
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/amarok-runtime-staging/mapping.ts
+      entities:
+        - Router
+      abis:
+        - name: Connext
+          file: ./src/amarok-runtime-staging/abis/Connext.json
+        - name: RouterPermissionsManagerLogic
+          file: ./src/amarok-runtime-staging/abis/RouterPermissionsManagerLogic.json
+      eventHandlers:
+        - event: RouterAdded(indexed address,address)
+          topic0: "0xbc68405e644da2aaf25623ce2199da82c6dfd2e1de102b400eba6a091704d4f4"
+          handler: handleRouterAdded
+        - event: RouterRemoved(indexed address,address)
+          topic0: "0xbee3e974bb6a6f44f20096ede047c191eef60322e65e4ee4bd3392230a8716d5"
+          handler: handleRouterRemoved
+        - event: RouterRecipientSet(indexed address,indexed address,indexed address)
+          topic0: "0x31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d7"
+          handler: handleRouterRecipientSet
+        - event: RouterOwnerProposed(indexed address,indexed address,indexed address)
+          topic0: "0xee0158b57adc03901d8b16c48cd10c33ca1283ee96c6e0d30f817ceba74dc4a1"
+          handler: handleRouterOwnerProposed
+        - event: RouterOwnerAccepted(indexed address,indexed address,indexed address)
+          topic0: "0xd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1"
+          handler: handleRouterOwnerAccepted
+
+  # Connext.sol events
   - kind: ethereum/contract
     name: Connext
     network: "{{network}}"
@@ -22,32 +61,12 @@ dataSources:
         - name: Connext
           file: ./src/amarok-runtime-staging/abis/Connext.json
       eventHandlers:
-        # RouterPermissionsManagerLogic.sol events
-        - event: RouterAdded(address,address)
-          topic0: "0xbc68405e644da2aaf25623ce2199da82c6dfd2e1de102b400eba6a091704d4f4"
-          handler: handleRouterAdded
-        - event: RouterRemoved(address,address)
-          topic0: "0xbee3e974bb6a6f44f20096ede047c191eef60322e65e4ee4bd3392230a8716d5"
-          handler: handleRouterRemoved
-        - event: RouterRecipientSet(address,address,address)
-          topic0: "0x31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d7"
-          handler: handleRouterRecipientSet
-        - event: RouterOwnerProposed(address,address,address)
-          topic0: "0xee0158b57adc03901d8b16c48cd10c33ca1283ee96c6e0d30f817ceba74dc4a1"
-          handler: handleRouterOwnerProposed
-        - event: RouterOwnerAccepted(address,address,address)
-          topic0: "0xd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1"
-          handler: handleRouterOwnerAccepted
         - event: AssetAdded(bytes32,uint32,address,address,address)
           handler: handleAssetAdded
-        - event: RelayerAdded(address,address)
-          handler: handleRelayerAdded
         - event: LiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleLiquidityRemoved
-        - event: MaxRoutersPerTransferUpdated(uint256,address)
-          handler: handleMaxRoutersPerTransferUpdated
         - event: XCalled(indexed bytes32,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,address)
@@ -55,6 +74,7 @@ dataSources:
         - event: Reconciled(indexed bytes32,indexed uint32,address,address,uint256,(address[],uint256),address)
           handler: handleReconciled
       file: ./src/amarok-runtime-staging/mapping.ts
+
   # - kind: ethereum/contract
   #   name: TokenRegistry
   #   network: "{{network}}"
@@ -71,8 +91,8 @@ dataSources:
   #       - Token
   #     abis:
   #       - name: TokenRegistry
-  #         file: ./src/amarok-runtime-v0/abis/TokenRegistry.json
+  #         file: ./src/amarok-runtime-staging/abis/TokenRegistry.json
   #     eventHandlers:
   #       - event: TokenDeployed(indexed uint32,indexed bytes32,indexed address)
   #         handler: handleTokenDeployed
-  #     file: ./src/amarok-runtime-v0/mapping.ts
+  #     file: ./src/amarok-runtime-staging/mapping.ts
