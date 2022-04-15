@@ -12,7 +12,7 @@ import { stub, restore, reset, SinonStub } from "sinon";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
 import { AuctionExpired, ParamsInvalid } from "../../../src/lib/errors";
-import { AUCTION_PERIOD, selectBids, storeBid } from "../../../src/lib/operations/auctions";
+import { AUCTION_PERIOD, executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
 
@@ -119,7 +119,7 @@ describe("Operations:Auctions", () => {
     });
   });
 
-  describe("#selectBids", () => {
+  describe("#executeAuctions", () => {
     const mockTransferIdBatch = (count: number) => new Array(count).fill(0).map(() => getRandomBytes32());
     const mockAuctionDataBatch = (count: number) =>
       new Array(count).fill(0).map(() =>
@@ -147,7 +147,7 @@ describe("Operations:Auctions", () => {
         getBidDataStub.onCall(i).resolves(bidDatas[i]);
       }
 
-      await selectBids(requestContext);
+      await executeAuctions(requestContext);
 
       expect(getQueuedTransfersStub.callCount).to.eq(1);
 
@@ -189,7 +189,7 @@ describe("Operations:Auctions", () => {
       const bidData = mock.entity.bidData();
       getBidDataStub.resolves(bidData);
 
-      await selectBids(requestContext);
+      await executeAuctions(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getBidDataStub.callCount).to.be.eq(0);
@@ -226,7 +226,7 @@ describe("Operations:Auctions", () => {
       const bidData = mock.entity.bidData();
       getBidDataStub.resolves(bidData);
 
-      await selectBids(requestContext);
+      await executeAuctions(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getBidDataStub.callCount).to.be.eq(1);
@@ -295,7 +295,7 @@ describe("Operations:Auctions", () => {
       const bidData = mock.entity.bidData();
       getBidDataStub.resolves(bidData);
 
-      await selectBids(requestContext);
+      await executeAuctions(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getBidDataStub.callCount).to.be.eq(1);
@@ -312,7 +312,7 @@ describe("Operations:Auctions", () => {
 
     it("does nothing if none queued", async () => {
       getQueuedTransfersStub.resolves([]);
-      await selectBids(requestContext);
+      await executeAuctions(requestContext);
     });
   });
 });
