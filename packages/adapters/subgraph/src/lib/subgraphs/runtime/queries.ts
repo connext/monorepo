@@ -331,3 +331,39 @@ export const getAssetByCanonicalId = gql`
     }
   }
 `;
+
+export const getAssetBalance = gql`
+  query GetAssetBalance($assetBalanceId: ID!) {
+    assetBalance(id: $assetBalanceId) {
+      amount
+      asset {
+        canonicalId
+        canonicalDomain
+        local
+        adoptedAsset
+      }
+    }
+  }
+`;
+
+export const getAssetBalances = gql`
+  query GetAssetBalances($router: String!) {
+    assetBalances(where: { router: $router }) {
+      amount
+      asset {
+        canonicalId
+        canonicalDomain
+        local
+        adoptedAsset
+      }
+    }
+  }
+`;
+
+export const getRouter = gql`
+  query GetRouter($router: ID!) {
+    router(id: $router) {
+      id
+    }
+  }
+`;

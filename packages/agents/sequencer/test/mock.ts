@@ -66,7 +66,7 @@ export const mock = {
       cleanup: false,
     },
   }),
-  adapter: {
+  adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
       const transactions = createStubInstance(TransfersCache);
