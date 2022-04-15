@@ -150,7 +150,7 @@ jobs:
       sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
 
   terraform-infra:
-    if: github.ref == 'refs/heads/amarok'
+#    if: github.ref == 'refs/heads/amarok'
     runs-on: ubuntu-latest
     needs: [smoke-tests]
     env:
@@ -188,7 +188,7 @@ jobs:
           terraform apply -auto-approve
 
   terraform-services-staging:
-    if: github.ref == 'refs/heads/amarok'
+#    if: github.ref == 'refs/heads/amarok'
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
