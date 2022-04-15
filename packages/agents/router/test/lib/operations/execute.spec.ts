@@ -54,10 +54,6 @@ describe("Operations:Execute", () => {
 
       await expect(execute(mockXTransfer)).to.be.fulfilled;
 
-      expect(mockContext.adapters.subgraph.isRouterApproved).to.be.calledOnceWithExactly(
-        mock.chain.B,
-        mockContext.routerAddress,
-      );
       expect(mockContext.adapters.subgraph.getAssetBalance).to.be.calledOnceWithExactly(
         mock.chain.B,
         mockContext.routerAddress,
@@ -92,12 +88,6 @@ describe("Operations:Execute", () => {
     it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";
       await expect(execute(mockXTransfer)).to.be.rejectedWith(SlippageInvalid);
-    });
-
-    it("should not sendBid if router not approved", async () => {
-      mockContext.adapters.subgraph.isRouterApproved.resolves(false);
-
-      await expect(execute(mockXTransfer)).to.be.rejectedWith(RouterNotApproved);
     });
 
     it("should not sendBid if no liquidity", async () => {

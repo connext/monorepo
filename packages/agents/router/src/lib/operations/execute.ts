@@ -84,12 +84,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
     },
   };
 
-  // sanity checks
-  const approved = await subgraph.isRouterApproved(destinationDomain, routerAddress);
-  if (!approved) {
-    throw new RouterNotApproved({ routerAddress });
-  }
-
+  // sanity check
   const bal = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   if (bal.lt(receivingAmount)) {
     throw new NotEnoughAmount({
