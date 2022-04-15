@@ -40,7 +40,7 @@ dataSources:
           topic0: "0xd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1"
           handler: handleRouterOwnerAccepted
 
-  #
+  # Connext.sol events
   - kind: ethereum/contract
     name: Connext
     network: "{{network}}"
@@ -63,7 +63,7 @@ dataSources:
       eventHandlers:
         - event: AssetAdded(bytes32,uint32,address,address,address)
           handler: handleAssetAdded
-        - event: LiquidityAdded(address,address,bytes32,uint256,address)
+        - event: LiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleLiquidityRemoved
@@ -71,9 +71,10 @@ dataSources:
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,address)
           handler: handleExecuted
-        - event: Reconciled(indexed bytes32,indexed address,indexed address,address,uint256,(address,uint256),address)
+        - event: Reconciled(indexed bytes32,indexed uint32,address,address,uint256,(address[],uint256),address)
           handler: handleReconciled
       file: ./src/amarok-runtime-v0/mapping.ts
+
   # - kind: ethereum/contract
   #   name: TokenRegistry
   #   network: "{{network}}"

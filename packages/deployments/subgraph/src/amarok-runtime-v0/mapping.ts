@@ -213,10 +213,10 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
-  let router = Router.load(event.params.router.toHex());
+  // TODO: MUST FIX WHEN IRL MULTIPATH IMPLEMENTED
+  let router = Router.load(event.params.executed.routers[0].toHex());
   if (router == null) {
-    router = new Router(event.params.router.toHex());
-    router.save();
+    throw new Error(`Did not find router entry when processing Reconciled`);
   }
 
   let transfer = Transfer.load(event.params.transferId.toHexString());
@@ -231,6 +231,7 @@ export function handleReconciled(event: Reconciled): void {
   // Transfer Data
   transfer.transferId = event.params.transferId;
   transfer.to = event.params.to;
+  // TODO: MUST FIX SCHEMA WHEN IRL MULTIPATH IMPLEMENTED
   transfer.router = router.id;
 
   // Fulfill
