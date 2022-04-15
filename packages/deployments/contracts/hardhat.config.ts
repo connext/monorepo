@@ -108,7 +108,7 @@ const config: HardhatUserConfig = {
     rinkeby: {
       accounts: { mnemonic },
       chainId: 4,
-      url: "https://rinkeby.infura.io/v3/4ab2583ce84d4dd7b973bb4a29147d9b", // urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
+      url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     goerli: {
       accounts: { mnemonic },
@@ -123,7 +123,7 @@ const config: HardhatUserConfig = {
     kovan: {
       accounts: { mnemonic },
       chainId: 42,
-      url: "https://kovan.infura.io/v3/4ab2583ce84d4dd7b973bb4a29147d9b", // urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
+      url: urlOverride || process.env.KOVAN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     "optimism-kovan": {
       accounts: { mnemonic },

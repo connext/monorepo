@@ -2,7 +2,6 @@ import { task } from "hardhat/config";
 import { NomadMessage, NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { providers } from "ethers";
-import { NetworkUserConfig } from "hardhat/types";
 
 import config from "../../hardhat.config";
 import { getDomainInfoFromChainId } from "../nomad";
