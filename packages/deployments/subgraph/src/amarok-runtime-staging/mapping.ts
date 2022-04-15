@@ -8,8 +8,19 @@ import {
   Executed,
   Reconciled,
   AssetAdded,
+  RouterAdded,
 } from "../../generated/Connext/Connext";
 import { Asset, AssetBalance, Router, Transfer } from "../../generated/schema";
+
+export function handleRouterAdded(event: RouterAdded): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
+}
 
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.supportedAsset.toHex();
