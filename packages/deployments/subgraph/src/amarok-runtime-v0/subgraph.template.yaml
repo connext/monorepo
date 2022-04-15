@@ -23,6 +23,7 @@ dataSources:
           file: ./src/amarok-runtime-v0/abis/Connext.json
       eventHandlers:
         - event: RouterAdded(address,address)
+          topic0: "0xbc68405e644da2aaf25623ce2199da82c6dfd2e1de102b400eba6a091704d4f4"
           handler: handleRouterAdded
         - event: AssetAdded(bytes32,uint32,address,address,address)
           handler: handleAssetAdded
