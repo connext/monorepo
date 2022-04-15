@@ -22,9 +22,22 @@ dataSources:
         - name: Connext
           file: ./src/amarok-runtime-staging/abis/Connext.json
       eventHandlers:
+        # RouterPermissionsManagerLogic.sol events
         - event: RouterAdded(address,address)
           topic0: "0xbc68405e644da2aaf25623ce2199da82c6dfd2e1de102b400eba6a091704d4f4"
           handler: handleRouterAdded
+        - event: RouterRemoved(address,address)
+          topic0: "0xbee3e974bb6a6f44f20096ede047c191eef60322e65e4ee4bd3392230a8716d5"
+          handler: handleRouterRemoved
+        - event: RouterRecipientSet(address,address,address)
+          topic0: "0x31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d7"
+          handler: handleRouterRecipientSet
+        - event: RouterOwnerProposed(address,address,address)
+          topic0: "0xee0158b57adc03901d8b16c48cd10c33ca1283ee96c6e0d30f817ceba74dc4a1"
+          handler: handleRouterOwnerProposed
+        - event: RouterOwnerAccepted(address,address,address)
+          topic0: "0xd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1"
+          handler: handleRouterOwnerAccepted
         - event: AssetAdded(bytes32,uint32,address,address,address)
           handler: handleAssetAdded
         - event: RelayerAdded(address,address)
