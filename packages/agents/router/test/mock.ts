@@ -202,13 +202,16 @@ export const stubHelpers = () => {
   try {
     getHelpersStub = stub(helpers, "getHelpers").returns(mock.helpers);
   } catch (e) {}
+  return getHelpersStub;
 };
 
 let getOperationsStub: SinonStub;
 export const stubOperations = () => {
-  if (!getOperationsStub) {
-    getOperationsStub = stub(operations, "getOperations");
-  }
-  getOperationsStub.resetHistory();
-  getOperationsStub.returns(mock.operations);
+  try {
+    getOperationsStub.restore();
+  } catch (e) {}
+  try {
+    getOperationsStub = stub(operations, "getOperations").returns(mock.operations);
+  } catch (e) {}
+  return getOperationsStub;
 };

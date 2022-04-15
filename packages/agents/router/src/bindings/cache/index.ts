@@ -39,8 +39,6 @@ export const pollCache = async () => {
     const pending = await cache.transfers.getPending(domain);
     logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
 
-    // TODO make this logic work to update
-    // const toUpdate: XTransfer[] = [];
     for (const transferId of pending) {
       // Retrieve the transfer data.
       const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
@@ -78,23 +76,16 @@ export const pollCache = async () => {
       try {
         // Call execute to process the transfer.
         await execute(transfer);
-      } catch (err: unknown) {
-        logger.error(
-          "Error executing transaction, marking as failed",
-          requestContext,
-          methodContext,
-          jsonifyError(err as Error),
-          {
+      } catch (error: any) {
+        // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
+        const isNewError = await cache.transfers.saveError(transferId, error.toString());
+        if (isNewError) {
+          logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(error as Error), {
             transferId,
             xcall: transfer.xcall,
-          },
-        );
-        // TODO: maybe we can retry some later?
-        await cache.transfers.removePending(domain, transferId);
-        // const _t: XTransfer = { ...transfer, status: XTransferStatus.Failed };
-        // toUpdate.push(_t);
+          });
+        }
       }
-      // await cache.transfers.storeTransfers(toUpdate);
     }
   }
 };

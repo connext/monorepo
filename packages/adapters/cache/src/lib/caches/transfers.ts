@@ -1,4 +1,4 @@
-import { XTransfer } from "@connext/nxtp-utils";
+import { NxtpError, XTransfer } from "@connext/nxtp-utils";
 
 import { StoreChannel } from "../entities";
 import { getHelpers } from "../helpers";
@@ -144,7 +144,7 @@ export class TransfersCache extends Cache {
    * @returns boolean indicating whether the transfer ID was successfully removed from the
    * list of pending transfers.
    */
-  public async removePending(domain: string, transferId: string): Promise<boolean> {
+  private async removePending(domain: string, transferId: string): Promise<boolean> {
     const currentPending = await this.getPending(domain);
     const index = currentPending.findIndex((id) => id === transferId);
     if (index >= 0) {
@@ -153,5 +153,35 @@ export class TransfersCache extends Cache {
       return true;
     }
     return false;
+  }
+
+  /// MARK - Errors
+  /**
+   * Returns a list of all error strings for the specified transfer ID.
+   *
+   * @param transferId
+   */
+  private async getErrors(transferId: string): Promise<string[]> {
+    return JSON.parse((await this.data.hget(`${this.prefix}:errors`, transferId)) ?? "[]");
+  }
+
+  /**
+   * Record an error that occurred for a transfer. This is used to track all different errors that
+   * occur for a given transfer and prevent redundant logging during retries.
+   *
+   * @param transferId - The transfer ID to add to the list of pending transfers.
+   * @param error - String error message to save.
+   *
+   * @returns boolean indicating true if the error is a new error and was added to the errors array,
+   * and false if it already exists.
+   */
+  public async saveError(transferId: string, error: string): Promise<boolean> {
+    const stringified = JSON.stringify(error);
+    const currentErrors = await this.getErrors(transferId);
+    const isNewError = !currentErrors.includes(stringified);
+    if (isNewError) {
+      await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
+    }
+    return isNewError;
   }
 }
