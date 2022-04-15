@@ -1,6 +1,6 @@
 import { CallParams, Bid, BidData, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 
-import { NotEnoughAmount, ParamsInvalid, RouterNotApproved } from "../errors";
+import { ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
