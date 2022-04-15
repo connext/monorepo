@@ -13,7 +13,6 @@ import {
 
 import { AuctionExpired, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
-import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
 
@@ -29,13 +28,8 @@ export const storeBid = async (
 ): Promise<void> => {
   const {
     logger,
-    chainData,
-    adapters: { chainreader, cache },
-    config,
+    adapters: { cache },
   } = getContext();
-  const {
-    auctions: { encodeExecuteFromBid },
-  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
 
