@@ -35,7 +35,7 @@ export const sendToRelayer = async (
   }
 
   // Validate the bid's fulfill call will succeed on chain.
-  const relayerAddress = await getGelatoRelayerAddress(destinationChainId);
+  const relayerAddress = await getGelatoRelayerAddress(destinationChainId, logger);
   const gas = await chainreader.getGasEstimateWithRevertCode(Number(bidData.params.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,

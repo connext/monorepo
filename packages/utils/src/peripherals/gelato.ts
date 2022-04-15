@@ -32,17 +32,17 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
   return chainsSupportedByGelato.includes(chainId.toString());
 };
 
-export const getGelatoRelayerAddress = async (logger?: Logger): Promise<string> => {
+export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger): Promise<string> => {
   let result = [];
   try {
-    const res = await axios.get(`${gelatoServer}/relays/`);
-    result = res.data.relays;
+    const res = await axios.get(`${gelatoServer}/relays/${chainId}/address`);
+    result = res.data.address;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
     throw new Error("Error in getGelatoRelayChains");
   }
 
-  return result.address;
+  return result;
 };
 
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
