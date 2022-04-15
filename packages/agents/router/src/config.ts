@@ -149,7 +149,7 @@ export const getEnvConfig = (
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
-    throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
+    throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
   }
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);

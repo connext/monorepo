@@ -28,7 +28,7 @@ export default task("add-relayer", "Add Relayer to whitelist")
         throw new Error("Invalid Relayer address");
       }
 
-      const approvedRelayer = await connext.approvedRelayer(relayer);
+      const approvedRelayer = await connext.approvedRelayers(relayer);
       console.log("approvedRelayer: ", approvedRelayer);
       if (approvedRelayer) {
         throw new Error("Already approved relayer");
