@@ -6,6 +6,7 @@ export enum XTransferStatus {
   XCalled = "XCalled",
   Executed = "Executed",
   Reconciled = "Reconciled",
+  Failed = "Failed",
 }
 
 export const XTransferMethodCallSchema = Type.Object({

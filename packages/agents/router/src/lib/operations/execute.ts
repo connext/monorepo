@@ -1,14 +1,6 @@
-import {
-  CallParams,
-  Bid,
-  BidData,
-  createLoggingContext,
-  XTransfer,
-  jsonifyError,
-  DEFAULT_ROUTER_FEE,
-} from "@connext/nxtp-utils";
+import { CallParams, Bid, BidData, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 
-import { SanityCheckFailed } from "../errors";
+import { ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -25,12 +17,11 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   const {
     logger,
-    adapters: { wallet },
+    adapters: { wallet, subgraph },
     routerAddress,
   } = getContext();
   const {
     auctions: { sendBid },
-    execute: { sanityCheck },
     shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
   } = getHelpers();
 
@@ -51,7 +42,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
   if (!xcall) {
     // TODO: add named error
-    throw new Error("xcall undefined");
+    throw new ParamsInvalid({ message: "xcall undefined", requestContext, methodContext });
   }
   // generate bid params
   const callParams: CallParams = {
@@ -61,13 +52,14 @@ export const execute = async (params: XTransfer): Promise<void> => {
     destinationDomain,
   };
 
-  // TODO:  get local Asset from onChain call and later switch to subgraph
   const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
+  logger.info("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
   const receivingAmount = xcall.localAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
+  logger.info("Signed payload", requestContext, methodContext, { signature });
 
   // TODO: Eventually, sending the bid data to the sequencer should be deprecated.
   const bidData: BidData = {
@@ -92,15 +84,16 @@ export const execute = async (params: XTransfer): Promise<void> => {
     },
   };
 
-  try {
-    // sanity check
-    await sanityCheck(bidData, requestContext);
-  } catch (e: unknown) {
-    throw new SanityCheckFailed({
-      error: jsonifyError(e as Error),
-      bid,
-    });
+  // sanity check
+  const bal = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  logger.info("Checking balance", requestContext, methodContext, { bal: bal.toString() });
+  if (bal.lt(receivingAmount)) {
+    // throw new NotEnoughAmount({
+    //   bal: bal.toString(),
+    //   receivingAmount: receivingAmount.toString(),
+    // });
   }
+  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: bal.toString() });
 
   await sendBid(transferId, bid, bidData, requestContext);
 };

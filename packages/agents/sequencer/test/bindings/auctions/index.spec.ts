@@ -6,12 +6,12 @@ import { bindAuctions } from "../../../src/bindings";
 
 describe("Bindings:Auctions", () => {
   describe("#bidSelection", () => {
-    let selectBidsStub: SinonStub;
+    let executeAuctionsStub: SinonStub;
     beforeEach(() => {
-      selectBidsStub = stub().resolves();
+      executeAuctionsStub = stub().resolves();
       getOperationsStub.returns({
         auctions: {
-          selectBids: selectBidsStub,
+          executeAuctions: executeAuctionsStub,
         },
       });
     });
@@ -22,7 +22,7 @@ describe("Bindings:Auctions", () => {
       // TODO: slight race here?
       await delay(20);
       ctxMock.config.mode.cleanup = true;
-      expect(selectBidsStub.callCount).to.be.gte(1);
+      expect(executeAuctionsStub.callCount).to.be.gte(1);
     });
   });
 });

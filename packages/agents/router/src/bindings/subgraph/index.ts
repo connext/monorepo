@@ -10,12 +10,10 @@ import interval from "interval-promise";
 import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../router";
 
-export const SUBGRAPH_POLL_INTERVAL = 15_000;
-
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL) => {
+export const bindSubgraph = async (_pollInterval: number) => {
   const { config } = getContext();
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
@@ -41,7 +39,7 @@ export const pollSubgraph = async () => {
     for (const domain of Object.keys(config.chains)) {
       // TODO: Needs to implement the selection algorithm
       const healthUrls = config.chains[domain].subgraph.runtime.map((url) => {
-        return { name: getSubgraphName(url.query), url: url.health };
+        return { name: getSubgraphName(url.query ), url: url.health };
       });
       let latestBlockNumber = 0;
       for (const healthEp of healthUrls) {
