@@ -30,7 +30,7 @@ export const mochaHooks = {
     ]);
 
     // setup cache
-    const cacheParams = { host: "mock", port: 1234, mock: true, logger: mock.context().logger };
+    const cacheParams = { host: "mock", port: 1234, mock: true, logger: mock.context().logger, redis: undefined };
     const cacheInstance = StoreManager.getInstance(cacheParams);
 
     getOperationsStub = stub(operations, "getOperations");
@@ -41,6 +41,7 @@ export const mochaHooks = {
 
     chainReaderMock = createStubInstance(ChainReader);
     chainReaderMock.getGasEstimate.resolves(parseUnits("1", 9));
+    chainReaderMock.getGasEstimateWithRevertCode.resolves(parseUnits("1", 9));
     ctxMock = {
       adapters: {
         subgraph: subgraphMock,

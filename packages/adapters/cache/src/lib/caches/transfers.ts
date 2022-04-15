@@ -154,4 +154,34 @@ export class TransfersCache extends Cache {
     }
     return false;
   }
+
+  /// MARK - Errors
+  /**
+   * Returns a list of all error strings for the specified transfer ID.
+   *
+   * @param transferId
+   */
+  private async getErrors(transferId: string): Promise<string[]> {
+    return JSON.parse((await this.data.hget(`${this.prefix}:errors`, transferId)) ?? "[]");
+  }
+
+  /**
+   * Record an error that occurred for a transfer. This is used to track all different errors that
+   * occur for a given transfer and prevent redundant logging during retries.
+   *
+   * @param transferId - The transfer ID to add to the list of pending transfers.
+   * @param error - String error message to save.
+   *
+   * @returns boolean indicating true if the error is a new error and was added to the errors array,
+   * and false if it already exists.
+   */
+  public async saveError(transferId: string, error: string): Promise<boolean> {
+    const stringified = JSON.stringify(error);
+    const currentErrors = await this.getErrors(transferId);
+    const isNewError = !currentErrors.includes(stringified);
+    if (isNewError) {
+      await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
+    }
+    return isNewError;
+  }
 }

@@ -2,6 +2,7 @@
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import {
+  RouterAdded,
   LiquidityAdded,
   LiquidityRemoved,
   XCalled,
@@ -10,6 +11,16 @@ import {
   AssetAdded,
 } from "../../generated/Connext/Connext";
 import { Asset, AssetBalance, Router, Transfer } from "../../generated/schema";
+
+export function handleRouterAdded(event: RouterAdded): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
+}
 
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.supportedAsset.toHex();
@@ -152,6 +163,12 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
+  let router = Router.load(event.params.router.toHex());
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.save();
+  }
+
   let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new Transfer(event.params.transferId.toHexString());
@@ -164,6 +181,7 @@ export function handleReconciled(event: Reconciled): void {
   // Transfer Data
   transfer.transferId = event.params.transferId;
   transfer.to = event.params.to;
+  transfer.router = router!.id;
 
   // Fulfill
   transfer.reconciledCaller = event.params.caller;
