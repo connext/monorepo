@@ -21,6 +21,7 @@ export type Scalars = {
 export type Asset = {
   __typename?: 'Asset';
   adoptedAsset: Scalars['Bytes'];
+  blockNumber: Scalars['BigInt'];
   canonicalDomain: Scalars['BigInt'];
   canonicalId: Scalars['Bytes'];
   id: Scalars['ID'];
@@ -112,6 +113,14 @@ export type Asset_Filter = {
   adoptedAsset_not?: InputMaybe<Scalars['Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
@@ -144,6 +153,7 @@ export type Asset_Filter = {
 
 export enum Asset_OrderBy {
   AdoptedAsset = 'adoptedAsset',
+  BlockNumber = 'blockNumber',
   CanonicalDomain = 'canonicalDomain',
   CanonicalId = 'canonicalId',
   Id = 'id',
@@ -261,6 +271,11 @@ export type Router = {
   __typename?: 'Router';
   assetBalances: Array<AssetBalance>;
   id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  owner?: Maybe<Scalars['Bytes']>;
+  proposedOwner?: Maybe<Scalars['Bytes']>;
+  proposedTimestamp?: Maybe<Scalars['BigInt']>;
+  recipient?: Maybe<Scalars['Bytes']>;
   transfers: Array<Transfer>;
 };
 
@@ -293,11 +308,46 @@ export type Router_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  owner?: InputMaybe<Scalars['Bytes']>;
+  owner_contains?: InputMaybe<Scalars['Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  owner_not?: InputMaybe<Scalars['Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['Bytes']>;
+  owner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposedOwner?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_contains?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposedOwner_not?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  recipient?: InputMaybe<Scalars['Bytes']>;
+  recipient_contains?: InputMaybe<Scalars['Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  recipient_not?: InputMaybe<Scalars['Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['Bytes']>;
+  recipient_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
 };
 
 export enum Router_OrderBy {
   AssetBalances = 'assetBalances',
   Id = 'id',
+  IsActive = 'isActive',
+  Owner = 'owner',
+  ProposedOwner = 'proposedOwner',
+  ProposedTimestamp = 'proposedTimestamp',
+  Recipient = 'recipient',
   Transfers = 'transfers'
 }
 
@@ -1161,7 +1211,11 @@ export const GetAssetByLocalDocument = gql`
     `;
 export const GetAssetByCanonicalIdDocument = gql`
     query GetAssetByCanonicalId($canonicalId: Bytes!) {
-  assets(where: {canonicalId: $canonicalId}) {
+  assets(
+    where: {canonicalId: $canonicalId}
+    orderBy: blockNumber
+    orderDirection: desc
+  ) {
     id
     local
     adoptedAsset

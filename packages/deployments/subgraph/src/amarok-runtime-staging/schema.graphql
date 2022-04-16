@@ -4,6 +4,7 @@ type Asset @entity {
   adoptedAsset: Bytes!
   canonicalId: Bytes!
   canonicalDomain: BigInt!
+  blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
 }
 
 type AssetBalance @entity {

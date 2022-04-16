@@ -322,7 +322,7 @@ export const getAssetByLocal = gql`
 
 export const getAssetByCanonicalId = gql`
   query GetAssetByCanonicalId($canonicalId: Bytes!) {
-    assets(where: { canonicalId: $canonicalId }) {
+    assets(where: { canonicalId: $canonicalId }, orderBy: blockNumber, orderDirection: desc) {
       id
       local
       adoptedAsset
