@@ -1,7 +1,7 @@
-import "../nomad-xapps/contracts/connext/ConnextMessage.sol";
-
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity ^0.8.11;
+
+import "../nomad-xapps/contracts/connext/ConnextMessage.sol";
 
 interface IConnext {
   // ============= Structs =============
@@ -41,7 +41,7 @@ interface IConnext {
    * @param params - The CallParams. These are consistent across sending and receiving chains
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
-   * @param router - The router who you are sending the funds on behalf of
+   * @param routers - The routers who you are sending the funds on behalf of
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
    * @param nonce - The nonce used to generate transfer id
@@ -49,9 +49,9 @@ interface IConnext {
    */
   struct ExecuteArgs {
     CallParams params;
-    address local; // Canonical token id
-    address router;
-    uint256 amount; // amount bridged
+    address local; // local representation of canonical token
+    address[] routers;
+    uint256 amount;
     uint256 nonce;
     address originSender;
   }
@@ -119,6 +119,13 @@ interface IConnext {
   event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
 
   /**
+   * @notice Emitted when the maxRoutersPerTransfer variable is updated
+   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
+   * @param caller - The account that called the function
+   */
+  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
+
+  /**
    * @notice Emitted when `xcall` is called on the origin domain
    * @param transferId - The unique identifier of the crosschain transfer
    * @param to - The CallParams.to provided, created as indexed parameter
@@ -150,7 +157,7 @@ interface IConnext {
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
-   * @param router - The router that supplied fast liquidity, if applicable
+   * @param to - The CallParams.recipient provided, created as indexed parameter
    * @param asset - The asset that was provided by the bridge
    * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
@@ -158,7 +165,7 @@ interface IConnext {
   event Reconciled(
     bytes32 indexed transferId,
     uint32 indexed origin,
-    address indexed router,
+    address indexed to,
     address asset,
     uint256 amount,
     address caller
@@ -212,6 +219,8 @@ interface IConnext {
   ) external;
 
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external;
+
+  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external;
 
   function addRelayer(address relayer) external;
 

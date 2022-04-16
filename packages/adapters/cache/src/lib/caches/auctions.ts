@@ -1,157 +1,179 @@
-import { BidStatus, StoredBid, Bid, getNtpTimeSeconds } from "@connext/nxtp-utils";
-
-import { StoreChannel } from "../entities";
+import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask, BidData } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
+/**
+ * Redis Store Details:
+ * Auctions:
+ *   key: $transferId | value: JSON.stringify(Auction);
+ *
+ * Auction Status:
+ *   key: $transferId | value: JSON.stringify(AuctionStatus);
+ *
+ * Auction Tasks:
+ *   key: $transferId | value: JSON.stringify(AuctionTask);
+ *
+ * TODO: This a temporary solution to store the relevant data needed to encode
+ * execute calldata for the meta tx. Should be deprecated once the sequencer
+ * uses the subgraph to get the data needed.
+ * BidData:
+ *   key: $domain | value: string;
+ */
 export class AuctionsCache extends Cache {
-  private readonly prefix = "bids";
+  private readonly prefix = "auctions";
+
+  /// MARK - Auction Data
   /**
-   * Stores bid to redis
-   *
-   * @param bid The signed bid we're going to store
-   * @returns Returns the number of bids for a txId
+   * Retrieve auction data for a given transfer ID.
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @returns Auction data if exists, undefined otherwise.
    */
-  public async storeBid(bid: Bid): Promise<number> {
-    const txid = bid.transferId;
-    const router = bid.data.router;
-    const curTimeInSecs = await getNtpTimeSeconds();
-
-    await this.data.hset(
-      `${this.prefix}:${txid}:${router}`,
-      "payload",
-      JSON.stringify(bid),
-      "status",
-      BidStatus.Pending,
-      "lastUpdate",
-      curTimeInSecs,
-    );
-
-    const count = (await this.data.keys(`${this.prefix}:${txid}:*`)).length;
-
-    await this.data.publish(StoreChannel.NewBid, JSON.stringify(bid));
-
-    return count;
+  public async getAuction(transferId: string): Promise<Auction | undefined> {
+    const res = await this.data.hget(`${this.prefix}:auction`, transferId);
+    return res ? (JSON.parse(res) as Auction) : undefined;
   }
 
-  public async getAllTransactionsIdsWithPendingBids(): Promise<string[]> {
-    const bidStream = this.data.scanStream({
-      match: `${this.prefix}:*`,
-    });
+  /**
+   * Creates or updates an existing auction entry for the given transfer ID.
+   *
+   * @param data.transferId - The ID of transfer we are auctioning.
+   * @param data.origin - The origin domain of the transfer.
+   * @param data.destination - The destination domain of the transfer.
+   * @param data.bid - The actual bid from the router, including signatures by round.
+   *
+   * @returns 0 if updated, 1 if created
+   */
+  public async upsertAuction({
+    transferId,
+    origin,
+    destination,
+    bid,
+  }: {
+    transferId: string;
+    origin: string;
+    destination: string;
+    bid: Bid;
+  }): Promise<number> {
+    // If auction entry exists, add to it; otherwise, we'll create a new entry.
+    const existing = await this.getAuction(transferId);
 
-    const keys: string[] = [];
-    await new Promise<void>((res, _rej) => {
-      bidStream.on("data", (resultKeys: string[]) => {
-        keys.push(...resultKeys);
+    const auction: Auction = {
+      timestamp: existing?.timestamp ?? getNtpTimeSeconds().toString(),
+      origin,
+      destination,
+      bids: [...(existing?.bids ?? []), bid],
+    };
+    const res = await this.data.hset(`${this.prefix}:auction`, transferId, JSON.stringify(auction));
+
+    if (!existing) {
+      // If the auction didn't previously exist, create an entry for status as well.
+      await this.setStatus(transferId, AuctionStatus.Queued);
+    }
+
+    return Number(res >= 1);
+  }
+
+  /// MARK - Meta TX Tasks
+  /**
+   * Gets the auction meta tx information for the given transfer ID.
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @returns AuctionTask if exists, undefined otherwise.
+   */
+  public async getTask(transferId: string): Promise<AuctionTask | undefined> {
+    const res = await this.data.hget(`${this.prefix}:task`, transferId);
+    return res ? (JSON.parse(res) as AuctionTask) : undefined;
+  }
+
+  /**
+   * Creates or updates the meta tx information for the given transfer ID.
+   *
+   * @param data.transferId - The ID of transfer we are auctioning.
+   * @param data.taskId - Auction task ID from relayer.
+   *
+   * @returns 0 if updated, 1 if created
+   */
+  public async upsertTask({ transferId, taskId }: { transferId: string; taskId: string }): Promise<number> {
+    const existing = await this.getTask(transferId);
+    const task: AuctionTask = {
+      // We update the timestamp each time here; it is intended to reflect when the *last* meta tx was sent.
+      timestamp: getNtpTimeSeconds().toString(),
+      taskId,
+      attempts: existing ? existing.attempts + 1 : 1,
+    };
+    const res = await this.data.hset(`${this.prefix}:task`, transferId, JSON.stringify(task));
+    return Number(res >= 1);
+  }
+
+  /// MARK - Auction Status
+  /**
+   * Gets the auction status for the given transfer ID.
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @returns AuctionStatus if exists, AuctionStatus.None if no entry was found.
+   */
+  public async getStatus(transferId: string): Promise<AuctionStatus> {
+    const res = await this.data.hget(`${this.prefix}:status`, transferId);
+    return res && Object.values(AuctionStatus).includes(res as AuctionStatus)
+      ? AuctionStatus[res as AuctionStatus]
+      : AuctionStatus.None;
+  }
+
+  public async setStatus(transferId: string, status: AuctionStatus): Promise<number> {
+    return await this.data.hset(`${this.prefix}:status`, transferId, status.toString());
+  }
+
+  /// MARK - Queued Transfers
+  /**
+   * Retrieve all transfer IDs that have the AuctionStatus.Queued status.
+   * @returns An array of transfer IDs.
+   */
+  public async getQueuedTransfers(): Promise<string[]> {
+    const stream = this.data.hscanStream(`${this.prefix}:status`);
+    let keys: string[] = [];
+    await new Promise((res) => {
+      stream.on("data", (resultKeys: string[] = []) => {
+        keys = keys.concat(resultKeys);
       });
-      bidStream.on("end", () => {
-        res();
+      stream.on("end", async () => {
+        res(undefined);
       });
     });
-
-    const pendingTxids: string[] = [];
+    const filtered: string[] = [];
     for (const key of keys) {
-      const record = await this.data.hgetall(key);
-      const bidStatus: BidStatus = record["status"] as BidStatus;
-      //found pending txid;
-      if (bidStatus === BidStatus.Pending) {
-        //get txid from longer key
-        const txid = key.substring(key.indexOf(":") + 1, key.lastIndexOf(":"));
-        if (!pendingTxids.includes(txid)) pendingTxids.push(txid);
+      const status = await this.getStatus(key);
+      if (status === AuctionStatus.Queued) {
+        filtered.push(key);
       }
     }
-    return pendingTxids;
+    return filtered;
   }
 
-  public async updateAllBidsWithTransactionId(txid: string, status: BidStatus): Promise<number[] | void> {
-    //gets all the keys that match for the txid (all bids)
-    const bidStream = this.data.scanStream({
-      match: `${this.prefix}:${txid}:*`,
-    });
-
-    const keys: string[] = [];
-    await new Promise<void>((res, _rej) => {
-      bidStream.on("data", (resultKeys: string[]) => {
-        keys.push(...resultKeys);
-      });
-      bidStream.on("end", () => {
-        res();
-      });
-    });
-
-    const statusSetResults: number[] = [];
-    for (const key of keys) {
-      const fieldUpdated = await this.data.hset(key, "status", status);
-      statusSetResults.push(fieldUpdated);
-    }
-    return statusSetResults;
+  /// MARK - Bid Data
+  /**
+   * Gets the bid data for the given transfer ID.
+   *
+   * @notice This is temporary solution to store the relevant data needed to encode execute calldata.
+   * Should be deprecated.
+   *
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @returns BidData if exists, undefined otherwise.
+   */
+  public async getBidData(transferId: string): Promise<BidData | undefined> {
+    const res = await this.data.hget(`${this.prefix}:bidData`, transferId);
+    return res ? (JSON.parse(res) as BidData) : undefined;
   }
 
   /**
-   * Updates the status of bid
+   * Sets the bid data for the given transfer ID.
    *
-   * @param bid The signed bid we're going to update
-   * @param bidStatus The status of bid
-   * @returns 1 - added, 0 - updated
-   */
-  public async updateBid(bid: Bid, bidStatus: BidStatus): Promise<number> {
-    const txid = bid.transferId;
-    const router = bid.data.router;
-    const curTimeInSecs = await getNtpTimeSeconds();
-
-    const res = await this.data.hset(
-      `${this.prefix}:${txid}:${router}`,
-      "payload",
-      JSON.stringify(bid),
-      "status",
-      bidStatus,
-      "lastUpdate",
-      curTimeInSecs,
-    );
-
-    if (res >= 1) return 1;
-    else return res;
-  }
-
-  /**
-   * Gets the bids by transactionId
+   * @notice This is temporary solution to store the relevant data needed to encode execute calldata.
+   * Should be deprecated.
    *
-   * @param transactionId The transactionId of the bids that we're going to get
-   * @returns Auction bids that were stored with the status
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @param data - Bid data to store.
+   *
+   * @returns 0 if updated, 1 if created
    */
-  public async getBidsByTransactionId(transactionId: string): Promise<StoredBid[]> {
-    const bidStream = this.data.scanStream({
-      match: `${this.prefix}:${transactionId}:*`,
-    });
-
-    const keys: string[] = [];
-    await new Promise<void>((res, _rej) => {
-      bidStream.on("data", (resultKeys: string[]) => {
-        keys.push(...resultKeys);
-      });
-      bidStream.on("end", () => {
-        res();
-      });
-    });
-
-    const storedBids: StoredBid[] = [];
-    for (const key of keys) {
-      // 1 - "payload" - key
-      // 2 - value for the `payload`
-      // 3 - "status" - key
-      // 4 - value for the `status`
-      // 5 - `lastUpdate` - key
-      // 6 - value for the `lastUpdate`
-      const record = await this.data.hgetall(key);
-      const bidStatus = record["status"];
-      const lastUpdate = Number(record["lastUpdate"]);
-
-      storedBids.push({
-        payload: JSON.parse(record["payload"]) as Bid,
-        status: bidStatus as BidStatus,
-        lastUpdate,
-      });
-    }
-    return storedBids;
+  public async setBidData(transferId: string, data: BidData): Promise<number> {
+    return await this.data.hset(`${this.prefix}:bidData`, transferId, JSON.stringify(data));
   }
 }

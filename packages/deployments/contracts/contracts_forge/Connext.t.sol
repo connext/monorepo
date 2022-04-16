@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.11;
+
 import "./ForgeHelper.sol";
 
 import "../contracts/Connext.sol";
+import "../contracts/ProposedOwnableUpgradeable.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -14,6 +17,8 @@ import "../contracts/Connext.sol";
 contract ConnextTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
+
+  event MaxRoutersPerTransferUpdated(uint256 maxRouters, address caller);
 
   // ============ Storage ============
 
@@ -52,5 +57,39 @@ contract ConnextTest is ForgeHelper {
     stdstore.target(address(connext)).sig(connext.routerRecipients.selector).with_key(_router).checked_write(
       _recipient
     );
+  }
+
+  // ============ setMaxRouters ============
+
+  // Should work
+  function testSetMaxRoutersPerTransfer() public {
+    require(connext.maxRoutersPerTransfer() != 10);
+
+    connext.setMaxRoutersPerTransfer(10);
+    assertEq(connext.maxRoutersPerTransfer(), 10);
+  }
+
+  // Fail if not called by owner
+  function testSetMaxRoutersPerTransferOwnable() public {
+    vm.prank(address(0));
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
+    connext.setMaxRoutersPerTransfer(10);
+  }
+
+  // Fail maxRouters is 0
+  function testSetMaxRoutersPerTransferZeroValue() public {
+    vm.expectRevert(
+      abi.encodeWithSelector(Connext.Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector)
+    );
+    connext.setMaxRoutersPerTransfer(0);
+  }
+
+  // Emits MaxRoutersPerTransferUpdated
+  function testSetMaxRoutersPerTransferEvent() public {
+    vm.expectEmit(true, true, true, true);
+    emit MaxRoutersPerTransferUpdated(10, address(this));
+    connext.setMaxRoutersPerTransfer(10);
   }
 }

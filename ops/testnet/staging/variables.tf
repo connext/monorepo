@@ -10,6 +10,12 @@ variable "az_count" {
   default = "2"
 }
 
+variable "stage" {
+  description = "stage of deployment"
+  default     = "staging"
+}
+
+
 variable "environment" {
   description = "env we're deploying to"
   default     = "testnet"
@@ -18,13 +24,13 @@ variable "environment" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-0666fc1"
+  default     = "ghcr.io/connext/router:sha-5ef09f4"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-0666fc1"
+  default     = "ghcr.io/connext/sequencer:sha-5ef09f4"
 }
 
 variable "mnemonic" {
@@ -39,7 +45,7 @@ variable "admin_token_router" {
 }
 
 variable "certificate_arn_testnet" {
-  default = "arn:aws:acm:us-east-1:679752396206:certificate/849d038c-a8c8-4324-9773-ffb4c6afe0a3"
+  default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }
 
 variable "rinkeby_alchemy_key_0" {

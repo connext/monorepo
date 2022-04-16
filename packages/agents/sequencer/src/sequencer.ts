@@ -6,7 +6,7 @@ import { ChainReader, getContractInterfaces, contractDeployments } from "@connex
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindServer, bindBidSelection } from "./bindings";
+import { bindServer, bindAuctions } from "./bindings";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -26,6 +26,7 @@ export const makeSequencer = async () => {
     }
     context.chainData = chainData;
     context.config = await getConfig(chainData, contractDeployments);
+    context.logger.info("Sequencer config generated", requestContext, methodContext, { config: context.config });
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
@@ -42,7 +43,7 @@ export const makeSequencer = async () => {
     // Create server, set up routes, and start listening.
     await bindServer();
 
-    await bindBidSelection();
+    await bindAuctions();
 
     context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
       port: context.config.server.port,

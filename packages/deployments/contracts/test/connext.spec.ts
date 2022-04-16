@@ -30,6 +30,7 @@ import {
   deployUpgradeableProxy,
   FastTransferAction,
   Message,
+  getRoutersBalances,
   restoreSnapshot,
   takeSnapshot,
 } from "./utils";
@@ -74,7 +75,7 @@ const executeProxyWrite = async <T extends Contract>(
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Connext", () => {
   // Get wallets
-  const [admin, router, user] = waffle.provider.getWallets() as Wallet[];
+  const [admin, router, user, router2, router3] = waffle.provider.getWallets() as Wallet[];
 
   // Token scenario:
   // - user prepares in adopted on origin
@@ -427,7 +428,7 @@ describe("Connext", () => {
         { maxFeePerGas: MAX_FEE_PER_GAS },
       );
       const receipt = await tx.wait();
-      await assertReceiptEvent(receipt, "StableSwapAdded", {
+      assertReceiptEvent(receipt, "StableSwapAdded", {
         caller: receipt.from,
         canonicalId: addressToBytes32(canonical.address).toLowerCase(),
         domain: originDomain,
@@ -490,7 +491,7 @@ describe("Connext", () => {
       );
       const receipt = await tx.wait();
       const supported = originAdopted.address == ZERO_ADDRESS ? weth.address : originAdopted.address;
-      await assertReceiptEvent(receipt, "AssetAdded", {
+      assertReceiptEvent(receipt, "AssetAdded", {
         caller: receipt.from,
         canonicalId: addressToBytes32(toAdd).toLowerCase(),
         domain: originDomain,
@@ -535,7 +536,7 @@ describe("Connext", () => {
       });
       const receipt = await tx.wait();
 
-      await assertReceiptEvent(receipt, "AssetRemoved", {
+      assertReceiptEvent(receipt, "AssetRemoved", {
         caller: receipt.from,
         canonicalId: addressToBytes32(toRemove).toLowerCase(),
       });
@@ -717,7 +718,7 @@ describe("Connext", () => {
       expect(receipt.status).to.be.eq(1);
 
       // Verify receipt events
-      await assertReceiptEvent(receipt, "LiquidityRemoved", {
+      assertReceiptEvent(receipt, "LiquidityRemoved", {
         router: router.address,
         local: assetId,
         caller: router.address,
@@ -758,7 +759,7 @@ describe("Connext", () => {
       expect(receipt.status).to.be.eq(1);
 
       // Verify receipt events
-      await assertReceiptEvent(receipt, "LiquidityRemoved", {
+      assertReceiptEvent(receipt, "LiquidityRemoved", {
         router: router.address,
         local: assetId,
         caller: router.address,
@@ -852,7 +853,7 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount,
-      router: router.address,
+      routers: [router.address],
       originSender: user.address,
     });
     await execute.wait();
@@ -941,7 +942,7 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount,
-      router: router.address,
+      router: [router.address],
       originSender: user.address,
     });
     await fulfill.wait();
@@ -1027,5 +1028,195 @@ describe("Connext", () => {
       BridgeMessageTypes.FAST_TRANSFER,
     );
     expect(testMessage).to.be.eq(serializedMessage);
+  });
+
+  describe("multipath", () => {
+    const params = {
+      to: user.address,
+      callData: "0x",
+      originDomain,
+      destinationDomain,
+    };
+    const amount = 1000;
+    let message: any;
+    let nonce: any;
+    let transferId: any;
+    let bridgedAmount: any;
+    let reconciledTopics: any;
+
+    beforeEach(async () => {
+      await originTm.setupRouter(router2.address, router2.address, router2.address);
+      await originTm.setupRouter(router3.address, router3.address, router3.address);
+      await destinationTm.setupRouter(router2.address, router2.address, router2.address);
+      await destinationTm.setupRouter(router3.address, router3.address, router3.address);
+      // Mint to routers
+      await local.mint(router2.address, parseEther("20")).then((r) => r.wait());
+      await local.mint(router3.address, parseEther("20")).then((r) => r.wait());
+
+      // Add routers liquidity
+      await local.connect(router).approve(destinationTm.address, parseEther("100000"));
+      await destinationTm.connect(router).addLiquidity(parseEther("0.1"), local.address);
+
+      await local.connect(router2).approve(destinationTm.address, parseEther("100000"));
+      await destinationTm.connect(router2).addLiquidity(parseEther("0.1"), local.address);
+
+      await local.connect(router3).approve(destinationTm.address, parseEther("100000"));
+      await destinationTm.connect(router3).addLiquidity(parseEther("0.1"), local.address);
+
+      // Setup stable swap for adopted => canonical on origin
+      await stableSwap.connect(admin).setupPool(originAdopted.address, canonical.address, SEED, SEED);
+
+      // Setup stable swap for local => adopted on dest
+      await stableSwap.connect(admin).setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
+
+      // Approve user
+      await originAdopted.connect(user).approve(originTm.address, parseEther("100000"));
+
+      // Prepare from the user
+      const transactingAssetId = originAdopted.address;
+      const prepare = await originTm.connect(user).xcall({ params, transactingAssetId, amount });
+      const prepareReceipt = await prepare.wait();
+
+      // Get the message + id from the events
+      const topics = originBridge.filters.Send().topics as string[];
+      const bridgeEvent = originBridge.interface.parseLog(
+        prepareReceipt.logs.find((l) => l.topics.includes(topics[0]))!,
+      );
+      message = (bridgeEvent!.args as any).message;
+      bridgedAmount = (bridgeEvent!.args as any).amount;
+
+      const originTmEvent = (await originTm.queryFilter(originTm.filters.XCalled())).find(
+        (a) => a.blockNumber === prepareReceipt.blockNumber,
+      );
+      nonce = (originTmEvent!.args as any).nonce;
+      transferId = (originTmEvent!.args as any).transferId;
+
+      reconciledTopics = destinationTm.filters.Reconciled().topics as string[];
+    });
+
+    const routerScenarios = [
+      [router.address],
+      [router.address, router2.address],
+      [router.address, router2.address, router3.address],
+    ];
+
+    routerScenarios.forEach((routers) => {
+      it(`should work with ${routers.length} routers`, async () => {
+        // Get pre-execute balances
+        const userPreExecute = await destinationAdopted.balanceOf(user.address);
+        const preExecute = await getRoutersBalances(routers, destinationTm, local.address);
+
+        // Fulfill with the router
+        const routersAmount = amount - 500;
+        const routerProportionalAmount = Math.floor(routersAmount / routers.length);
+
+        await destinationTm.connect(router).execute({
+          params,
+          nonce,
+          local: local.address,
+          amount: routersAmount,
+          feePercentage: constants.Zero,
+          relayerSignature: "0x",
+          routers,
+          originSender: user.address,
+        });
+
+        // Check balance of user + bridge
+        const userPostExecute = await destinationAdopted.balanceOf(user.address);
+        const postExecute = await getRoutersBalances(routers, destinationTm, local.address);
+
+        expect(userPostExecute).to.be.eq(userPreExecute.add(routersAmount));
+        routers.forEach((_addr, i) => {
+          expect(postExecute[i]).to.be.eq(preExecute[i].sub(routerProportionalAmount));
+        });
+
+        // Reconcile via bridge
+        const preReconcile = await getRoutersBalances(routers, destinationTm, local.address);
+
+        const reconcile = await destinationBridge
+          .connect(admin)
+          .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
+
+        const reconcileReceipt = await reconcile.wait();
+        const reconciledEvent = destinationTm.interface.parseLog(
+          reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
+        );
+        expect(reconciledEvent.args.transferId).eql(transferId);
+        expect(reconciledEvent.args.to).eql(user.address);
+        expect(reconciledEvent.args.localAsset).eql(local.address);
+        expect(reconciledEvent.args.localAmount).eql(bridgedAmount);
+        expect(reconciledEvent.args.executed).eql([routers, BigNumber.from(routersAmount)]);
+        expect(reconciledEvent.args.caller).eql(destinationBridge.address);
+
+        const routerReconciledAmount = Math.floor(amount / routers.length);
+
+        const postReconcile = await getRoutersBalances(routers, destinationTm, local.address);
+
+        routers.forEach((_addr, i) => {
+          expect(postReconcile[i]).to.be.eq(preReconcile[i].add(routerReconciledAmount));
+        });
+      });
+    });
+
+    it("should revert if one the routers does not have enough liquidity", async () => {
+      // Remove all the liquidity for router3
+      const currentLiq = await destinationTm.routerBalances(router3.address, local.address);
+      await destinationTm.connect(router3).removeLiquidity(currentLiq, local.address, router3.address);
+
+      // Fulfill with the router
+      const routersAmount = amount - 500;
+      const routers = [router.address, router2.address, router3.address];
+
+      // Reverts on router3 math subtraction
+      await expect(
+        destinationTm.connect(router).execute({
+          params,
+          nonce,
+          local: local.address,
+          amount: routersAmount,
+          feePercentage: constants.Zero,
+          relayerSignature: "0x",
+          routers,
+          originSender: user.address,
+        }),
+      ).to.reverted;
+
+      // Add liquidity back
+      await destinationTm.connect(router3).addLiquidity(parseEther("0.1"), local.address);
+
+      // Double check that now it works
+      await destinationTm.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount: routersAmount,
+        feePercentage: constants.Zero,
+        relayerSignature: "0x",
+        routers,
+        originSender: user.address,
+      });
+    });
+
+    it("should revert if max routers is exceeded", async () => {
+      // Update max routers
+      await destinationTm.setMaxRoutersPerTransfer(2);
+
+      // Fulfill with the router
+      const routersAmount = amount - 500;
+      const routers = [router.address, router2.address, router3.address];
+
+      await expect(
+        destinationTm.connect(router).execute({
+          params,
+          nonce,
+          local: local.address,
+          amount: routersAmount,
+          feePercentage: constants.Zero,
+          relayerSignature: "0x",
+          routers,
+          originSender: user.address,
+        }),
+      ).to.revertedWith("Connext__decrementLiquidity_maxRoutersExceeded()");
+    });
   });
 });

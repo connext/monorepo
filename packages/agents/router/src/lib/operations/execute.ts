@@ -1,16 +1,6 @@
-import {
-  CallParams,
-  ExecuteArgs,
-  Bid,
-  createLoggingContext,
-  XTransfer,
-  formatUrl,
-  jsonifyError,
-  RequestContext,
-} from "@connext/nxtp-utils";
-import axios, { AxiosResponse } from "axios";
+import { CallParams, Bid, BidData, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
 
-import { SequencerResponseInvalid, SanityCheckFailed } from "../errors";
+import { ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -27,11 +17,11 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   const {
     logger,
-    adapters: { wallet },
+    adapters: { wallet, subgraph },
     routerAddress,
   } = getContext();
   const {
-    execute: { sanityCheck },
+    auctions: { sendBid },
     shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
   } = getHelpers();
 
@@ -52,7 +42,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
   if (!xcall) {
     // TODO: add named error
-    throw new Error("xcall undefined");
+    throw new ParamsInvalid({ message: "xcall undefined", requestContext, methodContext });
   }
   // generate bid params
   const callParams: CallParams = {
@@ -62,17 +52,19 @@ export const execute = async (params: XTransfer): Promise<void> => {
     destinationDomain,
   };
 
-  // TODO:  get local Asset from onChain call and later switch to subgraph
   const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
+  logger.info("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
   const receivingAmount = xcall.localAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
-  const executeArguments: ExecuteArgs = {
+  logger.info("Signed payload", requestContext, methodContext, { signature });
+
+  // TODO: Eventually, sending the bid data to the sequencer should be deprecated.
+  const bidData: BidData = {
     params: callParams,
     local: executeLocalAsset,
-    router: routerAddress,
     amount: receivingAmount,
     nonce: Number(nonce),
     feePercentage: RELAYER_FEE_PERCENTAGE,
@@ -80,42 +72,28 @@ export const execute = async (params: XTransfer): Promise<void> => {
     originSender: xcall.caller,
   };
 
+  const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
-    transferId,
-    data: executeArguments,
+    router: routerAddress,
+    fee,
+    // TODO: This list of signatures should reflect the auction rounds we want to bid on;
+    // we should eventually calculate which rounds we can afford to bid on, and then pass those in.
+    // For now, this is hardcoded to bid only on the first auction round.
+    signatures: {
+      "1": signature,
+    },
   };
 
-  logger.info("Bid created", requestContext, methodContext, { bid, signature, executeArguments });
-
-  try {
-    // sanity check
-    await sanityCheck(bid, requestContext);
-  } catch (e: unknown) {
-    throw new SanityCheckFailed({
-      error: jsonifyError(e as Error),
-      bid,
-    });
+  // sanity check
+  const bal = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  logger.info("Checking balance", requestContext, methodContext, { bal: bal.toString() });
+  if (bal.lt(receivingAmount)) {
+    // throw new NotEnoughAmount({
+    //   bal: bal.toString(),
+    //   receivingAmount: receivingAmount.toString(),
+    // });
   }
+  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: bal.toString() });
 
-  logger.info("Sending bid to sequencer", requestContext, methodContext, { bid, executeArguments });
-  const data = await sendBid(bid, requestContext);
-  logger.info("Sent bid to sequencer", requestContext, methodContext, { data });
-};
-
-export const sendBid = async (bid: Bid, requestContext: RequestContext): Promise<any> => {
-  const { methodContext } = createLoggingContext(sendBid.name, requestContext);
-  const { logger, config } = getContext();
-
-  /// TODO don't send the signature in logs, edit bid during logging
-  logger.info("Method start", requestContext, methodContext, { bid });
-
-  const response: AxiosResponse<string> = await axios.post(formatUrl(config.sequencerUrl, "bid"), {
-    bid,
-  });
-
-  if (!response || !response.data) {
-    throw new SequencerResponseInvalid({ response });
-  } else {
-    return response.data;
-  }
+  await sendBid(transferId, bid, bidData, requestContext);
 };

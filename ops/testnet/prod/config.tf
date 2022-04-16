@@ -4,13 +4,21 @@ locals {
       host: module.sequencer_cache.redis_instance_address,
       port: module.sequencer_cache.redis_instance_port
     },
-    "logLevel" = "debug"
-    "chains" = {
-      "2000" = {
-        "providers" = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}"]
-        "subgraph" = {
-          "runtime"   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
-          "analytics" = [""]
+    logLevel = "debug"
+    chains = {
+      2000 = {
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}"]
+        subgraph = {
+          runtime   = [{
+            query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
+            health = "https://api.thegraph.com/index-node/graphql"
+          }]
+          analytics = [
+            {
+              query = ""
+              health = ""
+            }
+          ]
         }
         "assets" = [{
           "name"    = "TEST"
@@ -18,10 +26,18 @@ locals {
         }]
       }
       "3000" = {
-        "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
-        "subgraph" = {
-          "runtime" = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
-          "analytics" : [""]
+        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
+        subgraph = {
+          runtime = [{
+            query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"
+            health = "https://api.thegraph.com/index-node/graphql"
+          }]
+          analytics = [
+            {
+              query = ""
+              health = ""
+            }
+          ]
         }
         "assets" = [{
           "name"    = "TEST"
@@ -49,9 +65,13 @@ locals {
       2000 = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
         subgraph = {
-          runtime = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"]
-          analytics : [""]
+          runtime = [{
+              query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
+              health = "https://api.thegraph.com/index-node/graphql"
+          }]
+          analytics: []
         }
+        deployments = {}
         assets = [
           {
             name    = "TEST"
@@ -62,9 +82,13 @@ locals {
       3000 = {
         "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
         subgraph = {
-          runtime   = ["https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"]
-          analytics = [""]
+          runtime   = [{
+            query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"
+            health = "https://api.thegraph.com/index-node/graphql"
+          }]
+          analytics = []
         }
+        deployments = {}
         assets = [
           {
             name    = "TEST"

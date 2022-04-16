@@ -8,7 +8,6 @@ describe("Helpers:Index", () => {
       const helpers = getHelpers();
       expect(helpers).to.not.be.undefined;
       expect(helpers).to.not.be.null;
-      expect(helpers.execute).to.be.a("object");
       expect(helpers.shared).to.be.a("object");
     });
   });

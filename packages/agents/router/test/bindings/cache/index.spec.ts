@@ -2,22 +2,24 @@ import { SinonStub, stub } from "sinon";
 import { delay, XTransfer, expect, getRandomBytes32 } from "@connext/nxtp-utils";
 
 import * as bindCacheFns from "../../../src/bindings/cache/index";
-import { mock, stubContext } from "../../mock";
+import { mock, stubContext, stubOperations } from "../../mock";
 
 describe("Bindings:Cache", () => {
   let mockContext: any;
+  let getOperationsStub: SinonStub;
 
   beforeEach(() => {
     mockContext = stubContext();
+    getOperationsStub = stubOperations();
   });
 
   describe("#bindCache", async () => {
     let pollStub: SinonStub;
-    before(() => {
+    beforeEach(() => {
       pollStub = stub(bindCacheFns, "pollCache").resolves();
     });
 
-    after(() => {
+    afterEach(() => {
       pollStub.restore();
     });
 
@@ -33,12 +35,30 @@ describe("Bindings:Cache", () => {
   });
 
   describe("#pollCache", () => {
+    let executeStub: SinonStub;
+    beforeEach(() => {
+      executeStub = stub().resolves();
+      getOperationsStub.returns({
+        execute: executeStub,
+      });
+    });
     it("happy: should retrieve pending transfers from the cache", async () => {
       const mockCachedTransfers: { [transferId: string]: XTransfer } = {};
       const mockPendingTransfers: string[] = [];
       for (let i = 0; i < 10; i++) {
         const mockTransfer: XTransfer = mock.entity.xtransfer();
-        mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
+        const rand_num = i % 3;
+        if (rand_num === 0) {
+          mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
+        } else if (rand_num === 1) {
+          mockCachedTransfers[mockTransfer.transferId] = { ...mockTransfer, xcall: undefined };
+        } else {
+          mockCachedTransfers[mockTransfer.transferId] = {
+            ...mockTransfer,
+            execute: { ...mockTransfer.execute, transactionHash: getRandomBytes32() },
+          };
+        }
+
         mockPendingTransfers.push(mockTransfer.transferId);
       }
       const domainWithPending = "1234";
@@ -50,6 +70,10 @@ describe("Bindings:Cache", () => {
 
       mockContext.adapters.cache.transfers.getPending.callsFake((domain: string) =>
         domain === domainWithPending ? mockPendingTransfers : [],
+      );
+
+      mockContext.adapters.cache.transfers.getTransfer.callsFake(
+        (transferId: string) => mockCachedTransfers[transferId],
       );
 
       mockContext.config.chains = {
@@ -71,6 +95,30 @@ describe("Bindings:Cache", () => {
       for (const transferId of mockPendingTransfers) {
         expect(mockContext.adapters.cache.transfers.getTransfer).to.have.been.calledWithExactly(transferId);
       }
+    });
+
+    it("should save error if transfer fails", async () => {
+      const pending = mock.entity.xtransfer();
+      const domain = "1234";
+      const mockError = new Error("fail");
+
+      mockContext.adapters.cache.transfers.getPending.resolves([pending.transferId]);
+
+      mockContext.adapters.cache.transfers.getTransfer.resolves(pending);
+
+      mockContext.config.chains = {
+        [domain]: mockContext.config.chains[mock.chain.A],
+      };
+
+      executeStub.rejects(mockError);
+
+      await bindCacheFns.pollCache();
+
+      expect(mockContext.adapters.cache.transfers.getPending).to.have.been.calledWithExactly(domain);
+      expect(mockContext.adapters.cache.transfers.saveError).to.have.been.calledOnceWithExactly(
+        pending.transferId,
+        mockError.toString(),
+      );
     });
   });
 });

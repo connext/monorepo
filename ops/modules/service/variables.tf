@@ -90,3 +90,7 @@ variable "base_domain" {
   description = "base domain of the application"
   default     = "connext.ninja"
 }
+
+variable "stage" {
+  description = "stage of deployment"
+}

@@ -1,15 +1,28 @@
-import { sanityCheck } from "./execute";
-import { getDestinationLocalAsset, getTransactionId, signHandleRelayerFeePayload } from "./shared";
+import { getAuctionStatus, sendBid } from "./auctions";
+import {
+  getDestinationLocalAsset,
+  getTransactionId,
+  signHandleRelayerFeePayload,
+  getSubgraphHealth,
+  getSubgraphName,
+  existsSync,
+  readFileSync,
+} from "./shared";
 
 export const getHelpers = () => {
   return {
-    execute: {
-      sanityCheck,
+    auctions: {
+      getAuctionStatus,
+      sendBid,
     },
     shared: {
       getDestinationLocalAsset,
       getTransactionId,
       signHandleRelayerFeePayload,
+      getSubgraphHealth,
+      getSubgraphName,
+      existsSync,
+      readFileSync,
     },
   };
 };

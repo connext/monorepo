@@ -2,7 +2,6 @@ import { createLoggingContext, jsonifyError, XTransfer } from "@connext/nxtp-uti
 import interval from "interval-promise";
 
 import { getOperations } from "../../lib/operations";
-
 import { getContext } from "../../router";
 
 export const CACHE_POLL_INTERVAL = 20_000;
@@ -38,6 +37,8 @@ export const pollCache = async () => {
     }
     // Retrieve the list of all pending transfer IDs for this domain.
     const pending = await cache.transfers.getPending(domain);
+    logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
+
     for (const transferId of pending) {
       // Retrieve the transfer data.
       const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
@@ -75,11 +76,15 @@ export const pollCache = async () => {
       try {
         // Call execute to process the transfer.
         await execute(transfer);
-      } catch (err: unknown) {
-        logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err as Error), {
-          transferId,
-          xcall: transfer.xcall,
-        });
+      } catch (error: any) {
+        // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
+        const isNewError = await cache.transfers.saveError(transferId, (error as Error).toString());
+        if (isNewError) {
+          logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(error as Error), {
+            transferId,
+            xcall: transfer.xcall,
+          });
+        }
       }
     }
   }

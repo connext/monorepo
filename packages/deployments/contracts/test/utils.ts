@@ -14,7 +14,7 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy } from "../typechain-types";
+import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, Connext } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -115,6 +115,9 @@ export const getOnchainBalance = async (
     : new Contract(assetId, Erc20Abi, provider).balanceOf(address);
 };
 
+export const getRoutersBalances = async (routers: string[], connextContract: Connext, asset: string) =>
+  Promise.all(routers.map((addr) => connextContract.routerBalances(addr, asset)));
+
 export const setBlockTime = async (desiredTimestamp: number) => {
   await ethers.provider.send("evm_setNextBlockTimestamp", [desiredTimestamp]);
 };
@@ -131,7 +134,7 @@ export const assertObject = (expected: any, returned: any) => {
   });
 };
 
-export const assertReceiptEvent = async (receipt: ContractReceipt, eventName: string, expected: any) => {
+export const assertReceiptEvent = (receipt: ContractReceipt, eventName: string, expected: any) => {
   expect(receipt.status).to.be.eq(1);
   const idx = receipt.events?.findIndex((e) => e.event === eventName) ?? -1;
   expect(idx).to.not.be.eq(-1);

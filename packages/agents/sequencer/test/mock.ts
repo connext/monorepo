@@ -1,9 +1,9 @@
 import { utils, BigNumber } from "ethers";
-import { createStubInstance, SinonStubbedInstance } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, ExecuteArgs } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
@@ -17,10 +17,10 @@ export const mock = {
   context: (): AppContext => {
     return {
       adapters: {
-        subgraph: mock.adapter.subgraph(),
-        cache: mock.adapter.cache(),
-        chainreader: mock.adapter.chainreader(),
-        contracts: mock.adapter.contracts(),
+        subgraph: mock.adapters.subgraph(),
+        cache: mock.adapters.cache(),
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.adapters.contracts(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -33,8 +33,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -45,8 +45,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -66,7 +66,7 @@ export const mock = {
       cleanup: false,
     },
   }),
-  adapter: {
+  adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
       const transactions = createStubInstance(TransfersCache);
@@ -125,6 +125,24 @@ export const mock = {
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
       };
+    },
+  },
+  helpers: {
+    relayer: {
+      gelatoSend: stub(),
+      isChainSupportedByGelato: stub(),
+    },
+    auctions: {
+      encodeExecuteFromBid: stub(),
+    },
+  },
+  operations: {
+    auctions: {
+      storeBid: stub(),
+      executeAuctions: stub(),
+    },
+    relayer: {
+      sendToRelayer: stub(),
     },
   },
 };

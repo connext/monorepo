@@ -1,7 +1,7 @@
 import { hexZeroPad } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { NOMAD_DEPLOYMENTS } from "../constants";
+import { getDomainInfoFromChainId } from "../nomad";
 
 type TaskArgs = {
   handler: string;
@@ -27,13 +27,10 @@ export default task("enroll-handler", "Add a remote router")
     }
     console.log("local: ", local);
 
-    const config = NOMAD_DEPLOYMENTS.get(parseInt(chain));
-    if (!config) {
-      throw new Error(`No nomad config found for ${chain}`);
-    }
+    const { domain } = getDomainInfoFromChainId(+chain);
 
     const localRouter = await ethers.getContractAt((await deployments.getArtifact("BridgeRouter")).abi, local);
-    const enrollTx = await localRouter.enrollRemoteRouter(config.domain, hexZeroPad(handler, 32));
+    const enrollTx = await localRouter.enrollRemoteRouter(domain, hexZeroPad(handler, 32));
     console.log("enroll tx:", enrollTx);
     const receipt = await enrollTx.wait();
     console.log("enroll tx mined:", receipt);

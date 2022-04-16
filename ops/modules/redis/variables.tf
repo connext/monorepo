@@ -14,8 +14,12 @@ variable "vpc_id" {
   description = "underlying vpc id"
 }
 
+variable "stage" {
+  description = "stage of deployment"
+}
+
 variable "environment" {
-  default = "testnet"
+  description = "env we're deploying to"
 }
 
 variable "family" {
