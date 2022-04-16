@@ -2,7 +2,7 @@
   "extends": "../../../config/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "dist",
-    "typeRoots": ["./typechain", "./node_modules/@types"],
+    "typeRoots": ["./typechain_types", "./node_modules/@types"],
     "rootDir": ".",
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
@@ -12,7 +12,8 @@
     "./scripts",
     "./deploy",
     "./deployHelpers",
-    "./typechain",
+    "./typechain_types",
+    "src/**/*.ts",
     "./artifacts",
     "./deployments.json"
   ],

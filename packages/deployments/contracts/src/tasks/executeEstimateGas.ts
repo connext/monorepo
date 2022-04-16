@@ -8,8 +8,6 @@ import {
 import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 
-import { Connext as TConnext } from "../../typechain-types";
-import ConnextArtifact from "../../artifacts/contracts/Connext.sol/Connext.json";
 import { canonizeId } from "../nomad";
 
 type TaskArgs = {
@@ -34,7 +32,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       );
     }
 
-    let encodedData: string | undefined = process.env.EG_EXECUTE_ENCODED_DATA;
+    const encodedData: string | undefined = process.env.EG_EXECUTE_ENCODED_DATA;
     if (!encodedData) {
       console.log("Encoded data was not provided. Encoding data manually...");
       const callParams = {
@@ -124,9 +122,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       (executeArgs as any).relayerSignature = relayerSignature;
 
       console.log("Execute args: ", executeArgs);
-      const encoderContract = new utils.Interface(ConnextArtifact.abi) as TConnext["interface"];
-
-      encodedData = encoderContract.encodeFunctionData("execute", [executeArgs as unknown as ExecuteArgs]);
+      connext.interface.encodeFunctionData("execute", [executeArgs as unknown as ExecuteArgs]);
     }
 
     const chainData = await getChainData();
