@@ -13,7 +13,6 @@
     "./deploy",
     "./deployHelpers",
     "./typechain",
-    "src/**/*.ts",
     "./artifacts",
     "./deployments.json"
   ],
