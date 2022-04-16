@@ -1,3 +1,4 @@
+import { CallParams } from "@connext/nxtp-utils";
 import { BigNumber, constants, providers, utils } from "ethers";
 import { task } from "hardhat/config";
 
@@ -139,7 +140,7 @@ export default task("xcall", "Prepare a cross-chain tx")
             callData,
             originDomain,
             destinationDomain,
-          },
+          } as CallParams,
           transactingAssetId,
           amount,
         },

@@ -109,8 +109,9 @@ export class SubgraphReader {
     });
     if (assets.length === 0) {
       return undefined;
+    } else if (assets.length > 1) {
+      throw new Error(`Multiple assets found for canonicalId: ${canonicalId}!`);
     }
-    // convert to nice typescript type
     return assets[0];
   }
 

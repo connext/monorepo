@@ -114,13 +114,16 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       }
       console.log("transferId: ", transferId);
 
-      console.log("Getting relayer signature...");
-      const router_mnemonic = process.env.EXECUTE_ROUTER_MNEMONIC;
-      if (!router_mnemonic) {
-        throw new Error("Router mnemonic must be specified in env (EXECUTE_ROUTER_MNEMONIC)");
+      let relayerSignature: string | undefined = process.env.EXECUTE_RELAYER_SIGNATURE;
+      if (!relayerSignature) {
+        console.log("Getting relayer signature...");
+        const routerMnemonic = process.env.EXECUTE_ROUTER_MNEMONIC;
+        if (!routerMnemonic) {
+          throw new Error("Router mnemonic must be specified in env (EXECUTE_ROUTER_MNEMONIC)");
+        }
+        const routerWallet = Wallet.fromMnemonic(routerMnemonic);
+        relayerSignature = await signHandleRelayerFeePayload(transferId as string, feePercentage, routerWallet);
       }
-      const wallet = Wallet.fromMnemonic(router_mnemonic);
-      const relayerSignature = await signHandleRelayerFeePayload(transferId as string, feePercentage, wallet);
 
       (executeArgs as any).relayerSignature = relayerSignature;
 
@@ -158,7 +161,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
 
     const args = provider.prepareRequest("estimateGas", {
       transaction: {
-        chainId: destinationChainId,
+        // chainId: destinationChainId,
         to: connextAddress,
         data: encodedData,
         from: relayerAddress,

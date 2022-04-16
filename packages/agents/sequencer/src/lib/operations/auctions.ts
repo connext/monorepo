@@ -173,7 +173,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           try {
             logger.info("Sending bid to relayer", requestContext, methodContext, {
               transferId,
-              randomBid,
+              router: randomBid.router,
+              bidData,
             });
             // Send the relayer request based on chosen bids.
             taskId = await sendToRelayer(
