@@ -915,28 +915,28 @@ export type GetAssetByLocalQueryVariables = Exact<{
 }>;
 
 
-export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any }> };
+export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any, blockNumber: any }> };
 
 export type GetAssetByCanonicalIdQueryVariables = Exact<{
   canonicalId: Scalars['Bytes'];
 }>;
 
 
-export type GetAssetByCanonicalIdQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any }> };
+export type GetAssetByCanonicalIdQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any, blockNumber: any }> };
 
 export type GetAssetBalanceQueryVariables = Exact<{
   assetBalanceId: Scalars['ID'];
 }>;
 
 
-export type GetAssetBalanceQuery = { __typename?: 'Query', assetBalance?: { __typename?: 'AssetBalance', amount: any, asset: { __typename?: 'Asset', canonicalId: any, canonicalDomain: any, local: any, adoptedAsset: any } } | null };
+export type GetAssetBalanceQuery = { __typename?: 'Query', assetBalance?: { __typename?: 'AssetBalance', amount: any, asset: { __typename?: 'Asset', canonicalId: any, canonicalDomain: any, local: any, adoptedAsset: any, blockNumber: any } } | null };
 
 export type GetAssetBalancesQueryVariables = Exact<{
   router: Scalars['String'];
 }>;
 
 
-export type GetAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, asset: { __typename?: 'Asset', canonicalId: any, canonicalDomain: any, local: any, adoptedAsset: any } }> };
+export type GetAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, asset: { __typename?: 'Asset', canonicalId: any, canonicalDomain: any, local: any, adoptedAsset: any, blockNumber: any } }> };
 
 export type GetRouterQueryVariables = Exact<{
   router: Scalars['ID'];
@@ -1206,6 +1206,7 @@ export const GetAssetByLocalDocument = gql`
     adoptedAsset
     canonicalId
     canonicalDomain
+    blockNumber
   }
 }
     `;
@@ -1221,6 +1222,7 @@ export const GetAssetByCanonicalIdDocument = gql`
     adoptedAsset
     canonicalId
     canonicalDomain
+    blockNumber
   }
 }
     `;
@@ -1233,6 +1235,7 @@ export const GetAssetBalanceDocument = gql`
       canonicalDomain
       local
       adoptedAsset
+      blockNumber
     }
   }
 }
@@ -1246,6 +1249,7 @@ export const GetAssetBalancesDocument = gql`
       canonicalDomain
       local
       adoptedAsset
+      blockNumber
     }
   }
 }

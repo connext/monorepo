@@ -5,8 +5,7 @@ import {
   isChainSupportedByGelato,
   signHandleRelayerFeePayload,
 } from "@connext/nxtp-utils";
-import { BigNumber, providers, Wallet, constants, utils } from "ethers";
-import { BigNumberish } from "ethers/utils/bignumber";
+import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 
 import { Connext as TConnext } from "../../typechain-types";

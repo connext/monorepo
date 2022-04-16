@@ -316,6 +316,7 @@ export const getAssetByLocal = gql`
       adoptedAsset
       canonicalId
       canonicalDomain
+      blockNumber
     }
   }
 `;
@@ -328,6 +329,7 @@ export const getAssetByCanonicalId = gql`
       adoptedAsset
       canonicalId
       canonicalDomain
+      blockNumber
     }
   }
 `;
@@ -341,6 +343,7 @@ export const getAssetBalance = gql`
         canonicalDomain
         local
         adoptedAsset
+        blockNumber
       }
     }
   }
@@ -355,6 +358,7 @@ export const getAssetBalances = gql`
         canonicalDomain
         local
         adoptedAsset
+        blockNumber
       }
     }
   }
