@@ -28,7 +28,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         amount: _amount,
         connextAddress: _connextAddress,
         to: _to,
-        callData,
+        callData: _callData,
         originDomain: _originDomain,
         destinationDomain: _destinationDomain,
       }: TaskArgs,
@@ -53,6 +53,9 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error("To address must be specified as param or from env (TRANSFER_TO)");
       }
 
+      // Get the call data, if applicable.
+      const callData = _callData ?? process.env.TRANSFER_CALL_DATA ?? "0x";
+
       // Get the amount.
       const amount = _amount ?? process.env.TRANSFER_AMOUNT;
       if (!amount) {
@@ -60,7 +63,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
 
       // Get the transacting asset ID.
-      let transactingAssetId = _transactingAssetId ?? process.env.TRANSACTING_ASSET_ID;
+      let transactingAssetId = _transactingAssetId ?? process.env.TRANSFER_ASSET;
       if (!transactingAssetId) {
         // Alternatively, try defaulting to using the canonical token from the .env (if present) as the transacting asset ID,
         // deriving the local asset using the token registry if applicable.
@@ -92,7 +95,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
       if (!transactingAssetId) {
         // If the above attempt fails, then we default to telling the user to just specify the transacting asset ID.
-        throw new Error("Transacting asset ID must be specified as param or from env (TRANSACTING_ASSET_ID)");
+        throw new Error("Transfer asset ID must be specified as param or from env (TRANSFER_ASSET)");
       }
 
       console.log("originDomain: ", originDomain);
@@ -133,7 +136,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         {
           params: {
             to,
-            callData: callData ?? "0x",
+            callData,
             originDomain,
             destinationDomain,
           },
