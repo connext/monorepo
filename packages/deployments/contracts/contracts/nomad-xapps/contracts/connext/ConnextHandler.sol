@@ -137,7 +137,7 @@ contract ConnextHandler is
   /**
    * @notice Mapping holding router address that provided fast liquidity
    */
-  mapping(bytes32 => address) routedTransfers;
+  mapping(bytes32 => address[]) routedTransfers;
 
   /**
    * @notice Mapping of router to available balance of an asset
@@ -151,6 +151,11 @@ contract ConnextHandler is
    * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
    */
   mapping(address => bool) public approvedRelayers;
+
+  /**
+   * @notice The max amount of routers a payment can be routed through
+   */
+  uint256 public maxRoutersPerTransfer;
 
   // ============ Errors ============
 
@@ -174,6 +179,7 @@ contract ConnextHandler is
   error ConnextHandler__addLiquidityForRouter_badRouter();
   error ConnextHandler__addLiquidityForRouter_badAsset();
   error ConnextHandler__addAssetId_alreadyAdded();
+  error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
   // ========== Initializer ============
 
@@ -296,6 +302,19 @@ contract ConnextHandler is
     delete approvedRelayers[relayer];
 
     emit RelayerRemoved(relayer, msg.sender);
+  }
+
+  /**
+   * @notice Used to set the max amount of routers a payment can be routed through
+   * @param newMaxRouters The new max amount of routers
+   */
+  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
+    if (newMaxRouters == 0 || newMaxRouters == maxRoutersPerTransfer)
+      revert ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+
+    maxRoutersPerTransfer = newMaxRouters;
+
+    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
   }
 
   // ============ External functions ============
@@ -496,7 +515,7 @@ contract ConnextHandler is
 
     // require this transfer has not already been executed
     // NOTE: in slow liquidity path, the router should *never* be filled
-    if (routedTransfers[_transferId] != address(0)) {
+    if (routedTransfers[_transferId].length != 0) {
       revert ConnextHandler__execute_alreadyExecuted();
     }
 
@@ -528,7 +547,7 @@ contract ConnextHandler is
     }
 
     // emit event
-    emit Executed(_transferId, _args.params.to, _args.router, _args, _adopted, _amount, msg.sender);
+    emit Executed(_transferId, _args.params.to, _args, _adopted, _amount, msg.sender);
 
     return _transferId;
   }
@@ -660,16 +679,22 @@ contract ConnextHandler is
     reconciledTransfers[_transferId] = true;
 
     // get the transfer
-    address _router = routedTransfers[_transferId];
+    address[] storage _routers = routedTransfers[_transferId];
 
-    if (_router != address(0)) {
+    uint256 _pathLen = _routers.length;
+    if (_pathLen != 0) {
       // fast liquidity path
       // credit the router the asset
-      routerBalances[_router][_token] += _amount;
+      uint256 _routerAmt = _amount / _pathLen;
+      for (uint256 i; i < _pathLen; ) {
+        routerBalances[_routers[i]][_token] += _amount;
+        unchecked {
+          i++;
+        }
+      }
     }
 
-    // TODO: rename to handled?
-    emit Reconciled(_transferId, _origin, _router, _token, _amount, msg.sender);
+    emit Reconciled(_transferId, _origin, _routers, _token, _amount, msg.sender);
   }
 
   // TODO: move logic into ConnextUtils
@@ -753,27 +778,39 @@ contract ConnextHandler is
     if (isFast) {
       // this is the fast liquidity path
       // ensure the router is whitelisted
-      if (!routerInfo.approvedRouters[_args.router]) {
-        revert ConnextHandler__execute_notSupportedRouter();
-      }
-
-      // TODO: validate routers signature on path / transferId
-
-      // store the routers address
-      routedTransfers[_transferId] = _args.router;
 
       // calculate amount with fast liquidity fee
       _toSwap = _getFastTransferAmount(_args.amount);
 
-      // decrement routers liquidity
-      routerBalances[_args.router][_args.local] -= _toSwap;
+      // TODO: validate routers signature on path / transferId
+
+      // store the routers address
+      routedTransfers[_transferId] = _args.routers;
+
+      // for each router, assert they are approved, and deduct liquidity
+      uint256 _pathLen = _args.routers.length;
+      for (uint256 i; i < _pathLen; ) {
+        // while theres no way for a router to have sufficient liquidity
+        // if they have never been approved, this check ensures they weren't
+        // removed from the whitelist
+        if (!routerInfo.approvedRouters[_args.routers[i]]) {
+          revert ConnextHandler__execute_notSupportedRouter();
+        }
+
+        // decrement routers liquidity
+        routerBalances[_args.routers[i]][_args.local] -= _toSwap;
+
+        unchecked {
+          i++;
+        }
+      }
     } else {
       // this is the slow liquidity path
 
       // save a dummy address for the router to ensure the transfer is not able
       // to be executed twice
       // TODO: better ways to enforce this safety check?
-      routedTransfers[_transferId] = address(1);
+      routedTransfers[_transferId] = [address(1)];
     }
 
     // TODO: payout relayer fee

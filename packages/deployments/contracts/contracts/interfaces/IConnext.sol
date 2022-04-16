@@ -157,7 +157,7 @@ interface IConnext {
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
-   * @param to - The CallParams.recipient provided, created as indexed parameter
+   * @param routers - The CallParams.recipient provided, created as indexed parameter
    * @param asset - The asset that was provided by the bridge
    * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
@@ -165,7 +165,7 @@ interface IConnext {
   event Reconciled(
     bytes32 indexed transferId,
     uint32 indexed origin,
-    address indexed to,
+    address[] indexed routers,
     address asset,
     uint256 amount,
     address caller
@@ -176,7 +176,7 @@ interface IConnext {
    * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
    * @param transferId - The unique identifier of the crosschain transfer
    * @param to - The CallParams.to provided, created as indexed parameter
-   * @param router - The router that supplied fast liquidity, if applicable
+   * @param args - The ExecuteArgs provided to the function
    * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
    * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
@@ -186,7 +186,6 @@ interface IConnext {
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
-    address indexed router,
     ExecuteArgs args,
     address transactingAsset,
     uint256 transactingAmount,
