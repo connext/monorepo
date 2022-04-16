@@ -81,6 +81,7 @@ export function handleAssetAdded(event: AssetAdded): void {
     asset.adoptedAsset = event.params.adoptedAsset;
     asset.canonicalId = event.params.canonicalId;
     asset.canonicalDomain = event.params.domain;
+    asset.blockNumber = event.block.number;
     asset.save();
   }
 }
@@ -214,10 +215,11 @@ export function handleExecuted(event: Executed): void {
  */
 export function handleReconciled(event: Reconciled): void {
   // TODO: MUST FIX WHEN IRL MULTIPATH IMPLEMENTED
-  let router = Router.load(event.params.executed.routers[0].toHex());
-  if (router == null) {
-    throw new Error(`Did not find router entry when processing Reconciled`);
-  }
+  // let router = Router.load(event.params.executed.routers[0].toHex());
+  // if (router == null) {
+  //   router = new Router(event.params.executed.routers[0].toHex());
+  //   router.save();
+  // }
 
   let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
@@ -232,7 +234,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.transferId = event.params.transferId;
   transfer.to = event.params.to;
   // TODO: MUST FIX SCHEMA WHEN IRL MULTIPATH IMPLEMENTED
-  transfer.router = router.id;
+  // transfer.router = router.id;
 
   // Fulfill
   transfer.reconciledCaller = event.params.caller;
@@ -310,6 +312,7 @@ function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBal
       asset.adoptedAsset = new Bytes(20);
       asset.canonicalId = new Bytes(32);
       asset.canonicalDomain = new BigInt(0);
+      asset.blockNumber = new BigInt(0);
       asset.save();
     }
 

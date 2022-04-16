@@ -316,18 +316,20 @@ export const getAssetByLocal = gql`
       adoptedAsset
       canonicalId
       canonicalDomain
+      blockNumber
     }
   }
 `;
 
 export const getAssetByCanonicalId = gql`
   query GetAssetByCanonicalId($canonicalId: Bytes!) {
-    assets(where: { canonicalId: $canonicalId }) {
+    assets(where: { canonicalId: $canonicalId }, orderBy: blockNumber, orderDirection: desc) {
       id
       local
       adoptedAsset
       canonicalId
       canonicalDomain
+      blockNumber
     }
   }
 `;
@@ -341,6 +343,7 @@ export const getAssetBalance = gql`
         canonicalDomain
         local
         adoptedAsset
+        blockNumber
       }
     }
   }
@@ -355,6 +358,7 @@ export const getAssetBalances = gql`
         canonicalDomain
         local
         adoptedAsset
+        blockNumber
       }
     }
   }
