@@ -176,4 +176,13 @@ export class AuctionsCache extends Cache {
   public async setBidData(transferId: string, data: BidData): Promise<number> {
     return await this.data.hset(`${this.prefix}:bidData`, transferId, JSON.stringify(data));
   }
+
+  /**
+   * Flushes the entire cache.
+   *
+   * @returns string "OK"
+   */
+  public async clear(): Promise<"OK"> {
+    return await this.data.flushall();
+  }
 }

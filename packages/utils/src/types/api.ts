@@ -3,7 +3,16 @@ import { Type, Static } from "@sinclair/typebox";
 import { BidSchema } from "./auctions";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
-import { TAddress, TDecimalString } from "./primitives";
+import { TAddress, TChainId, TDecimalString } from "./primitives";
+
+/// MARK - Shared API
+export const AdminSchema = Type.Object({
+  adminToken: Type.String(),
+});
+export type AdminRequest = Static<typeof AdminSchema>;
+
+export const ClearCacheRequestSchema = AdminSchema;
+export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
 /// MARK - Sequencer API ----------------------------------------------------------------------------
 // TODO: Bid Data is a temporary solution - routers supply the execution args needed for sequencer to encode
@@ -74,3 +83,34 @@ export const AuctionsApiErrorResponseSchema = Type.Object({
 export type AuctionsApiErrorResponse = Static<typeof AuctionsApiErrorResponseSchema>;
 
 /// MARK - Router API -------------------------------------------------------------------------------
+export const AddLiquidityForRequestSchema = Type.Intersect([
+  AdminSchema,
+  Type.Object({
+    routerAddress: Type.Optional(TAddress),
+    chainId: TChainId,
+    assetId: TAddress,
+    amount: TDecimalString,
+  }),
+]);
+export type AddLiquidityForRequest = Static<typeof AddLiquidityForRequestSchema>;
+
+export const AddLiquidityForResponseSchema = Type.Object({
+  transactionHash: Type.String(),
+});
+export type AddLiquidityForResponse = Static<typeof AddLiquidityForResponseSchema>;
+
+export const RemoveLiquidityRequestSchema = Type.Intersect([
+  AdminSchema,
+  Type.Object({
+    recipientAddress: Type.Optional(TAddress),
+    chainId: TChainId,
+    assetId: TAddress,
+    amount: TDecimalString,
+  }),
+]);
+export type RemoveLiquidityRequest = Static<typeof RemoveLiquidityRequestSchema>;
+
+export const RemoveLiquidityResponseSchema = Type.Object({
+  transactionHash: Type.String(),
+});
+export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
