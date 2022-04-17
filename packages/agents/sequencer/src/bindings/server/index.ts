@@ -152,6 +152,7 @@ export const api = {
     admin: (body: AdminRequest, res: FastifyReply, nested: (res: FastifyReply) => Promise<void>) => {
       const { config } = getContext();
       const { adminToken } = body;
+      console.log("adminToken: ", adminToken);
       if (adminToken !== config.server.adminToken) {
         return res.status(401).send("Unauthorized to perform this operation");
       }
@@ -164,7 +165,6 @@ export const api = {
         adapters: { cache },
       } = getContext();
       await cache.auctions.clear();
-      await cache.consumers.clear();
       await cache.transfers.clear();
       return res.status(200).send();
     },

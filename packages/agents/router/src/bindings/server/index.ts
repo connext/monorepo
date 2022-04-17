@@ -110,7 +110,6 @@ export const api = {
         adapters: { cache },
       } = getContext();
       await cache.auctions.clear();
-      await cache.consumers.clear();
       await cache.transfers.clear();
       return res.status(200).send();
     },
