@@ -24,16 +24,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Just plug in hardcoded domain for testing.
   const domain = 31337;
 
-  console.log("Deploying bridge router...");
-  // Get BridgeRouter and TokenRegistry deployments.
-  const bridgeRouterDeployment = await hre.deployments.getOrNull("BridgeRouterUpgradeBeaconProxy");
-  if (!bridgeRouterDeployment) {
-    throw new Error(`BridgeRouter not deployed`);
+  // Get xapp connection manager
+  const xappConnectionManagerDeployment = await hre.deployments.getOrNull("XAppConnectionManager");
+  if (!xappConnectionManagerDeployment) {
+    throw new Error(`XappConnectionManager not deployed`);
   }
-  const bridge = new hre.ethers.Contract(
-    bridgeRouterDeployment.address,
-    (await hre.deployments.getOrNull("BridgeRouter"))!.abi,
-  ).connect(deployer);
 
   console.log("Deploying token registry...");
   const tokenRegistryDeployment = await hre.deployments.getOrNull("TokenRegistryUpgradeBeaconProxy");
@@ -62,7 +57,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy connext contract
   console.log("Deploying connext...");
-  const connext = await hre.deployments.deploy("Connext", {
+  const connext = await hre.deployments.deploy("ConnextHandler", {
     from: deployer.address,
     log: true,
     libraries: {
@@ -74,7 +69,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: {
         init: {
           methodName: "initialize",
-          args: [domain, bridge.address, tokenRegistry.address, WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero],
+          args: [
+            domain,
+            xappConnectionManagerDeployment.address,
+            tokenRegistry.address,
+            WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+          ],
         },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
@@ -83,15 +83,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
-
-  // Add tm to bridge
-  if ((await bridge.connext()) !== connextAddress) {
-    console.log("setting connext on bridge");
-    const addTm = await bridge.connect(deployer).setConnext(connextAddress);
-    await addTm.wait();
-  } else {
-    console.log("bridge connext set");
-  }
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");

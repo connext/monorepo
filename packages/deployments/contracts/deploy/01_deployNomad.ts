@@ -238,14 +238,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`replica for ${replicaName} enrolled`);
     }
   }
-
-  // Deploy bridge router
-  console.log("Deploying bridge router...");
-  const bridge = (
-    await deployNomadBeaconProxy("BridgeRouter", [tokenRegistry.address, xappConnectionManagerAddress], deployer, hre)
-  ).connect(deployer);
-  console.log("bridge address:", bridge.address);
-  console.log("bridge owner:", await bridge.owner());
 };
 export default func;
 func.tags = ["Nomad"];

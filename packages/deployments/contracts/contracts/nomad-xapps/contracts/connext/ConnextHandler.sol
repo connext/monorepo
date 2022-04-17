@@ -57,8 +57,8 @@ contract ConnextHandler is
   // ============ Constants ============
 
   // TODO: enable setting these constants via admin fn
-  uint256 LIQUIDITY_FEE_NUMERATOR = 9995;
-  uint256 LIQUIDITY_FEE_DENOMINATOR = 10000;
+  uint256 public LIQUIDITY_FEE_NUMERATOR;
+  uint256 public LIQUIDITY_FEE_DENOMINATOR;
 
   /**
    * @notice Contains hash of empty bytes
@@ -173,6 +173,7 @@ contract ConnextHandler is
   error ConnextHandler__execute_alreadyExecuted();
   error ConnextHandler__execute_notSupportedRouter();
   error ConnextHandler__execute_invalidProperties();
+  error ConnextHandler__execute_maxRoutersExceeded();
   error ConnextHandler__reconcile_alreadyReconciled();
   error ConnextHandler__addLiquidityForRouter_routerEmpty();
   error ConnextHandler__addLiquidityForRouter_amountIsZero();
@@ -199,6 +200,9 @@ contract ConnextHandler is
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+    LIQUIDITY_FEE_NUMERATOR = 9995;
+    LIQUIDITY_FEE_DENOMINATOR = 10000;
+    maxRoutersPerTransfer = 5;
   }
 
   // ============ Owner Functions ============
@@ -687,7 +691,7 @@ contract ConnextHandler is
       // credit the router the asset
       uint256 _routerAmt = _amount / _pathLen;
       for (uint256 i; i < _pathLen; ) {
-        routerBalances[_routers[i]][_token] += _amount;
+        routerBalances[_routers[i]][_token] += _routerAmt;
         unchecked {
           i++;
         }
@@ -711,8 +715,7 @@ contract ConnextHandler is
 
   // TODO: move logic into ConnextUtils
   function _getFastTransferAmount(uint256 _amount) internal view returns (uint256) {
-    // return (_amount * LIQUIDITY_FEE_NUMERATOR) / LIQUIDITY_FEE_DENOMINATOR;
-    return _amount;
+    return (_amount * LIQUIDITY_FEE_NUMERATOR) / LIQUIDITY_FEE_DENOMINATOR;
   }
 
   // TODO: move into ConnextUtils?
@@ -774,6 +777,9 @@ contract ConnextHandler is
     ExecuteArgs calldata _args,
     bool isFast
   ) internal returns (uint256, address) {
+    uint256 _pathLen = _args.routers.length;
+    if (_pathLen > maxRoutersPerTransfer) revert ConnextHandler__execute_maxRoutersExceeded();
+
     uint256 _toSwap = _args.amount;
     if (isFast) {
       // this is the fast liquidity path
@@ -788,7 +794,7 @@ contract ConnextHandler is
       routedTransfers[_transferId] = _args.routers;
 
       // for each router, assert they are approved, and deduct liquidity
-      uint256 _pathLen = _args.routers.length;
+      uint256 _routerAmount = _toSwap / _pathLen;
       for (uint256 i; i < _pathLen; ) {
         // while theres no way for a router to have sufficient liquidity
         // if they have never been approved, this check ensures they weren't
@@ -798,7 +804,7 @@ contract ConnextHandler is
         }
 
         // decrement routers liquidity
-        routerBalances[_args.routers[i]][_args.local] -= _toSwap;
+        routerBalances[_args.routers[i]][_args.local] -= _routerAmount;
 
         unchecked {
           i++;

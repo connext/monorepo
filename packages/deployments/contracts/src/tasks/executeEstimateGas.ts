@@ -8,8 +8,7 @@ import {
 import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 
-import { Connext as TConnext } from "../../typechain-types";
-import ConnextArtifact from "../../artifacts/contracts/nomad-xapps/contracts/connext/ConnextHandler.sol/ConnextHandler.json";
+import { IConnext as TConnext } from "../../typechain-types";
 import { canonizeId } from "../nomad";
 
 type TaskArgs = {
@@ -21,7 +20,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
   .setAction(async ({ connextAddress: _connextAddress }: TaskArgs, { deployments, ethers }) => {
     let connextAddress = _connextAddress ?? process.env.EG_CONNEXT_ADDRESS;
     if (!connextAddress) {
-      const connextDeployment = await deployments.get("Connext");
+      const connextDeployment = await deployments.get("ConnextHandler");
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
@@ -124,7 +123,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       (executeArgs as any).relayerSignature = relayerSignature;
 
       console.log("Execute args: ", executeArgs);
-      const encoderContract = new utils.Interface(ConnextArtifact.abi) as TConnext["interface"];
+      const encoderContract = (await ethers.getContract("ConnextHandler")).interface as TConnext["interface"];
 
       encodedData = encoderContract.encodeFunctionData("execute", [executeArgs as unknown as ExecuteArgs]);
     }

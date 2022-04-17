@@ -154,7 +154,7 @@ interface IConnext {
   );
 
   /**
-   * @notice Emitted when `reconciled` is called by the bridge on the destination domain
+  //  * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
    * @param routers - The CallParams.recipient provided, created as indexed parameter
@@ -162,10 +162,11 @@ interface IConnext {
    * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
    */
+  // TODO: make `routers` indexed?
   event Reconciled(
     bytes32 indexed transferId,
     uint32 indexed origin,
-    address[] indexed routers,
+    address[] routers,
     address asset,
     uint256 amount,
     address caller
