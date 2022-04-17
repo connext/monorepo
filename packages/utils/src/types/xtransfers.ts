@@ -57,6 +57,14 @@ export const CallParamsSchema = Type.Object({
 
 export type CallParams = Static<typeof CallParamsSchema>;
 
+export const XCallArgsSchema = Type.Object({
+  params: CallParamsSchema,
+  transactingAssetId: Type.String(),
+  amount: TDecimalString,
+});
+
+export type XCallArgs = Static<typeof XCallArgsSchema>;
+
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
