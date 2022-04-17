@@ -24,13 +24,13 @@ variable "environment" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-5ef09f4"
+  default     = "ghcr.io/connext/router:sha-90ce337"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-5ef09f4"
+  default     = "ghcr.io/connext/sequencer:sha-90ce337"
 }
 
 variable "mnemonic" {
@@ -61,5 +61,9 @@ variable "rinkeby_alchemy_key_1" {
 }
 
 variable "kovan_alchemy_key_1" {
+  type = string
+}
+
+variable "logdna_key" {
   type = string
 }
