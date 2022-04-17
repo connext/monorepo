@@ -9,7 +9,7 @@ import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "et
 import { task } from "hardhat/config";
 
 import { Connext as TConnext } from "../../typechain-types";
-import ConnextArtifact from "../../artifacts/contracts/Connext.sol/Connext.json";
+import ConnextArtifact from "../../artifacts/contracts/nomad-xapps/contracts/connext/ConnextHandler.sol/ConnextHandler.json";
 import { canonizeId } from "../nomad";
 
 type TaskArgs = {
