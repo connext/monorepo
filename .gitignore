@@ -37,4 +37,6 @@ packages/integration/ops/config/router/*.yaml
 !packages/integration/ops/config/router/web3signer_keyFile_test.yaml
 
 **/.terraform/**
+**/.terraform.lock.hcl
+ops/**/tfvars.json
 .idea
