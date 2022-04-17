@@ -68,7 +68,7 @@ resource "aws_alb" "lb" {
   subnets                    = var.lb_subnets
   enable_deletion_protection = false
   idle_timeout               = var.timeout
-  tags = {
+  tags                       = {
     Family = "${var.environment}-${var.stage}-${var.container_family}"
   }
 }
@@ -91,13 +91,13 @@ resource "aws_alb_target_group" "front_end" {
 
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_alb.lb.arn
-  port = "443"
-  protocol = "HTTPS"
-  ssl_policy = "ELBSecurityPolicy-2016-08"
-  certificate_arn = var.cert_arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.cert_arn
 
   default_action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_alb_target_group.front_end.arn
   }
 }
@@ -129,7 +129,7 @@ resource "aws_security_group" "lb" {
 
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id
-  name    =  var.stage != "prod" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
+  name    = var.stage != "prod" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]

@@ -28,4 +28,8 @@ variable "log_group_name" {
   description = "log group name"
 }
 
+variable "log_group_arn" {
+  description = "log group arn"
+}
+
 
