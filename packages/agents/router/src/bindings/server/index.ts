@@ -1,17 +1,20 @@
-import { jsonifyError, NxtpError } from "@connext/nxtp-utils";
-import fastify, { FastifyInstance, FastifyReply } from "fastify";
-import { register } from "prom-client";
-
-import { getContext } from "../../router";
-
 import {
+  jsonifyError,
+  NxtpError,
   RemoveLiquidityRequest,
   RemoveLiquidityRequestSchema,
   RemoveLiquidityResponseSchema,
   AddLiquidityForRequest,
   AddLiquidityForRequestSchema,
   AddLiquidityForResponseSchema,
-} from "./schema";
+  ClearCacheRequestSchema,
+  ClearCacheRequest,
+  AdminRequest,
+} from "@connext/nxtp-utils";
+import fastify, { FastifyInstance, FastifyReply } from "fastify";
+import { register } from "prom-client";
+
+import { getContext } from "../../router";
 
 export const bindServer = () =>
   new Promise<FastifyInstance>((res) => {
@@ -37,6 +40,12 @@ export const bindServer = () =>
       async (req, res) => api.auth.admin(req.body, res, api.post.addLiquidityFor),
     );
 
+    server.post<{ Body: ClearCacheRequest }>(
+      "/clear-cache",
+      { schema: { body: ClearCacheRequestSchema } },
+      async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
+    );
+
     server.listen(config.server.port, config.server.host, (err, address) => {
       if (err) {
         console.error(err);
@@ -49,13 +58,7 @@ export const bindServer = () =>
 
 export const api = {
   auth: {
-    admin: (
-      body: {
-        adminToken: string;
-      },
-      res: FastifyReply,
-      nested: (res: FastifyReply) => Promise<void>,
-    ) => {
+    admin: (body: AdminRequest, res: FastifyReply, nested: (res: FastifyReply) => Promise<void>) => {
       const { config } = getContext();
       const { adminToken } = body;
       if (adminToken !== config.server.adminToken) {
@@ -101,6 +104,14 @@ export const api = {
     },
     addLiquidityFor: async (res: FastifyReply) => {
       return res.status(500).send("Not implemented");
+    },
+    clearCache: async (res: FastifyReply) => {
+      const {
+        adapters: { cache },
+      } = getContext();
+      await cache.auctions.clear();
+      await cache.transfers.clear();
+      return res.status(200).send();
     },
   },
 };
