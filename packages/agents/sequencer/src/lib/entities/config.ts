@@ -16,6 +16,7 @@ export type ChainConfig = Static<typeof TChainConfig>;
 export const TServerConfig = Type.Object({
   port: Type.Integer({ minimum: 1, maximum: 65535 }),
   host: Type.String({ format: "ipv4" }),
+  adminToken: Type.String(),
 });
 
 export const TRedisConfig = Type.Object({

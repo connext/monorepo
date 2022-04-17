@@ -97,7 +97,7 @@ export const makeRouter = async () => {
     }
     await bindServer();
     await bindMetrics();
-    await bindSubgraph();
+    await bindSubgraph(context.config.subgraphPollInterval!);
     await bindCache();
 
     logger.info("Router ready!");

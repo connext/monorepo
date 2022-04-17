@@ -52,6 +52,12 @@ export class NotEnoughAmount extends NxtpError {
   }
 }
 
+export class RouterNotApproved extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Router not approved`, context, RouterNotApproved.name);
+  }
+}
+
 export class SequencerResponseInvalid extends NxtpError {
   constructor(context: any = {}) {
     super("sendBid: POST request returned invalid response", context, SequencerResponseInvalid.name);

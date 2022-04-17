@@ -4,6 +4,7 @@ type Asset @entity {
   adoptedAsset: Bytes!
   canonicalId: Bytes!
   canonicalDomain: BigInt!
+  blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
 }
 
 type AssetBalance @entity {
@@ -16,6 +17,11 @@ type AssetBalance @entity {
 # Router represents a router and its associated liquidity
 type Router @entity {
   id: ID!
+  isActive: Boolean!
+  owner: Bytes
+  recipient: Bytes
+  proposedOwner: Bytes
+  proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
   transfers: [Transfer!]! @derivedFrom(field: "router")
 }

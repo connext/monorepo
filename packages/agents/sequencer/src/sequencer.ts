@@ -26,6 +26,7 @@ export const makeSequencer = async () => {
     }
     context.chainData = chainData;
     context.config = await getConfig(chainData, contractDeployments);
+    context.logger.info("Sequencer config generated", requestContext, methodContext, { config: context.config });
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);

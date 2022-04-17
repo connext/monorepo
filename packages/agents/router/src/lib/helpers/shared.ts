@@ -27,7 +27,7 @@ export const getDestinationLocalAsset = async (
   } = getContext();
 
   // get canonical asset from orgin domain.
-  const sendingDomainAsset = await subgraph.getAssetByLocal(Number(_originDomain), _originLocalAsset);
+  const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
   const canonicalId = sendingDomainAsset!.canonicalId as string;
 

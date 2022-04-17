@@ -51,6 +51,7 @@ export const getEnvConfig = (
     server: {
       port: process.env.SEQ_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
       host: process.env.SEQ_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      adminToken: process.env.SEQ_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
     },
     auctionWaitTime:
       process.env.SEQ_AUCTION_WAIT_TIME ||
@@ -82,6 +83,11 @@ export const getEnvConfig = (
           return res.address;
         })(),
     };
+
+    if (!chainConfig.subgraph) {
+      chainConfig.subgraph = {} as any;
+      _sequencerConfig.chains[domainId].subgraph = chainConfig.subgraph;
+    }
 
     if (!chainConfig.subgraph.runtime) {
       _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraphs.runtime ?? [];
