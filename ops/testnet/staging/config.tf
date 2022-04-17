@@ -5,6 +5,10 @@ locals {
       port : module.sequencer_cache.redis_instance_port
     },
 
+    server       = {
+      adminToken = var.admin_token_router
+    }
+
     chains = {
       "2000" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]

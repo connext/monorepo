@@ -4,6 +4,11 @@ locals {
       host: module.sequencer_cache.redis_instance_address,
       port: module.sequencer_cache.redis_instance_port
     },
+
+    server       = {
+      adminToken = var.admin_token_router
+    }
+
     logLevel = "debug"
     chains = {
       2000 = {
