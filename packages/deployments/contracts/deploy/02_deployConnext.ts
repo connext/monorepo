@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Wallet, constants } from "ethers";
+import { constants, Wallet } from "ethers";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 import { getDeploymentName } from "../src/utils";
@@ -14,7 +14,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const chainId = await hre.getChainId();
 
   let _deployer: any;
-  ({ _deployer } = await hre.ethers.getNamedSigners());
+  ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
   if (!_deployer) {
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }

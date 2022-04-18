@@ -1,16 +1,18 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { Wallet } from "ethers";
 
 import { getDeploymentName } from "../src/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
 
-  let deployer;
-  ({ deployer } = await hre.getNamedAccounts());
-  if (!deployer) {
-    [deployer] = await hre.getUnnamedAccounts();
+  let _deployer: any;
+  ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
+  if (!_deployer) {
+    [_deployer] = await hre.ethers.getUnnamedSigners();
   }
+  const deployer = _deployer as Wallet;
   console.log("============================= Deploying StableSwap ===============================");
   console.log("deployer: ", deployer);
 

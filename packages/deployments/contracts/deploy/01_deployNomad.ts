@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, Signer, BigNumber, Wallet, constants } from "ethers";
+import { Contract, Signer, BigNumber, constants, Wallet } from "ethers";
 import { config } from "dotenv";
 
 import { NomadDomainInfo } from "../src/nomad";
@@ -143,7 +143,7 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   let _deployer: any;
-  ({ _deployer } = await hre.ethers.getNamedSigners());
+  ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
   if (!_deployer) {
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
