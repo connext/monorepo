@@ -66,9 +66,9 @@ contract Connext is
   error Connext__addRelayer_alreadyApproved();
   error Connext__removeRelayer_notApproved();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error Connext__onlyRelayerFeeRouter_notRelayerFeeRouter();
   error Connext__bumpTransfer_invalidTransfer();
   error Connext__bumpTransfer_valueIsZero();
-  error Connext__onlyRelayerFeeRouter_notRelayerFeeRouter();
 
   // ============ Constants =============
 
