@@ -1,11 +1,4 @@
-import {
-  AuctionBid,
-  AuctionPayload,
-  AuctionResponse,
-  jsonifyError,
-  NxtpError,
-  NxtpErrorJson,
-} from "@connext/nxtp-utils";
+import { jsonifyError, NxtpError, NxtpErrorJson } from "@connext/nxtp-utils";
 
 /**
  * @classdesc Represents errors having to do with config issues
@@ -232,33 +225,6 @@ export class InvalidCallTo extends ParamsError {
 }
 
 /**
- * @classdesc Thrown when bid signature undefined
- */
-export class InvalidBidSignature extends ParamsError {
-  static getMessage() {
-    return `bid signature invalid`;
-  }
-
-  constructor(
-    public readonly transactionId: string,
-    public readonly bid: AuctionBid,
-    public readonly router: string,
-    public readonly recovered?: string,
-    public readonly signature?: string,
-    public readonly context: any = {},
-  ) {
-    super(InvalidBidSignature.getMessage(), {
-      transactionId,
-      router,
-      recovered,
-      signature,
-      bid,
-      ...context,
-    });
-  }
-}
-
-/**
  * @classdesc Thrown if encryption of calldata fails before auction
  */
 export class EncryptionError extends NxtpError {
@@ -293,73 +259,6 @@ export class NotEnoughAmount extends NxtpError {
 }
 
 /**
- * @classdesc Thrown if no bids received in given timeout
- */
-export class NoBids extends AuctionError {
-  static getMessage(timeout: number, transactionId: string) {
-    return `No bids received within ${timeout}ms, txId ${transactionId}`;
-  }
-
-  constructor(
-    public readonly timeout: number,
-    public readonly transactionId: string,
-    public readonly auction: AuctionPayload,
-    public readonly context: any = {},
-  ) {
-    super(
-      NoBids.getMessage(timeout, transactionId),
-      { transactionId, timeout, auction, ...context },
-      AuctionError.type,
-    );
-  }
-}
-
-/**
- * @classdesc Thrown if no acceptable bids received in given timeout
- */
-export class NoValidBids extends AuctionError {
-  static getMessage() {
-    return `No valid bids received`;
-  }
-
-  constructor(
-    public readonly transactionId: string,
-    public readonly auction: AuctionPayload,
-    public readonly reasons: string,
-    public readonly auctionResponses: (AuctionResponse | string)[],
-    public readonly context: any = {},
-  ) {
-    super(
-      NoValidBids.getMessage(),
-      { transactionId, auction, invalidReasons: reasons, bids: auctionResponses, ...context },
-      AuctionError.type,
-    );
-  }
-}
-
-/**
- * @classdesc Thrown when auction fails in unknown way
- */
-export class UnknownAuctionError extends AuctionError {
-  static getMessage() {
-    return `Error validating or retrieving bids`;
-  }
-
-  constructor(
-    public readonly transactionId: string,
-    public readonly error: NxtpErrorJson,
-    public readonly auction: AuctionPayload,
-    public readonly context: any = {},
-  ) {
-    super(
-      UnknownAuctionError.getMessage(),
-      { transactionId, auction, auctionError: error, ...context },
-      AuctionError.type,
-    );
-  }
-}
-
-/**
  * @classdesc Defines the error thrown by the `TransactionManager` class when a transaction fails to be submitted.
  */
 export class SubmitError extends TransactionManagerError {
@@ -367,25 +266,10 @@ export class SubmitError extends TransactionManagerError {
     return `failed to submit transaction`;
   }
 
-  constructor(
-    public readonly transactionId: string,
-    public readonly chainId: number,
-    public readonly sender: string,
-    public readonly method: string,
-    public readonly to: string,
-    public readonly params: any,
-    public readonly txserviceError: NxtpErrorJson,
-    public readonly context: any = {},
-  ) {
+  constructor(public readonly txserviceError: NxtpErrorJson, public readonly context: any = {}) {
     super(
       SubmitError.getMessage(),
       {
-        transactionId,
-        chainId,
-        sender,
-        method,
-        to,
-        params,
         txserviceError: jsonifyError(txserviceError as NxtpError),
         ...context,
       },
@@ -414,53 +298,6 @@ export class InvalidTxStatus extends SubgraphError {
         transactionId,
         status,
         record,
-        ...context,
-      },
-      SubgraphError.type,
-    );
-  }
-}
-
-/**
- * @classdesc Thrown when subgraphs are not synced
- */
-export class SendingChainSubgraphsNotSynced extends SubgraphError {
-  static getMessage() {
-    return `Sending Chain Subgraph not synced`;
-  }
-
-  constructor(
-    public readonly sendingSyncStatus: SubgraphSyncRecord,
-    public readonly receivingSyncStatus: SubgraphSyncRecord,
-    public readonly context: any = {},
-  ) {
-    super(
-      SendingChainSubgraphsNotSynced.getMessage(),
-      {
-        sendingSyncStatus,
-        receivingSyncStatus,
-        ...context,
-      },
-      SubgraphError.type,
-    );
-  }
-}
-
-export class ReceivingChainSubgraphsNotSynced extends SubgraphError {
-  static getMessage() {
-    return `Subgraph not synced`;
-  }
-
-  constructor(
-    public readonly sendingSyncStatus: SubgraphSyncRecord,
-    public readonly receivingSyncStatus: SubgraphSyncRecord,
-    public readonly context: any = {},
-  ) {
-    super(
-      ReceivingChainSubgraphsNotSynced.getMessage(),
-      {
-        sendingSyncStatus,
-        receivingSyncStatus,
         ...context,
       },
       SubgraphError.type,
