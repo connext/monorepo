@@ -308,6 +308,63 @@ export const getReconciledTransfersByIds = gql`
   }
 `;
 
+export const getTransfersStatus = gql`
+  query GetTransfersStatus($transferIds: [Bytes!]) {
+    transfers(where: { transferId_in: $transferIds, status_in: [Executed, Reconciled] }) {
+      id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledCaller
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }
+  }
+`;
+
 export const getAssetByLocal = gql`
   query GetAssetByLocal($local: Bytes!) {
     assets(where: { local: $local }) {
