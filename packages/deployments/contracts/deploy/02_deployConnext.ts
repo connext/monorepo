@@ -4,6 +4,7 @@ import { constants, Wallet } from "ethers";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 import { getDeploymentName } from "../src/utils";
+import { getDomainInfoFromChainId } from "../src/nomad";
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -22,8 +23,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("============================= Deploying Connext ===============================");
   console.log("deployer: ", deployer.address);
 
-  // Just plug in hardcoded domain for testing.
-  const domain = 31337;
+  const network = await hre.ethers.provider.getNetwork();
+  const domainConfig = getDomainInfoFromChainId(network.chainId);
 
   console.log("Fetching bridge router...");
   // Get BridgeRouter and TokenRegistry deployments.
@@ -83,7 +84,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: {
         init: {
           methodName: "initialize",
-          args: [domain, bridge.address, tokenRegistry.address, WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero],
+          args: [
+            domainConfig.domain,
+            bridge.address,
+            tokenRegistry.address,
+            WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+          ],
         },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
@@ -157,8 +163,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Verify connext
   try {
+    console.log("verifying connext implementation");
+    const implementation = await hre.deployments.get(connextName + "_Implementation");
     await hre.run("verify:verify", {
-      address: connext.address,
+      address: implementation.address,
       constructorArguments: [],
       libraries: {
         AssetLogic: assetLogic.address,
