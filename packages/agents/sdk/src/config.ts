@@ -1,14 +1,11 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
-
 import { Type, Static } from "@sinclair/typebox";
 import { Signer } from "ethers";
-import { config as dotenvConfig } from "dotenv";
+
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-
-dotenvConfig();
 
 export const TAssetDescription = Type.Object({
   name: Type.String(),
@@ -36,7 +33,6 @@ export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   signerAddress: TAddress,
-  signer: Type.Optional(Type.Any(Signer)),
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
 });
@@ -57,7 +53,6 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TValidationChainConfig),
   logLevel: TLogLevel,
   signerAddress: TAddress,
-  signer: Type.Optional(Type.Any(Signer)),
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
 });
