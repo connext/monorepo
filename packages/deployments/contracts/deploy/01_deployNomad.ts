@@ -1,8 +1,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, Signer, BigNumber, Wallet, constants } from "ethers";
+import { config } from "dotenv";
 
 import { NomadDomainInfo } from "../src/nomad";
+import { getDeploymentName } from "../src/utils";
+
+config();
 
 const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   name: string,
@@ -10,16 +14,23 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   deployer: Signer & { address: string },
   hre: HardhatRuntimeEnvironment,
 ): Promise<T> => {
+  // get names
+  const implementationName = getDeploymentName(name);
+  const upgradeBeaconName = getDeploymentName(`${name}UpgradeBeacon`);
+  const proxyName = getDeploymentName(`${name}UpgradeBeaconProxy`);
+  const upgradeBeaconControllerName = getDeploymentName(`UpgradeBeaconController`);
+
+  // get data + factories
   const factory = await hre.ethers.getContractFactory(name, deployer.address);
-  const proxyName = `${name}UpgradeBeaconProxy`;
   const initData = factory.interface.encodeFunctionData("initialize", args);
 
   // Get controller deployment
-  let controllerDeployment = await hre.deployments.getOrNull(`UpgradeBeaconController`);
+  let controllerDeployment = await hre.deployments.getOrNull(upgradeBeaconControllerName);
   if (!controllerDeployment) {
-    controllerDeployment = await hre.deployments.deploy("UpgradeBeaconController", {
+    controllerDeployment = await hre.deployments.deploy(upgradeBeaconControllerName, {
       from: deployer.address,
       log: true,
+      contract: "UpgradeBeaconController",
     });
   }
 
@@ -33,7 +44,7 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   if (proxyDeployment) {
     console.log(`${name} proxy deployed. upgrading...`);
     // Get beacon and implementation addresses
-    beaconAddress = (await hre.deployments.getOrNull(`${name}UpgradeBeacon`))?.address;
+    beaconAddress = (await hre.deployments.getOrNull(upgradeBeaconName))?.address;
     implementation = (await hre.deployments.getOrNull(name))?.address;
     if (!implementation || !beaconAddress) {
       throw new Error(`Could not find beacon or implementation address for ${name}`);
@@ -41,15 +52,16 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
 
     // Check if theres an upgrade needed by checking the deployed code
     const artifact = await hre.deployments.getArtifact(name);
-    const deployment = await hre.deployments.getOrNull(name);
+    const deployment = await hre.deployments.getOrNull(implementationName);
     if (artifact.deployedBytecode !== deployment?.deployedBytecode) {
       // Must upgrade the proxy
       // First, deploy new implementation
-      const upgradeDeployment = await hre.deployments.deploy(name, {
+      const upgradeDeployment = await hre.deployments.deploy(implementationName, {
         args: [],
         from: deployer.address,
         skipIfAlreadyDeployed: false,
         log: true,
+        contract: name,
       });
       implementation = upgradeDeployment.address;
       deployedImplementation = true;
@@ -58,28 +70,29 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
       // Then, upgrade proxy via beacon controller
       const controller = new Contract(controllerDeployment.address, controllerDeployment.abi).connect(deployer);
       const upgrade = await controller.upgrade(beaconAddress, implementation, { gasLimit: BigNumber.from(1_000_000) });
-      console.log(`${name} upgrade transaction:`, upgrade.hash);
+      console.log(`${implementationName} upgrade transaction:`, upgrade.hash);
       const receipt = await upgrade.wait();
-      console.log(`${name} upgrade tx mined:`, receipt.transactionHash);
+      console.log(`${implementationName} upgrade tx mined:`, receipt.transactionHash);
     } else {
       console.log(`no upgrade needed, using implementation at: ${implementation}`);
     }
   } else {
-    console.log(`Deploying ${name} with nomad upgradeable scheme`);
+    console.log(`Deploying ${implementationName} with nomad upgradeable scheme`);
 
     // 1. Deploy implementation
-    const implementationDeployment = await hre.deployments.deploy(name, {
+    const implementationDeployment = await hre.deployments.deploy(implementationName, {
       args: [],
       from: deployer.address,
       skipIfAlreadyDeployed: true,
       log: true,
+      contract: name,
     });
     implementation = implementationDeployment.address;
     deployedImplementation = true;
     console.log(`deployed implementation: ${implementation}`);
 
     // 2. Deploy UpgradeBeacon
-    const beaconDeployment = await hre.deployments.deploy(`${name}UpgradeBeacon`, {
+    const beaconDeployment = await hre.deployments.deploy(upgradeBeaconName, {
       args: [implementation, controllerDeployment.address],
       from: deployer.address,
       skipIfAlreadyDeployed: true,
@@ -115,7 +128,10 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
     }
   }
 
-  const proxy = new Contract(proxyDeployment.address, (await hre.deployments.getOrNull(name))!.abi).connect(deployer);
+  const proxy = new Contract(
+    proxyDeployment.address,
+    (await hre.deployments.getOrNull(implementationName))!.abi,
+  ).connect(deployer);
 
   return proxy as unknown as T;
 };
@@ -188,10 +204,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy xapp connection manager
   console.log("Deploying xapp connection manager...");
-  const xappDeployment = await hre.deployments.deploy("XAppConnectionManager", {
+  const xappDeploymentName = getDeploymentName("XAppConnectionManager");
+  const xappDeployment = await hre.deployments.deploy(xappDeploymentName, {
     from: deployer.address,
     skipIfAlreadyDeployed: true,
     log: true,
+    contract: "XAppConnectionManager",
   });
   console.log("deploy tx:", xappDeployment.transactionHash);
   const xappConnectionManagerAddress = xappDeployment.address;

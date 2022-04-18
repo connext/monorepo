@@ -1,6 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
+import { getDeploymentName } from "../src/utils";
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
 
@@ -15,6 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  LP Token
   /////////////////////////////////////////////////////////////////////////////////
+  // NOTE: *NOT* using -Staging deployment for LP token
   const lpToken = await deployments.getOrNull("LPToken");
   if (lpToken) {
     console.log(`reusing "LPToken" at ${lpToken.address}`);
@@ -37,32 +40,38 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  AmplificationUtils
   /////////////////////////////////////////////////////////////////////////////////
-  await deployments.deploy("AmplificationUtils", {
+  const amplificationUtilsName = getDeploymentName("AmplificationUtils");
+  const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
+    contract: "AmplificationUtils",
   });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  SwapUtils
   /////////////////////////////////////////////////////////////////////////////////
-  await deployments.deploy("SwapUtils", {
+  const swapUtilsName = getDeploymentName("SwapUtils");
+  const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
+    contract: "SwapUtils",
   });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  StableSwap
   /////////////////////////////////////////////////////////////////////////////////
-  const stableSwapDeployment = await deployments.deploy("StableSwap", {
+  const stableSwapName = getDeploymentName("StableSwap");
+  const stableSwapDeployment = await deployments.deploy(stableSwapName, {
     from: deployer,
     log: true,
     libraries: {
-      SwapUtils: (await deployments.get("SwapUtils")).address,
-      AmplificationUtils: (await deployments.get("AmplificationUtils")).address,
+      SwapUtils: swapUtilsDeployment.address,
+      AmplificationUtils: amplificationUtilsDeployment.address,
     },
     skipIfAlreadyDeployed: true,
+    contract: "StableSwap",
   });
 
   try {
@@ -71,12 +80,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       address: stableSwapDeployment.address,
       constructorArguments: [],
       libraries: {
-        SwapUtils: (await deployments.get("SwapUtils")).address,
-        AmplificationUtils: (await deployments.get("AmplificationUtils")).address,
+        SwapUtils: swapUtilsDeployment.address,
+        AmplificationUtils: amplificationUtilsDeployment.address,
       },
     });
   } catch (e: unknown) {
-    console.log("Errow while verify stableswap contract", stableSwapDeployment.address);
+    console.log("Error while verify stableswap contract", stableSwapDeployment.address, e);
   }
 };
 
