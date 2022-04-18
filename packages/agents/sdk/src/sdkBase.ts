@@ -1,19 +1,11 @@
 import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
 
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  RequestContext,
-  ChainData,
-  XCallArgs,
-  CallParams,
-} from "@connext/nxtp-utils";
+import { getChainData, Logger, createLoggingContext, RequestContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
   contractDeployments,
-  TransactionService,
+  ChainReader,
 } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
@@ -26,37 +18,36 @@ export const FULFILL_TIMEOUT = 300_000;
 export const DELAY_BETWEEN_RETRIES = 5_000;
 
 /**
- * @classdesc Lightweight class to facilitate interaction with the TransactionManager contract on configured chains.
+ * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
  *
  */
 export class NxtpSdkBase {
-  private readonly config: NxtpSdkConfig;
+  private config: NxtpSdkConfig;
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
-  private txService: TransactionService;
-  private chainData?: Map<string, ChainData>;
+  private chainReader: ChainReader;
+  public chainData?: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, logger?: Logger) {
+  constructor(config: NxtpSdkConfig, logger: Logger) {
     this.config = config;
-    this.logger = logger || new Logger({ name: "NxtpSdk", level: config.logLevel });
+    this.logger = logger;
     this.contracts = getContractInterfaces();
-    this.txService = new TransactionService(
-      this.logger.child({ module: "TransactionService" }, this.config.logLevel),
+    this.chainReader = new ChainReader(
+      this.logger.child({ module: "ChainReader" }, this.config.logLevel),
       this.config.chains,
-      this.config.signer,
     );
   }
 
-  public async create(_config: NxtpSdkConfig): Promise<NxtpSdkBase> {
+  public async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkBase> {
     const chainData = await getChainData();
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
-
     this.chainData = chainData;
     const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
 
-    return new NxtpSdkBase(nxtpConfig);
+    return new NxtpSdkBase(nxtpConfig, logger);
   }
 
   async approveIfNeeded(
@@ -73,21 +64,20 @@ export class NxtpSdkBase {
     // this.assertChainIsConfigured(chainId);
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
-      const chainId = this.chainData?.get(domain).chainId;
-
-      const approvedData = this.contracts.erc20Interface.encodeFunctionData("allowance", [
+      const chainId = this.chainData?.get(domain)?.chainId!;
+      const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
         await this.config.signerAddress,
         ConnextContractAddress,
       ]);
-      const approvedEncoded = await this.txService.readTx({
+      const approvedEncoded = await this.chainReader.readTx({
         to: assetId,
         data: approvedData,
         chainId,
       });
-      const [approved] = this.contracts.erc20Interface.decodeFunctionResult("allowance", approvedEncoded);
+      const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
       this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
       if (BigNumber.from(approved).lt(amount)) {
-        const data = this.contracts.erc20Interface.encodeFunctionData("approve", [
+        const data = this.contracts.erc20.encodeFunctionData("approve", [
           ConnextContractAddress,
           infiniteApprove ? constants.MaxUint256 : amount,
         ]);
@@ -109,9 +99,9 @@ export class NxtpSdkBase {
     return undefined;
   }
 
-  public async xcall(params: XCallArgs): Promise<providers.TransactionRequest> {
+  public async xcall(xcallParams: XCallArgs): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
-    this.logger.info("Method start", requestContext, methodContext, { params });
+    this.logger.info("Method start", requestContext, methodContext, { xcallParams });
 
     // Validate Input schema
     // const validateInput = ajv.compile(XTransferSchema);
@@ -125,23 +115,18 @@ export class NxtpSdkBase {
     // }
 
     /// create a bid
-    const { originDomain, destinationDomain, to, callData, amount, transactingAssetId } = params;
+    const { params, amount, transactingAssetId } = xcallParams;
+
+    const { originDomain, destinationDomain, to, callData } = params;
 
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
-    const chainId = this.chainData?.get(originDomain).chainId;
-    // generate bid params
-    const callParams: CallParams = {
-      to,
-      callData,
-      originDomain,
-      destinationDomain,
-    };
+    const chainId = this.chainData?.get(originDomain)?.chainId;
 
-    const value = params.sendingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
+    const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
     const data = this.contracts.connext.encodeFunctionData("xcall", [
       {
-        params: callParams,
+        params: params,
         amount: amount,
         transactingAssetId: transactingAssetId,
       },
@@ -171,18 +156,9 @@ export class NxtpSdkBase {
     // get gas price
     let gasPrice = BigNumber.from(0);
     try {
-      gasPrice = await this.txService.getGasPrice(chainId, requestContext);
+      gasPrice = await this.chainReader.getGasPrice(chainId, requestContext);
     } catch (e) {}
 
     return gasPrice;
-  }
-
-  /**
-   * Changes the signer associated with the sdk
-   *
-   * @param signer - Signer to change to
-   */
-  public changeInjectedSigner(signer: Signer) {
-    this.config.signer = signer;
   }
 }
