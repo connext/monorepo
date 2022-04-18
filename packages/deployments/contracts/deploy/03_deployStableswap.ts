@@ -14,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
   const deployer = _deployer as Wallet;
   console.log("============================= Deploying StableSwap ===============================");
-  console.log("deployer: ", deployer);
+  console.log("deployer: ", deployer.address);
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  LP Token
@@ -25,14 +25,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`reusing "LPToken" at ${lpToken.address}`);
   } else {
     await deployments.deploy("LPToken", {
-      from: deployer,
+      from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
     });
 
     await deployments.execute(
       "LPToken",
-      { from: deployer, log: true },
+      { from: deployer.address, log: true },
       "initialize",
       "Nxtp Stable LP Token",
       "NxtpStableLPToken",
@@ -44,7 +44,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   const amplificationUtilsName = getDeploymentName("AmplificationUtils");
   const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
-    from: deployer,
+    from: deployer.address,
     log: true,
     skipIfAlreadyDeployed: true,
     contract: "AmplificationUtils",
@@ -55,7 +55,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   const swapUtilsName = getDeploymentName("SwapUtils");
   const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
-    from: deployer,
+    from: deployer.address,
     log: true,
     skipIfAlreadyDeployed: true,
     contract: "SwapUtils",
@@ -66,7 +66,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   const stableSwapName = getDeploymentName("StableSwap");
   const stableSwapDeployment = await deployments.deploy(stableSwapName, {
-    from: deployer,
+    from: deployer.address,
     log: true,
     libraries: {
       SwapUtils: swapUtilsDeployment.address,
