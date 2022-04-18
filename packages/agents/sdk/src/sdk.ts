@@ -1,5 +1,5 @@
 import { providers, Signer } from "ethers";
-import { jsonifyError, Logger, createLoggingContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import { jsonifyError, Logger, createLoggingContext, XCallArgs } from "@connext/nxtp-utils";
 
 import { NxtpSdkBase } from "./sdkBase";
 import { SubmitError } from "./lib/errors";
@@ -29,7 +29,8 @@ export class NxtpSdk {
 
   public async create(nxtpConfig: NxtpSdkConfig, signer: Signer, _logger?: Logger): Promise<NxtpSdk> {
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
-    const sdkBase = await NxtpSdkBase.create(nxtpConfig, logger);
+    let sdkBase = new NxtpSdkBase(nxtpConfig, logger);
+    sdkBase = await sdkBase.create(nxtpConfig, logger);
     return new NxtpSdk(sdkBase, signer, logger);
   }
 
