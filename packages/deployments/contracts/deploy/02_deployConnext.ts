@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { constants, Wallet } from "ethers";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
-import { getDeploymentName } from "../src/utils";
+import { getDeploymentName, verify } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
 
 /**
@@ -136,6 +136,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log("setV1PriceOracle tx: ", tx);
       await tx.wait();
     }
+
+    // verify deployment
+    console.log("verifying ConnextPriceOracle");
+    await verify(hre, priceOracleDeployment.address, [WRAPPED_ETH_MAP.get(+chainId)]);
   }
 
   console.log("Deploying multicall...");
@@ -157,26 +161,30 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       skipIfAlreadyDeployed: true,
     });
     console.log("TestERC20: ", deployment.address);
+
+    // verify deployment
+    console.log("verifying TestERC20");
+    await verify(hre, deployment.address);
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
   }
 
-  // Verify connext
-  try {
-    console.log("verifying connext implementation");
-    const implementation = await hre.deployments.get(connextName + "_Implementation");
-    await hre.run("verify:verify", {
-      address: implementation.address,
-      constructorArguments: [],
-      libraries: {
-        AssetLogic: assetLogic.address,
-        ConnextUtils: connextUtils.address,
-        RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
-      },
-    });
-  } catch (e: unknown) {
-    console.log("Error while verify connext contract", connext.address, e);
-  }
+  // Verify libraries
+  console.log("verifying AssetLogic implementation");
+  await verify(hre, assetLogic.address);
+  console.log("verifying ConnextUtils implementation");
+  await verify(hre, connextUtils.address);
+  console.log("verifying RouterPermissionsManagerLogic implementation");
+  await verify(hre, routerPermissionsManagerLogic.address);
+
+  // Verify connext implementation
+  console.log("verifying connext implementation");
+  const implementation = await hre.deployments.get(connextName + "_Implementation");
+  await verify(hre, implementation.address, [], {
+    AssetLogic: assetLogic.address,
+    ConnextUtils: connextUtils.address,
+    RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
+  });
 };
 
 export default func;

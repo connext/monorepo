@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 config();
 
 export const getDeploymentName = (contractName: string) => {
@@ -11,4 +12,21 @@ export const getDeploymentName = (contractName: string) => {
     return `${contractName}Staging`;
   }
   return contractName;
+};
+
+export const verify = async (
+  hre: HardhatRuntimeEnvironment,
+  address: string,
+  constructorArguments: any[] = [],
+  libraries: Record<string, string> = {},
+) => {
+  try {
+    await hre.run("verify:verify", {
+      address,
+      constructorArguments,
+      libraries,
+    });
+  } catch (e: unknown) {
+    console.log(`Error verifying contract at ${address}`, e);
+  }
 };

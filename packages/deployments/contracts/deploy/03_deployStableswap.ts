@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
 
-import { getDeploymentName } from "../src/utils";
+import { getDeploymentName, verify } from "../src/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
@@ -24,7 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (lpToken) {
     console.log(`reusing "LPToken" at ${lpToken.address}`);
   } else {
-    await deployments.deploy("LPToken", {
+    const lpDeployment = await deployments.deploy("LPToken", {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
@@ -37,6 +37,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "Nxtp Stable LP Token",
       "NxtpStableLPToken",
     );
+
+    console.log("verifying LPToken");
+    await verify(hre, lpDeployment.address);
   }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -76,19 +79,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "StableSwap",
   });
 
-  try {
-    //verify stable swap contract
-    await hre.run("verify:verify", {
-      address: stableSwapDeployment.address,
-      constructorArguments: [],
-      libraries: {
-        SwapUtils: swapUtilsDeployment.address,
-        AmplificationUtils: amplificationUtilsDeployment.address,
-      },
-    });
-  } catch (e: unknown) {
-    console.log("Error while verify stableswap contract", stableSwapDeployment.address, e);
-  }
+  console.log("verifying SwapUtils");
+  await verify(hre, swapUtilsDeployment.address);
+
+  console.log("verifying AmplificationUtils");
+  await verify(hre, amplificationUtilsDeployment.address);
+
+  console.log("verifying StableSwap");
+  await verify(hre, stableSwapDeployment.address, [], {
+    SwapUtils: swapUtilsDeployment.address,
+    AmplificationUtils: amplificationUtilsDeployment.address,
+  });
 };
 
 export default func;
