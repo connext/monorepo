@@ -138,6 +138,7 @@ contract BridgeRouter is Version0, Router {
    * @param _destination The destination domain
    * @param _recipient The recipient address
    * @param _enableFast True to enable fast liquidity
+   * @param _externalHash - The unique identifier of the transaction
    */
   function send(
     address _token,

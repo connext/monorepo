@@ -75,11 +75,13 @@ interface IConnext {
    * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param amount - The amount of transferring asset the tx called xcall with
+   * @param relayerFee - The amount of relayer fee the tx called xcall with
    */
   struct XCallArgs {
     CallParams params;
     address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
+    uint256 relayerFee;
   }
 
   /**
@@ -90,16 +92,13 @@ interface IConnext {
    * @param router - The router who you are sending the funds on behalf of
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
-   * @param feePercentage - The amount over the BASEFEE to tip the relayer
    */
   struct ExecuteArgs {
     CallParams params;
     address local;
     address[] routers;
-    uint32 feePercentage;
     uint256 amount;
     uint256 nonce;
-    bytes relayerSignature;
     address originSender;
   }
 
@@ -183,6 +182,7 @@ interface IConnext {
    * to the provided `transactingAsset`
    * @param transactingAmount - The amount of transferring asset the tx xcalled with
    * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
+   * @param relayerFee - The amount of relayer fee in native asset
    * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
    * for the transfer
    * @param caller - The account that called the function
@@ -195,9 +195,18 @@ interface IConnext {
     address localAsset,
     uint256 transactingAmount,
     uint256 localAmount,
+    uint256 relayerFee,
     uint256 nonce,
     address caller
   );
+
+  /**
+   * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param relayerFee - The updated amount of relayer fee in native asset
+   * @param caller - The account that called the function
+   */
+  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
   /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
@@ -280,10 +289,6 @@ interface IConnext {
   function removeRelayer(address relayer) external;
 
   // ============ Public Functions ===========
-
-  function addRelayerFees(address router) external payable;
-
-  function removeRelayerFees(uint256 amount, address payable to) external;
 
   function addLiquidityFor(
     uint256 amount,

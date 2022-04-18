@@ -134,7 +134,9 @@ library BridgeMessage {
    * @notice Formats Transfer
    * @param _to The recipient address as bytes32
    * @param _amnt The transfer amount
+   * @param _detailsHash The asset details hash
    * @param _enableFast True to format FastTransfer, False to format regular Transfer
+   * @param _externalHash - The unique identifier of the transaction
    * @return
    */
   function formatTransfer(
