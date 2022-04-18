@@ -4,7 +4,7 @@ import { Contract, Signer, BigNumber, Wallet } from "ethers";
 import { config } from "dotenv";
 
 import { getDeploymentName } from "../src/utils";
-import { getDomainInfoFromChainId } from "../src/nomad";
+import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
 
 config();
 
@@ -153,7 +153,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // ========== Start: Nomad BridgeRouter Deployment ==========
   const network = await hre.ethers.provider.getNetwork();
-  const nomadConfig = getDomainInfoFromChainId(network.chainId);
+  const nomadConfig = getNomadConfig(network.chainId);
+  const domainConfig = getDomainInfoFromChainId(network.chainId);
 
   // Deploy xapp connection manager
   console.log("Deploying xapp connection manager...");
@@ -175,23 +176,23 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("Deploying token registry...");
   const tokenRegistry = await deployNomadBeaconProxy(
     "TokenRegistry",
-    [nomadConfig.contracts.bridge.bridgeToken.beacon, xappConnectionManagerAddress],
+    [domainConfig.contracts.bridge.bridgeToken.beacon, xappConnectionManagerAddress],
     deployer,
     hre,
   );
 
   // Set token registry local domain
   console.log("Setting local domain of token registry...");
-  const setDomain = await tokenRegistry.setLocalDomain(nomadConfig.domain);
+  const setDomain = await tokenRegistry.setLocalDomain(domainConfig.domain);
   console.log("setDomain tx:", setDomain.hash);
   const setDomainReceipt = await setDomain.wait();
   console.log("setDomain tx mined:", setDomainReceipt);
 
   // Set the home
   console.log("xapp owner", await xappConnectionManager.owner());
-  if ((await xappConnectionManager.home()).toLowerCase() !== nomadConfig.contracts.core.home.proxy.toLowerCase()) {
+  if ((await xappConnectionManager.home()).toLowerCase() !== domainConfig.contracts.core.home.proxy.toLowerCase()) {
     console.log("setting home....");
-    const home = await xappConnectionManager.setHome(nomadConfig.contracts.core.home.proxy);
+    const home = await xappConnectionManager.setHome(domainConfig.contracts.core.home.proxy);
     const homeTx = await home.wait();
     console.log("setHome:", homeTx.transactionHash);
   } else {
@@ -199,10 +200,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   // Enroll all the replicas
-  for (const [replicaName, { proxy }] of Object.entries(nomadConfig.contracts.core.replicas)) {
+  for (const [replicaName, { proxy }] of Object.entries(domainConfig.contracts.core.replicas)) {
     if (!(await xappConnectionManager.isReplica(proxy))) {
-      console.log(`enrolling replica for ${replicaName}`);
-      const enroll = await xappConnectionManager.ownerEnrollReplica(proxy, "32337");
+      const replicaDomain = nomadConfig.protocol.networks[replicaName].domain;
+      console.log(`enrolling replica for ${replicaName} with domain ${replicaDomain}`);
+      const enroll = await xappConnectionManager.ownerEnrollReplica(proxy, replicaDomain);
       const tx = await enroll.wait();
       console.log(`enrolled replica for ${replicaName}: ${tx.transactionHash}`);
     } else {
