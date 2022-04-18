@@ -443,8 +443,8 @@ export function mineBlock() {
 /**
  *  Takes a snapshot and returns the ID of the snapshot for restoring later.
  */
- export async function takeSnapshot(): Promise<number> {
-  const result = await send('evm_snapshot');
+export async function takeSnapshot(): Promise<number> {
+  const result = await send("evm_snapshot");
   await mineBlock();
   return result;
 }
@@ -454,6 +454,6 @@ export function mineBlock() {
  *  @param id The ID that was returned when takeSnapshot was called.
  */
 export async function restoreSnapshot(id: number) {
-  await send('evm_revert', [id]);
+  await send("evm_revert", [id]);
   await mineBlock();
 }
