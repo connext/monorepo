@@ -326,6 +326,9 @@ describe("Connext", () => {
       delay(100).then((_) => destinationTm.setupRouter(router.address, router.address, router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
+
+    // add relayer
+    await destinationTm.addRelayer(router.address);
   });
 
   beforeEach(async () => {
@@ -558,37 +561,6 @@ describe("Connext", () => {
 
       expect(await originTm.approvedAssets(addressToBytes32(toRemove))).to.be.false;
       expect(await originTm.adoptedToLocalPools(addressToBytes32(toRemove))).to.be.eq(ZERO_ADDRESS);
-    });
-  });
-
-  describe("addRelayerFees", () => {
-    it("should work", async () => {
-      const beforeRouterFee = await originTm.routerRelayerFees(router.address);
-      const tx = await originTm.addRelayerFees(router.address, {
-        maxFeePerGas: MAX_FEE_PER_GAS,
-        value: parseEther("1"),
-      });
-      await tx.wait();
-
-      expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("1")));
-    });
-  });
-
-  describe("removeRelayerFees", () => {
-    it("should work", async () => {
-      const beforeRouterFee = await originTm.routerRelayerFees(router.address);
-      const addTx = await originTm.addRelayerFees(router.address, {
-        maxFeePerGas: MAX_FEE_PER_GAS,
-        value: parseEther("1"),
-      });
-      await addTx.wait();
-
-      const beforeBalance = await user.getBalance();
-      const removeTx = await originTm.connect(router).removeRelayerFees(parseEther("0.5"), user.address);
-      await removeTx.wait();
-
-      expect(await originTm.routerRelayerFees(router.address)).to.be.eq(beforeRouterFee.add(parseEther("0.5")));
-      expect(await user.getBalance()).to.be.eq(beforeBalance.add(parseEther("0.5")));
     });
   });
 
@@ -898,12 +870,17 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount: routerAmount,
-      feePercentage: constants.Zero,
-      relayerSignature: "0x",
       routers: [router.address],
       originSender: user.address,
     });
-    await execute.wait();
+    const execReceipt = await execute.wait();
+
+    const destTmEvent = (await destinationTm.queryFilter(destinationTm.filters.Executed())).find(
+      (a) => a.blockNumber === execReceipt.blockNumber,
+    );
+    const transferId = (destTmEvent!.args as any).transferId;
+
+    expect(await destinationTm.transferRelayer(transferId)).to.eq(router.address)
 
     // Check balance of user + bridge
     const postExecute = await Promise.all([
@@ -998,12 +975,17 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount: routerAmount,
-      relayerSignature: "0x",
       routers: [router.address],
       originSender: user.address,
-      feePercentage: constants.Zero,
     });
-    await fulfill.wait();
+    const execReceipt = await fulfill.wait();
+
+    const destTmEvent = (await destinationTm.queryFilter(destinationTm.filters.Executed())).find(
+      (a) => a.blockNumber === execReceipt.blockNumber,
+    );
+    const transferId = (destTmEvent!.args as any).transferId;
+
+    expect(await destinationTm.transferRelayer(transferId)).to.eq(router.address)
 
     // Check balance of user + bridge
     const postFulfill = await Promise.all([
@@ -1171,16 +1153,23 @@ describe("Connext", () => {
         const routersAmount = amount - 500;
         const routerProportionalAmount = Math.floor(routersAmount / routers.length);
 
-        await destinationTm.connect(router).execute({
+        const execute = await destinationTm.connect(router).execute({
           params,
           nonce,
           local: local.address,
           amount: routersAmount,
-          feePercentage: constants.Zero,
-          relayerSignature: "0x",
           routers,
           originSender: user.address,
         });
+
+        const execReceipt = await execute.wait();
+
+        const destTmEvent = (await destinationTm.queryFilter(destinationTm.filters.Executed())).find(
+          (a) => a.blockNumber === execReceipt.blockNumber,
+        );
+        const transferId = (destTmEvent!.args as any).transferId;
+
+        expect(await destinationTm.transferRelayer(transferId)).to.eq(router.address)
 
         // Check balance of user + bridge
         const userPostExecute = await destinationAdopted.balanceOf(user.address);
@@ -1235,8 +1224,6 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
-          feePercentage: constants.Zero,
-          relayerSignature: "0x",
           routers,
           originSender: user.address,
         }),
@@ -1251,8 +1238,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount: routersAmount,
-        feePercentage: constants.Zero,
-        relayerSignature: "0x",
         routers,
         originSender: user.address,
       });
@@ -1272,8 +1257,6 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
-          feePercentage: constants.Zero,
-          relayerSignature: "0x",
           routers,
           originSender: user.address,
         }),

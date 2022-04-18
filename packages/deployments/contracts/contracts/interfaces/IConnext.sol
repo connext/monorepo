@@ -92,16 +92,13 @@ interface IConnext {
    * @param router - The router who you are sending the funds on behalf of
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
-   * @param feePercentage - The amount over the BASEFEE to tip the relayer
    */
   struct ExecuteArgs {
     CallParams params;
     address local;
     address[] routers;
-    uint32 feePercentage;
     uint256 amount;
     uint256 nonce;
-    bytes relayerSignature;
     address originSender;
   }
 
@@ -292,10 +289,6 @@ interface IConnext {
   function removeRelayer(address relayer) external;
 
   // ============ Public Functions ===========
-
-  function addRelayerFees(address router) external payable;
-
-  function removeRelayerFees(uint256 amount, address payable to) external;
 
   function addLiquidityFor(
     uint256 amount,

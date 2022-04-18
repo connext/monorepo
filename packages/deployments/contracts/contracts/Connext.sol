@@ -48,7 +48,6 @@ contract Connext is
 
   error Connext__onlyBridgeRouter_notBridge();
   error Connext__removeAssetId_notAdded();
-  error Connext__addRelayerFees_notValue();
   error Connext__removeLiquidity_recipientEmpty();
   error Connext__removeLiquidity_amountIsZero();
   error Connext__removeLiquidity_insufficientFunds();
@@ -62,8 +61,7 @@ contract Connext is
   error Connext__addAssetId_alreadyAdded();
   error Connext__decrementLiquidity_notEmpty();
   error Connext__decrementLiquidity_maxRoutersExceeded();
-  error Connext__handleRelayerFees_notRtrSig();
-  error Connext__handleRelayerFees_notApprovedRelayer();
+  error Connext__execute_notApprovedRelayer();
   error Connext__addRelayer_alreadyApproved();
   error Connext__removeRelayer_notApproved();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
@@ -154,13 +152,6 @@ contract Connext is
    * of reconcile
    */
   mapping(bytes32 => bytes32) public reconciledTransfers;
-
-  /**
-   * @notice Mapping of router to available relayer fee
-   * @dev Right now, routers only store native asset onchain.
-   * TODO: allow for approved relaying assets
-   */
-  mapping(address => uint256) public routerRelayerFees;
 
   /**
    * @notice Mapping of approved relayers
@@ -329,27 +320,6 @@ contract Connext is
   }
 
   // ============ Public Functions ============
-
-  /**
-   * @notice Used to add relayer fees in the native asset
-   * @param router - The router to credit
-   */
-  function addRelayerFees(address router) external payable override {
-    if (msg.value == 0) revert Connext__addRelayerFees_notValue();
-    routerRelayerFees[router] += msg.value;
-  }
-
-  /**
-   * @notice Used to remove relayer fee in the native asset
-   * @dev Must be called by the router you are decrementing relayer fees for
-   * @param amount - The amount of relayer fee to remove
-   * @param to - Who to send funds to
-   */
-  function removeRelayerFees(uint256 amount, address payable to) external override {
-    routerRelayerFees[msg.sender] -= amount;
-
-    AddressUpgradeable.sendValue(to, amount);
-  }
 
   /**
    * @notice This is used by anyone to increase a router's available liquidity for a given asset.
@@ -574,6 +544,11 @@ contract Connext is
    * @return bytes32 The transfer id of the crosschain transfer
    */
   function execute(ExecuteArgs calldata _args) external override returns (bytes32) {
+    // If the sender is not approved relayer, revert()
+    if (!approvedRelayers[msg.sender]) {
+      revert Connext__execute_notApprovedRelayer();
+    }
+
     // Get the starting gas
     uint256 _start = gasleft();
 
@@ -630,10 +605,8 @@ contract Connext is
       });
     }
 
-    // Pay metatx relayer
-    // NOTE: if this is done *without* fast liquidity, router will be address(0) and the relayer
-    // will always be paid
-    _handleRelayerFees(_transferId, _args.routers, _args.feePercentage, _args.relayerSignature);
+    // Set the relayer for this transaction to allow for future claim
+    transferRelayer[_transferId] = msg.sender;
 
     // Emit event
     emit Executed(
@@ -759,56 +732,6 @@ contract Connext is
       routers: _routers,
       amount: _amount // will be of the mad asset, not adopted
     });
-  }
-
-  /**
-   * @notice Pays the relayer fee on behalf of a router some multiple on the basefee
-   * @dev Currently only supported on eip-1559 chains and only handles native assets.
-   * Also only used in `execute` transfers
-   * @param _transferId - The unique identifier of the transfer
-   * @param _routers - The routers you are sending the tx on behalf of
-   * @param _feePct - The percent over the basefee you are adding
-   */
-  function _handleRelayerFees(
-    bytes32 _transferId,
-    address[] calldata _routers,
-    uint32 _feePct,
-    bytes calldata _sig
-  ) internal {
-    // NOTE: To not break the current working implementation in testnet, the first router is selected as the one to pay for the fees.
-    // This is a temporary solution until https://github.com/connext/nxtp/discussions/899 is implemented.
-    address _router = _routers[0];
-
-    // If the sender *is* the router, do nothing
-    if (msg.sender == _router) {
-      return;
-    }
-
-    // If the sender is not approved relayer, revert()
-    if (!approvedRelayers[msg.sender]) {
-      revert Connext__handleRelayerFees_notApprovedRelayer();
-    }
-
-    // Check the signature of the router on the nonce + fee pct
-    if (_router != ConnextUtils.recoverSignature(abi.encode(_transferId, _feePct), _sig))
-      revert Connext__handleRelayerFees_notRtrSig();
-
-    // Handle 0 case
-    if (_feePct == 0) {
-      return;
-    }
-
-    // Otherwise, send the fee percentage
-    // TODO: BASEFEE opcode will only be supported if the domain supports EIP1559
-    // must be able to detect this dynamically
-
-    uint256 fee = (block.basefee * _feePct) / 100;
-
-    // Decrement liquidity
-    routerRelayerFees[_router] -= fee;
-
-    // Pay sender
-    AddressUpgradeable.sendValue(payable(msg.sender), fee);
   }
 
   receive() external payable {}
