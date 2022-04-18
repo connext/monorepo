@@ -219,6 +219,10 @@ function getChainId(transactionManagerAddress: Address): BigInt {
     chainId = BigInt.fromI32(4);
   } else if (network == "goerli") {
     chainId = BigInt.fromI32(5);
+  } else if (network == "optimism") {
+    chainId = BigInt.fromI32(10);
+  } else if (network == "cronos") {
+    chainId = BigInt.fromI32(25);
   } else if (network == "kovan") {
     chainId = BigInt.fromI32(42);
   } else if (network == "bsc") {
@@ -231,8 +235,18 @@ function getChainId(transactionManagerAddress: Address): BigInt {
     chainId = BigInt.fromI32(137);
   } else if (network == "fantom") {
     chainId = BigInt.fromI32(250);
+  } else if (network == "moonbeam") {
+    chainId = BigInt.fromI32(1284);
+  } else if (network == "boba") {
+    chainId = BigInt.fromI32(288);
+  } else if (network == "moonriver") {
+    chainId = BigInt.fromI32(1285);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
+  } else if (network == "milkomeda-cardano") {
+    chainId = BigInt.fromI32(2001);
+  } else if (network == "kava-alphanet") {
+    chainId = BigInt.fromI32(2221);
   } else if (network == "arbitrum-one") {
     chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
@@ -243,6 +257,8 @@ function getChainId(transactionManagerAddress: Address): BigInt {
     chainId = BigInt.fromI32(80001);
   } else if (network == "arbitrum-rinkeby") {
     chainId = BigInt.fromI32(421611);
+  } else if (network == "harmonyone") {
+    chainId = BigInt.fromI32(1666600000);
   } else {
     // instantiate contract to get the chainId as a fallback
     chainId = TransactionManager.bind(transactionManagerAddress).getChainId();
