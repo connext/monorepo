@@ -258,7 +258,7 @@ export class SubgraphReader {
     return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
   }
 
-  public async getTransferStatus(transfers: XTransfer[]): Promise<XTransfer[]> {
+  public async getExecutedAndReconciledTransfers(transfers: XTransfer[]): Promise<XTransfer[]> {
     const { parser } = getHelpers();
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
@@ -287,6 +287,8 @@ export class SubgraphReader {
           const tx = parser.xtransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
           inMap.status = tx.status;
+          inMap.execute = tx.execute;
+          inMap.reconcile = tx.reconcile;
           allTxById.set(tx.transferId, inMap);
         });
       }),

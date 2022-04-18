@@ -39,7 +39,7 @@ export const pollSubgraph = async () => {
     for (const domain of Object.keys(config.chains)) {
       // TODO: Needs to implement the selection algorithm
       const healthUrls = config.chains[domain].subgraph.runtime.map((url) => {
-        return { name: getSubgraphName(url.query ), url: url.health };
+        return { name: getSubgraphName(url.query), url: url.health };
       });
       let latestBlockNumber = 0;
       for (const healthEp of healthUrls) {

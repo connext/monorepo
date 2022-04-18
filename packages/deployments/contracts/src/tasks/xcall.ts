@@ -112,15 +112,17 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
       console.log("connextAddress: ", connextAddress);
 
+      const assetLogicAddress = (await deployments.get("AssetLogic")).address;
+
       let balance: BigNumber;
       if (transactingAssetId === constants.AddressZero) {
         balance = await ethers.provider.getBalance(sender.address);
       } else {
         const erc20 = await ethers.getContractAt("IERC20Minimal", transactingAssetId, sender);
-        const allowance = await erc20.allowance(sender.address, connextAddress);
+        const allowance = await erc20.allowance(sender.address, assetLogicAddress);
         if (allowance.lt(amount)) {
           console.log("Approving tokens");
-          tx = await erc20.approve(connextAddress, constants.MaxUint256);
+          tx = await erc20.approve(assetLogicAddress, constants.MaxUint256);
           console.log("approval tx sent: ", tx.hash);
           await tx.wait();
           console.log("approval tx mined", tx.hash);
