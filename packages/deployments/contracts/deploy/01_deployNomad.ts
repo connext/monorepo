@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, Signer, BigNumber, constants, Wallet } from "ethers";
+import { Contract, Signer, BigNumber, Wallet } from "ethers";
 import { config } from "dotenv";
 
-import { NomadDomainInfo } from "../src/nomad";
 import { getDeploymentName } from "../src/utils";
+import { getDomainInfoFromChainId } from "../src/nomad";
 
 config();
 
@@ -151,56 +151,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("============================= Deploying Nomad ===============================");
   console.log("deployer: ", deployer.address);
 
-  // Just plug in hardcoded config for testing:
-  const nomadConfig: NomadDomainInfo = {
-    name: "local31337",
-    domain: 31337,
-    contracts: {
-      bridge: {
-        deployHeight: 0,
-        bridgeRouter: {
-          implementation: constants.AddressZero,
-          proxy: constants.AddressZero,
-          beacon: constants.AddressZero,
-        },
-        tokenRegistry: {
-          implementation: constants.AddressZero,
-          proxy: constants.AddressZero,
-          beacon: constants.AddressZero,
-        },
-        bridgeToken: {
-          implementation: constants.AddressZero,
-          proxy: constants.AddressZero,
-          beacon: constants.AddressZero,
-        },
-      },
-      core: {
-        deployHeight: 0,
-        upgradeBeaconController: "",
-        xAppConnectionManager: "",
-        updaterManager: "",
-        governanceRouter: {
-          implementation: constants.AddressZero,
-          proxy: constants.AddressZero,
-          beacon: constants.AddressZero,
-        },
-        home: {
-          implementation: constants.AddressZero,
-          proxy: constants.AddressZero,
-          beacon: constants.AddressZero,
-        },
-        replicas: {
-          "32337": {
-            implementation: constants.AddressZero,
-            proxy: constants.AddressZero,
-            beacon: constants.AddressZero,
-          },
-        },
-      },
-    },
-  };
-
   // ========== Start: Nomad BridgeRouter Deployment ==========
+  const network = await hre.ethers.provider.getNetwork();
+  const nomadConfig = getDomainInfoFromChainId(network.chainId);
 
   // Deploy xapp connection manager
   console.log("Deploying xapp connection manager...");
