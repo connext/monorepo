@@ -134,7 +134,7 @@ contract RelayerFeeRouter is Version0, Router {
     bytes32 _sender,
     bytes memory _message
   ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
-    // parse tokenId and action from message
+    // parse recipient and transferIds from message
     bytes29 _msg = _message.ref(0).mustBeClaimFees();
 
     address recipient = _msg.recipient();
