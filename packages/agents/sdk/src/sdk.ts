@@ -1,5 +1,6 @@
 import { providers, Signer } from "ethers";
 import { jsonifyError, Logger, createLoggingContext, XCallArgs } from "@connext/nxtp-utils";
+import { TransactionService } from "@connext/nxtp-txservice";
 
 import { NxtpSdkBase } from "./sdkBase";
 import { SubmitError } from "./lib/errors";
@@ -19,25 +20,32 @@ export const META_TX_TIMEOUT = 300_000;
 export class NxtpSdk {
   private readonly sdkBase: NxtpSdkBase;
   private signer: Signer;
+  private txservice: TransactionService;
   private readonly logger: Logger;
 
-  constructor(sdkBase: NxtpSdkBase, signer: Signer, logger: Logger) {
+  constructor(sdkBase: NxtpSdkBase, signer: Signer, txservice: TransactionService, logger: Logger) {
     this.sdkBase = sdkBase;
     this.logger = logger;
     this.signer = signer;
+    this.txservice = txservice;
   }
 
   public async create(nxtpConfig: NxtpSdkConfig, signer: Signer, _logger?: Logger): Promise<NxtpSdk> {
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
     let sdkBase = new NxtpSdkBase(nxtpConfig, logger);
     sdkBase = await sdkBase.create(nxtpConfig, logger);
-    return new NxtpSdk(sdkBase, signer, logger);
+    const txservice = new TransactionService(
+      this.logger.child({ module: "TransactionService" }),
+      this.sdkBase.config.chains,
+      signer,
+    );
+    return new NxtpSdk(sdkBase, signer, txservice, logger);
   }
 
   public async xcall(
     xcallParams: XCallArgs,
     infiniteApprove = false,
-  ): Promise<{ xcallResponse: providers.TransactionResponse }> {
+  ): Promise<{ xcallResponse: providers.TransactionReceipt }> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name, undefined);
 
     this.logger.info("Method started", requestContext, methodContext, { xcallParams });
@@ -50,9 +58,17 @@ export class NxtpSdk {
     );
 
     if (approveTxReq) {
-      const approveTxRes = await this.signer.sendTransaction(approveTxReq);
+      const approveReceipt = await this.txservice.sendTx(
+        {
+          to: approveTxReq.to!,
+          chainId: approveTxReq.chainId!,
+          value: approveTxReq.value!,
+          data: approveTxReq.data!.toString(),
+          from: approveTxReq.from!,
+        },
+        requestContext,
+      );
 
-      const approveReceipt = await approveTxRes.wait(1);
       if (approveReceipt?.status === 0) {
         throw new SubmitError(jsonifyError(new Error("Receipt status is 0")), {
           approveReceipt,
@@ -66,7 +82,16 @@ export class NxtpSdk {
     const xcallRequest = await this.sdkBase.xcall(xcallParams);
     this.logger.info("Generated xcallRequest", requestContext, methodContext, { xcallRequest });
 
-    const xcallResponse = await this.signer.sendTransaction({ ...xcallRequest });
+    const xcallResponse = await this.txservice.sendTx(
+      {
+        to: xcallRequest.to!,
+        chainId: xcallRequest.chainId!,
+        value: xcallRequest.value!,
+        data: xcallRequest.data!.toString(),
+        from: xcallRequest.from!,
+      },
+      requestContext,
+    );
 
     return { xcallResponse };
   }
