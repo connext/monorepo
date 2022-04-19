@@ -1,8 +1,9 @@
-import { constants } from "ethers";
+import { constants, Contract } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   canonical: string;
@@ -10,6 +11,7 @@ type TaskArgs = {
   adopted: string;
   pool?: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("setup-asset", "Configures an asset")
@@ -18,24 +20,29 @@ export default task("setup-asset", "Configures an asset")
   .addParam("adopted", "Addopted token address")
   .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
   .addOptionalParam("connextAddress", "Override connext address")
+  .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      { pool, adopted, canonical, domain, connextAddress: _connextAddress }: TaskArgs,
-      { deployments, getNamedAccounts, ethers },
+      { pool, adopted, canonical, domain, connextAddress: _connextAddress, env: _env }: TaskArgs,
+      { deployments, ethers },
     ) => {
-      const namedAccounts = await getNamedAccounts();
+      let { deployer } = await ethers.getNamedSigners();
+      if (!deployer) {
+        [deployer] = await ethers.getUnnamedSigners();
+      }
 
+      const env = mustGetEnv(_env);
+      console.log("env:", env);
       console.log("pool: ", pool);
       console.log("adopted: ", adopted);
       console.log("canonical: ", canonical);
       console.log("domain: ", domain);
-      console.log("namedAccounts: ", namedAccounts);
+      console.log("deployer: ", deployer.address);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
+      const connextName = getDeploymentName("Connext", env);
+      const connextDeployment = await deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
       console.log("connextAddress: ", connextAddress);
 
       const canonicalTokenId = {
@@ -43,15 +50,12 @@ export default task("setup-asset", "Configures an asset")
         domain: +domain,
       };
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
       const approved = await connext.approvedAssets(canonicalTokenId.id);
       if (approved) {
         console.log("approved, no need to add");
         return;
       }
-      const tx = await connext.setupAsset(canonicalTokenId, adopted, pool ?? constants.AddressZero, {
-        from: namedAccounts.deployer,
-      });
+      const tx = await connext.setupAsset(canonicalTokenId, adopted, pool ?? constants.AddressZero);
 
       console.log("setupAsset tx: ", tx);
       const receipt = await tx.wait(1);
