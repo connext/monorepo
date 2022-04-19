@@ -141,23 +141,4 @@ export class NxtpSdkBase {
       chainId: Number(originDomain),
     };
   }
-
-  /**
-   * Gets gas price in target chain
-   *
-   * @param chainId The network identifier
-   *
-   * @returns Gas price in BigNumber
-   */
-  async getGasPrice(chainId: number, requestContext: RequestContext): Promise<BigNumber> {
-    // this.assertChainIsConfigured(chainId);
-
-    // get gas price
-    let gasPrice = BigNumber.from(0);
-    try {
-      gasPrice = await this.chainReader.getGasPrice(chainId, requestContext);
-    } catch (e) {}
-
-    return gasPrice;
-  }
 }

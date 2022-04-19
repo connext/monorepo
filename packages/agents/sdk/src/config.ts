@@ -1,7 +1,5 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
-import { Signer } from "ethers";
-
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 

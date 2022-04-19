@@ -8,7 +8,7 @@ import { NxtpSdkConfig, NxtpSdk } from "@connext/nxtp-sdk";
 let sdkInstance: NxtpSdk;
 
 export const sdkServer = () =>
-  new Promise<FastifyInstance>((res) => {
+  new Promise<FastifyInstance>(() => {
     const server = fastify();
 
     server.listen(8080, (err, address) => {
