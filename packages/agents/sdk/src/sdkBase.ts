@@ -1,5 +1,4 @@
-import { constants, providers, Signer, utils, BigNumber, Wallet } from "ethers";
-
+import { constants, providers, BigNumber } from "ethers";
 import { getChainData, Logger, createLoggingContext, RequestContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
@@ -28,9 +27,10 @@ export class NxtpSdkBase {
   private chainReader: ChainReader;
   public chainData?: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, logger: Logger) {
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData?: Map<string, ChainData>) {
     this.config = config;
     this.logger = logger;
+    this.chainData = chainData;
     this.contracts = getContractInterfaces();
     this.chainReader = new ChainReader(
       this.logger.child({ module: "ChainReader" }, this.config.logLevel),
@@ -38,12 +38,12 @@ export class NxtpSdkBase {
     );
   }
 
-  public async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkBase> {
+  static async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkBase> {
     const chainData = await getChainData();
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
-    this.chainData = chainData;
+
     const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
 
@@ -66,7 +66,7 @@ export class NxtpSdkBase {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
       const chainId = this.chainData?.get(domain)?.chainId!;
       const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
-        await this.config.signerAddress,
+        this.config.signerAddress,
         ConnextContractAddress,
       ]);
       const approvedEncoded = await this.chainReader.readTx({
@@ -85,7 +85,7 @@ export class NxtpSdkBase {
         return {
           to: assetId,
           data,
-          from: await this.config.signerAddress,
+          from: this.config.signerAddress,
           chainId,
         };
       } else {

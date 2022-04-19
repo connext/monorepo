@@ -30,13 +30,12 @@ export class NxtpSdk {
     this.txservice = txservice;
   }
 
-  public async create(nxtpConfig: NxtpSdkConfig, signer: Signer, _logger?: Logger): Promise<NxtpSdk> {
+  static async create(nxtpConfig: NxtpSdkConfig, signer: Signer, _logger?: Logger): Promise<NxtpSdk> {
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
-    let sdkBase = new NxtpSdkBase(nxtpConfig, logger);
-    sdkBase = await sdkBase.create(nxtpConfig, logger);
+    const sdkBase = await NxtpSdkBase.create(nxtpConfig, logger);
     const txservice = new TransactionService(
-      this.logger.child({ module: "TransactionService" }),
-      this.sdkBase.config.chains,
+      logger.child({ module: "TransactionService" }),
+      sdkBase.config.chains,
       signer,
     );
     return new NxtpSdk(sdkBase, signer, txservice, logger);
