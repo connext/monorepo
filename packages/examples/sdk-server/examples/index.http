@@ -1,0 +1,29 @@
+
+   
+@baseUrl = http://127.0.0.1:8080
+
+##############
+### ẂELCOME
+GET {{baseUrl}}
+
+
+##############
+### PLAY PING
+GET {{baseUrl}}/ping
+
+##############
+### POST XCall
+POST {{baseUrl}}/xcall
+Content-Type: application/json
+
+ {
+    "params": {
+      "to": "0x5A9e792143bf2708b4765C144451dCa54f559a19",
+      "callData": "0x",
+      "originDomain": "3000",
+      "destinationDomain": "2000"
+    },
+    "transactingAssetId": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
+    "amount": "100000000000000"
+  }
+

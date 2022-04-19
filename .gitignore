@@ -30,7 +30,7 @@ packages/agents/sequencer/*config.json
 packages/agents/router/*config.json
 packages/agents/router/chaindata.json
 
-packages/sdk-server/*config.json
+packages/examples/sdk-server/*config.json
 packages/integration/logs.json
 packages/integration/ops/config/load/config.json
 packages/integration/ops/config/router/*.yaml
