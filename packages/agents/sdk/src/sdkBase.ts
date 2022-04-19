@@ -25,9 +25,9 @@ export class NxtpSdkBase {
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
-  public chainData?: Map<string, ChainData>;
+  public readonly chainData: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData?: Map<string, ChainData>) {
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
@@ -47,7 +47,7 @@ export class NxtpSdkBase {
     const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
 
-    return new NxtpSdkBase(nxtpConfig, logger);
+    return new NxtpSdkBase(nxtpConfig, logger, chainData);
   }
 
   async approveIfNeeded(
@@ -64,7 +64,7 @@ export class NxtpSdkBase {
     // this.assertChainIsConfigured(chainId);
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
-      const chainId = this.chainData?.get(domain)?.chainId!;
+
       const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
         this.config.signerAddress,
         ConnextContractAddress,
@@ -72,7 +72,7 @@ export class NxtpSdkBase {
       const approvedEncoded = await this.chainReader.readTx({
         to: assetId,
         data: approvedData,
-        chainId,
+        chainId: Number(domain),
       });
       const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
       this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
@@ -86,7 +86,8 @@ export class NxtpSdkBase {
           to: assetId,
           data,
           from: this.config.signerAddress,
-          chainId,
+          chainId: Number(domain),
+          value: 0,
         };
       } else {
         this.logger.info("Allowance sufficient", requestContext, methodContext, {
@@ -121,8 +122,6 @@ export class NxtpSdkBase {
 
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
-    const chainId = this.chainData?.get(originDomain)?.chainId;
-
     const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
     const data = this.contracts.connext.encodeFunctionData("xcall", [
       {
@@ -139,7 +138,7 @@ export class NxtpSdkBase {
       value,
       data,
       from: this.config.signerAddress,
-      chainId,
+      chainId: Number(originDomain),
     };
   }
 

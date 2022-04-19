@@ -32,6 +32,7 @@ export class NxtpSdk {
 
   static async create(nxtpConfig: NxtpSdkConfig, signer: Signer, _logger?: Logger): Promise<NxtpSdk> {
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
+
     const sdkBase = await NxtpSdkBase.create(nxtpConfig, logger);
     const txservice = new TransactionService(
       logger.child({ module: "TransactionService" }),

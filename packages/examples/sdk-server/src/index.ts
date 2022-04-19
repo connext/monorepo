@@ -11,6 +11,14 @@ export const sdkServer = () =>
   new Promise<FastifyInstance>((res) => {
     const server = fastify();
 
+    server.listen(8080, (err, address) => {
+      if (err) {
+        console.error(err);
+        process.exit(1);
+      }
+      console.log(`Server listening at ${address}`);
+    });
+
     server.addHook("onReady", async () => {
       let configJson: Record<string, any> = {};
       let configFile: any = {};
@@ -34,7 +42,7 @@ export const sdkServer = () =>
       // return configFile;
 
       const privateKey: string = configJson.mnemonic;
-      const signer = new ethers.Wallet(privateKey);
+      const signer = privateKey ? new ethers.Wallet(privateKey) : ethers.Wallet.createRandom();
 
       const signerAddress = await signer.getAddress();
 
