@@ -34,8 +34,7 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "dotenv": "^16.0.0",
-    "knex": "^1.0.7"
+    "dotenv": "^16.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
