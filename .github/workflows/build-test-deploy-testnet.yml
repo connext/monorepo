@@ -56,6 +56,7 @@ jobs:
           yarn workspace @connext/nxtp-txservice npm publish --access public
           yarn workspace @connext/nxtp-adapters-subgraph npm publish --access public
           yarn workspace @connext/nxtp-adapters-cache npm publish --access public
+          yarn workspace @connext/nxtp-sdk npm publish --access public
 
   build-and-push-router-image:
     env:
