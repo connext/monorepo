@@ -22,7 +22,7 @@ export const DELAY_BETWEEN_RETRIES = 5_000;
  *
  */
 export class NxtpSdkBase {
-  private config: NxtpSdkConfig;
+  public readonly config: NxtpSdkConfig;
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
@@ -117,7 +117,7 @@ export class NxtpSdkBase {
     /// create a bid
     const { params, amount, transactingAssetId } = xcallParams;
 
-    const { originDomain, destinationDomain, to, callData } = params;
+    const { originDomain } = params;
 
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
