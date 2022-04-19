@@ -11,6 +11,9 @@
   "references": [
     {
       "path": "../../adapters/subgraph/tsconfig.build.json"
+    },
+    {
+      "path": "../../utils/tsconfig.build.json"
     }
   ]
 }

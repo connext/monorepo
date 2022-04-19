@@ -34,7 +34,10 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-adapters-subgraph": "workspace:*",
-    "dotenv": "^16.0.0"
+    "@connext/nxtp-utils": "workspace:*",
+    "@sinclair/typebox": "^0.23.4",
+    "dotenv": "^16.0.0",
+    "interval-promise": "^1.4.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
