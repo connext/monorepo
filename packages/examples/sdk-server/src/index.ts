@@ -1,9 +1,9 @@
-import { RemoveLiquidityResponseSchema, AdminRequest, XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
-import ethers, { providers } from "ethers";
 import * as fs from "fs";
 
-import { NxtpSdkConfig, NxtpSdkConfigSchema, NxtpSdk } from "nxtp-sdk";
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
+import { RemoveLiquidityResponseSchema, XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
+import { ethers, providers } from "ethers";
+import { NxtpSdkConfig, NxtpSdk } from "@connext/nxtp-sdk";
 
 let sdkInstance: NxtpSdk;
 
@@ -33,12 +33,16 @@ export const sdkServer = () =>
       }
       // return configFile;
 
+      const privateKey: string = configJson.mnemonic;
+      const signer = new ethers.Wallet(privateKey);
+
+      const signerAddress = await signer.getAddress();
+
       const nxtpConfig: NxtpSdkConfig = {
         chains: configJson.chains ? configJson.chains : configFile.chains,
         logLevel: configJson.logLevel || configFile.logLevel || "info",
+        signerAddress: signerAddress,
       };
-
-      const signer = new ethers.Wallet(configJson.mnemonic || configFile.mnemonic);
 
       sdkInstance = await NxtpSdk.create(nxtpConfig, signer);
     });
@@ -48,7 +52,7 @@ export const sdkServer = () =>
     server.post<{ Body: XCallArgs }>(
       "/xcall",
       { schema: { body: XCallArgsSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
-      async (req, res) => api.post.xcall(req.body),
+      async (req) => api.post.xcall(req.body),
     );
   });
 
@@ -60,7 +64,9 @@ export const api = {
   },
   post: {
     xcall: async (req: XCallArgs): Promise<providers.TransactionResponse> => {
+      console.log(req);
       // return re.status(500).send("Not implemented");
+      await sdkInstance.xcall(req);
       return {} as providers.TransactionResponse;
     },
   },

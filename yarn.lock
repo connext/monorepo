@@ -791,7 +791,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@connext/nxtp-sdk@workspace:packages/agents/sdk":
+"@connext/nxtp-sdk-server@workspace:packages/examples/sdk-server":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-sdk-server@workspace:packages/examples/sdk-server"
+  dependencies:
+    "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@types/node": ^16.11.4
+    "@types/pino": ^6.3.11
+    ethers: ^5.4.6
+    fastify: ^3.22.1
+    pino: ^6.13.0
+    pino-pretty: ^5.1.3
+    rimraf: ^3.0.2
+    typescript: ^4.3.5
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-sdk@workspace:*, @connext/nxtp-sdk@workspace:packages/agents/sdk":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-sdk@workspace:packages/agents/sdk"
   dependencies:
@@ -2168,6 +2185,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/bourne@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "@hapi/bourne@npm:2.1.0"
+  checksum: 0ce5a38bc46b1b649fc04c00763def978c99b2eba5013e512f492f4d0d806a6fc1d09f36524c2f8b45cc778d481a06c1f808392e08bc6ebd14abab4bfde07ca5
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.9.2":
   version: 0.9.5
   resolution: "@humanwhocodes/config-array@npm:0.9.5"
@@ -3167,6 +3191,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^16.11.4":
+  version: 16.11.27
+  resolution: "@types/node@npm:16.11.27"
+  checksum: 6ed0c8c4d29a549d0cfd607d19edf9a4668fbd39087701d923b4a04cd760564e47ad27f9403968cb9c11ee006f0ea6ab698b2491b4b2d2dec3f4a53d0fc22df7
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^8.0.0":
   version: 8.10.66
   resolution: "@types/node@npm:8.10.66"
@@ -3209,7 +3240,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pino@npm:6.3":
+"@types/pino@npm:6.3, @types/pino@npm:^6.3.11":
   version: 6.3.12
   resolution: "@types/pino@npm:6.3.12"
   dependencies:
@@ -6792,7 +6823,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dateformat@npm:^4.6.3":
+"dateformat@npm:^4.5.1, dateformat@npm:^4.6.3":
   version: 4.6.3
   resolution: "dateformat@npm:4.6.3"
   checksum: c3aa0617c0a5b30595122bc8d1bee6276a9221e4d392087b41cbbdf175d9662ae0e50d0d6dcdf45caeac5153c4b5b0844265f8cd2b2245451e3da19e39e3b65d
@@ -8969,7 +9000,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:^3.27.4":
+"fastify@npm:^3.22.1, fastify@npm:^3.27.4":
   version: 3.28.0
   resolution: "fastify@npm:3.28.0"
   dependencies:
@@ -12047,7 +12078,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"joycon@npm:^3.1.1":
+"jmespath@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "jmespath@npm:0.15.0"
+  checksum: 353bb9e69cc4c1560be0a4df43cb4020abc246e1c60cb5b55dcc76d8c858383f1633faf22ccaf6a5e09568a2077d0f4f1e989e6fcfd496b5cef87964cc8cb9e7
+  languageName: node
+  linkType: hard
+
+"joycon@npm:^3.0.0, joycon@npm:^3.1.1":
   version: 3.1.1
   resolution: "joycon@npm:3.1.1"
   checksum: 8003c9c3fc79c5c7602b1c7e9f7a2df2e9916f046b0dbad862aa589be78c15734d11beb9fe846f5e06138df22cb2ad29961b6a986ba81c4920ce2b15a7f11067
@@ -15626,6 +15664,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pino-pretty@npm:^5.1.3":
+  version: 5.1.3
+  resolution: "pino-pretty@npm:5.1.3"
+  dependencies:
+    "@hapi/bourne": ^2.0.0
+    args: ^5.0.1
+    chalk: ^4.0.0
+    dateformat: ^4.5.1
+    fast-safe-stringify: ^2.0.7
+    jmespath: ^0.15.0
+    joycon: ^3.0.0
+    pump: ^3.0.0
+    readable-stream: ^3.6.0
+    rfdc: ^1.3.0
+    split2: ^3.1.1
+    strip-json-comments: ^3.1.1
+  bin:
+    pino-pretty: bin.js
+  checksum: 440b94a82edad4296d03ec3bdd577e8ba32ad159542893c26d4b3155110f2a283f369073e5ce26d273f1c2d9ceb318141cdcdbd124f836e9aae38da5c5cb40ec
+  languageName: node
+  linkType: hard
+
 "pino-pretty@npm:^7.5.4":
   version: 7.6.1
   resolution: "pino-pretty@npm:7.6.1"
@@ -17952,7 +18012,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"split2@npm:^3.1.0":
+"split2@npm:^3.1.0, split2@npm:^3.1.1":
   version: 3.2.2
   resolution: "split2@npm:3.2.2"
   dependencies:
@@ -19255,7 +19315,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.6.2":
+"typescript@npm:^4.3.5, typescript@npm:^4.6.2":
   version: 4.6.3
   resolution: "typescript@npm:4.6.3"
   bin:
@@ -19265,7 +19325,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.3.5#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
   version: 4.6.3
   resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=bda367"
   bin:

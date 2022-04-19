@@ -28,7 +28,8 @@
     "packages/adapters/web3signer",
     "packages/agents/router",
     "packages/agents/sequencer",
-    "packages/agents/sdk"
+    "packages/agents/sdk",
+    "packages/examples/sdk-server"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run lint --fix",

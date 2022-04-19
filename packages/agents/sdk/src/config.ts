@@ -33,8 +33,8 @@ export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   signerAddress: TAddress,
-  maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
+  network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
 });
 
 export type NxtpSdkConfig = Static<typeof NxtpSdkConfigSchema>;

@@ -1,4 +1,4 @@
-import { providers, Signer } from "ethers";
+import { providers, Signer, Wallet } from "ethers";
 import { jsonifyError, Logger, createLoggingContext, XCallArgs } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 
@@ -19,7 +19,7 @@ export const META_TX_TIMEOUT = 300_000;
  */
 export class NxtpSdk {
   private readonly sdkBase: NxtpSdkBase;
-  private signer: Signer;
+  private signer: Signer | Wallet;
   private txservice: TransactionService;
   private readonly logger: Logger;
 
