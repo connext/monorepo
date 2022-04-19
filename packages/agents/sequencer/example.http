@@ -1,5 +1,5 @@
 @sequencerUrl = http://localhost:8081
-@adminToken = foobar
+@adminToken = foo
 
 ### PING
 GET {{sequencerUrl}}/ping

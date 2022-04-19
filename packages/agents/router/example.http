@@ -1,10 +1,15 @@
 @routerUrl = http://localhost:8080
 
+@adminToken = foo
+
 @chainId = 4
 @assetId = 0x9aC2c46d7AcC21c881154D57c0Dc1c55a3139198
 
 # 1 ETH
 @amount = 1
+
+### PING
+GET {{routerUrl}}/ping
 
 ### CONFIG
 GET {{routerUrl}}/config
@@ -41,4 +46,12 @@ Content-Type: application/json
   "routerAddress": "0xaF168Da973a5758A3902DA21cf161FCd420899E9",
   "assetId": "{{assetId}}",
   "amount": "{{amount}}"
+}
+
+### CLEAR CACHE
+POST {{routerUrl}}/clear-cache
+Content-Type: application/json
+
+{
+  "adminToken": "{{adminToken}}"
 }
