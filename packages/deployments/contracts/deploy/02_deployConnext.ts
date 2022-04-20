@@ -41,6 +41,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Deploy Connext logic libraries
+
   console.log("Deploying asset logic, utils, permissions manager...");
   const assetLogic = await hre.deployments.deploy("AssetLogic", {
     from: deployer.address,

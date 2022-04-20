@@ -53,13 +53,13 @@ export const execute = async (params: XTransfer): Promise<void> => {
   };
 
   const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
-  logger.info("Got local asset", requestContext, methodContext, { executeLocalAsset });
+  logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
   const receivingAmount = xcall.localAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
-  logger.info("Signed payload", requestContext, methodContext, { signature });
+  logger.debug("Signed payload", requestContext, methodContext, { signature });
 
   // TODO: Eventually, sending the bid data to the sequencer should be deprecated.
   const bidData: BidData = {

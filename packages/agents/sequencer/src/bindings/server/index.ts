@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance } from "fastify";
+import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import pino from "pino";
 import {
   AuctionStatus,
@@ -14,6 +14,9 @@ import {
   AuctionsApiGetAuctionsStatusResponseSchema,
   AuctionsApiGetQueuedResponseSchema,
   AuctionsApiGetQueuedResponse,
+  ClearCacheRequest,
+  ClearCacheRequestSchema,
+  AdminRequest,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
@@ -128,6 +131,12 @@ export const bindServer = () =>
       },
     );
 
+    server.post<{ Body: ClearCacheRequest }>(
+      "/clear-cache",
+      { schema: { body: ClearCacheRequestSchema } },
+      async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
+    );
+
     server.listen(config.server.port, config.server.host, (err, address) => {
       if (err) {
         console.error(err);
@@ -137,3 +146,27 @@ export const bindServer = () =>
       res(server);
     });
   });
+
+export const api = {
+  auth: {
+    admin: (body: AdminRequest, res: FastifyReply, nested: (res: FastifyReply) => Promise<void>) => {
+      const { config } = getContext();
+      const { adminToken } = body;
+      console.log("adminToken: ", adminToken);
+      if (adminToken !== config.server.adminToken) {
+        return res.status(401).send("Unauthorized to perform this operation");
+      }
+      return nested(res);
+    },
+  },
+  post: {
+    clearCache: async (res: FastifyReply) => {
+      const {
+        adapters: { cache },
+      } = getContext();
+      await cache.auctions.clear();
+      await cache.transfers.clear();
+      return res.status(200).send();
+    },
+  },
+};

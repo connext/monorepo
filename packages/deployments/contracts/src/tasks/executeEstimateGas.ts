@@ -8,7 +8,6 @@ import {
 import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 
-import { IConnext as TConnext } from "../../typechain-types";
 import { canonizeId } from "../nomad";
 
 type TaskArgs = {
@@ -24,7 +23,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
-    const connext = await ethers.getContractAt("Connext", connextAddress);
+    const connext = await ethers.getContractAt("ConnextHandler", connextAddress);
     const originDomain = process.env.TRANSFER_ORIGIN_DOMAIN;
     const destinationDomain = process.env.TRANSFER_DESTINATION_DOMAIN;
     if (!originDomain || !destinationDomain) {
@@ -33,7 +32,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       );
     }
 
-    let encodedData: string | undefined = process.env.EG_EXECUTE_ENCODED_DATA;
+    const encodedData: string | undefined = process.env.EG_EXECUTE_ENCODED_DATA;
     if (!encodedData) {
       console.log("Encoded data was not provided. Encoding data manually...");
       const callParams = {
@@ -123,9 +122,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
       (executeArgs as any).relayerSignature = relayerSignature;
 
       console.log("Execute args: ", executeArgs);
-      const encoderContract = (await ethers.getContract("ConnextHandler")).interface as TConnext["interface"];
-
-      encodedData = encoderContract.encodeFunctionData("execute", [executeArgs as unknown as ExecuteArgs]);
+      connext.interface.encodeFunctionData("execute", [executeArgs as unknown as ExecuteArgs]);
     }
 
     const chainData = await getChainData();
