@@ -1,12 +1,14 @@
 import { utils } from "ethers";
 import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import {
+  IERC20Minimal as TIERC20Minimal,
   Connext as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
   TokenRegistry as TTokenRegistry,
   StableSwap as TStableSwap,
 } from "@connext/nxtp-contracts/typechain-types";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/contracts/Connext.sol/Connext.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
@@ -120,6 +122,8 @@ export const contractDeployments: ConnextContractDeployments = {
  * @returns An ethers Interface object initialized for the corresponding ABI.
  */
 
+export const getErc20Interface = () => new utils.Interface(ERC20Artifact.abi) as TIERC20Minimal["interface"];
+
 export const getConnextInterface = () => new utils.Interface(ConnextArtifact.abi) as TConnext["interface"];
 
 export const getPriceOracleInterface = () =>
@@ -131,15 +135,17 @@ export const getTokenRegistryInterface = () =>
 export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
 
 export type ConnextContractInterfaces = {
-  connext: () => TConnext["interface"];
-  priceOracle: () => TConnextPriceOracle["interface"];
-  tokenRegistry: () => TTokenRegistry["interface"];
-  stableSwap: () => TStableSwap["interface"];
+  erc20: TIERC20Minimal["interface"];
+  connext: TConnext["interface"];
+  priceOracle: TConnextPriceOracle["interface"];
+  tokenRegistry: TTokenRegistry["interface"];
+  stableSwap: TStableSwap["interface"];
 };
 
 export const getContractInterfaces = (): ConnextContractInterfaces => ({
-  connext: getConnextInterface,
-  priceOracle: getPriceOracleInterface,
-  tokenRegistry: getTokenRegistryInterface,
-  stableSwap: getStableSwapInterface,
+  erc20: getErc20Interface(),
+  connext: getConnextInterface(),
+  priceOracle: getPriceOracleInterface(),
+  tokenRegistry: getTokenRegistryInterface(),
+  stableSwap: getStableSwapInterface(),
 });

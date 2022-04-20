@@ -136,21 +136,22 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
       }
 
-      const args = [
-        {
-          params: {
-            to,
-            callData,
-            originDomain,
-            destinationDomain,
-          },
-          transactingAssetId,
-          amount,
+      const args = {
+        params: {
+          to,
+          callData,
+          originDomain,
+          destinationDomain,
         },
-        { from: sender.address },
-      ];
+        transactingAssetId,
+        amount,
+      };
       console.log("xcall args", args);
-      tx = await connext.functions.xcall(...args);
+      const encoded = connext.interface.encodeFunctionData("xcall", [args]);
+      console.log("encoded: ", encoded);
+      console.log("to: ", connext.address);
+      console.log("from: ", sender.address);
+      tx = await connext.functions.xcall(args, { from: sender.address });
       console.log("tx sent! ", tx.hash);
       await tx.wait();
       console.log("tx mined! ", tx.hash);
