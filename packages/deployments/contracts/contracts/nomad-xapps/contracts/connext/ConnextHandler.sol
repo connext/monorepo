@@ -6,16 +6,12 @@ pragma solidity ^0.8.11;
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
-import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 import {Router} from "../Router.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 
-import {AssetLogic} from "../../../lib/Connext/AssetLogic.sol";
 import {ConnextUtils} from "../../../lib/Connext/ConnextUtils.sol";
-import {LibCrossDomainProperty} from "../../../lib/LibCrossDomainProperty.sol";
 
-import {IBridgeToken} from "../../interfaces/bridge/IBridgeToken.sol";
 import {ITokenRegistry} from "../../interfaces/bridge/ITokenRegistry.sol";
 
 import {IWrapped} from "../../../interfaces/IWrapped.sol";
@@ -49,9 +45,6 @@ contract ConnextHandler is
 {
   // ============ Libraries ============
 
-  using TypedMemView for bytes;
-  using TypedMemView for bytes29;
-  using ConnextMessage for bytes29;
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
   // ============ Constants ============
@@ -159,20 +152,10 @@ contract ConnextHandler is
 
   // ============ Errors ============
 
-  error ConnextHandler__addRelayer_alreadyApproved();
-  error ConnextHandler__removeRelayer_notApproved();
-  error ConnextHandler__removeAssetId_notAdded();
-  error ConnextHandler__handle_invalidAction();
-  error ConnextHandler__execute_unapprovedRelayer();
-  error ConnextHandler__execute_alreadyExecuted();
-  error ConnextHandler__execute_notSupportedRouter();
-  error ConnextHandler__execute_invalidProperties();
-  error ConnextHandler__execute_maxRoutersExceeded();
   error ConnextHandler__addLiquidityForRouter_routerEmpty();
   error ConnextHandler__addLiquidityForRouter_amountIsZero();
   error ConnextHandler__addLiquidityForRouter_badRouter();
   error ConnextHandler__addLiquidityForRouter_badAsset();
-  error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
   // ========== Initializer ============
 
@@ -403,63 +386,27 @@ contract ConnextHandler is
    * used.
    */
   function execute(ExecuteArgs calldata _args) external override returns (bytes32 transferId) {
-    // ensure accepted relayer
-    if (!approvedRelayers[msg.sender]) {
-      revert ConnextHandler__execute_unapprovedRelayer();
-    }
+    ConnextUtils.ExecuteLibArgs memory libArgs = ConnextUtils.ExecuteLibArgs({
+      executeArgs: _args,
+      maxRoutersPerTransfer: maxRoutersPerTransfer,
+      tokenRegistry: tokenRegistry,
+      wrapper: wrapper,
+      executor: executor,
+      LIQUIDITY_FEE_NUMERATOR: LIQUIDITY_FEE_NUMERATOR,
+      LIQUIDITY_FEE_DENOMINATOR: LIQUIDITY_FEE_DENOMINATOR
+    });
 
-    if (_args.routers.length > maxRoutersPerTransfer) revert ConnextHandler__execute_maxRoutersExceeded();
-
-    // get token id
-    (uint32 _tokenDomain, bytes32 _tokenId) = tokenRegistry.getTokenId(_args.local);
-
-    // get the transferId
-    bytes32 _transferId = ConnextUtils.getTransferId(
-      _args.nonce,
-      _args.params,
-      _args.originSender,
-      _tokenDomain,
-      _tokenId,
-      _args.amount
-    );
-
-    // require this transfer has not already been executed
-    // NOTE: in slow liquidity path, the router should *never* be filled
-    if (routedTransfers[_transferId].length != 0) {
-      revert ConnextHandler__execute_alreadyExecuted();
-    }
-
-    // get reconciled record
-    bool _reconciled = reconciledTransfers[_transferId];
-
-    // check to see if the transfer was reconciled
-    (uint256 _amount, address _adopted) = _handleExecuteLiquidity(_transferId, _args, !_reconciled);
-
-    // TODO: payout relayer fee
-
-    // execute the the transaction
-    if (keccak256(_args.params.callData) == EMPTY) {
-      // no call data, send funds to the user
-      AssetLogic.transferAssetFromContract(_adopted, _args.params.to, _amount, wrapper);
-    } else {
-      // execute calldata w/funds
-      AssetLogic.transferAssetFromContract(_adopted, address(executor), _amount, wrapper);
-      executor.execute(
-        _transferId,
-        _amount,
-        payable(_args.params.to),
-        _adopted,
-        _reconciled
-          ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
-          : LibCrossDomainProperty.EMPTY_BYTES,
-        _args.params.callData
+    return
+      ConnextUtils.execute(
+        libArgs,
+        approvedRelayers,
+        routedTransfers,
+        reconciledTransfers,
+        routerBalances,
+        adoptedToLocalPools,
+        canonicalToAdopted,
+        routerInfo
       );
-    }
-
-    // emit event
-    emit Executed(_transferId, _args.params.to, _args, _adopted, _amount, msg.sender);
-
-    return _transferId;
   }
 
   // ============ Internal functions ============
@@ -479,6 +426,7 @@ contract ConnextHandler is
     address _router
   ) internal {
     // Sanity check: router is sensible
+    // Sanity check: router is sensible
     if (_router == address(0)) revert ConnextHandler__addLiquidityForRouter_routerEmpty();
 
     // Sanity check: nonzero amounts
@@ -488,80 +436,12 @@ contract ConnextHandler is
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    // if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
-    //   revert ConnextHandler__addLiquidityForRouter_badRouter();
+    if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
+      revert ConnextHandler__addLiquidityForRouter_badRouter();
 
-    // // Asset is approved
-    // if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert ConnextHandler__addLiquidityForRouter_badAsset();
+    // Asset is approved
+    if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert ConnextHandler__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to coethWithErcTransferact
-    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, wrapper);
-
-    // Update the router balances. Happens after pulling funds to account for
-    // the fee on transfer tokens
-    routerBalances[_router][_asset] += _received;
-
-    // Emit event
-    emit LiquidityAdded(_router, _asset, id, _received, msg.sender);
-  }
-
-  // TODO: move to ConnextUtils
-  function _handleExecuteLiquidity(
-    bytes32 _transferId,
-    ExecuteArgs calldata _args,
-    bool isFast
-  ) internal returns (uint256, address) {
-    uint256 _toSwap = _args.amount;
-    uint256 _pathLen = _args.routers.length;
-    if (isFast) {
-      // this is the fast liquidity path
-      // ensure the router is whitelisted
-
-      // calculate amount with fast liquidity fee
-      _toSwap = ConnextUtils.getFastTransferAmount(_args.amount, LIQUIDITY_FEE_NUMERATOR, LIQUIDITY_FEE_DENOMINATOR);
-
-      // TODO: validate routers signature on path / transferId
-
-      // store the routers address
-      routedTransfers[_transferId] = _args.routers;
-
-      // for each router, assert they are approved, and deduct liquidity
-      uint256 _routerAmount = _toSwap / _pathLen;
-      for (uint256 i; i < _pathLen; ) {
-        // while theres no way for a router to have sufficient liquidity
-        // if they have never been approved, this check ensures they weren't
-        // removed from the whitelist
-        if (!routerInfo.approvedRouters[_args.routers[i]]) {
-          revert ConnextHandler__execute_notSupportedRouter();
-        }
-
-        // decrement routers liquidity
-        routerBalances[_args.routers[i]][_args.local] -= _routerAmount;
-
-        unchecked {
-          i++;
-        }
-      }
-    } else {
-      // this is the slow liquidity path
-
-      // save a dummy address for the router to ensure the transfer is not able
-      // to be executed twice
-      // TODO: better ways to enforce this safety check?
-      routedTransfers[_transferId] = [address(1)];
-    }
-
-    // TODO: payout relayer fee
-
-    // swap out of mad* asset into adopted asset if needed
-    (uint256 _amount, address _adopted) = ConnextUtils.swapFromLocalAssetIfNeeded(
-      canonicalToAdopted,
-      adoptedToLocalPools,
-      tokenRegistry,
-      _args.local,
-      _toSwap
-    );
-
-    return (_amount, _adopted);
+    ConnextUtils.addLiquidityForRouter(_amount, _local, _router, routerBalances, id, wrapper);
   }
 }

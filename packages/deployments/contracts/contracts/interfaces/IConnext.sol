@@ -56,36 +56,6 @@ interface IConnext {
     address originSender;
   }
 
-  /**
-   * @notice Emitted when a router adds liquidity to the contract
-   * @param router - The address of the router the funds were credited to
-   * @param local - The address of the token added (all liquidity held in local asset)
-   * @param amount - The amount of liquidity added
-   * @param caller - The account that called the function
-   */
-  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
-
-  /**
-   * @notice Emitted when `execute` is called on the destination chain
-   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
-   * @param transferId - The unique identifier of the crosschain transfer
-   * @param to - The CallParams.to provided, created as indexed parameter
-   * @param args - The ExecuteArgs provided to the function
-   * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
-   * adopted asset on that chain.
-   * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
-   * executed with
-   * @param caller - The account that called the function
-   */
-  event Executed(
-    bytes32 indexed transferId,
-    address indexed to,
-    ExecuteArgs args,
-    address transactingAsset,
-    uint256 transactingAmount,
-    address caller
-  );
-
   // ============ Admin Functions ============
 
   function initialize(

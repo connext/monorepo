@@ -4,6 +4,9 @@ pragma solidity 0.8.11;
 import "../../interfaces/IConnext.sol";
 import "../../interfaces/IStableSwap.sol";
 import "../../interfaces/IWrapped.sol";
+import {IExecutor} from "../../interfaces/IExecutor.sol";
+import {LibCrossDomainProperty} from "../LibCrossDomainProperty.sol";
+import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol";
 
 import "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
@@ -18,6 +21,8 @@ library ConnextUtils {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using ConnextMessage for bytes29;
+
+  bytes32 internal constant EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
 
   // ============ Errors ============
 
@@ -37,6 +42,10 @@ library ConnextUtils {
   error ConnextUtils__xcall_wrongDomain();
   error ConnextUtils__xcall_emptyTo();
   error ConnextUtils__xcall_notSupportedAsset();
+  error ConnextUtils__execute_unapprovedRelayer();
+  error ConnextUtils__execute_maxRoutersExceeded();
+  error ConnextUtils__execute_alreadyExecuted();
+  error ConnextUtils__execute_notSupportedRouter();
 
   struct xCallLibArgs {
     IConnext.XCallArgs xCallArgs;
@@ -53,6 +62,16 @@ library ConnextUtils {
     uint256 amount;
     uint256 bridgedAmt;
     address bridged;
+  }
+
+  struct ExecuteLibArgs {
+    IConnext.ExecuteArgs executeArgs;
+    uint256 maxRoutersPerTransfer;
+    ITokenRegistry tokenRegistry;
+    IWrapped wrapper;
+    IExecutor executor;
+    uint256 LIQUIDITY_FEE_NUMERATOR;
+    uint256 LIQUIDITY_FEE_DENOMINATOR;
   }
 
   // ============ Events ============
@@ -145,6 +164,36 @@ library ConnextUtils {
     bytes message,
     address caller
   );
+
+  /**
+   * @notice Emitted when `execute` is called on the destination chain
+   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
+   * @param transferId - The unique identifier of the crosschain transfer
+   * @param to - The CallParams.to provided, created as indexed parameter
+   * @param args - The ExecuteArgs provided to the function
+   * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
+   * adopted asset on that chain.
+   * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
+   * executed with
+   * @param caller - The account that called the function
+   */
+  event Executed(
+    bytes32 indexed transferId,
+    address indexed to,
+    IConnext.ExecuteArgs args,
+    address transactingAsset,
+    uint256 transactingAmount,
+    address caller
+  );
+
+  /**
+   * @notice Emitted when a router adds liquidity to the contract
+   * @param router - The address of the router the funds were credited to
+   * @param local - The address of the token added (all liquidity held in local asset)
+   * @param amount - The amount of liquidity added
+   * @param caller - The account that called the function
+   */
+  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
 
   // ============ Admin Functions ============
 
@@ -297,7 +346,7 @@ library ConnextUtils {
     uint256 _amount,
     uint256 _liquidityFeeNum,
     uint256 _liquidityFeeDen
-  ) external pure returns (uint256) {
+  ) public pure returns (uint256) {
     return (_amount * _liquidityFeeNum) / _liquidityFeeDen;
   }
 
@@ -649,6 +698,205 @@ library ConnextUtils {
     bytes memory _message = ConnextMessage.formatMessage(_tokenId, _action);
 
     return _message;
+  }
+
+  /**
+   * @notice Called on the destination domain to disburse correct assets to end recipient
+   * and execute any included calldata
+   * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
+   * used.
+   */
+  function getTransferId(ExecuteLibArgs calldata _args) private view returns (bytes32) {
+    (uint32 _tokenDomain, bytes32 _tokenId) = _args.tokenRegistry.getTokenId(_args.executeArgs.local);
+
+    return
+      keccak256(
+        abi.encode(
+          _args.executeArgs.nonce,
+          _args.executeArgs.params,
+          _args.executeArgs.originSender,
+          _tokenId,
+          _tokenDomain,
+          _args.executeArgs.amount
+        )
+      );
+  }
+
+  function execute(
+    ExecuteLibArgs calldata _args,
+    mapping(address => bool) storage approvedRelayers,
+    mapping(bytes32 => address[]) storage routedTransfers,
+    mapping(bytes32 => bool) storage reconciledTransfers,
+    mapping(address => mapping(address => uint256)) storage routerBalances,
+    mapping(bytes32 => IStableSwap) storage adoptedToLocalPools,
+    mapping(bytes32 => address) storage canonicalToAdopted,
+    RouterPermissionsManagerInfo storage routerInfo
+  ) external returns (bytes32 transferId) {
+    // ensure accepted relayer
+    if (!approvedRelayers[msg.sender]) {
+      revert ConnextUtils__execute_unapprovedRelayer();
+    }
+
+    if (_args.executeArgs.routers.length > _args.maxRoutersPerTransfer)
+      revert ConnextUtils__execute_maxRoutersExceeded();
+
+    bytes32 _transferId = getTransferId(_args);
+
+    // require this transfer has not already been executed
+    // NOTE: in slow liquidity path, the router should *never* be filled
+    if (routedTransfers[_transferId].length != 0) {
+      revert ConnextUtils__execute_alreadyExecuted();
+    }
+
+    // get reconciled record
+    bool _reconciled = reconciledTransfers[_transferId];
+
+    // check to see if the transfer was reconciled
+    (uint256 _amount, address _adopted) = _handleExecuteLiquidity(
+      _transferId,
+      !_reconciled,
+      _args,
+      routedTransfers,
+      routerBalances,
+      adoptedToLocalPools,
+      canonicalToAdopted,
+      routerInfo
+    );
+
+    // TODO: payout relayer fee
+
+    // execute the the transaction
+    handleExecuteTransaction(_args, _amount, _adopted, _transferId, _reconciled);
+
+    // emit event
+    emit Executed(_transferId, _args.executeArgs.params.to, _args.executeArgs, _adopted, _amount, msg.sender);
+
+    return _transferId;
+  }
+
+  function handleExecuteTransaction(
+    ExecuteLibArgs calldata _args,
+    uint256 _amount,
+    address _adopted,
+    bytes32 _transferId,
+    bool _reconciled
+  ) private {
+    // execute the the transaction
+    if (keccak256(_args.executeArgs.params.callData) == EMPTY) {
+      // no call data, send funds to the user
+      transferAssetFromContract(_adopted, _args.executeArgs.params.to, _amount, _args.wrapper);
+    } else {
+      // execute calldata w/funds
+      transferAssetFromContract(_adopted, address(_args.executor), _amount, _args.wrapper);
+      _args.executor.execute(
+        _transferId,
+        _amount,
+        payable(_args.executeArgs.params.to),
+        _adopted,
+        _reconciled
+          ? LibCrossDomainProperty.formatDomainAndSenderBytes(
+            _args.executeArgs.params.originDomain,
+            _args.executeArgs.originSender
+          )
+          : LibCrossDomainProperty.EMPTY_BYTES,
+        _args.executeArgs.params.callData
+      );
+    }
+  }
+
+  function _handleExecuteLiquidity(
+    bytes32 _transferId,
+    bool isFast,
+    ExecuteLibArgs calldata _args,
+    mapping(bytes32 => address[]) storage routedTransfers,
+    mapping(address => mapping(address => uint256)) storage routerBalances,
+    mapping(bytes32 => IStableSwap) storage adoptedToLocalPools,
+    mapping(bytes32 => address) storage canonicalToAdopted,
+    RouterPermissionsManagerInfo storage routerInfo
+  ) private returns (uint256, address) {
+    uint256 _toSwap = _args.executeArgs.amount;
+    uint256 _pathLen = _args.executeArgs.routers.length;
+    if (isFast) {
+      // this is the fast liquidity path
+      // ensure the router is whitelisted
+
+      // calculate amount with fast liquidity fee
+      _toSwap = getFastTransferAmount(
+        _args.executeArgs.amount,
+        _args.LIQUIDITY_FEE_NUMERATOR,
+        _args.LIQUIDITY_FEE_DENOMINATOR
+      );
+
+      // TODO: validate routers signature on path / transferId
+
+      // store the routers address
+      routedTransfers[_transferId] = _args.executeArgs.routers;
+
+      // for each router, assert they are approved, and deduct liquidity
+      uint256 _routerAmount = _toSwap / _pathLen;
+      for (uint256 i; i < _pathLen; ) {
+        // while theres no way for a router to have sufficient liquidity
+        // if they have never been approved, this check ensures they weren't
+        // removed from the whitelist
+        if (!routerInfo.approvedRouters[_args.executeArgs.routers[i]]) {
+          revert ConnextUtils__execute_notSupportedRouter();
+        }
+
+        // decrement routers liquidity
+        routerBalances[_args.executeArgs.routers[i]][_args.executeArgs.local] -= _routerAmount;
+
+        unchecked {
+          i++;
+        }
+      }
+    } else {
+      // this is the slow liquidity path
+
+      // save a dummy address for the router to ensure the transfer is not able
+      // to be executed twice
+      // TODO: better ways to enforce this safety check?
+      routedTransfers[_transferId] = [address(1)];
+    }
+
+    // TODO: payout relayer fee
+
+    // swap out of mad* asset into adopted asset if needed
+    (uint256 _amount, address _adopted) = swapFromLocalAssetIfNeeded(
+      canonicalToAdopted,
+      adoptedToLocalPools,
+      _args.tokenRegistry,
+      _args.executeArgs.local,
+      _toSwap
+    );
+
+    return (_amount, _adopted);
+  }
+
+  /**
+   * @notice Contains the logic to verify + increment a given routers liquidity
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the nomad representation of the asset
+   * @param _router - The router you are adding liquidity on behalf of
+   */
+  function addLiquidityForRouter(
+    uint256 _amount,
+    address _local,
+    address _router,
+    mapping(address => mapping(address => uint256)) storage routerBalances,
+    bytes32 id,
+    IWrapped wrapper
+  ) external {
+    // Transfer funds to coethWithErcTransferact
+    (address _asset, uint256 _received) = transferAssetToContract(_local, _amount, wrapper);
+
+    // Update the router balances. Happens after pulling funds to account for
+    // the fee on transfer tokens
+    routerBalances[_router][_asset] += _received;
+
+    // Emit event
+    emit LiquidityAdded(_router, _asset, id, _received, msg.sender);
   }
 
   // ============ Assets Functions ============
