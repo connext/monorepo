@@ -20,7 +20,7 @@ import chai from "chai";
 chai.use(solidity);
 const { expect } = chai;
 
-describe.only("StableSwap", async () => {
+describe("StableSwap", async () => {
   let signers: Array<Signer>;
   let swap: StableSwap;
   let testStableSwap: TestStableSwap;
