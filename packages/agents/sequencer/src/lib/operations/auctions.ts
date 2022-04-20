@@ -1,3 +1,4 @@
+import { BigNumber, BigNumberish } from "ethers";
 import {
   Bid,
   BidSchema,
@@ -101,7 +102,7 @@ export const storeBid = async (
 export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { cache },
+    adapters: { cache, subgraph },
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
@@ -190,10 +191,55 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         let taskId: string | undefined;
         // Try every bid until we find one that works.
         for (const randomBid of randomized) {
+          // Sanity: Check if this router has enough funds.
+          const { router } = randomBid;
+          const { destinationDomain } = bidData.params;
+          const { amount, local: asset } = bidData;
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(
+            router,
+            destinationDomain,
+            asset,
+          );
+
+          if (!routerLiquidity) {
+            // Either we haven't cached the liquidity yet, or the value cached has become expired.
+            routerLiquidity = await subgraph.getAssetBalance(destinationDomain, router, asset);
+            if (routerLiquidity) {
+              await cache.routers.setLiquidity(router, destinationDomain, asset, routerLiquidity);
+            } else {
+              // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
+              // have added liquidity for the asset on the corresponding domain.
+              logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
+                transferId,
+                origin,
+                destination,
+                router,
+                asset,
+                amount,
+              });
+              continue;
+            }
+          }
+
+          if (routerLiquidity.lt(BigNumber.from(amount))) {
+            logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
+              transferId,
+              router,
+              destinationDomain,
+              asset,
+              amount,
+              routerLiquidity,
+            });
+            continue;
+          }
+
           try {
             logger.info("Sending bid to relayer", requestContext, methodContext, {
               transferId,
-              randomBid,
+              bid: {
+                router: randomBid.router,
+                fee: randomBid.fee,
+              },
             });
             // Send the relayer request based on chosen bids.
             taskId = await sendToRelayer(

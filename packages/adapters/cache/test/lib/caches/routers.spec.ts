@@ -63,7 +63,7 @@ describe("AuctionCache", () => {
       await mockRedisHelpers.setLiquidity(domain, router, asset, amount);
       const res = await cache.getLiquidity(domain, router, asset);
 
-      expect(res).to.deep.eq(amount);
+      expect(res.toString()).to.be.eq(amount);
     });
 
     it("sad: should return undefined if liquidity data does not exist", async () => {
