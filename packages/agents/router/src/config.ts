@@ -11,6 +11,7 @@ import { getHelpers } from "./lib/helpers";
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
+const DEFAULT_CONFIRMATIONS = 3;
 
 dotenvConfig();
 
@@ -73,6 +74,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
+  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -153,18 +155,19 @@ export const getEnvConfig = (
       configJson.subgraphPollInterval ||
       configFile.subgraphPollInterval ||
       DEFAULT_SUBGRAPH_POLL_INTERVAL,
+    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
     throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
   }
 
-  const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
+  const contractPostfix = nxtpConfig.environment === "production" ? "" : nxtpConfig.environment;
 
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
-    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
+    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? DEFAULT_CONFIRMATIONS;
     const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
 
     // Make sure deployments is filled out correctly.
@@ -174,7 +177,7 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }
