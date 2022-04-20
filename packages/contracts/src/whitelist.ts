@@ -50,10 +50,11 @@ export const allRouters = [
   "0xb3ac2b73fa658ee49abf8bc691c1239557c5cc6d",
   "0xED9B9d7F1732f720A467834cc2E536CC1A867853",
   "0x81b70088368d6718BD6Fd1686B8B621244Aa3FF5",
+  "0x82bfb461f3a718060e17af228541b54a18011f98",
 ];
 
 const networks: string[] = [
-  // "mainnet",
+  "mainnet",
   // "moonbeam",
   // "optimism",
   // "bsc",
@@ -67,11 +68,11 @@ const networks: string[] = [
   // "milkomeda-cardano",
   // "kava-alphanet",
   // "harmonyone",
-  // "boba",
-  "cronos",
+  "boba",
+  // "cronos",
 ];
 
-const routers = ["0xe439CA609B964Ab9422672Bf83B8e171E90aDaD1"];
+const routers = ["0x82bfb461f3a718060e17af228541b54a18011f98"];
 // const routers = allRouters;
 
 const run = async () => {
