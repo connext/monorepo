@@ -84,20 +84,24 @@ export default task("update-xapp-connection", "Enrolls the proper replicas, and 
     );
 
     // Ensure no unnecessary unenroll + re-enroll txs are happening
-    const toUnenroll = currentlyEnrolled.filter((entry) =>
-      latestDeployment.includes({
-        domain: entry.domain,
-        replica: entry.replica.toLowerCase(),
-        domainName: entry.domainName.toLowerCase(),
-      }),
+    const toUnenroll = currentlyEnrolled.filter(
+      (entry) =>
+        // remove any deployments that would just be re-enrolled
+        !latestDeployment.includes({
+          domain: entry.domain,
+          replica: entry.replica.toLowerCase(),
+          domainName: entry.domainName.toLowerCase(),
+        }),
     );
 
-    const toEnroll = latestDeployment.filter((entry) =>
-      currentlyEnrolled.includes({
-        domain: entry.domain,
-        replica: entry.replica.toLowerCase(),
-        domainName: entry.domainName.toLowerCase(),
-      }),
+    const toEnroll = latestDeployment.filter(
+      (entry) =>
+        // remove any deployments that would just be re-enrolled
+        !currentlyEnrolled.includes({
+          domain: entry.domain,
+          replica: entry.replica.toLowerCase(),
+          domainName: entry.domainName.toLowerCase(),
+        }),
     );
     if (toUnenroll.length === 0 && toEnroll.length === 0) {
       console.log("no change detected in connections");
