@@ -131,7 +131,11 @@ export class AuctionsCache extends Cache {
     let keys: string[] = [];
     await new Promise((res) => {
       stream.on("data", (resultKeys: string[] = []) => {
-        keys = keys.concat(resultKeys);
+        // Note that resultKeys will sometimes contain duplicates due to SCAN's implementation in Redis
+        // link : https://redis.io/commands/scan/#scan-guarantees
+        for (const resultKey of resultKeys) {
+          if (!keys.includes(resultKey)) keys.push(resultKey);
+        }
       });
       stream.on("end", async () => {
         res(undefined);
