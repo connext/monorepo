@@ -132,12 +132,12 @@ contract ConnextHandler is
   /**
    * @notice Mapping to determine if transfer is reconciled
    */
-  mapping(bytes32 => bool) reconciledTransfers;
+  mapping(bytes32 => bool) public reconciledTransfers;
 
   /**
    * @notice Mapping holding router address that provided fast liquidity
    */
-  mapping(bytes32 => address[]) routedTransfers;
+  mapping(bytes32 => address[]) public routedTransfers;
 
   /**
    * @notice Mapping of router to available balance of an asset
@@ -161,25 +161,17 @@ contract ConnextHandler is
 
   error ConnextHandler__addRelayer_alreadyApproved();
   error ConnextHandler__removeRelayer_notApproved();
-  error ConnextHandler__removeLiquidity_recipientEmpty();
-  error ConnextHandler__removeLiquidity_amountIsZero();
-  error ConnextHandler__removeLiquidity_insufficientFunds();
   error ConnextHandler__removeAssetId_notAdded();
-  error ConnextHandler__xcall_wrongDomain();
-  error ConnextHandler__xcall_notSupportedAsset();
-  error ConnextHandler__xcall_emptyTo();
   error ConnextHandler__handle_invalidAction();
   error ConnextHandler__execute_unapprovedRelayer();
   error ConnextHandler__execute_alreadyExecuted();
   error ConnextHandler__execute_notSupportedRouter();
   error ConnextHandler__execute_invalidProperties();
   error ConnextHandler__execute_maxRoutersExceeded();
-  error ConnextHandler__reconcile_alreadyReconciled();
   error ConnextHandler__addLiquidityForRouter_routerEmpty();
   error ConnextHandler__addLiquidityForRouter_amountIsZero();
   error ConnextHandler__addLiquidityForRouter_badRouter();
   error ConnextHandler__addLiquidityForRouter_badAsset();
-  error ConnextHandler__addAssetId_alreadyAdded();
   error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
   // ========== Initializer ============
@@ -237,7 +229,7 @@ contract ConnextHandler is
     override
     onlyOwner
   {
-    _addStableSwapPool(canonical, stableSwapPool);
+    ConnextUtils.addStableSwapPool(canonical, stableSwapPool, adoptedToLocalPools);
   }
 
   /**
@@ -258,10 +250,17 @@ contract ConnextHandler is
     address stableSwapPool
   ) external override onlyOwner {
     // Add the asset
-    _addAssetId(canonical, adoptedAssetId);
+    ConnextUtils.addAssetId(
+      canonical,
+      adoptedAssetId,
+      address(wrapper),
+      approvedAssets,
+      adoptedToCanonical,
+      canonicalToAdopted
+    );
 
     // Add the swap pool
-    _addStableSwapPool(canonical, stableSwapPool);
+    ConnextUtils.addStableSwapPool(canonical, stableSwapPool, adoptedToLocalPools);
   }
 
   /**
@@ -270,20 +269,14 @@ contract ConnextHandler is
    * @param adoptedAssetId - Corresponding adopted asset to remove
    */
   function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
-    // Sanity check: already approval
-    if (!approvedAssets[canonicalId]) revert ConnextHandler__removeAssetId_notAdded();
-
-    // Update mapping
-    delete approvedAssets[canonicalId];
-
-    // Update pools
-    delete adoptedToLocalPools[canonicalId];
-
-    // Update adopted mapping
-    delete adoptedToCanonical[adoptedAssetId == address(0) ? address(wrapper) : adoptedAssetId];
-
-    // Emit event
-    emit AssetRemoved(canonicalId, msg.sender);
+    ConnextUtils.removeAssetId(
+      canonicalId,
+      adoptedAssetId,
+      address(wrapper),
+      approvedAssets,
+      adoptedToLocalPools,
+      adoptedToCanonical
+    );
   }
 
   /**
@@ -291,10 +284,7 @@ contract ConnextHandler is
    * @param relayer - The relayer address to add
    */
   function addRelayer(address relayer) external override onlyOwner {
-    if (approvedRelayers[relayer]) revert ConnextHandler__addRelayer_alreadyApproved();
-    approvedRelayers[relayer] = true;
-
-    emit RelayerAdded(relayer, msg.sender);
+    ConnextUtils.addRelayer(relayer, approvedRelayers);
   }
 
   /**
@@ -302,10 +292,7 @@ contract ConnextHandler is
    * @param relayer - The relayer address to remove
    */
   function removeRelayer(address relayer) external override onlyOwner {
-    if (!approvedRelayers[relayer]) revert ConnextHandler__removeRelayer_notApproved();
-    delete approvedRelayers[relayer];
-
-    emit RelayerRemoved(relayer, msg.sender);
+    ConnextUtils.removeRelayer(relayer, approvedRelayers);
   }
 
   /**
@@ -313,12 +300,7 @@ contract ConnextHandler is
    * @param newMaxRouters The new max amount of routers
    */
   function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
-    if (newMaxRouters == 0 || newMaxRouters == maxRoutersPerTransfer)
-      revert ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
-
-    maxRoutersPerTransfer = newMaxRouters;
-
-    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
+    ConnextUtils.setMaxRoutersPerTransfer(newMaxRouters, maxRoutersPerTransfer);
   }
 
   // ============ External functions ============
@@ -370,95 +352,26 @@ contract ConnextHandler is
     address _recipient = routerRecipients(msg.sender);
     _recipient = _recipient == address(0) ? to : _recipient;
 
-    // Sanity check: to is sensible
-    if (_recipient == address(0)) revert ConnextHandler__removeLiquidity_recipientEmpty();
-
-    // Sanity check: nonzero amounts
-    if (amount == 0) revert ConnextHandler__removeLiquidity_amountIsZero();
-
-    uint256 routerBalance = routerBalances[msg.sender][local];
-    // Sanity check: amount can be deducted for the router
-    if (routerBalance < amount) revert ConnextHandler__removeLiquidity_insufficientFunds();
-
-    // Update router balances
-    unchecked {
-      routerBalances[msg.sender][local] = routerBalance - amount;
-    }
-
-    // Transfer from contract to specified to
-    AssetLogic.transferAssetFromContract(local, _recipient, amount, wrapper);
-
-    // Emit event
-    emit LiquidityRemoved(msg.sender, _recipient, local, amount, msg.sender);
+    ConnextUtils.removeLiquidity(amount, local, _recipient, routerBalances, wrapper);
   }
 
-  function xcall(XCallArgs calldata _args) external payable override returns (bytes32 transferId) {
-    // ensure this is the right domain
-    if (_args.params.originDomain != domain) {
-      revert ConnextHandler__xcall_wrongDomain();
-    }
+  function xcall(XCallArgs calldata _args) external payable override returns (bytes32) {
+    // get remote BridgeRouter address; revert if not found
+    bytes32 _remote = _mustHaveRemote(_args.params.destinationDomain);
 
-    // ensure theres a recipient defined
-    if (_args.params.to == address(0)) {
-      revert ConnextHandler__xcall_emptyTo();
-    }
+    ConnextUtils.xCallLibArgs memory libArgs = ConnextUtils.xCallLibArgs({
+      xCallArgs: _args,
+      wrapper: wrapper,
+      nonce: nonce,
+      tokenRegistry: tokenRegistry,
+      domain: domain,
+      home: xAppConnectionManager.home(),
+      remote: _remote
+    });
 
-    // get the true transacting asset id (using wrapped native instead native)
-    address _transactingAssetId = _args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId;
+    (bytes32 _transferId, uint256 newNonce) = ConnextUtils.xcall(libArgs, adoptedToCanonical, adoptedToLocalPools);
 
-    // check that the asset is supported -- can be either adopted or local
-    ConnextMessage.TokenId memory _canonical = adoptedToCanonical[_transactingAssetId];
-    if (_canonical.id == bytes32(0)) {
-      revert ConnextHandler__xcall_notSupportedAsset();
-    }
-
-    // compute the transfer id
-    bytes32 _transferId = _getTransferId(
-      nonce,
-      _args.params,
-      msg.sender,
-      _canonical.domain,
-      _canonical.id,
-      _args.amount
-    );
-    // update nonce
-    nonce++;
-
-    // transfer funds of transacting asset to the contract from user
-    // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 _amount) = AssetLogic.transferAssetToContract(_args.transactingAssetId, _args.amount, wrapper);
-
-    // swap to the local asset from adopted
-    (uint256 _bridgedAmt, address _bridged) = ConnextUtils.swapToLocalAssetIfNeeded(
-      _canonical,
-      adoptedToLocalPools[_canonical.id],
-      tokenRegistry,
-      _transactingAssetId,
-      _amount
-    );
-
-    // send message over nomad
-    bytes memory _message = _sendMessage(
-      _args.params.destinationDomain,
-      _bridged,
-      _args.params.to,
-      _transferId,
-      _bridgedAmt
-    );
-
-    // emit event
-    emit XCalled(
-      _transferId,
-      _args.params.to,
-      _args.params,
-      _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
-      _bridged,
-      _amount,
-      _bridgedAmt,
-      nonce - 1,
-      _message,
-      msg.sender
-    );
+    nonce = newNonce;
 
     return _transferId;
   }
@@ -472,24 +385,15 @@ contract ConnextHandler is
    * @param _sender The sender address
    * @param _message The message
    */
+  // ROUTER
   function handle(
     uint32 _origin,
     uint32 _nonce,
     bytes32 _sender,
     bytes memory _message
   ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
-    // parse tokenId and action from message
-    bytes29 _msg = _message.ref(0).mustBeMessage();
-    bytes29 _tokenId = _msg.tokenId();
-    bytes29 _action = _msg.action();
-
-    // assert the action is valid
-    if (!_action.isTransfer()) {
-      revert ConnextHandler__handle_invalidAction();
-    }
-
     // handle the action
-    _reconcile(_origin, _tokenId, _action);
+    ConnextUtils.reconcile(_origin, _message, reconciledTransfers, tokenRegistry, routedTransfers, routerBalances);
   }
 
   /**
@@ -499,16 +403,18 @@ contract ConnextHandler is
    * used.
    */
   function execute(ExecuteArgs calldata _args) external override returns (bytes32 transferId) {
-    // // ensure accepted relayer
-    // if (!approvedRelayers[msg.sender]) {
-    //   revert ConnextHandler__execute_unapprovedRelayer();
-    // }
+    // ensure accepted relayer
+    if (!approvedRelayers[msg.sender]) {
+      revert ConnextHandler__execute_unapprovedRelayer();
+    }
+
+    if (_args.routers.length > maxRoutersPerTransfer) revert ConnextHandler__execute_maxRoutersExceeded();
 
     // get token id
     (uint32 _tokenDomain, bytes32 _tokenId) = tokenRegistry.getTokenId(_args.local);
 
     // get the transferId
-    bytes32 _transferId = _getTransferId(
+    bytes32 _transferId = ConnextUtils.getTransferId(
       _args.nonce,
       _args.params,
       _args.originSender,
@@ -566,6 +472,7 @@ contract ConnextHandler is
    * @param _local - The address of the nomad representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
+  // CU
   function _addLiquidityForRouter(
     uint256 _amount,
     address _local,
@@ -581,11 +488,11 @@ contract ConnextHandler is
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
-      revert ConnextHandler__addLiquidityForRouter_badRouter();
+    // if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
+    //   revert ConnextHandler__addLiquidityForRouter_badRouter();
 
-    // Asset is approved
-    if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert ConnextHandler__addLiquidityForRouter_badAsset();
+    // // Asset is approved
+    // if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert ConnextHandler__addLiquidityForRouter_badAsset();
 
     // Transfer funds to coethWithErcTransferact
     (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, wrapper);
@@ -598,195 +505,20 @@ contract ConnextHandler is
     emit LiquidityAdded(_router, _asset, id, _received, msg.sender);
   }
 
-  /**
-   * @notice Used to add assets on same chain as contract that can be transferred.
-   * @param _canonical - The canonical TokenId to add (domain and id)
-   * @param _adoptedAssetId - The used asset id for this domain (i.e. PoS USDC for
-   * polygon)
-   */
-  function _addAssetId(ConnextMessage.TokenId calldata _canonical, address _adoptedAssetId) internal {
-    // Sanity check: needs approval
-    if (approvedAssets[_canonical.id]) revert ConnextHandler__addAssetId_alreadyAdded();
-
-    // Update approved assets mapping
-    approvedAssets[_canonical.id] = true;
-
-    // Update the adopted mapping
-    adoptedToCanonical[_adoptedAssetId] = _canonical;
-
-    // Update the canonical mapping
-    address supported = _adoptedAssetId == address(0) ? address(wrapper) : _adoptedAssetId;
-    canonicalToAdopted[_canonical.id] = supported;
-
-    // Emit event
-    emit AssetAdded(_canonical.id, _canonical.domain, _adoptedAssetId, supported, msg.sender);
-  }
-
-  /**
-   * @notice Used to add an AMM for adopted <> local assets
-   * @param _canonical - The canonical TokenId to add (domain and id)
-   * @param _stableSwap - The address of the amm to add
-   */
-  function _addStableSwapPool(ConnextMessage.TokenId calldata _canonical, address _stableSwap) internal {
-    // Update the pool mapping
-    adoptedToLocalPools[_canonical.id] = IStableSwap(_stableSwap);
-
-    emit StableSwapAdded(_canonical.id, _canonical.domain, _stableSwap, msg.sender);
-  }
-
-  /**
-   * @notice Called via `handle` to manage funds associated with a transaction
-   * @dev Will either (a) credit router or (b) make funds available for execution. Don't
-   * include execution here
-   */
-  function _reconcile(
-    uint32 _origin,
-    bytes29 _tokenId,
-    bytes29 _action
-  ) internal {
-    // load the transferId
-    bytes32 _transferId = _action.transferId();
-
-    // ensure the transaction has not been handled
-    if (reconciledTransfers[_transferId]) {
-      revert ConnextHandler__reconcile_alreadyReconciled();
-    }
-
-    // get the token contract for the given tokenId on this chain
-    // (if the token is of remote origin and there is
-    // no existing representation token contract, the TokenRegistry will
-    // deploy a new one)
-    address _token = tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
-
-    // load amount once
-    uint256 _amount = _action.amnt();
-
-    // NOTE: tokenId + amount must be in plaintext in message so funds can
-    // *only* be minted by `handle`. They are still used in the generation of
-    // the transferId so routers must provide them correctly to be reimbursed
-
-    // TODO: do we need to keep this
-    bytes32 _details = _action.detailsHash();
-
-    // if the token is of remote origin, mint the tokens. will either
-    // - be credited to router (fast liquidity)
-    // - be reserved for execution (slow liquidity)
-    if (!tokenRegistry.isLocalOrigin(_token)) {
-      IBridgeToken(_token).mint(address(this), _amount);
-      // Tell the token what its detailsHash is
-      IBridgeToken(_token).setDetailsHash(_details);
-    }
-    // NOTE: if the token is of local origin, it means it was escrowed
-    // in this contract at xcall
-
-    // mark the transfer as reconciled
-    reconciledTransfers[_transferId] = true;
-
-    // get the transfer
-    address[] storage _routers = routedTransfers[_transferId];
-
-    uint256 _pathLen = _routers.length;
-    if (_pathLen != 0) {
-      // fast liquidity path
-      // credit the router the asset
-      uint256 _routerAmt = _amount / _pathLen;
-      for (uint256 i; i < _pathLen; ) {
-        routerBalances[_routers[i]][_token] += _routerAmt;
-        unchecked {
-          i++;
-        }
-      }
-    }
-
-    emit Reconciled(_transferId, _origin, _routers, _token, _amount, msg.sender);
-  }
-
-  // TODO: move logic into ConnextUtils
-  function _getTransferId(
-    uint256 _nonce,
-    CallParams calldata _params,
-    address _originSender,
-    uint32 _tokenDomain,
-    bytes32 _tokenId,
-    uint256 _amount
-  ) internal view returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params, _originSender, _tokenId, _tokenDomain, _amount));
-  }
-
-  // TODO: move logic into ConnextUtils
-  function _getFastTransferAmount(uint256 _amount) internal view returns (uint256) {
-    return (_amount * LIQUIDITY_FEE_NUMERATOR) / LIQUIDITY_FEE_DENOMINATOR;
-  }
-
-  // TODO: move into ConnextUtils?
-  function _sendMessage(
-    uint32 _destination,
-    address _asset,
-    address _to,
-    bytes32 _transferId,
-    uint256 _amount
-  ) internal returns (bytes memory) {
-    // get remote BridgeRouter address; revert if not found
-    bytes32 _remote = _mustHaveRemote(_destination);
-
-    // get token
-    IBridgeToken _token = IBridgeToken(_asset);
-
-    // declare details
-    bytes32 _detailsHash;
-
-    if (tokenRegistry.isLocalOrigin(_asset)) {
-      // TODO: do we want to store a mapping of custodied token balances here?
-
-      // token is local, custody token on this chain
-      // query token contract for details and calculate detailsHash
-      _detailsHash = ConnextMessage.formatDetailsHash(_token.name(), _token.symbol(), _token.decimals());
-    } else {
-      // if the token originates on a remote chain,
-      // burn the representation tokens on this chain
-      if (_amount > 0) {
-        _token.burn(msg.sender, _amount);
-      }
-      _detailsHash = _token.detailsHash();
-    }
-
-    // format action
-    bytes29 _action = ConnextMessage.formatTransfer(
-      TypeCasts.addressToBytes32(_to),
-      _amount,
-      _detailsHash,
-      _transferId
-    );
-
-    // get the tokenID
-    (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_asset);
-
-    // format token id
-    bytes29 _tokenId = ConnextMessage.formatTokenId(_domain, _id);
-
-    // send message
-    bytes memory _message = ConnextMessage.formatMessage(_tokenId, _action);
-    Home(xAppConnectionManager.home()).dispatch(_destination, _remote, _message);
-
-    return _message;
-  }
-
   // TODO: move to ConnextUtils
   function _handleExecuteLiquidity(
     bytes32 _transferId,
     ExecuteArgs calldata _args,
     bool isFast
   ) internal returns (uint256, address) {
-    uint256 _pathLen = _args.routers.length;
-    if (_pathLen > maxRoutersPerTransfer) revert ConnextHandler__execute_maxRoutersExceeded();
-
     uint256 _toSwap = _args.amount;
+    uint256 _pathLen = _args.routers.length;
     if (isFast) {
       // this is the fast liquidity path
       // ensure the router is whitelisted
 
       // calculate amount with fast liquidity fee
-      _toSwap = _getFastTransferAmount(_args.amount);
+      _toSwap = ConnextUtils.getFastTransferAmount(_args.amount, LIQUIDITY_FEE_NUMERATOR, LIQUIDITY_FEE_DENOMINATOR);
 
       // TODO: validate routers signature on path / transferId
 
