@@ -61,7 +61,10 @@ export class AuctionsCache extends Cache {
       timestamp: existing?.timestamp ?? getNtpTimeSeconds().toString(),
       origin,
       destination,
-      bids: [...(existing?.bids ?? []), bid],
+      bids: {
+        ...(existing?.bids ?? {}),
+        [bid.router]: bid,
+      },
     };
     const res = await this.data.hset(`${this.prefix}:auction`, transferId, JSON.stringify(auction));
 
