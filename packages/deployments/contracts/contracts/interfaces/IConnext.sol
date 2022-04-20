@@ -29,11 +29,13 @@ interface IConnext {
    * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param amount - The amount of transferring asset the tx called xcall with
+   * @param relayerFee - The amount of relayer fee the tx called xcall with
    */
   struct XCallArgs {
     CallParams params;
     address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
+    uint256 relayerFee;
   }
 
   /**
@@ -136,6 +138,7 @@ interface IConnext {
    * to the provided `transactingAsset`
    * @param transactingAmount - The amount of transferring asset the tx xcalled with
    * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
+   * @param relayerFee - The amount of relayer fee in native asset
    * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
    * for the transfer
    * @param caller - The account that called the function
@@ -148,13 +151,22 @@ interface IConnext {
     address localAsset,
     uint256 transactingAmount,
     uint256 localAmount,
+    uint256 relayerFee,
     uint256 nonce,
     bytes message,
     address caller
   );
 
   /**
-  //  * @notice Emitted when `reconciled` is called by the bridge on the destination domain
+   * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param relayerFee - The updated amount of relayer fee in native asset
+   * @param caller - The account that called the function
+   */
+  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+
+  /**
+   * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
    * @param routers - The CallParams.recipient provided, created as indexed parameter
@@ -193,13 +205,31 @@ interface IConnext {
     address caller
   );
 
+  /**
+   * @notice Emitted when `initiateClaim` is called on the destination chain
+   * @param domain - Domain to claim funds on
+   * @param recipient - Address on origin chain to send claimed funds to
+   * @param caller - The account that called the function
+   * @param transferIds - TransferIds to claim
+   */
+  event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
+
+  /**
+   * @notice Emitted when `claim` is called on the origin domain
+   * @param recipient - Address on origin chain to send claimed funds to
+   * @param total - Total amount claimed
+   * @param transferIds - TransferIds to claim
+   */
+  event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
+
   // ============ Admin Functions ============
 
   function initialize(
     uint256 _domain,
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) external;
 
   function setupRouter(
@@ -245,4 +275,12 @@ interface IConnext {
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
+
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external;
+
+  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 }

@@ -69,11 +69,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: {
         init: {
           methodName: "initialize",
+          // TODO - Use real RelayerFeeRouter
           args: [
             domain,
             xappConnectionManagerDeployment.address,
             tokenRegistry.address,
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+            hre.ethers.constants.AddressZero,
           ],
         },
       },

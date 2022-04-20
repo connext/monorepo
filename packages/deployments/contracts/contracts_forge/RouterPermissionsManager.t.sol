@@ -23,6 +23,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   address bridgeRouter = address(1);
   address tokenRegistry = address(2);
   address wrapper = address(3);
+  address relayerFeeRouter = address(4);
 
   // ============ Test set up ============
 
@@ -31,7 +32,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     proxy = new ERC1967Proxy(
       address(connext),
-      abi.encodeWithSelector(ConnextHandler.initialize.selector, domain, payable(bridgeRouter), tokenRegistry, wrapper)
+      abi.encodeWithSelector(ConnextHandler.initialize.selector, domain, payable(bridgeRouter), tokenRegistry, wrapper, relayerFeeRouter)
     );
 
     connext = ConnextHandler(payable(address(proxy)));
