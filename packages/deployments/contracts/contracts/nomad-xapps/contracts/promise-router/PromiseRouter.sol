@@ -46,10 +46,11 @@ contract PromiseRouter is Version0, Router {
    * @param remote Remote PromiseRouter address
    * @param transferId The transferId 
    * @param callbackAddress The address of the callback
-   * @param data The calldata which will executed on the destination domain
+   * @param success The return success from the execution on the destination domain
+   * @param data The returnData from the execution on the destination domain
    * @param message The message sent to the destination domain
    */
-  event Send(uint32 domain, bytes32 remote, bytes32 transferId, address callbackAddress, bytes data, bytes message);
+  event Send(uint32 domain, bytes32 remote, bytes32 transferId, address callbackAddress, bool success, bytes data, bytes message);
 
   /**
    * @notice Emitted when the a fees claim message has arrived to this domain
@@ -112,26 +113,28 @@ contract PromiseRouter is Version0, Router {
    * @param _domain The domain where to claim the fees
    * @param _transferId The transferId 
    * @param _callbackAddress A callback address to be called when promise callback is received
-   * @param _calldata The calldata for promise callback
+   * @param _returnSuccess The returnSuccess from the execution
+   * @param _returnData The returnData from the execution
    */
   function send(
     uint32 _domain,
     bytes32 _transferId,
     address _callbackAddress,
-    bytes calldata _calldata
+    bool _returnSuccess,
+    bytes calldata _returnData
   ) external onlyConnext {
-    if (_calldata.length == 0) revert PromiseRouter__send_calldataEmpty();
+    if (_returnData.length == 0) revert PromiseRouter__send_calldataEmpty();
     if (_callbackAddress == address(0)) revert PromiseRouter__send_callbackAddressEmpty();
 
     // get remote PromiseRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_domain);
 
-    bytes memory message = PromiseMessage.formatPromiseCallback(_transferId, _callbackAddress, _calldata);
+    bytes memory message = PromiseMessage.formatPromiseCallback(_transferId, _callbackAddress, _returnSuccess, _returnData);
 
     xAppConnectionManager.home().dispatch(_domain, remote, message);
 
     // emit Send event
-    emit Send(_domain, remote, _transferId, _callbackAddress, _calldata, message);
+    emit Send(_domain, remote, _transferId, _callbackAddress, _returnSuccess, _returnData, message);
   }
 
   // ======== External: Handle =========
@@ -154,7 +157,9 @@ contract PromiseRouter is Version0, Router {
 
     bytes32 transferId = _msg.transferId();
     address callbackAddress = _msg.callbackAddress();
-    bytes memory data = _msg.returnCallData();
+    bool success = _msg.returnSuccess() == 1;
+    bytes memory data = _msg.returnData();
+
     
     //TODO process callback
 
