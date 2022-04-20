@@ -101,6 +101,8 @@ export default task("update-xapp-connection", "Enrolls the proper replicas, and 
     );
     if (toUnenroll.length === 0 && toEnroll.length === 0) {
       console.log("no change detected in connections");
+      console.log("currently enrolled:", currentlyEnrolled);
+      console.log("latest deployment :", latestDeployment);
       return;
     }
 
