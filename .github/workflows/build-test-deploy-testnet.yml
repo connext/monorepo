@@ -168,7 +168,7 @@ jobs:
         with:
           context: docker/web3signer
           push: true
-          tags: latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           file: docker/web3signer/Dockerfile
 
   smoke-tests:
