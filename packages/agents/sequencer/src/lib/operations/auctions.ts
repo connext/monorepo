@@ -54,8 +54,7 @@ export const storeBid = async (
     });
   }
 
-  // TODO: Verify the following (and cache it for records):
-  // - Router is approved.
+  // Sanity: Check router is approved.
   const { router } = bid;
   const { destinationDomain } = bidData.params;
   let routerApproved = await cache.routers.getApproval(router, destinationDomain);
