@@ -910,6 +910,13 @@ export type GetReconciledTransfersByIdsQueryVariables = Exact<{
 
 export type GetReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
+export type GetTransfersStatusQueryVariables = Exact<{
+  transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
+}>;
+
+
+export type GetTransfersStatusQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+
 export type GetAssetByLocalQueryVariables = Exact<{
   local: Scalars['Bytes'];
 }>;
@@ -1198,6 +1205,56 @@ export const GetReconciledTransfersByIdsDocument = gql`
   }
 }
     `;
+export const GetTransfersStatusDocument = gql`
+    query GetTransfersStatus($transferIds: [Bytes!]) {
+  transfers(
+    where: {transferId_in: $transferIds, status_in: [Executed, Reconciled]}
+  ) {
+    id
+    originDomain
+    destinationDomain
+    chainId
+    status
+    to
+    transferId
+    callTo
+    callData
+    idx
+    nonce
+    router {
+      id
+    }
+    xcalledTransactingAsset
+    xcalledLocalAsset
+    xcalledTransactingAmount
+    xcalledLocalAmount
+    xcalledCaller
+    xcalledTransactionHash
+    xcalledTimestamp
+    xcalledGasPrice
+    xcalledGasLimit
+    xcalledBlockNumber
+    executedCaller
+    executedTransactingAmount
+    executedLocalAmount
+    executedTransactingAsset
+    executedLocalAsset
+    executedTransactionHash
+    executedTimestamp
+    executedGasPrice
+    executedGasLimit
+    executedBlockNumber
+    reconciledCaller
+    reconciledLocalAsset
+    reconciledLocalAmount
+    reconciledTransactionHash
+    reconciledTimestamp
+    reconciledGasPrice
+    reconciledGasLimit
+    reconciledBlockNumber
+  }
+}
+    `;
 export const GetAssetByLocalDocument = gql`
     query GetAssetByLocal($local: Bytes!) {
   assets(where: {local: $local}) {
@@ -1283,6 +1340,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetReconciledTransfersByIds(variables: GetReconciledTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReconciledTransfersByIdsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetReconciledTransfersByIdsQuery>(GetReconciledTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetReconciledTransfersByIds', 'query');
+    },
+    GetTransfersStatus(variables?: GetTransfersStatusQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransfersStatusQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetTransfersStatusQuery>(GetTransfersStatusDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransfersStatus', 'query');
     },
     GetAssetByLocal(variables: GetAssetByLocalQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByLocalQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByLocalQuery>(GetAssetByLocalDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByLocal', 'query');

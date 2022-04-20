@@ -1,0 +1,31 @@
+{
+  "extends": "../../../config/tsconfig.node.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "dist",
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
+  },
+  "exclude": ["test/**/*.ts"],
+  "include": ["src/**/*.ts"],
+  "references": [
+    {
+      "path": "../../adapters/txservice/tsconfig.build.json"
+    },
+    {
+      "path": "../../agents/sdk/tsconfig.build.json"
+    },
+    {
+      "path": "../../adapters/cache/tsconfig.build.json"
+    },
+    {
+      "path": "../../adapters/subgraph/tsconfig.build.json"
+    },
+    {
+      "path": "../../adapters/web3signer/tsconfig.build.json"
+    },
+    {
+      "path": "../../utils/tsconfig.build.json"
+    }
+  ]
+}
