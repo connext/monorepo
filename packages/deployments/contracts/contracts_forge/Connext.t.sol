@@ -3,8 +3,10 @@ pragma solidity ^0.8.11;
 
 import "./ForgeHelper.sol";
 
-import "../contracts/Connext.sol";
+import "../contracts/nomad-xapps/contracts/connext/ConnextHandler.sol";
 import "../contracts/ProposedOwnableUpgradeable.sol";
+
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -22,7 +24,8 @@ contract ConnextTest is ForgeHelper {
 
   // ============ Storage ============
 
-  Connext connext;
+  ERC1967Proxy proxy;
+  ConnextHandler connext;
 
   uint256 domain = 1;
   address bridgeRouter = address(1);
@@ -32,8 +35,14 @@ contract ConnextTest is ForgeHelper {
   // ============ Test set up ============
 
   function setUp() public {
-    connext = new Connext();
-    connext.initialize(domain, payable(bridgeRouter), tokenRegistry, wrapper);
+    connext = new ConnextHandler();
+
+    proxy = new ERC1967Proxy(
+      address(connext),
+      abi.encodeWithSelector(ConnextHandler.initialize.selector, domain, payable(bridgeRouter), tokenRegistry, wrapper)
+    );
+
+    connext = ConnextHandler(payable(address(proxy)));
   }
 
   // ============ Utils ============
@@ -81,7 +90,9 @@ contract ConnextTest is ForgeHelper {
   // Fail maxRouters is 0
   function testSetMaxRoutersPerTransferZeroValue() public {
     vm.expectRevert(
-      abi.encodeWithSelector(Connext.Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector)
+      abi.encodeWithSelector(
+        ConnextHandler.ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector
+      )
     );
     connext.setMaxRoutersPerTransfer(0);
   }
