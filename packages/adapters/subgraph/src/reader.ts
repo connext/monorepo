@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import { XTransfer, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
@@ -7,9 +7,13 @@ import {
   GetAssetByLocalQuery,
   GetXCalledTransfersQuery,
   GetTransfersQuery,
+  GetTransfersStatusQuery,
   Asset,
   GetExecutedTransfersByIdsQuery,
   GetReconciledTransfersByIdsQuery,
+  GetAssetBalanceQuery,
+  GetAssetBalancesQuery,
+  GetRouterQuery,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
@@ -36,40 +40,57 @@ export class SubgraphReader {
    *
    * Returns available liquidity for the given asset on the Connext on the provided chain.
    *
-   * @param chain - The chain you want to determine liquidity on
+   * @param domain - The domain you want to determine liquidity on
    * @param router - Router address
-   * @param asset - The asset you want to determine router liquidity of
+   * @param local - The local asset you want to determine router liquidity of
    * @returns The available balance
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getAssetBalance(chain: number, router: string, asset: string): Promise<BigNumber> {
-    throw new Error("Not implemented");
+  public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
+    const subgraph = this.subgraphs.get(domain);
+    const { assetBalance } = await subgraph!.runtime.request<GetAssetBalanceQuery>((client) => {
+      return client.GetAssetBalance({ assetBalanceId: `${local}-${router}` });
+    });
+    if (!assetBalance) {
+      return constants.Zero;
+    }
+    return BigNumber.from(assetBalance.amount);
   }
 
   /**
    * Returns available liquidity for all of the routers' assets on target chain.
    *
-   * @param chain - The chain you want to determine liquidity on
+   * @param domain - The domain you want to determine liquidity on
    * @param router - Router address
    * @returns An array of asset ids and amounts of liquidity
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getAssetBalances(chain: number, router: string): Promise<{ [asset: string]: BigNumber }> {
-    throw new Error("Not implemented");
+  public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
+    const subgraph = this.subgraphs.get(domain);
+    const { assetBalances } = await subgraph!.runtime.request<GetAssetBalancesQuery>((client) => {
+      return client.GetAssetBalances({ router });
+    });
+    const balances: Record<string, BigNumber> = {};
+    assetBalances.forEach((bal) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
+    return balances;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async isRouterApproved(chain: number, router: string) {
-    throw new Error("Not implemented");
+  /**
+   * Returns the router's approval status
+   *
+   * @param domain - The domain to get the router status of
+   * @param _router - The router address
+   * @returns A boolean indicating the router is approved
+   */
+  public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
+    const subgraph = this.subgraphs.get(domain);
+    const { router } = await subgraph!.runtime.request<GetRouterQuery>((client) => {
+      return client.GetRouter({ router: _router });
+    });
+    return !!router?.id;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async isAssetApproved(chain: number, asset: string) {
-    throw new Error("Not implemented");
-  }
-
-  public async getAssetByLocal(chain: number, local: string): Promise<Asset | undefined> {
-    const subgraph = this.subgraphs.get(chain.toString());
+  public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
+    const subgraph = this.subgraphs.get(domain);
     // handle doesnt exist
     const { assets } = await subgraph!.runtime.request<GetAssetByLocalQuery>((client) => {
       return client.GetAssetByLocal({ local });
@@ -235,5 +256,44 @@ export class SubgraphReader {
 
     // create array of all transactions by status
     return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
+  }
+
+  public async getExecutedAndReconciledTransfers(transfers: XTransfer[]): Promise<XTransfer[]> {
+    const { parser } = getHelpers();
+    const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
+      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain);
+      const txIds = destinationDomainRecord
+        ? destinationDomainRecord.includes(transfer.transferId)
+          ? destinationDomainRecord
+          : destinationDomainRecord.concat(transfer.transferId)
+        : [transfer.transferId];
+      txIdsByDestinationDomain.set(transfer.destinationDomain, txIds);
+      return [transfer.transferId, transfer];
+    });
+
+    const allTxById = new Map<string, XTransfer>(allOrigin);
+
+    await Promise.all(
+      [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
+        const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
+
+        const { transfers } = await subgraph.runtime.request<GetTransfersStatusQuery>((client) =>
+          client.GetTransfersStatus({
+            transferIds,
+          }),
+        );
+        transfers.forEach((_tx: any) => {
+          const tx = parser.xtransfer(_tx);
+          const inMap = allTxById.get(tx.transferId)!;
+          inMap.status = tx.status;
+          inMap.execute = tx.execute;
+          inMap.reconcile = tx.reconcile;
+          allTxById.set(tx.transferId, inMap);
+        });
+      }),
+    );
+
+    return [...allTxById.values()].filter((xTransfer) => xTransfer.status !== XTransferStatus.XCalled);
   }
 }

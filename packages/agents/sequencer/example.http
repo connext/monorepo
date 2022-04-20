@@ -1,0 +1,13 @@
+@sequencerUrl = http://localhost:8081
+@adminToken = foo
+
+### PING
+GET {{sequencerUrl}}/ping
+
+### CLEAR CACHE
+POST {{sequencerUrl}}/clear-cache
+Content-Type: application/json
+
+{
+  "adminToken": "{{adminToken}}"
+}

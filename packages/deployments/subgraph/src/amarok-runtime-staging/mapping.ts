@@ -9,7 +9,68 @@ import {
   Reconciled,
   AssetAdded,
 } from "../../generated/Connext/Connext";
+import {
+  RouterRemoved,
+  RouterAdded,
+  RouterOwnerAccepted,
+  RouterOwnerProposed,
+  RouterRecipientSet,
+} from "../../generated/RouterPermissionsManagerLogic/RouterPermissionsManagerLogic";
 import { Asset, AssetBalance, Router, Transfer } from "../../generated/schema";
+
+export function handleRouterAdded(event: RouterAdded): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+
+  if (router == null) {
+    router = new Router(event.params.router.toHex());
+    router.isActive = true;
+    router.save();
+  }
+}
+
+export function handleRouterRemoved(event: RouterRemoved): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+  if (!router) {
+    throw new Error(`No router found when trying to remove`);
+  }
+  router.isActive = false;
+  router.save();
+}
+
+export function handleRouterRecipientSet(event: RouterRecipientSet): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+  if (!router) {
+    throw new Error(`No router found when trying to update recipient`);
+  }
+  router.recipient = event.params.newRecipient;
+  router.save();
+}
+
+export function handleRouterOwnerProposed(event: RouterOwnerProposed): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+  if (!router) {
+    throw new Error(`No router found when trying to propose owner`);
+  }
+  router.proposedOwner = event.params.newProposed;
+  router.proposedTimestamp = event.block.timestamp;
+  router.save();
+}
+
+export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
+  let routerId = event.params.router.toHex();
+  let router = Router.load(routerId);
+  if (!router) {
+    throw new Error(`No router found when trying to accept owner`);
+  }
+  router.owner = event.params.newOwner;
+  router.proposedOwner = null;
+  router.proposedTimestamp = null;
+  router.save();
+}
 
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.supportedAsset.toHex();
@@ -20,6 +81,7 @@ export function handleAssetAdded(event: AssetAdded): void {
     asset.adoptedAsset = event.params.adoptedAsset;
     asset.canonicalId = event.params.canonicalId;
     asset.canonicalDomain = event.params.domain;
+    asset.blockNumber = event.block.number;
     asset.save();
   }
 }
@@ -152,6 +214,13 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
+  // TODO: MUST FIX WHEN IRL MULTIPATH IMPLEMENTED
+  // let router = Router.load(event.params.executed.routers[0].toHex());
+  // if (router == null) {
+  //   router = new Router(event.params.executed.routers[0].toHex());
+  //   router.save();
+  // }
+
   let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new Transfer(event.params.transferId.toHexString());
@@ -164,6 +233,8 @@ export function handleReconciled(event: Reconciled): void {
   // Transfer Data
   transfer.transferId = event.params.transferId;
   transfer.to = event.params.to;
+  // TODO: MUST FIX SCHEMA WHEN IRL MULTIPATH IMPLEMENTED
+  // transfer.router = router.id;
 
   // Fulfill
   transfer.reconciledCaller = event.params.caller;
@@ -241,6 +312,7 @@ function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBal
       asset.adoptedAsset = new Bytes(20);
       asset.canonicalId = new Bytes(32);
       asset.canonicalDomain = new BigInt(0);
+      asset.blockNumber = new BigInt(0);
       asset.save();
     }
 

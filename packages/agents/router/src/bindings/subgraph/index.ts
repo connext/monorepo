@@ -10,12 +10,10 @@ import interval from "interval-promise";
 import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../router";
 
-export const SUBGRAPH_POLL_INTERVAL = 15_000;
-
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (_pollInterval = SUBGRAPH_POLL_INTERVAL) => {
+export const bindSubgraph = async (_pollInterval: number) => {
   const { config } = getContext();
   interval(async (_, stop) => {
     if (config.mode.cleanup) {

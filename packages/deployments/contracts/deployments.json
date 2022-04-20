@@ -5,7 +5,7 @@
       "chainId": "4",
       "contracts": {
         "AmplificationUtils": {
-          "address": "0x8629Cc604f177CB201FA421e1875298557D21875",
+          "address": "0x483dCC7E61444014a7DB572cd29f6F7BAc0D49CE",
           "abi": [
             {
               "anonymous": false,
@@ -85,8 +85,28 @@
             }
           ]
         },
+        "AssetLogic": {
+          "address": "0xA48745048542a2936444a625099A1A74aA321f8d",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetToContract_ethWithErcTransfer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetToContract_notAmount",
+              "type": "error"
+            }
+          ]
+        },
         "BridgeRouter": {
-          "address": "0xF0281D0Cb35AaDde777B9aC3c072f620d1c22C77",
+          "address": "0x40d9785fbDb73134AE80AEdD20194a5Ed4AC7652",
           "abi": [
             {
               "anonymous": false,
@@ -536,7 +556,7 @@
           ]
         },
         "BridgeRouterUpgradeBeacon": {
-          "address": "0xC94abd365f47000FadA293bA187fe6Aae31D6973",
+          "address": "0xA6723249f33f266F7db5c0FF001046e09b0eAB73",
           "abi": [
             {
               "inputs": [
@@ -574,7 +594,7 @@
           ]
         },
         "BridgeRouterUpgradeBeaconProxy": {
-          "address": "0x075FD32090BAfF68dc8044A994F2ea0693e919b9",
+          "address": "0xc0bd284649EBb575c86ab6A8027611aa6f00520A",
           "abi": [
             {
               "inputs": [
@@ -603,7 +623,7 @@
           ]
         },
         "Connext": {
-          "address": "0x798CFcC8d23e388bAaEb0B05bA03865Cf598cc3A",
+          "address": "0x818D440D0e7884493842b6A88B7DDC8C30FCEd23",
           "abi": [
             {
               "anonymous": false,
@@ -727,6 +747,206 @@
             {
               "stateMutability": "payable",
               "type": "receive"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addAssetId_alreadyAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayerFees_notValue",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayer_alreadyApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_notEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__execute_notSlowParams",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notApprovedRelayer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notRtrSig",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__onlyBridgeRouter_notBridge",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeAssetId_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_insufficientFunds",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_recipientEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeRelayer_notApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__xcall_notSupportedAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+              "type": "error"
             },
             {
               "anonymous": false,
@@ -897,7 +1117,7 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
@@ -971,6 +1191,25 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "maxRoutersPerTransfer",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "MaxRoutersPerTransferUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -1010,14 +1249,14 @@
                 },
                 {
                   "indexed": true,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  "internalType": "uint32",
+                  "name": "origin",
+                  "type": "uint32"
                 },
                 {
-                  "indexed": true,
+                  "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "to",
                   "type": "address"
                 },
                 {
@@ -1035,9 +1274,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint256",
@@ -1066,7 +1305,7 @@
                 {
                   "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 },
                 {
@@ -1076,7 +1315,26 @@
                   "type": "address"
                 }
               ],
-              "name": "RouterAdded",
+              "name": "RelayerAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RelayerRemoved",
               "type": "event"
             },
             {
@@ -1103,25 +1361,6 @@
                 }
               ],
               "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "caller",
-                  "type": "address"
-                }
-              ],
-              "name": "RouterRemoved",
               "type": "event"
             },
             {
@@ -1248,6 +1487,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "acceptProposedRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -1290,13 +1542,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 }
               ],
-              "name": "addRelayerFees",
+              "name": "addRelayer",
               "outputs": [],
-              "stateMutability": "payable",
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -1307,9 +1559,9 @@
                   "type": "address"
                 }
               ],
-              "name": "addRouter",
+              "name": "addRelayerFees",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -1409,6 +1661,25 @@
                 {
                   "internalType": "address",
                   "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "approvedRelayers",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_approved",
                   "type": "address"
                 }
               ],
@@ -1531,9 +1802,9 @@
                       "type": "address"
                     },
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint32",
@@ -1546,14 +1817,19 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "transferId",
-                      "type": "bytes32"
+                      "internalType": "uint256",
+                      "name": "nonce",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes",
                       "name": "relayerSignature",
                       "type": "bytes"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "originSender",
+                      "type": "address"
                     }
                   ],
                   "internalType": "struct IConnext.ExecuteArgs",
@@ -1641,6 +1917,19 @@
             },
             {
               "inputs": [],
+              "name": "maxRoutersPerTransfer",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "nonce",
               "outputs": [
                 {
@@ -1686,6 +1975,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "proposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
@@ -1700,6 +2007,44 @@
                   "internalType": "address",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -1724,6 +2069,11 @@
                   "internalType": "bytes32",
                   "name": "_transferId",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_origin",
+                  "type": "uint32"
                 },
                 {
                   "internalType": "address",
@@ -1809,6 +2159,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRelayer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -1882,11 +2245,6 @@
               "name": "routedTransfers",
               "outputs": [
                 {
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -1944,6 +2302,25 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
@@ -1951,6 +2328,25 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerRecipients",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -1973,6 +2369,37 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newMaxRouters",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setMaxRoutersPerTransfer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setRouterRecipient",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -2006,6 +2433,29 @@
                 }
               ],
               "name": "setupAsset",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setupRouter",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -2118,7 +2568,7 @@
           ]
         },
         "ConnextPriceOracle": {
-          "address": "0xf4377A733B761ecA1C97058a6D24707c58BC9f49",
+          "address": "0x65A6C8dab349079BA92f1CC299e740A0163Bf988",
           "abi": [
             {
               "inputs": [
@@ -2537,7 +2987,7 @@
           ]
         },
         "ConnextProxyAdmin": {
-          "address": "0x92d4b9DD5324566d75aF69172C0f31a71032dB65",
+          "address": "0x71E915CC196a8D1Fe925C6BF0BaFae04a1618410",
           "abi": [
             {
               "inputs": [
@@ -2701,9 +3151,318 @@
             }
           ]
         },
-        "Connext_Implementation": {
-          "address": "0x6Dee9cc860110Cf9Df2355642d2D28c1dCFDB13B",
+        "ConnextUtils": {
+          "address": "0x1B8F98dEB0c1B63904051A9eb24484B110aD34C0",
           "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getReconciledHash",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_sender",
+                  "type": "address"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes",
+                      "name": "callData",
+                      "type": "bytes"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "originDomain",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "destinationDomain",
+                      "type": "uint32"
+                    }
+                  ],
+                  "internalType": "struct IConnext.CallParams",
+                  "name": "_params",
+                  "type": "tuple"
+                }
+              ],
+              "name": "getTransferId",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes",
+                  "name": "_encoded",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_sig",
+                  "type": "bytes"
+                }
+              ],
+              "name": "recoverSignature",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            }
+          ]
+        },
+        "Connext_Implementation": {
+          "address": "0x3e142e5c451070444711Ff3e3baC57d630d2bDF4",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addAssetId_alreadyAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayerFees_notValue",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayer_alreadyApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_notEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__execute_notSlowParams",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notApprovedRelayer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notRtrSig",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__onlyBridgeRouter_notBridge",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeAssetId_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_insufficientFunds",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_recipientEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeRelayer_notApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__xcall_notSupportedAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+              "type": "error"
+            },
             {
               "anonymous": false,
               "inputs": [
@@ -2873,7 +3632,7 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
@@ -2947,6 +3706,25 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "maxRoutersPerTransfer",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "MaxRoutersPerTransferUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -2986,14 +3764,14 @@
                 },
                 {
                   "indexed": true,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  "internalType": "uint32",
+                  "name": "origin",
+                  "type": "uint32"
                 },
                 {
-                  "indexed": true,
+                  "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "to",
                   "type": "address"
                 },
                 {
@@ -3011,9 +3789,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint256",
@@ -3042,7 +3820,7 @@
                 {
                   "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 },
                 {
@@ -3052,7 +3830,26 @@
                   "type": "address"
                 }
               ],
-              "name": "RouterAdded",
+              "name": "RelayerAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RelayerRemoved",
               "type": "event"
             },
             {
@@ -3079,25 +3876,6 @@
                 }
               ],
               "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "caller",
-                  "type": "address"
-                }
-              ],
-              "name": "RouterRemoved",
               "type": "event"
             },
             {
@@ -3224,6 +4002,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "acceptProposedRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -3266,13 +4057,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 }
               ],
-              "name": "addRelayerFees",
+              "name": "addRelayer",
               "outputs": [],
-              "stateMutability": "payable",
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -3283,9 +4074,9 @@
                   "type": "address"
                 }
               ],
-              "name": "addRouter",
+              "name": "addRelayerFees",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -3385,6 +4176,25 @@
                 {
                   "internalType": "address",
                   "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "approvedRelayers",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_approved",
                   "type": "address"
                 }
               ],
@@ -3507,9 +4317,9 @@
                       "type": "address"
                     },
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint32",
@@ -3522,14 +4332,19 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "transferId",
-                      "type": "bytes32"
+                      "internalType": "uint256",
+                      "name": "nonce",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes",
                       "name": "relayerSignature",
                       "type": "bytes"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "originSender",
+                      "type": "address"
                     }
                   ],
                   "internalType": "struct IConnext.ExecuteArgs",
@@ -3617,6 +4432,19 @@
             },
             {
               "inputs": [],
+              "name": "maxRoutersPerTransfer",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "nonce",
               "outputs": [
                 {
@@ -3662,6 +4490,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "proposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
@@ -3676,6 +4522,44 @@
                   "internalType": "address",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -3700,6 +4584,11 @@
                   "internalType": "bytes32",
                   "name": "_transferId",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_origin",
+                  "type": "uint32"
                 },
                 {
                   "internalType": "address",
@@ -3785,6 +4674,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRelayer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -3858,11 +4760,6 @@
               "name": "routedTransfers",
               "outputs": [
                 {
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -3920,6 +4817,25 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
@@ -3927,6 +4843,25 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerRecipients",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -3949,6 +4884,37 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newMaxRouters",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setMaxRoutersPerTransfer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setRouterRecipient",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -3982,6 +4948,29 @@
                 }
               ],
               "name": "setupAsset",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setupRouter",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -4077,7 +5066,7 @@
           ]
         },
         "Connext_Proxy": {
-          "address": "0x798CFcC8d23e388bAaEb0B05bA03865Cf598cc3A",
+          "address": "0x818D440D0e7884493842b6A88B7DDC8C30FCEd23",
           "abi": [
             {
               "inputs": [
@@ -4226,7 +5215,7 @@
           ]
         },
         "LPToken": {
-          "address": "0xc73a2959f01796b5644C62619e80988876C2d981",
+          "address": "0x7cbf6Da30CFef9F41ef9c12B0dB85d7960d921c4",
           "abi": [
             {
               "anonymous": false,
@@ -4626,7 +5615,7 @@
           ]
         },
         "Multicall": {
-          "address": "0x6C745615cbDd30881EFA9f76Add788ebD92732bD",
+          "address": "0xa3B68BFf92846A978986Ea182Ce18f13E7a5B59d",
           "abi": [
             {
               "inputs": [
@@ -4666,8 +5655,181 @@
             }
           ]
         },
+        "RouterPermissionsManagerLogic": {
+          "address": "0xB563c09F65E52eA248FC521a9e8e97f8034fdEeF",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__proposeRouterOwner_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__removeRouter_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "prevOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterOwnerAccepted",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "prevProposed",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newProposed",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterOwnerProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "prevRecipient",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newRecipient",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterRecipientSet",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterRemoved",
+              "type": "event"
+            }
+          ]
+        },
         "StableSwap": {
-          "address": "0x595d969609257f3203950B4d474D560f8bAc64BB",
+          "address": "0x9c478aa4349048d99aB041F1745bcE552408B32D",
           "abi": [
             {
               "anonymous": false,
@@ -5588,7 +6750,7 @@
           ]
         },
         "SwapUtils": {
-          "address": "0x1c93B4BB417e14D1acA1fFbDD412A97Cfb556261",
+          "address": "0x8b2b98650E1b63aa3BF26BFD7e7786af67a8Abb5",
           "abi": [
             {
               "anonymous": false,
@@ -6151,7 +7313,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x27462F717D2db74bC04D61E99Bb80a154F08a2d7",
+          "address": "0x6bB961ba87BC8ae6e2F47C312FD4422Fff83138c",
           "abi": [
             {
               "anonymous": false,
@@ -6575,7 +7737,7 @@
           ]
         },
         "TokenRegistryUpgradeBeacon": {
-          "address": "0x45C26B18af49352A7b0d3C5BC54c9dB4fd225d94",
+          "address": "0x6953c2D31e07f1bDa5426Fd32c65cBc4a15eb50a",
           "abi": [
             {
               "inputs": [
@@ -6613,7 +7775,7 @@
           ]
         },
         "TokenRegistryUpgradeBeaconProxy": {
-          "address": "0x34F19E1a897D2eBbF8c176aF58f0B6321748D7A2",
+          "address": "0xa985242F70024809C20E3116C9636fb80bD7bA09",
           "abi": [
             {
               "inputs": [
@@ -6642,7 +7804,7 @@
           ]
         },
         "UpgradeBeaconController": {
-          "address": "0xAFaC5a37394951cC3B3572EC95e81Dd025c9413c",
+          "address": "0xbB694eFed2A639FB5e7B61D627073Aa49398D5aA",
           "abi": [
             {
               "anonymous": false,
@@ -6736,7 +7898,7 @@
           ]
         },
         "XAppConnectionManager": {
-          "address": "0x06FD9a0bCaec62015b6e8cDD2d08cc09A32312d2",
+          "address": "0x8881855004F23d80266D1b7EB8AC9aBcb0a3dcBa",
           "abi": [
             {
               "inputs": [],
@@ -7066,7 +8228,7 @@
       "chainId": "42",
       "contracts": {
         "AmplificationUtils": {
-          "address": "0xc6540341D1773524235c1CeF83fdC4C9eA6E05aF",
+          "address": "0xe57B71E14449dBe53Eaa3289132eF0d9b064D7e9",
           "abi": [
             {
               "anonymous": false,
@@ -7146,8 +8308,28 @@
             }
           ]
         },
+        "AssetLogic": {
+          "address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetToContract_ethWithErcTransfer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetToContract_notAmount",
+              "type": "error"
+            }
+          ]
+        },
         "BridgeRouter": {
-          "address": "0x300D4089D1d0Bb3053a1a173ccddaDfd15F9C915",
+          "address": "0x4e3668c3d9BF45E50373B5fC089737cf0C0f6A22",
           "abi": [
             {
               "anonymous": false,
@@ -7597,7 +8779,7 @@
           ]
         },
         "BridgeRouterUpgradeBeacon": {
-          "address": "0xB4dd8604E6E720A5a2a47a82920707A825cEF995",
+          "address": "0x7aDfde76E8AE3A16BddF20cd8bd8b049b958de29",
           "abi": [
             {
               "inputs": [
@@ -7635,7 +8817,7 @@
           ]
         },
         "BridgeRouterUpgradeBeaconProxy": {
-          "address": "0x8028ceA3588cC93Be2fE124D0e2Dd2BC165EbFA6",
+          "address": "0x9c66bf022ca3FF1B62D725555b3CeA80E6A18248",
           "abi": [
             {
               "inputs": [
@@ -7664,7 +8846,7 @@
           ]
         },
         "Connext": {
-          "address": "0xA09C4Dd04fd656d2ED0ee1c95A1cB14B921296A8",
+          "address": "0xb10aCCbea65532bB2C45Adb34Da5b89A2A0f67b9",
           "abi": [
             {
               "anonymous": false,
@@ -7788,6 +8970,206 @@
             {
               "stateMutability": "payable",
               "type": "receive"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addAssetId_alreadyAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayerFees_notValue",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayer_alreadyApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_notEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__execute_notSlowParams",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notApprovedRelayer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notRtrSig",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__onlyBridgeRouter_notBridge",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeAssetId_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_insufficientFunds",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_recipientEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeRelayer_notApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__xcall_notSupportedAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+              "type": "error"
             },
             {
               "anonymous": false,
@@ -7958,7 +9340,7 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
@@ -8032,6 +9414,25 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "maxRoutersPerTransfer",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "MaxRoutersPerTransferUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -8071,14 +9472,14 @@
                 },
                 {
                   "indexed": true,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  "internalType": "uint32",
+                  "name": "origin",
+                  "type": "uint32"
                 },
                 {
-                  "indexed": true,
+                  "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "to",
                   "type": "address"
                 },
                 {
@@ -8096,9 +9497,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint256",
@@ -8127,7 +9528,7 @@
                 {
                   "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 },
                 {
@@ -8137,7 +9538,26 @@
                   "type": "address"
                 }
               ],
-              "name": "RouterAdded",
+              "name": "RelayerAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RelayerRemoved",
               "type": "event"
             },
             {
@@ -8164,25 +9584,6 @@
                 }
               ],
               "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "caller",
-                  "type": "address"
-                }
-              ],
-              "name": "RouterRemoved",
               "type": "event"
             },
             {
@@ -8309,6 +9710,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "acceptProposedRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -8351,13 +9765,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 }
               ],
-              "name": "addRelayerFees",
+              "name": "addRelayer",
               "outputs": [],
-              "stateMutability": "payable",
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -8368,9 +9782,9 @@
                   "type": "address"
                 }
               ],
-              "name": "addRouter",
+              "name": "addRelayerFees",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -8470,6 +9884,25 @@
                 {
                   "internalType": "address",
                   "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "approvedRelayers",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_approved",
                   "type": "address"
                 }
               ],
@@ -8592,9 +10025,9 @@
                       "type": "address"
                     },
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint32",
@@ -8607,14 +10040,19 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "transferId",
-                      "type": "bytes32"
+                      "internalType": "uint256",
+                      "name": "nonce",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes",
                       "name": "relayerSignature",
                       "type": "bytes"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "originSender",
+                      "type": "address"
                     }
                   ],
                   "internalType": "struct IConnext.ExecuteArgs",
@@ -8702,6 +10140,19 @@
             },
             {
               "inputs": [],
+              "name": "maxRoutersPerTransfer",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "nonce",
               "outputs": [
                 {
@@ -8747,6 +10198,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "proposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
@@ -8761,6 +10230,44 @@
                   "internalType": "address",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -8785,6 +10292,11 @@
                   "internalType": "bytes32",
                   "name": "_transferId",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_origin",
+                  "type": "uint32"
                 },
                 {
                   "internalType": "address",
@@ -8870,6 +10382,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRelayer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -8943,11 +10468,6 @@
               "name": "routedTransfers",
               "outputs": [
                 {
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -9005,6 +10525,25 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
@@ -9012,6 +10551,25 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerRecipients",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -9034,6 +10592,37 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newMaxRouters",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setMaxRoutersPerTransfer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setRouterRecipient",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -9067,6 +10656,29 @@
                 }
               ],
               "name": "setupAsset",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setupRouter",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -9179,7 +10791,7 @@
           ]
         },
         "ConnextPriceOracle": {
-          "address": "0x0cbf59504DB28Fa1195e20C0a20b62ed95547AD0",
+          "address": "0x618AFB11EbE2BD25bdB6D2c9e56590ed781104a6",
           "abi": [
             {
               "inputs": [
@@ -9598,7 +11210,7 @@
           ]
         },
         "ConnextProxyAdmin": {
-          "address": "0xCF902FFDB63F7948d08b776478933aDdA5aC39cA",
+          "address": "0x6f1aa7082a06A4805852c08c741778E7E2f1a598",
           "abi": [
             {
               "inputs": [
@@ -9762,9 +11374,318 @@
             }
           ]
         },
-        "Connext_Implementation": {
-          "address": "0xfB5c228267B4b66894E6eD68893535F943532516",
+        "ConnextUtils": {
+          "address": "0xB6F5cC695be91fdD616EAD63bE5DA197c9c2B547",
           "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "getReconciledHash",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_nonce",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_sender",
+                  "type": "address"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "to",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "bytes",
+                      "name": "callData",
+                      "type": "bytes"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "originDomain",
+                      "type": "uint32"
+                    },
+                    {
+                      "internalType": "uint32",
+                      "name": "destinationDomain",
+                      "type": "uint32"
+                    }
+                  ],
+                  "internalType": "struct IConnext.CallParams",
+                  "name": "_params",
+                  "type": "tuple"
+                }
+              ],
+              "name": "getTransferId",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes",
+                  "name": "_encoded",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_sig",
+                  "type": "bytes"
+                }
+              ],
+              "name": "recoverSignature",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            }
+          ]
+        },
+        "Connext_Implementation": {
+          "address": "0xeE00147A5b6E68A19Bd20F53161935623cF35CB6",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addAssetId_alreadyAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayerFees_notValue",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayer_alreadyApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_notEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__execute_notSlowParams",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notApprovedRelayer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notRtrSig",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__onlyBridgeRouter_notBridge",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeAssetId_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_insufficientFunds",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_recipientEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeRelayer_notApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__xcall_notSupportedAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+              "type": "error"
+            },
             {
               "anonymous": false,
               "inputs": [
@@ -9934,7 +11855,7 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
+                  "indexed": true,
                   "internalType": "address",
                   "name": "router",
                   "type": "address"
@@ -10008,6 +11929,25 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "maxRoutersPerTransfer",
+                  "type": "uint256"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "MaxRoutersPerTransferUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -10047,14 +11987,14 @@
                 },
                 {
                   "indexed": true,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  "internalType": "uint32",
+                  "name": "origin",
+                  "type": "uint32"
                 },
                 {
-                  "indexed": true,
+                  "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "to",
                   "type": "address"
                 },
                 {
@@ -10072,9 +12012,9 @@
                 {
                   "components": [
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint256",
@@ -10103,7 +12043,7 @@
                 {
                   "indexed": false,
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 },
                 {
@@ -10113,7 +12053,26 @@
                   "type": "address"
                 }
               ],
-              "name": "RouterAdded",
+              "name": "RelayerAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RelayerRemoved",
               "type": "event"
             },
             {
@@ -10140,25 +12099,6 @@
                 }
               ],
               "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "caller",
-                  "type": "address"
-                }
-              ],
-              "name": "RouterRemoved",
               "type": "event"
             },
             {
@@ -10285,6 +12225,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                }
+              ],
+              "name": "acceptProposedRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -10327,13 +12280,13 @@
               "inputs": [
                 {
                   "internalType": "address",
-                  "name": "router",
+                  "name": "relayer",
                   "type": "address"
                 }
               ],
-              "name": "addRelayerFees",
+              "name": "addRelayer",
               "outputs": [],
-              "stateMutability": "payable",
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -10344,9 +12297,9 @@
                   "type": "address"
                 }
               ],
-              "name": "addRouter",
+              "name": "addRelayerFees",
               "outputs": [],
-              "stateMutability": "nonpayable",
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -10446,6 +12399,25 @@
                 {
                   "internalType": "address",
                   "name": "",
+                  "type": "address"
+                }
+              ],
+              "name": "approvedRelayers",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_approved",
                   "type": "address"
                 }
               ],
@@ -10568,9 +12540,9 @@
                       "type": "address"
                     },
                     {
-                      "internalType": "address",
-                      "name": "router",
-                      "type": "address"
+                      "internalType": "address[]",
+                      "name": "routers",
+                      "type": "address[]"
                     },
                     {
                       "internalType": "uint32",
@@ -10583,14 +12555,19 @@
                       "type": "uint256"
                     },
                     {
-                      "internalType": "bytes32",
-                      "name": "transferId",
-                      "type": "bytes32"
+                      "internalType": "uint256",
+                      "name": "nonce",
+                      "type": "uint256"
                     },
                     {
                       "internalType": "bytes",
                       "name": "relayerSignature",
                       "type": "bytes"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "originSender",
+                      "type": "address"
                     }
                   ],
                   "internalType": "struct IConnext.ExecuteArgs",
@@ -10678,6 +12655,19 @@
             },
             {
               "inputs": [],
+              "name": "maxRoutersPerTransfer",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "nonce",
               "outputs": [
                 {
@@ -10723,6 +12713,24 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "proposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeRouterOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
@@ -10737,6 +12745,44 @@
                   "internalType": "address",
                   "name": "",
                   "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "proposedRouterTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -10761,6 +12807,11 @@
                   "internalType": "bytes32",
                   "name": "_transferId",
                   "type": "bytes32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "_origin",
+                  "type": "uint32"
                 },
                 {
                   "internalType": "address",
@@ -10846,6 +12897,19 @@
             {
               "inputs": [
                 {
+                  "internalType": "address",
+                  "name": "relayer",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRelayer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -10919,11 +12983,6 @@
               "name": "routedTransfers",
               "outputs": [
                 {
-                  "internalType": "address",
-                  "name": "router",
-                  "type": "address"
-                },
-                {
                   "internalType": "uint256",
                   "name": "amount",
                   "type": "uint256"
@@ -10981,6 +13040,25 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerOwners",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
@@ -10988,6 +13066,25 @@
                   "internalType": "uint256",
                   "name": "",
                   "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "routerRecipients",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
                 }
               ],
               "stateMutability": "view",
@@ -11010,6 +13107,37 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newMaxRouters",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setMaxRoutersPerTransfer",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setRouterRecipient",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -11043,6 +13171,29 @@
                 }
               ],
               "name": "setupAsset",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                }
+              ],
+              "name": "setupRouter",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -11138,7 +13289,7 @@
           ]
         },
         "Connext_Proxy": {
-          "address": "0xA09C4Dd04fd656d2ED0ee1c95A1cB14B921296A8",
+          "address": "0xb10aCCbea65532bB2C45Adb34Da5b89A2A0f67b9",
           "abi": [
             {
               "inputs": [
@@ -11287,7 +13438,7 @@
           ]
         },
         "LPToken": {
-          "address": "0x6090De2EC76eb1Dc3B5d632734415c93c44Fd113",
+          "address": "0xBe90b9238edfF9e15aF0eD7746A7998Bdb210094",
           "abi": [
             {
               "anonymous": false,
@@ -11687,7 +13838,7 @@
           ]
         },
         "Multicall": {
-          "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
+          "address": "0x371FA87D2B523C6beEf0cb6D966351c378D76df9",
           "abi": [
             {
               "inputs": [
@@ -11727,8 +13878,181 @@
             }
           ]
         },
+        "RouterPermissionsManagerLogic": {
+          "address": "0x1d747A9A0a055dE3435a9B642E88b51c158D9994",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__proposeRouterOwner_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__removeRouter_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "prevOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterOwnerAccepted",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "prevProposed",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newProposed",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterOwnerProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "prevRecipient",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newRecipient",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterRecipientSet",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "router",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "caller",
+                  "type": "address"
+                }
+              ],
+              "name": "RouterRemoved",
+              "type": "event"
+            }
+          ]
+        },
         "StableSwap": {
-          "address": "0x3F11B6bfdeA5bcd7Ef3D19d1751fEDf57fCA2AB2",
+          "address": "0x131F747Ba06B8251153F599CD9507946e2122657",
           "abi": [
             {
               "anonymous": false,
@@ -12649,7 +14973,7 @@
           ]
         },
         "SwapUtils": {
-          "address": "0xbf2Fc58d1ad5284D02f545Acc04Ac86858f8867b",
+          "address": "0x117649c4f5f80496549c87146184756ADB8397b9",
           "abi": [
             {
               "anonymous": false,
@@ -13211,145 +15535,8 @@
             }
           ]
         },
-        "TestStableSwap": {
-          "address": "0xb2Ff23eBEd3da3EC57da2c3b640bF545E803DDB1",
-          "abi": [
-            {
-              "inputs": [],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "assetA",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "assetB",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "seedA",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "seedB",
-                  "type": "uint256"
-                }
-              ],
-              "name": "PoolCreated",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "assetIn",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "assetOut",
-                  "type": "address"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "amountIn",
-                  "type": "uint256"
-                },
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "amountOut",
-                  "type": "uint256"
-                }
-              ],
-              "name": "Swapped",
-              "type": "event"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "assetA",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "assetB",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "seedA",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "seedB",
-                  "type": "uint256"
-                }
-              ],
-              "name": "setupPool",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "amountIn",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "assetIn",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "assetOut",
-                  "type": "address"
-                }
-              ],
-              "name": "swapExact",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "receive"
-            }
-          ]
-        },
         "TokenRegistry": {
-          "address": "0x4dAA7681BAACD12DE01f5E6D1eC0F21e46D2d00B",
+          "address": "0xff65081224ad2ee2f11098d9b86b73fa9da23004",
           "abi": [
             {
               "anonymous": false,
@@ -13773,7 +15960,7 @@
           ]
         },
         "TokenRegistryUpgradeBeacon": {
-          "address": "0xBae086E476a6E502F657bf6E200aD680D4172eA6",
+          "address": "0x62dF57B84875d520f765838b15626A595801b0E3",
           "abi": [
             {
               "inputs": [
@@ -13811,7 +15998,7 @@
           ]
         },
         "TokenRegistryUpgradeBeaconProxy": {
-          "address": "0x957f42437c62Ee54964DE9fE251A0EF1836677eE",
+          "address": "0xEaa98e23c880099D8835F57A0A09164c601630a5",
           "abi": [
             {
               "inputs": [
@@ -13840,7 +16027,7 @@
           ]
         },
         "UpgradeBeaconController": {
-          "address": "0xCA362057840beAF1275fdaAd62ADD21E09C438E4",
+          "address": "0x436f11aC30F52A8462a1B7561d3D9cc82Cda3852",
           "abi": [
             {
               "anonymous": false,
@@ -13934,7 +16121,7 @@
           ]
         },
         "XAppConnectionManager": {
-          "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+          "address": "0x3aB2B85F8189e0581Fc793fA184b25cB5129662D",
           "abi": [
             {
               "inputs": [],

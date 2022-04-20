@@ -1,5 +1,4 @@
 import { getAuctionStatus, sendBid } from "./auctions";
-import { sanityCheck } from "./execute";
 import {
   getDestinationLocalAsset,
   getTransactionId,
@@ -15,9 +14,6 @@ export const getHelpers = () => {
     auctions: {
       getAuctionStatus,
       sendBid,
-    },
-    execute: {
-      sanityCheck,
     },
     shared: {
       getDestinationLocalAsset,

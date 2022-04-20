@@ -11,16 +11,7 @@
   },
   "chains": {
     "2000": {
-      "providers": ["https://rinkeby.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
-      "subgraph": {
-        "runtime": [
-          {
-            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby",
-            "health": "https://api.thegraph.com/index-node/graphql"
-          }
-        ],
-        "analytics": []
-      },
+      "providers": ["https://rpc.ankr.com/eth_rinkeby"],
       "assets": [
         {
           "name": "TEST",
@@ -30,15 +21,6 @@
     },
     "3000": {
       "providers": ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
-      "subgraph": {
-        "runtime": [
-          {
-            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan",
-            "health": "https://api.thegraph.com/index-node/graphql"
-          }
-        ],
-        "analytics": []
-      },
       "assets": [
         {
           "name": "TEST",

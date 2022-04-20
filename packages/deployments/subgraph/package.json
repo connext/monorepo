@@ -1,5 +1,5 @@
 {
-  "version": "0.1.25",
+  "version": "0.2.0-alpha.0",
   "name": "@connext/nxtp-subgraph",
   "license": "UNLICENSED",
   "scripts": {
@@ -40,5 +40,6 @@
     "@types/yaml": "^1.9.7",
     "eslint": "^8.11.0",
     "sinon": "^13.0.1"
-  }
+  },
+  "stableVersion": "0.1.25"
 }

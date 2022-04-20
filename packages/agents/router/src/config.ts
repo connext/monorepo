@@ -10,6 +10,7 @@ import { getHelpers } from "./lib/helpers";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
 
@@ -71,6 +72,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -146,6 +148,11 @@ export const getEnvConfig = (
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
+    subgraphPollInterval:
+      process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
+      configJson.subgraphPollInterval ||
+      configFile.subgraphPollInterval ||
+      DEFAULT_SUBGRAPH_POLL_INTERVAL,
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {

@@ -1,5 +1,5 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { mkAddress, expect, getRandomBytes32, BidData } from "@connext/nxtp-utils";
+import { mkAddress, expect, BidData } from "@connext/nxtp-utils";
 
 import { mock } from "../../mock";
 import { sendToRelayer } from "../../../src/lib/operations/relayer";
@@ -48,15 +48,18 @@ describe("#relayer", () => {
     let gelatoSendStub: SinonStub;
     let isChainSupportedByGelatoStub: SinonStub;
     let encodeExecuteFromBidStub: SinonStub;
+    let getGelatoRelayerAddressStub: SinonStub;
     beforeEach(() => {
       gelatoSendStub = stub();
       isChainSupportedByGelatoStub = stub();
       encodeExecuteFromBidStub = stub();
+      getGelatoRelayerAddressStub = stub();
 
       getHelpersStub.returns({
         relayer: {
           gelatoSend: gelatoSendStub,
           isChainSupportedByGelato: isChainSupportedByGelatoStub,
+          getGelatoRelayerAddress: getGelatoRelayerAddressStub,
         },
         auctions: {
           encodeExecuteFromBid: encodeExecuteFromBidStub,
@@ -87,7 +90,7 @@ describe("#relayer", () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosSuccessResponse);
       await sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext);
-      expect(gelatoSendStub.callCount).to.be.eq(1);
+      expect(gelatoSendStub).to.be.calledOnce;
     });
   });
 });

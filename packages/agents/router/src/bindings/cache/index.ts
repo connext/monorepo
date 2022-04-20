@@ -22,7 +22,7 @@ export const bindCache = async (_pollInterval = CACHE_POLL_INTERVAL) => {
 
 export const pollCache = async () => {
   const {
-    adapters: { cache },
+    adapters: { cache, subgraph },
     logger,
     config,
   } = getContext();
@@ -36,7 +36,23 @@ export const pollCache = async () => {
       continue;
     }
     // Retrieve the list of all pending transfer IDs for this domain.
-    const pending = await cache.transfers.getPending(domain);
+    let pending = await cache.transfers.getPending(domain);
+    logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
+
+    const pendingTransfers: XTransfer[] = [];
+    for (const transferId of pending) {
+      // Retrieve the transfer data.
+      const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
+      if (transfer) pendingTransfers.push(transfer);
+    }
+
+    // Check the transfer status and update if it gets executed or reconciled on the destination domain
+    const confirmedTransfers = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+    if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
+
+    const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
+    pending = pending.filter((txid) => !confirmedTxIds.includes(txid));
+
     for (const transferId of pending) {
       // Retrieve the transfer data.
       const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
@@ -74,11 +90,15 @@ export const pollCache = async () => {
       try {
         // Call execute to process the transfer.
         await execute(transfer);
-      } catch (err: unknown) {
-        logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(err as Error), {
-          transferId,
-          xcall: transfer.xcall,
-        });
+      } catch (error: any) {
+        // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
+        const isNewError = await cache.transfers.saveError(transferId, (error as Error).toString());
+        if (isNewError) {
+          logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(error as Error), {
+            transferId,
+            xcall: transfer.xcall,
+          });
+        }
       }
     }
   }
