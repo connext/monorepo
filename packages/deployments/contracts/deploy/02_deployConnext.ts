@@ -41,11 +41,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Deploy Connext logic libraries
-  console.log("Deploying asset logic, utils, permissions manager...");
-  const assetLogic = await hre.deployments.deploy("AssetLogic", {
-    from: deployer.address,
-    log: true,
-  });
+  console.log("Deploying utils, permissions manager...");
+  // console.log("Deploying asset logic, utils, permissions manager...");
+  // const assetLogic = await hre.deployments.deploy("AssetLogic", {
+  //   from: deployer.address,
+  //   log: true,
+  // });
   const connextUtils = await hre.deployments.deploy("ConnextUtils", {
     from: deployer.address,
     log: true,
@@ -61,7 +62,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     from: deployer.address,
     log: true,
     libraries: {
-      AssetLogic: assetLogic.address,
+      // AssetLogic: assetLogic.address,
       ConnextUtils: connextUtils.address,
       RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
     },

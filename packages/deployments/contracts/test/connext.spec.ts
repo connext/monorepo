@@ -13,6 +13,7 @@ import {
   DummySwap,
   ProposedOwnableUpgradeable,
   ConnextHandler,
+  ConnextUtils
 } from "../typechain-types";
 
 import {
@@ -88,6 +89,7 @@ describe("Connext", () => {
   let canonical: TestERC20;
   let local: TestERC20;
   let weth: WETH;
+  let connextUtils: ConnextUtils;
   let originBridge: ConnextHandler;
   let destinationBridge: ConnextHandler;
   let stableSwap: DummySwap;
@@ -128,8 +130,8 @@ describe("Connext", () => {
     stableSwap = await deployContract<DummySwap>("DummySwap");
 
     // Deploy Connext logic libraries
-    const assetLogic = await deployContract("AssetLogic");
-    const connextUtils = await deployContract("ConnextUtils");
+    // const assetLogic = await deployContract("AssetLogic");
+    connextUtils = await deployContract("ConnextUtils");
     const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
 
     // Deploy bridge
@@ -139,7 +141,7 @@ describe("Connext", () => {
         [originDomain, originXappConnectionManager.address, originTokenRegistry.address, weth.address],
         upgradeBeaconController.address,
         {
-          AssetLogic: assetLogic.address,
+          // AssetLogic: assetLogic.address,
           ConnextUtils: connextUtils.address,
           RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
         },
@@ -152,7 +154,7 @@ describe("Connext", () => {
         [destinationDomain, destinationXappConnectionManager.address, destinationTokenRegistry.address, weth.address],
         upgradeBeaconController.address,
         {
-          AssetLogic: assetLogic.address,
+          // AssetLogic: assetLogic.address,
           ConnextUtils: connextUtils.address,
           RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
         },
@@ -300,6 +302,9 @@ describe("Connext", () => {
       delay(100).then((_) => destinationBridge.setupRouter(router.address, router.address, router.address)),
     ]);
     await Promise.all(routers.map((r) => r.wait()));
+
+    // add relayer
+    await destinationBridge.addRelayer(router.address);
   });
 
   beforeEach(async () => {
@@ -342,13 +347,13 @@ describe("Connext", () => {
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
       await expect(originBridge.setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
-        "ConnextHandler__addRouter_routerEmpty",
+        "ConnextUtils__addRouter_routerEmpty",
       );
     });
 
     it("should fail if its already added", async () => {
       await expect(originBridge.setupRouter(router.address, router.address, router.address)).to.be.revertedWith(
-        "ConnextHandler__addRouter_alreadyAdded",
+        "ConnextUtils__addRouter_alreadyAdded",
       );
     });
 
@@ -371,7 +376,7 @@ describe("Connext", () => {
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("ConnextHandler__removeRouter_routerEmpty");
+      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("ConnextUtils__removeRouter_routerEmpty");
     });
 
     it("should fail if its already removed", async () => {
@@ -379,7 +384,7 @@ describe("Connext", () => {
       await tx.wait();
 
       await expect(originBridge.removeRouter(router.address)).to.be.revertedWith(
-        "ConnextHandler__removeRouter_notAdded",
+        "ConnextUtils__removeRouter_notAdded",
       );
     });
 
@@ -459,7 +464,7 @@ describe("Connext", () => {
           originAdopted.address,
           stableSwap.address,
         ),
-      ).to.be.revertedWith("ConnextHandler__addAssetId_alreadyAdded");
+      ).to.be.revertedWith("ConnextUtils__addAssetId_alreadyAdded");
     });
 
     it("should work", async () => {
@@ -493,7 +498,7 @@ describe("Connext", () => {
     it("should fail if it is not approved canonical", async () => {
       const toRemove = Wallet.createRandom().address;
       await expect(originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address)).to.be.revertedWith(
-        "ConnextHandler__removeAssetId_notAdded",
+        "ConnextUtils__removeAssetId_notAdded",
       );
     });
 
@@ -566,7 +571,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "AssetLogic__transferAssetToContract_notAmount",
+        "ConnextUtils__transferAssetToContract_notAmount",
       );
       expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
@@ -578,7 +583,7 @@ describe("Connext", () => {
 
       await expect(
         originBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith("AssetLogic__transferAssetToContract_notAmount");
+      ).to.be.revertedWith("ConnextUtils__transferAssetToContract_notAmount");
       expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
@@ -588,7 +593,7 @@ describe("Connext", () => {
       const assetId = local.address;
       await expect(
         destinationBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith("AssetLogic__transferAssetToContract_ethWithErcTransfer");
+      ).to.be.revertedWith("ConnextUtils__transferAssetToContract_ethWithErcTransfer");
       expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -649,7 +654,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "ConnextHandler__removeLiquidity_recipientEmpty",
+        "ConnextUtils__removeLiquidity_recipientEmpty",
       );
     });
 
@@ -658,7 +663,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "ConnextHandler__removeLiquidity_amountIsZero",
+        "ConnextUtils__removeLiquidity_amountIsZero",
       );
     });
 
@@ -667,7 +672,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "ConnextHandler__removeLiquidity_insufficientFunds",
+        "ConnextUtils__removeLiquidity_insufficientFunds",
       );
     });
 
@@ -805,10 +810,11 @@ describe("Connext", () => {
     expect(postPrepare[0]).to.be.eq(prePrepare[0].sub(amount));
     expect(postPrepare[1]).to.be.eq(prePrepare[1].add(amount));
 
-    // Get the message + id from the events
-    const originBridgeEvent = (await originBridge.queryFilter(originBridge.filters.XCalled())).find(
-      (a) => a.blockNumber === prepareReceipt.blockNumber,
+    const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
+    const originBridgeEvent = connextUtils.interface.parseLog(
+      prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
     );
+
     const nonce = (originBridgeEvent!.args as any).nonce;
     const message = (originBridgeEvent!.args as any).message;
 
@@ -885,9 +891,11 @@ describe("Connext", () => {
     expect(postXcall[1]).to.be.eq(preXcall[1].add(amount));
 
     // Get the message + id from the events
-    const originBridgeEvent = await (
-      await originBridge.queryFilter(originBridge.filters.XCalled())
-    ).find((a) => a.blockNumber === prepareReceipt.blockNumber);
+    const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
+    const originBridgeEvent = connextUtils.interface.parseLog(
+      prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
+    );
+
     const nonce = (originBridgeEvent!.args as any).nonce;
     const message = (originBridgeEvent!.args as any).message;
 
@@ -974,15 +982,17 @@ describe("Connext", () => {
       const prepare = await originBridge.connect(user).xcall({ params, transactingAssetId, amount });
       const prepareReceipt = await prepare.wait();
 
-      const originBridgeEvent = (await originBridge.queryFilter(originBridge.filters.XCalled())).find(
-        (a) => a.blockNumber === prepareReceipt.blockNumber,
-      )!;
+      const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
+      const originBridgeEvent = connextUtils.interface.parseLog(
+        prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
+      );
+
       nonce = originBridgeEvent.args.nonce;
       transferId = originBridgeEvent.args.transferId;
       message = originBridgeEvent.args.message;
-      bridgedAmount = originBridgeEvent.args.localAmount;
+      bridgedAmount = originBridgeEvent.args.args.bridged;
 
-      reconciledTopics = destinationBridge.filters.Reconciled().topics as string[];
+      reconciledTopics = connextUtils.filters.Reconciled().topics as string[];
     });
 
     const routerScenarios = [
@@ -1028,8 +1038,13 @@ describe("Connext", () => {
           .connect(admin)
           .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
 
-        await reconcile.wait();
-        const [reconciledEvent] = await destinationBridge.queryFilter(destinationBridge.filters.Reconciled(transferId));
+        const reconcileReceipt = await reconcile.wait();
+        // const [reconciledEvent] = await destinationBridge.queryFilter(connextUtils.filters.Reconciled(transferId));
+
+        const reconciliedTopic = connextUtils.filters.Reconciled(transferId).topics as string[]
+        const reconciledEvent = connextUtils.interface.parseLog(
+          reconcileReceipt.logs.find((l) => l.topics.includes(reconciliedTopic[0]))!,
+        );
 
         expect(reconciledEvent.args.transferId).eql(transferId);
         expect(reconciledEvent.args.origin).eql(originDomain);
@@ -1104,7 +1119,7 @@ describe("Connext", () => {
           routers,
           originSender: user.address,
         }),
-      ).to.revertedWith("ConnextHandler__execute_maxRoutersExceeded()");
+      ).to.revertedWith("ConnextUtils__execute_maxRoutersExceeded()");
     });
   });
 });
