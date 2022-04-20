@@ -6,7 +6,7 @@ resource "aws_secretsmanager_secret" "web3signer_secret" {
       {
         Effect    = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::679752396206:user/aws-deployer"
+          AWS = "arn:aws:iam::679752396206:user/web3signer"
         }
         Action   = "secretsmanager:GetSecretValue"
         Resource = "*"
