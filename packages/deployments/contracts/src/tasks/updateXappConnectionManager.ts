@@ -64,26 +64,51 @@ export default task("update-xapp-connection", "Enrolls the proper replicas, and 
           Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {
             return info.domain === e.args.domain;
           }) ?? [];
-        return { domainName, domain: e.args.domain, replica: e.args.replica };
+        return {
+          domainName: (domainName ?? "").toLowerCase(),
+          domain: e.args.domain,
+          replica: e.args.replica.toLowerCase(),
+        };
       });
 
-    console.log("unenrolling", currentlyEnrolled.length, "replicas:", currentlyEnrolled);
-
     // Get all replicas to enroll
-    const toEnroll = Object.entries(getDomainInfoFromChainId(network.chainId).contracts.core.replicas).map(
+    const latestDeployment = Object.entries(getDomainInfoFromChainId(network.chainId).contracts.core.replicas).map(
       ([key, info]) => {
         const domain = nomadConfig.protocol.networks[key].domain;
         return {
-          domainName: key,
+          domainName: key.toLowerCase(),
           domain,
-          replica: info.proxy,
+          replica: info.proxy.toLowerCase(),
         };
       },
     );
+
+    // Ensure no unnecessary unenroll + re-enroll txs are happening
+    const toUnenroll = currentlyEnrolled.filter((entry) =>
+      latestDeployment.includes({
+        domain: entry.domain,
+        replica: entry.replica.toLowerCase(),
+        domainName: entry.domainName.toLowerCase(),
+      }),
+    );
+
+    const toEnroll = latestDeployment.filter((entry) =>
+      currentlyEnrolled.includes({
+        domain: entry.domain,
+        replica: entry.replica.toLowerCase(),
+        domainName: entry.domainName.toLowerCase(),
+      }),
+    );
+    if (toUnenroll.length === 0 && toEnroll.length === 0) {
+      console.log("no change detected in connections");
+      return;
+    }
+
+    console.log("unenrolling", toUnenroll.length, "replicas:", toUnenroll);
     console.log("enrolling", toEnroll.length, "replicas:", toEnroll);
 
     // Unenroll all replicas
-    for (const { replica, domain, domainName } of currentlyEnrolled) {
+    for (const { replica, domain, domainName } of toUnenroll) {
       const tx = await xappConnectionManager.ownerUnenrollReplica(replica);
       console.log(`unenroll ${replica} for ${domainName} (${domain}) tx:`, tx.hash);
       const receipt = await tx.wait();
