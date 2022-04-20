@@ -28,7 +28,7 @@ export const storeBid = async (
 ): Promise<void> => {
   const {
     logger,
-    adapters: { cache },
+    adapters: { cache, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
@@ -55,9 +55,29 @@ export const storeBid = async (
 
   // TODO: Verify the following (and cache it for records):
   // - Router is approved.
-  // - Asset is approved.
-  // - Relayer is approved for this chain (?).
-  // - Router has sufficient funds (?). May want to actually check this later.
+  const { router } = bid;
+  const { destinationDomain } = bidData.params;
+  let routerApproved = await cache.routers.getApproval(router, destinationDomain);
+  if (!routerApproved) {
+    // Regardless of whether the cache returned false or undefined, we want to check via subgraph
+    // now to see if router is approved.
+    routerApproved = await subgraph.isRouterApproved(destinationDomain, router);
+    // Cache this approval status in the DB.
+    cache.routers.setApproval(router, destinationDomain, routerApproved);
+  }
+
+  // TODO: Do we need to check if asset has been approved? A router technically can't add liquidity in an unapproved
+  // asset, but they can have liquidity in an asset that later has its approval revoked.
+  // let assetIsApproved = await cache.auctions.isAssetApproved(bid.asset);
+  // if (!assetIsApproved) {
+  //   // Regardless of whether the cache returned false or undefined, we want to check via subgraph
+  //   // now to see if asset is approved.
+  //   assetIsApproved = subgraph.isAsset(bidData.params.destinationDomain, bid.asset);
+  //   // Cache this approval status in the DB.
+  //   cache.auctions.setAssetApproved(bid.asset, assetIsApproved);
+  // }
+
+  // TODO: Check that a relayer is configured/approved for this chain (?).
 
   const res = await cache.auctions.upsertAuction({
     transferId,
