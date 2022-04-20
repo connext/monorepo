@@ -7,6 +7,7 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
+import {RelayerFeeRouter} from "../../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Router} from "../Router.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
@@ -74,6 +75,12 @@ contract ConnextHandler is
   uint256[49] private __gap;
 
   // ============ Public storage ============
+
+  /**
+   * @notice The local nomad relayer fee router
+   */
+  RelayerFeeRouter public relayerFeeRouter;
+
   /**
    * @notice The address of the wrapper for the native asset on this domain
    * @dev Needed because the nomad only handles ERC20 assets
@@ -153,6 +160,19 @@ contract ConnextHandler is
   mapping(address => bool) public approvedRelayers;
 
   /**
+   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
+   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
+   */
+  mapping(bytes32 => uint256) public relayerFees;
+
+  /**
+   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
+   * for transfer
+   * @dev When relayer claims, must check that the msg.sender has forwarded transfer
+   */
+  mapping(bytes32 => address) public transferRelayer;
+
+  /**
    * @notice The max amount of routers a payment can be routed through
    */
   uint256 public maxRoutersPerTransfer;
@@ -168,10 +188,12 @@ contract ConnextHandler is
   error ConnextHandler__xcall_wrongDomain();
   error ConnextHandler__xcall_notSupportedAsset();
   error ConnextHandler__xcall_emptyTo();
+  error ConnextHandler__xcall_relayerFeeIsZero();
   error ConnextHandler__handle_invalidAction();
   error ConnextHandler__execute_unapprovedRelayer();
   error ConnextHandler__execute_alreadyExecuted();
   error ConnextHandler__execute_notSupportedRouter();
+  error ConnextHandler__execute_notApprovedRelayer();
   error ConnextHandler__execute_invalidProperties();
   error ConnextHandler__execute_maxRoutersExceeded();
   error ConnextHandler__reconcile_alreadyReconciled();
@@ -181,6 +203,19 @@ contract ConnextHandler is
   error ConnextHandler__addLiquidityForRouter_badAsset();
   error ConnextHandler__addAssetId_alreadyAdded();
   error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
+  error ConnextHandler__bumpTransfer_invalidTransfer();
+  error ConnextHandler__bumpTransfer_valueIsZero();
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Restricts the caller to the local relayer fee router
+   */
+  modifier onlyRelayerFeeRouter() {
+    if (msg.sender != address(relayerFeeRouter)) revert ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
+    _;
+  }
 
   // ========== Initializer ============
 
@@ -188,7 +223,8 @@ contract ConnextHandler is
     uint256 _domain,
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) public override initializer {
     __XAppConnectionClient_initialize(_xAppConnectionManager);
     __ReentrancyGuard_init();
@@ -196,6 +232,7 @@ contract ConnextHandler is
 
     nonce = 0;
     domain = _domain;
+    relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
     executor = new Executor(address(this));
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
@@ -403,6 +440,8 @@ contract ConnextHandler is
       revert ConnextHandler__xcall_emptyTo();
     }
 
+    if (_args.relayerFee == 0) revert ConnextHandler__xcall_relayerFeeIsZero();
+
     // get the true transacting asset id (using wrapped native instead native)
     address _transactingAssetId = _args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId;
 
@@ -426,7 +465,12 @@ contract ConnextHandler is
 
     // transfer funds of transacting asset to the contract from user
     // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 _amount) = AssetLogic.transferAssetToContract(_args.transactingAssetId, _args.amount, wrapper);
+    (, uint256 _amount) = AssetLogic.handleIncomingAsset(
+      _args.transactingAssetId,
+      _args.amount,
+      _args.relayerFee,
+      wrapper
+    );
 
     // swap to the local asset from adopted
     (uint256 _bridgedAmt, address _bridged) = ConnextUtils.swapToLocalAssetIfNeeded(
@@ -437,6 +481,9 @@ contract ConnextHandler is
       _amount
     );
 
+    // Store the relayer fee
+    relayerFees[_transferId] = _args.relayerFee;
+
     // send message over nomad
     bytes memory _message = _sendMessage(
       _args.params.destinationDomain,
@@ -446,21 +493,35 @@ contract ConnextHandler is
       _bridgedAmt
     );
 
-    // emit event
-    emit XCalled(
-      _transferId,
-      _args.params.to,
-      _args.params,
-      _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
-      _bridged,
-      _amount,
-      _bridgedAmt,
-      nonce - 1,
-      _message,
-      msg.sender
-    );
+      // emit event
+      emit XCalled(
+        _transferId,
+        _args.params.to,
+        _args.params,
+        _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
+        _bridged,
+        _amount,
+        _bridgedAmt,
+        0, // TODO use _args.relayerFee (stack too deep error)
+        nonce - 1,
+        _message,
+        msg.sender
+      );
 
     return _transferId;
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId) external payable {
+    if (relayerFees[_transferId] == 0) revert ConnextHandler__bumpTransfer_invalidTransfer();
+    if (msg.value == 0) revert ConnextHandler__bumpTransfer_valueIsZero();
+
+    relayerFees[_transferId] += msg.value;
+
+    emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
   }
 
   /**
@@ -499,10 +560,10 @@ contract ConnextHandler is
    * used.
    */
   function execute(ExecuteArgs calldata _args) external override returns (bytes32 transferId) {
-    // // ensure accepted relayer
-    // if (!approvedRelayers[msg.sender]) {
-    //   revert ConnextHandler__execute_unapprovedRelayer();
-    // }
+    // If the sender is not approved relayer, revert()
+    if (!approvedRelayers[msg.sender]) {
+      revert ConnextHandler__execute_notApprovedRelayer();
+    }
 
     // get token id
     (uint32 _tokenDomain, bytes32 _tokenId) = tokenRegistry.getTokenId(_args.local);
@@ -529,7 +590,8 @@ contract ConnextHandler is
     // check to see if the transfer was reconciled
     (uint256 _amount, address _adopted) = _handleExecuteLiquidity(_transferId, _args, !_reconciled);
 
-    // TODO: payout relayer fee
+    // Set the relayer for this transaction to allow for future claim
+    transferRelayer[_transferId] = msg.sender;
 
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY) {
@@ -554,6 +616,36 @@ contract ConnextHandler is
     emit Executed(_transferId, _args.params.to, _args, _adopted, _amount, msg.sender);
 
     return _transferId;
+  }
+
+  /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _domain - domain to claim funds on
+   * @param _transferIds - transferIds to claim
+   */
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external override {
+    ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
+
+    emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   */
+  function claim(address _recipient, bytes32[] calldata _transferIds) external override onlyRelayerFeeRouter {
+    uint256 total = ConnextUtils.claim(_recipient, _transferIds, relayerFees);
+
+    emit Claimed(_recipient, total, _transferIds);
   }
 
   // ============ Internal functions ============
@@ -587,8 +679,8 @@ contract ConnextHandler is
     // Asset is approved
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert ConnextHandler__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to coethWithErcTransferact
-    (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, wrapper);
+    // Transfer funds to contract
+    (address _asset, uint256 _received) = AssetLogic.handleIncomingAsset(_local, _amount, 0, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
