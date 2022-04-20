@@ -75,11 +75,6 @@ contract PromiseRouter is Version0, Router {
    */
   event SetConnext(address indexed connext);
 
-  // ======== Receive =======
-  receive() external payable {}
-
-  fallback() external payable {}
-
   // ============ Modifiers ============
 
   /**
@@ -109,8 +104,8 @@ contract PromiseRouter is Version0, Router {
   // ======== External: Send PromiseCallback =========
 
   /**
-   * @notice Sends a request to claim the fees in the originated domain
-   * @param _domain The domain where to claim the fees
+   * @notice Sends a request to execute callback in the originated domain
+   * @param _domain The domain where to execute callback
    * @param _transferId The transferId 
    * @param _callbackAddress A callback address to be called when promise callback is received
    * @param _returnSuccess The returnSuccess from the execution
