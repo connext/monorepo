@@ -27,6 +27,7 @@ export const Backend = Type.Object({
     Type.Literal("trace"),
     Type.Literal("silent"),
   ]),
+  databaseUrl: Type.String({ format: "url" }),
 });
 
 export type BackendConfig = Static<typeof Backend>;
@@ -71,6 +72,7 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): BackendConfig =
       configFile.subgraphPollInterval ||
       DEFAULT_SUBGRAPH_POLL_INTERVAL,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
+    databaseUrl: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl,
   };
 
   // add contract deployments if they exist

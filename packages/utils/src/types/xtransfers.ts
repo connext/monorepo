@@ -2,12 +2,14 @@ import { Type, Static } from "@sinclair/typebox";
 
 import { TAddress, TDecimalString, TIntegerString } from ".";
 
-export enum XTransferStatus {
-  XCalled = "XCalled",
-  Executed = "Executed",
-  Reconciled = "Reconciled",
-  Failed = "Failed",
-}
+export const XTransferStatus = {
+  pending: "pending",
+  xcalled: "xcalled",
+  executed: "executed",
+  reconciled: "reconciled",
+  failed: "failed",
+} as const;
+export type XTransferStatus = keyof typeof XTransferStatus;
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
@@ -33,8 +35,8 @@ export const XTransferSchema = Type.Object({
   transferId: Type.String(),
   callTo: Type.String(),
   callData: Type.String(),
-  idx: Type.Optional(TIntegerString),
-  nonce: TIntegerString,
+  idx: Type.Optional(Type.Integer({ minimum: 0 })),
+  nonce: Type.Integer({ minimum: 0 }),
   router: Type.Optional(TAddress),
 
   // XCalled
