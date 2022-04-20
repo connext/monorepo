@@ -110,7 +110,7 @@ export type NomadDomainInfo = {
 };
 
 export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
-  const env = MAINNET_CHAINS.includes(chainId) ? "production" : "development";
+  const env = MAINNET_CHAINS.includes(chainId) ? "production" : "staging";
   const nomadConfig: configuration.NomadConfig = configuration.getBuiltin(env);
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
