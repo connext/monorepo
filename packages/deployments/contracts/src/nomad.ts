@@ -109,12 +109,17 @@ export type NomadDomainInfo = {
   };
 };
 
-export const getDomainInfoFromChainId = (chainId: number): NomadDomainInfo => {
+export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
   const env = MAINNET_CHAINS.includes(chainId) ? "production" : "development";
   const nomadConfig: configuration.NomadConfig = configuration.getBuiltin(env);
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
   }
+  return nomadConfig;
+};
+
+export const getDomainInfoFromChainId = (chainId: number): NomadDomainInfo => {
+  const nomadConfig = getNomadConfig(chainId);
   const [name, domainConfig] =
     Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {
       return info.specs.chainId === chainId;

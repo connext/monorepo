@@ -34,6 +34,7 @@ import "./src/tasks/setLocalDomain";
 import "./src/tasks/traceMessage";
 import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
+import "./src/tasks/updateXappConnectionManager";
 import "./src/tasks/executeEstimateGas";
 
 dotEnvConfig();
