@@ -15,6 +15,7 @@ import {ConnextUtils} from "./lib/Connext/ConnextUtils.sol";
 
 import "./nomad-xapps/contracts/bridge/TokenRegistry.sol";
 import "./nomad-xapps/contracts/bridge/BridgeRouter.sol";
+import "./nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -53,11 +54,13 @@ contract Connext is
   error Connext__removeLiquidity_amountIsZero();
   error Connext__removeLiquidity_insufficientFunds();
   error Connext__xcall_notSupportedAsset();
+  error Connext__xcall_badAmount();
   error Connext__execute_notSlowParams();
   error Connext__addLiquidityForRouter_routerEmpty();
   error Connext__addLiquidityForRouter_amountIsZero();
   error Connext__addLiquidityForRouter_badRouter();
   error Connext__addLiquidityForRouter_badAsset();
+  error Connext__addLiquidityForRouter_badAmount();
   error Connext__addAssetId_alreadyAdded();
   error Connext__decrementLiquidity_notEmpty();
   error Connext__decrementLiquidity_maxRoutersExceeded();
@@ -66,6 +69,7 @@ contract Connext is
   error Connext__addRelayer_alreadyApproved();
   error Connext__removeRelayer_notApproved();
   error Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error Connext__onlyPromiseRouter_notBridge();
 
   // ============ Constants =============
 
@@ -77,6 +81,11 @@ contract Connext is
    * @notice The local nomad bridge router
    */
   BridgeRouter public bridgeRouter;
+
+  /**
+   * @notice The local nomad promise callback router
+   */
+  PromiseRouter public promiseRouter;
 
   /**
    * @notice The address of the wrapper for the native asset on this domain
@@ -187,13 +196,22 @@ contract Connext is
     _;
   }
 
+  /**
+   * @notice Restricts the caller to the local promise router
+   */
+  modifier onlyPromiseRouter() {
+    if (msg.sender != address(promiseRouter)) revert Connext__onlyPromiseRouter_notBridge();
+    _;
+  }
+
   // ========== Initializer ============
 
   function initialize(
     uint256 _domain,
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address payable _promiseRouter
   ) public override initializer {
     __ProposedOwnable_init();
     __ReentrancyGuard_init();
@@ -202,6 +220,7 @@ contract Connext is
     nonce = 0;
     domain = _domain;
     bridgeRouter = BridgeRouter(_bridgeRouter);
+    promiseRouter = PromiseRouter(_promiseRouter);
     executor = new Executor(address(this));
     tokenRegistry = TokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
@@ -436,6 +455,10 @@ contract Connext is
       bytes32(0)
     ) revert Connext__xcall_notSupportedAsset();
 
+    if (_args.transactingAssetId == address(0) && msg.value != (_args.amount + _args.params.callbackFee)) {
+      revert Connext__xcall_badAmount();
+    }
+
     // Transfer funds to the contract
     (address _transactingAssetId, uint256 _amount) = AssetLogic.transferAssetToContract(
       _args.transactingAssetId,
@@ -458,6 +481,11 @@ contract Connext is
     bytes32 _transferId = ConnextUtils.getTransferId(nonce, msg.sender, _args.params);
     // Update nonce
     nonce++;
+
+    // Transfer callback fee to PromiseRouter if set
+    if (_args.params.callbackFee != 0) {
+      promiseRouter.bumpCallbackFee{value: _args.params.callbackFee}(_transferId);
+    }
 
     // Add to batch
     ConnextUtils.sendMessage(
@@ -574,16 +602,7 @@ contract Connext is
     } else {
       // Send funds to executor
       AssetLogic.transferAssetFromContract(adopted, address(executor), amount, wrapper);
-      executor.execute(
-        _transferId,
-        amount,
-        payable(_args.params.to),
-        adopted,
-        _isFast
-          ? LibCrossDomainProperty.EMPTY_BYTES
-          : LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender),
-        _args.params.callData
-      );
+      _handleExcute(_transferId, amount, adopted, _isFast, _args);
     }
 
     // Save gas used
@@ -614,6 +633,14 @@ contract Connext is
     );
 
     return _transferId;
+  }
+
+  /**
+   * @notice Check if the _relayer is approved or not
+   * @param _relayer - The relayer address
+   */
+  function isApprovedRelayer(address _relayer) external view returns (bool) {
+    return approvedRelayers[_relayer];
   }
 
   // ============ Private functions ============
@@ -648,6 +675,9 @@ contract Connext is
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert Connext__addLiquidityForRouter_badAsset();
 
     // Transfer funds to coethWithErcTransferact
+    if (_local == address(0) && msg.value != _amount) {
+      revert Connext__addLiquidityForRouter_badAmount();
+    }
     (address _asset, uint256 _received) = AssetLogic.transferAssetToContract(_local, _amount, wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
@@ -774,6 +804,44 @@ contract Connext is
 
     // Pay sender
     AddressUpgradeable.sendValue(payable(msg.sender), fee);
+  }
+
+  /**
+   * @notice Executes some arbitrary call data on a given address. The
+   * call data executes can be payable, and will have `amount` sent
+   * along with the function (or approved to the contract). If the
+   * call fails, rather than reverting, funds are sent directly to
+   * some provided fallback address
+   * @param _transferId Unique identifier of transaction id that necessitated
+   * calldata execution
+   * @param _amount The amount to approve or send with the call
+   * @param _assetId The assetId of the funds to approve to the contract or
+   * send along with the call
+   * @param _isFast Is the Fast liquidity?
+   * @param _args - The `ExecuteArgs` for the transfer
+   */
+  function _handleExcute(
+    bytes32 _transferId,
+    uint256 _amount,
+    address _assetId,
+    bool _isFast,
+    ExecuteArgs calldata _args
+  ) internal {
+    (bool success, bytes memory returnData) = executor.execute(
+      _transferId,
+      _amount,
+      payable(_args.params.to),
+      _assetId,
+      _isFast
+        ? LibCrossDomainProperty.EMPTY_BYTES
+        : LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender),
+      _args.params.callData
+    );
+
+    // If callback address is not zero, send on the PromiseRouter
+    if (_args.params.callback != address(0)) {
+      promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
+    }
   }
 
   receive() external payable {}

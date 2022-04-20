@@ -23,7 +23,7 @@ interface IConnext {
     bytes callData;
     uint32 originDomain;
     uint32 destinationDomain;
-    address callback; 
+    address callback;
     uint256 callbackFee;
   }
 
@@ -255,7 +255,8 @@ interface IConnext {
     uint256 _domain,
     address payable _bridgeRouter,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address payable _promiseRouter
   ) external;
 
   function setupRouter(
@@ -313,4 +314,6 @@ interface IConnext {
   ) external payable;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
+
+  function isApprovedRelayer(address _relayer) external view returns (bool);
 }
