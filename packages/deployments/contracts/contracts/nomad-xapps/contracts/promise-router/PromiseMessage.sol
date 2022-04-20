@@ -30,7 +30,6 @@ library PromiseMessage {
   // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback +  1 byte success + 32 bytes length = 86 bytes
   uint256 private constant RETURNDATA_START = 86;
 
-
   // ============ Modifiers ============
 
   /**
@@ -53,12 +52,21 @@ library PromiseMessage {
    * @param _returnData The return data of the call
    * @return The formatted message
    */
-  function formatPromiseCallback(bytes32 _transferId, address _callbackAddress, bool _returnSuccess, bytes calldata _returnData)
-    internal
-    pure
-    returns (bytes memory)
-  {
-    return abi.encodePacked(uint8(Types.PromiseCallback), _transferId, _callbackAddress, uint8(_returnSuccess ? 1 : 0), _returnData.length, _returnData);
+  function formatPromiseCallback(
+    bytes32 _transferId,
+    address _callbackAddress,
+    bool _returnSuccess,
+    bytes calldata _returnData
+  ) internal pure returns (bytes memory) {
+    return
+      abi.encodePacked(
+        uint8(Types.PromiseCallback),
+        _transferId,
+        _callbackAddress,
+        uint8(_returnSuccess ? 1 : 0),
+        _returnData.length,
+        _returnData
+      );
   }
 
   // ============ Getters ============
@@ -102,23 +110,27 @@ library PromiseMessage {
     return _view.indexUint(LENGTH_RETURNDATA_START, LENGTH_RETURNDATA_LEN);
   }
 
-
   /**
    * @notice Parse returnData from the message
    * @param _view The message
    * @return data
    */
-  function returnData(bytes29 _view) internal view typeAssert(_view, Types.PromiseCallback) returns (bytes memory data) {
+  function returnData(bytes29 _view)
+    internal
+    view
+    typeAssert(_view, Types.PromiseCallback)
+    returns (bytes memory data)
+  {
     uint256 length = lengthOfReturndata(_view);
 
     uint8 bitLength = uint8(length * 8);
     uint256 _loc = _view.loc();
-    
+
     uint256 _mask;
     assembly {
-        // solium-disable-previous-line security/no-inline-assembly
-        _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
-        data := and(mload(add(_loc, RETURNDATA_START)), _mask)
+      // solium-disable-previous-line security/no-inline-assembly
+      _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
+      data := and(mload(add(_loc, RETURNDATA_START)), _mask)
     }
   }
 
