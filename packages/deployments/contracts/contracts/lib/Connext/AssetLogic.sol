@@ -31,7 +31,7 @@ library AssetLogic {
     if (_assetId == address(0)) {
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
-      if (msg.value != _specifiedAmount) revert AssetLogic__transferAssetToContract_notAmount();
+      if (msg.value < _specifiedAmount) revert AssetLogic__transferAssetToContract_notAmount();
       _wrapper.deposit{value: _specifiedAmount}();
       _assetId = address(_wrapper);
     } else {
