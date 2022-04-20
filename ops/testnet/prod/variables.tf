@@ -68,3 +68,16 @@ variable "rinkeby_alchemy_key_1" {
 variable "kovan_alchemy_key_1" {
   type = string
 }
+
+
+variable "web3_signer_private_key" {
+  type = string
+}
+
+variable "web3signer_aws_access_key_id" {
+  type = string
+}
+
+variable "web3signer_aws_secret_access_key" {
+  type = string
+}

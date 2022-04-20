@@ -22,6 +22,12 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
+module "aws_secrets" {
+  source                  = "../../modules/sm"
+  environment             = var.environment
+  stage                   = var.stage
+  web3_signer_private_key = var.web3_signer_private_key
+}
 
 module "router" {
   source                   = "../../modules/service"
@@ -45,14 +51,12 @@ module "router" {
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
-  mnemonic                 = var.mnemonic
-  service_config_value     = local.local_router_config
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  service_config_name      = "NXTP_CONFIG"
   stage                    = var.stage
+  container_env_vars       = local.router_env_vars
 }
 
 
@@ -77,14 +81,41 @@ module "sequencer" {
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
-  mnemonic                 = var.mnemonic
-  service_config_value     = local.local_sequencer_config
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  service_config_name      = "SEQ_CONFIG"
   stage                    = var.stage
+  container_env_vars       = local.sequencer_env_vars
+}
+
+module "web3signer" {
+  source                   = "../../modules/service"
+  region                   = var.region
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  ecs_cluster_sg           = module.network.ecs_task_sg
+  allow_all_sg             = module.network.allow_all_sg
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  docker_image             = "ghcr.io/connext/web3signer:latest"
+  container_family         = "web3signer"
+  health_check_path        = "/upcheck"
+  container_port           = 9000
+  loadbalancer_port        = 80
+  cpu                      = 256
+  memory                   = 512
+  instance_count           = 1
+  timeout                  = 180
+  environment              = var.environment
+  stage                    = var.stage
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = local.web3signer_env_vars
 }
 
 
