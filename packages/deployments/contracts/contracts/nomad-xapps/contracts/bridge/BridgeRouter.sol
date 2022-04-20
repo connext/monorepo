@@ -159,7 +159,7 @@ contract BridgeRouter is Version0, Router {
       // hold the tokens in escrow in the Router
       if (_amount > 0) {
         IERC20Upgradeable(_token).safeTransferFrom(msg.sender, address(this), _amount);
-      }      
+      }
       // query token contract for details and calculate detailsHash
       _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
     } else {
