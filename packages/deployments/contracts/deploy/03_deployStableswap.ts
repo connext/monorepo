@@ -75,7 +75,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         AmplificationUtils: (await deployments.get("AmplificationUtils")).address,
       },
     });
-  } catch (e) {
+  } catch (e: unknown) {
     console.log("Errow while verify stableswap contract", stableSwapDeployment.address);
   }
 };

@@ -1,0 +1,298 @@
+{
+  "address": "0xB563c09F65E52eA248FC521a9e8e97f8034fdEeF",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__proposeRouterOwner_badRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__removeRouter_notAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__removeRouter_routerEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "prevOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "RouterOwnerAccepted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "prevProposed",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newProposed",
+          "type": "address"
+        }
+      ],
+      "name": "RouterOwnerProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "prevRecipient",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newRecipient",
+          "type": "address"
+        }
+      ],
+      "name": "RouterRecipientSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterRemoved",
+      "type": "event"
+    }
+  ],
+  "transactionHash": "0xbb0982636c30e5a7c72fefff523395f727d8bc0b9f98207dfae0aa09f36e8a8d",
+  "receipt": {
+    "to": null,
+    "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
+    "contractAddress": "0xB563c09F65E52eA248FC521a9e8e97f8034fdEeF",
+    "transactionIndex": 22,
+    "gasUsed": "493539",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xf78020408e193dc7a637f1db21e21876dba0f7173eb83e156ddfde745a76975d",
+    "transactionHash": "0xbb0982636c30e5a7c72fefff523395f727d8bc0b9f98207dfae0aa09f36e8a8d",
+    "logs": [],
+    "blockNumber": 10489488,
+    "cumulativeGasUsed": "2708841",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "8f1c4c34e10889081d4a416ccdeac954",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.11+commit.d7f03943\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__proposeRouterOwner_badRouter\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__removeRouter_notAdded\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__removeRouter_routerEmpty\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__setupRouter_amountIsZero\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RouterPermissionsManagerLogic__setupRouter_routerEmpty\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"router\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"RouterAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"router\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"prevOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"RouterOwnerAccepted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"router\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"prevProposed\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newProposed\",\"type\":\"address\"}],\"name\":\"RouterOwnerProposed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"router\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"prevRecipient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newRecipient\",\"type\":\"address\"}],\"name\":\"RouterRecipientSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"router\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"RouterRemoved\",\"type\":\"event\"}],\"devdoc\":{\"events\":{\"RouterAdded(address,address)\":{\"params\":{\"caller\":\"- The account that called the function\",\"router\":\"- The address of the added router\"}},\"RouterOwnerAccepted(address,address,address)\":{\"params\":{\"newOwner\":\"- The address of the new owner of the router\",\"prevOwner\":\"- The address of the previous owner of the router\",\"router\":\"- The address of the added router\"}},\"RouterOwnerProposed(address,address,address)\":{\"params\":{\"newProposed\":\"- The address of the new proposed\",\"prevProposed\":\"- The address of the previous proposed\",\"router\":\"- The address of the added router\"}},\"RouterRecipientSet(address,address,address)\":{\"params\":{\"newRecipient\":\"- The address of the new recipient of the router\",\"prevRecipient\":\"- The address of the previous recipient of the router\",\"router\":\"- The address of the added router\"}},\"RouterRemoved(address,address)\":{\"params\":{\"caller\":\"- The account that called the function\",\"router\":\"- The address of the removed router\"}}},\"kind\":\"dev\",\"methods\":{\"acceptProposedRouterOwner(address,uint256,RouterPermissionsManagerInfo storage)\":{\"params\":{\"router\":\"Router address to set recipient\"}},\"proposeRouterOwner(address,address,RouterPermissionsManagerInfo storage)\":{\"params\":{\"proposed\":\"Proposed owner Address to set to router\",\"router\":\"Router address to set recipient\"}},\"removeRouter(address,RouterPermissionsManagerInfo storage)\":{\"params\":{\"router\":\"Router address to remove\"}},\"setRouterRecipient(address,address,RouterPermissionsManagerInfo storage)\":{\"details\":\"Router should only be able to set this once otherwise if router key compromised, no problem is solved since attacker could just update recipient\",\"params\":{\"recipient\":\"Recipient Address to set to router\",\"router\":\"Router address to set recipient\"}}},\"version\":1},\"userdoc\":{\"events\":{\"RouterAdded(address,address)\":{\"notice\":\"Emitted when a new router is added\"},\"RouterOwnerAccepted(address,address,address)\":{\"notice\":\"Emitted when the owner of router is accepted\"},\"RouterOwnerProposed(address,address,address)\":{\"notice\":\"Emitted when the owner of router is proposed\"},\"RouterRecipientSet(address,address,address)\":{\"notice\":\"Emitted when the recipient of router is updated\"},\"RouterRemoved(address,address)\":{\"notice\":\"Emitted when an existing router is removed\"}},\"kind\":\"user\",\"methods\":{\"acceptProposedRouterOwner(address,uint256,RouterPermissionsManagerInfo storage)\":{\"notice\":\"New router owner must accept role, or previous if proposed is 0x0\"},\"proposeRouterOwner(address,address,RouterPermissionsManagerInfo storage)\":{\"notice\":\"Current owner or router may propose a new router owner\"},\"removeRouter(address,RouterPermissionsManagerInfo storage)\":{\"notice\":\"Used to remove routers that can transact crosschain\"},\"setRouterRecipient(address,address,RouterPermissionsManagerInfo storage)\":{\"notice\":\"Sets the designated recipient for a router\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lib/Connext/RouterPermissionsManagerLogic.sol\":\"RouterPermissionsManagerLogic\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/lib/Connext/RouterPermissionsManagerLogic.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity 0.8.11;\\n\\n/**\\n * @notice Contains RouterPermissionsManager related state\\n * @param approvedRouters - Mapping of whitelisted router addresses\\n * @param routerRecipients - Mapping of router withdraw recipient addresses.\\n * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner\\n * (if configured) or the router itself\\n * @param routerOwners - Mapping of router owners\\n * If set, can update the routerRecipient\\n * @param proposedRouterOwners - Mapping of proposed router owners\\n * Must wait timeout to set the\\n * @param proposedRouterTimestamp - Mapping of proposed router owners timestamps\\n * When accepting a proposed owner, must wait for delay to elapse\\n */\\nstruct RouterPermissionsManagerInfo {\\n  mapping(address => bool) approvedRouters;\\n  mapping(address => address) routerRecipients;\\n  mapping(address => address) routerOwners;\\n  mapping(address => address) proposedRouterOwners;\\n  mapping(address => uint256) proposedRouterTimestamp;\\n}\\n\\nlibrary RouterPermissionsManagerLogic {\\n  // ========== Custom Errors ===========\\n  error RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();\\n  error RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient();\\n  error RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner();\\n  error RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner();\\n  error RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner();\\n  error RouterPermissionsManagerLogic__removeRouter_routerEmpty();\\n  error RouterPermissionsManagerLogic__removeRouter_notAdded();\\n  error RouterPermissionsManagerLogic__setupRouter_routerEmpty();\\n  error RouterPermissionsManagerLogic__setupRouter_amountIsZero();\\n  error RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();\\n  error RouterPermissionsManagerLogic__proposeRouterOwner_badRouter();\\n\\n  /**\\n   * @notice Emitted when a new router is added\\n   * @param router - The address of the added router\\n   * @param caller - The account that called the function\\n   */\\n  event RouterAdded(address indexed router, address caller);\\n\\n  /**\\n   * @notice Emitted when an existing router is removed\\n   * @param router - The address of the removed router\\n   * @param caller - The account that called the function\\n   */\\n  event RouterRemoved(address indexed router, address caller);\\n\\n  /**\\n   * @notice Emitted when the recipient of router is updated\\n   * @param router - The address of the added router\\n   * @param prevRecipient  - The address of the previous recipient of the router\\n   * @param newRecipient  - The address of the new recipient of the router\\n   */\\n  event RouterRecipientSet(address indexed router, address indexed prevRecipient, address indexed newRecipient);\\n\\n  /**\\n   * @notice Emitted when the owner of router is proposed\\n   * @param router - The address of the added router\\n   * @param prevProposed  - The address of the previous proposed\\n   * @param newProposed  - The address of the new proposed\\n   */\\n  event RouterOwnerProposed(address indexed router, address indexed prevProposed, address indexed newProposed);\\n\\n  /**\\n   * @notice Emitted when the owner of router is accepted\\n   * @param router - The address of the added router\\n   * @param prevOwner  - The address of the previous owner of the router\\n   * @param newOwner  - The address of the new owner of the router\\n   */\\n  event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);\\n\\n  /**\\n   * @notice Asserts caller is the router owner (if set) or the router itself\\n   */\\n  function _onlyRouterOwner(address _router, address _owner) internal view {\\n    if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))\\n      revert RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner();\\n  }\\n\\n  /**\\n   * @notice Asserts caller is the proposed router. If proposed router is address(0), then asserts\\n   * the owner is calling the function (if set), or the router itself is calling the function\\n   */\\n  function _onlyProposedRouterOwner(\\n    address _router,\\n    address _owner,\\n    address _proposed\\n  ) internal view {\\n    if (_proposed == address(0)) {\\n      if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))\\n        revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner();\\n    } else {\\n      if (msg.sender != _proposed)\\n        revert RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner();\\n    }\\n  }\\n\\n  // ============ Public methods =============\\n\\n  /**\\n   * @notice Sets the designated recipient for a router\\n   * @dev Router should only be able to set this once otherwise if router key compromised,\\n   * no problem is solved since attacker could just update recipient\\n   * @param router Router address to set recipient\\n   * @param recipient Recipient Address to set to router\\n   */\\n  function setRouterRecipient(\\n    address router,\\n    address recipient,\\n    RouterPermissionsManagerInfo storage routerInfo // mapping(address => address) storage routerOwners, // mapping(address => address) storage routerRecipients\\n  ) external {\\n    _onlyRouterOwner(router, routerInfo.routerOwners[router]);\\n\\n    // Check recipient is changing\\n    address _prevRecipient = routerInfo.routerRecipients[router];\\n    if (_prevRecipient == recipient) revert RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient();\\n\\n    // Set new recipient\\n    routerInfo.routerRecipients[router] = recipient;\\n\\n    // Emit event\\n    emit RouterRecipientSet(router, _prevRecipient, recipient);\\n  }\\n\\n  /**\\n   * @notice Current owner or router may propose a new router owner\\n   * @param router Router address to set recipient\\n   * @param proposed Proposed owner Address to set to router\\n   */\\n  function proposeRouterOwner(\\n    address router,\\n    address proposed,\\n    RouterPermissionsManagerInfo storage routerInfo\\n  ) external {\\n    _onlyRouterOwner(router, routerInfo.routerOwners[router]);\\n\\n    // Check that proposed is different than current owner\\n    if (_getRouterOwner(router, routerInfo.routerOwners) == proposed)\\n      revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();\\n\\n    // Check that proposed is different than current proposed\\n    address _currentProposed = routerInfo.proposedRouterOwners[router];\\n    if (_currentProposed == proposed) revert RouterPermissionsManagerLogic__proposeRouterOwner_badRouter();\\n\\n    // Set proposed owner + timestamp\\n    routerInfo.proposedRouterOwners[router] = proposed;\\n    routerInfo.proposedRouterTimestamp[router] = block.timestamp;\\n\\n    // Emit event\\n    emit RouterOwnerProposed(router, _currentProposed, proposed);\\n  }\\n\\n  /**\\n   * @notice New router owner must accept role, or previous if proposed is 0x0\\n   * @param router Router address to set recipient\\n   */\\n  function acceptProposedRouterOwner(\\n    address router,\\n    uint256 _delay,\\n    RouterPermissionsManagerInfo storage routerInfo\\n  ) external {\\n    _onlyProposedRouterOwner(router, routerInfo.routerOwners[router], routerInfo.proposedRouterOwners[router]);\\n\\n    address owner = _getRouterOwner(router, routerInfo.routerOwners);\\n\\n    // Check timestamp has passed\\n    if (block.timestamp - routerInfo.proposedRouterTimestamp[router] <= _delay)\\n      revert RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed();\\n\\n    // Get current owner + proposed\\n    address _proposed = routerInfo.proposedRouterOwners[router];\\n\\n    // Update the current owner\\n    routerInfo.routerOwners[router] = _proposed;\\n\\n    // Reset proposal + timestamp\\n    if (_proposed != address(0)) {\\n      // delete proposedRouterOwners[router];\\n      routerInfo.proposedRouterOwners[router] = address(0);\\n    }\\n    routerInfo.proposedRouterTimestamp[router] = 0;\\n\\n    // Emit event\\n    emit RouterOwnerAccepted(router, owner, _proposed);\\n  }\\n\\n  /**\\n   * @notice Used to set router initial properties\\n   * @param router Router address to setup\\n   * @param owner Initial Owner of router\\n   * @param recipient Initial Recipient of router\\n   */\\n  function setupRouter(\\n    address router,\\n    address owner,\\n    address recipient,\\n    RouterPermissionsManagerInfo storage routerInfo\\n  ) internal {\\n    // Sanity check: not empty\\n    if (router == address(0)) revert RouterPermissionsManagerLogic__setupRouter_routerEmpty();\\n\\n    // Sanity check: needs approval\\n    if (routerInfo.approvedRouters[router]) revert RouterPermissionsManagerLogic__setupRouter_amountIsZero();\\n\\n    // Approve router\\n    routerInfo.approvedRouters[router] = true;\\n\\n    // Emit event\\n    emit RouterAdded(router, msg.sender);\\n\\n    // Update routerOwner (zero address possible)\\n    if (owner != address(0)) {\\n      routerInfo.routerOwners[router] = owner;\\n      emit RouterOwnerAccepted(router, address(0), owner);\\n    }\\n\\n    // Update router recipient\\n    if (recipient != address(0)) {\\n      routerInfo.routerRecipients[router] = recipient;\\n      emit RouterRecipientSet(router, address(0), recipient);\\n    }\\n  }\\n\\n  /**\\n   * @notice Used to remove routers that can transact crosschain\\n   * @param router Router address to remove\\n   */\\n  function removeRouter(address router, RouterPermissionsManagerInfo storage routerInfo) external {\\n    // Sanity check: not empty\\n    if (router == address(0)) revert RouterPermissionsManagerLogic__removeRouter_routerEmpty();\\n\\n    // Sanity check: needs removal\\n    if (!routerInfo.approvedRouters[router]) revert RouterPermissionsManagerLogic__removeRouter_notAdded();\\n\\n    // Update mapping\\n    routerInfo.approvedRouters[router] = false;\\n\\n    // Emit event\\n    emit RouterRemoved(router, msg.sender);\\n\\n    // Remove router owner\\n    address _owner = routerInfo.routerOwners[router];\\n    if (_owner != address(0)) {\\n      emit RouterOwnerAccepted(router, _owner, address(0));\\n      // delete routerOwners[router];\\n      routerInfo.routerOwners[router] = address(0);\\n    }\\n\\n    // Remove router recipient\\n    address _recipient = routerInfo.routerRecipients[router];\\n    if (_recipient != address(0)) {\\n      emit RouterRecipientSet(router, _recipient, address(0));\\n      // delete routerRecipients[router];\\n      routerInfo.routerRecipients[router] = address(0);\\n    }\\n  }\\n\\n  /**\\n   * @notice Returns the router owner if it is set, or the router itself if not\\n   */\\n  function _getRouterOwner(address router, mapping(address => address) storage _routerOwners)\\n    internal\\n    view\\n    returns (address)\\n  {\\n    address _owner = _routerOwners[router];\\n    return _owner == address(0) ? router : _owner;\\n  }\\n}\\n\",\"keccak256\":\"0x90731f0d4b7e28afbdd678ac82c5b74f434409929b885d20a047bb36bb23184c\",\"license\":\"UNLICENSED\"}},\"version\":1}",
+  "bytecode": "0x6107f661003a600b82828239805160001a60731461002d57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600436106100565760003560e01c806339c483151461005b57806368c1fad81461007d5780638596e32b1461009d578063dc26fe0f146100bd575b600080fd5b81801561006757600080fd5b5061007b610076366004610702565b6100dd565b005b81801561008957600080fd5b5061007b61009836600461072c565b6102a3565b8180156100a957600080fd5b5061007b6100b836600461075f565b6103f3565b8180156100c957600080fd5b5061007b6100d836600461075f565b6104be565b6001600160a01b0382166101045760405163eef8139760e01b815260040160405180910390fd5b6001600160a01b03821660009081526020829052604090205460ff1661013d57604051635c69321160e11b815260040160405180910390fd5b6001600160a01b03821660008181526020838152604091829020805460ff1916905590513381527fbee3e974bb6a6f44f20096ede047c191eef60322e65e4ee4bd3392230a8716d5910160405180910390a26001600160a01b038083166000908152600283016020526040902054168015610216576040516000906001600160a01b0383811691908616907fd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1908490a46001600160a01b0383166000908152600283016020526040902080546001600160a01b03191690555b6001600160a01b03808416600090815260018401602052604090205416801561029d576040516000906001600160a01b0383811691908716907f31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d7908490a46001600160a01b0384166000908152600184016020526040902080546001600160a01b03191690555b50505050565b6001600160a01b03808416600090815260028301602090815260408083205460038601909252909120546102dc928692811691166105d6565b60006102eb8483600201610660565b6001600160a01b03851660009081526004840160205260409020549091508390610315904261079b565b1161033357604051630702f26f60e41b815260040160405180910390fd5b6001600160a01b0380851660009081526003840160209081526040808320546002870190925290912080546001600160a01b0319169190921690811790915580156103a1576001600160a01b0385166000908152600384016020526040902080546001600160a01b03191690555b6001600160a01b0380861660008181526004860160205260408082208290555184841693861692917fd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d191a45050505050565b6001600160a01b03808416600090815260028301602052604090205461041b91859116610693565b6001600160a01b038084166000908152600183016020526040902054811690831681141561045c5760405163e0cd59cd60e01b815260040160405180910390fd5b6001600160a01b03848116600081815260018501602052604080822080546001600160a01b03191688861690811790915590519093851692917f31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d791a450505050565b6001600160a01b0380841660009081526002830160205260409020546104e691859116610693565b816001600160a01b03166104fd8483600201610660565b6001600160a01b031614156105255760405163dfb10e3160e01b815260040160405180910390fd5b6001600160a01b038084166000908152600383016020526040902054811690831681141561056657604051630c76d9b960e41b815260040160405180910390fd5b6001600160a01b038481166000818152600385016020908152604080832080546001600160a01b03191689871690811790915560048801909252808320429055519093851692917fee0158b57adc03901d8b16c48cd10c33ca1283ee96c6e0d30f817ceba74dc4a191a450505050565b6001600160a01b038116610637576001600160a01b0382161580156106035750336001600160a01b038416145b8061061657506001600160a01b03821633145b6106325760405162a74d6f60e71b815260040160405180910390fd5b505050565b336001600160a01b038216146106325760405163171d2e7560e01b815260040160405180910390fd5b6001600160a01b038083166000908152602083905260408120549091168015610689578061068b565b835b949350505050565b6001600160a01b0381161580156106b25750336001600160a01b038316145b806106c557506001600160a01b03811633145b6106e257604051636cd71d6f60e11b815260040160405180910390fd5b5050565b80356001600160a01b03811681146106fd57600080fd5b919050565b6000806040838503121561071557600080fd5b61071e836106e6565b946020939093013593505050565b60008060006060848603121561074157600080fd5b61074a846106e6565b95602085013595506040909401359392505050565b60008060006060848603121561077457600080fd5b61077d846106e6565b925061078b602085016106e6565b9150604084013590509250925092565b6000828210156107bb57634e487b7160e01b600052601160045260246000fd5b50039056fea26469706673582212205b3bc6d94c7c1ddaf4c0762abbba41cf0091cf0b0ac458a8f8569ee57a25ce3b64736f6c634300080b0033",
+  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600436106100565760003560e01c806339c483151461005b57806368c1fad81461007d5780638596e32b1461009d578063dc26fe0f146100bd575b600080fd5b81801561006757600080fd5b5061007b610076366004610702565b6100dd565b005b81801561008957600080fd5b5061007b61009836600461072c565b6102a3565b8180156100a957600080fd5b5061007b6100b836600461075f565b6103f3565b8180156100c957600080fd5b5061007b6100d836600461075f565b6104be565b6001600160a01b0382166101045760405163eef8139760e01b815260040160405180910390fd5b6001600160a01b03821660009081526020829052604090205460ff1661013d57604051635c69321160e11b815260040160405180910390fd5b6001600160a01b03821660008181526020838152604091829020805460ff1916905590513381527fbee3e974bb6a6f44f20096ede047c191eef60322e65e4ee4bd3392230a8716d5910160405180910390a26001600160a01b038083166000908152600283016020526040902054168015610216576040516000906001600160a01b0383811691908616907fd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1908490a46001600160a01b0383166000908152600283016020526040902080546001600160a01b03191690555b6001600160a01b03808416600090815260018401602052604090205416801561029d576040516000906001600160a01b0383811691908716907f31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d7908490a46001600160a01b0384166000908152600184016020526040902080546001600160a01b03191690555b50505050565b6001600160a01b03808416600090815260028301602090815260408083205460038601909252909120546102dc928692811691166105d6565b60006102eb8483600201610660565b6001600160a01b03851660009081526004840160205260409020549091508390610315904261079b565b1161033357604051630702f26f60e41b815260040160405180910390fd5b6001600160a01b0380851660009081526003840160209081526040808320546002870190925290912080546001600160a01b0319169190921690811790915580156103a1576001600160a01b0385166000908152600384016020526040902080546001600160a01b03191690555b6001600160a01b0380861660008181526004860160205260408082208290555184841693861692917fd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d191a45050505050565b6001600160a01b03808416600090815260028301602052604090205461041b91859116610693565b6001600160a01b038084166000908152600183016020526040902054811690831681141561045c5760405163e0cd59cd60e01b815260040160405180910390fd5b6001600160a01b03848116600081815260018501602052604080822080546001600160a01b03191688861690811790915590519093851692917f31f32ebf07b0ac7fe173f7b7f3f943020d9bdc6dbfbdcdae01bd45ea78d953d791a450505050565b6001600160a01b0380841660009081526002830160205260409020546104e691859116610693565b816001600160a01b03166104fd8483600201610660565b6001600160a01b031614156105255760405163dfb10e3160e01b815260040160405180910390fd5b6001600160a01b038084166000908152600383016020526040902054811690831681141561056657604051630c76d9b960e41b815260040160405180910390fd5b6001600160a01b038481166000818152600385016020908152604080832080546001600160a01b03191689871690811790915560048801909252808320429055519093851692917fee0158b57adc03901d8b16c48cd10c33ca1283ee96c6e0d30f817ceba74dc4a191a450505050565b6001600160a01b038116610637576001600160a01b0382161580156106035750336001600160a01b038416145b8061061657506001600160a01b03821633145b6106325760405162a74d6f60e71b815260040160405180910390fd5b505050565b336001600160a01b038216146106325760405163171d2e7560e01b815260040160405180910390fd5b6001600160a01b038083166000908152602083905260408120549091168015610689578061068b565b835b949350505050565b6001600160a01b0381161580156106b25750336001600160a01b038316145b806106c557506001600160a01b03811633145b6106e257604051636cd71d6f60e11b815260040160405180910390fd5b5050565b80356001600160a01b03811681146106fd57600080fd5b919050565b6000806040838503121561071557600080fd5b61071e836106e6565b946020939093013593505050565b60008060006060848603121561074157600080fd5b61074a846106e6565b95602085013595506040909401359392505050565b60008060006060848603121561077457600080fd5b61077d846106e6565b925061078b602085016106e6565b9150604084013590509250925092565b6000828210156107bb57634e487b7160e01b600052601160045260246000fd5b50039056fea26469706673582212205b3bc6d94c7c1ddaf4c0762abbba41cf0091cf0b0ac458a8f8569ee57a25ce3b64736f6c634300080b0033",
+  "devdoc": {
+    "events": {
+      "RouterAdded(address,address)": {
+        "params": {
+          "caller": "- The account that called the function",
+          "router": "- The address of the added router"
+        }
+      },
+      "RouterOwnerAccepted(address,address,address)": {
+        "params": {
+          "newOwner": "- The address of the new owner of the router",
+          "prevOwner": "- The address of the previous owner of the router",
+          "router": "- The address of the added router"
+        }
+      },
+      "RouterOwnerProposed(address,address,address)": {
+        "params": {
+          "newProposed": "- The address of the new proposed",
+          "prevProposed": "- The address of the previous proposed",
+          "router": "- The address of the added router"
+        }
+      },
+      "RouterRecipientSet(address,address,address)": {
+        "params": {
+          "newRecipient": "- The address of the new recipient of the router",
+          "prevRecipient": "- The address of the previous recipient of the router",
+          "router": "- The address of the added router"
+        }
+      },
+      "RouterRemoved(address,address)": {
+        "params": {
+          "caller": "- The account that called the function",
+          "router": "- The address of the removed router"
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "acceptProposedRouterOwner(address,uint256,RouterPermissionsManagerInfo storage)": {
+        "params": {
+          "router": "Router address to set recipient"
+        }
+      },
+      "proposeRouterOwner(address,address,RouterPermissionsManagerInfo storage)": {
+        "params": {
+          "proposed": "Proposed owner Address to set to router",
+          "router": "Router address to set recipient"
+        }
+      },
+      "removeRouter(address,RouterPermissionsManagerInfo storage)": {
+        "params": {
+          "router": "Router address to remove"
+        }
+      },
+      "setRouterRecipient(address,address,RouterPermissionsManagerInfo storage)": {
+        "details": "Router should only be able to set this once otherwise if router key compromised, no problem is solved since attacker could just update recipient",
+        "params": {
+          "recipient": "Recipient Address to set to router",
+          "router": "Router address to set recipient"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "RouterAdded(address,address)": {
+        "notice": "Emitted when a new router is added"
+      },
+      "RouterOwnerAccepted(address,address,address)": {
+        "notice": "Emitted when the owner of router is accepted"
+      },
+      "RouterOwnerProposed(address,address,address)": {
+        "notice": "Emitted when the owner of router is proposed"
+      },
+      "RouterRecipientSet(address,address,address)": {
+        "notice": "Emitted when the recipient of router is updated"
+      },
+      "RouterRemoved(address,address)": {
+        "notice": "Emitted when an existing router is removed"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "acceptProposedRouterOwner(address,uint256,RouterPermissionsManagerInfo storage)": {
+        "notice": "New router owner must accept role, or previous if proposed is 0x0"
+      },
+      "proposeRouterOwner(address,address,RouterPermissionsManagerInfo storage)": {
+        "notice": "Current owner or router may propose a new router owner"
+      },
+      "removeRouter(address,RouterPermissionsManagerInfo storage)": {
+        "notice": "Used to remove routers that can transact crosschain"
+      },
+      "setRouterRecipient(address,address,RouterPermissionsManagerInfo storage)": {
+        "notice": "Sets the designated recipient for a router"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

@@ -21,6 +21,7 @@ export type Scalars = {
 export type Asset = {
   __typename?: 'Asset';
   adoptedAsset: Scalars['Bytes'];
+  blockNumber: Scalars['BigInt'];
   canonicalDomain: Scalars['BigInt'];
   canonicalId: Scalars['Bytes'];
   id: Scalars['ID'];
@@ -36,6 +37,8 @@ export type AssetBalance = {
 };
 
 export type AssetBalance_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
   amount_gte?: InputMaybe<Scalars['BigInt']>;
@@ -102,12 +105,22 @@ export enum AssetBalance_OrderBy {
 }
 
 export type Asset_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
   adoptedAsset?: InputMaybe<Scalars['Bytes']>;
   adoptedAsset_contains?: InputMaybe<Scalars['Bytes']>;
   adoptedAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
   adoptedAsset_not?: InputMaybe<Scalars['Bytes']>;
   adoptedAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
   adoptedAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
@@ -140,25 +153,20 @@ export type Asset_Filter = {
 
 export enum Asset_OrderBy {
   AdoptedAsset = 'adoptedAsset',
+  BlockNumber = 'blockNumber',
   CanonicalDomain = 'canonicalDomain',
   CanonicalId = 'canonicalId',
   Id = 'id',
   Local = 'local'
 }
 
-/** The block at which the query should be executed. */
+export type BlockChangedFilter = {
+  number_gte: Scalars['Int'];
+};
+
 export type Block_Height = {
-  /** Value containing a block hash */
   hash?: InputMaybe<Scalars['Bytes']>;
-  /** Value containing a block number */
   number?: InputMaybe<Scalars['Int']>;
-  /**
-   * Value containing the minimum block number.
-   * In the case of `number_gte`, the query will be executed on the latest block only if
-   * the subgraph has progressed to or past the minimum block number.
-   * Defaults to the latest block when omitted.
-   *
-   */
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
@@ -263,6 +271,11 @@ export type Router = {
   __typename?: 'Router';
   assetBalances: Array<AssetBalance>;
   id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  owner?: Maybe<Scalars['Bytes']>;
+  proposedOwner?: Maybe<Scalars['Bytes']>;
+  proposedTimestamp?: Maybe<Scalars['BigInt']>;
+  recipient?: Maybe<Scalars['Bytes']>;
   transfers: Array<Transfer>;
 };
 
@@ -285,6 +298,8 @@ export type RouterTransfersArgs = {
 };
 
 export type Router_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
   id?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
   id_gte?: InputMaybe<Scalars['ID']>;
@@ -293,11 +308,46 @@ export type Router_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  owner?: InputMaybe<Scalars['Bytes']>;
+  owner_contains?: InputMaybe<Scalars['Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  owner_not?: InputMaybe<Scalars['Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['Bytes']>;
+  owner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposedOwner?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_contains?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposedOwner_not?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['Bytes']>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  recipient?: InputMaybe<Scalars['Bytes']>;
+  recipient_contains?: InputMaybe<Scalars['Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  recipient_not?: InputMaybe<Scalars['Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['Bytes']>;
+  recipient_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
 };
 
 export enum Router_OrderBy {
   AssetBalances = 'assetBalances',
   Id = 'id',
+  IsActive = 'isActive',
+  Owner = 'owner',
+  ProposedOwner = 'proposedOwner',
+  ProposedTimestamp = 'proposedTimestamp',
+  Recipient = 'recipient',
   Transfers = 'transfers'
 }
 
@@ -443,6 +493,8 @@ export enum TransferStatus {
 }
 
 export type Transfer_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
   callData?: InputMaybe<Scalars['Bytes']>;
   callData_contains?: InputMaybe<Scalars['Bytes']>;
   callData_in?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -842,20 +894,56 @@ export type GetTransferQueryVariables = Exact<{
 
 export type GetTransferQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
-export type GetExecutedAndReconciledTransfersByIdsQueryVariables = Exact<{
+export type GetExecutedTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
-  maxXCalledBlockNumber: Scalars['BigInt'];
+  maxExecutedBlockNumber: Scalars['BigInt'];
 }>;
 
 
-export type GetExecutedAndReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetExecutedTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+
+export type GetReconciledTransfersByIdsQueryVariables = Exact<{
+  transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
+  maxReconciledBlockNumber: Scalars['BigInt'];
+}>;
+
+
+export type GetReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
 
 export type GetAssetByLocalQueryVariables = Exact<{
   local: Scalars['Bytes'];
 }>;
 
 
-export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any }> };
+export type GetAssetByLocalQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any, blockNumber: any }> };
+
+export type GetAssetByCanonicalIdQueryVariables = Exact<{
+  canonicalId: Scalars['Bytes'];
+}>;
+
+
+export type GetAssetByCanonicalIdQuery = { __typename?: 'Query', assets: Array<{ __typename?: 'Asset', id: string, local: any, adoptedAsset: any, canonicalId: any, canonicalDomain: any, blockNumber: any }> };
+
+export type GetAssetBalanceQueryVariables = Exact<{
+  assetBalanceId: Scalars['ID'];
+}>;
+
+
+export type GetAssetBalanceQuery = { __typename?: 'Query', assetBalance?: { __typename?: 'AssetBalance', amount: any, asset: { __typename?: 'Asset', canonicalId: any, canonicalDomain: any, local: any, adoptedAsset: any, blockNumber: any } } | null };
+
+export type GetAssetBalancesQueryVariables = Exact<{
+  router: Scalars['String'];
+}>;
+
+
+export type GetAssetBalancesQuery = { __typename?: 'Query', assetBalances: Array<{ __typename?: 'AssetBalance', amount: any, asset: { __typename?: 'Asset', canonicalId: any, canonicalDomain: any, local: any, adoptedAsset: any, blockNumber: any } }> };
+
+export type GetRouterQueryVariables = Exact<{
+  router: Scalars['ID'];
+}>;
+
+
+export type GetRouterQuery = { __typename?: 'Query', router?: { __typename?: 'Router', id: string } | null };
 
 
 export const GetTransfersDocument = gql`
@@ -1010,12 +1098,60 @@ export const GetTransferDocument = gql`
   }
 }
     `;
-export const GetExecutedAndReconciledTransfersByIdsDocument = gql`
-    query GetExecutedAndReconciledTransfersByIds($transferIds: [Bytes!], $maxXCalledBlockNumber: BigInt!) {
+export const GetExecutedTransfersByIdsDocument = gql`
+    query GetExecutedTransfersByIds($transferIds: [Bytes!], $maxExecutedBlockNumber: BigInt!) {
   transfers(
-    where: {transferId_in: $transferIds, xcalledBlockNumber_lte: $maxXCalledBlockNumber, status_in: [Executed, Reconciled]}
-    orderBy: xcalledBlockNumber
-    orderDirection: desc
+    where: {transferId_in: $transferIds, executedBlockNumber_lte: $maxExecutedBlockNumber, status_in: [Executed]}
+  ) {
+    id
+    originDomain
+    destinationDomain
+    chainId
+    status
+    to
+    transferId
+    callTo
+    callData
+    idx
+    nonce
+    router {
+      id
+    }
+    xcalledTransactingAsset
+    xcalledLocalAsset
+    xcalledTransactingAmount
+    xcalledLocalAmount
+    xcalledCaller
+    xcalledTransactionHash
+    xcalledTimestamp
+    xcalledGasPrice
+    xcalledGasLimit
+    xcalledBlockNumber
+    executedCaller
+    executedTransactingAmount
+    executedLocalAmount
+    executedTransactingAsset
+    executedLocalAsset
+    executedTransactionHash
+    executedTimestamp
+    executedGasPrice
+    executedGasLimit
+    executedBlockNumber
+    reconciledCaller
+    reconciledLocalAsset
+    reconciledLocalAmount
+    reconciledTransactionHash
+    reconciledTimestamp
+    reconciledGasPrice
+    reconciledGasLimit
+    reconciledBlockNumber
+  }
+}
+    `;
+export const GetReconciledTransfersByIdsDocument = gql`
+    query GetReconciledTransfersByIds($transferIds: [Bytes!], $maxReconciledBlockNumber: BigInt!) {
+  transfers(
+    where: {transferId_in: $transferIds, reconciledBlockNumber_lte: $maxReconciledBlockNumber, status_in: [Reconciled]}
   ) {
     id
     originDomain
@@ -1070,6 +1206,58 @@ export const GetAssetByLocalDocument = gql`
     adoptedAsset
     canonicalId
     canonicalDomain
+    blockNumber
+  }
+}
+    `;
+export const GetAssetByCanonicalIdDocument = gql`
+    query GetAssetByCanonicalId($canonicalId: Bytes!) {
+  assets(
+    where: {canonicalId: $canonicalId}
+    orderBy: blockNumber
+    orderDirection: desc
+  ) {
+    id
+    local
+    adoptedAsset
+    canonicalId
+    canonicalDomain
+    blockNumber
+  }
+}
+    `;
+export const GetAssetBalanceDocument = gql`
+    query GetAssetBalance($assetBalanceId: ID!) {
+  assetBalance(id: $assetBalanceId) {
+    amount
+    asset {
+      canonicalId
+      canonicalDomain
+      local
+      adoptedAsset
+      blockNumber
+    }
+  }
+}
+    `;
+export const GetAssetBalancesDocument = gql`
+    query GetAssetBalances($router: String!) {
+  assetBalances(where: {router: $router}) {
+    amount
+    asset {
+      canonicalId
+      canonicalDomain
+      local
+      adoptedAsset
+      blockNumber
+    }
+  }
+}
+    `;
+export const GetRouterDocument = gql`
+    query GetRouter($router: ID!) {
+  router(id: $router) {
+    id
   }
 }
     `;
@@ -1090,11 +1278,26 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     GetTransfer(variables: GetTransferQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransferQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetTransferQuery>(GetTransferDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransfer', 'query');
     },
-    GetExecutedAndReconciledTransfersByIds(variables: GetExecutedAndReconciledTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetExecutedAndReconciledTransfersByIdsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetExecutedAndReconciledTransfersByIdsQuery>(GetExecutedAndReconciledTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetExecutedAndReconciledTransfersByIds', 'query');
+    GetExecutedTransfersByIds(variables: GetExecutedTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetExecutedTransfersByIdsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetExecutedTransfersByIdsQuery>(GetExecutedTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetExecutedTransfersByIds', 'query');
+    },
+    GetReconciledTransfersByIds(variables: GetReconciledTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReconciledTransfersByIdsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetReconciledTransfersByIdsQuery>(GetReconciledTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetReconciledTransfersByIds', 'query');
     },
     GetAssetByLocal(variables: GetAssetByLocalQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByLocalQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByLocalQuery>(GetAssetByLocalDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByLocal', 'query');
+    },
+    GetAssetByCanonicalId(variables: GetAssetByCanonicalIdQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByCanonicalIdQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByCanonicalIdQuery>(GetAssetByCanonicalIdDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByCanonicalId', 'query');
+    },
+    GetAssetBalance(variables: GetAssetBalanceQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalanceQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalanceQuery>(GetAssetBalanceDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalance', 'query');
+    },
+    GetAssetBalances(variables: GetAssetBalancesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetBalancesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAssetBalancesQuery>(GetAssetBalancesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetBalances', 'query');
+    },
+    GetRouter(variables: GetRouterQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetRouterQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetRouterQuery>(GetRouterDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetRouter', 'query');
     }
   };
 }

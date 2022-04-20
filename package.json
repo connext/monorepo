@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.1.25",
+  "version": "0.2.0-alpha.0",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -27,11 +27,13 @@
     "packages/adapters/subgraph",
     "packages/adapters/web3signer",
     "packages/agents/router",
-    "packages/agents/sequencer"
+    "packages/agents/sequencer",
+    "packages/agents/sdk",
+    "packages/examples/sdk-server"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run lint --fix",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run test",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-sdk-server --exclude @connext/nxtp-sdk run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach -pt --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
@@ -45,7 +47,9 @@
     "docker:local:services": "yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh"
   },
   "resolutions": {
-    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
+    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz",
+    "@nomad-xyz/sdk": "2.0.0-rc.4"
   },
-  "packageManager": "yarn@3.2.0"
+  "packageManager": "yarn@3.2.0",
+  "stableVersion": "0.1.25"
 }

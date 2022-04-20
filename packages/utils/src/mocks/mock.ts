@@ -46,6 +46,11 @@ export const mock: any = {
         domainId: mock.domain.A,
         confirmations: 1,
         assetId: {},
+        subgraphs: {
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
+          maxLag: 10,
+        },
       },
       {
         name: "Unit Test Chain 2",
@@ -53,6 +58,11 @@ export const mock: any = {
         domainId: mock.domain.B,
         confirmations: 1,
         assetId: {},
+        subgraphs: {
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
+          maxLag: 10,
+        },
       },
     ]),
   signature: mkSig("0xabcdef1c"),
