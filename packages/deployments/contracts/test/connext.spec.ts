@@ -97,7 +97,6 @@ describe("Connext", () => {
   let destinationRelayerFeeRouter: RelayerFeeRouter;
   let home: Home;
   let destinationHome: Home;
-  let bridgeMessage: TestBridgeMessage;
   let snapshot: number;
 
   const originDomain = 1;
@@ -155,7 +154,13 @@ describe("Connext", () => {
     originBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
         "ConnextHandler",
-        [originDomain, originXappConnectionManager.address, originTokenRegistry.address, weth.address, originRelayerFeeRouter.address],
+        [
+          originDomain,
+          originXappConnectionManager.address,
+          originTokenRegistry.address,
+          weth.address,
+          originRelayerFeeRouter.address,
+        ],
         upgradeBeaconController.address,
         {
           AssetLogic: assetLogic.address,
@@ -168,7 +173,13 @@ describe("Connext", () => {
     destinationBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
         "ConnextHandler",
-        [destinationDomain, destinationXappConnectionManager.address, destinationTokenRegistry.address, weth.address, destinationRelayerFeeRouter.address],
+        [
+          destinationDomain,
+          destinationXappConnectionManager.address,
+          destinationTokenRegistry.address,
+          weth.address,
+          destinationRelayerFeeRouter.address,
+        ],
         upgradeBeaconController.address,
         {
           AssetLogic: assetLogic.address,
@@ -182,8 +193,6 @@ describe("Connext", () => {
     home = await deployContract<Home>("Home", originDomain);
     // Deploy home in destination domain
     destinationHome = await deployContract<Home>("Home", destinationDomain);
-    // Deploy test bridge message
-    bridgeMessage = await deployContract<TestBridgeMessage>("TestBridgeMessage");
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -874,7 +883,7 @@ describe("Connext", () => {
       params,
       nonce,
       local: local.address,
-      amount: routerAmount,
+      amount,
       routers: [router.address],
       originSender: user.address,
     });
@@ -934,7 +943,7 @@ describe("Connext", () => {
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount + relayerFee });
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount.add(relayerFee) });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -966,7 +975,7 @@ describe("Connext", () => {
       params,
       nonce,
       local: destinationAdopted.address,
-      amount: routerAmount,
+      amount,
       routers: [router.address],
       originSender: user.address,
     });
@@ -1080,7 +1089,7 @@ describe("Connext", () => {
           params,
           nonce,
           local: local.address,
-          amount: routersAmount,
+          amount,
           routers,
           originSender: user.address,
         });
@@ -1207,7 +1216,7 @@ describe("Connext", () => {
       await stableSwap.connect(admin).setupPool(originAdopted.address, canonical.address, SEED, SEED);
 
       // Setup stable swap for local => adopted on dest
-      await stableSwap.connect(admin).setupPool(destinationAdopted.address, local.address, SEED * 2, SEED * 2);
+      await stableSwap.connect(admin).setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
     });
 
     const bumpScenarios = [
@@ -1264,7 +1273,9 @@ describe("Connext", () => {
 
         // initiate claim
         const ids = transferIds.map((transfer) => transfer.transferId);
-        const initiateClaimTx = await destinationBridge.connect(router).initiateClaim(originDomain, router.address, ids);
+        const initiateClaimTx = await destinationBridge
+          .connect(router)
+          .initiateClaim(originDomain, router.address, ids);
         const initiateClaimTxReceipt = await initiateClaimTx.wait();
 
         const initiateClaimSendRouterEvent = (
