@@ -130,7 +130,6 @@ describe("Connext", () => {
     stableSwap = await deployContract<DummySwap>("DummySwap");
 
     // Deploy Connext logic libraries
-    // const assetLogic = await deployContract("AssetLogic");
     connextUtils = await deployContract("ConnextUtils");
     const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
 
@@ -141,7 +140,6 @@ describe("Connext", () => {
         [originDomain, originXappConnectionManager.address, originTokenRegistry.address, weth.address],
         upgradeBeaconController.address,
         {
-          // AssetLogic: assetLogic.address,
           ConnextUtils: connextUtils.address,
           RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
         },
@@ -154,7 +152,6 @@ describe("Connext", () => {
         [destinationDomain, destinationXappConnectionManager.address, destinationTokenRegistry.address, weth.address],
         upgradeBeaconController.address,
         {
-          // AssetLogic: assetLogic.address,
           ConnextUtils: connextUtils.address,
           RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
         },
