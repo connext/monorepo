@@ -51,7 +51,13 @@ create table transfers (
   reconcile_gas_limit numeric,
   reconcile_block_number integer
 );
+create table nonce (
+  domain varchar(255) not null primary key,
+  nonce bigint not null
+);
 
 
 -- migrate:down
 drop table transfers;
+drop table nonce;
+drop type transfer_status;

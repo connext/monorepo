@@ -26,6 +26,89 @@ declare module 'zapatos/schema' {
   /* --- tables --- */
 
   /**
+   * **nonce**
+   * - Table in database
+   */
+  export namespace nonce {
+    export type Table = 'nonce';
+    export interface Selectable {
+      /**
+      * **nonce.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+      /**
+      * **nonce.nonce**
+      * - `int8` in database
+      * - `NOT NULL`, no default
+      */
+      nonce: db.Int8String;
+    }
+    export interface JSONSelectable {
+      /**
+      * **nonce.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+      /**
+      * **nonce.nonce**
+      * - `int8` in database
+      * - `NOT NULL`, no default
+      */
+      nonce: number;
+    }
+    export interface Whereable {
+      /**
+      * **nonce.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **nonce.nonce**
+      * - `int8` in database
+      * - `NOT NULL`, no default
+      */
+      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **nonce.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **nonce.nonce**
+      * - `int8` in database
+      * - `NOT NULL`, no default
+      */
+      nonce: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **nonce.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **nonce.nonce**
+      * - `int8` in database
+      * - `NOT NULL`, no default
+      */
+      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'nonce_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = db.GenericSQLExpression | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Table | Whereable | Column;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
    * **schema_migrations**
    * - Table in database
    */
@@ -1303,57 +1386,65 @@ declare module 'zapatos/schema' {
 
   /* === cross-table types === */
 
-  export type Table = schema_migrations.Table | transfers.Table;
-  export type Selectable = schema_migrations.Selectable | transfers.Selectable;
-  export type JSONSelectable = schema_migrations.JSONSelectable | transfers.JSONSelectable;
-  export type Whereable = schema_migrations.Whereable | transfers.Whereable;
-  export type Insertable = schema_migrations.Insertable | transfers.Insertable;
-  export type Updatable = schema_migrations.Updatable | transfers.Updatable;
-  export type UniqueIndex = schema_migrations.UniqueIndex | transfers.UniqueIndex;
-  export type Column = schema_migrations.Column | transfers.Column;
-  export type AllBaseTables = [schema_migrations.Table, transfers.Table];
+  export type Table = nonce.Table | schema_migrations.Table | transfers.Table;
+  export type Selectable = nonce.Selectable | schema_migrations.Selectable | transfers.Selectable;
+  export type JSONSelectable = nonce.JSONSelectable | schema_migrations.JSONSelectable | transfers.JSONSelectable;
+  export type Whereable = nonce.Whereable | schema_migrations.Whereable | transfers.Whereable;
+  export type Insertable = nonce.Insertable | schema_migrations.Insertable | transfers.Insertable;
+  export type Updatable = nonce.Updatable | schema_migrations.Updatable | transfers.Updatable;
+  export type UniqueIndex = nonce.UniqueIndex | schema_migrations.UniqueIndex | transfers.UniqueIndex;
+  export type Column = nonce.Column | schema_migrations.Column | transfers.Column;
+  export type AllBaseTables = [nonce.Table, schema_migrations.Table, transfers.Table];
   export type AllForeignTables = [];
   export type AllViews = [];
   export type AllMaterializedViews = [];
-  export type AllTablesAndViews = [schema_migrations.Table, transfers.Table];
+  export type AllTablesAndViews = [nonce.Table, schema_migrations.Table, transfers.Table];
 
 
   export type SelectableForTable<T extends Table> = {
+    nonce: nonce.Selectable;
     schema_migrations: schema_migrations.Selectable;
     transfers: transfers.Selectable;
   }[T];
 
   export type JSONSelectableForTable<T extends Table> = {
+    nonce: nonce.JSONSelectable;
     schema_migrations: schema_migrations.JSONSelectable;
     transfers: transfers.JSONSelectable;
   }[T];
 
   export type WhereableForTable<T extends Table> = {
+    nonce: nonce.Whereable;
     schema_migrations: schema_migrations.Whereable;
     transfers: transfers.Whereable;
   }[T];
 
   export type InsertableForTable<T extends Table> = {
+    nonce: nonce.Insertable;
     schema_migrations: schema_migrations.Insertable;
     transfers: transfers.Insertable;
   }[T];
 
   export type UpdatableForTable<T extends Table> = {
+    nonce: nonce.Updatable;
     schema_migrations: schema_migrations.Updatable;
     transfers: transfers.Updatable;
   }[T];
 
   export type UniqueIndexForTable<T extends Table> = {
+    nonce: nonce.UniqueIndex;
     schema_migrations: schema_migrations.UniqueIndex;
     transfers: transfers.UniqueIndex;
   }[T];
 
   export type ColumnForTable<T extends Table> = {
+    nonce: nonce.Column;
     schema_migrations: schema_migrations.Column;
     transfers: transfers.Column;
   }[T];
 
   export type SQLForTable<T extends Table> = {
+    nonce: nonce.SQL;
     schema_migrations: schema_migrations.SQL;
     transfers: transfers.SQL;
   }[T];
