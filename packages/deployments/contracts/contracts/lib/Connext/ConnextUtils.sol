@@ -49,13 +49,13 @@ library ConnextUtils {
     return keccak256(abi.encode(transfer));
   }
 
-  function verifyRouterPermit(
+  function verifyRouterPermits(
     bytes32 _permit,
     address[] calldata _routers,
     bytes[] calldata _signatures
   ) external view {
     for (uint i = 0; i < _signatures.length; i++) {
-      // TODO: If the sender *is* the router, skip
+      // If the sender *is* the router, skip
       if (msg.sender == _routers[i]) {
         continue;
       }

@@ -87,7 +87,9 @@ interface IConnext {
    * @param params - The CallParams. These are consistent across sending and receiving chains
    * @param local - The local asset for the transfer, will be swapped to the adopted asset if
    * appropriate
-   * @param router - The router who you are sending the funds on behalf of
+   * @param routers - The router(s) that are supplying liquidity for the transfer.
+   * @param permits - The permit signature(s) of the routers. Represents routers' consent to use
+   * funds for this `execute` call. A signature is a signed hash of (transferId, params, local, pathLength).
    * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
    * if fast liquidity was used
    * @param feePercentage - The amount over the BASEFEE to tip the relayer
@@ -98,28 +100,12 @@ interface IConnext {
     CallParams params;
     address local;
     address[] routers;
-    bytes[] signatures;
+    bytes[] permits;
     uint32 feePercentage;
     uint256 amount;
     uint256 nonce;
     bytes relayerSignature;
     address originSender;
-  }
-
-  /**
-   * @notice The permit represents the router's consent to use its funds to `execute` a transfer. This
-   * information should be hashed and signed by each router in the routers array individually.
-   * @param params - The CallParams. These are consistent across sending and receiving chains.
-   * @param local - The local asset for the transfer, will be swapped to the adopted asset if
-   * appropriate
-   * @param quorum - The length of the routers array. Indicates how many routers this router assents to
-   * conducting a multipath transfer with.
-   */
-  struct RouterPermit {
-    bytes transferId;
-    CallParams params;
-    address local;
-    uint16 quorum;
   }
   // ============ Events ============
 

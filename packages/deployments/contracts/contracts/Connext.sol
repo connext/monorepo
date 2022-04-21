@@ -546,10 +546,10 @@ contract Connext is
     bytes32 _transferId = ConnextUtils.getTransferId(_args.nonce, _args.originSender, _args.params);
 
     // Check router signatures
-    ConnextUtils.verifyRouterPermit(
+    ConnextUtils.verifyRouterPermits(
       keccak256(abi.encode(_transferId, _args.params, _args.local, _args.routers.length)),
       _args.routers,
-      _args.signatures
+      _args.permits
     );
 
     // Determine if this is fast liquidity

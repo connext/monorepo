@@ -60,6 +60,7 @@ export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   routers: Type.Array(TAddress),
+  permits: Type.Array(Type.String()),
   feePercentage: TDecimalString,
   amount: TDecimalString,
   nonce: Type.Integer(),

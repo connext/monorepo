@@ -1,4 +1,4 @@
-import { BidData, createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { BidData, createLoggingContext, ExecuteArgs, RequestContext } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
 
@@ -17,7 +17,7 @@ export const sanityCheck = async (bidData: BidData, requestContext: RequestConte
     {
       ...bidData,
       routers: [router],
-    },
+    } as ExecuteArgs,
   ]);
   const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
 
