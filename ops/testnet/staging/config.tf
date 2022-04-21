@@ -29,7 +29,7 @@ locals {
     }
 
     chains = {
-      "2000" = {
+      "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [
           {
@@ -38,7 +38,7 @@ locals {
           }
         ]
       }
-      "3000" = {
+      "2221" = {
         assets = [
           {
             name    = "TEST"
@@ -66,7 +66,7 @@ locals {
       port       = 8080
     }
     chains = {
-      "2000" = {
+      "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [
           {
@@ -75,7 +75,7 @@ locals {
           }
         ]
       }
-      "3000" = {
+      "2221" = {
         "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
         assets = [
           {
