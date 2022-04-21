@@ -185,35 +185,35 @@ contract ConnextHandler is
 
   /**
    * @notice Used to set router initial properties
-   * @param router Router address to setup
-   * @param owner Initial Owner of router
-   * @param recipient Initial Recipient of router
+   * @param _router Router address to setup
+   * @param _owner Initial Owner of router
+   * @param _recipient Initial Recipient of router
    */
   function setupRouter(
-    address router,
-    address owner,
-    address recipient
+    address _router,
+    address _owner,
+    address _recipient
   ) external onlyOwner {
-    _setupRouter(router, owner, recipient);
+    _setupRouter(_router, _owner, _recipient);
   }
 
   /**
    * @notice Used to remove routers that can transact crosschain
-   * @param router Router address to remove
+   * @param _router Router address to remove
    */
-  function removeRouter(address router) external override onlyOwner {
-    _removeRouter(router);
+  function removeRouter(address _router) external override onlyOwner {
+    _removeRouter(_router);
   }
 
   /**
    * @notice Adds a stable swap pool for the local <> adopted asset.
    */
-  function addStableSwapPool(ConnextMessage.TokenId calldata canonical, address stableSwapPool)
+  function addStableSwapPool(ConnextMessage.TokenId calldata _canonical, address _stableSwapPool)
     external
     override
     onlyOwner
   {
-    ConnextUtils.addStableSwapPool(canonical, stableSwapPool, adoptedToLocalPools);
+    ConnextUtils.addStableSwapPool(_canonical, _stableSwapPool, adoptedToLocalPools);
   }
 
   /**
@@ -222,21 +222,20 @@ contract ConnextHandler is
    * whitelisted as well. In the event you have a different adopted asset (i.e. PoS USDC
    * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset
-   * @param canonical - The canonical asset to add by id and domain. All representations
+   * @param _canonical - The canonical asset to add by id and domain. All representations
    * will be whitelisted as well
-   * @param adoptedAssetId - The used asset id for this domain (i.e. PoS USDC for
+   * @param _adoptedAssetId - The used asset id for this domain (i.e. PoS USDC for
    * polygon)
-   * @param stableSwapPool - Address of the pool to swap adopted <> local asset
    */
   function setupAsset(
-    ConnextMessage.TokenId calldata canonical,
-    address adoptedAssetId,
-    address stableSwapPool
+    ConnextMessage.TokenId calldata _canonical,
+    address _adoptedAssetId,
+    address _stableSwapPool
   ) external override onlyOwner {
     // Add the asset
     ConnextUtils.addAssetId(
-      canonical,
-      adoptedAssetId,
+      _canonical,
+      _adoptedAssetId,
       address(wrapper),
       approvedAssets,
       adoptedToCanonical,
@@ -244,18 +243,18 @@ contract ConnextHandler is
     );
 
     // Add the swap pool
-    ConnextUtils.addStableSwapPool(canonical, stableSwapPool, adoptedToLocalPools);
+    ConnextUtils.addStableSwapPool(_canonical, _stableSwapPool, adoptedToLocalPools);
   }
 
   /**
    * @notice Used to remove assets from the whitelist
-   * @param canonicalId - Token id to remove
-   * @param adoptedAssetId - Corresponding adopted asset to remove
+   * @param _canonicalId - Token id to remove
+   * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
-  function removeAssetId(bytes32 canonicalId, address adoptedAssetId) external override onlyOwner {
+  function removeAssetId(bytes32 _canonicalId, address _adoptedAssetId) external override onlyOwner {
     ConnextUtils.removeAssetId(
-      canonicalId,
-      adoptedAssetId,
+      _canonicalId,
+      _adoptedAssetId,
       address(wrapper),
       approvedAssets,
       adoptedToLocalPools,
@@ -265,31 +264,31 @@ contract ConnextHandler is
 
   /**
    * @notice Used to add approved relayer
-   * @param relayer - The relayer address to add
+   * @param _relayer - The relayer address to add
    */
-  function addRelayer(address relayer) external override onlyOwner {
-    ConnextUtils.addRelayer(relayer, approvedRelayers);
+  function addRelayer(address _relayer) external override onlyOwner {
+    ConnextUtils.addRelayer(_relayer, approvedRelayers);
   }
 
   /**
    * @notice Used to remove approved relayer
-   * @param relayer - The relayer address to remove
+   * @param _relayer - The relayer address to remove
    */
-  function removeRelayer(address relayer) external override onlyOwner {
-    ConnextUtils.removeRelayer(relayer, approvedRelayers);
+  function removeRelayer(address _relayer) external override onlyOwner {
+    ConnextUtils.removeRelayer(_relayer, approvedRelayers);
   }
 
   /**
    * @notice Used to set the max amount of routers a payment can be routed through
-   * @param newMaxRouters The new max amount of routers
+   * @param _newMaxRouters The new max amount of routers
    */
-  function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
-    if (newMaxRouters == 0 || newMaxRouters == maxRoutersPerTransfer)
+  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external override onlyOwner {
+    if (_newMaxRouters == 0 || _newMaxRouters == maxRoutersPerTransfer)
       revert ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
-    maxRoutersPerTransfer = newMaxRouters;
+    maxRoutersPerTransfer = _newMaxRouters;
 
-    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
+    emit MaxRoutersPerTransferUpdated(_newMaxRouters, msg.sender);
   }
 
   // ============ External functions ============
@@ -300,53 +299,53 @@ contract ConnextHandler is
    * @notice This is used by anyone to increase a router's available liquidity for a given asset.
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
-   * @param amount - The amount of liquidity to add for the router
-   * @param local - The address of the asset you're adding liquidity for. If adding liquidity of the
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
-   * @param router The router you are adding liquidity on behalf of
+   * @param _router The router you are adding liquidity on behalf of
    */
   function addLiquidityFor(
-    uint256 amount,
-    address local,
-    address router
+    uint256 _amount,
+    address _local,
+    address _router
   ) external payable override nonReentrant {
-    _addLiquidityForRouter(amount, local, router);
+    _addLiquidityForRouter(_amount, _local, _router);
   }
 
   /**
    * @notice This is used by any router to increase their available liquidity for a given asset.
    * @dev The liquidity will be held in the local asset, which is the representation if you
    * are *not* on the canonical domain, and the canonical asset otherwise.
-   * @param amount - The amount of liquidity to add for the router
-   * @param local - The address of the asset you're adding liquidity for. If adding liquidity of the
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    */
-  function addLiquidity(uint256 amount, address local) external payable override nonReentrant {
-    _addLiquidityForRouter(amount, local, msg.sender);
+  function addLiquidity(uint256 _amount, address _local) external payable override nonReentrant {
+    _addLiquidityForRouter(_amount, _local, msg.sender);
   }
 
   /**
    * @notice This is used by any router to decrease their available liquidity for a given asset.
-   * @param amount - The amount of liquidity to remove for the router
-   * @param local - The address of the asset you're removing liquidity from. If removing liquidity of the
+   * @param _amount - The amount of liquidity to remove for the router
+   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
-   * @param to The address that will receive the liquidity being removed
+   * @param _to The address that will receive the liquidity being removed
    */
   function removeLiquidity(
-    uint256 amount,
-    address local,
-    address payable to
+    uint256 _amount,
+    address _local,
+    address payable _to
   ) external override nonReentrant {
     // transfer to specicfied recipient IF recipient not set
-    address _recipient = routerRecipients(msg.sender);
-    _recipient = _recipient == address(0) ? to : _recipient;
+    address recipient = routerRecipients(msg.sender);
+    recipient = recipient == address(0) ? _to : recipient;
 
-    ConnextUtils.removeLiquidity(amount, local, _recipient, routerBalances, wrapper);
+    ConnextUtils.removeLiquidity(_amount, _local, recipient, routerBalances, wrapper);
   }
 
   function xcall(XCallArgs calldata _args) external payable override returns (bytes32) {
     // get remote BridgeRouter address; revert if not found
-    bytes32 _remote = _mustHaveRemote(_args.params.destinationDomain);
+    bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
 
     ConnextUtils.xCallLibArgs memory libArgs = ConnextUtils.xCallLibArgs({
       xCallArgs: _args,
@@ -355,14 +354,14 @@ contract ConnextHandler is
       tokenRegistry: tokenRegistry,
       domain: domain,
       home: xAppConnectionManager.home(),
-      remote: _remote
+      remote: remote
     });
 
-    (bytes32 _transferId, uint256 newNonce) = ConnextUtils.xcall(libArgs, adoptedToCanonical, adoptedToLocalPools);
+    (bytes32 transferId, uint256 newNonce) = ConnextUtils.xcall(libArgs, adoptedToCanonical, adoptedToLocalPools);
 
     nonce = newNonce;
 
-    return _transferId;
+    return transferId;
   }
 
   /**
@@ -425,7 +424,6 @@ contract ConnextHandler is
    * @param _local - The address of the nomad representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
-  // CU
   function _addLiquidityForRouter(
     uint256 _amount,
     address _local,
