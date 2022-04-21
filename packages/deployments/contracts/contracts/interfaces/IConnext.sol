@@ -56,6 +56,13 @@ interface IConnext {
     address originSender;
   }
 
+  /**
+   * @notice Emitted when the maxRoutersPerTransfer variable is updated
+   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
+   * @param caller - The account that called the function
+   */
+  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
+
   // ============ Admin Functions ============
 
   function initialize(

@@ -417,13 +417,14 @@ describe("Connext", () => {
         },
         stableSwap.address,
       );
+
       const receipt = await tx.wait();
-      assertReceiptEvent(receipt, "StableSwapAdded", {
-        caller: receipt.from,
-        canonicalId: addressToBytes32(canonical.address).toLowerCase(),
-        domain: originDomain,
-        swapPool: stableSwap.address,
-      });
+
+      const stableSwapAddedEvent = connextUtils.interface.parseLog(receipt.logs[0])
+      expect(stableSwapAddedEvent.args.caller).to.eq(admin.address);
+      expect(stableSwapAddedEvent.args.canonicalId).to.eq(addressToBytes32(canonical.address).toLowerCase());
+      expect(stableSwapAddedEvent.args.domain).to.eq(originDomain);
+      expect(stableSwapAddedEvent.args.swapPool).to.eq(stableSwap.address);
       expect(await originBridge.adoptedToLocalPools(addressToBytes32(canonical.address))).to.be.equal(
         stableSwap.address,
       );
@@ -476,14 +477,13 @@ describe("Connext", () => {
       );
       const receipt = await tx.wait();
       const supported = originAdopted.address == ZERO_ADDRESS ? weth.address : originAdopted.address;
-      assertReceiptEvent(receipt, "AssetAdded", {
-        caller: receipt.from,
-        canonicalId: addressToBytes32(toAdd).toLowerCase(),
-        domain: originDomain,
-        adoptedAsset: originAdopted.address,
-        supportedAsset: supported,
-      });
 
+      const assetAddedEvent = connextUtils.interface.parseLog(receipt.logs[0])
+      expect(assetAddedEvent.args.caller).to.eq(admin.address);
+      expect(assetAddedEvent.args.canonicalId).to.eq(addressToBytes32(toAdd).toLowerCase());
+      expect(assetAddedEvent.args.domain).to.eq(originDomain);
+      expect(assetAddedEvent.args.adoptedAsset).to.eq(originAdopted.address);
+      expect(assetAddedEvent.args.supportedAsset).to.eq(supported);
       expect(await originBridge.approvedAssets(addressToBytes32(toAdd))).to.be.true;
     });
   });
@@ -514,11 +514,9 @@ describe("Connext", () => {
       const tx = await originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address);
       const receipt = await tx.wait();
 
-      assertReceiptEvent(receipt, "AssetRemoved", {
-        caller: receipt.from,
-        canonicalId: addressToBytes32(toRemove).toLowerCase(),
-      });
-
+      const assetRemovedEvent = connextUtils.interface.parseLog(receipt.logs[0])
+      expect(assetRemovedEvent.args.caller).to.eq(admin.address);
+      expect(assetRemovedEvent.args.canonicalId).to.eq(addressToBytes32(addressToBytes32(toRemove).toLowerCase()).toLowerCase());
       expect(await originBridge.approvedAssets(addressToBytes32(toRemove))).to.be.false;
       expect(await originBridge.adoptedToLocalPools(addressToBytes32(toRemove))).to.be.eq(ZERO_ADDRESS);
     });
@@ -696,13 +694,15 @@ describe("Connext", () => {
       expect(receipt.status).to.be.eq(1);
 
       // Verify receipt events
-      assertReceiptEvent(receipt, "LiquidityRemoved", {
-        router: router.address,
-        local: assetId,
-        caller: router.address,
-        amount,
-        to: router.address,
-      });
+      const liquidityRemovedTopics = connextUtils.filters.LiquidityRemoved().topics as string[];
+      const liquidityRemovedEvent = connextUtils.interface.parseLog(
+        receipt.logs.find((l) => l.topics.includes(liquidityRemovedTopics[0]))!,
+      );
+      expect(liquidityRemovedEvent.args.router).to.eq(router.address);
+      expect(liquidityRemovedEvent.args.local).to.eq(assetId);
+      expect(liquidityRemovedEvent.args.caller).to.eq(router.address);
+      expect(liquidityRemovedEvent.args.amount).to.eq(amount);
+      expect(liquidityRemovedEvent.args.to).to.eq(router.address);
 
       // Check liquidity
       const liquidity = await originBridge.routerBalances(router.address, assetId);
@@ -737,13 +737,15 @@ describe("Connext", () => {
       expect(receipt.status).to.be.eq(1);
 
       // Verify receipt events
-      assertReceiptEvent(receipt, "LiquidityRemoved", {
-        router: router.address,
-        local: assetId,
-        caller: router.address,
-        amount,
-        to: router.address,
-      });
+      const liquidityRemovedTopics = connextUtils.filters.LiquidityRemoved().topics as string[];
+      const liquidityRemovedEvent = connextUtils.interface.parseLog(
+        receipt.logs.find((l) => l.topics.includes(liquidityRemovedTopics[0]))!,
+      );
+      expect(liquidityRemovedEvent.args.router).to.eq(router.address);
+      expect(liquidityRemovedEvent.args.local).to.eq(assetId);
+      expect(liquidityRemovedEvent.args.caller).to.eq(router.address);
+      expect(liquidityRemovedEvent.args.amount).to.eq(amount);
+      expect(liquidityRemovedEvent.args.to).to.eq(router.address);
 
       // Check liquidity
       const liquidity = await destinationBridge.routerBalances(router.address, assetId);
@@ -990,7 +992,7 @@ describe("Connext", () => {
       nonce = originBridgeEvent.args.nonce;
       transferId = originBridgeEvent.args.transferId;
       message = originBridgeEvent.args.message;
-      bridgedAmount = originBridgeEvent.args.args.bridged;
+      bridgedAmount = originBridgeEvent.args.args.bridgedAmt;
 
       reconciledTopics = connextUtils.filters.Reconciled().topics as string[];
     });
@@ -1039,11 +1041,9 @@ describe("Connext", () => {
           .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
 
         const reconcileReceipt = await reconcile.wait();
-        // const [reconciledEvent] = await destinationBridge.queryFilter(connextUtils.filters.Reconciled(transferId));
-
-        const reconciliedTopic = connextUtils.filters.Reconciled(transferId).topics as string[]
+        const reconciledTopic = connextUtils.filters.Reconciled(transferId).topics as string[]
         const reconciledEvent = connextUtils.interface.parseLog(
-          reconcileReceipt.logs.find((l) => l.topics.includes(reconciliedTopic[0]))!,
+          reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopic[0]))!,
         );
 
         expect(reconciledEvent.args.transferId).eql(transferId);

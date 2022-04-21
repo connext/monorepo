@@ -156,6 +156,7 @@ contract ConnextHandler is
   error ConnextHandler__addLiquidityForRouter_amountIsZero();
   error ConnextHandler__addLiquidityForRouter_badRouter();
   error ConnextHandler__addLiquidityForRouter_badAsset();
+  error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
   // ========== Initializer ============
 
@@ -283,7 +284,12 @@ contract ConnextHandler is
    * @param newMaxRouters The new max amount of routers
    */
   function setMaxRoutersPerTransfer(uint256 newMaxRouters) external override onlyOwner {
-    ConnextUtils.setMaxRoutersPerTransfer(newMaxRouters, maxRoutersPerTransfer);
+    if (newMaxRouters == 0 || newMaxRouters == maxRoutersPerTransfer)
+      revert ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+
+    maxRoutersPerTransfer = newMaxRouters;
+
+    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
   }
 
   // ============ External functions ============

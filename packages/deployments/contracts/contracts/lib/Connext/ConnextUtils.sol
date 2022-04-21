@@ -118,13 +118,6 @@ library ConnextUtils {
   event RelayerRemoved(address relayer, address caller);
 
   /**
-   * @notice Emitted when the maxRoutersPerTransfer variable is updated
-   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
-   * @param caller - The account that called the function
-   */
-  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
-
-  /**
   //  * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
    * @param origin - The origin domain of the transfer
@@ -293,20 +286,6 @@ library ConnextUtils {
     delete approvedRelayers[relayer];
 
     emit RelayerRemoved(relayer, msg.sender);
-  }
-
-  /**
-   * @notice Used to set the max amount of routers a payment can be routed through
-   * @param newMaxRouters The new max amount of routers
-   */
-  // TODO - Does this work? maxRoutersPerTransfer is storage in ConnextUtils, Does it get updated?
-  function setMaxRoutersPerTransfer(uint256 newMaxRouters, uint256 maxRoutersPerTransfer) external {
-    if (newMaxRouters == 0 || newMaxRouters == maxRoutersPerTransfer)
-      revert ConnextUtils__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
-
-    maxRoutersPerTransfer = newMaxRouters;
-
-    emit MaxRoutersPerTransferUpdated(newMaxRouters, msg.sender);
   }
 
   /**
