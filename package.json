@@ -37,7 +37,7 @@
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach -pt --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
-    "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
+    "version:all": "yarn workspaces foreach run version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
     "tsp:root": "tsp",
     "tsp": "tsp",
