@@ -6,6 +6,7 @@ import "./ForgeHelper.sol";
 import "../contracts/interfaces/IConnext.sol";
 import "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
+import "../contracts/ProposedOwnableUpgradeable.sol";
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
@@ -110,7 +111,9 @@ contract RelayerFeeRouterTest is ForgeHelper {
   // Fail if not called by owner
   function testSetConnextOnlyOwner() public {
     vm.prank(address(0));
-    vm.expectRevert("Ownable: caller is not the owner");
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
     relayerFeeRouter.setConnext(connext2);
   }
 
