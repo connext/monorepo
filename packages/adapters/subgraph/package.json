@@ -13,12 +13,13 @@
     "lint": "eslint ./src --ext .ts --env node",
     "test": "",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "tsc --build ./tsconfig.build.json",
+    "build": "tsc --build ./tsconfig.build.json && graphclient build --tsOnly",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
+    "codegen:analytics": "graphql-codegen --config ./analytics.yml",
+    "graphiql": "graphclient serve-dev"
   },
   "nodemonConfig": {
     "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
@@ -36,6 +37,8 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@graphprotocol/client-cli": "0.0.3",
+    "@graphql-mesh/transform-prefix": "0.11.32",
     "@sinclair/typebox": "^0.23.4",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "ethers": "^5.6.1",

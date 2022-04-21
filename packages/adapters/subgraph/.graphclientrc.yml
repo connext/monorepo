@@ -1,0 +1,21 @@
+sources:
+  - name: Connext_Kovan
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
+    transforms:
+      - prefix:
+          value: Kovan_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+  - name: Connext_Rinkeby
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby
+    transforms:
+      - prefix:
+          value: Rinkeby_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
