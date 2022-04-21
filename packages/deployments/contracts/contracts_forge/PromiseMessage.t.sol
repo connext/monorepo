@@ -36,9 +36,14 @@ contract PromiseMessageTest is ForgeHelper {
     bytes calldata _returnData
   ) public {
     vm.assume(_callbackAddress != address(0) && _returnData.length == 32);
-    //format PromiseCallback message 
-    bytes memory message = PromiseMessage.formatPromiseCallback(_transferId, _callbackAddress, _returnSuccess, _returnData);
-    
+    //format PromiseCallback message
+    bytes memory message = PromiseMessage.formatPromiseCallback(
+      _transferId,
+      _callbackAddress,
+      _returnSuccess,
+      _returnData
+    );
+
     // parse Message again
     bytes29 _msg = message.ref(0).mustBePromiseCallback();
     bytes32 _parsedTransferId = _msg.transferId();
