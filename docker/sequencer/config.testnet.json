@@ -8,11 +8,11 @@
     "port": 8081
   },
   "chains": {
-    "2000": {
+    "1111": {
       "assets": [{ "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2", "name": "TEST" }],
       "providers": ["https://rpc.ankr.com/eth_rinkeby"]
     },
-    "3000": {
+    "2221": {
       "assets": [{ "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", "name": "TEST" }],
       "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
     }
