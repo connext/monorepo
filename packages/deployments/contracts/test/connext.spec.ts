@@ -13,7 +13,8 @@ import {
   DummySwap,
   ProposedOwnableUpgradeable,
   ConnextHandler,
-  ConnextUtils
+  ConnextUtils,
+  RelayerFeeRouter,
 } from "../typechain-types";
 
 import {
@@ -27,6 +28,7 @@ import {
   getRoutersBalances,
   restoreSnapshot,
   takeSnapshot,
+  connextXCall,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
@@ -93,7 +95,10 @@ describe("Connext", () => {
   let originBridge: ConnextHandler;
   let destinationBridge: ConnextHandler;
   let stableSwap: DummySwap;
+  let originRelayerFeeRouter: RelayerFeeRouter;
+  let destinationRelayerFeeRouter: RelayerFeeRouter;
   let home: Home;
+  let destinationHome: Home;
   let snapshot: number;
 
   const originDomain = 1;
@@ -133,11 +138,30 @@ describe("Connext", () => {
     connextUtils = await deployContract("ConnextUtils");
     const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
 
+    // Deploy RelayerFeeRouters
+    originRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>(
+      "RelayerFeeRouter",
+      [originXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
+
+    destinationRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>(
+      "RelayerFeeRouter",
+      [destinationXappConnectionManager.address],
+      upgradeBeaconController.address,
+    );
+
     // Deploy bridge
     originBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
         "ConnextHandler",
-        [originDomain, originXappConnectionManager.address, originTokenRegistry.address, weth.address],
+        [
+          originDomain,
+          originXappConnectionManager.address,
+          originTokenRegistry.address,
+          weth.address,
+          originRelayerFeeRouter.address,
+        ],
         upgradeBeaconController.address,
         {
           ConnextUtils: connextUtils.address,
@@ -149,7 +173,13 @@ describe("Connext", () => {
     destinationBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
         "ConnextHandler",
-        [destinationDomain, destinationXappConnectionManager.address, destinationTokenRegistry.address, weth.address],
+        [
+          destinationDomain,
+          destinationXappConnectionManager.address,
+          destinationTokenRegistry.address,
+          weth.address,
+          destinationRelayerFeeRouter.address,
+        ],
         upgradeBeaconController.address,
         {
           ConnextUtils: connextUtils.address,
@@ -158,8 +188,10 @@ describe("Connext", () => {
       )
     ).connect(admin);
 
-    // Deploy home
+    // Deploy home in origin domain
     home = await deployContract<Home>("Home", originDomain);
+    // Deploy home in destination domain
+    destinationHome = await deployContract<Home>("Home", destinationDomain);
   };
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
@@ -201,6 +233,11 @@ describe("Connext", () => {
     ]);
     await setReplica.wait();
 
+    await executeProxyWrite(admin, originXappConnectionManager, "ownerEnrollReplica", [
+      admin.address,
+      destinationDomain,
+    ]);
+
     // Setup remote router on dest
     const setDestRemoteRouter = await executeProxyWrite(admin, destinationBridge, "enrollRemoteRouter", [
       originDomain,
@@ -218,6 +255,7 @@ describe("Connext", () => {
     // Setup home
     const setHome = await executeProxyWrite(admin, originXappConnectionManager, "setHome", [home.address]);
     await setHome.wait();
+    await executeProxyWrite(admin, destinationXappConnectionManager, "setHome", [destinationHome.address]);
 
     // Mint to admin
     await asyncForEach([originAdopted, destinationAdopted, canonical, local, weth], async (contract) => {
@@ -302,6 +340,22 @@ describe("Connext", () => {
 
     // add relayer
     await destinationBridge.addRelayer(router.address);
+
+    expect(await originRelayerFeeRouter.connect(admin).xAppConnectionManager()).to.eq(
+      originXappConnectionManager.address,
+    );
+    expect(await destinationRelayerFeeRouter.connect(admin).xAppConnectionManager()).to.eq(
+      destinationXappConnectionManager.address,
+    );
+    await originRelayerFeeRouter.connect(admin).setConnext(originBridge.address);
+    await originRelayerFeeRouter
+      .connect(admin)
+      .enrollRemoteRouter(destinationDomain, addressToBytes32(destinationRelayerFeeRouter.address));
+
+    await destinationRelayerFeeRouter.connect(admin).setConnext(destinationBridge.address);
+    await destinationRelayerFeeRouter
+      .connect(admin)
+      .enrollRemoteRouter(originDomain, addressToBytes32(originRelayerFeeRouter.address));
   });
 
   beforeEach(async () => {
@@ -796,9 +850,11 @@ describe("Connext", () => {
       destinationDomain,
     };
     const transactingAssetId = originAdopted.address;
-
-    const amount = utils.parseEther("0.001");
-    const prepare = await originBridge.connect(user).xcall({ params, transactingAssetId, amount });
+    const amount = utils.parseEther("0.0001");
+    const relayerFee = utils.parseEther("0.00000001");
+    const prepare = await originBridge
+      .connect(user)
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -833,7 +889,14 @@ describe("Connext", () => {
       routers: [router.address],
       originSender: user.address,
     });
-    await execute.wait();
+    const execReceipt = await execute.wait();
+
+    const destTmEvent = (await destinationBridge.queryFilter(destinationBridge.filters.Executed())).find(
+      (a) => a.blockNumber === execReceipt.blockNumber,
+    );
+    const transferId = (destTmEvent!.args as any).transferId;
+
+    expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
 
     // Check balance of user + bridge
     const postExecute = await Promise.all([
@@ -879,13 +942,19 @@ describe("Connext", () => {
     };
     const transactingAssetId = constants.AddressZero;
     const amount = utils.parseEther("0.0001");
-    const prepare = await originBridge.connect(user).xcall({ params, transactingAssetId, amount }, { value: amount });
+    const relayerFee = utils.parseEther("0.00000001");
+    const prepare = await originBridge
+      .connect(user)
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount.add(relayerFee) });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
     const postXcall = await Promise.all([user.getBalance(), weth.balanceOf(originBridge.address)]);
     expect(postXcall[0]).to.be.eq(
-      preXcall[0].sub(amount).sub(prepareReceipt.cumulativeGasUsed.mul(prepareReceipt.effectiveGasPrice)),
+      preXcall[0]
+        .sub(amount)
+        .sub(relayerFee)
+        .sub(prepareReceipt.cumulativeGasUsed.mul(prepareReceipt.effectiveGasPrice)),
     );
     expect(postXcall[1]).to.be.eq(preXcall[1].add(amount));
 
@@ -914,7 +983,14 @@ describe("Connext", () => {
       routers: [router.address],
       originSender: user.address,
     });
-    await fulfill.wait();
+    const execReceipt = await fulfill.wait();
+
+    const destTmEvent = (await destinationBridge.queryFilter(destinationBridge.filters.Executed())).find(
+      (a) => a.blockNumber === execReceipt.blockNumber,
+    );
+    const transferId = (destTmEvent!.args as any).transferId;
+
+    expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
 
     // Check balance of user + bridge
     const postFulfill = await Promise.all([
@@ -978,7 +1054,10 @@ describe("Connext", () => {
 
       // Prepare from the user
       const transactingAssetId = originAdopted.address;
-      const prepare = await originBridge.connect(user).xcall({ params, transactingAssetId, amount });
+      const relayerFee = utils.parseEther("0.00000001");
+      const prepare = await originBridge
+        .connect(user)
+        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
 
       const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
@@ -1012,7 +1091,7 @@ describe("Connext", () => {
           .div(await destinationBridge.LIQUIDITY_FEE_DENOMINATOR());
         const routerProportionalAmount = routersAmount.div(routers.length);
 
-        await destinationBridge.connect(router).execute({
+        const execute = await destinationBridge.connect(router).execute({
           params,
           nonce,
           local: local.address,
@@ -1020,6 +1099,15 @@ describe("Connext", () => {
           routers,
           originSender: user.address,
         });
+
+        const execReceipt = await execute.wait();
+
+        const destTmEvent = (await destinationBridge.queryFilter(destinationBridge.filters.Executed())).find(
+          (a) => a.blockNumber === execReceipt.blockNumber,
+        );
+        const transferId = (destTmEvent!.args as any).transferId;
+
+        expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
 
         // Check balance of user + bridge
         const userPostExecute = await destinationAdopted.balanceOf(user.address);
@@ -1116,6 +1204,111 @@ describe("Connext", () => {
           originSender: user.address,
         }),
       ).to.revertedWith("ConnextUtils__execute_maxRoutersExceeded()");
+    });
+  });
+
+  describe("relayerFee", () => {
+    const params = {
+      to: user.address,
+      callData: "0x",
+      originDomain,
+      destinationDomain,
+    };
+
+    beforeEach(async () => {
+      // Add routers liquidity
+      await local.connect(router).approve(destinationBridge.address, parseEther("100000"));
+      await destinationBridge.connect(router).addLiquidity(parseEther("0.1"), local.address);
+
+      // Setup stable swap for adopted => canonical on origin
+      await stableSwap.connect(admin).setupPool(originAdopted.address, canonical.address, SEED, SEED);
+
+      // Setup stable swap for local => adopted on dest
+      await stableSwap.connect(admin).setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
+    });
+
+    const bumpScenarios = [
+      [0, 0, 0],
+      [100, 400, 200],
+    ];
+    bumpScenarios.forEach((bumps) => {
+      it(`should allow relayer to collect fees from multiple transfers ${
+        bumps[0] > 0 ? "with bumps" : ""
+      }`, async () => {
+        const amounts = [1000, 500, 300];
+        const relayerFees = [100, 300, 200];
+
+        // Initiate transfers
+        const transferIds = [];
+        for (let i = 0; i < amounts.length; i++) {
+          const id = await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originBridge);
+          transferIds.push(id);
+        }
+
+        // Validate stored relayer fees
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await originBridge.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i]);
+        }
+
+        // Bump transfer
+        for (let i = 0; i < amounts.length; i++) {
+          if (bumps[i] > 0) {
+            await originBridge.bumpTransfer(transferIds[i].transferId, { value: bumps[i] });
+          }
+        }
+
+        // Validate stored relayer fees
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await originBridge.relayerFees(transferIds[i].transferId)).to.be.eq(relayerFees[i] + bumps[i]);
+        }
+
+        // Execute transfers
+        for (let i = 0; i < transferIds.length; i++) {
+          await destinationBridge.connect(router).execute({
+            params,
+            nonce: transferIds[i].nonce,
+            local: local.address,
+            amount: amounts[i],
+            routers: [router.address],
+            originSender: user.address,
+          });
+        }
+
+        // Validate relayer address for transfers
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await destinationBridge.transferRelayer(transferIds[i].transferId)).to.be.eq(router.address);
+        }
+
+        // initiate claim
+        const ids = transferIds.map((transfer) => transfer.transferId);
+        const initiateClaimTx = await destinationBridge
+          .connect(router)
+          .initiateClaim(originDomain, router.address, ids);
+        const initiateClaimTxReceipt = await initiateClaimTx.wait();
+
+        const initiateClaimSendRouterEvent = (
+          await destinationRelayerFeeRouter.connect(admin).queryFilter(destinationRelayerFeeRouter.filters.Send())
+        ).find((a: { blockNumber: any }) => a.blockNumber === initiateClaimTxReceipt.blockNumber);
+
+        const message = (initiateClaimSendRouterEvent!.args as any).message;
+        const nonce = (await destinationHome.count()).sub(1);
+
+        const balanceBeforeClaim = await ethers.provider.getBalance(router.address);
+
+        // execute claim
+        await originRelayerFeeRouter
+          .connect(admin)
+          .handle(destinationDomain, nonce, addressToBytes32(destinationRelayerFeeRouter.address), message);
+
+        const balanceAfterClaim = await ethers.provider.getBalance(router.address);
+
+        // Validate collected fees
+        const totalFees = relayerFees.reduce((a, b) => a + b, 0) + bumps.reduce((a, b) => a + b, 0);
+        expect(balanceAfterClaim).to.eq(balanceBeforeClaim.add(totalFees));
+        for (let i = 0; i < transferIds.length; i++) {
+          expect(await originBridge.relayerFees(transferIds[i].transferId)).to.be.eq(0);
+        }
+      });
     });
   });
 });

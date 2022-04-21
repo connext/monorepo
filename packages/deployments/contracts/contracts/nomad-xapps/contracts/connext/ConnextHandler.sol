@@ -153,6 +153,19 @@ contract ConnextHandler is
   mapping(address => bool) public approvedRelayers;
 
   /**
+   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
+   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
+   */
+  mapping(bytes32 => uint256) public relayerFees;
+
+  /**
+   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
+   * for transfer
+   * @dev When relayer claims, must check that the msg.sender has forwarded transfer
+   */
+  mapping(bytes32 => address) public transferRelayer;
+
+  /**
    * @notice The max amount of routers a payment can be routed through
    */
   uint256 public maxRoutersPerTransfer;
@@ -177,6 +190,19 @@ contract ConnextHandler is
   error ConnextHandler__addLiquidityForRouter_badRouter();
   error ConnextHandler__addLiquidityForRouter_badAsset();
   error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
+  error ConnextHandler__bumpTransfer_invalidTransfer();
+  error ConnextHandler__bumpTransfer_valueIsZero();
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Restricts the caller to the local relayer fee router
+   */
+  modifier onlyRelayerFeeRouter() {
+    if (msg.sender != address(relayerFeeRouter)) revert ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
+    _;
+  }
 
   // ========== Initializer ============
 
@@ -193,6 +219,7 @@ contract ConnextHandler is
 
     nonce = 0;
     domain = _domain;
+    relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
     executor = new Executor(address(this));
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
@@ -387,6 +414,19 @@ contract ConnextHandler is
   }
 
   /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId) external payable {
+    if (relayerFees[_transferId] == 0) revert ConnextHandler__bumpTransfer_invalidTransfer();
+    if (msg.value == 0) revert ConnextHandler__bumpTransfer_valueIsZero();
+
+    relayerFees[_transferId] += msg.value;
+
+    emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
+  }
+
+  /**
    * @notice Handles an incoming message
    * @dev This function relies on nomad relayers and should not consume arbitrary amounts of
    * gas
@@ -468,6 +508,36 @@ contract ConnextHandler is
    */
   function claim(address _recipient, bytes32[] calldata _transferIds) external override onlyRelayerFeeRouter {
     ConnextUtils.claim(_recipient, _transferIds, relayerFees);
+  }
+
+  /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _domain - domain to claim funds on
+   * @param _transferIds - transferIds to claim
+   */
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external override {
+    ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
+
+    emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   */
+  function claim(address _recipient, bytes32[] calldata _transferIds) external override onlyRelayerFeeRouter {
+    uint256 total = ConnextUtils.claim(_recipient, _transferIds, relayerFees);
+
+    emit Claimed(_recipient, total, _transferIds);
   }
 
   // ============ Internal functions ============
