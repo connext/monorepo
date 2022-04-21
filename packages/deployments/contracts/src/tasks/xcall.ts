@@ -1,13 +1,12 @@
 import { BigNumber, constants, providers, utils } from "ethers";
 import { task } from "hardhat/config";
 
-import { canonizeId } from "../nomad";
+import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 type TaskArgs = {
   transactingAssetId?: string;
   amount?: string;
   to?: string;
-  originDomain?: string;
   destinationDomain?: string;
   callData?: string;
   connextAddress?: string;
@@ -17,7 +16,6 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("transactingAssetId", "Transacting asset Id")
   .addOptionalParam("amount", "Amount to transfer")
   .addOptionalParam("to", "To address")
-  .addOptionalParam("originDomain", "Origin domain")
   .addOptionalParam("destinationDomain", "Destination domain")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
@@ -29,7 +27,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         connextAddress: _connextAddress,
         to: _to,
         callData: _callData,
-        originDomain: _originDomain,
         destinationDomain: _destinationDomain,
       }: TaskArgs,
       { deployments, ethers },
@@ -39,9 +36,10 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("sender: ", sender.address);
 
       // Get the origin and destination domains.
-      const originDomain = _originDomain ?? process.env.TRANSFER_ORIGIN_DOMAIN;
+      const network = await ethers.provider.getNetwork();
+      const originDomain = getDomainInfoFromChainId(network.chainId).domain;
       const destinationDomain = _destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN;
-      if (!originDomain || !destinationDomain) {
+      if (!destinationDomain) {
         throw new Error(
           "Origin and destination domains must be specified as params or from env (TRANSFER_ORIGIN_DOMAIN, TRANSFER_DESTINATION_DOMAIN)",
         );
@@ -75,7 +73,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
 
         // Retrieve the local asset from the token registry, if applicable.
-        if (canonicalDomain === originDomain) {
+        if (+canonicalDomain === originDomain) {
           // Use the canonical asset as the local asset since we're on the canonical network.
           transactingAssetId = canonicalAsset;
         } else {
