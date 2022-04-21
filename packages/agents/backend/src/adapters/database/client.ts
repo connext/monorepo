@@ -128,15 +128,12 @@ export const getTransferByTransferId = async (transferId: string, _pool?: Pool):
   return x ? convertFromDbTransfer(x) : undefined;
 };
 
-export const saveLatestNonce = async (domain: string, nonce: number, _pool?: Pool): Promise<void> => {
-  const poolToUse = _pool ?? pool;
-
-  await db.upsert("nonce", { domain, nonce }, "domain").run(poolToUse);
-};
-
 export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<number> => {
   const poolToUse = _pool ?? pool;
 
-  const nonce = await db.selectOne("nonce", { domain }).run(poolToUse);
-  return nonce?.nonce ?? 0;
+  const transfer = await db
+    .selectOne("transfers", { origin_domain: domain }, { order: { by: "nonce", direction: "DESC" } })
+    .run(poolToUse);
+
+  return transfer?.nonce ?? 0;
 };
