@@ -23,7 +23,7 @@ library PromiseMessage {
   // ============ Constants ============
   uint256 private constant IDENTIFIER_LEN = 1;
   // 1 byte identifier + 32 bytes transferId + 20 bytes callback + 1 byte success + 32 bytes length + x bytes data
-  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 54 bytes
+  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback + 1 byte success= 54 bytes
   uint256 private constant LENGTH_RETURNDATA_START = 54;
   uint8 private constant LENGTH_RETURNDATA_LEN = 32;
 
@@ -106,7 +106,7 @@ library PromiseMessage {
    * @param _view The message
    * @return The returnData length
    */
-  function lengthOfReturndata(bytes29 _view) internal pure typeAssert(_view, Types.PromiseCallback) returns (uint256) {
+  function lengthOfReturndata(bytes29 _view) internal pure returns (uint256) {
     return _view.indexUint(LENGTH_RETURNDATA_START, LENGTH_RETURNDATA_LEN);
   }
 
@@ -123,15 +123,7 @@ library PromiseMessage {
   {
     uint256 length = lengthOfReturndata(_view);
 
-    uint8 bitLength = uint8(length * 8);
-    uint256 _loc = _view.loc();
-
-    uint256 _mask;
-    assembly {
-      // solium-disable-previous-line security/no-inline-assembly
-      _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
-      data := and(mload(add(_loc, RETURNDATA_START)), _mask)
-    }
+    data = _view.slice(RETURNDATA_START, length, 0).clone();
   }
 
   /**
