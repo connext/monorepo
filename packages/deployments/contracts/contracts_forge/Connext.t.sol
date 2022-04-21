@@ -101,14 +101,14 @@ contract ConnextTest is ForgeHelper {
 
     // Setup asset
     connext.setupAsset(
-      BridgeMessage.TokenId(domain, bytes32(abi.encodePacked(canonical))),
+      ConnextMessage.TokenId(domain, bytes32(abi.encodePacked(canonical))),
       address(originAdopted),
       stableSwap
     );
 
     // Setup asset wrapper
     connext.setupAsset(
-      BridgeMessage.TokenId(domain, bytes32(abi.encodePacked(address(wrapper)))),
+      ConnextMessage.TokenId(domain, bytes32(abi.encodePacked(address(wrapper)))),
       address(wrapper),
       stableSwap
     );
@@ -240,7 +240,7 @@ contract ConnextTest is ForgeHelper {
     transactionIds[1] = "BBB";
 
     vm.prank(address(20));
-    vm.expectRevert(abi.encodeWithSelector(Connext.Connext__onlyRelayerFeeRouter_notRelayerFeeRouter.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextHandler.ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter.selector));
 
     connext.claim(kakaroto, transactionIds);
   }
@@ -330,7 +330,7 @@ contract ConnextTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
-    vm.expectRevert(abi.encodeWithSelector(Connext.Connext__xcall_relayerFeeIsZero.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__xcall_relayerFeeIsZero.selector));
     connext.xcall{value: relayerFee}(args);
   }
 
@@ -384,13 +384,13 @@ contract ConnextTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector));
     connext.xcall{value: 0}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector));
     connext.xcall{value: relayerFee - 1}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector));
     connext.xcall{value: relayerFee + 1}(args);
   }
 
@@ -410,13 +410,13 @@ contract ConnextTest is ForgeHelper {
       abi.encode(address(wrapper))
     );
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_notAmount.selector));
     connext.xcall{value: amount}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_notAmount.selector));
     connext.xcall{value: amount + relayerFee - 1}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_notAmount.selector));
     connext.xcall{value: amount + relayerFee + 1}(args);
   }
 
@@ -492,7 +492,7 @@ contract ConnextTest is ForgeHelper {
     uint256 initialFee = 0.01 ether;
     setRelayerFees(transferId, initialFee);
 
-    vm.expectRevert(abi.encodeWithSelector(Connext.Connext__bumpTransfer_valueIsZero.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__bumpTransfer_valueIsZero.selector));
     connext.bumpTransfer{value: 0}(transferId);
   }
 
@@ -500,7 +500,7 @@ contract ConnextTest is ForgeHelper {
   function testBumpTransferInvalidTransferRevert() public {
     bytes32 transferId = bytes32("0x123");
 
-    vm.expectRevert(abi.encodeWithSelector(Connext.Connext__bumpTransfer_invalidTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__bumpTransfer_invalidTransfer.selector));
     connext.bumpTransfer{value: 100}(transferId);
   }
 }

@@ -50,6 +50,8 @@ library ConnextUtils {
   error ConnextUtils__execute_alreadyExecuted();
   error ConnextUtils__execute_notSupportedRouter();
   error ConnextUtils__initiateClaim_notRelayer(bytes32 transferId);
+  error ConnextUtils__bumpTransfer_invalidTransfer();
+  error ConnextUtils__bumpTransfer_valueIsZero();
 
   // ============ Structs ============
 
@@ -460,9 +462,11 @@ library ConnextUtils {
     (bytes32 transferId, bytes memory message, xCalledEventArgs memory evetArgs) = _processXcall(
       _args,
       _adoptedToCanonical,
-      _adoptedToLocalPools,
-      _relayerFees
+      _adoptedToLocalPools
     );
+
+      // Store the relayer fee
+    _relayerFees[transferId] = _args.xCallArgs.relayerFee;
 
     // emit event
     emit XCalled(transferId, _args.xCallArgs.params, evetArgs, _args.xCallArgs.relayerFee, _args.nonce, message, msg.sender);
@@ -470,28 +474,11 @@ library ConnextUtils {
     return (transferId, _args.nonce + 1);
   }
 
-  /**
-   * @notice Called on the destination domain to disburse correct assets to end recipient
-   * and execute any included calldata
-   * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
-   * used.
-   */
-  function execute(
+  function _executeSanityChecks(
     ExecuteLibArgs calldata _args,
-    mapping(address => bool) storage _approvedRelayers,
     mapping(bytes32 => address[]) storage _routedTransfers,
-    mapping(bytes32 => bool) storage _reconciledTransfers,
-    mapping(address => mapping(address => uint256)) storage _routerBalances,
-    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => address) storage canonicalToAdopted,
-    RouterPermissionsManagerInfo storage _routerInfo,
-    mapping(bytes32 => address) storage transferRelayer
-  ) external returns (bytes32 transferId) {
-    // If the sender is not approved relayer, revert()
-    if (!_approvedRelayers[msg.sender]) {
-      revert ConnextUtils__execute_unapprovedRelayer();
-    }
-
+    mapping(bytes32 => bool) storage _reconciledTransfers
+  ) private returns (bytes32, bool) {
     if (_args.executeArgs.routers.length > _args.maxRoutersPerTransfer)
       revert ConnextUtils__execute_maxRoutersExceeded();
 
@@ -505,6 +492,27 @@ library ConnextUtils {
 
     // get reconciled record
     bool reconciled = _reconciledTransfers[transferId];
+
+    return (transferId, reconciled);
+  }
+
+  /**
+   * @notice Called on the destination domain to disburse correct assets to end recipient
+   * and execute any included calldata
+   * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
+   * used.
+   */
+  function execute(
+    ExecuteLibArgs calldata _args,
+    mapping(bytes32 => address[]) storage _routedTransfers,
+    mapping(bytes32 => bool) storage _reconciledTransfers,
+    mapping(address => mapping(address => uint256)) storage _routerBalances,
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => address) storage canonicalToAdopted,
+    RouterPermissionsManagerInfo storage _routerInfo,
+    mapping(bytes32 => address) storage _transferRelayer
+  ) external returns (bytes32 transferId) {
+    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, _routedTransfers, _reconciledTransfers);
 
     // check to see if the transfer was reconciled
     (uint256 amount, address adopted) = _handleExecuteLiquidity(
@@ -522,7 +530,7 @@ library ConnextUtils {
     _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
 
     // Set the relayer for this transaction to allow for future claim
-    transferRelayer[transferId] = msg.sender;
+    _transferRelayer[transferId] = msg.sender;
 
     // emit event
     emit Executed(transferId, _args.executeArgs.params.to, _args.executeArgs, adopted, amount, msg.sender);
@@ -547,7 +555,7 @@ library ConnextUtils {
     IWrapped _wrapper
   ) external {
     // Transfer funds to contract
-    (address asset, uint256 received) = handleIncomingAsset(_local, _amount, 0, _wrapper);
+    (address asset, uint256 received) = _handleIncomingAsset(_local, _amount, 0, _wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
@@ -621,8 +629,8 @@ library ConnextUtils {
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId, mapping(bytes32 => uint256) storage relayerFees) external {
-    if (relayerFees[_transferId] == 0) revert ConnextHandler__bumpTransfer_invalidTransfer();
-    if (msg.value == 0) revert ConnextHandler__bumpTransfer_valueIsZero();
+    if (relayerFees[_transferId] == 0) revert ConnextUtils__bumpTransfer_invalidTransfer();
+    if (msg.value == 0) revert ConnextUtils__bumpTransfer_valueIsZero();
 
     relayerFees[_transferId] += msg.value;
 
@@ -740,7 +748,7 @@ library ConnextUtils {
       revert ConnextUtils__xcall_emptyTo();
     }
 
-    if (_args.relayerFee == 0) revert ConnextUtils__xcall_relayerFeeIsZero();
+    if (_args.xCallArgs.relayerFee == 0) revert ConnextUtils__xcall_relayerFeeIsZero();
   }
 
   /**
@@ -750,8 +758,7 @@ library ConnextUtils {
   function _processXcall(
     xCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
-    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => uint256) storage _relayerFees
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools
   )
     private
     returns (
@@ -784,9 +791,6 @@ library ConnextUtils {
     );
 
     bytes32 transferId = _getTransferId(_args, canonical);
-
-    // Store the relayer fee
-    _relayerFees[transferId] = _args.relayerFee;
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     _args.home.dispatch(_args.xCallArgs.params.destinationDomain, _args.remote, message);
@@ -1000,8 +1004,8 @@ library ConnextUtils {
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
    * if the token is a fee-on-transfer token)
    */
-  function _transferAssetToContract(xCallLibArgs calldata _args) private returns (address, uint256) {
-    return _transferAssetToContract(_args.xCallArgs.transactingAssetId, _args.xCallArgs.amount, _args.xCallArgs.relayerFee, _args.wrapper);
+  function _handleIncomingAsset(xCallLibArgs calldata _args) private returns (address, uint256) {
+    return _handleIncomingAsset(_args.xCallArgs.transactingAssetId, _args.xCallArgs.amount, _args.xCallArgs.relayerFee, _args.wrapper);
   }
 
   /**

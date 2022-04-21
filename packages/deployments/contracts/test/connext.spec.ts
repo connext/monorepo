@@ -891,8 +891,9 @@ describe("Connext", () => {
     });
     const execReceipt = await execute.wait();
 
-    const destTmEvent = (await destinationBridge.queryFilter(destinationBridge.filters.Executed())).find(
-      (a) => a.blockNumber === execReceipt.blockNumber,
+    const executedTopic = connextUtils.filters.Executed().topics as string[]
+    const destTmEvent = connextUtils.interface.parseLog(
+      execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
     );
     const transferId = (destTmEvent!.args as any).transferId;
 
@@ -985,8 +986,9 @@ describe("Connext", () => {
     });
     const execReceipt = await fulfill.wait();
 
-    const destTmEvent = (await destinationBridge.queryFilter(destinationBridge.filters.Executed())).find(
-      (a) => a.blockNumber === execReceipt.blockNumber,
+    const executedTopic = connextUtils.filters.Executed().topics as string[]
+    const destTmEvent = connextUtils.interface.parseLog(
+      execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
     );
     const transferId = (destTmEvent!.args as any).transferId;
 
@@ -1102,8 +1104,9 @@ describe("Connext", () => {
 
         const execReceipt = await execute.wait();
 
-        const destTmEvent = (await destinationBridge.queryFilter(destinationBridge.filters.Executed())).find(
-          (a) => a.blockNumber === execReceipt.blockNumber,
+        const executedTopic = connextUtils.filters.Executed().topics as string[]
+        const destTmEvent = connextUtils.interface.parseLog(
+          execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
         );
         const transferId = (destTmEvent!.args as any).transferId;
 
@@ -1241,7 +1244,7 @@ describe("Connext", () => {
         // Initiate transfers
         const transferIds = [];
         for (let i = 0; i < amounts.length; i++) {
-          const id = await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originBridge);
+          const id = await connextXCall(user, originAdopted, amounts[i], relayerFees[i], params, originBridge, connextUtils);
           transferIds.push(id);
         }
 
