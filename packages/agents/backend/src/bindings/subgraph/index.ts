@@ -22,7 +22,7 @@ export const bindSubgraph = async (_pollInterval: number) => {
 
 export const pollSubgraph = async () => {
   const {
-    adapters: { subgraph },
+    adapters: { subgraph, database },
     logger,
     config,
   } = getContext();
@@ -51,11 +51,11 @@ export const pollSubgraph = async () => {
         continue;
       }
 
-      // const latestNonce = await cache.transfers.getLatestNonce(domain);
+      const latestNonce = await database.getLatestNonce(domain);
 
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber,
-        latestNonce: 0, // queries at >= latest nonce, so use 1 larger than whats in the cache
+        latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
       });
     }
 
@@ -67,8 +67,10 @@ export const pollSubgraph = async () => {
         transferIds,
       });
 
-      // await cache.transfers.storeTransfers(transactions);
+      await database.saveTransfers(transactions);
     }
+
+    // TODO: query pending transfers
   } catch (err: unknown) {
     logger.error(
       "Error getting pending txs, waiting for next loop",

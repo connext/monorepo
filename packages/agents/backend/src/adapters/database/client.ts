@@ -114,11 +114,11 @@ const convertFromDbTransfer = (transfer: s.transfers.JSONSelectable): XTransfer 
   };
 };
 
-export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Promise<s.transfers.Insertable[]> => {
+export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer);
 
-  return await db.upsert("transfers", transfers, "transfer_id").run(poolToUse);
+  await db.upsert("transfers", transfers, "transfer_id").run(poolToUse);
 };
 
 export const getTransferByTransferId = async (transferId: string, _pool?: Pool): Promise<XTransfer | undefined> => {
@@ -128,15 +128,15 @@ export const getTransferByTransferId = async (transferId: string, _pool?: Pool):
   return x ? convertFromDbTransfer(x) : undefined;
 };
 
-export const saveLatestNonce = async (domain: string, nonce: number, _pool?: Pool): Promise<s.nonce.Insertable> => {
+export const saveLatestNonce = async (domain: string, nonce: number, _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
 
-  return await db.upsert("nonce", { domain, nonce }, "domain").run(poolToUse);
+  await db.upsert("nonce", { domain, nonce }, "domain").run(poolToUse);
 };
 
-export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<number | undefined> => {
+export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<number> => {
   const poolToUse = _pool ?? pool;
 
   const nonce = await db.selectOne("nonce", { domain }).run(poolToUse);
-  return nonce?.nonce;
+  return nonce?.nonce ?? 0;
 };

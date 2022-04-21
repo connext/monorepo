@@ -1,12 +1,14 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, getChainData, Logger } from "@connext/nxtp-utils";
 
+import { Database, getDatabase } from "./adapters/database";
 import { BackendConfig, getConfig } from "./config";
 
 export type AppContext = {
   logger: Logger;
   adapters: {
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
+    database: Database; // Database adapter.
   };
   config: BackendConfig;
   chainData: Map<string, ChainData>;
@@ -37,4 +39,5 @@ export const makeBackend = async () => {
   context.adapters.subgraph = await SubgraphReader.create({
     chains,
   });
+  context.adapters.database = await getDatabase();
 };
