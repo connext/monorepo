@@ -2,7 +2,6 @@ import { constants } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { Connext } from "../../typechain-types";
 import { canonizeId } from "../nomad";
 
 type TaskArgs = {
@@ -44,7 +43,7 @@ export default task("setup-asset", "Configures an asset")
         domain: +domain,
       };
 
-      const connext: Connext = await ethers.getContractAt("Connext", connextAddress);
+      const connext = await ethers.getContractAt("Connext", connextAddress);
       const approved = await connext.approvedAssets(canonicalTokenId.id);
       if (approved) {
         // remove asset
