@@ -16,7 +16,8 @@ import { Cache } from "./cache";
 export class RoutersCache extends Cache {
   // TODO: Implement configurable expiry times per domain.
   // Default expiry time (in seconds) after which liquidity data is considered stale.
-  public static readonly DEFAULT_EXPIRY = 10 * 60; // 10 minutes.
+  public static readonly DEFAULT_LIQUIDITY_EXPIRY = 30; // 30 seconds.
+  public static readonly DEFAULT_APPROVAL_EXPIRY = 24 * 60 * 60; // 24 hours.
   private readonly prefix = "routers";
 
   /**
@@ -31,7 +32,7 @@ export class RoutersCache extends Cache {
     const res = await this.data.hget(key, asset);
     const parsed = res ? (JSON.parse(res) as TimestampedCacheValue<string>) : undefined;
     // Only return the value if it's not expired.
-    return parsed && getNtpTimeSeconds() - parsed.timestamp < RoutersCache.DEFAULT_EXPIRY
+    return parsed && getNtpTimeSeconds() - parsed.timestamp < RoutersCache.DEFAULT_LIQUIDITY_EXPIRY
       ? BigNumber.from(parsed.value)
       : undefined;
   }
@@ -72,7 +73,9 @@ export class RoutersCache extends Cache {
     const res = await this.data.hget(key, "approval");
     const parsed = res ? (JSON.parse(res) as TimestampedCacheValue<boolean>) : undefined;
     // Only return the value if it's not expired.
-    return parsed && getNtpTimeSeconds() - parsed.timestamp < RoutersCache.DEFAULT_EXPIRY ? parsed.value : undefined;
+    return parsed && getNtpTimeSeconds() - parsed.timestamp < RoutersCache.DEFAULT_APPROVAL_EXPIRY
+      ? parsed.value
+      : undefined;
   }
 
   /**

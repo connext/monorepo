@@ -87,7 +87,7 @@ describe("AuctionCache", () => {
         asset,
         "123",
         // Subtract another 10 secs to be safe.
-        getNtpTimeSeconds() - RoutersCache.DEFAULT_EXPIRY - 10,
+        getNtpTimeSeconds() - RoutersCache.DEFAULT_LIQUIDITY_EXPIRY - 10,
       );
       const res = await cache.getLiquidity(domain, router, asset);
 
@@ -172,8 +172,7 @@ describe("AuctionCache", () => {
         domain,
         router,
         approval,
-        // Subtract another 10 secs to be safe.
-        getNtpTimeSeconds() - RoutersCache.DEFAULT_EXPIRY - 10,
+        getNtpTimeSeconds() - RoutersCache.DEFAULT_APPROVAL_EXPIRY - 10,
       );
       const res = await cache.getApproval(domain, router);
 
