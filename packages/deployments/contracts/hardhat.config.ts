@@ -32,6 +32,7 @@ import "./src/tasks/traceMessage";
 import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
 import "./src/tasks/executeEstimateGas";
+import "./src/tasks/enrollCustom";
 
 dotEnvConfig();
 

@@ -31,17 +31,23 @@ resource "aws_iam_role_policy" "cw-lambda-policy" {
   "Statement": [
           {
               "Effect": "Allow",
-              "Action": "logs:CreateLogGroup",
-              "Resource": "arn:aws:logs:us-east-1:679752396206:*"
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+              "Resource": [
+                  "*"
+              ]
           },
           {
               "Effect": "Allow",
               "Action": [
-                  "logs:CreateLogStream",
-                  "logs:PutLogEvents"
+                  "kms:Decrypt",
+                  "ssm:GetParameter"
               ],
               "Resource": [
-                  "arn:aws:logs:us-east-1:679752396206:log-group:/aws/lambda/*"
+                  "*"
               ]
           },
           {

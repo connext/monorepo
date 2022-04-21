@@ -1,4 +1,3 @@
-import { isValidBytes32 } from "@connext/nxtp-utils";
 import { constants, Contract } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";

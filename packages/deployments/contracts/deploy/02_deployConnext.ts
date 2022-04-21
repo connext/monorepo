@@ -70,17 +70,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contract: "RouterPermissionsManagerLogic",
   });
 
+  // verify libs
+  console.log("verifying connext libraries...");
+  await Promise.all([
+    assetLogic.newlyDeployed ? verify(hre, assetLogic.address) : Promise.resolve(),
+    connextUtils.newlyDeployed ? verify(hre, connextUtils.address) : Promise.resolve(),
+    routerPermissionsManagerLogic.newlyDeployed
+      ? verify(hre, routerPermissionsManagerLogic.address)
+      : Promise.resolve(),
+  ]);
+
   // Deploy connext contract
   console.log("Deploying connext...");
+  const libraries = {
+    AssetLogic: assetLogic.address,
+    ConnextUtils: connextUtils.address,
+    RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
+  };
   const connextName = getDeploymentName("Connext");
   const connext = await hre.deployments.deploy(connextName, {
     from: deployer.address,
     log: true,
-    libraries: {
-      AssetLogic: assetLogic.address,
-      ConnextUtils: connextUtils.address,
-      RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
-    },
+    libraries,
     proxy: {
       execute: {
         init: {
@@ -100,6 +111,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
+
+  // verify implementation
+  if (connext.newlyDeployed) {
+    console.log("verifying connext implementation...");
+    await verify(hre, connext.implementation ?? connext.address, [], libraries);
+  }
 
   // Add tm to bridge
   if ((await bridge.connext()) !== connextAddress) {
@@ -139,7 +156,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     }
 
     // verify deployment
-    console.log("verifying ConnextPriceOracle");
+    console.log("verifying ConnextPriceOracle...");
     await verify(hre, priceOracleDeployment.address, [WRAPPED_ETH_MAP.get(+chainId)]);
   }
 
@@ -152,6 +169,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contract: "Multicall",
   });
 
+  // verify multicall
+  console.log("verifying multicall...");
+  await verify(hre, deployment.address);
+
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
@@ -161,6 +182,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       // salt: keccak256("amarokrulez"),
       skipIfAlreadyDeployed: true,
     });
+    // verify test erc20
+    console.log("verifying token...");
+    await verify(hre, deployment.address);
     console.log("TestERC20: ", deployment.address);
 
     // verify deployment

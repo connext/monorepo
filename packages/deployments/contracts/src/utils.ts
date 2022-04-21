@@ -36,7 +36,11 @@ export const verify = async (
       constructorArguments,
       libraries,
     });
-  } catch (e: unknown) {
-    console.log(`Error verifying contract at ${address}`, e);
+  } catch (e: any) {
+    if (e.message.toLowerCase().includes("already verified")) {
+      console.log(`${address} already verified`);
+      return;
+    }
+    console.log(`Error verifying contract at ${address}:`, e);
   }
 };

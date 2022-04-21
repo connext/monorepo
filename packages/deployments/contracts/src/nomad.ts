@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import * as configuration from "@nomad-xyz/configuration";
 
-import { MAINNET_CHAINS } from "./constants";
+import { MAINNET_CHAINS, NOMAD_STAGING_CONFIG } from "./constants";
 
 export type Address = string;
 
@@ -109,6 +109,18 @@ export type NomadDomainInfo = {
   };
 };
 
+export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
+  const env = MAINNET_CHAINS.includes(chainId) ? "production" : "staging";
+  // TODO: only use configuration.getBuiltIn() when nomad PR merged into configuration
+  // package
+  const nomadConfig: configuration.NomadConfig =
+    env === "staging" ? NOMAD_STAGING_CONFIG : configuration.getBuiltin(env);
+  if (!nomadConfig) {
+    throw new Error(`No nomad config found for ${env}`);
+  }
+  return nomadConfig;
+};
+
 export const getDomainInfoFromChainId = (chainId: number): NomadDomainInfo => {
   const nomadConfig = getNomadConfig(chainId);
   const [name, domainConfig] =
@@ -126,13 +138,4 @@ export const getDomainInfoFromChainId = (chainId: number): NomadDomainInfo => {
       core: nomadConfig.core[name],
     },
   };
-};
-
-export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
-  const env = MAINNET_CHAINS.includes(chainId) ? "production" : "staging";
-  const nomadConfig: configuration.NomadConfig = configuration.getBuiltin(env);
-  if (!nomadConfig) {
-    throw new Error(`No nomad config found for ${env}`);
-  }
-  return nomadConfig;
 };

@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, Signer, BigNumber, Wallet } from "ethers";
 import { config } from "dotenv";
 
-import { getDeploymentName } from "../src/utils";
+import { getDeploymentName, verify } from "../src/utils";
 import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
 
 config();
@@ -113,19 +113,7 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
 
   // Verify implementation
   if (deployedImplementation) {
-    try {
-      console.log(`Verifying implementation`);
-      await hre.run("verify:verify", {
-        address: implementation,
-        constructorArguments: [],
-      });
-    } catch (e: any) {
-      if (e.message.includes("Already Verified")) {
-        console.log(`${name} at ${implementation} already verified`);
-      } else {
-        //throw e;
-      }
-    }
+    await verify(hre, implementation);
   }
 
   const proxy = new Contract(
@@ -169,6 +157,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const xappConnectionManagerAddress = xappDeployment.address;
   console.log("xappConnectionManagerAddress:", xappConnectionManagerAddress);
 
+  // verify xapp connection manager
+  await verify(hre, xappDeployment.address);
+
   const xappConnectionManager = (
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)
   ).connect(deployer);
@@ -182,17 +173,24 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   );
 
   // Set token registry local domain
-  console.log("Setting local domain of token registry...");
+  console.log(`Setting local domain of token registry as ${domainConfig.domain}...`);
   const setDomain = await tokenRegistry.setLocalDomain(domainConfig.domain);
   console.log("setDomain tx:", setDomain.hash);
   const setDomainReceipt = await setDomain.wait();
   console.log("setDomain tx mined:", setDomainReceipt);
 
   // Set the home
-  console.log("xapp owner", await xappConnectionManager.owner());
-  if ((await xappConnectionManager.home()).toLowerCase() !== domainConfig.contracts.core.home.proxy.toLowerCase()) {
-    console.log("setting home....");
-    const home = await xappConnectionManager.setHome(domainConfig.contracts.core.home.proxy);
+  const xappOwner = await xappConnectionManager.owner();
+  console.log("xapp owner", xappOwner);
+  const homeAddr = domainConfig.contracts.core.home.proxy.toLowerCase();
+  if ((await xappConnectionManager.home()).toLowerCase() !== homeAddr.toLowerCase()) {
+    if (xappOwner.toLowerCase() !== deployer.address.toLowerCase()) {
+      throw new Error(
+        `Need to update home, but deployer is not owner. Deployer: ${deployer.address}, owner: ${xappOwner}`,
+      );
+    }
+    console.log(`setting home as ${homeAddr} on ${domainConfig.name}....`);
+    const home = await xappConnectionManager.setHome(homeAddr);
     const homeTx = await home.wait();
     console.log("setHome:", homeTx.transactionHash);
   } else {
@@ -200,15 +198,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   // Enroll all the replicas
-  for (const [replicaName, { proxy }] of Object.entries(domainConfig.contracts.core.replicas)) {
+  for (const [replicaDomainName, { proxy }] of Object.entries(domainConfig.contracts.core.replicas)) {
+    const replicaDomain = nomadConfig.protocol.networks[replicaDomainName].domain;
     if (!(await xappConnectionManager.isReplica(proxy))) {
-      const replicaDomain = nomadConfig.protocol.networks[replicaName].domain;
-      console.log(`enrolling replica for ${replicaName} with domain ${replicaDomain}`);
+      console.log(`enrolling ${domainConfig.name} replica for ${replicaDomainName} (${replicaDomain})`);
       const enroll = await xappConnectionManager.ownerEnrollReplica(proxy, replicaDomain);
       const tx = await enroll.wait();
-      console.log(`enrolled replica for ${replicaName}: ${tx.transactionHash}`);
+      console.log(
+        `enrolled ${domainConfig.name} replica for ${replicaDomainName} (${replicaDomain}): ${tx.transactionHash}`,
+      );
     } else {
-      console.log(`replica for ${replicaName} enrolled`);
+      console.log(`replica for ${replicaDomainName} (${replicaDomain}) enrolled`);
     }
   }
 
