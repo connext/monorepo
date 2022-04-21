@@ -29,11 +29,13 @@ interface IConnext {
    * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param amount - The amount of transferring asset the tx called xcall with
+   * @param relayerFee - The amount of relayer fee the tx called xcall with
    */
   struct XCallArgs {
     CallParams params;
     address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
+    uint256 relayerFee;
   }
 
   /**
@@ -69,7 +71,8 @@ interface IConnext {
     uint256 _domain,
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) external;
 
   function setupRouter(
@@ -115,4 +118,12 @@ interface IConnext {
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
+
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external;
+
+  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 }

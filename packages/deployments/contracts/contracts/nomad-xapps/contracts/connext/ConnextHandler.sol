@@ -6,6 +6,7 @@ pragma solidity ^0.8.11;
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
+import {RelayerFeeRouter} from "../../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Router} from "../Router.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
@@ -67,6 +68,12 @@ contract ConnextHandler is
   uint256[49] private __gap;
 
   // ============ Public storage ============
+
+  /**
+   * @notice The local nomad relayer fee router
+   */
+  RelayerFeeRouter public relayerFeeRouter;
+
   /**
    * @notice The address of the wrapper for the native asset on this domain
    * @dev Needed because the nomad only handles ERC20 assets
@@ -150,6 +157,19 @@ contract ConnextHandler is
    */
   uint256 public maxRoutersPerTransfer;
 
+  /**
+   * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
+   * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
+   */
+  mapping(bytes32 => uint256) public relayerFees;
+
+  /**
+   * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
+   * for transfer
+   * @dev When relayer claims, must check that the msg.sender has forwarded transfer
+   */
+  mapping(bytes32 => address) public transferRelayer;
+
   // ============ Errors ============
 
   error ConnextHandler__addLiquidityForRouter_routerEmpty();
@@ -164,7 +184,8 @@ contract ConnextHandler is
     uint256 _domain,
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) public override initializer {
     __XAppConnectionClient_initialize(_xAppConnectionManager);
     __ReentrancyGuard_init();
@@ -175,6 +196,7 @@ contract ConnextHandler is
     executor = new Executor(address(this));
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
+    relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
     LIQUIDITY_FEE_NUMERATOR = 9995;
     LIQUIDITY_FEE_DENOMINATOR = 10000;
@@ -357,7 +379,7 @@ contract ConnextHandler is
       remote: remote
     });
 
-    (bytes32 transferId, uint256 newNonce) = ConnextUtils.xcall(libArgs, adoptedToCanonical, adoptedToLocalPools);
+    (bytes32 transferId, uint256 newNonce) = ConnextUtils.xcall(libArgs, adoptedToCanonical, adoptedToLocalPools, relayerFees);
 
     nonce = newNonce;
 
@@ -412,6 +434,40 @@ contract ConnextHandler is
         canonicalToAdopted,
         routerInfo
       );
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId) external {
+    ConnextUtils.bumpTransfer(_transferId, relayerFees);
+  }
+
+  /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _domain - domain to claim funds on
+   * @param _transferIds - transferIds to claim
+   */
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external override {
+    ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   */
+  function claim(address _recipient, bytes32[] calldata _transferIds) external override onlyRelayerFeeRouter {
+    ConnextUtils.claim(_recipient, _transferIds, relayerFees);
   }
 
   // ============ Internal functions ============

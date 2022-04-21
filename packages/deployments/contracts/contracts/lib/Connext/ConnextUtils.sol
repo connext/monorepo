@@ -8,6 +8,7 @@ import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {LibCrossDomainProperty} from "../LibCrossDomainProperty.sol";
 import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol";
 
+import "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
@@ -43,10 +44,12 @@ library ConnextUtils {
   error ConnextUtils__xcall_wrongDomain();
   error ConnextUtils__xcall_emptyTo();
   error ConnextUtils__xcall_notSupportedAsset();
+  error ConnextUtils__xcall_relayerFeeIsZero();
   error ConnextUtils__execute_unapprovedRelayer();
   error ConnextUtils__execute_maxRoutersExceeded();
   error ConnextUtils__execute_alreadyExecuted();
   error ConnextUtils__execute_notSupportedRouter();
+  error ConnextUtils__initiateClaim_notRelayer(bytes32 transferId);
 
   // ============ Structs ============
 
@@ -155,6 +158,7 @@ library ConnextUtils {
     bytes32 indexed transferId,
     IConnext.CallParams params,
     xCalledEventArgs args,
+    uint256 relayerFee,
     uint256 nonce,
     bytes message,
     address caller
@@ -189,6 +193,31 @@ library ConnextUtils {
    * @param caller - The account that called the function
    */
   event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param relayerFee - The updated amount of relayer fee in native asset
+   * @param caller - The account that called the function
+   */
+  event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+
+  /**
+   * @notice Emitted when `initiateClaim` is called on the destination chain
+   * @param domain - Domain to claim funds on
+   * @param recipient - Address on origin chain to send claimed funds to
+   * @param caller - The account that called the function
+   * @param transferIds - TransferIds to claim
+   */
+  event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
+
+  /**
+   * @notice Emitted when `claim` is called on the origin domain
+   * @param recipient - Address on origin chain to send claimed funds to
+   * @param total - Total amount claimed
+   * @param transferIds - TransferIds to claim
+   */
+  event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
 
   // ============ Admin Functions ============
 
@@ -422,7 +451,8 @@ library ConnextUtils {
   function xcall(
     xCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
-    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => uint256) storage _relayerFees
   ) external returns (bytes32, uint256) {
     _xcallSanityChecks(_args);
 
@@ -430,11 +460,12 @@ library ConnextUtils {
     (bytes32 transferId, bytes memory message, xCalledEventArgs memory evetArgs) = _processXcall(
       _args,
       _adoptedToCanonical,
-      _adoptedToLocalPools
+      _adoptedToLocalPools,
+      _relayerFees
     );
 
     // emit event
-    emit XCalled(transferId, _args.xCallArgs.params, evetArgs, _args.nonce, message, msg.sender);
+    emit XCalled(transferId, _args.xCallArgs.params, evetArgs, _args.xCallArgs.relayerFee, _args.nonce, message, msg.sender);
 
     return (transferId, _args.nonce + 1);
   }
@@ -453,9 +484,10 @@ library ConnextUtils {
     mapping(address => mapping(address => uint256)) storage _routerBalances,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
     mapping(bytes32 => address) storage canonicalToAdopted,
-    RouterPermissionsManagerInfo storage _routerInfo
+    RouterPermissionsManagerInfo storage _routerInfo,
+    mapping(bytes32 => address) storage transferRelayer
   ) external returns (bytes32 transferId) {
-    // ensure accepted relayer
+    // If the sender is not approved relayer, revert()
     if (!_approvedRelayers[msg.sender]) {
       revert ConnextUtils__execute_unapprovedRelayer();
     }
@@ -486,10 +518,11 @@ library ConnextUtils {
       _routerInfo
     );
 
-    // TODO: payout relayer fee
-
     // execute the transaction
     _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
+
+    // Set the relayer for this transaction to allow for future claim
+    transferRelayer[transferId] = msg.sender;
 
     // emit event
     emit Executed(transferId, _args.executeArgs.params.to, _args.executeArgs, adopted, amount, msg.sender);
@@ -513,8 +546,8 @@ library ConnextUtils {
     bytes32 _id,
     IWrapped _wrapper
   ) external {
-    // Transfer funds to coethWithErcTransferact
-    (address asset, uint256 received) = _transferAssetToContract(_local, _amount, _wrapper);
+    // Transfer funds to contract
+    (address asset, uint256 received) = handleIncomingAsset(_local, _amount, 0, _wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
@@ -522,6 +555,78 @@ library ConnextUtils {
 
     // Emit event
     emit LiquidityAdded(_router, asset, _id, received, msg.sender);
+  }
+
+   /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _domain - domain to claim funds on
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   * @param _relayerFeeRouter - The local nomad relayer fee router
+   * @param _transferRelayer - Mapping of transactionIds to relayer
+   */
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds,
+    RelayerFeeRouter _relayerFeeRouter,
+    mapping(bytes32 => address) storage _transferRelayer
+  ) external {
+    // Ensure the relayer can claim all transfers specified
+    for (uint256 i; i < _transferIds.length; ) {
+      if (_transferRelayer[_transferIds[i]] != msg.sender)
+        revert ConnextUtils__initiateClaim_notRelayer(_transferIds[i]);
+      unchecked {
+        i++;
+      }
+    }
+
+    // Send transferIds via nomad
+    _relayerFeeRouter.send(_domain, _recipient, _transferIds);
+
+    emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   * @param _relayerFees - Mapping of transactionIds to fee
+   */
+  function claim(
+    address _recipient,
+    bytes32[] calldata _transferIds,
+    mapping(bytes32 => uint256) storage _relayerFees
+  ) external {
+    // Tally amounts owed
+    uint256 total;
+    for (uint256 i; i < _transferIds.length; ) {
+      total += _relayerFees[_transferIds[i]];
+      _relayerFees[_transferIds[i]] = 0;
+      unchecked {
+        i++;
+      }
+    }
+
+    AddressUpgradeable.sendValue(payable(_recipient), total);
+
+    emit Claimed(_recipient, total, _transferIds);
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId, mapping(bytes32 => uint256) storage relayerFees) external {
+    if (relayerFees[_transferId] == 0) revert ConnextHandler__bumpTransfer_invalidTransfer();
+    if (msg.value == 0) revert ConnextHandler__bumpTransfer_valueIsZero();
+
+    relayerFees[_transferId] += msg.value;
+
+    emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
   }
 
   // ============ Private Functions ============
@@ -634,6 +739,8 @@ library ConnextUtils {
     if (_args.xCallArgs.params.to == address(0)) {
       revert ConnextUtils__xcall_emptyTo();
     }
+
+    if (_args.relayerFee == 0) revert ConnextUtils__xcall_relayerFeeIsZero();
   }
 
   /**
@@ -643,7 +750,8 @@ library ConnextUtils {
   function _processXcall(
     xCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
-    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => uint256) storage _relayerFees
   )
     private
     returns (
@@ -664,7 +772,7 @@ library ConnextUtils {
 
     // transfer funds of transacting asset to the contract from user
     // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 amount) = _transferAssetToContract(_args);
+    (, uint256 amount) = _handleIncomingAsset(_args);
 
     // swap to the local asset from adopted
     (uint256 bridgedAmt, address bridged) = _swapToLocalAssetIfNeeded(
@@ -676,6 +784,9 @@ library ConnextUtils {
     );
 
     bytes32 transferId = _getTransferId(_args, canonical);
+
+    // Store the relayer fee
+    _relayerFees[transferId] = _args.relayerFee;
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     _args.home.dispatch(_args.xCallArgs.params.destinationDomain, _args.remote, message);
@@ -890,44 +1001,70 @@ library ConnextUtils {
    * if the token is a fee-on-transfer token)
    */
   function _transferAssetToContract(xCallLibArgs calldata _args) private returns (address, uint256) {
-    return _transferAssetToContract(_args.xCallArgs.transactingAssetId, _args.xCallArgs.amount, _args.wrapper);
+    return _transferAssetToContract(_args.xCallArgs.transactingAssetId, _args.xCallArgs.amount, _args.xCallArgs.relayerFee, _args.wrapper);
   }
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
    * @dev If using the native asset, will automatically wrap
    * @param _assetId - The address to transfer
-   * @param _specifiedAmount - The specified amount to transfer. May not be the
+   * @param _assetAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
+   * @param _fee - The fee amount in native asset included as part of the transaction that
+   * should not be considered for the transfer amount.
    * @param _wrapper - The address of the wrapper for the native asset on this domain
    * @return The assetId of the transferred asset
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
    * if the token is a fee-on-transfer token)
    */
-  function _transferAssetToContract(
+  function _handleIncomingAsset(
     address _assetId,
-    uint256 _specifiedAmount,
+    uint256 _assetAmount,
+    uint256 _fee,
     IWrapped _wrapper
   ) private returns (address, uint256) {
-    uint256 trueAmount = _specifiedAmount;
+    uint256 trueAmount = _assetAmount;
     address transactingAssetId = _assetId;
 
     if (_assetId == address(0)) {
+      if (msg.value != _assetAmount + _fee) revert ConnextUtils__transferAssetToContract_notAmount();
+
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
-      if (msg.value != _specifiedAmount) revert ConnextUtils__transferAssetToContract_notAmount();
-      _wrapper.deposit{value: _specifiedAmount}();
+      _wrapNativeAsset(_assetAmount, _wrapper);
       transactingAssetId = address(_wrapper);
     } else {
-      // Validate correct amounts are transferred
-      uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-      if (msg.value != 0) revert ConnextUtils__transferAssetToContract_ethWithErcTransfer();
-      SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
-      // Calculate the *actual* amount that was sent here
-      trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
+      if (msg.value != _fee) revert ConnextUtils__transferAssetToContract_ethWithErcTransfer();
+
+      // Transfer asset to contract
+      trueAmount = _transferAssetToContract(_assetId, _assetAmount);
     }
 
     return (transactingAssetId, trueAmount);
+  }
+
+  /**
+   * @notice Wrap the native asset
+   * @param _amount - The specified amount to wrap
+   * @param _wrapper - The address of the wrapper for the native asset on this domain
+   */
+  function _wrapNativeAsset(uint256 _amount, IWrapped _wrapper) private {
+    _wrapper.deposit{value: _amount}();
+  }
+
+  /**
+   * @notice Transfer asset funds from msg.sender to the Connext contract.
+   * @param _assetId - The address to transfer
+   * @param _amount - The specified amount to transfer
+   * @return The amount of the asset that was seen by the contract
+   */
+  function _transferAssetToContract(address _assetId, uint256 _amount) private returns (uint256) {
+    // Validate correct amounts are transferred
+    uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
+
+    SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _amount);
+    // Calculate the *actual* amount that was sent here
+    return IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
   }
 
   /**
