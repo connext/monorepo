@@ -1,6 +1,8 @@
 import { BigNumber } from "ethers";
 import { getNtpTimeSeconds } from "@connext/nxtp-utils";
+
 import { TimestampedCacheValue } from "../entities";
+
 import { Cache } from "./cache";
 
 /**
