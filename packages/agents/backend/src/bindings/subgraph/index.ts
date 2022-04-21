@@ -51,23 +51,23 @@ export const pollSubgraph = async () => {
         continue;
       }
 
-      const latestNonce = await cache.transfers.getLatestNonce(domain);
+      // const latestNonce = await cache.transfers.getLatestNonce(domain);
 
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber,
-        latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
+        latestNonce: 0, // queries at >= latest nonce, so use 1 larger than whats in the cache
       });
     }
 
     if ([...subgraphQueryMetaParams.keys()].length > 0) {
-      const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
+      const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.xcalled);
 
       const transferIds = transactions.map((transaction) => transaction.transferId);
       logger.debug("Got transactions", requestContext, methodContext, {
         transferIds,
       });
 
-      await cache.transfers.storeTransfers(transactions);
+      // await cache.transfers.storeTransfers(transactions);
     }
   } catch (err: unknown) {
     logger.error(
