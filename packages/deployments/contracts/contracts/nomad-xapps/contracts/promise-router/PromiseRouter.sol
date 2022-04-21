@@ -186,7 +186,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
     bytes32 transferId = _msg.transferId();
     address callbackAddress = _msg.callbackAddress();
-    bool success = _msg.returnSuccess() == 1;
+    bool success = _msg.returnSuccess();
     bytes memory data = _msg.returnData();
 
     //store Promise message
@@ -202,7 +202,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     if (_msg.isNull()) revert PromiseRouter__process_NullMessage();
 
     address callbackAddress = _msg.callbackAddress();
-    bool success = _msg.returnSuccess() == 1;
+    bool success = _msg.returnSuccess();
     bytes memory data = _msg.returnData();
 
     // enforce relayer is whitelisted by calling local connext contract

@@ -20,12 +20,13 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   address bridgeRouter = address(1);
   address tokenRegistry = address(2);
   address wrapper = address(3);
+  address promiseRouter = address(3);
 
   // ============ Test set up ============
 
   function setUp() public {
     connext = new Connext();
-    connext.initialize(domain, payable(bridgeRouter), tokenRegistry, wrapper);
+    connext.initialize(domain, payable(bridgeRouter), tokenRegistry, wrapper, payable(promiseRouter));
   }
 
   // ============ Utils ============

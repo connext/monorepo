@@ -23,8 +23,8 @@ library PromiseMessage {
   // ============ Constants ============
   uint256 private constant IDENTIFIER_LEN = 1;
   // 1 byte identifier + 32 bytes transferId + 20 bytes callback + 1 byte success + 32 bytes length + x bytes data
-  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 53 bytes
-  uint256 private constant LENGTH_RETURNDATA_START = 53;
+  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 54 bytes
+  uint256 private constant LENGTH_RETURNDATA_START = 54;
   uint8 private constant LENGTH_RETURNDATA_LEN = 32;
 
   // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback +  1 byte success + 32 bytes length = 86 bytes
@@ -96,9 +96,9 @@ library PromiseMessage {
    * @param _view The message
    * @return The call result
    */
-  function returnSuccess(bytes29 _view) internal pure typeAssert(_view, Types.PromiseCallback) returns (uint256) {
+  function returnSuccess(bytes29 _view) internal pure typeAssert(_view, Types.PromiseCallback) returns (bool) {
     // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 53 bytes
-    return _view.indexUint(53, 1);
+    return _view.indexUint(53, 1) == 1;
   }
 
   /**
@@ -142,7 +142,7 @@ library PromiseMessage {
   function isValidPromiseCallbackLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
     uint256 _length = lengthOfReturndata(_view);
-    // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 32 bytes length + x bytes data
+    // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 1 byte success + 32 bytes length + x bytes data
     // nonzero return data
     return _len > RETURNDATA_START && _length > 0 && (RETURNDATA_START + _length) == _len;
   }
