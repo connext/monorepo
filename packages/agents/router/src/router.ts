@@ -13,7 +13,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
 
-import { getConfig } from "./config";
+import { getConfig, NxtpRouterConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
 import { AppContext } from "./lib/entities";
 
@@ -21,7 +21,7 @@ import { AppContext } from "./lib/entities";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeRouter = async () => {
+export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
   const requestContext = createRequestContext("makeRouter");
   const methodContext = createMethodContext(makeRouter.name);
 
@@ -33,7 +33,7 @@ export const makeRouter = async () => {
     }
     context.adapters = {} as any;
     context.chainData = chainData;
-    context.config = await getConfig(chainData, contractDeployments);
+    context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
 
     // Create adapter instances.
     context.adapters.wallet = context.config.mnemonic
