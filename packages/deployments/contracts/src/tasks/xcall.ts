@@ -138,7 +138,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         transactingAssetId,
         amount,
       };
-      console.log("xcall args", args);
+      console.log("xcall args", JSON.stringify(args));
       const encoded = connext.interface.encodeFunctionData("xcall", [args]);
       console.log("encoded: ", encoded);
       console.log("to: ", connext.address);
