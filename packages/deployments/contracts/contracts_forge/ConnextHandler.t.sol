@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
-contract ConnextTest is ForgeHelper {
+contract ConnexHandlerTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
@@ -71,15 +71,18 @@ contract ConnextTest is ForgeHelper {
   // ============ setMaxRouters ============
 
   // Should work
-  function testSetMaxRoutersPerTransfer() public {
+  function test_ConnextHandler__setMaxRouters_works() public {
     require(connext.maxRoutersPerTransfer() != 10);
+
+    vm.expectEmit(true, true, true, true);
+    emit MaxRoutersPerTransferUpdated(10, address(this));
 
     connext.setMaxRoutersPerTransfer(10);
     assertEq(connext.maxRoutersPerTransfer(), 10);
   }
 
   // Fail if not called by owner
-  function testSetMaxRoutersPerTransferOwnable() public {
+  function test_ConnextHandler__setMaxRouters_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert(
       abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
@@ -88,19 +91,12 @@ contract ConnextTest is ForgeHelper {
   }
 
   // Fail maxRouters is 0
-  function testSetMaxRoutersPerTransferZeroValue() public {
+  function test_ConnextHandler__setMaxRouters_failsIfEmpty() public {
     vm.expectRevert(
       abi.encodeWithSelector(
         ConnextHandler.ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector
       )
     );
     connext.setMaxRoutersPerTransfer(0);
-  }
-
-  // Emits MaxRoutersPerTransferUpdated
-  function testSetMaxRoutersPerTransferEvent() public {
-    vm.expectEmit(true, true, true, true);
-    emit MaxRoutersPerTransferUpdated(10, address(this));
-    connext.setMaxRoutersPerTransfer(10);
   }
 }
