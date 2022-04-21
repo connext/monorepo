@@ -1,4 +1,4 @@
-import { utils, BigNumber, Wallet } from "ethers";
+import { utils, BigNumber, Wallet, constants } from "ethers";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -17,10 +17,10 @@ export const mock = {
   context: (): AppContext => {
     return {
       adapters: {
-        wallet: mock.adapter.wallet(),
-        subgraph: mock.adapter.subgraph(),
-        cache: mock.adapter.cache(),
-        txservice: mock.adapter.txservice(),
+        wallet: mock.adapters.wallet(),
+        subgraph: mock.adapters.subgraph(),
+        cache: mock.adapters.cache(),
+        txservice: mock.adapters.txservice(),
         contracts: mock.contracts.interfaces(),
       },
       config: mock.config(),
@@ -36,8 +36,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -50,8 +50,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -78,7 +78,7 @@ export const mock = {
       priceCaching: false,
     },
   }),
-  adapter: {
+  adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {
       const wallet = createStubInstance(Wallet);
       // need to do this differently bc the function doesnt exist on the interface
@@ -100,6 +100,8 @@ export const mock = {
       const subgraph = createStubInstance(SubgraphReader);
       subgraph.getXCalls.resolves([]);
       subgraph.getTransactionsWithStatuses.resolves([]);
+      subgraph.isRouterApproved.resolves(true);
+      subgraph.getAssetBalance.resolves(constants.MaxUint256);
       return subgraph;
     },
     txservice: (): SinonStubbedInstance<TransactionService> => {
@@ -200,13 +202,16 @@ export const stubHelpers = () => {
   try {
     getHelpersStub = stub(helpers, "getHelpers").returns(mock.helpers);
   } catch (e) {}
+  return getHelpersStub;
 };
 
 let getOperationsStub: SinonStub;
 export const stubOperations = () => {
-  if (!getOperationsStub) {
-    getOperationsStub = stub(operations, "getOperations");
-  }
-  getOperationsStub.resetHistory();
-  getOperationsStub.returns(mock.operations);
+  try {
+    getOperationsStub.restore();
+  } catch (e) {}
+  try {
+    getOperationsStub = stub(operations, "getOperations").returns(mock.operations);
+  } catch (e) {}
+  return getOperationsStub;
 };

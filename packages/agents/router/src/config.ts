@@ -1,5 +1,4 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
-import * as fs from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
@@ -7,8 +6,11 @@ import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments } from "@connext/nxtp-txservice";
 
+import { getHelpers } from "./lib/helpers";
+
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
 
@@ -70,6 +72,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -94,9 +97,12 @@ export const getEnvConfig = (
   try {
     let json: string;
 
+    const {
+      shared: { existsSync, readFileSync },
+    } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
-    if (fs.existsSync(path)) {
-      json = fs.readFileSync(path, { encoding: "utf-8" });
+    if (existsSync(path)) {
+      json = readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
     }
   } catch (e: unknown) {
@@ -142,10 +148,15 @@ export const getEnvConfig = (
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
+    subgraphPollInterval:
+      process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
+      configJson.subgraphPollInterval ||
+      configFile.subgraphPollInterval ||
+      DEFAULT_SUBGRAPH_POLL_INTERVAL,
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
-    throw new Error("Wallet missing, please add either mnemonic or web3SignerUrl");
+    throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
   }
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
@@ -173,8 +184,8 @@ export const getEnvConfig = (
 
     const maxLag = chainConfig.subgraph?.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
     nxtpConfig.chains[domainId].subgraph = {
-      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraph ?? [],
-      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.analyticsSubgraph ?? [],
+      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraphs?.runtime ?? [],
+      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.subgraphs?.analytics ?? [],
       // 25 blocks minimum.
       maxLag: maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag,
     };

@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 
-import { NOMAD_DEPLOYMENTS } from "../constants";
+import { getDomainInfoFromChainId } from "../nomad";
 
 type TaskArgs = {
   tokenRegistry?: string;
@@ -21,13 +21,10 @@ export default task("set-local-domain", "Set the local domain of the token regis
     console.log("tokenRegistry: ", tokenRegistry);
     const { chainId } = await ethers.provider.getNetwork();
 
-    const config = NOMAD_DEPLOYMENTS.get(chainId);
-    if (!config) {
-      throw new Error(`No nomad config found for ${chainId}`);
-    }
+    const { domain } = getDomainInfoFromChainId(+chainId);
 
     const registry = await ethers.getContractAt((await deployments.getArtifact("TokenRegistry")).abi, tokenRegistry);
-    const setLocalTx = await registry.setLocalDomain(config.domain);
+    const setLocalTx = await registry.setLocalDomain(domain);
     console.log("set local domain tx:", setLocalTx);
     const receipt = await setLocalTx.wait();
     console.log("set local domain tx mined:", receipt);

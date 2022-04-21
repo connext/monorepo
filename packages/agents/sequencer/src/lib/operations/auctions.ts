@@ -13,7 +13,6 @@ import {
 
 import { AuctionExpired, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
-import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
 
@@ -29,13 +28,8 @@ export const storeBid = async (
 ): Promise<void> => {
   const {
     logger,
-    chainData,
-    adapters: { chainreader, cache },
-    config,
+    adapters: { cache },
   } = getContext();
-  const {
-    auctions: { encodeExecuteFromBid },
-  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
 
@@ -59,30 +53,11 @@ export const storeBid = async (
     });
   }
 
-  // TODO: Should this be moved to just *before* we send an excecute to the relayer?
-  // Sanity check : estimateGas.
-  const destinationChainId = chainData.get(bidData.params.destinationDomain)!.chainId;
-
-  const encodedData = encodeExecuteFromBid([bid.router], bidData);
-  const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
-
-  logger.info("Prepared data for sending", requestContext, methodContext, {
-    encodedData,
-    destinationTransactonManagerAddress: destinationConnextAddress,
-    domain: bidData.params.destinationDomain,
-    bid,
-  });
-
-  // Validate the bid's fulfill call will succeed on chain.
-  const gas = await chainreader.getGasEstimate(Number(bidData.params.destinationDomain), {
-    chainId: destinationChainId,
-    to: destinationConnextAddress,
-    data: encodedData,
-  });
-
-  logger.info("Estimated gas", requestContext, methodContext, {
-    gas: gas.toString(),
-  });
+  // TODO: Verify the following (and cache it for records):
+  // - Router is approved.
+  // - Asset is approved.
+  // - Relayer is approved for this chain (?).
+  // - Router has sufficient funds (?). May want to actually check this later.
 
   const res = await cache.auctions.upsertAuction({
     transferId,
@@ -103,7 +78,7 @@ export const storeBid = async (
   return;
 };
 
-export const selectBids = async (_requestContext: RequestContext) => {
+export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
     logger,
     adapters: { cache },
@@ -112,9 +87,9 @@ export const selectBids = async (_requestContext: RequestContext) => {
   const {
     relayer: { sendToRelayer },
   } = getOperations();
-  const { requestContext, methodContext } = createLoggingContext(selectBids.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
 
-  logger.info(`Method start: ${selectBids.name}`, requestContext, methodContext);
+  logger.info(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
 
   // Fetch all the queued transfer IDs from the cache.
   const transferIds: string[] = await cache.auctions.getQueuedTransfers();
@@ -125,87 +100,132 @@ export const selectBids = async (_requestContext: RequestContext) => {
   });
 
   // Filter transfers by whether they have exceeded the auction period and merit execution.
-  const auctions: { [transferIds: string]: Auction } = {};
+  const auctions: { [domain: string]: { [transferIds: string]: Auction } } = {};
   await Promise.all(
     transferIds.map(async (transferId) => {
       const auction = await cache.auctions.getAuction(transferId);
       if (auction) {
         const startTime = Number(auction.timestamp);
-        const elapsed = getNtpTimeSeconds() - startTime;
+        const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
         if (elapsed > AUCTION_PERIOD) {
-          auctions[transferId] = auction;
+          const domain = auction.destination;
+          auctions[domain] = {
+            ...(auctions[domain] || {}),
+            [transferId]: auction,
+          };
         }
       }
     }),
   );
 
-  for (const transferId of Object.keys(auctions)) {
-    const { bids, origin, destination } = auctions[transferId];
+  // Handling each domain in parallel, but each individual transfer synchronously. This is to account
+  // for the fact that one transfer's auction might affect another. For instance, a router might have
+  // 100 tokens to LP, but bid on 2 100-token transfers. We shouldn't send both of those bids.
+  await Promise.all(
+    Object.keys(auctions).map(async (domain) => {
+      for (const transferId of Object.keys(auctions[domain])) {
+        const { bids, origin, destination } = auctions[domain][transferId];
+        logger.info("Started selecting bids", requestContext, methodContext, {
+          bids,
+          origin,
+          destination,
+          transferId,
+        });
 
-    // TODO: deprecate... necessary for now
-    const bidData = await cache.auctions.getBidData(transferId);
-    if (!bidData) {
-      logger.error("Bid data not found for transfer!", requestContext, methodContext, undefined, {
-        transferId,
-        origin,
-        destination,
-        bids,
-      });
-      continue;
-    }
+        // TODO: deprecate eventually... necessary for now
+        const bidData = await cache.auctions.getBidData(transferId);
+        if (!bidData) {
+          logger.error("Bid data not found for transfer!", requestContext, methodContext, undefined, {
+            transferId,
+            origin,
+            destination,
+            bids,
+          });
+          continue;
+        }
 
-    const selected: Bid[] = [];
-    for (let round = 1; round <= 5; round++) {
-      // TODO: For now, selecting at random, but we should take fee % into account.
-      const availableBids = bids.filter((bid) => {
-        return Array.from(Object.keys(bid.signatures)).includes(round.toString());
-      });
-      if (availableBids.length < round) {
-        // Not enough router bids to form a transfer for this round.
-        // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
-        continue;
+        // TODO: Reimplement auction rounds!
+        // hardcoded round 1
+        const availableBids = Object.values(bids).filter((bid) => {
+          // TODO: Check to make sure the router has enough funds to execute this bid!
+          return Array.from(Object.keys(bid.signatures)).includes("1");
+        });
+        if (availableBids.length < 1) {
+          logger.warn("No bids available for this round", requestContext, methodContext, {
+            availableBids,
+            transferId,
+          });
+          // Not enough router bids to form a transfer for this round.
+          // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
+          continue;
+        }
+
+        // TODO: Sort by fee amount, selecting the best bid available.
+        // Randomly sort the bids.
+        const randomized = availableBids
+          .map((value) => ({ value, sort: Math.random() }))
+          .sort((a, b) => a.sort - b.sort)
+          .map(({ value }) => value);
+
+        let taskId: string | undefined;
+        // Try every bid until we find one that works.
+        for (const randomBid of randomized) {
+          try {
+            logger.info("Sending bid to relayer", requestContext, methodContext, {
+              transferId,
+              randomBid,
+            });
+            // Send the relayer request based on chosen bids.
+            taskId = await sendToRelayer(
+              [randomBid.router],
+              {
+                ...bidData,
+
+                // TODO: This will be deprecated in favor of using generic router-sig proof on-chain...
+                // Also dependent on #818 relayer fees.
+                // For now, the on-chain check is done on the *first* router in the list for multipath.
+                relayerSignature: Object.values(randomBid.signatures)[0],
+              },
+              requestContext,
+            );
+            logger.info("Sent bid to relayer", requestContext, methodContext, {
+              transferId,
+              taskId,
+              origin,
+              destination,
+            });
+            break;
+          } catch (error: any) {
+            logger.error(
+              "Failed to send to relayer, trying next bid if possible",
+              requestContext,
+              methodContext,
+              jsonifyError(error as Error),
+              {
+                transferId,
+                availableBidsCount: availableBids.length,
+              },
+            );
+          }
+        }
+        if (!taskId) {
+          logger.error(
+            "No bids sent to relayer",
+            requestContext,
+            methodContext,
+            jsonifyError(new Error("No successfully sent bids")),
+            {
+              transferId,
+              origin,
+              destination,
+              bids,
+            },
+          );
+          continue;
+        }
+        await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
+        await cache.auctions.upsertTask({ transferId, taskId });
       }
-
-      // Now we select the bids for this round from the available bids.
-      for (let i = 0; i < round; i++) {
-        const random = Math.floor(Math.random() * availableBids.length);
-        const selectedBid: Bid = availableBids.splice(random, 1)[0];
-        selected.push(selectedBid);
-      }
-      break;
-    }
-
-    if (selected.length === 0) {
-      // We weren't able to select bids for this transfer.
-      continue;
-    }
-
-    let taskId: string;
-    try {
-      // Send the relayer request based on chosen bids.
-      taskId = await sendToRelayer(
-        selected.map((bid) => bid.router),
-        {
-          ...bidData,
-
-          // TODO: This will be deprecated in favor of using generic router-sig proof on-chain...
-          // Also dependent on #818 relayer fees.
-          // For now, the on-chain check is done on the *first* router in the list for multipath.
-          relayerSignature: Object.values(selected[0].signatures)[0],
-        },
-        requestContext,
-      );
-    } catch (err: any) {
-      logger.error("Failed to send to relayer", requestContext, methodContext, jsonifyError(err as Error), {
-        transferId,
-        origin,
-        destination,
-        bids,
-      });
-      continue;
-    }
-
-    await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
-    await cache.auctions.upsertTask({ transferId, taskId });
-  }
+    }),
+  );
 };

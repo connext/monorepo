@@ -6,6 +6,7 @@ export enum XTransferStatus {
   XCalled = "XCalled",
   Executed = "Executed",
   Reconciled = "Reconciled",
+  Failed = "Failed",
 }
 
 export const XTransferMethodCallSchema = Type.Object({
@@ -55,6 +56,14 @@ export const CallParamsSchema = Type.Object({
 });
 
 export type CallParams = Static<typeof CallParamsSchema>;
+
+export const XCallArgsSchema = Type.Object({
+  params: CallParamsSchema,
+  transactingAssetId: Type.String(),
+  amount: TDecimalString,
+});
+
+export type XCallArgs = Static<typeof XCallArgsSchema>;
 
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,

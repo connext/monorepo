@@ -31,10 +31,10 @@ describe("Peripherals:Gelato", () => {
       const res = await gelatoSend(1337, "0x1", "0x", "0xa", "1");
       expect(res).to.be.deep.eq("Gelato sent successfully!");
     });
+
     it("should throw if post fails", async () => {
       axiosPostStub.throws(new Error("Request failed!"));
-      const res = await gelatoSend(1337, "0x1", "0x", "0xa", "1");
-      expect(res.toString()).to.be.includes("Request failed!");
+      await expect(gelatoSend(1337, "0x1", "0x", "0xa", "1")).to.be.rejectedWith("Error in Gelato send");
     });
   });
 

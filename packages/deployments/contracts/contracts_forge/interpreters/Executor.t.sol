@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.11;
+
 import "../ForgeHelper.sol";
 
 import "../../contracts/interpreters/Executor.sol";
@@ -18,10 +20,12 @@ contract PropertyQuery is ForgeHelper {
 
   function setOriginSender() public returns (address) {
     originSender = IExecutor(msg.sender).originSender();
+    return originSender;
   }
 
   function setOrigin() public returns (uint32) {
     origin = IExecutor(msg.sender).origin();
+    return origin;
   }
 }
 

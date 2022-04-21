@@ -107,7 +107,9 @@ describe("AuctionCache", () => {
         expect(auction).to.deep.eq({
           origin: args.origin,
           destination: args.destination,
-          bids: [args.bid],
+          bids: {
+            [args.bid.router]: args.bid,
+          },
         });
       });
 
@@ -133,7 +135,9 @@ describe("AuctionCache", () => {
           ...args,
           origin,
           destination,
-          bids: [firstBid],
+          bids: {
+            [firstBid.router]: firstBid,
+          },
         });
 
         const secondCallRes = await cache.upsertAuction({
@@ -148,7 +152,10 @@ describe("AuctionCache", () => {
           timestamp: firstCallTimestamp,
           origin,
           destination,
-          bids: [firstBid, secondBid],
+          bids: {
+            [firstBid.router]: firstBid,
+            [secondBid.router]: secondBid,
+          },
         });
       });
     });

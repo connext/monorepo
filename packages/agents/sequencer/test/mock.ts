@@ -17,10 +17,10 @@ export const mock = {
   context: (): AppContext => {
     return {
       adapters: {
-        subgraph: mock.adapter.subgraph(),
-        cache: mock.adapter.cache(),
-        chainreader: mock.adapter.chainreader(),
-        contracts: mock.adapter.contracts(),
+        subgraph: mock.adapters.subgraph(),
+        cache: mock.adapters.cache(),
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.adapters.contracts(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -33,8 +33,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -45,8 +45,8 @@ export const mock = {
         confirmations: 1,
         providers: ["http://example.com"],
         subgraph: {
-          runtime: ["http://example.com"],
-          analytics: ["http://example.com"],
+          runtime: [{ query: "http://example.com", health: "http://example.com" }],
+          analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
         deployments: {
@@ -57,6 +57,7 @@ export const mock = {
     logLevel: "info",
     redis: { host: "localhost", port: 6379 },
     server: {
+      adminToken: "foo",
       port: 3000,
       host: "0.0.0.0",
     },
@@ -66,7 +67,7 @@ export const mock = {
       cleanup: false,
     },
   }),
-  adapter: {
+  adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
       const transactions = createStubInstance(TransfersCache);
@@ -139,7 +140,7 @@ export const mock = {
   operations: {
     auctions: {
       storeBid: stub(),
-      selectBids: stub(),
+      executeAuctions: stub(),
     },
     relayer: {
       sendToRelayer: stub(),

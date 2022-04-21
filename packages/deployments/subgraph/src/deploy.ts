@@ -69,9 +69,17 @@ const run = async () => {
     console.log(n);
 
     /// prepare
-    jsonFile.dataSources[0].network = n.network;
-    jsonFile.dataSources[0].source.address = n.address;
-    jsonFile.dataSources[0].source.startBlock = n.startBlock;
+    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
+      return {
+        ...ds,
+        network: n.network,
+        source: {
+          ...ds.source,
+          address: n.address,
+          startBlock: n.startBlock,
+        },
+      };
+    });
 
     const doc = new YAML.Document();
     const obj = JSON.parse(JSON.stringify(jsonFile));
