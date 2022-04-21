@@ -58,7 +58,7 @@ export const AuctionsApiBidResponseSchema = Type.Object({
 export type AuctionsApiBidResponse = Static<typeof AuctionsApiBidResponseSchema>;
 
 export const AuctionsApiGetAuctionsStatusResponseSchema = Type.Object({
-  bids: Type.Array(BidSchema),
+  bids: Type.Record(Type.String(), BidSchema),
   status: Type.String(),
   attempts: Type.Optional(Type.Number()),
   taskId: Type.Optional(Type.String()),

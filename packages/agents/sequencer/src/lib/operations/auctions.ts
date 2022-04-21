@@ -146,7 +146,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
 
         // TODO: Reimplement auction rounds!
         // hardcoded round 1
-        const availableBids = bids.filter((bid) => {
+        const availableBids = Object.values(bids).filter((bid) => {
           // TODO: Check to make sure the router has enough funds to execute this bid!
           return Array.from(Object.keys(bid.signatures)).includes("1");
         });

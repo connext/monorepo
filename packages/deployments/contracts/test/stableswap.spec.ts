@@ -12,7 +12,7 @@ import {
   forceAdvanceOneBlock,
 } from "./utils";
 import { solidity } from "ethereum-waffle";
-import { deployments } from "hardhat";
+import { ethers, waffle } from "hardhat";
 
 import { GenericERC20, LPToken, StableSwap, SwapUtils, AmplificationUtils, TestStableSwap } from "../typechain-types";
 import chai from "chai";
@@ -51,9 +51,8 @@ describe("StableSwap", async () => {
   const LP_TOKEN_NAME = "Test LP Token Name";
   const LP_TOKEN_SYMBOL = "TESTLP";
 
-  const setupTest = deployments.createFixture(async ({ deployments, ethers }) => {
-    const { get } = deployments;
-    await deployments.fixture(); // ensure you start from a fresh deployments
+  const fixture = async () => {
+    // await deployments.fixture(); // ensure you start from a fresh deployments
 
     signers = await ethers.getSigners();
     owner = signers[0];
@@ -82,7 +81,7 @@ describe("StableSwap", async () => {
     });
 
     // Get Swap contract
-    //swap = await ethers.getContract("Swap");
+    // swap = await ethers.getContract("Swap");
 
     const amplificationUtilsFactory = await ethers.getContractFactory("AmplificationUtils");
     amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtils;
@@ -127,10 +126,15 @@ describe("StableSwap", async () => {
 
     expect(await firstToken.balanceOf(swap.address)).to.eq(String(1e18));
     expect(await secondToken.balanceOf(swap.address)).to.eq(String(1e18));
-  });
+  };
+
+  let loadFixture: ReturnType<typeof waffle.createFixtureLoader>;
 
   beforeEach(async () => {
-    await setupTest();
+    loadFixture = waffle.createFixtureLoader();
+
+    // Deploy all contracts
+    await loadFixture(fixture);
   });
 
   describe("swapStorage", () => {
@@ -146,7 +150,6 @@ describe("StableSwap", async () => {
       it("Returns true after successfully calling transferFrom", async () => {
         // User 1 adds liquidity
         await swap.connect(user1).addLiquidity([String(2e18), String(1e16)], 0, MAX_UINT256);
-        console.log(await swapToken.balanceOf(user1Address));
 
         // User 1 approves User 2 for MAX_UINT256
         swapToken.connect(user1).approve(user2Address, MAX_UINT256);

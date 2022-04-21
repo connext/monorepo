@@ -2,7 +2,7 @@ import { BigNumber, constants, utils } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { canonizeId } from "../nomad";
+import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000";
@@ -37,7 +37,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         pool: _pool,
         relayer: _relayer,
       }: TaskArgs,
-      { deployments, ethers, run, getNamedAccounts, network },
+      { deployments, ethers, run, getNamedAccounts },
     ) => {
       let connextAddress = _connextAddress;
       if (!connextAddress) {
@@ -56,8 +56,9 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         throw new Error("Domain must be specified as param or from env (CANONICAL_DOMAIN)");
       }
       // Get the domain of the current network (this could be the canonical network, so same as above).
-      const networkDomain = network.name === "rinkeby" ? "2000" : network.name === "kovan" ? "3000" : undefined;
-      if (!networkDomain) {
+      const network = await ethers.provider.getNetwork();
+      const domainInfo = getDomainInfoFromChainId(network.chainId);
+      if (!domainInfo) {
         throw new Error("Unsupported network");
       }
       const canonicalAsset = _asset ?? process.env.CANONICAL_TOKEN;
@@ -73,7 +74,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
 
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;
-      if (canonicalDomain === networkDomain) {
+      if (+canonicalDomain === domainInfo.domain) {
         // Use the canonical asset as the local asset since we're on the canonical network.
         localAsset = canonicalAsset;
       } else {
@@ -116,7 +117,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         await run("setup-asset", {
           canonical: canonicalTokenId,
           adopted: localAsset,
-          domain: networkDomain,
+          domain: domainInfo.domain.toString(),
           connextAddress,
           pool,
         });

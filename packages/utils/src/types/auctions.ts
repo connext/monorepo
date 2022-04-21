@@ -40,7 +40,9 @@ export type AuctionHeader = Static<typeof AuctionHeaderSchema>;
 
 // Auction type - used for caching.
 export type Auction = AuctionHeader & {
-  bids: Bid[];
+  bids: {
+    [router: string]: Bid;
+  };
 };
 
 // Record of important data for an auction's meta tx.
