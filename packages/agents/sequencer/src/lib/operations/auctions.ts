@@ -192,50 +192,53 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         for (const randomBid of randomized) {
           // Sanity: Check if this router has enough funds.
           const { router } = randomBid;
-          const { destinationDomain } = bidData.params;
-          const { amount, local: asset } = bidData;
-          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(
-            router,
-            destinationDomain,
-            asset,
-          );
+          const { amount: _amount, local: asset } = bidData;
+          const amount = BigNumber.from(_amount);
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
 
           if (!routerLiquidity) {
             // Either we haven't cached the liquidity yet, or the value cached has become expired.
-            routerLiquidity = await subgraph.getAssetBalance(destinationDomain, router, asset);
+            routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
             if (routerLiquidity) {
-              await cache.routers.setLiquidity(router, destinationDomain, asset, routerLiquidity);
+              await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
             } else {
               // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
               // have added liquidity for the asset on the corresponding domain.
               logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
-                transferId,
-                origin,
-                destination,
+                transfer: {
+                  transferId,
+                  asset,
+                  destination,
+                  amount: amount.toString(),
+                },
                 router,
-                asset,
-                amount,
               });
               continue;
             }
           }
 
-          if (routerLiquidity.lt(BigNumber.from(amount))) {
+          if (routerLiquidity.lt(amount)) {
             logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
-              transferId,
+              transfer: {
+                transferId,
+                asset,
+                destination,
+                amount: amount.toString(),
+              },
               router,
-              destinationDomain,
-              asset,
-              amount,
-              routerLiquidity,
+              liquidity: routerLiquidity.toString(),
             });
             continue;
+          } else {
+            routerLiquidity = routerLiquidity.sub(amount);
+            await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
           }
 
           try {
             logger.info("Sending bid to relayer", requestContext, methodContext, {
               transferId,
               bid: {
+                // NOTE: Obfuscating signatures here for safety.
                 router: randomBid.router,
                 fee: randomBid.fee,
               },
