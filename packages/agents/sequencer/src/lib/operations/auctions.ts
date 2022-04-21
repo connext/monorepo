@@ -229,9 +229,6 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               liquidity: routerLiquidity.toString(),
             });
             continue;
-          } else {
-            routerLiquidity = routerLiquidity.sub(amount);
-            await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
           }
 
           try {
@@ -262,6 +259,12 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               origin,
               destination,
             });
+
+            // Update router liquidity record to reflect spending.
+            routerLiquidity = routerLiquidity.sub(amount);
+            await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+
+            // Break out from the bid selection loop.
             break;
           } catch (error: any) {
             logger.error(
