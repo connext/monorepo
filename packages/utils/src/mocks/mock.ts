@@ -95,7 +95,9 @@ export const mock: any = {
       timestamp: getNtpTimeSeconds().toString(),
       origin: mock.domain.A,
       destination: mock.domain.B,
-      bids: [mock.entity.bid()],
+      bids: {
+        [mock.address.router]: mock.entity.bid(),
+      },
       ...overrides,
     }),
     bid: (overrides: Partial<Bid> = {}): Bid => ({

@@ -10,7 +10,7 @@
     "port": 8080
   },
   "chains": {
-    "2000": {
+    "1111": {
       "providers": ["https://rpc.ankr.com/eth_rinkeby"],
       "assets": [
         {
@@ -19,7 +19,7 @@
         }
       ]
     },
-    "3000": {
+    "2221": {
       "providers": ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
       "assets": [
         {
