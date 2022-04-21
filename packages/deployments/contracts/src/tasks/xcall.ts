@@ -38,11 +38,9 @@ export default task("xcall", "Prepare a cross-chain tx")
       // Get the origin and destination domains.
       const network = await ethers.provider.getNetwork();
       const originDomain = getDomainInfoFromChainId(network.chainId).domain;
-      const destinationDomain = _destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN;
+      const destinationDomain = +(_destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN ?? "0");
       if (!destinationDomain) {
-        throw new Error(
-          "Origin and destination domains must be specified as params or from env (TRANSFER_ORIGIN_DOMAIN, TRANSFER_DESTINATION_DOMAIN)",
-        );
+        throw new Error("Destination domain must be specified as params or from env (TRANSFER_DESTINATION_DOMAIN)");
       }
 
       // Get the "to" address.
@@ -140,7 +138,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         transactingAssetId,
         amount,
       };
-      console.log("xcall args", args);
+      console.log("xcall args", JSON.stringify(args));
       const encoded = connext.interface.encodeFunctionData("xcall", [args]);
       console.log("encoded: ", encoded);
       console.log("to: ", connext.address);
