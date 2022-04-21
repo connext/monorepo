@@ -146,6 +146,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
 
         // TODO: Reimplement auction rounds!
         // hardcoded round 1
+        const round = "1";
         const availableBids = Object.values(bids).filter((bid) => {
           // TODO: Check to make sure the router has enough funds to execute this bid!
           return Array.from(Object.keys(bid.signatures)).includes("1");
@@ -176,15 +177,17 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               randomBid,
             });
             // Send the relayer request based on chosen bids.
+            const permit = randomBid.signatures[round];
             taskId = await sendToRelayer(
               [randomBid.router],
+              [permit],
               {
                 ...bidData,
 
                 // TODO: This will be deprecated in favor of using generic router-sig proof on-chain...
                 // Also dependent on #818 relayer fees.
                 // For now, the on-chain check is done on the *first* router in the list for multipath.
-                relayerSignature: Object.values(randomBid.signatures)[0],
+                relayerSignature: permit,
               },
               requestContext,
             );

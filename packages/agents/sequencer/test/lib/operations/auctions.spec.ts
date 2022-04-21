@@ -160,7 +160,7 @@ describe("Operations:Auctions", () => {
         expect(getBidDataStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
         expect(sendToRelayerStub.getCall(i).args[0].length).to.eq(1);
 
-        const { relayerSignature, ...bidDataIsh } = sendToRelayerStub.getCall(i).args[1];
+        const { relayerSignature, ...bidDataIsh } = sendToRelayerStub.getCall(i).args[2];
         const { relayerSignature: _, ...bidData } = bidDatas[i];
         expect(bidDataIsh).to.be.deep.eq(bidData);
 

@@ -2,7 +2,7 @@ import { BidData } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
-export const encodeExecuteFromBid = (routers: string[], bidData: BidData): string => {
+export const encodeExecuteFromBid = (routers: string[], permits: string[], bidData: BidData): string => {
   const {
     adapters: { contracts },
   } = getContext();
@@ -10,6 +10,7 @@ export const encodeExecuteFromBid = (routers: string[], bidData: BidData): strin
     {
       ...bidData,
       routers,
+      permits,
     },
   ]);
 };

@@ -6,7 +6,8 @@ import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
-  selectedRouters: string[],
+  routers: string[],
+  permits: string[],
   bidData: BidData,
   _requestContext: RequestContext,
 ): Promise<string> => {
@@ -28,7 +29,7 @@ export const sendToRelayer = async (
 
   const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBid(selectedRouters, bidData);
+  const encodedData = encodeExecuteFromBid(routers, permits, bidData);
   logger.info("Encoded data", requestContext, methodContext, {
     encodedData,
   });

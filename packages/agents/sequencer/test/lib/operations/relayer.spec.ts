@@ -74,7 +74,12 @@ describe("#relayer", () => {
     it("should error if gelato doesn't support", async () => {
       isChainSupportedByGelatoStub.resolves(false);
       expect(
-        sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext),
+        sendToRelayer(
+          mockSelectedRouters.slice(0, 1),
+          [mockBidDatas[0].relayerSignature],
+          mockBidDatas[0],
+          loggingContext.requestContext,
+        ),
       ).to.eventually.be.throw(new Error("Chain not supported by gelato."));
     });
 
@@ -82,14 +87,24 @@ describe("#relayer", () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosErrorResponse);
       expect(
-        sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext),
+        sendToRelayer(
+          mockSelectedRouters.slice(0, 1),
+          [mockBidDatas[0].relayerSignature],
+          mockBidDatas[0],
+          loggingContext.requestContext,
+        ),
       ).to.eventually.be.throw(new GelatoSendFailed());
     });
 
     it("should send the bid to the sequencer", async () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosSuccessResponse);
-      await sendToRelayer(mockSelectedRouters.slice(0, 1), mockBidDatas[0], loggingContext.requestContext);
+      await sendToRelayer(
+        mockSelectedRouters.slice(0, 1),
+        [mockBidDatas[0].relayerSignature],
+        mockBidDatas[0],
+        loggingContext.requestContext,
+      );
       expect(gelatoSendStub).to.be.calledOnce;
     });
   });
