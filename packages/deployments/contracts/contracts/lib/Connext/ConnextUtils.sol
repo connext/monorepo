@@ -132,7 +132,7 @@ library ConnextUtils {
   event Reconciled(
     bytes32 indexed transferId,
     uint32 indexed origin,
-    address[] indexed routers,
+    address[] routers,
     address asset,
     uint256 amount,
     address caller

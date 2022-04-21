@@ -1041,9 +1041,8 @@ describe("Connext", () => {
           .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
 
         const reconcileReceipt = await reconcile.wait();
-        const reconciledTopic = connextUtils.filters.Reconciled(transferId).topics as string[]
         const reconciledEvent = connextUtils.interface.parseLog(
-          reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopic[0]))!,
+          reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
         );
 
         expect(reconciledEvent.args.transferId).eql(transferId);
