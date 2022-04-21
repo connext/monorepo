@@ -7,10 +7,10 @@ SEQUENCER="sequencer"
 ROUTER="router"
 
 
-if [[ "${SERVICE}" == "${SEQUENCER}" ]]
+if [[ "${SERVICE}" == "${ROUTER}" ]]
 then
   PORT=8080
-elif [[ "${SERVICE}" == "${ROUTER}" ]]
+elif [[ "${SERVICE}" == "${SEQUENCER}" ]]
 then
   PORT=8081
 else

@@ -4,7 +4,8 @@
     "port": 6379
   },
   "server": {
-    "adminToken": "b"
+    "adminToken": "b",
+    "port": 8081
   },
   "chains": {
     "2000": {
