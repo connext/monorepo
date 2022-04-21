@@ -1,0 +1,8 @@
+schema: http://localhost:8010/subgraphs/name/connext/nxtp
+documents: "src/**/!(*.d).{ts,tsx}"
+generates:
+  ./src/subgraph/graphqlsdk.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request

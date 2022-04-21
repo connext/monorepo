@@ -4,22 +4,15 @@ locals {
       host: module.sequencer_cache.redis_instance_address,
       port: module.sequencer_cache.redis_instance_port
     },
+
+    server       = {
+      adminToken = var.admin_token_router
+    }
+
     logLevel = "debug"
     chains = {
       2000 = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}"]
-        subgraph = {
-          runtime   = [{
-            query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
-            health = "https://api.thegraph.com/index-node/graphql"
-          }]
-          analytics = [
-            {
-              query = ""
-              health = ""
-            }
-          ]
-        }
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
         "assets" = [{
           "name"    = "TEST"
           "address" = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
@@ -27,18 +20,6 @@ locals {
       }
       "3000" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
-        subgraph = {
-          runtime = [{
-            query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"
-            health = "https://api.thegraph.com/index-node/graphql"
-          }]
-          analytics = [
-            {
-              query = ""
-              health = ""
-            }
-          ]
-        }
         "assets" = [{
           "name"    = "TEST"
           "address" = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
@@ -63,15 +44,7 @@ locals {
     }
     chains = {
       2000 = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
-        subgraph = {
-          runtime = [{
-              query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
-              health = "https://api.thegraph.com/index-node/graphql"
-          }]
-          analytics: []
-        }
-        deployments = {}
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [
           {
             name    = "TEST"
@@ -81,14 +54,6 @@ locals {
       }
       3000 = {
         "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
-        subgraph = {
-          runtime   = [{
-            query = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"
-            health = "https://api.thegraph.com/index-node/graphql"
-          }]
-          analytics = []
-        }
-        deployments = {}
         assets = [
           {
             name    = "TEST"

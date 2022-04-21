@@ -22,7 +22,7 @@ export const bindCache = async (_pollInterval = CACHE_POLL_INTERVAL) => {
 
 export const pollCache = async () => {
   const {
-    adapters: { cache },
+    adapters: { cache, subgraph },
     logger,
     config,
   } = getContext();
@@ -36,8 +36,22 @@ export const pollCache = async () => {
       continue;
     }
     // Retrieve the list of all pending transfer IDs for this domain.
-    const pending = await cache.transfers.getPending(domain);
+    let pending = await cache.transfers.getPending(domain);
     logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
+
+    const pendingTransfers: XTransfer[] = [];
+    for (const transferId of pending) {
+      // Retrieve the transfer data.
+      const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
+      if (transfer) pendingTransfers.push(transfer);
+    }
+
+    // Check the transfer status and update if it gets executed or reconciled on the destination domain
+    const confirmedTransfers = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+    if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
+
+    const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
+    pending = pending.filter((txid) => !confirmedTxIds.includes(txid));
 
     for (const transferId of pending) {
       // Retrieve the transfer data.

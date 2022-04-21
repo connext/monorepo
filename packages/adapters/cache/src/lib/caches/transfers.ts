@@ -184,4 +184,13 @@ export class TransfersCache extends Cache {
     }
     return isNewError;
   }
+
+  /**
+   * Flushes the entire cache.
+   *
+   * @returns string "OK"
+   */
+  public async clear(): Promise<"OK"> {
+    return await this.data.flushall();
+  }
 }

@@ -17,3 +17,13 @@ export const TUrl = Type.String({ format: "uri" });
 // Convenience types
 export const TChainId = Type.Number({ minimum: 1 });
 export const TDecimalString = Type.RegEx(/^[0-9]*\.?[0-9]*$/);
+
+export const TLogLevel = Type.Union([
+  Type.Literal("fatal"),
+  Type.Literal("error"),
+  Type.Literal("warn"),
+  Type.Literal("info"),
+  Type.Literal("debug"),
+  Type.Literal("trace"),
+  Type.Literal("silent"),
+]);
