@@ -128,7 +128,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     } catch (e: unknown) {
       console.log("ConnextPriceOracle not deployed yet:", (e as Error).message);
     }
-    await hre.deployments.deploy("ConnextPriceOracle", {
+    const { newlyDeployed: oracleNewlyDeployed } = await hre.deployments.deploy("ConnextPriceOracle", {
       from: deployer.address,
       args: [WRAPPED_ETH_MAP.get(+chainId)],
       log: true,
@@ -146,8 +146,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     }
 
     // verify
-    console.log("verifying price oracle...");
-    await verify(hre, newPriceOracleAddress, [WRAPPED_ETH_MAP.get(+chainId)]);
+    if (oracleNewlyDeployed) {
+      console.log("verifying price oracle...");
+      await verify(hre, newPriceOracleAddress, [WRAPPED_ETH_MAP.get(+chainId)]);
+    }
   }
 
   console.log("Deploying multicall...");
@@ -159,7 +161,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // verify multicall
   console.log("verifying multicall...");
-  await verify(hre, deployment.address);
+  if (deployment.newlyDeployed) {
+    await verify(hre, deployment.address);
+  }
 
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
@@ -171,7 +175,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
     // verify test erc20
     console.log("verifying token...");
-    await verify(hre, deployment.address);
+    if (deployment.newlyDeployed) {
+      await verify(hre, deployment.address);
+    }
     console.log("TestERC20: ", deployment.address);
   } else {
     console.log("Skipping test setup on chainId: ", chainId);

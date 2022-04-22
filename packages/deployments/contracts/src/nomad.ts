@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import * as configuration from "@nomad-xyz/configuration";
 
-import { MAINNET_CHAINS, NOMAD_STAGING_CONFIG } from "./constants";
+import { MAINNET_CHAINS } from "./constants";
 
 export type Address = string;
 
@@ -111,10 +111,7 @@ export type NomadDomainInfo = {
 
 export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
   const env = MAINNET_CHAINS.includes(chainId) ? "production" : "staging";
-  // TODO: only use configuration.getBuiltIn() when nomad PR merged into configuration
-  // package
-  const nomadConfig: configuration.NomadConfig =
-    env === "staging" ? NOMAD_STAGING_CONFIG : configuration.getBuiltin(env);
+  const nomadConfig: configuration.NomadConfig = configuration.getBuiltin(env);
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
   }
