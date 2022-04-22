@@ -10,14 +10,14 @@ variable "az_count" {
   default = "2"
 }
 
-variable "environment" {
-  description = "env we're deploying to"
-  default     = "testnet"
-}
-
 variable "stage" {
   description = "stage of deployment"
   default     = "prod"
+}
+
+variable "environment" {
+  description = "env we're deploying to"
+  default     = "testnet"
 }
 
 
@@ -44,10 +44,6 @@ variable "admin_token_router" {
   description = "admin token"
 }
 
-variable "admin_token_sequencer" {
-  type        = string
-  description = "admin token"
-}
 
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
