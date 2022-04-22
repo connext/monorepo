@@ -1,10 +1,12 @@
-import { create } from "./create";
+import { execute } from "./execute";
 import * as parser from "./parse";
+import { getPrefixByDomain } from "./shared";
 
 export const getHelpers = () => {
   return {
-    create,
+    execute,
     // Helpers for parsing subgraph entities.
     parser,
+    getPrefixByDomain,
   };
 };

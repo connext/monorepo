@@ -5,7 +5,7 @@ sources:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
     transforms:
       - prefix:
-          value: Kovan_
+          value: kovan_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -15,7 +15,7 @@ sources:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby
     transforms:
       - prefix:
-          value: Rinkeby_
+          value: rinkeby_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

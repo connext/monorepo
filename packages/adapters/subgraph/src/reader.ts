@@ -1,40 +1,29 @@
-import { BigNumber, constants } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
+import { XTransfer, SubgraphQueryMetaParams, XTransferStatus, ChainData } from "@connext/nxtp-utils";
 
-import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
-  GetAssetByLocalQuery,
-  GetXCalledTransfersQuery,
-  GetTransfersQuery,
-  GetTransfersStatusQuery,
-  Asset,
-  GetExecutedTransfersByIdsQuery,
-  GetReconciledTransfersByIdsQuery,
-  GetAssetBalanceQuery,
-  GetAssetBalancesQuery,
-  GetRouterQuery,
-} from "./lib/subgraphs/runtime/graphqlsdk";
+  getAssetBalanceQuery,
+  getAssetBalancesQuery,
+  getAssetByCanonicalIdQuery,
+  getAssetByLocalQuery,
+  getRouterQuery,
+} from "./lib/operations";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
-  private readonly subgraphs: SubgraphMap;
+  private readonly chainData: Map<string, ChainData>;
 
-  private constructor(subgraphs: SubgraphMap) {
-    this.subgraphs = subgraphs;
+  private constructor(chainData: Map<string, ChainData>) {
+    this.chainData = chainData;
   }
 
-  public static async create(config: SubgraphReaderConfig): Promise<SubgraphReader> {
+  public static async create(chainData: Map<string, ChainData>): Promise<SubgraphReader> {
     if (SubgraphReader.instance) {
       return SubgraphReader.instance;
     }
-    const { create } = getHelpers();
-    const subgraphs = await create(config);
-    return new SubgraphReader(subgraphs);
+    return new SubgraphReader(chainData);
   }
-
-  // TODO: query
-  public async query() {}
 
   /**
    *
@@ -46,14 +35,11 @@ export class SubgraphReader {
    * @returns The available balance
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
-    const subgraph = this.subgraphs.get(domain);
-    const { assetBalance } = await subgraph!.runtime.request<GetAssetBalanceQuery>((client) => {
-      return client.GetAssetBalance({ assetBalanceId: `${local}-${router}` });
-    });
-    if (!assetBalance) {
-      return constants.Zero;
-    }
-    return BigNumber.from(assetBalance.amount);
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain, this.chainData);
+    const query = getAssetBalanceQuery(prefix, router, local);
+    const response = await execute(query);
+    return BigNumber.from(response.amount);
   }
 
   /**
@@ -63,14 +49,13 @@ export class SubgraphReader {
    * @param router - Router address
    * @returns An array of asset ids and amounts of liquidity
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
-    const subgraph = this.subgraphs.get(domain);
-    const { assetBalances } = await subgraph!.runtime.request<GetAssetBalancesQuery>((client) => {
-      return client.GetAssetBalances({ router });
-    });
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain, this.chainData);
+    const query = getAssetBalancesQuery(prefix, router);
+    const { assetBalances } = await execute(query);
     const balances: Record<string, BigNumber> = {};
-    assetBalances.forEach((bal) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
+    assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
     return balances;
   }
 
@@ -82,19 +67,18 @@ export class SubgraphReader {
    * @returns A boolean indicating the router is approved
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
-    const subgraph = this.subgraphs.get(domain);
-    const { router } = await subgraph!.runtime.request<GetRouterQuery>((client) => {
-      return client.GetRouter({ router: _router });
-    });
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain, this.chainData);
+    const query = getRouterQuery(prefix, _router);
+    const { router } = await execute(query);
     return !!router?.id;
   }
 
-  public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
-    const subgraph = this.subgraphs.get(domain);
-    // handle doesnt exist
-    const { assets } = await subgraph!.runtime.request<GetAssetByLocalQuery>((client) => {
-      return client.GetAssetByLocal({ local });
-    });
+  public async getAssetByLocal(domain: string, local: string): Promise<any | undefined> {
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain, this.chainData);
+    const query = getAssetByLocalQuery(prefix, local);
+    const { assets } = await execute(query);
     if (assets.length === 0) {
       return undefined;
     }
@@ -102,38 +86,17 @@ export class SubgraphReader {
     return assets[0];
   }
 
-  public async getAssetByCanonicalId(chain: number, canonicalId: string): Promise<Asset | undefined> {
-    const subgraph = this.subgraphs.get(chain.toString());
-    // handle doesnt exist
-    const { assets } = await subgraph!.runtime.request<GetAssetByLocalQuery>((client) => {
-      return client.GetAssetByCanonicalId({ canonicalId });
-    });
+  public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<any | undefined> {
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain, this.chainData);
+    const query = getAssetByCanonicalIdQuery(prefix, canonicalId);
+    const { assets } = await execute(query);
+
     if (assets.length === 0) {
       return undefined;
     }
     // convert to nice typescript type
     return assets[0];
-  }
-
-  // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
-  /**
-   * Get all transfers on a domain from a specified nonce that are routing to one of the given destination domains.
-   *
-   * @param domain - The domain you want to get transfers from.
-   * @param fromNonce - The nonce to start from (inclusive).
-   * @param destinationDomains - The domains which the retrieved transfers must be going to.
-   * @returns an array of XTransfers.
-   */
-  public async getTransfers(
-    domain: string,
-    fromNonce: number,
-    destinationDomains: string[] = [...this.subgraphs.keys()],
-  ): Promise<XTransfer[]> {
-    const { parser } = getHelpers();
-    const { transfers } = await this.subgraphs.get(domain)!.runtime.request<GetTransfersQuery>((client) => {
-      return client.GetTransfers({ destinationDomains, nonce: fromNonce });
-    });
-    return transfers.map(parser.xtransfer);
   }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {

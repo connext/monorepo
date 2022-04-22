@@ -14,384 +14,384 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Rinkeby_BigDecimal: any;
+  kovan_BigDecimal: any;
   BigInt: any;
-  Rinkeby_Bytes: any;
-  Kovan_BigDecimal: any;
-  Kovan_Bytes: any;
+  kovan_Bytes: any;
+  rinkeby_BigDecimal: any;
+  rinkeby_Bytes: any;
 };
 
 export type Query = {
-  Rinkeby_asset?: Maybe<Rinkeby_Asset>;
-  Rinkeby_assets: Array<Rinkeby_Asset>;
-  Rinkeby_assetBalance?: Maybe<Rinkeby_AssetBalance>;
-  Rinkeby_assetBalances: Array<Rinkeby_AssetBalance>;
-  Rinkeby_router?: Maybe<Rinkeby_Router>;
-  Rinkeby_routers: Array<Rinkeby_Router>;
-  Rinkeby_transfer?: Maybe<Rinkeby_Transfer>;
-  Rinkeby_transfers: Array<Rinkeby_Transfer>;
+  kovan_asset?: Maybe<kovan_Asset>;
+  kovan_assets: Array<kovan_Asset>;
+  kovan_assetBalance?: Maybe<kovan_AssetBalance>;
+  kovan_assetBalances: Array<kovan_AssetBalance>;
+  kovan_router?: Maybe<kovan_Router>;
+  kovan_routers: Array<kovan_Router>;
+  kovan_transfer?: Maybe<kovan_Transfer>;
+  kovan_transfers: Array<kovan_Transfer>;
   /** Access to subgraph metadata */
-  Rinkeby__meta?: Maybe<Rinkeby__Meta_>;
-  Kovan_asset?: Maybe<Kovan_Asset>;
-  Kovan_assets: Array<Kovan_Asset>;
-  Kovan_assetBalance?: Maybe<Kovan_AssetBalance>;
-  Kovan_assetBalances: Array<Kovan_AssetBalance>;
-  Kovan_router?: Maybe<Kovan_Router>;
-  Kovan_routers: Array<Kovan_Router>;
-  Kovan_transfer?: Maybe<Kovan_Transfer>;
-  Kovan_transfers: Array<Kovan_Transfer>;
+  kovan__meta?: Maybe<kovan__Meta_>;
+  rinkeby_asset?: Maybe<rinkeby_Asset>;
+  rinkeby_assets: Array<rinkeby_Asset>;
+  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
+  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
+  rinkeby_router?: Maybe<rinkeby_Router>;
+  rinkeby_routers: Array<rinkeby_Router>;
+  rinkeby_transfer?: Maybe<rinkeby_Transfer>;
+  rinkeby_transfers: Array<rinkeby_Transfer>;
   /** Access to subgraph metadata */
-  Kovan__meta?: Maybe<Kovan__Meta_>;
+  rinkeby__meta?: Maybe<rinkeby__Meta_>;
 };
 
 
-export type QueryRinkeby_assetArgs = {
+export type Querykovan_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_assetsArgs = {
+export type Querykovan_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Asset_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Asset_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_Asset_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Asset_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_assetBalanceArgs = {
+export type Querykovan_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_assetBalancesArgs = {
+export type Querykovan_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_AssetBalance_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_AssetBalance_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_routerArgs = {
+export type Querykovan_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_routersArgs = {
+export type Querykovan_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Router_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_Router_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Router_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_transferArgs = {
+export type Querykovan_transferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby_transfersArgs = {
+export type Querykovan_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Transfer_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Transfer_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryRinkeby__metaArgs = {
-  block?: InputMaybe<Rinkeby_Block_height>;
+export type Querykovan__metaArgs = {
+  block?: InputMaybe<kovan_Block_height>;
 };
 
 
-export type QueryKovan_assetArgs = {
+export type Queryrinkeby_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_assetsArgs = {
+export type Queryrinkeby_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Asset_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Asset_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Asset_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_assetBalanceArgs = {
+export type Queryrinkeby_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_assetBalancesArgs = {
+export type Queryrinkeby_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_AssetBalance_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_routerArgs = {
+export type Queryrinkeby_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_routersArgs = {
+export type Queryrinkeby_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Router_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Router_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_transferArgs = {
+export type Queryrinkeby_transferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_transfersArgs = {
+export type Queryrinkeby_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Transfer_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Transfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan__metaArgs = {
-  block?: InputMaybe<Kovan_Block_height>;
+export type Queryrinkeby__metaArgs = {
+  block?: InputMaybe<rinkeby_Block_height>;
 };
 
 export type Subscription = {
-  Rinkeby_asset?: Maybe<Rinkeby_Asset>;
-  Rinkeby_assets: Array<Rinkeby_Asset>;
-  Rinkeby_assetBalance?: Maybe<Rinkeby_AssetBalance>;
-  Rinkeby_assetBalances: Array<Rinkeby_AssetBalance>;
-  Rinkeby_router?: Maybe<Rinkeby_Router>;
-  Rinkeby_routers: Array<Rinkeby_Router>;
-  Rinkeby_transfer?: Maybe<Rinkeby_Transfer>;
-  Rinkeby_transfers: Array<Rinkeby_Transfer>;
+  kovan_asset?: Maybe<kovan_Asset>;
+  kovan_assets: Array<kovan_Asset>;
+  kovan_assetBalance?: Maybe<kovan_AssetBalance>;
+  kovan_assetBalances: Array<kovan_AssetBalance>;
+  kovan_router?: Maybe<kovan_Router>;
+  kovan_routers: Array<kovan_Router>;
+  kovan_transfer?: Maybe<kovan_Transfer>;
+  kovan_transfers: Array<kovan_Transfer>;
   /** Access to subgraph metadata */
-  Rinkeby__meta?: Maybe<Rinkeby__Meta_>;
-  Kovan_asset?: Maybe<Kovan_Asset>;
-  Kovan_assets: Array<Kovan_Asset>;
-  Kovan_assetBalance?: Maybe<Kovan_AssetBalance>;
-  Kovan_assetBalances: Array<Kovan_AssetBalance>;
-  Kovan_router?: Maybe<Kovan_Router>;
-  Kovan_routers: Array<Kovan_Router>;
-  Kovan_transfer?: Maybe<Kovan_Transfer>;
-  Kovan_transfers: Array<Kovan_Transfer>;
+  kovan__meta?: Maybe<kovan__Meta_>;
+  rinkeby_asset?: Maybe<rinkeby_Asset>;
+  rinkeby_assets: Array<rinkeby_Asset>;
+  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
+  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
+  rinkeby_router?: Maybe<rinkeby_Router>;
+  rinkeby_routers: Array<rinkeby_Router>;
+  rinkeby_transfer?: Maybe<rinkeby_Transfer>;
+  rinkeby_transfers: Array<rinkeby_Transfer>;
   /** Access to subgraph metadata */
-  Kovan__meta?: Maybe<Kovan__Meta_>;
+  rinkeby__meta?: Maybe<rinkeby__Meta_>;
 };
 
 
-export type SubscriptionRinkeby_assetArgs = {
+export type Subscriptionkovan_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_assetsArgs = {
+export type Subscriptionkovan_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Asset_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Asset_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_Asset_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Asset_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_assetBalanceArgs = {
+export type Subscriptionkovan_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_assetBalancesArgs = {
+export type Subscriptionkovan_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_AssetBalance_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_AssetBalance_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_routerArgs = {
+export type Subscriptionkovan_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_routersArgs = {
+export type Subscriptionkovan_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Router_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_Router_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Router_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_transferArgs = {
+export type Subscriptionkovan_transferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby_transfersArgs = {
+export type Subscriptionkovan_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Transfer_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
+  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Transfer_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionRinkeby__metaArgs = {
-  block?: InputMaybe<Rinkeby_Block_height>;
+export type Subscriptionkovan__metaArgs = {
+  block?: InputMaybe<kovan_Block_height>;
 };
 
 
-export type SubscriptionKovan_assetArgs = {
+export type Subscriptionrinkeby_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_assetsArgs = {
+export type Subscriptionrinkeby_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Asset_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Asset_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Asset_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_assetBalanceArgs = {
+export type Subscriptionrinkeby_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_assetBalancesArgs = {
+export type Subscriptionrinkeby_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_AssetBalance_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_routerArgs = {
+export type Subscriptionrinkeby_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_routersArgs = {
+export type Subscriptionrinkeby_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Router_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Router_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_transferArgs = {
+export type Subscriptionrinkeby_transferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_transfersArgs = {
+export type Subscriptionrinkeby_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Transfer_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Transfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan__metaArgs = {
-  block?: InputMaybe<Kovan_Block_height>;
+export type Subscriptionrinkeby__metaArgs = {
+  block?: InputMaybe<rinkeby_Block_height>;
 };
 
-export type Rinkeby_Asset = {
+export type kovan_Asset = {
   id: Scalars['ID'];
-  local: Scalars['Rinkeby_Bytes'];
-  adoptedAsset: Scalars['Rinkeby_Bytes'];
-  canonicalId: Scalars['Rinkeby_Bytes'];
+  local: Scalars['kovan_Bytes'];
+  adoptedAsset: Scalars['kovan_Bytes'];
+  canonicalId: Scalars['kovan_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type Rinkeby_AssetBalance = {
+export type kovan_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
-  router: Rinkeby_Router;
-  asset: Rinkeby_Asset;
+  router: kovan_Router;
+  asset: kovan_Asset;
 };
 
-export type Rinkeby_AssetBalance_filter = {
+export type kovan_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -449,16 +449,16 @@ export type Rinkeby_AssetBalance_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Rinkeby_AssetBalance_orderBy =
+export type kovan_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
   | 'asset';
 
-export type Rinkeby_Asset_filter = {
+export type kovan_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -467,24 +467,24 @@ export type Rinkeby_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  local?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  local_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  local?: InputMaybe<Scalars['kovan_Bytes']>;
+  local_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -502,10 +502,10 @@ export type Rinkeby_Asset_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Rinkeby_Asset_orderBy =
+export type kovan_Asset_orderBy =
   | 'id'
   | 'local'
   | 'adoptedAsset'
@@ -513,51 +513,51 @@ export type Rinkeby_Asset_orderBy =
   | 'canonicalDomain'
   | 'blockNumber';
 
-export type Rinkeby_BlockChangedFilter = {
+export type kovan_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type Rinkeby_Block_height = {
-  hash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+export type kovan_Block_height = {
+  hash?: InputMaybe<Scalars['kovan_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
 /** Defines the order direction, either ascending or descending */
-export type Rinkeby_OrderDirection =
+export type kovan_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type Rinkeby_Router = {
+export type kovan_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['Rinkeby_Bytes']>;
-  recipient?: Maybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner?: Maybe<Scalars['Rinkeby_Bytes']>;
+  owner?: Maybe<Scalars['kovan_Bytes']>;
+  recipient?: Maybe<Scalars['kovan_Bytes']>;
+  proposedOwner?: Maybe<Scalars['kovan_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<Rinkeby_AssetBalance>;
-  transfers: Array<Rinkeby_Transfer>;
+  assetBalances: Array<kovan_AssetBalance>;
+  transfers: Array<kovan_Transfer>;
 };
 
 
-export type Rinkeby_RouterassetBalancesArgs = {
+export type kovan_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_AssetBalance_filter>;
+  orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_AssetBalance_filter>;
 };
 
 
-export type Rinkeby_RoutertransfersArgs = {
+export type kovan_RoutertransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Transfer_filter>;
+  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Transfer_filter>;
 };
 
-export type Rinkeby_Router_filter = {
+export type kovan_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -570,24 +570,24 @@ export type Rinkeby_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  owner_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  owner?: InputMaybe<Scalars['kovan_Bytes']>;
+  owner_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -597,10 +597,10 @@ export type Rinkeby_Router_filter = {
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Rinkeby_Router_orderBy =
+export type kovan_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -610,55 +610,55 @@ export type Rinkeby_Router_orderBy =
   | 'assetBalances'
   | 'transfers';
 
-export type Rinkeby_Transfer = {
+export type kovan_Transfer = {
   id: Scalars['ID'];
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   chainId?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<Rinkeby_TransferStatus>;
-  to?: Maybe<Scalars['Rinkeby_Bytes']>;
-  transferId?: Maybe<Scalars['Rinkeby_Bytes']>;
-  callTo?: Maybe<Scalars['Rinkeby_Bytes']>;
-  callData?: Maybe<Scalars['Rinkeby_Bytes']>;
+  status?: Maybe<kovan_TransferStatus>;
+  to?: Maybe<Scalars['kovan_Bytes']>;
+  transferId?: Maybe<Scalars['kovan_Bytes']>;
+  callTo?: Maybe<Scalars['kovan_Bytes']>;
+  callData?: Maybe<Scalars['kovan_Bytes']>;
   idx?: Maybe<Scalars['BigInt']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  router?: Maybe<Rinkeby_Router>;
-  xcalledTransactingAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
+  router?: Maybe<kovan_Router>;
+  xcalledTransactingAsset?: Maybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset?: Maybe<Scalars['kovan_Bytes']>;
   xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
   xcalledLocalAmount?: Maybe<Scalars['BigInt']>;
-  xcalledCaller?: Maybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash?: Maybe<Scalars['Rinkeby_Bytes']>;
+  xcalledCaller?: Maybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash?: Maybe<Scalars['kovan_Bytes']>;
   xcalledTimestamp?: Maybe<Scalars['BigInt']>;
   xcalledGasPrice?: Maybe<Scalars['BigInt']>;
   xcalledGasLimit?: Maybe<Scalars['BigInt']>;
   xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['Rinkeby_Bytes']>;
+  executedCaller?: Maybe<Scalars['kovan_Bytes']>;
   executedTransactingAmount?: Maybe<Scalars['BigInt']>;
   executedLocalAmount?: Maybe<Scalars['BigInt']>;
-  executedTransactingAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['Rinkeby_Bytes']>;
+  executedTransactingAsset?: Maybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset?: Maybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['kovan_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset?: Maybe<Scalars['kovan_Bytes']>;
   reconciledLocalAmount?: Maybe<Scalars['BigInt']>;
-  reconciledTransactionHash?: Maybe<Scalars['Rinkeby_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['kovan_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type Rinkeby_TransferStatus =
+export type kovan_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled';
 
-export type Rinkeby_Transfer_filter = {
+export type kovan_Transfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -691,34 +691,34 @@ export type Rinkeby_Transfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<Rinkeby_TransferStatus>;
-  status_not?: InputMaybe<Rinkeby_TransferStatus>;
-  status_in?: InputMaybe<Array<Rinkeby_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<Rinkeby_TransferStatus>>;
-  to?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  to_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callTo_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callTo_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  status?: InputMaybe<kovan_TransferStatus>;
+  status_not?: InputMaybe<kovan_TransferStatus>;
+  status_in?: InputMaybe<Array<kovan_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<kovan_TransferStatus>>;
+  to?: InputMaybe<Scalars['kovan_Bytes']>;
+  to_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callTo_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callTo_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   idx?: InputMaybe<Scalars['BigInt']>;
   idx_not?: InputMaybe<Scalars['BigInt']>;
   idx_gt?: InputMaybe<Scalars['BigInt']>;
@@ -755,18 +755,18 @@ export type Rinkeby_Transfer_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  xcalledTransactingAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactingAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledLocalAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  xcalledTransactingAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactingAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactingAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledLocalAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   xcalledTransactingAmount?: InputMaybe<Scalars['BigInt']>;
   xcalledTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   xcalledTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -783,18 +783,18 @@ export type Rinkeby_Transfer_filter = {
   xcalledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   xcalledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   xcalledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledCaller?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledCaller_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledCaller_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledCaller_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledCaller_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledCaller_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactionHash_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  xcalledCaller?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledCaller_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledCaller_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledCaller_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledCaller_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledCaller_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactionHash_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   xcalledTimestamp?: InputMaybe<Scalars['BigInt']>;
   xcalledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   xcalledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -827,12 +827,12 @@ export type Rinkeby_Transfer_filter = {
   xcalledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   xcalledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   xcalledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   executedTransactingAmount?: InputMaybe<Scalars['BigInt']>;
   executedTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   executedTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -849,24 +849,24 @@ export type Rinkeby_Transfer_filter = {
   executedLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   executedLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactingAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedLocalAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  executedTransactingAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactingAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactingAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactingAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactingAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedLocalAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -899,18 +899,18 @@ export type Rinkeby_Transfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledLocalAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledLocalAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   reconciledLocalAmount?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -919,12 +919,12 @@ export type Rinkeby_Transfer_filter = {
   reconciledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTransactionHash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -958,10 +958,10 @@ export type Rinkeby_Transfer_filter = {
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Rinkeby_Transfer_orderBy =
+export type kovan_Transfer_orderBy =
   | 'id'
   | 'originDomain'
   | 'destinationDomain'
@@ -1003,15 +1003,15 @@ export type Rinkeby_Transfer_orderBy =
   | 'reconciledGasLimit'
   | 'reconciledBlockNumber';
 
-export type Rinkeby__Block_ = {
+export type kovan__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['Rinkeby_Bytes']>;
+  hash?: Maybe<Scalars['kovan_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
 };
 
 /** The type for the top-level _meta field */
-export type Rinkeby__Meta_ = {
+export type kovan__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -1019,7 +1019,7 @@ export type Rinkeby__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: Rinkeby__Block_;
+  block: kovan__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -1032,23 +1032,23 @@ export type _SubgraphErrorPolicy_ =
   /** If the subgraph has indexing errors, data will be omitted. The default. */
   | 'deny';
 
-export type Kovan_Asset = {
+export type rinkeby_Asset = {
   id: Scalars['ID'];
-  local: Scalars['Kovan_Bytes'];
-  adoptedAsset: Scalars['Kovan_Bytes'];
-  canonicalId: Scalars['Kovan_Bytes'];
+  local: Scalars['rinkeby_Bytes'];
+  adoptedAsset: Scalars['rinkeby_Bytes'];
+  canonicalId: Scalars['rinkeby_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type Kovan_AssetBalance = {
+export type rinkeby_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
-  router: Kovan_Router;
-  asset: Kovan_Asset;
+  router: rinkeby_Router;
+  asset: rinkeby_Asset;
 };
 
-export type Kovan_AssetBalance_filter = {
+export type rinkeby_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1106,16 +1106,16 @@ export type Kovan_AssetBalance_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type Kovan_AssetBalance_orderBy =
+export type rinkeby_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
   | 'asset';
 
-export type Kovan_Asset_filter = {
+export type rinkeby_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1124,24 +1124,24 @@ export type Kovan_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  local?: InputMaybe<Scalars['Kovan_Bytes']>;
-  local_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  local?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1159,10 +1159,10 @@ export type Kovan_Asset_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type Kovan_Asset_orderBy =
+export type rinkeby_Asset_orderBy =
   | 'id'
   | 'local'
   | 'adoptedAsset'
@@ -1170,51 +1170,51 @@ export type Kovan_Asset_orderBy =
   | 'canonicalDomain'
   | 'blockNumber';
 
-export type Kovan_BlockChangedFilter = {
+export type rinkeby_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type Kovan_Block_height = {
-  hash?: InputMaybe<Scalars['Kovan_Bytes']>;
+export type rinkeby_Block_height = {
+  hash?: InputMaybe<Scalars['rinkeby_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
 /** Defines the order direction, either ascending or descending */
-export type Kovan_OrderDirection =
+export type rinkeby_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type Kovan_Router = {
+export type rinkeby_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['Kovan_Bytes']>;
-  recipient?: Maybe<Scalars['Kovan_Bytes']>;
-  proposedOwner?: Maybe<Scalars['Kovan_Bytes']>;
+  owner?: Maybe<Scalars['rinkeby_Bytes']>;
+  recipient?: Maybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner?: Maybe<Scalars['rinkeby_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<Kovan_AssetBalance>;
-  transfers: Array<Kovan_Transfer>;
+  assetBalances: Array<rinkeby_AssetBalance>;
+  transfers: Array<rinkeby_Transfer>;
 };
 
 
-export type Kovan_RouterassetBalancesArgs = {
+export type rinkeby_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_AssetBalance_filter>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
 };
 
 
-export type Kovan_RoutertransfersArgs = {
+export type rinkeby_RoutertransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Transfer_filter>;
+  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Transfer_filter>;
 };
 
-export type Kovan_Router_filter = {
+export type rinkeby_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1227,24 +1227,24 @@ export type Kovan_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['Kovan_Bytes']>;
-  owner_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  owner?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1254,10 +1254,10 @@ export type Kovan_Router_filter = {
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type Kovan_Router_orderBy =
+export type rinkeby_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -1267,55 +1267,55 @@ export type Kovan_Router_orderBy =
   | 'assetBalances'
   | 'transfers';
 
-export type Kovan_Transfer = {
+export type rinkeby_Transfer = {
   id: Scalars['ID'];
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   chainId?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<Kovan_TransferStatus>;
-  to?: Maybe<Scalars['Kovan_Bytes']>;
-  transferId?: Maybe<Scalars['Kovan_Bytes']>;
-  callTo?: Maybe<Scalars['Kovan_Bytes']>;
-  callData?: Maybe<Scalars['Kovan_Bytes']>;
+  status?: Maybe<rinkeby_TransferStatus>;
+  to?: Maybe<Scalars['rinkeby_Bytes']>;
+  transferId?: Maybe<Scalars['rinkeby_Bytes']>;
+  callTo?: Maybe<Scalars['rinkeby_Bytes']>;
+  callData?: Maybe<Scalars['rinkeby_Bytes']>;
   idx?: Maybe<Scalars['BigInt']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  router?: Maybe<Kovan_Router>;
-  xcalledTransactingAsset?: Maybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset?: Maybe<Scalars['Kovan_Bytes']>;
+  router?: Maybe<rinkeby_Router>;
+  xcalledTransactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset?: Maybe<Scalars['rinkeby_Bytes']>;
   xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
   xcalledLocalAmount?: Maybe<Scalars['BigInt']>;
-  xcalledCaller?: Maybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash?: Maybe<Scalars['Kovan_Bytes']>;
+  xcalledCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
   xcalledTimestamp?: Maybe<Scalars['BigInt']>;
   xcalledGasPrice?: Maybe<Scalars['BigInt']>;
   xcalledGasLimit?: Maybe<Scalars['BigInt']>;
   xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['Kovan_Bytes']>;
+  executedCaller?: Maybe<Scalars['rinkeby_Bytes']>;
   executedTransactingAmount?: Maybe<Scalars['BigInt']>;
   executedLocalAmount?: Maybe<Scalars['BigInt']>;
-  executedTransactingAsset?: Maybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset?: Maybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['Kovan_Bytes']>;
+  executedTransactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset?: Maybe<Scalars['Kovan_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset?: Maybe<Scalars['rinkeby_Bytes']>;
   reconciledLocalAmount?: Maybe<Scalars['BigInt']>;
-  reconciledTransactionHash?: Maybe<Scalars['Kovan_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type Kovan_TransferStatus =
+export type rinkeby_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled';
 
-export type Kovan_Transfer_filter = {
+export type rinkeby_Transfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1348,34 +1348,34 @@ export type Kovan_Transfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<Kovan_TransferStatus>;
-  status_not?: InputMaybe<Kovan_TransferStatus>;
-  status_in?: InputMaybe<Array<Kovan_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<Kovan_TransferStatus>>;
-  to?: InputMaybe<Scalars['Kovan_Bytes']>;
-  to_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callTo_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callTo_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  status?: InputMaybe<rinkeby_TransferStatus>;
+  status_not?: InputMaybe<rinkeby_TransferStatus>;
+  status_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  to?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callTo_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callTo_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   idx?: InputMaybe<Scalars['BigInt']>;
   idx_not?: InputMaybe<Scalars['BigInt']>;
   idx_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1412,18 +1412,18 @@ export type Kovan_Transfer_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  xcalledTransactingAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactingAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactingAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledLocalAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  xcalledTransactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledLocalAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   xcalledTransactingAmount?: InputMaybe<Scalars['BigInt']>;
   xcalledTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   xcalledTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1440,18 +1440,18 @@ export type Kovan_Transfer_filter = {
   xcalledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   xcalledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   xcalledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledCaller?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledCaller_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledCaller_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledCaller_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledCaller_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledCaller_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactionHash_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  xcalledCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   xcalledTimestamp?: InputMaybe<Scalars['BigInt']>;
   xcalledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   xcalledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1484,12 +1484,12 @@ export type Kovan_Transfer_filter = {
   xcalledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   xcalledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   xcalledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   executedTransactingAmount?: InputMaybe<Scalars['BigInt']>;
   executedTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   executedTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1506,24 +1506,24 @@ export type Kovan_Transfer_filter = {
   executedLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   executedLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactingAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactingAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactingAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactingAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedLocalAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  executedTransactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedLocalAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1556,18 +1556,18 @@ export type Kovan_Transfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledLocalAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledLocalAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   reconciledLocalAmount?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1576,12 +1576,12 @@ export type Kovan_Transfer_filter = {
   reconciledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTransactionHash?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1615,10 +1615,10 @@ export type Kovan_Transfer_filter = {
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type Kovan_Transfer_orderBy =
+export type rinkeby_Transfer_orderBy =
   | 'id'
   | 'originDomain'
   | 'destinationDomain'
@@ -1660,15 +1660,15 @@ export type Kovan_Transfer_orderBy =
   | 'reconciledGasLimit'
   | 'reconciledBlockNumber';
 
-export type Kovan__Block_ = {
+export type rinkeby__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['Kovan_Bytes']>;
+  hash?: Maybe<Scalars['rinkeby_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
 };
 
 /** The type for the top-level _meta field */
-export type Kovan__Meta_ = {
+export type rinkeby__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -1676,7 +1676,7 @@ export type Kovan__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: Kovan__Block_;
+  block: rinkeby__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -1769,216 +1769,216 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Subscription: ResolverTypeWrapper<{}>;
-  Rinkeby_Asset: ResolverTypeWrapper<Rinkeby_Asset>;
-  Rinkeby_AssetBalance: ResolverTypeWrapper<Rinkeby_AssetBalance>;
-  Rinkeby_AssetBalance_filter: Rinkeby_AssetBalance_filter;
-  Rinkeby_AssetBalance_orderBy: Rinkeby_AssetBalance_orderBy;
-  Rinkeby_Asset_filter: Rinkeby_Asset_filter;
-  Rinkeby_Asset_orderBy: Rinkeby_Asset_orderBy;
-  Rinkeby_BigDecimal: ResolverTypeWrapper<Scalars['Rinkeby_BigDecimal']>;
+  kovan_Asset: ResolverTypeWrapper<kovan_Asset>;
+  kovan_AssetBalance: ResolverTypeWrapper<kovan_AssetBalance>;
+  kovan_AssetBalance_filter: kovan_AssetBalance_filter;
+  kovan_AssetBalance_orderBy: kovan_AssetBalance_orderBy;
+  kovan_Asset_filter: kovan_Asset_filter;
+  kovan_Asset_orderBy: kovan_Asset_orderBy;
+  kovan_BigDecimal: ResolverTypeWrapper<Scalars['kovan_BigDecimal']>;
   BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
-  Rinkeby_BlockChangedFilter: Rinkeby_BlockChangedFilter;
-  Rinkeby_Block_height: Rinkeby_Block_height;
+  kovan_BlockChangedFilter: kovan_BlockChangedFilter;
+  kovan_Block_height: kovan_Block_height;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  Rinkeby_Bytes: ResolverTypeWrapper<Scalars['Rinkeby_Bytes']>;
+  kovan_Bytes: ResolverTypeWrapper<Scalars['kovan_Bytes']>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  Rinkeby_OrderDirection: Rinkeby_OrderDirection;
-  Rinkeby_Router: ResolverTypeWrapper<Rinkeby_Router>;
-  Rinkeby_Router_filter: Rinkeby_Router_filter;
-  Rinkeby_Router_orderBy: Rinkeby_Router_orderBy;
+  kovan_OrderDirection: kovan_OrderDirection;
+  kovan_Router: ResolverTypeWrapper<kovan_Router>;
+  kovan_Router_filter: kovan_Router_filter;
+  kovan_Router_orderBy: kovan_Router_orderBy;
   String: ResolverTypeWrapper<Scalars['String']>;
-  Rinkeby_Transfer: ResolverTypeWrapper<Rinkeby_Transfer>;
-  Rinkeby_TransferStatus: Rinkeby_TransferStatus;
-  Rinkeby_Transfer_filter: Rinkeby_Transfer_filter;
-  Rinkeby_Transfer_orderBy: Rinkeby_Transfer_orderBy;
-  Rinkeby__Block_: ResolverTypeWrapper<Rinkeby__Block_>;
-  Rinkeby__Meta_: ResolverTypeWrapper<Rinkeby__Meta_>;
+  kovan_Transfer: ResolverTypeWrapper<kovan_Transfer>;
+  kovan_TransferStatus: kovan_TransferStatus;
+  kovan_Transfer_filter: kovan_Transfer_filter;
+  kovan_Transfer_orderBy: kovan_Transfer_orderBy;
+  kovan__Block_: ResolverTypeWrapper<kovan__Block_>;
+  kovan__Meta_: ResolverTypeWrapper<kovan__Meta_>;
   _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
-  Kovan_Asset: ResolverTypeWrapper<Kovan_Asset>;
-  Kovan_AssetBalance: ResolverTypeWrapper<Kovan_AssetBalance>;
-  Kovan_AssetBalance_filter: Kovan_AssetBalance_filter;
-  Kovan_AssetBalance_orderBy: Kovan_AssetBalance_orderBy;
-  Kovan_Asset_filter: Kovan_Asset_filter;
-  Kovan_Asset_orderBy: Kovan_Asset_orderBy;
-  Kovan_BigDecimal: ResolverTypeWrapper<Scalars['Kovan_BigDecimal']>;
-  Kovan_BlockChangedFilter: Kovan_BlockChangedFilter;
-  Kovan_Block_height: Kovan_Block_height;
-  Kovan_Bytes: ResolverTypeWrapper<Scalars['Kovan_Bytes']>;
-  Kovan_OrderDirection: Kovan_OrderDirection;
-  Kovan_Router: ResolverTypeWrapper<Kovan_Router>;
-  Kovan_Router_filter: Kovan_Router_filter;
-  Kovan_Router_orderBy: Kovan_Router_orderBy;
-  Kovan_Transfer: ResolverTypeWrapper<Kovan_Transfer>;
-  Kovan_TransferStatus: Kovan_TransferStatus;
-  Kovan_Transfer_filter: Kovan_Transfer_filter;
-  Kovan_Transfer_orderBy: Kovan_Transfer_orderBy;
-  Kovan__Block_: ResolverTypeWrapper<Kovan__Block_>;
-  Kovan__Meta_: ResolverTypeWrapper<Kovan__Meta_>;
+  rinkeby_Asset: ResolverTypeWrapper<rinkeby_Asset>;
+  rinkeby_AssetBalance: ResolverTypeWrapper<rinkeby_AssetBalance>;
+  rinkeby_AssetBalance_filter: rinkeby_AssetBalance_filter;
+  rinkeby_AssetBalance_orderBy: rinkeby_AssetBalance_orderBy;
+  rinkeby_Asset_filter: rinkeby_Asset_filter;
+  rinkeby_Asset_orderBy: rinkeby_Asset_orderBy;
+  rinkeby_BigDecimal: ResolverTypeWrapper<Scalars['rinkeby_BigDecimal']>;
+  rinkeby_BlockChangedFilter: rinkeby_BlockChangedFilter;
+  rinkeby_Block_height: rinkeby_Block_height;
+  rinkeby_Bytes: ResolverTypeWrapper<Scalars['rinkeby_Bytes']>;
+  rinkeby_OrderDirection: rinkeby_OrderDirection;
+  rinkeby_Router: ResolverTypeWrapper<rinkeby_Router>;
+  rinkeby_Router_filter: rinkeby_Router_filter;
+  rinkeby_Router_orderBy: rinkeby_Router_orderBy;
+  rinkeby_Transfer: ResolverTypeWrapper<rinkeby_Transfer>;
+  rinkeby_TransferStatus: rinkeby_TransferStatus;
+  rinkeby_Transfer_filter: rinkeby_Transfer_filter;
+  rinkeby_Transfer_orderBy: rinkeby_Transfer_orderBy;
+  rinkeby__Block_: ResolverTypeWrapper<rinkeby__Block_>;
+  rinkeby__Meta_: ResolverTypeWrapper<rinkeby__Meta_>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Subscription: {};
-  Rinkeby_Asset: Rinkeby_Asset;
-  Rinkeby_AssetBalance: Rinkeby_AssetBalance;
-  Rinkeby_AssetBalance_filter: Rinkeby_AssetBalance_filter;
-  Rinkeby_Asset_filter: Rinkeby_Asset_filter;
-  Rinkeby_BigDecimal: Scalars['Rinkeby_BigDecimal'];
+  kovan_Asset: kovan_Asset;
+  kovan_AssetBalance: kovan_AssetBalance;
+  kovan_AssetBalance_filter: kovan_AssetBalance_filter;
+  kovan_Asset_filter: kovan_Asset_filter;
+  kovan_BigDecimal: Scalars['kovan_BigDecimal'];
   BigInt: Scalars['BigInt'];
-  Rinkeby_BlockChangedFilter: Rinkeby_BlockChangedFilter;
-  Rinkeby_Block_height: Rinkeby_Block_height;
+  kovan_BlockChangedFilter: kovan_BlockChangedFilter;
+  kovan_Block_height: kovan_Block_height;
   Boolean: Scalars['Boolean'];
-  Rinkeby_Bytes: Scalars['Rinkeby_Bytes'];
+  kovan_Bytes: Scalars['kovan_Bytes'];
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
-  Rinkeby_Router: Rinkeby_Router;
-  Rinkeby_Router_filter: Rinkeby_Router_filter;
+  kovan_Router: kovan_Router;
+  kovan_Router_filter: kovan_Router_filter;
   String: Scalars['String'];
-  Rinkeby_Transfer: Rinkeby_Transfer;
-  Rinkeby_Transfer_filter: Rinkeby_Transfer_filter;
-  Rinkeby__Block_: Rinkeby__Block_;
-  Rinkeby__Meta_: Rinkeby__Meta_;
-  Kovan_Asset: Kovan_Asset;
-  Kovan_AssetBalance: Kovan_AssetBalance;
-  Kovan_AssetBalance_filter: Kovan_AssetBalance_filter;
-  Kovan_Asset_filter: Kovan_Asset_filter;
-  Kovan_BigDecimal: Scalars['Kovan_BigDecimal'];
-  Kovan_BlockChangedFilter: Kovan_BlockChangedFilter;
-  Kovan_Block_height: Kovan_Block_height;
-  Kovan_Bytes: Scalars['Kovan_Bytes'];
-  Kovan_Router: Kovan_Router;
-  Kovan_Router_filter: Kovan_Router_filter;
-  Kovan_Transfer: Kovan_Transfer;
-  Kovan_Transfer_filter: Kovan_Transfer_filter;
-  Kovan__Block_: Kovan__Block_;
-  Kovan__Meta_: Kovan__Meta_;
+  kovan_Transfer: kovan_Transfer;
+  kovan_Transfer_filter: kovan_Transfer_filter;
+  kovan__Block_: kovan__Block_;
+  kovan__Meta_: kovan__Meta_;
+  rinkeby_Asset: rinkeby_Asset;
+  rinkeby_AssetBalance: rinkeby_AssetBalance;
+  rinkeby_AssetBalance_filter: rinkeby_AssetBalance_filter;
+  rinkeby_Asset_filter: rinkeby_Asset_filter;
+  rinkeby_BigDecimal: Scalars['rinkeby_BigDecimal'];
+  rinkeby_BlockChangedFilter: rinkeby_BlockChangedFilter;
+  rinkeby_Block_height: rinkeby_Block_height;
+  rinkeby_Bytes: Scalars['rinkeby_Bytes'];
+  rinkeby_Router: rinkeby_Router;
+  rinkeby_Router_filter: rinkeby_Router_filter;
+  rinkeby_Transfer: rinkeby_Transfer;
+  rinkeby_Transfer_filter: rinkeby_Transfer_filter;
+  rinkeby__Block_: rinkeby__Block_;
+  rinkeby__Meta_: rinkeby__Meta_;
 }>;
 
 export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  Rinkeby_asset?: Resolver<Maybe<ResolversTypes['Rinkeby_Asset']>, ParentType, ContextType, RequireFields<QueryRinkeby_assetArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_assets?: Resolver<Array<ResolversTypes['Rinkeby_Asset']>, ParentType, ContextType, RequireFields<QueryRinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby_assetBalance?: Resolver<Maybe<ResolversTypes['Rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<QueryRinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_assetBalances?: Resolver<Array<ResolversTypes['Rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<QueryRinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby_router?: Resolver<Maybe<ResolversTypes['Rinkeby_Router']>, ParentType, ContextType, RequireFields<QueryRinkeby_routerArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_routers?: Resolver<Array<ResolversTypes['Rinkeby_Router']>, ParentType, ContextType, RequireFields<QueryRinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby_transfer?: Resolver<Maybe<ResolversTypes['Rinkeby_Transfer']>, ParentType, ContextType, RequireFields<QueryRinkeby_transferArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_transfers?: Resolver<Array<ResolversTypes['Rinkeby_Transfer']>, ParentType, ContextType, RequireFields<QueryRinkeby_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby__meta?: Resolver<Maybe<ResolversTypes['Rinkeby__Meta_']>, ParentType, ContextType, Partial<QueryRinkeby__metaArgs>>;
-  Kovan_asset?: Resolver<Maybe<ResolversTypes['Kovan_Asset']>, ParentType, ContextType, RequireFields<QueryKovan_assetArgs, 'id' | 'subgraphError'>>;
-  Kovan_assets?: Resolver<Array<ResolversTypes['Kovan_Asset']>, ParentType, ContextType, RequireFields<QueryKovan_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan_assetBalance?: Resolver<Maybe<ResolversTypes['Kovan_AssetBalance']>, ParentType, ContextType, RequireFields<QueryKovan_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  Kovan_assetBalances?: Resolver<Array<ResolversTypes['Kovan_AssetBalance']>, ParentType, ContextType, RequireFields<QueryKovan_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan_router?: Resolver<Maybe<ResolversTypes['Kovan_Router']>, ParentType, ContextType, RequireFields<QueryKovan_routerArgs, 'id' | 'subgraphError'>>;
-  Kovan_routers?: Resolver<Array<ResolversTypes['Kovan_Router']>, ParentType, ContextType, RequireFields<QueryKovan_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan_transfer?: Resolver<Maybe<ResolversTypes['Kovan_Transfer']>, ParentType, ContextType, RequireFields<QueryKovan_transferArgs, 'id' | 'subgraphError'>>;
-  Kovan_transfers?: Resolver<Array<ResolversTypes['Kovan_Transfer']>, ParentType, ContextType, RequireFields<QueryKovan_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan__meta?: Resolver<Maybe<ResolversTypes['Kovan__Meta_']>, ParentType, ContextType, Partial<QueryKovan__metaArgs>>;
+  kovan_asset?: Resolver<Maybe<ResolversTypes['kovan_Asset']>, ParentType, ContextType, RequireFields<Querykovan_assetArgs, 'id' | 'subgraphError'>>;
+  kovan_assets?: Resolver<Array<ResolversTypes['kovan_Asset']>, ParentType, ContextType, RequireFields<Querykovan_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan_assetBalance?: Resolver<Maybe<ResolversTypes['kovan_AssetBalance']>, ParentType, ContextType, RequireFields<Querykovan_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  kovan_assetBalances?: Resolver<Array<ResolversTypes['kovan_AssetBalance']>, ParentType, ContextType, RequireFields<Querykovan_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan_router?: Resolver<Maybe<ResolversTypes['kovan_Router']>, ParentType, ContextType, RequireFields<Querykovan_routerArgs, 'id' | 'subgraphError'>>;
+  kovan_routers?: Resolver<Array<ResolversTypes['kovan_Router']>, ParentType, ContextType, RequireFields<Querykovan_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan_transfer?: Resolver<Maybe<ResolversTypes['kovan_Transfer']>, ParentType, ContextType, RequireFields<Querykovan_transferArgs, 'id' | 'subgraphError'>>;
+  kovan_transfers?: Resolver<Array<ResolversTypes['kovan_Transfer']>, ParentType, ContextType, RequireFields<Querykovan_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan__meta?: Resolver<Maybe<ResolversTypes['kovan__Meta_']>, ParentType, ContextType, Partial<Querykovan__metaArgs>>;
+  rinkeby_asset?: Resolver<Maybe<ResolversTypes['rinkeby_Asset']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assets?: Resolver<Array<ResolversTypes['rinkeby_Asset']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_assetBalance?: Resolver<Maybe<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assetBalances?: Resolver<Array<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_router?: Resolver<Maybe<ResolversTypes['rinkeby_Router']>, ParentType, ContextType, RequireFields<Queryrinkeby_routerArgs, 'id' | 'subgraphError'>>;
+  rinkeby_routers?: Resolver<Array<ResolversTypes['rinkeby_Router']>, ParentType, ContextType, RequireFields<Queryrinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_transfer?: Resolver<Maybe<ResolversTypes['rinkeby_Transfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_transferArgs, 'id' | 'subgraphError'>>;
+  rinkeby_transfers?: Resolver<Array<ResolversTypes['rinkeby_Transfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby__meta?: Resolver<Maybe<ResolversTypes['rinkeby__Meta_']>, ParentType, ContextType, Partial<Queryrinkeby__metaArgs>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  Rinkeby_asset?: SubscriptionResolver<Maybe<ResolversTypes['Rinkeby_Asset']>, "Rinkeby_asset", ParentType, ContextType, RequireFields<SubscriptionRinkeby_assetArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_assets?: SubscriptionResolver<Array<ResolversTypes['Rinkeby_Asset']>, "Rinkeby_assets", ParentType, ContextType, RequireFields<SubscriptionRinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['Rinkeby_AssetBalance']>, "Rinkeby_assetBalance", ParentType, ContextType, RequireFields<SubscriptionRinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_assetBalances?: SubscriptionResolver<Array<ResolversTypes['Rinkeby_AssetBalance']>, "Rinkeby_assetBalances", ParentType, ContextType, RequireFields<SubscriptionRinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby_router?: SubscriptionResolver<Maybe<ResolversTypes['Rinkeby_Router']>, "Rinkeby_router", ParentType, ContextType, RequireFields<SubscriptionRinkeby_routerArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_routers?: SubscriptionResolver<Array<ResolversTypes['Rinkeby_Router']>, "Rinkeby_routers", ParentType, ContextType, RequireFields<SubscriptionRinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby_transfer?: SubscriptionResolver<Maybe<ResolversTypes['Rinkeby_Transfer']>, "Rinkeby_transfer", ParentType, ContextType, RequireFields<SubscriptionRinkeby_transferArgs, 'id' | 'subgraphError'>>;
-  Rinkeby_transfers?: SubscriptionResolver<Array<ResolversTypes['Rinkeby_Transfer']>, "Rinkeby_transfers", ParentType, ContextType, RequireFields<SubscriptionRinkeby_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Rinkeby__meta?: SubscriptionResolver<Maybe<ResolversTypes['Rinkeby__Meta_']>, "Rinkeby__meta", ParentType, ContextType, Partial<SubscriptionRinkeby__metaArgs>>;
-  Kovan_asset?: SubscriptionResolver<Maybe<ResolversTypes['Kovan_Asset']>, "Kovan_asset", ParentType, ContextType, RequireFields<SubscriptionKovan_assetArgs, 'id' | 'subgraphError'>>;
-  Kovan_assets?: SubscriptionResolver<Array<ResolversTypes['Kovan_Asset']>, "Kovan_assets", ParentType, ContextType, RequireFields<SubscriptionKovan_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['Kovan_AssetBalance']>, "Kovan_assetBalance", ParentType, ContextType, RequireFields<SubscriptionKovan_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  Kovan_assetBalances?: SubscriptionResolver<Array<ResolversTypes['Kovan_AssetBalance']>, "Kovan_assetBalances", ParentType, ContextType, RequireFields<SubscriptionKovan_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan_router?: SubscriptionResolver<Maybe<ResolversTypes['Kovan_Router']>, "Kovan_router", ParentType, ContextType, RequireFields<SubscriptionKovan_routerArgs, 'id' | 'subgraphError'>>;
-  Kovan_routers?: SubscriptionResolver<Array<ResolversTypes['Kovan_Router']>, "Kovan_routers", ParentType, ContextType, RequireFields<SubscriptionKovan_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan_transfer?: SubscriptionResolver<Maybe<ResolversTypes['Kovan_Transfer']>, "Kovan_transfer", ParentType, ContextType, RequireFields<SubscriptionKovan_transferArgs, 'id' | 'subgraphError'>>;
-  Kovan_transfers?: SubscriptionResolver<Array<ResolversTypes['Kovan_Transfer']>, "Kovan_transfers", ParentType, ContextType, RequireFields<SubscriptionKovan_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  Kovan__meta?: SubscriptionResolver<Maybe<ResolversTypes['Kovan__Meta_']>, "Kovan__meta", ParentType, ContextType, Partial<SubscriptionKovan__metaArgs>>;
+  kovan_asset?: SubscriptionResolver<Maybe<ResolversTypes['kovan_Asset']>, "kovan_asset", ParentType, ContextType, RequireFields<Subscriptionkovan_assetArgs, 'id' | 'subgraphError'>>;
+  kovan_assets?: SubscriptionResolver<Array<ResolversTypes['kovan_Asset']>, "kovan_assets", ParentType, ContextType, RequireFields<Subscriptionkovan_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['kovan_AssetBalance']>, "kovan_assetBalance", ParentType, ContextType, RequireFields<Subscriptionkovan_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  kovan_assetBalances?: SubscriptionResolver<Array<ResolversTypes['kovan_AssetBalance']>, "kovan_assetBalances", ParentType, ContextType, RequireFields<Subscriptionkovan_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan_router?: SubscriptionResolver<Maybe<ResolversTypes['kovan_Router']>, "kovan_router", ParentType, ContextType, RequireFields<Subscriptionkovan_routerArgs, 'id' | 'subgraphError'>>;
+  kovan_routers?: SubscriptionResolver<Array<ResolversTypes['kovan_Router']>, "kovan_routers", ParentType, ContextType, RequireFields<Subscriptionkovan_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan_transfer?: SubscriptionResolver<Maybe<ResolversTypes['kovan_Transfer']>, "kovan_transfer", ParentType, ContextType, RequireFields<Subscriptionkovan_transferArgs, 'id' | 'subgraphError'>>;
+  kovan_transfers?: SubscriptionResolver<Array<ResolversTypes['kovan_Transfer']>, "kovan_transfers", ParentType, ContextType, RequireFields<Subscriptionkovan_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  kovan__meta?: SubscriptionResolver<Maybe<ResolversTypes['kovan__Meta_']>, "kovan__meta", ParentType, ContextType, Partial<Subscriptionkovan__metaArgs>>;
+  rinkeby_asset?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Asset']>, "rinkeby_asset", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assets?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Asset']>, "rinkeby_assets", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_AssetBalance']>, "rinkeby_assetBalance", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assetBalances?: SubscriptionResolver<Array<ResolversTypes['rinkeby_AssetBalance']>, "rinkeby_assetBalances", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_router?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Router']>, "rinkeby_router", ParentType, ContextType, RequireFields<Subscriptionrinkeby_routerArgs, 'id' | 'subgraphError'>>;
+  rinkeby_routers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Router']>, "rinkeby_routers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_transfer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Transfer']>, "rinkeby_transfer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_transferArgs, 'id' | 'subgraphError'>>;
+  rinkeby_transfers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Transfer']>, "rinkeby_transfers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_transfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby__meta?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby__Meta_']>, "rinkeby__meta", ParentType, ContextType, Partial<Subscriptionrinkeby__metaArgs>>;
 }>;
 
-export type Rinkeby_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Rinkeby_Asset'] = ResolversParentTypes['Rinkeby_Asset']> = ResolversObject<{
+export type kovan_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['kovan_Asset'] = ResolversParentTypes['kovan_Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['Rinkeby_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['Rinkeby_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['Rinkeby_Bytes'], ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['kovan_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['kovan_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['kovan_Bytes'], ParentType, ContextType>;
   canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Rinkeby_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Rinkeby_AssetBalance'] = ResolversParentTypes['Rinkeby_AssetBalance']> = ResolversObject<{
+export type kovan_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['kovan_AssetBalance'] = ResolversParentTypes['kovan_AssetBalance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['Rinkeby_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['Rinkeby_Asset'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['kovan_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['kovan_Asset'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface Rinkeby_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Rinkeby_BigDecimal'], any> {
-  name: 'Rinkeby_BigDecimal';
+export interface kovan_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['kovan_BigDecimal'], any> {
+  name: 'kovan_BigDecimal';
 }
 
 export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
   name: 'BigInt';
 }
 
-export interface Rinkeby_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Rinkeby_Bytes'], any> {
-  name: 'Rinkeby_Bytes';
+export interface kovan_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['kovan_Bytes'], any> {
+  name: 'kovan_Bytes';
 }
 
-export type Rinkeby_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Rinkeby_Router'] = ResolversParentTypes['Rinkeby_Router']> = ResolversObject<{
+export type kovan_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['kovan_Router'] = ResolversParentTypes['kovan_Router']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['Rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Rinkeby_RouterassetBalancesArgs, 'skip' | 'first'>>;
-  transfers?: Resolver<Array<ResolversTypes['Rinkeby_Transfer']>, ParentType, ContextType, RequireFields<Rinkeby_RoutertransfersArgs, 'skip' | 'first'>>;
+  assetBalances?: Resolver<Array<ResolversTypes['kovan_AssetBalance']>, ParentType, ContextType, RequireFields<kovan_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  transfers?: Resolver<Array<ResolversTypes['kovan_Transfer']>, ParentType, ContextType, RequireFields<kovan_RoutertransfersArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Rinkeby_TransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Rinkeby_Transfer'] = ResolversParentTypes['Rinkeby_Transfer']> = ResolversObject<{
+export type kovan_TransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['kovan_Transfer'] = ResolversParentTypes['kovan_Transfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['Rinkeby_TransferStatus']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  callTo?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['kovan_TransferStatus']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  callTo?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   idx?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  router?: Resolver<Maybe<ResolversTypes['Rinkeby_Router']>, ParentType, ContextType>;
-  xcalledTransactingAsset?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  xcalledLocalAsset?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  router?: Resolver<Maybe<ResolversTypes['kovan_Router']>, ParentType, ContextType>;
+  xcalledTransactingAsset?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  xcalledLocalAsset?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   xcalledTransactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledLocalAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  xcalledCaller?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  xcalledTransactionHash?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  xcalledCaller?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  xcalledTransactionHash?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   xcalledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   executedTransactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedLocalAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedTransactingAsset?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  executedLocalAsset?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  executedTransactingAsset?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  executedLocalAsset?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
-  reconciledLocalAsset?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
+  reconciledLocalAsset?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   reconciledLocalAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -1986,94 +1986,94 @@ export type Rinkeby_TransferResolvers<ContextType = MeshContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Rinkeby__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Rinkeby__Block_'] = ResolversParentTypes['Rinkeby__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['Rinkeby_Bytes']>, ParentType, ContextType>;
+export type kovan__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['kovan__Block_'] = ResolversParentTypes['kovan__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['kovan_Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Rinkeby__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Rinkeby__Meta_'] = ResolversParentTypes['Rinkeby__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['Rinkeby__Block_'], ParentType, ContextType>;
+export type kovan__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['kovan__Meta_'] = ResolversParentTypes['kovan__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['kovan__Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Kovan_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Kovan_Asset'] = ResolversParentTypes['Kovan_Asset']> = ResolversObject<{
+export type rinkeby_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Asset'] = ResolversParentTypes['rinkeby_Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['Kovan_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['Kovan_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['Kovan_Bytes'], ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
   canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Kovan_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Kovan_AssetBalance'] = ResolversParentTypes['Kovan_AssetBalance']> = ResolversObject<{
+export type rinkeby_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_AssetBalance'] = ResolversParentTypes['rinkeby_AssetBalance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['Kovan_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['Kovan_Asset'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['rinkeby_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['rinkeby_Asset'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface Kovan_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Kovan_BigDecimal'], any> {
-  name: 'Kovan_BigDecimal';
+export interface rinkeby_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['rinkeby_BigDecimal'], any> {
+  name: 'rinkeby_BigDecimal';
 }
 
-export interface Kovan_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Kovan_Bytes'], any> {
-  name: 'Kovan_Bytes';
+export interface rinkeby_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['rinkeby_Bytes'], any> {
+  name: 'rinkeby_Bytes';
 }
 
-export type Kovan_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Kovan_Router'] = ResolversParentTypes['Kovan_Router']> = ResolversObject<{
+export type rinkeby_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Router'] = ResolversParentTypes['rinkeby_Router']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['Kovan_AssetBalance']>, ParentType, ContextType, RequireFields<Kovan_RouterassetBalancesArgs, 'skip' | 'first'>>;
-  transfers?: Resolver<Array<ResolversTypes['Kovan_Transfer']>, ParentType, ContextType, RequireFields<Kovan_RoutertransfersArgs, 'skip' | 'first'>>;
+  assetBalances?: Resolver<Array<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<rinkeby_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  transfers?: Resolver<Array<ResolversTypes['rinkeby_Transfer']>, ParentType, ContextType, RequireFields<rinkeby_RoutertransfersArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Kovan_TransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Kovan_Transfer'] = ResolversParentTypes['Kovan_Transfer']> = ResolversObject<{
+export type rinkeby_TransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Transfer'] = ResolversParentTypes['rinkeby_Transfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['Kovan_TransferStatus']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  callTo?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['rinkeby_TransferStatus']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  callTo?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   idx?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  router?: Resolver<Maybe<ResolversTypes['Kovan_Router']>, ParentType, ContextType>;
-  xcalledTransactingAsset?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  xcalledLocalAsset?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  router?: Resolver<Maybe<ResolversTypes['rinkeby_Router']>, ParentType, ContextType>;
+  xcalledTransactingAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  xcalledLocalAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   xcalledTransactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledLocalAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  xcalledCaller?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  xcalledTransactionHash?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  xcalledCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  xcalledTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   xcalledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   xcalledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   executedTransactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedLocalAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedTransactingAsset?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  executedLocalAsset?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  executedTransactingAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  executedLocalAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
-  reconciledLocalAsset?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  reconciledLocalAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   reconciledLocalAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -2081,14 +2081,14 @@ export type Kovan_TransferResolvers<ContextType = MeshContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Kovan__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Kovan__Block_'] = ResolversParentTypes['Kovan__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['Kovan_Bytes']>, ParentType, ContextType>;
+export type rinkeby__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby__Block_'] = ResolversParentTypes['rinkeby__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Kovan__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Kovan__Meta_'] = ResolversParentTypes['Kovan__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['Kovan__Block_'], ParentType, ContextType>;
+export type rinkeby__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby__Meta_'] = ResolversParentTypes['rinkeby__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['rinkeby__Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2097,932 +2097,29 @@ export type Kovan__Meta_Resolvers<ContextType = MeshContext, ParentType extends 
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
-  Rinkeby_Asset?: Rinkeby_AssetResolvers<ContextType>;
-  Rinkeby_AssetBalance?: Rinkeby_AssetBalanceResolvers<ContextType>;
-  Rinkeby_BigDecimal?: GraphQLScalarType;
+  kovan_Asset?: kovan_AssetResolvers<ContextType>;
+  kovan_AssetBalance?: kovan_AssetBalanceResolvers<ContextType>;
+  kovan_BigDecimal?: GraphQLScalarType;
   BigInt?: GraphQLScalarType;
-  Rinkeby_Bytes?: GraphQLScalarType;
-  Rinkeby_Router?: Rinkeby_RouterResolvers<ContextType>;
-  Rinkeby_Transfer?: Rinkeby_TransferResolvers<ContextType>;
-  Rinkeby__Block_?: Rinkeby__Block_Resolvers<ContextType>;
-  Rinkeby__Meta_?: Rinkeby__Meta_Resolvers<ContextType>;
-  Kovan_Asset?: Kovan_AssetResolvers<ContextType>;
-  Kovan_AssetBalance?: Kovan_AssetBalanceResolvers<ContextType>;
-  Kovan_BigDecimal?: GraphQLScalarType;
-  Kovan_Bytes?: GraphQLScalarType;
-  Kovan_Router?: Kovan_RouterResolvers<ContextType>;
-  Kovan_Transfer?: Kovan_TransferResolvers<ContextType>;
-  Kovan__Block_?: Kovan__Block_Resolvers<ContextType>;
-  Kovan__Meta_?: Kovan__Meta_Resolvers<ContextType>;
+  kovan_Bytes?: GraphQLScalarType;
+  kovan_Router?: kovan_RouterResolvers<ContextType>;
+  kovan_Transfer?: kovan_TransferResolvers<ContextType>;
+  kovan__Block_?: kovan__Block_Resolvers<ContextType>;
+  kovan__Meta_?: kovan__Meta_Resolvers<ContextType>;
+  rinkeby_Asset?: rinkeby_AssetResolvers<ContextType>;
+  rinkeby_AssetBalance?: rinkeby_AssetBalanceResolvers<ContextType>;
+  rinkeby_BigDecimal?: GraphQLScalarType;
+  rinkeby_Bytes?: GraphQLScalarType;
+  rinkeby_Router?: rinkeby_RouterResolvers<ContextType>;
+  rinkeby_Transfer?: rinkeby_TransferResolvers<ContextType>;
+  rinkeby__Block_?: rinkeby__Block_Resolvers<ContextType>;
+  rinkeby__Meta_?: rinkeby__Meta_Resolvers<ContextType>;
 }>;
 
 
 import { MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
 
 import { InContextSdkMethod } from '@graphql-mesh/types';
-
-
-    export namespace ConnextRinkebyTypes {
-      export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-/** All built-in and custom scalars, mapped to their actual values */
-export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  Rinkeby_BigDecimal: any;
-  BigInt: any;
-  Rinkeby_Bytes: any;
-};
-
-export type Rinkeby_Asset = {
-  id: Scalars['ID'];
-  local: Scalars['Rinkeby_Bytes'];
-  adoptedAsset: Scalars['Rinkeby_Bytes'];
-  canonicalId: Scalars['Rinkeby_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  blockNumber: Scalars['BigInt'];
-};
-
-export type Rinkeby_AssetBalance = {
-  id: Scalars['ID'];
-  amount: Scalars['BigInt'];
-  router: Rinkeby_Router;
-  asset: Rinkeby_Asset;
-};
-
-export type Rinkeby_AssetBalance_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
-};
-
-export type Rinkeby_AssetBalance_orderBy =
-  | 'id'
-  | 'amount'
-  | 'router'
-  | 'asset';
-
-export type Rinkeby_Asset_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  local?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  local_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
-};
-
-export type Rinkeby_Asset_orderBy =
-  | 'id'
-  | 'local'
-  | 'adoptedAsset'
-  | 'canonicalId'
-  | 'canonicalDomain'
-  | 'blockNumber';
-
-export type Rinkeby_BlockChangedFilter = {
-  number_gte: Scalars['Int'];
-};
-
-export type Rinkeby_Block_height = {
-  hash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  number?: InputMaybe<Scalars['Int']>;
-  number_gte?: InputMaybe<Scalars['Int']>;
-};
-
-/** Defines the order direction, either ascending or descending */
-export type Rinkeby_OrderDirection =
-  | 'asc'
-  | 'desc';
-
-export type Query = {
-  Rinkeby_asset?: Maybe<Rinkeby_Asset>;
-  Rinkeby_assets: Array<Rinkeby_Asset>;
-  Rinkeby_assetBalance?: Maybe<Rinkeby_AssetBalance>;
-  Rinkeby_assetBalances: Array<Rinkeby_AssetBalance>;
-  Rinkeby_router?: Maybe<Rinkeby_Router>;
-  Rinkeby_routers: Array<Rinkeby_Router>;
-  Rinkeby_transfer?: Maybe<Rinkeby_Transfer>;
-  Rinkeby_transfers: Array<Rinkeby_Transfer>;
-  /** Access to subgraph metadata */
-  Rinkeby__meta?: Maybe<Rinkeby__Meta_>;
-};
-
-
-export type QueryRinkeby_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Asset_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Asset_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_AssetBalance_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Router_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_transferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby_transfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Transfer_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryRinkeby__metaArgs = {
-  block?: InputMaybe<Rinkeby_Block_height>;
-};
-
-export type Rinkeby_Router = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['Rinkeby_Bytes']>;
-  recipient?: Maybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner?: Maybe<Scalars['Rinkeby_Bytes']>;
-  proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<Rinkeby_AssetBalance>;
-  transfers: Array<Rinkeby_Transfer>;
-};
-
-
-export type Rinkeby_RouterassetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_AssetBalance_filter>;
-};
-
-
-export type Rinkeby_RoutertransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Transfer_filter>;
-};
-
-export type Rinkeby_Router_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  owner_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
-};
-
-export type Rinkeby_Router_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'owner'
-  | 'recipient'
-  | 'proposedOwner'
-  | 'proposedTimestamp'
-  | 'assetBalances'
-  | 'transfers';
-
-export type Subscription = {
-  Rinkeby_asset?: Maybe<Rinkeby_Asset>;
-  Rinkeby_assets: Array<Rinkeby_Asset>;
-  Rinkeby_assetBalance?: Maybe<Rinkeby_AssetBalance>;
-  Rinkeby_assetBalances: Array<Rinkeby_AssetBalance>;
-  Rinkeby_router?: Maybe<Rinkeby_Router>;
-  Rinkeby_routers: Array<Rinkeby_Router>;
-  Rinkeby_transfer?: Maybe<Rinkeby_Transfer>;
-  Rinkeby_transfers: Array<Rinkeby_Transfer>;
-  /** Access to subgraph metadata */
-  Rinkeby__meta?: Maybe<Rinkeby__Meta_>;
-};
-
-
-export type SubscriptionRinkeby_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Asset_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Asset_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_AssetBalance_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Router_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_transferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby_transfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Rinkeby_OrderDirection>;
-  where?: InputMaybe<Rinkeby_Transfer_filter>;
-  block?: InputMaybe<Rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionRinkeby__metaArgs = {
-  block?: InputMaybe<Rinkeby_Block_height>;
-};
-
-export type Rinkeby_Transfer = {
-  id: Scalars['ID'];
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  chainId?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<Rinkeby_TransferStatus>;
-  to?: Maybe<Scalars['Rinkeby_Bytes']>;
-  transferId?: Maybe<Scalars['Rinkeby_Bytes']>;
-  callTo?: Maybe<Scalars['Rinkeby_Bytes']>;
-  callData?: Maybe<Scalars['Rinkeby_Bytes']>;
-  idx?: Maybe<Scalars['BigInt']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  router?: Maybe<Rinkeby_Router>;
-  xcalledTransactingAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
-  xcalledLocalAmount?: Maybe<Scalars['BigInt']>;
-  xcalledCaller?: Maybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash?: Maybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTimestamp?: Maybe<Scalars['BigInt']>;
-  xcalledGasPrice?: Maybe<Scalars['BigInt']>;
-  xcalledGasLimit?: Maybe<Scalars['BigInt']>;
-  xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAmount?: Maybe<Scalars['BigInt']>;
-  executedLocalAmount?: Maybe<Scalars['BigInt']>;
-  executedTransactingAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['Rinkeby_Bytes']>;
-  executedTimestamp?: Maybe<Scalars['BigInt']>;
-  executedGasPrice?: Maybe<Scalars['BigInt']>;
-  executedGasLimit?: Maybe<Scalars['BigInt']>;
-  executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset?: Maybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAmount?: Maybe<Scalars['BigInt']>;
-  reconciledTransactionHash?: Maybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
-  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
-  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
-  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type Rinkeby_TransferStatus =
-  | 'XCalled'
-  | 'Executed'
-  | 'Reconciled';
-
-export type Rinkeby_Transfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<Rinkeby_TransferStatus>;
-  status_not?: InputMaybe<Rinkeby_TransferStatus>;
-  status_in?: InputMaybe<Array<Rinkeby_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<Rinkeby_TransferStatus>>;
-  to?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  to_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callTo_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callTo_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callTo_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  idx?: InputMaybe<Scalars['BigInt']>;
-  idx_not?: InputMaybe<Scalars['BigInt']>;
-  idx_gt?: InputMaybe<Scalars['BigInt']>;
-  idx_lt?: InputMaybe<Scalars['BigInt']>;
-  idx_gte?: InputMaybe<Scalars['BigInt']>;
-  idx_lte?: InputMaybe<Scalars['BigInt']>;
-  idx_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  idx_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  xcalledTransactingAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactingAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledLocalAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactingAmount?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledTransactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledLocalAmount?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledCaller?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledCaller_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledCaller_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledCaller_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledCaller_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledCaller_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  xcalledTransactionHash_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  xcalledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAmount?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedLocalAmount?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactingAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactingAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedLocalAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedLocalAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledLocalAsset_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledLocalAmount?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTransactionHash?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Rinkeby_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Rinkeby_Bytes']>;
-  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Rinkeby_BlockChangedFilter>;
-};
-
-export type Rinkeby_Transfer_orderBy =
-  | 'id'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'chainId'
-  | 'status'
-  | 'to'
-  | 'transferId'
-  | 'callTo'
-  | 'callData'
-  | 'idx'
-  | 'nonce'
-  | 'router'
-  | 'xcalledTransactingAsset'
-  | 'xcalledLocalAsset'
-  | 'xcalledTransactingAmount'
-  | 'xcalledLocalAmount'
-  | 'xcalledCaller'
-  | 'xcalledTransactionHash'
-  | 'xcalledTimestamp'
-  | 'xcalledGasPrice'
-  | 'xcalledGasLimit'
-  | 'xcalledBlockNumber'
-  | 'executedCaller'
-  | 'executedTransactingAmount'
-  | 'executedLocalAmount'
-  | 'executedTransactingAsset'
-  | 'executedLocalAsset'
-  | 'executedTransactionHash'
-  | 'executedTimestamp'
-  | 'executedGasPrice'
-  | 'executedGasLimit'
-  | 'executedBlockNumber'
-  | 'reconciledCaller'
-  | 'reconciledLocalAsset'
-  | 'reconciledLocalAmount'
-  | 'reconciledTransactionHash'
-  | 'reconciledTimestamp'
-  | 'reconciledGasPrice'
-  | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
-
-export type Rinkeby__Block_ = {
-  /** The hash of the block */
-  hash?: Maybe<Scalars['Rinkeby_Bytes']>;
-  /** The block number */
-  number: Scalars['Int'];
-};
-
-/** The type for the top-level _meta field */
-export type Rinkeby__Meta_ = {
-  /**
-   * Information about a specific subgraph block. The hash of the block
-   * will be null if the _meta field has a block constraint that asks for
-   * a block number. It will be filled if the _meta field has no block constraint
-   * and therefore asks for the latest  block
-   *
-   */
-  block: Rinkeby__Block_;
-  /** The deployment ID */
-  deployment: Scalars['String'];
-  /** If `true`, the subgraph encountered indexing errors at some past block */
-  hasIndexingErrors: Scalars['Boolean'];
-};
-
-export type _SubgraphErrorPolicy_ =
-  /** Data will be returned even if the subgraph has indexing errors */
-  | 'allow'
-  /** If the subgraph has indexing errors, data will be omitted. The default. */
-  | 'deny';
-
-    }
-    export type QueryConnextRinkebySdk = {
-  /** null **/
-  Rinkeby_asset: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_asset'], ConnextRinkebyTypes.QueryRinkeby_assetArgs, MeshContext>,
-  /** null **/
-  Rinkeby_assets: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_assets'], ConnextRinkebyTypes.QueryRinkeby_assetsArgs, MeshContext>,
-  /** null **/
-  Rinkeby_assetBalance: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_assetBalance'], ConnextRinkebyTypes.QueryRinkeby_assetBalanceArgs, MeshContext>,
-  /** null **/
-  Rinkeby_assetBalances: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_assetBalances'], ConnextRinkebyTypes.QueryRinkeby_assetBalancesArgs, MeshContext>,
-  /** null **/
-  Rinkeby_router: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_router'], ConnextRinkebyTypes.QueryRinkeby_routerArgs, MeshContext>,
-  /** null **/
-  Rinkeby_routers: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_routers'], ConnextRinkebyTypes.QueryRinkeby_routersArgs, MeshContext>,
-  /** null **/
-  Rinkeby_transfer: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_transfer'], ConnextRinkebyTypes.QueryRinkeby_transferArgs, MeshContext>,
-  /** null **/
-  Rinkeby_transfers: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby_transfers'], ConnextRinkebyTypes.QueryRinkeby_transfersArgs, MeshContext>,
-  /** Access to subgraph metadata **/
-  Rinkeby__meta: InContextSdkMethod<ConnextRinkebyTypes.Query['Rinkeby__meta'], ConnextRinkebyTypes.QueryRinkeby__metaArgs, MeshContext>
-};
-
-export type MutationConnextRinkebySdk = {
-
-};
-
-export type SubscriptionConnextRinkebySdk = {
-  /** null **/
-  Rinkeby_asset: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_asset'], ConnextRinkebyTypes.SubscriptionRinkeby_assetArgs, MeshContext>,
-  /** null **/
-  Rinkeby_assets: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_assets'], ConnextRinkebyTypes.SubscriptionRinkeby_assetsArgs, MeshContext>,
-  /** null **/
-  Rinkeby_assetBalance: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_assetBalance'], ConnextRinkebyTypes.SubscriptionRinkeby_assetBalanceArgs, MeshContext>,
-  /** null **/
-  Rinkeby_assetBalances: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_assetBalances'], ConnextRinkebyTypes.SubscriptionRinkeby_assetBalancesArgs, MeshContext>,
-  /** null **/
-  Rinkeby_router: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_router'], ConnextRinkebyTypes.SubscriptionRinkeby_routerArgs, MeshContext>,
-  /** null **/
-  Rinkeby_routers: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_routers'], ConnextRinkebyTypes.SubscriptionRinkeby_routersArgs, MeshContext>,
-  /** null **/
-  Rinkeby_transfer: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_transfer'], ConnextRinkebyTypes.SubscriptionRinkeby_transferArgs, MeshContext>,
-  /** null **/
-  Rinkeby_transfers: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby_transfers'], ConnextRinkebyTypes.SubscriptionRinkeby_transfersArgs, MeshContext>,
-  /** Access to subgraph metadata **/
-  Rinkeby__meta: InContextSdkMethod<ConnextRinkebyTypes.Subscription['Rinkeby__meta'], ConnextRinkebyTypes.SubscriptionRinkeby__metaArgs, MeshContext>
-};
 
 
     export namespace ConnextKovanTypes {
@@ -3038,28 +2135,28 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Kovan_BigDecimal: any;
+  kovan_BigDecimal: any;
   BigInt: any;
-  Kovan_Bytes: any;
+  kovan_Bytes: any;
 };
 
-export type Kovan_Asset = {
+export type kovan_Asset = {
   id: Scalars['ID'];
-  local: Scalars['Kovan_Bytes'];
-  adoptedAsset: Scalars['Kovan_Bytes'];
-  canonicalId: Scalars['Kovan_Bytes'];
+  local: Scalars['kovan_Bytes'];
+  adoptedAsset: Scalars['kovan_Bytes'];
+  canonicalId: Scalars['kovan_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type Kovan_AssetBalance = {
+export type kovan_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
-  router: Kovan_Router;
-  asset: Kovan_Asset;
+  router: kovan_Router;
+  asset: kovan_Asset;
 };
 
-export type Kovan_AssetBalance_filter = {
+export type kovan_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3117,16 +2214,16 @@ export type Kovan_AssetBalance_filter = {
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Kovan_AssetBalance_orderBy =
+export type kovan_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
   | 'asset';
 
-export type Kovan_Asset_filter = {
+export type kovan_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3135,24 +2232,24 @@ export type Kovan_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  local?: InputMaybe<Scalars['Kovan_Bytes']>;
-  local_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  local?: InputMaybe<Scalars['kovan_Bytes']>;
+  local_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3170,10 +2267,10 @@ export type Kovan_Asset_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Kovan_Asset_orderBy =
+export type kovan_Asset_orderBy =
   | 'id'
   | 'local'
   | 'adoptedAsset'
@@ -3181,141 +2278,141 @@ export type Kovan_Asset_orderBy =
   | 'canonicalDomain'
   | 'blockNumber';
 
-export type Kovan_BlockChangedFilter = {
+export type kovan_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type Kovan_Block_height = {
-  hash?: InputMaybe<Scalars['Kovan_Bytes']>;
+export type kovan_Block_height = {
+  hash?: InputMaybe<Scalars['kovan_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
 /** Defines the order direction, either ascending or descending */
-export type Kovan_OrderDirection =
+export type kovan_OrderDirection =
   | 'asc'
   | 'desc';
 
 export type Query = {
-  Kovan_asset?: Maybe<Kovan_Asset>;
-  Kovan_assets: Array<Kovan_Asset>;
-  Kovan_assetBalance?: Maybe<Kovan_AssetBalance>;
-  Kovan_assetBalances: Array<Kovan_AssetBalance>;
-  Kovan_router?: Maybe<Kovan_Router>;
-  Kovan_routers: Array<Kovan_Router>;
-  Kovan_transfer?: Maybe<Kovan_Transfer>;
-  Kovan_transfers: Array<Kovan_Transfer>;
+  kovan_asset?: Maybe<kovan_Asset>;
+  kovan_assets: Array<kovan_Asset>;
+  kovan_assetBalance?: Maybe<kovan_AssetBalance>;
+  kovan_assetBalances: Array<kovan_AssetBalance>;
+  kovan_router?: Maybe<kovan_Router>;
+  kovan_routers: Array<kovan_Router>;
+  kovan_transfer?: Maybe<kovan_Transfer>;
+  kovan_transfers: Array<kovan_Transfer>;
   /** Access to subgraph metadata */
-  Kovan__meta?: Maybe<Kovan__Meta_>;
+  kovan__meta?: Maybe<kovan__Meta_>;
 };
 
 
-export type QueryKovan_assetArgs = {
+export type Querykovan_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_assetsArgs = {
+export type Querykovan_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Asset_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Asset_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_Asset_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Asset_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_assetBalanceArgs = {
+export type Querykovan_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_assetBalancesArgs = {
+export type Querykovan_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_AssetBalance_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_AssetBalance_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_routerArgs = {
+export type Querykovan_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_routersArgs = {
+export type Querykovan_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Router_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Router_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_Router_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Router_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_transferArgs = {
+export type Querykovan_transferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan_transfersArgs = {
+export type Querykovan_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Transfer_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Transfer_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryKovan__metaArgs = {
-  block?: InputMaybe<Kovan_Block_height>;
+export type Querykovan__metaArgs = {
+  block?: InputMaybe<kovan_Block_height>;
 };
 
-export type Kovan_Router = {
+export type kovan_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['Kovan_Bytes']>;
-  recipient?: Maybe<Scalars['Kovan_Bytes']>;
-  proposedOwner?: Maybe<Scalars['Kovan_Bytes']>;
+  owner?: Maybe<Scalars['kovan_Bytes']>;
+  recipient?: Maybe<Scalars['kovan_Bytes']>;
+  proposedOwner?: Maybe<Scalars['kovan_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<Kovan_AssetBalance>;
-  transfers: Array<Kovan_Transfer>;
+  assetBalances: Array<kovan_AssetBalance>;
+  transfers: Array<kovan_Transfer>;
 };
 
 
-export type Kovan_RouterassetBalancesArgs = {
+export type kovan_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_AssetBalance_filter>;
+  orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_AssetBalance_filter>;
 };
 
 
-export type Kovan_RoutertransfersArgs = {
+export type kovan_RoutertransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Transfer_filter>;
+  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Transfer_filter>;
 };
 
-export type Kovan_Router_filter = {
+export type kovan_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3328,24 +2425,24 @@ export type Kovan_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['Kovan_Bytes']>;
-  owner_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  owner?: InputMaybe<Scalars['kovan_Bytes']>;
+  owner_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3355,10 +2452,10 @@ export type Kovan_Router_filter = {
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Kovan_Router_orderBy =
+export type kovan_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -3369,144 +2466,144 @@ export type Kovan_Router_orderBy =
   | 'transfers';
 
 export type Subscription = {
-  Kovan_asset?: Maybe<Kovan_Asset>;
-  Kovan_assets: Array<Kovan_Asset>;
-  Kovan_assetBalance?: Maybe<Kovan_AssetBalance>;
-  Kovan_assetBalances: Array<Kovan_AssetBalance>;
-  Kovan_router?: Maybe<Kovan_Router>;
-  Kovan_routers: Array<Kovan_Router>;
-  Kovan_transfer?: Maybe<Kovan_Transfer>;
-  Kovan_transfers: Array<Kovan_Transfer>;
+  kovan_asset?: Maybe<kovan_Asset>;
+  kovan_assets: Array<kovan_Asset>;
+  kovan_assetBalance?: Maybe<kovan_AssetBalance>;
+  kovan_assetBalances: Array<kovan_AssetBalance>;
+  kovan_router?: Maybe<kovan_Router>;
+  kovan_routers: Array<kovan_Router>;
+  kovan_transfer?: Maybe<kovan_Transfer>;
+  kovan_transfers: Array<kovan_Transfer>;
   /** Access to subgraph metadata */
-  Kovan__meta?: Maybe<Kovan__Meta_>;
+  kovan__meta?: Maybe<kovan__Meta_>;
 };
 
 
-export type SubscriptionKovan_assetArgs = {
+export type Subscriptionkovan_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_assetsArgs = {
+export type Subscriptionkovan_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Asset_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Asset_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_Asset_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Asset_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_assetBalanceArgs = {
+export type Subscriptionkovan_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_assetBalancesArgs = {
+export type Subscriptionkovan_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_AssetBalance_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_AssetBalance_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_routerArgs = {
+export type Subscriptionkovan_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_routersArgs = {
+export type Subscriptionkovan_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Router_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Router_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_Router_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Router_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_transferArgs = {
+export type Subscriptionkovan_transferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<Kovan_Block_height>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan_transfersArgs = {
+export type Subscriptionkovan_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<Kovan_OrderDirection>;
-  where?: InputMaybe<Kovan_Transfer_filter>;
-  block?: InputMaybe<Kovan_Block_height>;
+  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Transfer_filter>;
+  block?: InputMaybe<kovan_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionKovan__metaArgs = {
-  block?: InputMaybe<Kovan_Block_height>;
+export type Subscriptionkovan__metaArgs = {
+  block?: InputMaybe<kovan_Block_height>;
 };
 
-export type Kovan_Transfer = {
+export type kovan_Transfer = {
   id: Scalars['ID'];
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   chainId?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<Kovan_TransferStatus>;
-  to?: Maybe<Scalars['Kovan_Bytes']>;
-  transferId?: Maybe<Scalars['Kovan_Bytes']>;
-  callTo?: Maybe<Scalars['Kovan_Bytes']>;
-  callData?: Maybe<Scalars['Kovan_Bytes']>;
+  status?: Maybe<kovan_TransferStatus>;
+  to?: Maybe<Scalars['kovan_Bytes']>;
+  transferId?: Maybe<Scalars['kovan_Bytes']>;
+  callTo?: Maybe<Scalars['kovan_Bytes']>;
+  callData?: Maybe<Scalars['kovan_Bytes']>;
   idx?: Maybe<Scalars['BigInt']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  router?: Maybe<Kovan_Router>;
-  xcalledTransactingAsset?: Maybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset?: Maybe<Scalars['Kovan_Bytes']>;
+  router?: Maybe<kovan_Router>;
+  xcalledTransactingAsset?: Maybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset?: Maybe<Scalars['kovan_Bytes']>;
   xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
   xcalledLocalAmount?: Maybe<Scalars['BigInt']>;
-  xcalledCaller?: Maybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash?: Maybe<Scalars['Kovan_Bytes']>;
+  xcalledCaller?: Maybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash?: Maybe<Scalars['kovan_Bytes']>;
   xcalledTimestamp?: Maybe<Scalars['BigInt']>;
   xcalledGasPrice?: Maybe<Scalars['BigInt']>;
   xcalledGasLimit?: Maybe<Scalars['BigInt']>;
   xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['Kovan_Bytes']>;
+  executedCaller?: Maybe<Scalars['kovan_Bytes']>;
   executedTransactingAmount?: Maybe<Scalars['BigInt']>;
   executedLocalAmount?: Maybe<Scalars['BigInt']>;
-  executedTransactingAsset?: Maybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset?: Maybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['Kovan_Bytes']>;
+  executedTransactingAsset?: Maybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset?: Maybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['kovan_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset?: Maybe<Scalars['Kovan_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset?: Maybe<Scalars['kovan_Bytes']>;
   reconciledLocalAmount?: Maybe<Scalars['BigInt']>;
-  reconciledTransactionHash?: Maybe<Scalars['Kovan_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['kovan_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type Kovan_TransferStatus =
+export type kovan_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled';
 
-export type Kovan_Transfer_filter = {
+export type kovan_Transfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3539,34 +2636,34 @@ export type Kovan_Transfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<Kovan_TransferStatus>;
-  status_not?: InputMaybe<Kovan_TransferStatus>;
-  status_in?: InputMaybe<Array<Kovan_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<Kovan_TransferStatus>>;
-  to?: InputMaybe<Scalars['Kovan_Bytes']>;
-  to_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callTo_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callTo_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callTo_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  status?: InputMaybe<kovan_TransferStatus>;
+  status_not?: InputMaybe<kovan_TransferStatus>;
+  status_in?: InputMaybe<Array<kovan_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<kovan_TransferStatus>>;
+  to?: InputMaybe<Scalars['kovan_Bytes']>;
+  to_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callTo_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callTo_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callTo_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   idx?: InputMaybe<Scalars['BigInt']>;
   idx_not?: InputMaybe<Scalars['BigInt']>;
   idx_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3603,18 +2700,18 @@ export type Kovan_Transfer_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  xcalledTransactingAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactingAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactingAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledLocalAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  xcalledTransactingAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactingAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactingAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledLocalAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   xcalledTransactingAmount?: InputMaybe<Scalars['BigInt']>;
   xcalledTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   xcalledTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3631,18 +2728,18 @@ export type Kovan_Transfer_filter = {
   xcalledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   xcalledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   xcalledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledCaller?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledCaller_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledCaller_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledCaller_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledCaller_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledCaller_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  xcalledTransactionHash_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  xcalledCaller?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledCaller_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledCaller_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledCaller_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledCaller_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledCaller_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  xcalledTransactionHash_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   xcalledTimestamp?: InputMaybe<Scalars['BigInt']>;
   xcalledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   xcalledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3675,12 +2772,12 @@ export type Kovan_Transfer_filter = {
   xcalledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   xcalledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   xcalledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   executedTransactingAmount?: InputMaybe<Scalars['BigInt']>;
   executedTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   executedTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3697,24 +2794,24 @@ export type Kovan_Transfer_filter = {
   executedLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   executedLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactingAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactingAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactingAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactingAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedLocalAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedLocalAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  executedTransactingAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactingAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactingAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactingAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactingAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedLocalAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedLocalAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3747,18 +2844,18 @@ export type Kovan_Transfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledLocalAsset_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledLocalAsset_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   reconciledLocalAmount?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3767,12 +2864,12 @@ export type Kovan_Transfer_filter = {
   reconciledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTransactionHash?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Kovan_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Kovan_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['kovan_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['kovan_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['kovan_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3806,10 +2903,10 @@ export type Kovan_Transfer_filter = {
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<Kovan_BlockChangedFilter>;
+  _change_block?: InputMaybe<kovan_BlockChangedFilter>;
 };
 
-export type Kovan_Transfer_orderBy =
+export type kovan_Transfer_orderBy =
   | 'id'
   | 'originDomain'
   | 'destinationDomain'
@@ -3851,15 +2948,15 @@ export type Kovan_Transfer_orderBy =
   | 'reconciledGasLimit'
   | 'reconciledBlockNumber';
 
-export type Kovan__Block_ = {
+export type kovan__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['Kovan_Bytes']>;
+  hash?: Maybe<Scalars['kovan_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
 };
 
 /** The type for the top-level _meta field */
-export type Kovan__Meta_ = {
+export type kovan__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -3867,7 +2964,7 @@ export type Kovan__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: Kovan__Block_;
+  block: kovan__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -3883,23 +2980,23 @@ export type _SubgraphErrorPolicy_ =
     }
     export type QueryConnextKovanSdk = {
   /** null **/
-  Kovan_asset: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_asset'], ConnextKovanTypes.QueryKovan_assetArgs, MeshContext>,
+  kovan_asset: InContextSdkMethod<ConnextKovanTypes.Query['kovan_asset'], ConnextKovanTypes.Querykovan_assetArgs, MeshContext>,
   /** null **/
-  Kovan_assets: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_assets'], ConnextKovanTypes.QueryKovan_assetsArgs, MeshContext>,
+  kovan_assets: InContextSdkMethod<ConnextKovanTypes.Query['kovan_assets'], ConnextKovanTypes.Querykovan_assetsArgs, MeshContext>,
   /** null **/
-  Kovan_assetBalance: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_assetBalance'], ConnextKovanTypes.QueryKovan_assetBalanceArgs, MeshContext>,
+  kovan_assetBalance: InContextSdkMethod<ConnextKovanTypes.Query['kovan_assetBalance'], ConnextKovanTypes.Querykovan_assetBalanceArgs, MeshContext>,
   /** null **/
-  Kovan_assetBalances: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_assetBalances'], ConnextKovanTypes.QueryKovan_assetBalancesArgs, MeshContext>,
+  kovan_assetBalances: InContextSdkMethod<ConnextKovanTypes.Query['kovan_assetBalances'], ConnextKovanTypes.Querykovan_assetBalancesArgs, MeshContext>,
   /** null **/
-  Kovan_router: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_router'], ConnextKovanTypes.QueryKovan_routerArgs, MeshContext>,
+  kovan_router: InContextSdkMethod<ConnextKovanTypes.Query['kovan_router'], ConnextKovanTypes.Querykovan_routerArgs, MeshContext>,
   /** null **/
-  Kovan_routers: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_routers'], ConnextKovanTypes.QueryKovan_routersArgs, MeshContext>,
+  kovan_routers: InContextSdkMethod<ConnextKovanTypes.Query['kovan_routers'], ConnextKovanTypes.Querykovan_routersArgs, MeshContext>,
   /** null **/
-  Kovan_transfer: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_transfer'], ConnextKovanTypes.QueryKovan_transferArgs, MeshContext>,
+  kovan_transfer: InContextSdkMethod<ConnextKovanTypes.Query['kovan_transfer'], ConnextKovanTypes.Querykovan_transferArgs, MeshContext>,
   /** null **/
-  Kovan_transfers: InContextSdkMethod<ConnextKovanTypes.Query['Kovan_transfers'], ConnextKovanTypes.QueryKovan_transfersArgs, MeshContext>,
+  kovan_transfers: InContextSdkMethod<ConnextKovanTypes.Query['kovan_transfers'], ConnextKovanTypes.Querykovan_transfersArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  Kovan__meta: InContextSdkMethod<ConnextKovanTypes.Query['Kovan__meta'], ConnextKovanTypes.QueryKovan__metaArgs, MeshContext>
+  kovan__meta: InContextSdkMethod<ConnextKovanTypes.Query['kovan__meta'], ConnextKovanTypes.Querykovan__metaArgs, MeshContext>
 };
 
 export type MutationConnextKovanSdk = {
@@ -3908,34 +3005,937 @@ export type MutationConnextKovanSdk = {
 
 export type SubscriptionConnextKovanSdk = {
   /** null **/
-  Kovan_asset: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_asset'], ConnextKovanTypes.SubscriptionKovan_assetArgs, MeshContext>,
+  kovan_asset: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_asset'], ConnextKovanTypes.Subscriptionkovan_assetArgs, MeshContext>,
   /** null **/
-  Kovan_assets: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_assets'], ConnextKovanTypes.SubscriptionKovan_assetsArgs, MeshContext>,
+  kovan_assets: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_assets'], ConnextKovanTypes.Subscriptionkovan_assetsArgs, MeshContext>,
   /** null **/
-  Kovan_assetBalance: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_assetBalance'], ConnextKovanTypes.SubscriptionKovan_assetBalanceArgs, MeshContext>,
+  kovan_assetBalance: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_assetBalance'], ConnextKovanTypes.Subscriptionkovan_assetBalanceArgs, MeshContext>,
   /** null **/
-  Kovan_assetBalances: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_assetBalances'], ConnextKovanTypes.SubscriptionKovan_assetBalancesArgs, MeshContext>,
+  kovan_assetBalances: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_assetBalances'], ConnextKovanTypes.Subscriptionkovan_assetBalancesArgs, MeshContext>,
   /** null **/
-  Kovan_router: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_router'], ConnextKovanTypes.SubscriptionKovan_routerArgs, MeshContext>,
+  kovan_router: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_router'], ConnextKovanTypes.Subscriptionkovan_routerArgs, MeshContext>,
   /** null **/
-  Kovan_routers: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_routers'], ConnextKovanTypes.SubscriptionKovan_routersArgs, MeshContext>,
+  kovan_routers: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_routers'], ConnextKovanTypes.Subscriptionkovan_routersArgs, MeshContext>,
   /** null **/
-  Kovan_transfer: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_transfer'], ConnextKovanTypes.SubscriptionKovan_transferArgs, MeshContext>,
+  kovan_transfer: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_transfer'], ConnextKovanTypes.Subscriptionkovan_transferArgs, MeshContext>,
   /** null **/
-  Kovan_transfers: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan_transfers'], ConnextKovanTypes.SubscriptionKovan_transfersArgs, MeshContext>,
+  kovan_transfers: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan_transfers'], ConnextKovanTypes.Subscriptionkovan_transfersArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  Kovan__meta: InContextSdkMethod<ConnextKovanTypes.Subscription['Kovan__meta'], ConnextKovanTypes.SubscriptionKovan__metaArgs, MeshContext>
+  kovan__meta: InContextSdkMethod<ConnextKovanTypes.Subscription['kovan__meta'], ConnextKovanTypes.Subscriptionkovan__metaArgs, MeshContext>
 };
 
-export type ConnextRinkebyContext = {
-      ["Connext_Rinkeby"]: { Query: QueryConnextRinkebySdk, Mutation: MutationConnextRinkebySdk, Subscription: SubscriptionConnextRinkebySdk },
-    };
+
+    export namespace ConnextRinkebyTypes {
+      export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+/** All built-in and custom scalars, mapped to their actual values */
+export type Scalars = {
+  ID: string;
+  String: string;
+  Boolean: boolean;
+  Int: number;
+  Float: number;
+  rinkeby_BigDecimal: any;
+  BigInt: any;
+  rinkeby_Bytes: any;
+};
+
+export type rinkeby_Asset = {
+  id: Scalars['ID'];
+  local: Scalars['rinkeby_Bytes'];
+  adoptedAsset: Scalars['rinkeby_Bytes'];
+  canonicalId: Scalars['rinkeby_Bytes'];
+  canonicalDomain: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type rinkeby_AssetBalance = {
+  id: Scalars['ID'];
+  amount: Scalars['BigInt'];
+  router: rinkeby_Router;
+  asset: rinkeby_Asset;
+};
+
+export type rinkeby_AssetBalance_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+};
+
+export type rinkeby_AssetBalance_orderBy =
+  | 'id'
+  | 'amount'
+  | 'router'
+  | 'asset';
+
+export type rinkeby_Asset_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  local?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+};
+
+export type rinkeby_Asset_orderBy =
+  | 'id'
+  | 'local'
+  | 'adoptedAsset'
+  | 'canonicalId'
+  | 'canonicalDomain'
+  | 'blockNumber';
+
+export type rinkeby_BlockChangedFilter = {
+  number_gte: Scalars['Int'];
+};
+
+export type rinkeby_Block_height = {
+  hash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  number?: InputMaybe<Scalars['Int']>;
+  number_gte?: InputMaybe<Scalars['Int']>;
+};
+
+/** Defines the order direction, either ascending or descending */
+export type rinkeby_OrderDirection =
+  | 'asc'
+  | 'desc';
+
+export type Query = {
+  rinkeby_asset?: Maybe<rinkeby_Asset>;
+  rinkeby_assets: Array<rinkeby_Asset>;
+  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
+  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
+  rinkeby_router?: Maybe<rinkeby_Router>;
+  rinkeby_routers: Array<rinkeby_Router>;
+  rinkeby_transfer?: Maybe<rinkeby_Transfer>;
+  rinkeby_transfers: Array<rinkeby_Transfer>;
+  /** Access to subgraph metadata */
+  rinkeby__meta?: Maybe<rinkeby__Meta_>;
+};
+
+
+export type Queryrinkeby_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Asset_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_transferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby_transfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Transfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryrinkeby__metaArgs = {
+  block?: InputMaybe<rinkeby_Block_height>;
+};
+
+export type rinkeby_Router = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  owner?: Maybe<Scalars['rinkeby_Bytes']>;
+  recipient?: Maybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner?: Maybe<Scalars['rinkeby_Bytes']>;
+  proposedTimestamp?: Maybe<Scalars['BigInt']>;
+  assetBalances: Array<rinkeby_AssetBalance>;
+  transfers: Array<rinkeby_Transfer>;
+};
+
+
+export type rinkeby_RouterassetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+};
+
+
+export type rinkeby_RoutertransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Transfer_filter>;
+};
+
+export type rinkeby_Router_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  owner?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+};
+
+export type rinkeby_Router_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'owner'
+  | 'recipient'
+  | 'proposedOwner'
+  | 'proposedTimestamp'
+  | 'assetBalances'
+  | 'transfers';
+
+export type Subscription = {
+  rinkeby_asset?: Maybe<rinkeby_Asset>;
+  rinkeby_assets: Array<rinkeby_Asset>;
+  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
+  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
+  rinkeby_router?: Maybe<rinkeby_Router>;
+  rinkeby_routers: Array<rinkeby_Router>;
+  rinkeby_transfer?: Maybe<rinkeby_Transfer>;
+  rinkeby_transfers: Array<rinkeby_Transfer>;
+  /** Access to subgraph metadata */
+  rinkeby__meta?: Maybe<rinkeby__Meta_>;
+};
+
+
+export type Subscriptionrinkeby_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Asset_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_transferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby_transfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Transfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionrinkeby__metaArgs = {
+  block?: InputMaybe<rinkeby_Block_height>;
+};
+
+export type rinkeby_Transfer = {
+  id: Scalars['ID'];
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  chainId?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<rinkeby_TransferStatus>;
+  to?: Maybe<Scalars['rinkeby_Bytes']>;
+  transferId?: Maybe<Scalars['rinkeby_Bytes']>;
+  callTo?: Maybe<Scalars['rinkeby_Bytes']>;
+  callData?: Maybe<Scalars['rinkeby_Bytes']>;
+  idx?: Maybe<Scalars['BigInt']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  router?: Maybe<rinkeby_Router>;
+  xcalledTransactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
+  xcalledLocalAmount?: Maybe<Scalars['BigInt']>;
+  xcalledCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
+  xcalledTimestamp?: Maybe<Scalars['BigInt']>;
+  xcalledGasPrice?: Maybe<Scalars['BigInt']>;
+  xcalledGasLimit?: Maybe<Scalars['BigInt']>;
+  xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
+  executedCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAmount?: Maybe<Scalars['BigInt']>;
+  executedLocalAmount?: Maybe<Scalars['BigInt']>;
+  executedTransactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedTimestamp?: Maybe<Scalars['BigInt']>;
+  executedGasPrice?: Maybe<Scalars['BigInt']>;
+  executedGasLimit?: Maybe<Scalars['BigInt']>;
+  executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset?: Maybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAmount?: Maybe<Scalars['BigInt']>;
+  reconciledTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
+  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
+  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
+  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
+  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type rinkeby_TransferStatus =
+  | 'XCalled'
+  | 'Executed'
+  | 'Reconciled';
+
+export type rinkeby_Transfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<rinkeby_TransferStatus>;
+  status_not?: InputMaybe<rinkeby_TransferStatus>;
+  status_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  to?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callTo_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callTo_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callTo_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  idx?: InputMaybe<Scalars['BigInt']>;
+  idx_not?: InputMaybe<Scalars['BigInt']>;
+  idx_gt?: InputMaybe<Scalars['BigInt']>;
+  idx_lt?: InputMaybe<Scalars['BigInt']>;
+  idx_gte?: InputMaybe<Scalars['BigInt']>;
+  idx_lte?: InputMaybe<Scalars['BigInt']>;
+  idx_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  idx_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  xcalledTransactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledLocalAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactingAmount?: InputMaybe<Scalars['BigInt']>;
+  xcalledTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  xcalledTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  xcalledTransactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  xcalledTransactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  xcalledTransactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  xcalledTransactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledTransactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledLocalAmount?: InputMaybe<Scalars['BigInt']>;
+  xcalledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
+  xcalledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  xcalledLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  xcalledLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  xcalledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  xcalledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  xcalledTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  xcalledTimestamp?: InputMaybe<Scalars['BigInt']>;
+  xcalledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  xcalledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  xcalledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  xcalledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  xcalledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  xcalledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledGasPrice?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledGasLimit?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  xcalledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  xcalledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  xcalledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  xcalledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  xcalledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  xcalledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  xcalledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  xcalledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAmount?: InputMaybe<Scalars['BigInt']>;
+  executedTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  executedTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  executedTransactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  executedTransactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  executedTransactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  executedTransactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTransactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedLocalAmount?: InputMaybe<Scalars['BigInt']>;
+  executedLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
+  executedLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  executedLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  executedLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  executedLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  executedLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTransactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedLocalAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedLocalAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledLocalAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledLocalAmount?: InputMaybe<Scalars['BigInt']>;
+  reconciledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+};
+
+export type rinkeby_Transfer_orderBy =
+  | 'id'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'chainId'
+  | 'status'
+  | 'to'
+  | 'transferId'
+  | 'callTo'
+  | 'callData'
+  | 'idx'
+  | 'nonce'
+  | 'router'
+  | 'xcalledTransactingAsset'
+  | 'xcalledLocalAsset'
+  | 'xcalledTransactingAmount'
+  | 'xcalledLocalAmount'
+  | 'xcalledCaller'
+  | 'xcalledTransactionHash'
+  | 'xcalledTimestamp'
+  | 'xcalledGasPrice'
+  | 'xcalledGasLimit'
+  | 'xcalledBlockNumber'
+  | 'executedCaller'
+  | 'executedTransactingAmount'
+  | 'executedLocalAmount'
+  | 'executedTransactingAsset'
+  | 'executedLocalAsset'
+  | 'executedTransactionHash'
+  | 'executedTimestamp'
+  | 'executedGasPrice'
+  | 'executedGasLimit'
+  | 'executedBlockNumber'
+  | 'reconciledCaller'
+  | 'reconciledLocalAsset'
+  | 'reconciledLocalAmount'
+  | 'reconciledTransactionHash'
+  | 'reconciledTimestamp'
+  | 'reconciledGasPrice'
+  | 'reconciledGasLimit'
+  | 'reconciledBlockNumber';
+
+export type rinkeby__Block_ = {
+  /** The hash of the block */
+  hash?: Maybe<Scalars['rinkeby_Bytes']>;
+  /** The block number */
+  number: Scalars['Int'];
+};
+
+/** The type for the top-level _meta field */
+export type rinkeby__Meta_ = {
+  /**
+   * Information about a specific subgraph block. The hash of the block
+   * will be null if the _meta field has a block constraint that asks for
+   * a block number. It will be filled if the _meta field has no block constraint
+   * and therefore asks for the latest  block
+   *
+   */
+  block: rinkeby__Block_;
+  /** The deployment ID */
+  deployment: Scalars['String'];
+  /** If `true`, the subgraph encountered indexing errors at some past block */
+  hasIndexingErrors: Scalars['Boolean'];
+};
+
+export type _SubgraphErrorPolicy_ =
+  /** Data will be returned even if the subgraph has indexing errors */
+  | 'allow'
+  /** If the subgraph has indexing errors, data will be omitted. The default. */
+  | 'deny';
+
+    }
+    export type QueryConnextRinkebySdk = {
+  /** null **/
+  rinkeby_asset: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_asset'], ConnextRinkebyTypes.Queryrinkeby_assetArgs, MeshContext>,
+  /** null **/
+  rinkeby_assets: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_assets'], ConnextRinkebyTypes.Queryrinkeby_assetsArgs, MeshContext>,
+  /** null **/
+  rinkeby_assetBalance: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_assetBalance'], ConnextRinkebyTypes.Queryrinkeby_assetBalanceArgs, MeshContext>,
+  /** null **/
+  rinkeby_assetBalances: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_assetBalances'], ConnextRinkebyTypes.Queryrinkeby_assetBalancesArgs, MeshContext>,
+  /** null **/
+  rinkeby_router: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_router'], ConnextRinkebyTypes.Queryrinkeby_routerArgs, MeshContext>,
+  /** null **/
+  rinkeby_routers: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_routers'], ConnextRinkebyTypes.Queryrinkeby_routersArgs, MeshContext>,
+  /** null **/
+  rinkeby_transfer: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_transfer'], ConnextRinkebyTypes.Queryrinkeby_transferArgs, MeshContext>,
+  /** null **/
+  rinkeby_transfers: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby_transfers'], ConnextRinkebyTypes.Queryrinkeby_transfersArgs, MeshContext>,
+  /** Access to subgraph metadata **/
+  rinkeby__meta: InContextSdkMethod<ConnextRinkebyTypes.Query['rinkeby__meta'], ConnextRinkebyTypes.Queryrinkeby__metaArgs, MeshContext>
+};
+
+export type MutationConnextRinkebySdk = {
+
+};
+
+export type SubscriptionConnextRinkebySdk = {
+  /** null **/
+  rinkeby_asset: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_asset'], ConnextRinkebyTypes.Subscriptionrinkeby_assetArgs, MeshContext>,
+  /** null **/
+  rinkeby_assets: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_assets'], ConnextRinkebyTypes.Subscriptionrinkeby_assetsArgs, MeshContext>,
+  /** null **/
+  rinkeby_assetBalance: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_assetBalance'], ConnextRinkebyTypes.Subscriptionrinkeby_assetBalanceArgs, MeshContext>,
+  /** null **/
+  rinkeby_assetBalances: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_assetBalances'], ConnextRinkebyTypes.Subscriptionrinkeby_assetBalancesArgs, MeshContext>,
+  /** null **/
+  rinkeby_router: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_router'], ConnextRinkebyTypes.Subscriptionrinkeby_routerArgs, MeshContext>,
+  /** null **/
+  rinkeby_routers: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_routers'], ConnextRinkebyTypes.Subscriptionrinkeby_routersArgs, MeshContext>,
+  /** null **/
+  rinkeby_transfer: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_transfer'], ConnextRinkebyTypes.Subscriptionrinkeby_transferArgs, MeshContext>,
+  /** null **/
+  rinkeby_transfers: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby_transfers'], ConnextRinkebyTypes.Subscriptionrinkeby_transfersArgs, MeshContext>,
+  /** Access to subgraph metadata **/
+  rinkeby__meta: InContextSdkMethod<ConnextRinkebyTypes.Subscription['rinkeby__meta'], ConnextRinkebyTypes.Subscriptionrinkeby__metaArgs, MeshContext>
+};
 
 export type ConnextKovanContext = {
       ["Connext_Kovan"]: { Query: QueryConnextKovanSdk, Mutation: MutationConnextKovanSdk, Subscription: SubscriptionConnextKovanSdk },
     };
 
-export type MeshContext = ConnextRinkebyContext & ConnextKovanContext & BaseMeshContext;
+export type ConnextRinkebyContext = {
+      ["Connext_Rinkeby"]: { Query: QueryConnextRinkebySdk, Mutation: MutationConnextRinkebySdk, Subscription: SubscriptionConnextRinkebySdk },
+    };
+
+export type MeshContext = ConnextKovanContext & ConnextRinkebyContext & BaseMeshContext;
 
 
 import { getMesh } from '@graphql-mesh/runtime';
@@ -3946,8 +3946,8 @@ import ExternalModule_0 from '@graphql-mesh/cache-inmemory-lru';
 import ExternalModule_1 from '@graphql-mesh/graphql';
 import ExternalModule_2 from '@graphql-mesh/merger-stitching';
 import ExternalModule_3 from '@graphql-mesh/transform-prefix';
-import ExternalModule_4 from './sources/Connext_Rinkeby/introspectionSchema';
-import ExternalModule_5 from './sources/Connext_Kovan/introspectionSchema';
+import ExternalModule_4 from './sources/Connext_Kovan/introspectionSchema';
+import ExternalModule_5 from './sources/Connext_Rinkeby/introspectionSchema';
 
 const importedModules: Record<string, any> = {
   // @ts-ignore
@@ -3959,9 +3959,9 @@ const importedModules: Record<string, any> = {
   // @ts-ignore
   ["@graphql-mesh/transform-prefix"]: ExternalModule_3,
   // @ts-ignore
-  [".graphclient/sources/Connext_Rinkeby/introspectionSchema"]: ExternalModule_4,
+  [".graphclient/sources/Connext_Kovan/introspectionSchema"]: ExternalModule_4,
   // @ts-ignore
-  [".graphclient/sources/Connext_Kovan/introspectionSchema"]: ExternalModule_5
+  [".graphclient/sources/Connext_Rinkeby/introspectionSchema"]: ExternalModule_5
 };
 
 const baseDir = pathModule.join(__dirname, '..');
@@ -3994,7 +3994,7 @@ import StitchingMerger from '@graphql-mesh/merger-stitching';
 import PrefixTransform from '@graphql-mesh/transform-prefix';
 import { resolveAdditionalResolvers } from '@graphql-mesh/utils';
 import { parseWithCache } from '@graphql-mesh/utils';
-export const rawConfig: YamlConfig.Config = {"sources":[{"name":"Connext_Kovan","handler":{"graphql":{"endpoint":"https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"}},"transforms":[{"prefix":{"value":"Kovan_","includeRootOperations":true,"ignore":["_SubgraphErrorPolicy_"]}}]},{"name":"Connext_Rinkeby","handler":{"graphql":{"endpoint":"https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"}},"transforms":[{"prefix":{"value":"Rinkeby_","includeRootOperations":true,"ignore":["_SubgraphErrorPolicy_"]}}]}]} as any
+export const rawConfig: YamlConfig.Config = {"sources":[{"name":"Connext_Kovan","handler":{"graphql":{"endpoint":"https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan"}},"transforms":[{"prefix":{"value":"kovan_","includeRootOperations":true,"ignore":["_SubgraphErrorPolicy_"]}}]},{"name":"Connext_Rinkeby","handler":{"graphql":{"endpoint":"https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"}},"transforms":[{"prefix":{"value":"rinkeby_","includeRootOperations":true,"ignore":["_SubgraphErrorPolicy_"]}}]}]} as any
 export async function getMeshOptions(): Promise<GetMeshOptions> {
 const pubsub = new PubSub();
 const cache = new (MeshCache as any)({
