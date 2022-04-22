@@ -1,4 +1,5 @@
 import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask, BidData } from "@connext/nxtp-utils";
+import IORedis, { ValueType as IORedisValueType } from "ioredis";
 
 import { Cache } from "./cache";
 
@@ -29,10 +30,35 @@ export class AuctionsCache extends Cache {
    * @returns Auction data if exists, undefined otherwise.
    */
   public async getAuction(transferId: string): Promise<Auction | undefined> {
-    const res = await this.data.hget(`${this.prefix}:auction`, transferId);
+    IORedis.Command.setReplyTransformer("hgetall", (result) => {
+      const arr = [];
+      for (let i = 0; i < result.length; i += 2) {
+        arr.push([result[i], result[i + 1]]);
+      }
+      return arr;
+    });
+    const res = await this.data.hgetall(`${this.prefix}:auction:${transferId}`);
     return res ? (JSON.parse(res) as Auction) : undefined;
   }
-
+  /**
+   *
+   * @param auction auction type that will be mutated into the redis destination
+   * @dev this mutates an auction into the proper field based hash structure in redis
+   * //todo: bids type might not be stringified
+   */
+  private mapAuctionTypeToRedisHashType(auction: Auction): IORedisValueType[] {
+    const mappedAuctionToRedisHash: IORedisValueType[] = [
+      "origin",
+      auction.origin,
+      "destination",
+      auction.destination,
+      "timestamp",
+      auction.timestamp,
+      "bids",
+      JSON.stringify(auction.bids),
+    ];
+    return mappedAuctionToRedisHash;
+  }
   /**
    * Creates or updates an existing auction entry for the given transfer ID.
    *
@@ -66,8 +92,8 @@ export class AuctionsCache extends Cache {
         [bid.router]: bid,
       },
     };
-    const res = await this.data.hset(`${this.prefix}:auction`, transferId, JSON.stringify(auction));
 
+    const res = await this.data.hset(`${this.prefix}:auction:${transferId}`, this.mapAuctionTypeToRedisHashType(auction));
     if (!existing) {
       // If the auction didn't previously exist, create an entry for status as well.
       await this.setStatus(transferId, AuctionStatus.Queued);
