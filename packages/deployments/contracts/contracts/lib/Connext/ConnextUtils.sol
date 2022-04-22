@@ -143,7 +143,7 @@ library ConnextUtils {
     uint256 _amount
   ) external returns (uint256, address) {
     // Get the token id
-    (, bytes32 id) = _tokenRegistry.getCanonicalTokenId(_asset);
+    (, bytes32 id) = _tokenRegistry.getTokenId(_asset);
 
     // If the adopted asset is the local asset, no need to swap
     address adopted = _canonicalToAdopted[id];
