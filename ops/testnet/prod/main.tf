@@ -55,6 +55,18 @@ module "router" {
   stage                    = var.stage
 }
 
+module "router_logdna_lambda_exporter" {
+  source          = "../../modules/lambda"
+  environment     = var.environment
+  log_group_name  = module.router.log_group_name
+  logdna_key      = var.logdna_key
+  private_subnets = module.network.private_subnets
+  public_subnets  = module.network.public_subnets
+  service         = "router"
+  stage           = var.stage
+  vpc_id          = module.network.vpc_id
+  log_group_arn   = module.router.log_group_arn
+}
 
 module "sequencer" {
   source                   = "../../modules/service"
@@ -87,6 +99,18 @@ module "sequencer" {
   stage                    = var.stage
 }
 
+module "sequencer_logdna_lambda_exporter" {
+  source          = "../../modules/lambda"
+  environment     = var.environment
+  log_group_name  = module.sequencer.log_group_name
+  logdna_key      = var.logdna_key
+  private_subnets = module.network.private_subnets
+  public_subnets  = module.network.public_subnets
+  service         = "sequencer"
+  stage           = var.stage
+  vpc_id          = module.network.vpc_id
+  log_group_arn   = module.sequencer.log_group_arn
+}
 
 module "network" {
   source      = "../../modules/networking"
