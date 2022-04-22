@@ -46,10 +46,9 @@ contract RelayerFeeMessageTest is ForgeHelper {
 
   // ============ format/parse ============
   // Should work
-  function test_RelayerFeeMessage_should_format_and_parse_a_massage_properly(
-    address _recipient,
-    bytes32[] calldata _transferIds
-  ) public {
+  function test_RelayerFeeMessage__formatMessage_parseMessage_works(address _recipient, bytes32[] calldata _transferIds)
+    public
+  {
     vm.assume(_recipient != address(0) && _transferIds.length != 0);
     bytes memory message = formatMessage(_recipient, _transferIds);
 

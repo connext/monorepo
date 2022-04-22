@@ -92,7 +92,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   }
 
   // ============ initialize ============
-  function testInitializeParameters() public {
+  function test_RelayerFeeRouter__initialize_setParameters() public {
     assertEq(address(relayerFeeRouter.xAppConnectionManager()), address(xAppConnectionManager));
     assertEq(address(relayerFeeRouter.connext()), address(connext));
   }
@@ -100,7 +100,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   // ============ setConnext ============
 
   // Should work
-  function testSetConnext() public {
+  function test_RelayerFeeRouter__setConnext_works() public {
     vm.expectEmit(true, true, true, true);
     emit SetConnext(connext2);
 
@@ -109,7 +109,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   }
 
   // Fail if not called by owner
-  function testSetConnextOnlyOwner() public {
+  function test_RelayerFeeRouter__setConnext_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert(
       abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
@@ -119,7 +119,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
 
   // ============ send ============
   // Fail if not called by connext
-  function testSendOnlyConnext() public {
+  function test_RelayerFeeRouter__send_failsIfNotConnext() public {
     vm.prank(address(0));
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__onlyConnext_notConnext.selector));
 
@@ -131,7 +131,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   }
 
   // Fail if no transaction ids
-  function testSendClaimEmpty() public {
+  function test_RelayerFeeRouter__send_failsIfEmptyTransactionIds() public {
     vm.prank(address(connext));
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__send_claimEmpty.selector));
 
@@ -141,7 +141,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   }
 
   // Fail if empty recipient
-  function testSendRecipientEmpty() public {
+  function test_RelayerFeeRouter__send_failsIfEmptyRecipient() public {
     vm.prank(address(connext));
     vm.expectRevert(abi.encodeWithSelector(RelayerFeeRouter.RelayerFeeRouter__send_recipientEmpty.selector));
 
@@ -153,7 +153,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   }
 
   // Should work
-  function testSend(bytes32[] calldata _transferIds) public {
+  function test_RelayerFeeRouter__send_works(bytes32[] calldata _transferIds) public {
     vm.prank(address(connext));
     vm.assume(_transferIds.length != 0);
     bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transferIds);
@@ -167,7 +167,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
 
   // ============ handle ============
   // Should work
-  function testHandle(bytes32[] calldata _transferIds, uint32 _nonce) public {
+  function test_RelayerFeeRouter__handle_works(bytes32[] calldata _transferIds, uint32 _nonce) public {
     vm.assume(_transferIds.length != 0);
     uint64 originAndNonce = (uint64(remoteDomain) << 32) | _nonce;
     bytes memory message = RelayerFeeMessage.formatClaimFees(recipient, _transferIds);
