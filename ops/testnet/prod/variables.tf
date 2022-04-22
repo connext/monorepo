@@ -68,3 +68,7 @@ variable "rinkeby_alchemy_key_1" {
 variable "kovan_alchemy_key_1" {
   type = string
 }
+
+variable "logdna_key" {
+  type = string
+}
