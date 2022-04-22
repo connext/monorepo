@@ -8,6 +8,7 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
+import "hardhat-abi-exporter";
 
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
@@ -32,7 +33,7 @@ import "./src/tasks/traceMessage";
 import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
 import "./src/tasks/executeEstimateGas";
-import "./src/tasks/enrollCustom";
+import "./src/tasks/exportAbi";
 
 dotEnvConfig();
 
@@ -213,6 +214,16 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS == "true",
   },
+  abiExporter: [
+    {
+      path: "./abis/staging",
+      pretty: true,
+    },
+    {
+      path: "./abis/production",
+      pretty: true,
+    },
+  ],
 };
 
 export default config;
