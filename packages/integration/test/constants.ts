@@ -15,10 +15,6 @@ export const DESTINATION_ASSET = {
   address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
 };
 
-// TODO: Put these in env:
-export const SEQUENCER_MNEMONIC = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-export const ROUTER_MNEMONIC = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-
 /// MARK - General
 export type DomainInfo = {
   name: string;
@@ -142,7 +138,6 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       diagnostic: false,
       priceCaching: false,
     },
-    mnemonic: ROUTER_MNEMONIC,
   };
 })();
 

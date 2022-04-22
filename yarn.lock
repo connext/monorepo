@@ -747,6 +747,7 @@ __metadata:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-router": "workspace:*"
     "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-sequencer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@types/chai": ^4.3.0
@@ -782,7 +783,6 @@ __metadata:
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-adapters-web3signer": "workspace:*"
-    "@connext/nxtp-sequencer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": ^2.6.2

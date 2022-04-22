@@ -11,7 +11,7 @@ import { bindServer, bindAuctions } from "./bindings";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeSequencer = async () => {
+export const makeSequencer = async (_configOverride?: SequencerConfig) => {
   const requestContext = createRequestContext("makeSequencer");
   const methodContext = createMethodContext(makeSequencer.name);
   try {
@@ -25,7 +25,7 @@ export const makeSequencer = async () => {
       throw new Error("Could not get chain data");
     }
     context.chainData = chainData;
-    context.config = await getConfig(chainData, contractDeployments);
+    context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
     context.logger.info("Sequencer config generated", requestContext, methodContext, { config: context.config });
 
     // Set up adapters.
