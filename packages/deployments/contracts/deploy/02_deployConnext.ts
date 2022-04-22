@@ -24,6 +24,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Just plug in hardcoded domain for testing.
   const domain = 31337;
 
+  console.log("Deploying relayer fee router...");
+  // Get RelayerFeeRouter and TokenRegistry deployments.
+  const relayerFeeRouterDeployment = await hre.deployments.getOrNull("RelayerFeeRouterUpgradeBeaconProxy");
+  if (!relayerFeeRouterDeployment) {
+    throw new Error(`RelayerFeRelayerFeeRoutere not deployed`);
+  }
+  const relayerFeeRouter = new hre.ethers.Contract(
+    relayerFeeRouterDeployment.address,
+    (await hre.deployments.getOrNull("RelayerFeeRouter"))!.abi,
+  ).connect(deployer);
+
   // Get xapp connection manager
   const xappConnectionManagerDeployment = await hre.deployments.getOrNull("XAppConnectionManager");
   if (!xappConnectionManagerDeployment) {
@@ -57,7 +68,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     from: deployer.address,
     log: true,
     libraries: {
-      // AssetLogic: assetLogic.address,
       ConnextUtils: connextUtils.address,
       RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
     },
@@ -65,13 +75,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: {
         init: {
           methodName: "initialize",
-          // TODO - Use real RelayerFeeRouter
           args: [
             domain,
             xappConnectionManagerDeployment.address,
             tokenRegistry.address,
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
-            hre.ethers.constants.AddressZero,
+            relayerFeeRouter.address,
           ],
         },
       },
@@ -81,6 +90,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
+
+  // Add connext to relayer fee router
+  if ((await relayerFeeRouter.connext()) !== connextAddress) {
+    console.log("setting connext on relayer fee router");
+    const addTm = await relayerFeeRouter.connect(deployer).setConnext(connextAddress);
+    await addTm.wait();
+  } else {
+    console.log("relayer fee router connext set");
+  }
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");

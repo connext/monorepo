@@ -238,6 +238,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`replica for ${replicaName} enrolled`);
     }
   }
+  // Deploy relayer fee router
+  console.log("Deploying relayer fee router...");
+  const relayerFeeRouter = (
+    await deployNomadBeaconProxy("RelayerFeeRouter", [xappConnectionManagerAddress], deployer, hre)
+  ).connect(deployer);
+  console.log("relayer fee router address:", relayerFeeRouter.address);
+  console.log("relayer fee router owner:", await relayerFeeRouter.owner());
 };
+
 export default func;
 func.tags = ["Nomad"];

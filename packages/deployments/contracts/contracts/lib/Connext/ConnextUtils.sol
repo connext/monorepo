@@ -474,28 +474,6 @@ library ConnextUtils {
     return (transferId, _args.nonce + 1);
   }
 
-  function _executeSanityChecks(
-    ExecuteLibArgs calldata _args,
-    mapping(bytes32 => address[]) storage _routedTransfers,
-    mapping(bytes32 => bool) storage _reconciledTransfers
-  ) private returns (bytes32, bool) {
-    if (_args.executeArgs.routers.length > _args.maxRoutersPerTransfer)
-      revert ConnextUtils__execute_maxRoutersExceeded();
-
-    bytes32 transferId = _getTransferId(_args);
-
-    // require this transfer has not already been executed
-    // NOTE: in slow liquidity path, the router should *never* be filled
-    if (_routedTransfers[transferId].length != 0) {
-      revert ConnextUtils__execute_alreadyExecuted();
-    }
-
-    // get reconciled record
-    bool reconciled = _reconciledTransfers[transferId];
-
-    return (transferId, reconciled);
-  }
-
   /**
    * @notice Called on the destination domain to disburse correct assets to end recipient
    * and execute any included calldata
@@ -638,6 +616,32 @@ library ConnextUtils {
   }
 
   // ============ Private Functions ============
+
+  /**
+   * @notice Performs some sanity checks for `execute`
+   * @dev Need this to prevent stack too deep
+   */
+  function _executeSanityChecks(
+    ExecuteLibArgs calldata _args,
+    mapping(bytes32 => address[]) storage _routedTransfers,
+    mapping(bytes32 => bool) storage _reconciledTransfers
+  ) private returns (bytes32, bool) {
+    if (_args.executeArgs.routers.length > _args.maxRoutersPerTransfer)
+      revert ConnextUtils__execute_maxRoutersExceeded();
+
+    bytes32 transferId = _getTransferId(_args);
+
+    // require this transfer has not already been executed
+    // NOTE: in slow liquidity path, the router should *never* be filled
+    if (_routedTransfers[transferId].length != 0) {
+      revert ConnextUtils__execute_alreadyExecuted();
+    }
+
+    // get reconciled record
+    bool reconciled = _reconciledTransfers[transferId];
+
+    return (transferId, reconciled);
+  }
 
   /**
    * @notice Calculates fast transfer amount.
