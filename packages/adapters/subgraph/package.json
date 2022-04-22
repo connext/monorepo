@@ -17,8 +17,6 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml",
     "graphiql": "graphclient serve-dev"
   },
   "nodemonConfig": {
@@ -47,10 +45,6 @@
     "graphql-tag": "^2.12.6"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.6.2",
-    "@graphql-codegen/typescript": "^2.4.8",
-    "@graphql-codegen/typescript-graphql-request": "^4.4.4",
-    "@graphql-codegen/typescript-operations": "^2.3.5",
     "eslint": "^8.11.0",
     "ts-node": "^10.7.0",
     "tslib": "^2.3.1",
