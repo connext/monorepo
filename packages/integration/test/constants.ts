@@ -1,5 +1,5 @@
-import { SequencerConfig } from "@connext/nxtp-sequencer";
-import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router";
+import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
+import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import { getChainData } from "@connext/nxtp-utils";
 

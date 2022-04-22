@@ -25,6 +25,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
       throw new Error("Could not get chain data");
     }
     context.chainData = chainData;
+    console.log("CONFIG OVERRIDE", _configOverride);
     context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
     context.logger.info("Sequencer config generated", requestContext, methodContext, { config: context.config });
 
