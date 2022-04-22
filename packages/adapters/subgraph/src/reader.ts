@@ -9,6 +9,7 @@ import {
   getAssetByLocalQuery,
   getRouterQuery,
 } from "./lib/operations";
+import { getMeshOptions } from "../.graphclient";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;

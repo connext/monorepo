@@ -1,4 +1,4 @@
-import { execute } from "./execute";
+import { execute } from "./client";
 import * as parser from "./parse";
 import { getPrefixByDomain } from "./shared";
 
