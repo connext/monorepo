@@ -14,6 +14,7 @@ import {
   GetAssetBalanceQuery,
   GetAssetBalancesQuery,
   GetRouterQuery,
+  GetXCalledTransfersQueryVariables,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
@@ -131,7 +132,7 @@ export class SubgraphReader {
   ): Promise<XTransfer[]> {
     const { parser } = getHelpers();
     const { transfers } = await this.subgraphs.get(domain)!.runtime.request<GetTransfersQuery>((client) => {
-      return client.GetTransfers({ destinationDomains, nonce: fromNonce });
+      return client.GetTransfers({ destinationDomains, nonce: fromNonce, originDomain: domain });
     });
     return transfers.map(parser.xtransfer);
   }
@@ -151,6 +152,7 @@ export class SubgraphReader {
               destinationDomains,
               maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
               nonce,
+              originDomain: domain,
             });
           });
           return transfers;
@@ -176,19 +178,14 @@ export class SubgraphReader {
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
           const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>(
-            (client: {
-              GetXCalledTransfers: (arg0: {
-                destinationDomains: string[];
-                maxXCallBlockNumber: any;
-                nonce: any;
-              }) => any;
-            }) => {
+            (client: { GetXCalledTransfers: (arg0: GetXCalledTransfersQueryVariables) => any }) => {
               const nonce = agents.get(domain)!.latestNonce;
 
               return client.GetXCalledTransfers({
                 destinationDomains,
                 maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
                 nonce,
+                originDomain: domain,
               }); // TODO: nonce + maxPrepareBlockNumber
             },
           );

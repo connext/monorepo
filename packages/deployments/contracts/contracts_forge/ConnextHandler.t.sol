@@ -161,15 +161,18 @@ contract ConnextHandlerTest is ForgeHelper {
   // ============ setMaxRouters ============
 
   // Should work
-  function testSetMaxRoutersPerTransfer() public {
+  function test_ConnextHandler__setMaxRouters_works() public {
     require(connext.maxRoutersPerTransfer() != 10);
+
+    vm.expectEmit(true, true, true, true);
+    emit MaxRoutersPerTransferUpdated(10, address(this));
 
     connext.setMaxRoutersPerTransfer(10);
     assertEq(connext.maxRoutersPerTransfer(), 10);
   }
 
   // Fail if not called by owner
-  function testSetMaxRoutersPerTransferOwnable() public {
+  function test_ConnextHandler__setMaxRouters_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert(
       abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
@@ -178,7 +181,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Fail maxRouters is 0
-  function testSetMaxRoutersPerTransferZeroValue() public {
+  function test_ConnextHandler__setMaxRouters_failsIfEmpty() public {
     vm.expectRevert(
       abi.encodeWithSelector(
         ConnextHandler.ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector
@@ -187,17 +190,10 @@ contract ConnextHandlerTest is ForgeHelper {
     connext.setMaxRoutersPerTransfer(0);
   }
 
-  // Emits MaxRoutersPerTransferUpdated
-  function testSetMaxRoutersPerTransferEvent() public {
-    vm.expectEmit(true, true, true, true);
-    emit MaxRoutersPerTransferUpdated(10, address(this));
-    connext.setMaxRoutersPerTransfer(10);
-  }
-
   // ============ initiateClaim ============
 
   // Fail if any of the transaction id was not executed by relayer
-  function testInitiateClaimNotRelayer() public {
+  function test_ConnextHandler__initiateClaim_failsIfTransferNotRelayedByCaller() public {
     bytes32[] memory transactionIds = new bytes32[](2);
     transactionIds[0] = "AAA";
     transactionIds[1] = "BBB";
@@ -213,7 +209,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Should work
-  function testInitiateClaim() public {
+  function test_ConnextHandler__initiateClaim_works() public {
     bytes32[] memory transactionIds = new bytes32[](2);
     transactionIds[0] = "AAA";
     transactionIds[1] = "BBB";
@@ -236,7 +232,7 @@ contract ConnextHandlerTest is ForgeHelper {
   // ============ claim ============
 
   // Fail if the caller isn't RelayerFeeRouter
-  function testClaimOnlyRelayerFeeRouter() public {
+  function test_ConnextHandler__claim_failsIfNotRelayerFeeRouter() public {
     bytes32[] memory transactionIds = new bytes32[](2);
     transactionIds[0] = "AAA";
     transactionIds[1] = "BBB";
@@ -250,7 +246,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Should work
-  function testClaim() public {
+  function test_ConnextHandler__claim_works() public {
     bytes32[] memory transactionIds = new bytes32[](2);
     transactionIds[0] = "AAA";
     transactionIds[1] = "BBB";
@@ -280,7 +276,7 @@ contract ConnextHandlerTest is ForgeHelper {
   // ============ xCall ============
 
   // Update relayerFees mapping
-  function testXCallIncreasesRelayerFees() public {
+  function test_ConnextHandler__xcall_increasesRelayerFees() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -301,7 +297,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Emit relayerFees in XCalled event
-  function testXCallEmitsRelayerFee() public {
+  function test_ConnextHandler__xcall_emitsRelayerFeeInXCalled() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -341,7 +337,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Fail if relayerFee is set to 0
-  function testXCallZeroRelayerFeeRevert() public {
+  function test_ConnextHandler__xcall_failsIfZeroRelayerFee() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0;
@@ -355,7 +351,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Correctly account for relayerFee in token transfer
-  function testXCallConsidersRelayerFeeValueInTokenTransfer() public {
+  function test_ConnextHandler__xcall_considersRelayerFeeValueInTokenTransfer() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -374,7 +370,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Correctly account for relayerFee in native transfer
-  function testXCallConsidersRelayerFeeValueInNativeTransfer() public {
+  function test_ConnextHandler__xcall_considersRelayerFeeValueInNativeTransfer() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -399,7 +395,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Fail if relayerFee in param and value does not match in token transfer
-  function testXCallConsidersRelayerFeeValueInTokenTransferRevert() public {
+  function test_ConnextHandler__xcall_failsIfDifferentRelayerFeeValueAndParamInTokenTransfer() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -419,7 +415,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Fail if relayerFee in param and value does not match in native transfer
-  function testXCallConsidersRelayerFeeValueInNativeTransferRevert() public {
+  function test_ConnextHandler__xcall_failsIfDifferentRelayerFeeValueAndParamInNativeTransfer() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -447,7 +443,7 @@ contract ConnextHandlerTest is ForgeHelper {
   // ============ bumpTransfer ============
 
   // Increases relayerFees set by xcall
-  function testBumpTransferIncreasesXCallRelayerFees() public {
+  function test_ConnextHandler__bumpTransfer_increasesXCallRelayerFees() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -473,7 +469,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Increases relayerFees for the transfer
-  function testBumpTransferIncreasesRelayerFees() public {
+  function test_ConnextHandler__bumpTransfer_increasesRelayerFees() public {
     bytes32 transferId = bytes32("0x123");
 
     uint256 initialFee = 0.01 ether;
@@ -493,7 +489,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Emits TransferRelayerFeesUpdated with updated relayerFees
-  function testBumpTransferEmitsEvent() public {
+  function test_ConnextHandler__bumpTransfer_emitsEvent() public {
     bytes32 transferId = bytes32("0x123");
 
     uint256 initialFee = 0.01 ether;
@@ -512,7 +508,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Fail if zero value
-  function testBumpTransferZeroValueRevert() public {
+  function test_ConnextHandler__bumpTransfer_failsIfZeroValue() public {
     bytes32 transferId = bytes32("0x123");
 
     uint256 initialFee = 0.01 ether;
@@ -523,7 +519,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Fail if invalid transfer
-  function testBumpTransferInvalidTransferRevert() public {
+  function test_ConnextHandler__bumpTransfer_failsIfInvalidTransfer() public {
     bytes32 transferId = bytes32("0x123");
 
     vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__bumpTransfer_invalidTransfer.selector));
