@@ -32,9 +32,10 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   error PromiseRouter__onlyConnext_notConnext();
   error PromiseRouter__send_returndataEmpty();
   error PromiseRouter__send_callbackAddressNotContract();
-  error PromiseRouter__process_NullMessage();
+  error PromiseRouter__process_InvalidMessage();
   error PromiseRouter__process_notApprovedRelayer();
   error PromiseRouter__process_insufficientCallbackFee();
+  error PromiseRouter__process_notContractCallback();
   error PromiseRouter__bumpCallbackFee_valueIsZero();
 
   // ============ Public Storage ============
@@ -42,7 +43,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   IConnext public connext;
 
   // callback messages transferId => message
-  mapping(bytes32 => bytes29) public promiseMessages;
+  mapping(bytes32 => bytes) public promiseMessages;
   mapping(bytes32 => uint256) public callbackFees;
 
   // ============ Upgrade Gap ============
@@ -190,26 +191,21 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bytes memory data = _msg.returnData();
 
     //store Promise message
-    promiseMessages[transferId] = _msg;
+    promiseMessages[transferId] = _message;
 
     // emit Receive event
     emit Receive(_originAndNonce(_origin, _nonce), _origin, transferId, callbackAddress, success, data, _message);
   }
 
-  function process(bytes32 transferId) external payable nonReentrant {
+  function process(bytes32 transferId) public payable nonReentrant {
     // parse out the return data and callback address from message
-    bytes29 _msg = promiseMessages[transferId];
-    if (_msg.isNull()) revert PromiseRouter__process_NullMessage();
+    bytes memory _message = promiseMessages[transferId];
+    if (_message.length == 0) revert PromiseRouter__process_InvalidMessage();
 
-    address callbackAddress = _msg.callbackAddress();
-    bool success = _msg.returnSuccess();
-    bytes memory data = _msg.returnData();
+    bytes29 _msg = _message.ref(0).mustBePromiseCallback();
 
     // enforce relayer is whitelisted by calling local connext contract
     if (!connext.isApprovedRelayer(msg.sender)) revert PromiseRouter__process_notApprovedRelayer();
-
-    ICallback(callbackAddress).callback(transferId, success, data);
-    promiseMessages[transferId] = TypedMemView.NULL;
 
     // Should transfer the stored relayer fee to the msg.sender
     // TODO check if callbackFee which already paid is sufficient or not
@@ -218,6 +214,13 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     //   revert PromiseRouter__process_insufficientCallbackFee();
     // }
     if (callbackFees[transferId] == 0) revert PromiseRouter__process_insufficientCallbackFee();
+
+    address callbackAddress = _msg.callbackAddress();
+
+    if (!AddressUpgradeable.isContract(callbackAddress)) revert PromiseRouter__process_notContractCallback();
+
+    ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
+    delete promiseMessages[transferId];
 
     AddressUpgradeable.sendValue(payable(msg.sender), callbackFees[transferId]);
     callbackFees[transferId] = 0;
