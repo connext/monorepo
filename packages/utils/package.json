@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-utils",
-  "version": "0.1.25",
+  "version": "0.2.0-alpha.0",
   "description": "Common utilities for use within the @connext/nxtp-* packages",
   "author": "Connext",
   "license": "MIT",
@@ -63,5 +63,6 @@
     "registry": "https://registry.npmjs.org",
     "access": "public"
   },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6"
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "stableVersion": "0.1.25"
 }

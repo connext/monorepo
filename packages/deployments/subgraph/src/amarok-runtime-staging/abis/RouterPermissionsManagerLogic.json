@@ -1,0 +1,170 @@
+[
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__acceptProposedRouterOwner_notElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notProposedRouterOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__onlyProposedRouterOwner_notRouterOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__onlyRouterOwner_notRouterOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__proposeRouterOwner_badRouter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__removeRouter_notAdded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__removeRouter_routerEmpty",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__setRouterRecipient_notNewRecipient",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__setupRouter_amountIsZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RouterPermissionsManagerLogic__setupRouter_routerEmpty",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RouterAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "prevOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "RouterOwnerAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "prevProposed",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newProposed",
+        "type": "address"
+      }
+    ],
+    "name": "RouterOwnerProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "prevRecipient",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newRecipient",
+        "type": "address"
+      }
+    ],
+    "name": "RouterRecipientSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RouterRemoved",
+    "type": "event"
+  }
+]
