@@ -5,7 +5,7 @@
       "chainId": "4",
       "contracts": {
         "AmplificationUtils": {
-          "address": "0x483dCC7E61444014a7DB572cd29f6F7BAc0D49CE",
+          "address": "0xb61265bf27fb93862843490ECbEb63135D0C7183",
           "abi": [
             {
               "anonymous": false,
@@ -86,7 +86,7 @@
           ]
         },
         "AssetLogic": {
-          "address": "0xA48745048542a2936444a625099A1A74aA321f8d",
+          "address": "0x5d45B4A30193ba5efB748B19Ae6C5C46aA2DC3fC",
           "abi": [
             {
               "inputs": [],
@@ -106,7 +106,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0x40d9785fbDb73134AE80AEdD20194a5Ed4AC7652",
+          "address": "0x061FE3753eD39Efc9633317cf209D0f874c19c2B",
           "abi": [
             {
               "anonymous": false,
@@ -556,7 +556,7 @@
           ]
         },
         "BridgeRouterUpgradeBeacon": {
-          "address": "0xA6723249f33f266F7db5c0FF001046e09b0eAB73",
+          "address": "0x889D3C5Be0c684e70FBE1603DdB058D8890cb393",
           "abi": [
             {
               "inputs": [
@@ -594,7 +594,7 @@
           ]
         },
         "BridgeRouterUpgradeBeaconProxy": {
-          "address": "0xc0bd284649EBb575c86ab6A8027611aa6f00520A",
+          "address": "0x9Ed231481DDf3BC96C0e063E5EF607ACe578CF31",
           "abi": [
             {
               "inputs": [
@@ -623,7 +623,7 @@
           ]
         },
         "Connext": {
-          "address": "0x818D440D0e7884493842b6A88B7DDC8C30FCEd23",
+          "address": "0x3e99898Da8A01Ed909976AF13e4Fa6094326cB10",
           "abi": [
             {
               "anonymous": false,
@@ -2568,7 +2568,7 @@
           ]
         },
         "ConnextPriceOracle": {
-          "address": "0x65A6C8dab349079BA92f1CC299e740A0163Bf988",
+          "address": "0xeb44Ef1305c991b00252e7FAfe44826596bdA24A",
           "abi": [
             {
               "inputs": [
@@ -2987,7 +2987,7 @@
           ]
         },
         "ConnextProxyAdmin": {
-          "address": "0x71E915CC196a8D1Fe925C6BF0BaFae04a1618410",
+          "address": "0x6A7aECE854fe766f81A278ADa742Af47dFC3c234",
           "abi": [
             {
               "inputs": [
@@ -3152,7 +3152,7 @@
           ]
         },
         "ConnextUtils": {
-          "address": "0x1B8F98dEB0c1B63904051A9eb24484B110aD34C0",
+          "address": "0x5fe2a22dD518f91A63f11076672c310Fc1514db2",
           "abi": [
             {
               "inputs": [
@@ -3261,7 +3261,7 @@
           ]
         },
         "Connext_Implementation": {
-          "address": "0x3e142e5c451070444711Ff3e3baC57d630d2bDF4",
+          "address": "0x99C5A4F9A0b0a341AC993Dac270eB892205E8e57",
           "abi": [
             {
               "inputs": [],
@@ -5066,7 +5066,7 @@
           ]
         },
         "Connext_Proxy": {
-          "address": "0x818D440D0e7884493842b6A88B7DDC8C30FCEd23",
+          "address": "0x3e99898Da8A01Ed909976AF13e4Fa6094326cB10",
           "abi": [
             {
               "inputs": [
@@ -5215,7 +5215,7 @@
           ]
         },
         "LPToken": {
-          "address": "0x7cbf6Da30CFef9F41ef9c12B0dB85d7960d921c4",
+          "address": "0x7859cF723575ac86d0007F607C7ad83Bd6483d88",
           "abi": [
             {
               "anonymous": false,
@@ -5615,7 +5615,7 @@
           ]
         },
         "Multicall": {
-          "address": "0xa3B68BFf92846A978986Ea182Ce18f13E7a5B59d",
+          "address": "0x2d113BBF2003D7E535FDB2198ad6a48De7468538",
           "abi": [
             {
               "inputs": [
@@ -5656,7 +5656,7 @@
           ]
         },
         "RouterPermissionsManagerLogic": {
-          "address": "0xB563c09F65E52eA248FC521a9e8e97f8034fdEeF",
+          "address": "0xa9a6D04f724BDDD1aca08C925461851E09EfFb38",
           "abi": [
             {
               "inputs": [],
@@ -5829,7 +5829,7 @@
           ]
         },
         "StableSwap": {
-          "address": "0x9c478aa4349048d99aB041F1745bcE552408B32D",
+          "address": "0x0742f21969664637780FBCA14CfFc15fbb1FEA72",
           "abi": [
             {
               "anonymous": false,
@@ -6750,7 +6750,7 @@
           ]
         },
         "SwapUtils": {
-          "address": "0x8b2b98650E1b63aa3BF26BFD7e7786af67a8Abb5",
+          "address": "0x065f7e742C8dCd6f78B1c8F32561DD0AB5a28C6C",
           "abi": [
             {
               "anonymous": false,
@@ -6993,7 +6993,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
+          "address": "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C",
           "abi": [
             {
               "inputs": [],
@@ -7049,10 +7049,6 @@
               ],
               "name": "Transfer",
               "type": "event"
-            },
-            {
-              "stateMutability": "payable",
-              "type": "fallback"
             },
             {
               "inputs": [
@@ -7177,6 +7173,19 @@
               "type": "function"
             },
             {
+              "inputs": [],
+              "name": "detailsHash",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -7197,6 +7206,13 @@
                   "type": "bool"
                 }
               ],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "initialize",
+              "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
             },
@@ -7229,6 +7245,42 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "string",
+                  "name": "_name",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "_symbol",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "_decimals",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setDetails",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "_detailsHash",
+                  "type": "bytes32"
+                }
+              ],
+              "name": "setDetailsHash",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -7309,11 +7361,24 @@
               ],
               "stateMutability": "nonpayable",
               "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
             }
           ]
         },
         "TokenRegistry": {
-          "address": "0x6bB961ba87BC8ae6e2F47C312FD4422Fff83138c",
+          "address": "0x5b02c6F32428bc6AA14a3C765901e430220C61ae",
           "abi": [
             {
               "anonymous": false,
@@ -7737,7 +7802,7 @@
           ]
         },
         "TokenRegistryUpgradeBeacon": {
-          "address": "0x6953c2D31e07f1bDa5426Fd32c65cBc4a15eb50a",
+          "address": "0x8E7212Cd9394A2BFB8E9136EdD725582A8b58B9E",
           "abi": [
             {
               "inputs": [
@@ -7775,7 +7840,7 @@
           ]
         },
         "TokenRegistryUpgradeBeaconProxy": {
-          "address": "0xa985242F70024809C20E3116C9636fb80bD7bA09",
+          "address": "0x1d305CD0F50eE7F818b0deF2FEa0134EAD944872",
           "abi": [
             {
               "inputs": [
@@ -7804,7 +7869,7 @@
           ]
         },
         "UpgradeBeaconController": {
-          "address": "0xbB694eFed2A639FB5e7B61D627073Aa49398D5aA",
+          "address": "0x71DB93D7278Fb380eA537a5d998C8dCe206F9b85",
           "abi": [
             {
               "anonymous": false,
@@ -7898,7 +7963,7 @@
           ]
         },
         "XAppConnectionManager": {
-          "address": "0x8881855004F23d80266D1b7EB8AC9aBcb0a3dcBa",
+          "address": "0xAB393124278d438F4b00496Df463C3b91Ba030AB",
           "abi": [
             {
               "inputs": [],
@@ -8228,7 +8293,7 @@
       "chainId": "42",
       "contracts": {
         "AmplificationUtils": {
-          "address": "0xe57B71E14449dBe53Eaa3289132eF0d9b064D7e9",
+          "address": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
           "abi": [
             {
               "anonymous": false,
@@ -8309,7 +8374,7 @@
           ]
         },
         "AssetLogic": {
-          "address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
+          "address": "0xf8b649A1C5f09441CD160BB2Dc01Df39F5aEE88E",
           "abi": [
             {
               "inputs": [],
@@ -8329,7 +8394,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0x4e3668c3d9BF45E50373B5fC089737cf0C0f6A22",
+          "address": "0xa5c8362860938E059026aFa31fEBA4833a75a859",
           "abi": [
             {
               "anonymous": false,
@@ -8779,7 +8844,7 @@
           ]
         },
         "BridgeRouterUpgradeBeacon": {
-          "address": "0x7aDfde76E8AE3A16BddF20cd8bd8b049b958de29",
+          "address": "0x9926BAb14F9588A04701eCE1b50C1B01cE1DbaB7",
           "abi": [
             {
               "inputs": [
@@ -8817,7 +8882,7 @@
           ]
         },
         "BridgeRouterUpgradeBeaconProxy": {
-          "address": "0x9c66bf022ca3FF1B62D725555b3CeA80E6A18248",
+          "address": "0xA03745D0Ba7D977Fd08F6cF51d6a69Bcbfb35924",
           "abi": [
             {
               "inputs": [
@@ -8846,7 +8911,7 @@
           ]
         },
         "Connext": {
-          "address": "0xb10aCCbea65532bB2C45Adb34Da5b89A2A0f67b9",
+          "address": "0x983d9d70c1003baAE321fAA9C36BEb0eA37BD6E3",
           "abi": [
             {
               "anonymous": false,
@@ -10791,7 +10856,7 @@
           ]
         },
         "ConnextPriceOracle": {
-          "address": "0x618AFB11EbE2BD25bdB6D2c9e56590ed781104a6",
+          "address": "0x07488155FBDCa490d0A8Bc37E161237e3DBFBF3d",
           "abi": [
             {
               "inputs": [
@@ -11210,7 +11275,7 @@
           ]
         },
         "ConnextProxyAdmin": {
-          "address": "0x6f1aa7082a06A4805852c08c741778E7E2f1a598",
+          "address": "0xF1551081313B5111A50815Db73c59D816FB3682f",
           "abi": [
             {
               "inputs": [
@@ -11375,7 +11440,7 @@
           ]
         },
         "ConnextUtils": {
-          "address": "0xB6F5cC695be91fdD616EAD63bE5DA197c9c2B547",
+          "address": "0xC90Bd1041A8316f98C7C987613C2ad0B36f68A4C",
           "abi": [
             {
               "inputs": [
@@ -11484,7 +11549,7 @@
           ]
         },
         "Connext_Implementation": {
-          "address": "0xeE00147A5b6E68A19Bd20F53161935623cF35CB6",
+          "address": "0x240CB2e6b787bc64A94F9462B0641d1BD3da54C7",
           "abi": [
             {
               "inputs": [],
@@ -13289,7 +13354,7 @@
           ]
         },
         "Connext_Proxy": {
-          "address": "0xb10aCCbea65532bB2C45Adb34Da5b89A2A0f67b9",
+          "address": "0x983d9d70c1003baAE321fAA9C36BEb0eA37BD6E3",
           "abi": [
             {
               "inputs": [
@@ -13438,7 +13503,7 @@
           ]
         },
         "LPToken": {
-          "address": "0xBe90b9238edfF9e15aF0eD7746A7998Bdb210094",
+          "address": "0x3B61f9A48678Ca66E519F853E82ec772C4233b51",
           "abi": [
             {
               "anonymous": false,
@@ -13838,7 +13903,7 @@
           ]
         },
         "Multicall": {
-          "address": "0x371FA87D2B523C6beEf0cb6D966351c378D76df9",
+          "address": "0x7d9f3888578a6C2779bC1fE1FFc66719D0BE75F4",
           "abi": [
             {
               "inputs": [
@@ -13879,7 +13944,7 @@
           ]
         },
         "RouterPermissionsManagerLogic": {
-          "address": "0x1d747A9A0a055dE3435a9B642E88b51c158D9994",
+          "address": "0xa984eF20a761E58D238043A6Ac5c0411Db669154",
           "abi": [
             {
               "inputs": [],
@@ -14052,7 +14117,7 @@
           ]
         },
         "StableSwap": {
-          "address": "0x131F747Ba06B8251153F599CD9507946e2122657",
+          "address": "0x6c5aaB015D129fD081E52E0757097D49D2668663",
           "abi": [
             {
               "anonymous": false,
@@ -14973,7 +15038,7 @@
           ]
         },
         "SwapUtils": {
-          "address": "0x117649c4f5f80496549c87146184756ADB8397b9",
+          "address": "0xB945bfB0A8FCB642D31544C885FEb0d68Fac2876",
           "abi": [
             {
               "anonymous": false,
@@ -15536,7 +15601,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0xff65081224ad2ee2f11098d9b86b73fa9da23004",
+          "address": "0x40e2C167497E6BAB96675580408C7DE82Ef7aC89",
           "abi": [
             {
               "anonymous": false,
@@ -15960,7 +16025,7 @@
           ]
         },
         "TokenRegistryUpgradeBeacon": {
-          "address": "0x62dF57B84875d520f765838b15626A595801b0E3",
+          "address": "0x8AB764d43A7897304E7E8A1794ac1F2Ea1F7C6Aa",
           "abi": [
             {
               "inputs": [
@@ -15998,7 +16063,7 @@
           ]
         },
         "TokenRegistryUpgradeBeaconProxy": {
-          "address": "0xEaa98e23c880099D8835F57A0A09164c601630a5",
+          "address": "0x20444FF76Ad7831c53a9e66532f46A866451AA2D",
           "abi": [
             {
               "inputs": [
@@ -16027,7 +16092,7 @@
           ]
         },
         "UpgradeBeaconController": {
-          "address": "0x436f11aC30F52A8462a1B7561d3D9cc82Cda3852",
+          "address": "0xD135B85E868C4B02df3b328DCE917f34F76895dE",
           "abi": [
             {
               "anonymous": false,
@@ -16121,7 +16186,7 @@
           ]
         },
         "XAppConnectionManager": {
-          "address": "0x3aB2B85F8189e0581Fc793fA184b25cB5129662D",
+          "address": "0xEdd6E28b6dD16A09e6713Bd8ab66E3C278F66dD1",
           "abi": [
             {
               "inputs": [],

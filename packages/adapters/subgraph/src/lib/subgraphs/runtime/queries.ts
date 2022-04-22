@@ -3,9 +3,9 @@ import { gql } from "graphql-request";
 // Contains all subgraph queries used by router
 
 export const getTransfers = gql`
-  query GetTransfers($destinationDomains: [BigInt!], $nonce: BigInt!) {
+  query GetTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $nonce: BigInt!) {
     transfers(
-      where: { destinationDomain_in: $destinationDomains, nonce_gte: $nonce }
+      where: { destinationDomain_in: $destinationDomains, nonce_gte: $nonce, originDomain: $originDomain }
       orderBy: xcalledBlockNumber
       orderDirection: desc
     ) {
@@ -64,9 +64,15 @@ export const getTransfers = gql`
 `;
 
 export const getXCalledTransfers = gql`
-  query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
+  query GetXCalledTransfers(
+    $originDomain: BigInt!
+    $destinationDomains: [BigInt!]
+    $maxXCallBlockNumber: BigInt!
+    $nonce: BigInt!
+  ) {
     transfers(
       where: {
+        originDomain: $originDomain
         status: XCalled
         destinationDomain_in: $destinationDomains
         xcalledBlockNumber_lte: $maxXCallBlockNumber
