@@ -6,7 +6,7 @@ export const execute = async (document: any, variables = {}): Promise<any> => {
   return response;
 };
 
-export const getSubgraphNames = async (): Promise<string[]> => {
+export const getSourceNames = async (): Promise<string[]> => {
   const { sources } = await getMeshOptions();
   const names = sources.map((source) => source.name);
   return names;
