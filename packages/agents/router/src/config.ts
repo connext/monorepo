@@ -9,6 +9,7 @@ import { getHelpers } from "./lib/helpers";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+const MINIMUM_SUBGRAPH_POLL_INTERVAL = 1_000;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
@@ -71,7 +72,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
+  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: MINIMUM_SUBGRAPH_POLL_INTERVAL })),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;

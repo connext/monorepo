@@ -47,7 +47,7 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
       level: context.config.logLevel,
       name: context.routerAddress,
     });
-    context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
+    context.logger.info("Generated config.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: "*****" },
     });
 
@@ -68,6 +68,7 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     try {
+      console.log(context.config.sequencerUrl);
       const res = await axios.get(`${context.config.sequencerUrl}/ping`);
       context.logger.info("Ping response received from sequencer", requestContext, methodContext, {
         response: res.data,
@@ -88,6 +89,19 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     // - read subgraph to make sure each asset is (still) approved
     // - bring cache up to speed
 
+    console.log(
+      "Router initialized!",
+      `
+
+  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+_|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+_|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+_|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+      `,
+    );
+
     // Set up bindings.
     // TODO: New diagnostic mode / cleanup mode?
     if (context.config.mode.priceCaching) {
@@ -97,10 +111,10 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     }
     await bindServer();
     await bindMetrics();
-    await bindSubgraph(context.config.subgraphPollInterval!);
+    await bindSubgraph();
     await bindCache();
 
-    logger.info("Router ready!");
+    logger.info("Bindings complete.");
   } catch (e: unknown) {
     console.error("Error starting router. Sad! :(", e);
     process.exit();

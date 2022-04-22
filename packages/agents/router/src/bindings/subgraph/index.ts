@@ -13,15 +13,16 @@ import { getContext } from "../../router";
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (_pollInterval: number) => {
+export const bindSubgraph = async (_pollInterval?: number) => {
   const { config } = getContext();
+  const pollInterval = _pollInterval ?? config.subgraphPollInterval!;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
       await pollSubgraph();
     }
-  }, _pollInterval);
+  }, pollInterval);
 };
 
 export const pollSubgraph = async () => {

@@ -1,11 +1,11 @@
+import { utils } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { contractDeployments } from "@connext/nxtp-txservice";
-import { getChainData } from "@connext/nxtp-utils";
+import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 
-/// MARK - Integration Settings
-export const ORIGIN_DOMAIN = "2221";
-export const DESTINATION_DOMAIN = "1111";
+// TODO: Should have an overrides in env:
+export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 export const ORIGIN_ASSET = {
   name: "TEST",
   address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
@@ -14,6 +14,16 @@ export const DESTINATION_ASSET = {
   name: "TEST",
   address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
 };
+
+/// MARK - Integration Settings
+const ORIGIN_DOMAIN = "2221";
+const DESTINATION_DOMAIN = "1111";
+export const MIN_USER_ETH = utils.parseEther("0.02");
+export const MIN_FUNDER_ETH = utils.parseEther("0").add(MIN_USER_ETH);
+export const TRANSFER_TOKEN_AMOUNT = "2500000000000";
+
+/// MARK - Utility Constants
+export const EMPTY_BYTES = mkBytes32("0x0");
 
 /// MARK - General
 export type DomainInfo = {
@@ -113,23 +123,20 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
 
 /// MARK - Router
 export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterConfig> => {
-  const { ORIGIN, DESTINATION } = await DOMAINS;
+  const { DESTINATION } = await DOMAINS;
   return {
     logLevel: "debug",
-    sequencerUrl: "http://sequencer:8081",
-    redis: {
-      host: "router-cache",
-      port: 6379,
-    },
+    sequencerUrl: `http://${LOCALHOST}:8081`,
+    redis: {},
     server: {
       adminToken: "a",
       port: 8080,
-      host: "0.0.0.0",
+      host: LOCALHOST,
       requestLimit: 10,
     },
     chains: {
-      [ORIGIN.name]: ORIGIN.config,
-      [DESTINATION.name]: DESTINATION.config,
+      // [ORIGIN.domain]: ORIGIN.config,
+      [DESTINATION.domain]: DESTINATION.config,
     },
     network: "testnet",
     maxSlippage: 1,
@@ -138,6 +145,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       diagnostic: false,
       priceCaching: false,
     },
+    subgraphPollInterval: 5_000,
   };
 })();
 
@@ -145,14 +153,11 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
 export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<SequencerConfig> => {
   const { ORIGIN, DESTINATION } = await DOMAINS;
   return {
-    redis: {
-      host: "router-cache",
-      port: 6379,
-    },
+    redis: {},
     server: {
       adminToken: "b",
       port: 8081,
-      host: "0.0.0.0",
+      host: LOCALHOST,
     },
     chains: {
       [ORIGIN.domain]: {
