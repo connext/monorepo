@@ -85,15 +85,15 @@ export const execute = async (params: XTransfer): Promise<void> => {
   };
 
   // sanity check
-  const bal = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  logger.info("Checking balance", requestContext, methodContext, { bal: bal.toString() });
-  if (bal.lt(receivingAmount)) {
+  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  logger.info("Checking balance", requestContext, methodContext, { balance: balance.toString() });
+  if (balance.lt(receivingAmount)) {
     // throw new NotEnoughAmount({
     //   bal: bal.toString(),
     //   receivingAmount: receivingAmount.toString(),
     // });
   }
-  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: bal.toString() });
+  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   await sendBid(transferId, bid, bidData, requestContext);
 };
