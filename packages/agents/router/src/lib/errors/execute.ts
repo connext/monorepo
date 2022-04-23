@@ -2,19 +2,25 @@ import { NxtpError } from "@connext/nxtp-utils";
 
 export class ParamsInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super(`Params invalid`, context, ParamsInvalid.name);
+    super("Params invalid", context, ParamsInvalid.name);
+  }
+}
+
+export class MissingXCall extends NxtpError {
+  constructor(context: any = {}) {
+    super("Transfer is missing XCall information", context, MissingXCall.name);
   }
 }
 
 export class SenderChainDataInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super(`Invalid data on sending chain`, context, SenderChainDataInvalid.name);
+    super("Invalid data on sending chain", context, SenderChainDataInvalid.name);
   }
 }
 
 export class SlippageInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super(`Slippage invalid`, context, SlippageInvalid.name);
+    super("Slippage invalid", context, SlippageInvalid.name);
   }
 }
 
@@ -48,13 +54,13 @@ export class NotEnoughLiquidity extends NxtpError {
 
 export class NotEnoughAmount extends NxtpError {
   constructor(context: any = {}) {
-    super(`Not enough amount for swap`, context, NotEnoughAmount.name);
+    super("Not enough tokens for swap", context, NotEnoughAmount.name);
   }
 }
 
 export class RouterNotApproved extends NxtpError {
   constructor(context: any = {}) {
-    super(`Router not approved`, context, RouterNotApproved.name);
+    super("Router not approved", context, RouterNotApproved.name);
   }
 }
 

@@ -57,7 +57,7 @@ export class SubgraphReader {
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
     const subgraph = this.subgraphs.get(domain);
     const { assetBalance } = await subgraph!.runtime.request<GetAssetBalanceQuery>((client) => {
-      return client.GetAssetBalance({ assetBalanceId: `${local}-${router}` });
+      return client.GetAssetBalance({ assetBalanceId: `${local.toLowerCase()}-${router.toLowerCase()}` });
     });
     if (!assetBalance) {
       return constants.Zero;
@@ -76,7 +76,7 @@ export class SubgraphReader {
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
     const subgraph = this.subgraphs.get(domain);
     const { assetBalances } = await subgraph!.runtime.request<GetAssetBalancesQuery>((client) => {
-      return client.GetAssetBalances({ router });
+      return client.GetAssetBalances({ router: router.toLowerCase() });
     });
     const balances: Record<string, BigNumber> = {};
     assetBalances.forEach((bal) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));

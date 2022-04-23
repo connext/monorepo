@@ -1,6 +1,15 @@
-import { CallParams, Bid, BidData, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
+import {
+  CallParams,
+  Bid,
+  BidData,
+  createLoggingContext,
+  XTransfer,
+  DEFAULT_ROUTER_FEE,
+  ajv,
+  XTransferSchema,
+} from "@connext/nxtp-utils";
 
-import { ParamsInvalid } from "../errors";
+import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -28,23 +37,22 @@ export const execute = async (params: XTransfer): Promise<void> => {
   logger.debug("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
-  // const validateInput = ajv.compile(XTransferSchema);
-  // const validInput = validateInput(params);
-  // if (!validInput) {
-  //   const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-  //   throw new ParamsInvalid({
-  //     paramsError: msg,
-  //     params,
-  //   });
-  // }
+  const validateInput = ajv.compile(XTransferSchema);
+  const validInput = validateInput(params);
+  if (!validInput) {
+    const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
+    throw new ParamsInvalid({
+      paramsError: msg,
+      params,
+    });
+  }
 
-  /// create a bid
   const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
   if (!xcall) {
-    // TODO: add named error
-    throw new ParamsInvalid({ message: "xcall undefined", requestContext, methodContext });
+    throw new MissingXCall({ requestContext, methodContext });
   }
-  // generate bid params
+
+  // Format the transfer's call params.
   const callParams: CallParams = {
     to,
     callData,
@@ -85,15 +93,15 @@ export const execute = async (params: XTransfer): Promise<void> => {
   };
 
   // sanity check
-  const bal = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  logger.info("Checking balance", requestContext, methodContext, { bal: bal.toString() });
-  if (bal.lt(receivingAmount)) {
-    // throw new NotEnoughAmount({
-    //   bal: bal.toString(),
-    //   receivingAmount: receivingAmount.toString(),
-    // });
+  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  logger.info("Checking balance", requestContext, methodContext, { balance: balance.toString() });
+  if (balance.lt(receivingAmount)) {
+    throw new NotEnoughAmount({
+      balance: balance.toString(),
+      receivingAmount: receivingAmount.toString(),
+    });
   }
-  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: bal.toString() });
+  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   await sendBid(transferId, bid, bidData, requestContext);
 };
