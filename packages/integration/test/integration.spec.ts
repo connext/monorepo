@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import * as path from "path";
 import * as fs from "fs";
 
@@ -111,7 +112,7 @@ const log = {
  * Because of this, we can't expect the transfer to be executed by the router, but we can get a
  * glimpse of how both are functioning/reacting to the xcall on-chain.
  */
-describe("Integration", () => {
+describe("Integration:E2E", () => {
   // Configuration.
   let domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };
   let routerConfig: RouterConfig;
