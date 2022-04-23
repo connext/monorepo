@@ -49,8 +49,8 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
 
 // TODO: Move to helpers
 // Helper for logging steps in the integration test.
-const logdir = path.join(__dirname, LOGFILE_PATH);
-const logfile = path.join(logdir, getNtpTimeSeconds().toString());
+const logdir = path.join(path.dirname(__dirname).split(path.sep).slice(0, -1).join(path.sep), LOGFILE_PATH);
+const logfile = path.join(logdir, getNtpTimeSeconds().toString() + ".txt");
 if (!fs.existsSync(logdir)) {
   fs.mkdirSync(logdir, { recursive: true });
 }
@@ -58,7 +58,7 @@ let step = 0;
 const log = {
   print: (mod: string, message: string, etc?: any) => {
     console.log(mod, message, etc ? "\n" : "", etc ?? "");
-    fs.appendFileSync(logfile, message + (etc ? JSON.stringify(etc) : ""));
+    fs.appendFileSync(logfile, "\n" + message + (etc ? "\n" + JSON.stringify(etc) : ""));
   },
   params: (params: string) => {
     log.print("\x1b[35m\x1b[4m%s\x1b[0m", "TEST PARAMETERS");
@@ -66,7 +66,7 @@ const log = {
   },
   info: (_message: string, context: { chain?: number; network?: string; hash?: string; etc?: any } = {}) => {
     const { chain, hash, network, etc } = context;
-    let message = `*** [INFO] (${step})`;
+    let message = `[INFO] (${step})`;
     message += chain ? ` {${chain}}` : "";
     message += ` ${_message}`;
     if (hash) {
@@ -82,11 +82,11 @@ const log = {
   },
   next: (message: string) => {
     step++;
-    log.print("\x1b[32m%s\x1b[0m", `\n*** [STEP] (${step}) ${message}`);
+    log.print("\x1b[32m%s\x1b[0m", `\n[STEP] (${step}) ${message}`);
   },
   fail: (_message: string, context: { chain: number; network?: string; hash?: string; etc?: any }) => {
     const { chain, hash, network, etc } = context;
-    let message = `*** [FAIL] (${step}) {${chain}} ${_message}`;
+    let message = `[FAIL] (${step}) {${chain}} ${_message}`;
     if (hash) {
       message += ` Hash: ${hash}`;
       if (network) {
@@ -194,10 +194,12 @@ describe("Integration", () => {
 
     // Log setup.
     log.params(
-      `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
+      "\n" +
+        (agents.router ? "LOCAL TEST" : "LIVE TEST") +
+        `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
-        `\nAGENTS\n\tRouter:   \t${agents.router?.address}\n\tUser:    \t${agents.user.address}` +
+        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tUser:    \t${agents.user.address}` +
         `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tDestination:\t${destinationConnextAddress}` +
         `\nASSETS\n\tOrigin:   \t${ORIGIN_ASSET.address}\n\tDestination:\t${DESTINATION_ASSET.address}`,
     );
