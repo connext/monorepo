@@ -215,6 +215,7 @@ describe("Integration", () => {
       });
       const isApproved = connext.decodeFunctionResult("approvedRouters", result)[0];
       if (!isApproved) {
+        // TODO: Use deployer to approve router.
         // Router is not approved.
         log.fail(`Router needs approval.`, { chain: domainInfo.DESTINATION.chain });
       }
