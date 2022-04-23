@@ -1,26 +1,30 @@
-import { utils } from "ethers";
+import { utils, Wallet } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
-import { contractDeployments } from "@connext/nxtp-txservice";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 
 // TODO: Should have an overrides in env:
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 export const ORIGIN_ASSET = {
   name: "TEST",
-  address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
+  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
 };
 export const DESTINATION_ASSET = {
   name: "TEST",
-  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
+  address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
 };
 
 /// MARK - Integration Settings
-const ORIGIN_DOMAIN = "2221";
-const DESTINATION_DOMAIN = "1111";
+
+// TODO: Why is the deployments lookup not working here? Having to hardcode this for now.
+const ORIGIN_CONNEXT_ADDRESS = "0x983d9d70c1003baAE321fAA9C36BEb0eA37BD6E3";
+const DESTINATION_CONNEXT_ADDRESS = "0x3e99898Da8A01Ed909976AF13e4Fa6094326cB10";
+const ORIGIN_DOMAIN = "2221"; // Kovan
+const DESTINATION_DOMAIN = "1111"; // Rinkeby
+export const CANONICAL_DOMAIN = "ORIGIN";
 export const MIN_USER_ETH = utils.parseEther("0.02");
 export const MIN_FUNDER_ETH = utils.parseEther("0").add(MIN_USER_ETH);
-export const TRANSFER_TOKEN_AMOUNT = "2500000000000";
+export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25");
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
@@ -31,6 +35,12 @@ export type DomainInfo = {
   domain: string;
   chain: number;
   config: RouterChainConfig;
+};
+
+export type Agent = {
+  address: string;
+  origin: Wallet;
+  destination: Wallet;
 };
 
 // Asynchronous domain info setup.
@@ -50,20 +60,35 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     throw new Error("Could not get chain data for origin or destination");
   }
 
-  const getConnextContract = (chainId: number): string => {
-    const contract = contractDeployments.connext(chainId);
-    if (!contract) {
-      throw new Error(`No Connext contract deployed on chain ${chainId}`);
-    }
-    return contract.address;
-  };
+  const infuraKey = process.env.INFURA_KEY;
+  const originProvider =
+    process.env.ORIGIN_PROVIDER ?? infuraKey ? `https://kovan.infura.io/v3/${infuraKey}` : undefined;
+  const destinationProvider =
+    process.env.DESTINATION_PROVIDER ?? infuraKey ? `https://rinkeby.infura.io/v3/${infuraKey}` : undefined;
+
+  if (!originProvider || !destinationProvider) {
+    throw new Error(
+      "RPC provider URLs for origin or destination were not set." +
+        " Please set the env vars ORIGIN_PROVIDER and DESTINATION_PROVIDER." +
+        " Alternatively, if you are using Infura, set the env var INFURA_KEY.",
+    );
+  }
+
+  // See above TODO regarding hardcoded contract addresses.
+  // const getConnextContract = (chainId: number): string => {
+  //   const contract = contractDeployments.connext(chainId);
+  //   if (!contract) {
+  //     throw new Error(`No Connext contract deployed on chain ${chainId}`);
+  //   }
+  //   return contract.address;
+  // };
   return {
     ORIGIN: {
       name: originChainData.name,
       domain: originChainData.domainId,
       chain: originChainData.chainId,
       config: {
-        providers: ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c", ...originChainData.rpc],
+        providers: [originProvider],
         assets: [ORIGIN_ASSET],
         subgraph: {
           analytics: originChainData.analyticsSubgraph
@@ -85,7 +110,8 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         gasStations: [],
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
-          connext: getConnextContract(originChainData.chainId),
+          // connext: getConnextContract(originChainData.chainId),
+          connext: ORIGIN_CONNEXT_ADDRESS,
         },
       },
     },
@@ -94,7 +120,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       domain: destinationChainData.domainId,
       chain: destinationChainData.chainId,
       config: {
-        providers: ["https://rpc.ankr.com/eth_rinkeby", ...destinationChainData.rpc],
+        providers: [destinationProvider],
         assets: [DESTINATION_ASSET],
         subgraph: {
           analytics: [
@@ -114,7 +140,8 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         gasStations: [],
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {
-          connext: getConnextContract(destinationChainData.chainId),
+          // connext: getConnextContract(destinationChainData.chainId),
+          connext: DESTINATION_CONNEXT_ADDRESS,
         },
       },
     },
