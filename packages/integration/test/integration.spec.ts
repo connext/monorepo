@@ -3,7 +3,7 @@ import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
 import { makeRouter } from "@connext/nxtp-router/src/router";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
-import { delay, ERC20Abi, Logger } from "@connext/nxtp-utils";
+import { delay, ERC20Abi, Logger, XCallArgs } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 
 import {
@@ -19,31 +19,37 @@ import {
   DESTINATION_ASSET,
   CANONICAL_DOMAIN,
 } from "./constants";
-import { canonizeTokenId, getAllowance, OperationContext } from "./helpers";
+import { canonizeTokenId, formatEtherscanLink, getAllowance, OperationContext } from "./helpers";
 
 const ROUTER_MNEMONIC =
   process.env.ROUTER_MNEMONIC || "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
 
+// TODO: Move to helpers
 // Helper for logging steps in the integration test.
 let step = 0;
-const log = (message: string, chain?: number) => {
-  if (chain) {
-    console.log("\x1b[36m%s\x1b[0m", `[INFO] (${step}) {${chain}} ${message}`);
-  } else {
-    console.log("\x1b[36m%s\x1b[0m", `[INFO] (${step}) ${message}`);
-  }
+const log = (_message: string, context: { chain: number; hash?: string }) => {
+  const { chain, hash } = context;
+  const message = `[INFO] (${step}) {${chain}} ${_message}` + (hash ? ` Hash: ${hash}` : "");
+  console.log("\x1b[36m%s\x1b[0m", message);
 };
 const next = (message: string) => {
   step++;
   console.log("\x1b[32m%s\x1b[0m", `\n[STEP] (${step}) ${message}`);
 };
-const fail = (message: string, chain?: number) => {
-  if (chain) {
-    console.error("\x1b[31m%s\x1b[0m", `[FAIL] (${step}) {${chain}} ${message}`);
-  } else {
-    console.error("\x1b[31m%s\x1b[0m", `[FAIL] (${step}) ${message}`);
+const fail = (_message: string, context: { chain: number; network?: string; hash?: string }) => {
+  const { chain, hash, network } = context;
+  let message = `[FAIL] (${step}) {${chain}} ${_message}`;
+  if (hash) {
+    message += ` Hash: ${hash}`;
+    if (network) {
+      message += `Etherscan: ${formatEtherscanLink({
+        hash,
+        network,
+      })}`;
+    }
   }
+  console.error("\x1b[31m%s\x1b[0m", message);
   process.exit(1);
 };
 
@@ -107,7 +113,9 @@ describe("Integration", () => {
     };
   });
 
-  it("should complete a fast liquidity transfer", async () => {
+  it("should complete a fast liquidity transfer", async function () {
+    this.timeout(120_000);
+
     const connext = getConnextInterface();
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
@@ -137,9 +145,9 @@ describe("Integration", () => {
       const isApproved = connext.decodeFunctionResult("approvedRouters", result)[0];
       if (!isApproved) {
         // Router is not approved.
-        fail(`Router needs approval.`, domainInfo.DESTINATION.chain);
+        fail(`Router needs approval.`, { chain: domainInfo.DESTINATION.chain });
       }
-      log("Router is approved!", domainInfo.DESTINATION.chain);
+      log("Router is approved!", { chain: domainInfo.DESTINATION.chain });
     }
 
     next("VERIFY ASSET APPROVAL");
@@ -157,10 +165,10 @@ describe("Integration", () => {
         });
         const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
         if (!isApproved) {
-          fail(`Origin asset needs approval.`, domainInfo.ORIGIN.chain);
+          fail(`Origin asset needs approval.`, { chain: domainInfo.ORIGIN.chain });
         }
       }
-      log("Transfer asset is approved on origin chain.", domainInfo.ORIGIN.chain);
+      log("Transfer asset is approved on origin chain.", { chain: domainInfo.ORIGIN.chain });
 
       // Check destination asset approval.
       {
@@ -172,10 +180,10 @@ describe("Integration", () => {
         });
         const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
         if (!isApproved) {
-          fail(`Destination asset needs approval.`, domainInfo.DESTINATION.chain);
+          fail(`Destination asset needs approval.`, { chain: domainInfo.DESTINATION.chain });
         }
       }
-      log("Transfer asset is approved on destination chain.", domainInfo.DESTINATION.chain);
+      log("Transfer asset is approved on destination chain.", { chain: domainInfo.DESTINATION.chain });
     }
 
     next("FUND USER AGENT");
@@ -183,13 +191,12 @@ describe("Integration", () => {
     {
       // Make sure funder is funded themselves.
       const funderEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, AGENTS.ROUTER.address);
-      log(`Router has ${utils.formatEther(funderEth)} ETH.`, domainInfo.ORIGIN.chain);
+      log(`Router has ${utils.formatEther(funderEth)} ETH.`, { chain: domainInfo.ORIGIN.chain });
 
       if (funderEth.lt(MIN_FUNDER_ETH)) {
-        fail(
-          `Router needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`,
-          domainInfo.ORIGIN.chain,
-        );
+        fail(`Router needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`, {
+          chain: domainInfo.ORIGIN.chain,
+        });
       }
 
       // Retrieve user balances for ETH and TEST.
@@ -200,11 +207,11 @@ describe("Integration", () => {
         ORIGIN_ASSET.address,
       );
 
-      log(`User has ${utils.formatEther(userEth)} ETH.`, domainInfo.ORIGIN.chain);
-      log(`User has ${utils.formatEther(userTokens)} TEST.`, domainInfo.ORIGIN.chain);
+      log(`User has ${utils.formatEther(userEth)} ETH.`, { chain: domainInfo.ORIGIN.chain });
+      log(`User has ${utils.formatEther(userTokens)} TEST.`, { chain: domainInfo.ORIGIN.chain });
 
       if (userEth.lt(MIN_USER_ETH)) {
-        log("Funding user with some ETH...", domainInfo.ORIGIN.chain);
+        log("Funding user with some ETH...", { chain: domainInfo.ORIGIN.chain });
         const tx = await AGENTS.ROUTER.origin.sendTransaction({
           to: AGENTS.USER.address,
           value: MIN_USER_ETH,
@@ -213,19 +220,18 @@ describe("Integration", () => {
 
         const userEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, AGENTS.USER.address);
         if (userEth.lt(MIN_USER_ETH)) {
-          fail(
-            `ETH funding operation failed! User still has only ${utils.formatEther(MIN_USER_ETH)} ETH.`,
-            domainInfo.ORIGIN.chain,
-          );
+          fail(`ETH funding operation failed! User still has only ${utils.formatEther(MIN_USER_ETH)} ETH.`, {
+            chain: domainInfo.ORIGIN.chain,
+          });
         }
-        log(
-          `Sent ETH to User. User now has ${utils.formatEther(userEth)} ETH. Hash: ${receipt.transactionHash}.`,
-          domainInfo.ORIGIN.chain,
-        );
+        log(`Sent ETH to User. User now has ${utils.formatEther(userEth)} ETH.`, {
+          chain: domainInfo.ORIGIN.chain,
+          hash: receipt.transactionHash,
+        });
       }
 
       if (userTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log("Minting TEST tokens for User...", domainInfo.ORIGIN.chain);
+        log("Minting TEST tokens for User...", { chain: domainInfo.ORIGIN.chain });
         const encoded = testERC20.encodeFunctionData("mint", [AGENTS.USER.address, TRANSFER_TOKEN_AMOUNT]);
         const tx = await AGENTS.ROUTER.origin.sendTransaction({
           to: ORIGIN_ASSET.address,
@@ -239,12 +245,10 @@ describe("Integration", () => {
           AGENTS.USER.address,
           ORIGIN_ASSET.address,
         );
-        log(
-          `Minted TEST tokens for User. User now has ${utils.formatEther(userTokens)} TEST. Hash: ${
-            receipt.transactionHash
-          }.`,
-          domainInfo.ORIGIN.chain,
-        );
+        log(`Minted TEST tokens for User. User now has ${utils.formatEther(userTokens)} TEST.`, {
+          chain: domainInfo.ORIGIN.chain,
+          hash: receipt.transactionHash,
+        });
       }
     }
 
@@ -261,7 +265,7 @@ describe("Integration", () => {
         asset: ORIGIN_ASSET.address,
       });
       if (userAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log("Approving TEST spending for User...", domainInfo.ORIGIN.chain);
+        log("Approving TEST spending for User...", { chain: domainInfo.ORIGIN.chain });
         const encoded = testERC20.encodeFunctionData("approve", [originConnextAddress, infiniteApproval]);
         const tx = await AGENTS.USER.origin.sendTransaction({
           to: ORIGIN_ASSET.address,
@@ -269,12 +273,10 @@ describe("Integration", () => {
           value: BigNumber.from("0"),
         });
         const receipt = await tx.wait(1);
-        log(
-          `Approved TEST spending for User. Allowance: ${utils.formatEther(userAllowance)} TEST. Hash: ${
-            receipt.transactionHash
-          }.`,
-          domainInfo.ORIGIN.chain,
-        );
+        log(`Approved TEST spending for User. Allowance: ${utils.formatEther(userAllowance)} TEST.`, {
+          chain: domainInfo.ORIGIN.chain,
+          hash: receipt.transactionHash,
+        });
       }
 
       // Router needs to approve TEST token spend for connext contract on origin chain.
@@ -285,7 +287,7 @@ describe("Integration", () => {
         asset: DESTINATION_ASSET.address,
       });
       if (routerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log("Approving TEST spending for Router...", domainInfo.DESTINATION.chain);
+        log("Approving TEST spending for Router...", { chain: domainInfo.DESTINATION.chain });
         const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
         const tx = await AGENTS.ROUTER.destination.sendTransaction({
           to: DESTINATION_ASSET.address,
@@ -293,12 +295,10 @@ describe("Integration", () => {
           value: BigNumber.from("0"),
         });
         const receipt = await tx.wait(1);
-        log(
-          `Approved TEST spending for Router. Allowance: ${utils.formatEther(routerAllowance)} TEST. Hash: ${
-            receipt.transactionHash
-          }.`,
-          domainInfo.DESTINATION.chain,
-        );
+        log(`Approved TEST spending for Router. Allowance: ${utils.formatEther(routerAllowance)} TEST.`, {
+          chain: domainInfo.ORIGIN.chain,
+          hash: receipt.transactionHash,
+        });
       }
     }
 
@@ -318,7 +318,9 @@ describe("Integration", () => {
         });
         routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
       }
-      log(`Router liquidity balance: ${utils.formatEther(routerBalance)} TEST.`, domainInfo.DESTINATION.chain);
+      log(`Router liquidity balance: ${utils.formatEther(routerBalance)} TEST.`, {
+        chain: domainInfo.DESTINATION.chain,
+      });
 
       if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
         // Router liquidity balance is insufficient.
@@ -330,11 +332,11 @@ describe("Integration", () => {
             AGENTS.ROUTER.address,
             DESTINATION_ASSET.address,
           );
-          log(`Router has ${utils.formatEther(routerTokens)} TEST.`, domainInfo.DESTINATION.chain);
+          log(`Router has ${utils.formatEther(routerTokens)} TEST.`, { chain: domainInfo.DESTINATION.chain });
 
           if (routerTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
             // Mint TEST tokens.
-            log("Minting TEST tokens for Router...", domainInfo.DESTINATION.chain);
+            log("Minting TEST tokens for Router...", { chain: domainInfo.DESTINATION.chain });
             const encoded = testERC20.encodeFunctionData("mint", [AGENTS.ROUTER.address, TRANSFER_TOKEN_AMOUNT]);
             const tx = await AGENTS.ROUTER.destination.sendTransaction({
               to: DESTINATION_ASSET.address,
@@ -348,17 +350,15 @@ describe("Integration", () => {
               AGENTS.ROUTER.address,
               DESTINATION_ASSET.address,
             );
-            log(
-              `Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST. Hash: ${
-                receipt.transactionHash
-              }.`,
-              domainInfo.DESTINATION.chain,
-            );
+            log(`Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST.`, {
+              chain: domainInfo.DESTINATION.chain,
+              hash: receipt.transactionHash,
+            });
           }
         }
 
         // Add liquidity.
-        log("Adding liquidity for Router...", domainInfo.DESTINATION.chain);
+        log("Adding liquidity for Router...", { chain: domainInfo.DESTINATION.chain });
         {
           const encoded = connext.encodeFunctionData("addLiquidity", [
             TRANSFER_TOKEN_AMOUNT,
@@ -387,20 +387,15 @@ describe("Integration", () => {
           }
 
           if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
-            fail(
-              `Add liquidity operation failed! Balance: ${utils.formatEther(routerBalance)} TEST. Hash: ${
-                receipt.transactionHash
-              }`,
-              domainInfo.DESTINATION.chain,
-            );
+            fail(`Add liquidity operation failed! Balance: ${utils.formatEther(routerBalance)} TEST.`, {
+              chain: domainInfo.DESTINATION.chain,
+              hash: receipt.transactionHash,
+            });
           }
 
-          log(
-            `Added liquidity for Router. New balance: ${utils.formatEther(routerBalance)} TEST. Hash: ${
-              receipt.transactionHash
-            }.`,
-            domainInfo.DESTINATION.chain,
-          );
+          log(`Added liquidity for Router. New balance: ${utils.formatEther(routerBalance)} TEST.`, {
+            chain: domainInfo.DESTINATION.chain,
+          });
         }
       }
     }
@@ -411,7 +406,6 @@ describe("Integration", () => {
     await makeSequencer({
       ...sequencerConfig,
     });
-
     await delay(1_000);
 
     next("ROUTER START");
@@ -419,8 +413,27 @@ describe("Integration", () => {
       ...routerConfig,
       mnemonic: ROUTER_MNEMONIC,
     });
+    await delay(1_000);
 
     next("XCALL");
-    // TODO:
+    {
+      const args: XCallArgs = {
+        params: {
+          to: AGENTS.USER.address,
+          callData: "0x",
+          originDomain: domainInfo.ORIGIN.domain,
+          destinationDomain: domainInfo.DESTINATION.domain,
+        },
+        transactingAssetId: ORIGIN_ASSET.address,
+        amount: TRANSFER_TOKEN_AMOUNT.toString(),
+      };
+      const encoded = connext.encodeFunctionData("xcall", [args]);
+      const tx = await AGENTS.USER.origin.sendTransaction({
+        to: originConnextAddress,
+        data: encoded,
+      });
+      const receipt = await tx.wait(1);
+      log(`XCall sent.`, { chain: domainInfo.ORIGIN.chain, hash: receipt.transactionHash });
+    }
   });
 });

@@ -16,6 +16,22 @@ export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
   return utils.zeroPad(buf, 32);
 };
 
+export const formatEtherscanLink = (input: { network: string; hash: string }): string => {
+  const { network: _network, hash } = input;
+  const network = _network.toLowerCase();
+  const networkNameToUrl: Record<string, string> = {
+    mainnet: "etherscan.io",
+    ropsten: "ropsten.etherscan.io",
+    rinkeby: "rinkeby.etherscan.io",
+    kovan: "kovan.etherscan.io",
+  };
+  const url = networkNameToUrl[network];
+  if (!url) {
+    throw new Error(`Unknown network: ${network}`);
+  }
+  return `https://${url}/tx/${hash}`;
+};
+
 /// MARK - On-chain Operations
 export type OperationContext = {
   chainreader: ChainReader;

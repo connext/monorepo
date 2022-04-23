@@ -32,6 +32,7 @@ export const EMPTY_BYTES = mkBytes32("0x0");
 /// MARK - General
 export type DomainInfo = {
   name: string;
+  network: string;
   domain: string;
   chain: number;
   config: RouterChainConfig;
@@ -85,6 +86,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
   return {
     ORIGIN: {
       name: originChainData.name,
+      network: originChainData.network,
       domain: originChainData.domainId,
       chain: originChainData.chainId,
       config: {
@@ -117,6 +119,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     },
     DESTINATION: {
       name: destinationChainData.name,
+      network: destinationChainData.network,
       domain: destinationChainData.domainId,
       chain: destinationChainData.chainId,
       config: {
