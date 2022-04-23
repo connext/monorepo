@@ -25,7 +25,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
     shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
   } = getHelpers();
 
-  logger.info("Method start", requestContext, methodContext, { params });
+  logger.debug("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
   // const validateInput = ajv.compile(XTransferSchema);

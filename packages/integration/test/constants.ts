@@ -2,6 +2,7 @@ import { utils, Wallet } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
+import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
 
 // TODO: Should have an overrides in env:
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
@@ -28,6 +29,13 @@ export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25");
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
+export const SUBG_TRANSFER_ENTITY_PARAMS = getTransfers
+  .slice(getTransfers.lastIndexOf(") {"), getTransfers.lastIndexOf("}"))
+  .replace(/router \{\n.*id\n.*\}/, "router { owner }")
+  .split("\n")
+  .slice(1, -2)
+  .filter((line) => !line.includes("#"))
+  .map((line) => line.trim());
 
 /// MARK - General
 export type DomainInfo = {
@@ -93,20 +101,8 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         providers: [originProvider],
         assets: [ORIGIN_ASSET],
         subgraph: {
-          analytics: originChainData.analyticsSubgraph
-            ? [
-                {
-                  query: originChainData.analyticsSubgraph[0],
-                  health: "",
-                },
-              ]
-            : [],
-          runtime: [
-            {
-              query: originChainData.subgraph[0],
-              health: "",
-            },
-          ],
+          analytics: originChainData.subgraphs.analytics ? originChainData.subgraphs.analytics : [],
+          runtime: originChainData.subgraphs.runtime,
           maxLag: 25,
         },
         gasStations: [],
@@ -126,18 +122,8 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         providers: [destinationProvider],
         assets: [DESTINATION_ASSET],
         subgraph: {
-          analytics: [
-            {
-              query: "",
-              health: "",
-            },
-          ],
-          runtime: [
-            {
-              query: "",
-              health: "",
-            },
-          ],
+          analytics: destinationChainData.subgraphs.analytics ? destinationChainData.subgraphs.analytics : [],
+          runtime: destinationChainData.subgraphs.runtime,
           maxLag: 25,
         },
         gasStations: [],
@@ -153,9 +139,9 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
 
 /// MARK - Router
 export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterConfig> => {
-  const { DESTINATION } = await DOMAINS;
+  const { ORIGIN, DESTINATION } = await DOMAINS;
   return {
-    logLevel: "debug",
+    logLevel: "info",
     sequencerUrl: `http://${LOCALHOST}:8081`,
     redis: {},
     server: {
@@ -165,7 +151,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       requestLimit: 10,
     },
     chains: {
-      // [ORIGIN.domain]: ORIGIN.config,
+      [ORIGIN.domain]: ORIGIN.config,
       [DESTINATION.domain]: DESTINATION.config,
     },
     network: "testnet",
@@ -175,7 +161,10 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       diagnostic: false,
       priceCaching: false,
     },
-    subgraphPollInterval: 5_000,
+    polling: {
+      subgraph: 5_000,
+      cache: 5_000,
+    },
   };
 })();
 
@@ -203,11 +192,11 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
         deployments: DESTINATION.config.deployments,
       },
     },
-    logLevel: "debug",
+    logLevel: "info",
     mode: {
       cleanup: false,
     },
-    auctionWaitTime: 10,
+    auctionWaitTime: 1,
     network: "testnet",
   };
 })();

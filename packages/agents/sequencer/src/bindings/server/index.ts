@@ -49,7 +49,7 @@ export const bindServer = () =>
         },
       },
       async (request, response) => {
-        const { requestContext, methodContext } = createLoggingContext("GET /bid/:transferId endpoint");
+        const { requestContext, methodContext } = createLoggingContext("GET /auctions/:transferId endpoint");
         try {
           const { transferId } = request.params;
           const status = await cache.auctions.getStatus(transferId);
@@ -74,10 +74,10 @@ export const bindServer = () =>
             },
           });
         } catch (error: unknown) {
-          logger.error(`Bids by TransferId Get Error`, requestContext, methodContext);
+          logger.error(`Auction by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
           return response
             .code(500)
-            .send({ message: `Bids by TransferId Get Error`, error: jsonifyError(error as Error) });
+            .send({ message: `Auction by TransferId Get Error`, error: jsonifyError(error as Error) });
         }
       },
     );

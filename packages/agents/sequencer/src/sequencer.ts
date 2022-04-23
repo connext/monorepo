@@ -16,9 +16,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
   const methodContext = createMethodContext(makeSequencer.name);
   try {
     context.adapters = {} as any;
-    context.logger = new Logger({ level: "debug" });
 
-    context.logger.info("Setting up Sequencer", requestContext, methodContext, {});
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
     if (!chainData) {
@@ -26,7 +24,8 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     }
     context.chainData = chainData;
     context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
-    context.logger.info("Sequencer config generated", requestContext, methodContext, { config: context.config });
+    context.logger = new Logger({ level: context.config.logLevel });
+    context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
@@ -34,7 +33,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
     context.adapters.chainreader = new ChainReader(
-      context.logger.child({ module: "ChainReader" }),
+      context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
     );
 
@@ -45,7 +44,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
 
     await bindAuctions();
 
-    context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
+    context.logger.info("Sequencer is Ready!", requestContext, methodContext, {
       port: context.config.server.port,
     });
   } catch (error: any) {

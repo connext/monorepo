@@ -9,8 +9,12 @@ import { getHelpers } from "./lib/helpers";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
-const MINIMUM_SUBGRAPH_POLL_INTERVAL = 1_000;
+
+// Polling mins and defaults.
+const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
+const MIN_CACHE_POLL_INTERVAL = 2_000;
+const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 
 dotenvConfig();
 
@@ -53,6 +57,11 @@ export const TModeConfig = Type.Object({
   priceCaching: Type.Boolean(),
 });
 
+export const TPollingConfig = Type.Object({
+  subgraph: Type.Integer({ minimum: MIN_SUBGRAPH_POLL_INTERVAL }),
+  cache: Type.Integer({ minimum: MIN_CACHE_POLL_INTERVAL }),
+});
+
 export const NxtpRouterConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
@@ -72,7 +81,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: MINIMUM_SUBGRAPH_POLL_INTERVAL })),
+  polling: TPollingConfig,
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -148,11 +157,21 @@ export const getEnvConfig = (
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
-    subgraphPollInterval:
-      process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
-      configJson.subgraphPollInterval ||
-      configFile.subgraphPollInterval ||
-      DEFAULT_SUBGRAPH_POLL_INTERVAL,
+    polling: {
+      subgraph:
+        process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
+        configJson.polling?.subgraph ||
+        configFile.polling?.subgraph ||
+        // Backwards compat:
+        configJson.subgraphPollInterval ||
+        configFile.subgraphPollInterval ||
+        DEFAULT_SUBGRAPH_POLL_INTERVAL,
+      cache:
+        process.env.NXTP_CACHE_POLL_INTERVAL ||
+        configJson.polling?.cache ||
+        configFile.polling?.cach ||
+        DEFAULT_CACHE_POLL_INTERVAL,
+    },
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {

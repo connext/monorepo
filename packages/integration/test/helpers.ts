@@ -2,7 +2,7 @@ import { utils, BigNumber } from "ethers";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo } from "./constants";
+import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS } from "./constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -30,6 +30,23 @@ export const formatEtherscanLink = (input: { network: string; hash: string }): s
     throw new Error(`Unknown network: ${network}`);
   }
   return `https://${url}/tx/${hash}`;
+};
+
+export const formatSubgraphGetTransferQuery = (
+  input: { xcallTransactionHash: string } | { transferId: string },
+): string => {
+  const params = SUBG_TRANSFER_ENTITY_PARAMS;
+  const { xcallTransactionHash, transferId } = input as any;
+  const condition = xcallTransactionHash
+    ? `xcalledTransactionHash: "${xcallTransactionHash}"`
+    : `transferId: "${transferId}"`;
+  return `
+  {
+    transfers(
+      where: { ${condition} }
+    ) {\n\t${params.map((param) => `${param}`).join("\n\t")}
+    }
+  }`.trim();
 };
 
 /// MARK - On-chain Operations

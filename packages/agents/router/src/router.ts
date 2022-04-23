@@ -56,14 +56,14 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
 
     context.adapters.txservice = new TransactionService(
-      context.logger.child({ module: "TransactionService" }, context.config.logLevel),
+      context.logger.child({ module: "TransactionService", level: context.config.logLevel }),
       context.config.chains,
       context.adapters.wallet,
     );
 
     context.adapters.contracts = getContractInterfaces();
 
-    context.logger.info("Router config generated", requestContext, methodContext, {
+    context.logger.info("Router config generated.", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
 
@@ -89,19 +89,6 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     // - read subgraph to make sure each asset is (still) approved
     // - bring cache up to speed
 
-    console.log(
-      "Router initialized!",
-      `
-
-  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
-_|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
-_|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
-_|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
-  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
-
-      `,
-    );
-
     // Set up bindings.
     // TODO: New diagnostic mode / cleanup mode?
     if (context.config.mode.priceCaching) {
@@ -114,7 +101,20 @@ _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
     await bindSubgraph();
     await bindCache();
 
-    logger.info("Bindings complete.");
+    logger.info("Bindings initialized.");
+
+    console.log(
+      "Router boot complete!",
+      `
+
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+      `,
+    );
   } catch (e: unknown) {
     console.error("Error starting router. Sad! :(", e);
     process.exit();
