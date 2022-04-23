@@ -1,5 +1,6 @@
 import { utils, BigNumber } from "ethers";
 import { ChainReader } from "@connext/nxtp-txservice";
+import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo } from "./constants";
 
@@ -25,20 +26,20 @@ export const getAllowance = async (
   context: OperationContext,
   input: {
     chain: number;
-    erc20: utils.Interface;
     owner: string;
     spender: string;
     asset: string;
   },
 ): Promise<BigNumber> => {
   const { chainreader } = context;
-  const { erc20, owner, spender, asset, chain } = input;
+  const { owner, spender, asset, chain } = input;
+  const erc20 = new utils.Interface(ERC20Abi);
 
-  const encoded = erc20.encodeFunctionData("allowances", [owner, spender]);
+  const encoded = erc20.encodeFunctionData("allowance", [owner, spender]);
   const result = await chainreader.readTx({
     chainId: chain,
     to: asset,
     data: encoded,
   });
-  return erc20.decodeFunctionResult("allowances", result)[0];
+  return erc20.decodeFunctionResult("allowance", result)[0];
 };

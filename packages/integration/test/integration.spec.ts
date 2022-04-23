@@ -256,7 +256,6 @@ describe("Integration", () => {
       // User needs to approve TEST token spend for connext contract on origin chain.
       const userAllowance: BigNumber = await getAllowance(operationContext, {
         chain: domainInfo.ORIGIN.chain,
-        erc20: testERC20,
         owner: AGENTS.USER.address,
         spender: originConnextAddress,
         asset: ORIGIN_ASSET.address,
@@ -281,15 +280,14 @@ describe("Integration", () => {
       // Router needs to approve TEST token spend for connext contract on origin chain.
       const routerAllowance: BigNumber = await getAllowance(operationContext, {
         chain: domainInfo.DESTINATION.chain,
-        erc20: testERC20,
         owner: AGENTS.ROUTER.address,
         spender: destinationConnextAddress,
         asset: DESTINATION_ASSET.address,
       });
       if (routerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log("Approving TEST spending for User...", domainInfo.ORIGIN.chain);
+        log("Approving TEST spending for Router...", domainInfo.DESTINATION.chain);
         const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
-        const tx = await AGENTS.ROUTER.origin.sendTransaction({
+        const tx = await AGENTS.ROUTER.destination.sendTransaction({
           to: DESTINATION_ASSET.address,
           data: encoded,
           value: BigNumber.from("0"),
@@ -299,7 +297,7 @@ describe("Integration", () => {
           `Approved TEST spending for Router. Allowance: ${utils.formatEther(routerAllowance)} TEST. Hash: ${
             receipt.transactionHash
           }.`,
-          domainInfo.ORIGIN.chain,
+          domainInfo.DESTINATION.chain,
         );
       }
     }
@@ -309,7 +307,10 @@ describe("Integration", () => {
     {
       let routerBalance: BigNumber;
       {
-        const encoded = connext.encodeFunctionData("routerBalances", [AGENTS.ROUTER.address, ORIGIN_ASSET.address]);
+        const encoded = connext.encodeFunctionData("routerBalances", [
+          AGENTS.ROUTER.address,
+          DESTINATION_ASSET.address,
+        ]);
         const result = await chainreader.readTx({
           chainId: domainInfo.DESTINATION.chain,
           to: destinationConnextAddress,
@@ -318,78 +319,89 @@ describe("Integration", () => {
         routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
       }
       log(`Router liquidity balance: ${utils.formatEther(routerBalance)} TEST.`, domainInfo.DESTINATION.chain);
-      // TODO: If sufficient, skip.
 
-      // Mint TEST tokens.
-      log("Minting TEST tokens for Router...", domainInfo.DESTINATION.chain);
-      {
-        let routerTokens = await chainreader.getBalance(
-          domainInfo.DESTINATION.chain,
-          AGENTS.ROUTER.address,
-          DESTINATION_ASSET.address,
-        );
-        log(`Router has ${utils.formatEther(routerTokens)} TEST.`, domainInfo.DESTINATION.chain);
-        // TODO: If sufficient, skip.
+      if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
+        // Router liquidity balance is insufficient.
 
-        const encoded = testERC20.encodeFunctionData("mint", [AGENTS.ROUTER.address, TRANSFER_TOKEN_AMOUNT]);
-        const tx = await AGENTS.ROUTER.destination.sendTransaction({
-          to: DESTINATION_ASSET.address,
-          data: encoded,
-          value: BigNumber.from("0"),
-        });
-        const receipt = await tx.wait(1);
-
-        routerTokens = await chainreader.getBalance(
-          domainInfo.ORIGIN.chain,
-          AGENTS.ROUTER.address,
-          ORIGIN_ASSET.address,
-        );
-        log(
-          `Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST. Hash: ${
-            receipt.transactionHash
-          }.`,
-          domainInfo.DESTINATION.chain,
-        );
-      }
-
-      // Add liquidity.
-      log("Adding liquidity for Router...", domainInfo.DESTINATION.chain);
-      {
-        const encoded = connext.encodeFunctionData("addLiquidity", [TRANSFER_TOKEN_AMOUNT, DESTINATION_ASSET.address]);
-        const tx = await AGENTS.ROUTER.destination.sendTransaction({
-          to: destinationConnextAddress,
-          data: encoded,
-          value: BigNumber.from("0"),
-          gasLimit: BigNumber.from("10000000"),
-        });
-        const receipt = await tx.wait(1);
-
-        // Check router liquidity on-chain to confirm.
+        // Ensure router has enough TEST tokens to add liquidity.
         {
-          const encoded = connext.encodeFunctionData("routerBalances", [AGENTS.ROUTER.address, ORIGIN_ASSET.address]);
-          const result = await chainreader.readTx({
-            chainId: domainInfo.DESTINATION.chain,
-            to: destinationConnextAddress,
-            data: encoded,
-          });
-          routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
+          let routerTokens = await chainreader.getBalance(
+            domainInfo.DESTINATION.chain,
+            AGENTS.ROUTER.address,
+            DESTINATION_ASSET.address,
+          );
+          log(`Router has ${utils.formatEther(routerTokens)} TEST.`, domainInfo.DESTINATION.chain);
+
+          if (routerTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
+            // Mint TEST tokens.
+            log("Minting TEST tokens for Router...", domainInfo.DESTINATION.chain);
+            const encoded = testERC20.encodeFunctionData("mint", [AGENTS.ROUTER.address, TRANSFER_TOKEN_AMOUNT]);
+            const tx = await AGENTS.ROUTER.destination.sendTransaction({
+              to: DESTINATION_ASSET.address,
+              data: encoded,
+              value: BigNumber.from("0"),
+            });
+            const receipt = await tx.wait(1);
+
+            routerTokens = await chainreader.getBalance(
+              domainInfo.ORIGIN.chain,
+              AGENTS.ROUTER.address,
+              DESTINATION_ASSET.address,
+            );
+            log(
+              `Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST. Hash: ${
+                receipt.transactionHash
+              }.`,
+              domainInfo.DESTINATION.chain,
+            );
+          }
         }
 
-        if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
-          fail(
-            `Add liquidity operation failed! Balance: ${utils.formatEther(routerBalance)} TEST. Hash: ${
+        // Add liquidity.
+        log("Adding liquidity for Router...", domainInfo.DESTINATION.chain);
+        {
+          const encoded = connext.encodeFunctionData("addLiquidity", [
+            TRANSFER_TOKEN_AMOUNT,
+            DESTINATION_ASSET.address,
+          ]);
+          const tx = await AGENTS.ROUTER.destination.sendTransaction({
+            to: destinationConnextAddress,
+            data: encoded,
+            value: BigNumber.from("0"),
+            gasLimit: BigNumber.from("10000000"),
+          });
+          const receipt = await tx.wait(1);
+
+          // Check router liquidity on-chain to confirm.
+          {
+            const encoded = connext.encodeFunctionData("routerBalances", [
+              AGENTS.ROUTER.address,
+              DESTINATION_ASSET.address,
+            ]);
+            const result = await chainreader.readTx({
+              chainId: domainInfo.DESTINATION.chain,
+              to: destinationConnextAddress,
+              data: encoded,
+            });
+            routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
+          }
+
+          if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
+            fail(
+              `Add liquidity operation failed! Balance: ${utils.formatEther(routerBalance)} TEST. Hash: ${
+                receipt.transactionHash
+              }`,
+              domainInfo.DESTINATION.chain,
+            );
+          }
+
+          log(
+            `Added liquidity for Router. New balance: ${utils.formatEther(routerBalance)} TEST. Hash: ${
               receipt.transactionHash
-            }`,
+            }.`,
             domainInfo.DESTINATION.chain,
           );
         }
-
-        log(
-          `Added liquidity for Router. New balance: ${utils.formatEther(routerBalance)} TEST. Hash: ${
-            receipt.transactionHash
-          }.`,
-          domainInfo.DESTINATION.chain,
-        );
       }
     }
 
