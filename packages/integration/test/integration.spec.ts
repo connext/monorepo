@@ -29,6 +29,8 @@ import {
   DESTINATION_ASSET,
   CANONICAL_DOMAIN,
   TestAgents,
+  EXECUTE_TIMEOUT,
+  SUBG_POLL_PARITY,
 } from "./constants";
 import {
   canonizeTokenId,
@@ -556,7 +558,7 @@ describe("Integration:E2E", () => {
         }
       }
       if (!transfer) {
-        log.fail("Failed to retrieve transfer from the subgraph.", {
+        log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
           domain: domainInfo.ORIGIN,
           etc: {
             polled: `${parity * attempts}ms.`,
@@ -589,13 +591,12 @@ describe("Integration:E2E", () => {
         // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
         log.info("Polling sequencer for auction status...");
         {
-          const parity = 5_000;
-          const attempts = 4;
+          const attempts = 10;
           let error: any | undefined;
           let status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined;
           let i;
           for (i = 0; i < attempts; i++) {
-            await delay(parity);
+            await delay(SUBG_POLL_PARITY);
             status = await axios
               .request<AuctionsApiGetAuctionStatusResponse>({
                 method: "get",
@@ -623,15 +624,14 @@ describe("Integration:E2E", () => {
         }
       }
 
-      log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.ORIGIN });
-      const parity = 5_000;
-      const attempts = 10;
+      log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
+      const attempts = Math.floor(EXECUTE_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
         transferId: transfer.transferId,
       });
       let i;
       for (i = 0; i < attempts; i++) {
-        await delay(parity);
+        await delay(SUBG_POLL_PARITY);
         const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
         if (result.transfers.length === 1) {
           const _transfer = parseXTransfer(result.transfers[0]);
@@ -643,18 +643,18 @@ describe("Integration:E2E", () => {
         }
       }
       if (!transfer.execute?.transactionHash) {
-        log.fail("Failed to retrieve transfer from the subgraph.", {
+        log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
           domain: domainInfo.DESTINATION,
           etc: {
-            polled: `Polled: ${(parity * attempts) / 1_000}s`,
+            polled: `~${(SUBG_POLL_PARITY * attempts) / 1_000}s`,
           },
         });
       }
       log.info("Execute transaction found.", {
-        domain: domainInfo.ORIGIN,
+        domain: domainInfo.DESTINATION,
         hash: transfer.execute?.transactionHash,
         etc: {
-          took: `~${(parity * i) / 1_000}s`,
+          took: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
         },
       });
 
@@ -663,7 +663,7 @@ describe("Integration:E2E", () => {
   };
 
   it.only("should complete a fast liquidity transfer", async function () {
-    this.timeout(300_000);
+    this.timeout(300_000 + EXECUTE_TIMEOUT);
     await test();
   });
 });

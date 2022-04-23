@@ -26,6 +26,9 @@ export const MIN_USER_ETH = utils.parseEther("0.02");
 export const MIN_FUNDER_ETH = utils.parseEther("0").add(MIN_USER_ETH);
 export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25");
 export const LOGFILE_PATH = "ops/data";
+// Time period in ms, after which we consider the fast liquidity layer's `execute` to have timed out!
+export const EXECUTE_TIMEOUT = 120_000;
+export const SUBG_POLL_PARITY = 5_000;
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
