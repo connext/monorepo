@@ -34,7 +34,7 @@ locals {
         assets = [
           {
             "name"    = "TEST"
-            "address" = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
+            "address" = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
           }
         ]
       }
@@ -71,7 +71,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
+            address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
           }
         ]
       }

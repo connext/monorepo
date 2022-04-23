@@ -46,8 +46,18 @@ export default task("setup-asset", "Configures an asset")
       const connext = await ethers.getContractAt("Connext", connextAddress);
       const approved = await connext.approvedAssets(canonicalTokenId.id);
       if (approved) {
-        console.log("approved, no need to add");
-        return;
+        // remove asset
+        const currentAdopted = await connext.canonicalToAdopted(canonicalTokenId.id);
+        if (currentAdopted.toLowerCase() === adopted.toLowerCase()) {
+          console.log("approved, no need to add");
+          return;
+        }
+        console.log("approved with different adopted asset:", currentAdopted, "vs", adopted);
+        console.log("removing asset and readding");
+        const remove = await connext.removeAssetId(canonicalTokenId.id, currentAdopted);
+        console.log("remove tx:", remove.hash);
+        const receipt = await remove.wait();
+        console.log("remove tx mined:", receipt.transactionHash);
       }
       const tx = await connext.setupAsset(canonicalTokenId, adopted, pool ?? constants.AddressZero, {
         from: namedAccounts.deployer,

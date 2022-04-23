@@ -1,8 +1,14 @@
-import { constants, utils } from "ethers";
+import { constants, utils, BigNumber } from "ethers";
 import { Bid, BidData, DEFAULT_ROUTER_FEE, expect, mkAddress } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
-import { SlippageInvalid, ParamsInvalid, RouterNotApproved, NotEnoughAmount } from "../../../src/lib/errors";
+import {
+  SlippageInvalid,
+  ParamsInvalid,
+  RouterNotApproved,
+  NotEnoughAmount,
+  MissingXCall,
+} from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
 const { execute } = ExecuteFns;
@@ -75,15 +81,24 @@ describe("Operations:Execute", () => {
     it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
       const invalidParams = {
         ...mockXTransfer,
-        to: "0x0",
-        callData: "0x0",
-        originDomain: "-1",
-        destinationDomain: "-2",
+        callData: 12345,
       };
-      expect(execute(invalidParams)).to.eventually.be.throw(new ParamsInvalid());
+      await expect(execute(invalidParams)).to.be.rejectedWith(ParamsInvalid);
     });
 
-    it.skip("should throw NotEnoughAmount if final receiving amount < 0", async () => {});
+    it("should throw NotEnoughAmount if router doesn't have enough tokens", async () => {
+      mockContext.adapters.subgraph.getAssetBalance.resolves(BigNumber.from("0"));
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(NotEnoughAmount);
+    });
+
+    it("should throw MissingXCall if the transfer is missing xcall param", async () => {
+      await expect(
+        execute({
+          ...mockXTransfer,
+          xcall: undefined,
+        }),
+      ).to.be.rejectedWith(MissingXCall);
+    });
 
     it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";

@@ -117,7 +117,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         await run("setup-asset", {
           canonical: canonicalTokenId,
           adopted: localAsset,
-          domain: domainInfo.domain.toString(),
+          domain: canonicalDomain,
           connextAddress,
           pool,
         });
