@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.3",
   "description": "",
   "scripts": {
     "test": "yarn test:hardhat && yarn test:forge",
@@ -39,7 +39,7 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomad-xyz/configuration": "^0.1.0-rc.10",
+    "@nomad-xyz/configuration": "^0.1.0-rc.12",
     "@nomad-xyz/sdk": "^2.0.0-rc.7",
     "@nomad-xyz/sdk-bridge": "^1.0.0-rc.7",
     "@nomiclabs/hardhat-ethers": "^2.0.5",
