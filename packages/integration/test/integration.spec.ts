@@ -49,7 +49,7 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
 
 // TODO: Move to helpers
 // Helper for logging steps in the integration test.
-const logdir = path.join(path.dirname(__dirname).split(path.sep).slice(0, -1).join(path.sep), LOGFILE_PATH);
+const logdir = path.join(path.dirname(__dirname), LOGFILE_PATH);
 const logfile = path.join(logdir, getNtpTimeSeconds().toString() + ".txt");
 if (!fs.existsSync(logdir)) {
   fs.mkdirSync(logdir, { recursive: true });
