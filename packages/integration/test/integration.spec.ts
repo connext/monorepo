@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-import * as path from "path";
-import * as fs from "fs";
-
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
@@ -13,7 +9,6 @@ import {
   AuctionsApiGetAuctionStatusResponse,
   delay,
   ERC20Abi,
-  getNtpTimeSeconds,
   Logger,
   XCallArgs,
   XTransfer,
@@ -34,73 +29,19 @@ import {
   DESTINATION_ASSET,
   CANONICAL_DOMAIN,
   TestAgents,
-  LOGFILE_PATH,
 } from "./constants";
 import {
   canonizeTokenId,
-  formatEtherscanLink,
   formatSubgraphGetTransferQuery,
   getAllowance,
+  getRouterApproval,
   OperationContext,
 } from "./helpers";
+import { log } from "./log";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
 const DEPLOYER_MNEMONIC = process.env.DEPLOYER_MNEMONIC;
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
-
-// TODO: Move to helpers
-// Helper for logging steps in the integration test.
-const logdir = path.join(path.dirname(__dirname), LOGFILE_PATH);
-const logfile = path.join(logdir, getNtpTimeSeconds().toString() + ".txt");
-if (!fs.existsSync(logdir)) {
-  fs.mkdirSync(logdir, { recursive: true });
-}
-let step = 0;
-const log = {
-  print: (mod: string, message: string, etc?: any) => {
-    console.log(mod, message, etc ? "\n" : "", etc ?? "");
-    fs.appendFileSync(logfile, "\n" + message + (etc ? "\n" + JSON.stringify(etc) : ""));
-  },
-  params: (params: string) => {
-    log.print("\x1b[35m\x1b[4m%s\x1b[0m", "TEST PARAMETERS");
-    log.print("\x1b[35m%s\x1b[0m", params);
-  },
-  info: (_message: string, context: { chain?: number; network?: string; hash?: string; etc?: any } = {}) => {
-    const { chain, hash, network, etc } = context;
-    let message = `[INFO] (${step})`;
-    message += chain ? ` {${chain}}` : "";
-    message += ` ${_message}`;
-    if (hash) {
-      message += `\n\tHash: ${hash}`;
-      if (network) {
-        message += `\n\tEtherscan: ${formatEtherscanLink({
-          hash,
-          network,
-        })}`;
-      }
-    }
-    log.print("\x1b[36m%s\x1b[0m", message, etc);
-  },
-  next: (message: string) => {
-    step++;
-    log.print("\x1b[32m%s\x1b[0m", `\n[STEP] (${step}) ${message}`);
-  },
-  fail: (_message: string, context: { chain: number; network?: string; hash?: string; etc?: any }) => {
-    const { chain, hash, network, etc } = context;
-    let message = `[FAIL] (${step}) {${chain}} ${_message}`;
-    if (hash) {
-      message += ` Hash: ${hash}`;
-      if (network) {
-        message += `Etherscan: ${formatEtherscanLink({
-          hash,
-          network,
-        })}`;
-      }
-    }
-    log.print("\x1b[31m%s\x1b[0m", message, etc);
-    process.exit(1);
-  },
-};
 
 /**
  * NOTE: The router used in this integration test will not necessarily be the router that executes
@@ -126,7 +67,7 @@ describe("Integration:E2E", () => {
   let agents: TestAgents;
 
   // Contexts.
-  let operationContext: OperationContext;
+  let context: OperationContext;
 
   before(async () => {
     domainInfo = await DOMAINS;
@@ -181,9 +122,10 @@ describe("Integration:E2E", () => {
     });
 
     // Setup contexts (used for injection into helpers).
-    operationContext = {
+    context = {
       chainreader,
       domainInfo,
+      agents,
     };
   });
 
@@ -208,19 +150,39 @@ describe("Integration:E2E", () => {
     if (agents.router) {
       // Make sure router's signer address is approved on destination chain.
       log.next("VERIFY ROUTER APPROVAL");
-      const encoded = connext.encodeFunctionData("approvedRouters", [agents.router.address]);
-      const result = await chainreader.readTx({
-        chainId: domainInfo.DESTINATION.chain,
-        to: destinationConnextAddress,
-        data: encoded,
+      let isApproved = getRouterApproval(context, {
+        domain: domainInfo.DESTINATION,
       });
-      const isApproved = connext.decodeFunctionResult("approvedRouters", result)[0];
       if (!isApproved) {
-        // TODO: Use deployer to approve router.
-        // Router is not approved.
-        log.fail(`Router needs approval.`, { chain: domainInfo.DESTINATION.chain });
+        if (agents.deployer) {
+          // Router is not approved. Use deployer to approve router.
+          const encoded = connext.encodeFunctionData("setupRouter", [
+            agents.router.address,
+            agents.router.address,
+            agents.router.address,
+          ]);
+          const tx = await agents.deployer.destination.sendTransaction({
+            to: destinationConnextAddress,
+            data: encoded,
+          });
+          await tx.wait(1);
+
+          isApproved = getRouterApproval(context, {
+            domain: domainInfo.DESTINATION,
+          });
+
+          if (!isApproved) {
+            log.fail("Router approval attempt failed.", { domain: domainInfo.DESTINATION, hash: tx.hash });
+          }
+
+          log.info("Successfully approved router.");
+        } else {
+          log.fail("Router needs approval. Specify the DEPLOYER_MNEMONIC in env to have this done automatically.", {
+            domain: domainInfo.DESTINATION,
+          });
+        }
       }
-      log.info("Router is approved!", { chain: domainInfo.DESTINATION.chain });
+      log.info("Router is approved!", { domain: domainInfo.DESTINATION });
     }
 
     log.next("VERIFY ASSET APPROVAL");
@@ -238,10 +200,10 @@ describe("Integration:E2E", () => {
         });
         const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
         if (!isApproved) {
-          log.fail(`Origin asset needs approval.`, { chain: domainInfo.ORIGIN.chain });
+          log.fail(`Origin asset needs approval.`, { domain: domainInfo.ORIGIN });
         }
       }
-      log.info("Transfer asset is approved on origin chain.", { chain: domainInfo.ORIGIN.chain });
+      log.info("Transfer asset is approved on origin chain.", { domain: domainInfo.ORIGIN });
 
       // Check destination asset approval.
       {
@@ -253,10 +215,10 @@ describe("Integration:E2E", () => {
         });
         const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
         if (!isApproved) {
-          log.fail(`Destination asset needs approval.`, { chain: domainInfo.DESTINATION.chain });
+          log.fail(`Destination asset needs approval.`, { domain: domainInfo.DESTINATION });
         }
       }
-      log.info("Transfer asset is approved on destination chain.", { chain: domainInfo.DESTINATION.chain });
+      log.info("Transfer asset is approved on destination chain.", { domain: domainInfo.DESTINATION });
     }
 
     log.next("FUND USER AGENT");
@@ -265,11 +227,16 @@ describe("Integration:E2E", () => {
       if (agents.router) {
         // Make sure funder is funded themselves.
         const funderEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.router.address);
-        log.info(`Router has ${utils.formatEther(funderEth)} ETH.`, { chain: domainInfo.ORIGIN.chain });
+        log.info(`Retrieved Router ETH.`, {
+          domain: domainInfo.ORIGIN,
+          etc: {
+            balance: `${utils.formatEther(funderEth)} ETH.`,
+          },
+        });
 
         if (funderEth.lt(MIN_FUNDER_ETH)) {
           log.fail(`Router needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`, {
-            chain: domainInfo.ORIGIN.chain,
+            domain: domainInfo.ORIGIN,
           });
         }
       }
@@ -282,11 +249,21 @@ describe("Integration:E2E", () => {
         ORIGIN_ASSET.address,
       );
 
-      log.info(`User has ${utils.formatEther(userEth)} ETH.`, { chain: domainInfo.ORIGIN.chain });
-      log.info(`User has ${utils.formatEther(userTokens)} TEST.`, { chain: domainInfo.ORIGIN.chain });
+      log.info("Retrieved User ETH.", {
+        domain: domainInfo.ORIGIN,
+        etc: {
+          balance: `${utils.formatEther(userEth)} ETH.`,
+        },
+      });
+      log.info("Retrieved User TEST.", {
+        domain: domainInfo.ORIGIN,
+        etc: {
+          balance: `${utils.formatEther(userTokens)} TEST.`,
+        },
+      });
 
       if (userEth.lt(MIN_USER_ETH)) {
-        log.info("Funding user with some ETH...", { chain: domainInfo.ORIGIN.chain });
+        log.info("Funding user with some ETH...", { domain: domainInfo.ORIGIN });
 
         if (!agents.router) {
           throw new Error(
@@ -303,18 +280,23 @@ describe("Integration:E2E", () => {
         const userEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.user.address);
         if (userEth.lt(MIN_USER_ETH)) {
           log.fail(`ETH funding operation failed! User still has only ${utils.formatEther(MIN_USER_ETH)} ETH.`, {
-            chain: domainInfo.ORIGIN.chain,
+            domain: domainInfo.ORIGIN,
           });
         }
-        log.info(`Sent ETH to User. User now has ${utils.formatEther(userEth)} ETH.`, {
-          chain: domainInfo.ORIGIN.chain,
+        log.info(`Sent ETH to User.`, {
+          domain: domainInfo.ORIGIN,
           hash: receipt.transactionHash,
+          etc: {
+            balance: `${utils.formatEther(userEth)} ETH.`,
+          },
         });
       }
 
       if (userTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log.info("Minting TEST tokens for User...", { chain: domainInfo.ORIGIN.chain });
-        const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, TRANSFER_TOKEN_AMOUNT]);
+        log.info("Minting TEST tokens for User...", { domain: domainInfo.ORIGIN });
+        // Might as well mint enough for 100 test iterations...
+        const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
+        const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
         const tx = await (agents.router ?? agents.user).origin.sendTransaction({
           to: ORIGIN_ASSET.address,
           data: encoded,
@@ -327,9 +309,12 @@ describe("Integration:E2E", () => {
           agents.user.address,
           ORIGIN_ASSET.address,
         );
-        log.info(`Minted TEST tokens for User. User now has ${utils.formatEther(userTokens)} TEST.`, {
-          chain: domainInfo.ORIGIN.chain,
+        log.info(`Minted TEST tokens for User.`, {
+          domain: domainInfo.ORIGIN,
           hash: receipt.transactionHash,
+          etc: {
+            balance: `${utils.formatEther(userTokens)} TEST.`,
+          },
         });
       }
     }
@@ -340,14 +325,14 @@ describe("Integration:E2E", () => {
       const infiniteApproval = constants.MaxUint256;
 
       // User needs to approve TEST token spend for connext contract on origin chain.
-      const userAllowance: BigNumber = await getAllowance(operationContext, {
-        chain: domainInfo.ORIGIN.chain,
+      const userAllowance: BigNumber = await getAllowance(context, {
+        domain: domainInfo.ORIGIN,
         owner: agents.user.address,
         spender: originConnextAddress,
         asset: ORIGIN_ASSET.address,
       });
       if (userAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log.info("Approving TEST spending for User...", { chain: domainInfo.ORIGIN.chain });
+        log.info("Approving TEST spending for User...", { domain: domainInfo.ORIGIN });
         const encoded = testERC20.encodeFunctionData("approve", [originConnextAddress, infiniteApproval]);
         const tx = await agents.user.origin.sendTransaction({
           to: ORIGIN_ASSET.address,
@@ -355,22 +340,25 @@ describe("Integration:E2E", () => {
           value: BigNumber.from("0"),
         });
         const receipt = await tx.wait(1);
-        log.info(`Approved TEST spending for User. Allowance: ${utils.formatEther(userAllowance)} TEST.`, {
-          chain: domainInfo.ORIGIN.chain,
+        log.info(`Approved TEST spending for User.`, {
+          domain: domainInfo.ORIGIN,
           hash: receipt.transactionHash,
+          etc: {
+            allowance: `${utils.formatEther(userAllowance)} TEST.`,
+          },
         });
       }
 
       // Router needs to approve TEST token spend for connext contract on origin chain.
       if (agents.router) {
-        const routerAllowance: BigNumber = await getAllowance(operationContext, {
-          chain: domainInfo.DESTINATION.chain,
+        const routerAllowance: BigNumber = await getAllowance(context, {
+          domain: domainInfo.DESTINATION,
           owner: agents.router.address,
           spender: destinationConnextAddress,
           asset: DESTINATION_ASSET.address,
         });
         if (routerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-          log.info("Approving TEST spending for Router...", { chain: domainInfo.DESTINATION.chain });
+          log.info("Approving TEST spending for Router...", { domain: domainInfo.DESTINATION });
           const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
           const tx = await agents.router.destination.sendTransaction({
             to: DESTINATION_ASSET.address,
@@ -378,9 +366,12 @@ describe("Integration:E2E", () => {
             value: BigNumber.from("0"),
           });
           const receipt = await tx.wait(1);
-          log.info(`Approved TEST spending for Router. Allowance: ${utils.formatEther(routerAllowance)} TEST.`, {
-            chain: domainInfo.ORIGIN.chain,
+          log.info(`Approved TEST spending for Router.`, {
+            domain: domainInfo.ORIGIN,
             hash: receipt.transactionHash,
+            etc: {
+              allowance: `${utils.formatEther(routerAllowance)} TEST.`,
+            },
           });
         }
       }
@@ -402,8 +393,11 @@ describe("Integration:E2E", () => {
         });
         routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
       }
-      log.info(`Router liquidity balance: ${utils.formatEther(routerBalance)} TEST.`, {
-        chain: domainInfo.DESTINATION.chain,
+      log.info(`Retrieved Router liquidity balance.`, {
+        domain: domainInfo.DESTINATION,
+        etc: {
+          balance: `${utils.formatEther(routerBalance)} TEST.`,
+        },
       });
 
       if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
@@ -416,12 +410,19 @@ describe("Integration:E2E", () => {
             agents.router.address,
             DESTINATION_ASSET.address,
           );
-          log.info(`Router has ${utils.formatEther(routerTokens)} TEST.`, { chain: domainInfo.DESTINATION.chain });
+          log.info("Retrieved Router TEST.", {
+            domain: domainInfo.DESTINATION,
+            etc: {
+              balance: `${utils.formatEther(routerTokens)} TEST.`,
+            },
+          });
 
           if (routerTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
             // Mint TEST tokens.
-            log.info("Minting TEST tokens for Router...", { chain: domainInfo.DESTINATION.chain });
-            const encoded = testERC20.encodeFunctionData("mint", [agents.router.address, TRANSFER_TOKEN_AMOUNT]);
+            log.info("Minting TEST tokens for Router...", { domain: domainInfo.DESTINATION });
+            // Mint enough for another 100 test iterations...
+            const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
+            const encoded = testERC20.encodeFunctionData("mint", [agents.router.address, amount]);
             const tx = await agents.router.destination.sendTransaction({
               to: DESTINATION_ASSET.address,
               data: encoded,
@@ -435,15 +436,17 @@ describe("Integration:E2E", () => {
               DESTINATION_ASSET.address,
             );
             log.info(`Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST.`, {
-              chain: domainInfo.DESTINATION.chain,
+              domain: domainInfo.DESTINATION,
               hash: receipt.transactionHash,
             });
           }
         }
 
         // Add liquidity.
-        log.info("Adding liquidity for Router...", { chain: domainInfo.DESTINATION.chain });
+        log.info("Adding liquidity for Router...", { domain: domainInfo.DESTINATION });
         {
+          // NOTE: We could add liquidity for another 100 test iterations, HOWEVER, arguably, adding
+          // liquidity should be a part of the test!
           const encoded = connext.encodeFunctionData("addLiquidity", [
             TRANSFER_TOKEN_AMOUNT,
             DESTINATION_ASSET.address,
@@ -470,14 +473,20 @@ describe("Integration:E2E", () => {
           }
 
           if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
-            log.fail(`Add liquidity operation failed! Balance: ${utils.formatEther(routerBalance)} TEST.`, {
-              chain: domainInfo.DESTINATION.chain,
+            log.fail("Add liquidity operation failed!", {
+              domain: domainInfo.DESTINATION,
               hash: receipt.transactionHash,
+              etc: {
+                balance: `${utils.formatEther(routerBalance)} TEST.`,
+              },
             });
           }
 
-          log.info(`Added liquidity for Router. New balance: ${utils.formatEther(routerBalance)} TEST.`, {
-            chain: domainInfo.DESTINATION.chain,
+          log.info("Added liquidity for Router.", {
+            domain: domainInfo.DESTINATION,
+            etc: {
+              balance: `${utils.formatEther(routerBalance)} TEST.`,
+            },
           });
         }
       }
@@ -503,7 +512,7 @@ describe("Integration:E2E", () => {
     let transfer: XTransfer | undefined;
     log.next("XCALL");
     {
-      log.info("Sending XCall...", { chain: domainInfo.ORIGIN.chain });
+      log.info("Sending XCall...", { domain: domainInfo.ORIGIN });
       const args: XCallArgs = {
         params: {
           to: agents.user.address,
@@ -520,14 +529,13 @@ describe("Integration:E2E", () => {
         data: encoded,
       });
       const receipt = await tx.wait(1);
-      log.info(`XCall sent.`, {
-        chain: domainInfo.ORIGIN.chain,
+      log.info("XCall sent.", {
+        domain: domainInfo.ORIGIN,
         hash: receipt.transactionHash,
-        network: domainInfo.ORIGIN.network,
       });
 
       // Poll the origin subgraph until the new XCall transfer appears.
-      log.info("Polling origin subgraph for added transfer...", { chain: domainInfo.ORIGIN.chain });
+      log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
       const parity = 5_000;
       const attempts = 10;
       const query = formatSubgraphGetTransferQuery({
@@ -548,13 +556,20 @@ describe("Integration:E2E", () => {
         }
       }
       if (!transfer) {
-        log.fail(`Failed to retrieve transfer from the subgraph. (Polled: ${parity * attempts}ms)`, {
-          chain: domainInfo.ORIGIN.chain,
+        log.fail("Failed to retrieve transfer from the subgraph.", {
+          domain: domainInfo.ORIGIN,
+          etc: {
+            polled: `${parity * attempts}ms.`,
+          },
         });
       }
-      log.info(`XCall retrieved. (Took: ~${parity * i}ms)\n\tTransfer ID: ${transfer?.transferId}`, {
-        chain: domainInfo.ORIGIN.chain,
-        etc: { transfer },
+      log.info("XCall retrieved.", {
+        domain: domainInfo.ORIGIN,
+        etc: {
+          took: `${parity * i}ms.`,
+          transferID: transfer?.transferId,
+          transfer,
+        },
       });
     }
 
@@ -601,14 +616,14 @@ describe("Integration:E2E", () => {
             });
           } else {
             log.info(`Retrieved auction status from Sequencer.`, {
-              chain: domainInfo.DESTINATION.chain,
+              domain: domainInfo.DESTINATION,
               etc: { status: status.data },
             });
           }
         }
       }
 
-      log.info("Polling destination subgraph for execute tx...", { chain: domainInfo.ORIGIN.chain });
+      log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.ORIGIN });
       const parity = 5_000;
       const attempts = 10;
       const query = formatSubgraphGetTransferQuery({
@@ -628,17 +643,22 @@ describe("Integration:E2E", () => {
         }
       }
       if (!transfer.execute?.transactionHash) {
-        log.fail(`Failed to retrieve transfer from the subgraph. (Polled: ${(parity * attempts) / 1_000}s)`, {
-          chain: domainInfo.DESTINATION.chain,
+        log.fail("Failed to retrieve transfer from the subgraph.", {
+          domain: domainInfo.DESTINATION,
+          etc: {
+            polled: `Polled: ${(parity * attempts) / 1_000}s`,
+          },
         });
       }
-      log.info(`Execute transaction found. (Took: ~${(parity * i) / 1_000}s)`, {
-        chain: domainInfo.ORIGIN.chain,
+      log.info("Execute transaction found.", {
+        domain: domainInfo.ORIGIN,
         hash: transfer.execute?.transactionHash,
-        network: domainInfo.DESTINATION.network,
+        etc: {
+          took: `~${(parity * i) / 1_000}s`,
+        },
       });
 
-      log.info(`Transfer completed successfully!`, { chain: domainInfo.DESTINATION.chain, etc: { transfer } });
+      log.info("Transfer completed successfully!", { domain: domainInfo.DESTINATION, etc: { transfer } });
     }
   };
 

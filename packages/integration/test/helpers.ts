@@ -1,8 +1,8 @@
 import { utils, BigNumber } from "ethers";
-import { ChainReader } from "@connext/nxtp-txservice";
+import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS } from "./constants";
+import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -51,6 +51,7 @@ export const formatSubgraphGetTransferQuery = (
 
 /// MARK - On-chain Operations
 export type OperationContext = {
+  agents: TestAgents;
   chainreader: ChainReader;
   domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };
 };
@@ -58,14 +59,19 @@ export type OperationContext = {
 export const getAllowance = async (
   context: OperationContext,
   input: {
-    chain: number;
+    domain: DomainInfo;
     owner: string;
     spender: string;
     asset: string;
   },
 ): Promise<BigNumber> => {
   const { chainreader } = context;
-  const { owner, spender, asset, chain } = input;
+  const {
+    owner,
+    spender,
+    asset,
+    domain: { chain },
+  } = input;
   const erc20 = new utils.Interface(ERC20Abi);
 
   const encoded = erc20.encodeFunctionData("allowance", [owner, spender]);
@@ -75,4 +81,37 @@ export const getAllowance = async (
     data: encoded,
   });
   return erc20.decodeFunctionResult("allowance", result)[0];
+};
+
+export const getRouterApproval = async (
+  context: OperationContext,
+  input: {
+    domain: DomainInfo;
+  },
+): Promise<boolean> => {
+  const {
+    agents: { router },
+    chainreader,
+  } = context;
+  const {
+    domain: {
+      chain,
+      config: {
+        deployments: { connext: contract },
+      },
+    },
+  } = input;
+  const connext = getConnextInterface();
+
+  if (!router) {
+    throw new Error("Cannot approve non-existent router!");
+  }
+
+  const encoded = connext.encodeFunctionData("approvedRouters", [router.address]);
+  const result = await chainreader.readTx({
+    chainId: chain,
+    to: contract,
+    data: encoded,
+  });
+  return connext.decodeFunctionResult("approvedRouters", result)[0] as boolean;
 };
