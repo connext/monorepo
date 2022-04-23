@@ -17,10 +17,12 @@ import {
   ClearCacheRequest,
   ClearCacheRequestSchema,
   AdminRequest,
+  NxtpError,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 import { getOperations } from "../../lib/operations";
+import { AuctionExpired } from "../../lib/errors";
 
 export const bindServer = () =>
   new Promise<FastifyInstance>((res) => {
@@ -101,10 +103,14 @@ export const bindServer = () =>
         try {
           const { transferId, bid, data: bidData } = request.body;
           await storeBid(transferId, bid, bidData, requestContext);
-          return response.status(200).send({ message: "Sent bid to auctioneer", transferId, bid });
+          return response.status(200).send({ message: "Bid received", transferId, bid });
         } catch (error: unknown) {
-          logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
-          return response.code(500).send({ message: `Bid Post Error`, error: jsonifyError(error as Error) });
+          const type = (error as NxtpError).type;
+          if (type !== AuctionExpired.name) {
+            // If this is a routine AuctionExpired error, let's avoid logging it.
+            logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
+          }
+          return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
         }
       },
     );

@@ -84,6 +84,9 @@ export const log = {
     log.print("\x1b[32m%s", LogLevel.STEP, message);
     log.last = message;
   },
+  done: () => {
+    log.print("\x1b[32m%s", LogLevel.DONE, log.last);
+  },
   fail: (message: string, context: LogContext) => {
     log.print("\x1b[31m%s", LogLevel.FAIL, message, context);
     throw new Error(message);

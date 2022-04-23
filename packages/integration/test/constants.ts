@@ -34,7 +34,7 @@ export const SUBG_POLL_PARITY = 5_000;
 export const EMPTY_BYTES = mkBytes32("0x0");
 export const SUBG_TRANSFER_ENTITY_PARAMS = getTransfers
   .slice(getTransfers.lastIndexOf(") {"), getTransfers.lastIndexOf("}"))
-  .replace(/router \{\n.*id\n.*\}/, "router { owner }")
+  .replace(/router \{\n.*id\n.*\}/, "router { id }")
   .split("\n")
   .slice(1, -2)
   .filter((line) => !line.includes("#"))

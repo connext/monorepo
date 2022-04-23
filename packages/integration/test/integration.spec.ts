@@ -658,12 +658,19 @@ describe("Integration:E2E", () => {
         },
       });
 
-      log.info("Transfer completed successfully!", { domain: domainInfo.DESTINATION, etc: { transfer } });
+      log.info("Transfer completed successfully!", {
+        domain: domainInfo.DESTINATION,
+        etc: {
+          locallyExecuted: agents.router && transfer.router && transfer.router === agents.router?.address,
+          transfer,
+        },
+      });
     }
   };
 
   it.only("should complete a fast liquidity transfer", async function () {
     this.timeout(300_000 + EXECUTE_TIMEOUT);
     await test();
+    log.done();
   });
 });
