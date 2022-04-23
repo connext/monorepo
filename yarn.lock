@@ -756,16 +756,15 @@ __metadata:
     "@types/mocha": ^9.1.0
     "@types/pino": ^6.3.11
     "@types/sinon": ^10.0.2
+    axios: ^0.26.1
     chai: ^4.3.6
     chai-as-promised: ^7.1.1
     chai-subset: ^1.6.0
     eslint: ^8.11.0
     ethers: ^5.5.4
-    evt: ^1.10.1
     mocha: ^9.2.1
     nyc: ^15.1.0
     p-queue: 6.6.2
-    pino: ^7.10.0
     pino-pretty: ^7.5.4
     rimraf: ^3.0.2
     sinon: ^13.0.0
@@ -8862,7 +8861,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"evt@npm:^1.10.1, evt@npm:^1.10.2":
+"evt@npm:^1.10.2":
   version: 1.10.2
   resolution: "evt@npm:1.10.2"
   dependencies:

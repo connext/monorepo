@@ -16,7 +16,6 @@ export const DESTINATION_ASSET = {
 };
 
 /// MARK - Integration Settings
-
 // TODO: Why is the deployments lookup not working here? Having to hardcode this for now.
 const ORIGIN_CONNEXT_ADDRESS = "0x983d9d70c1003baAE321fAA9C36BEb0eA37BD6E3";
 const DESTINATION_CONNEXT_ADDRESS = "0x3e99898Da8A01Ed909976AF13e4Fa6094326cB10";
@@ -26,6 +25,7 @@ export const CANONICAL_DOMAIN = "ORIGIN";
 export const MIN_USER_ETH = utils.parseEther("0.02");
 export const MIN_FUNDER_ETH = utils.parseEther("0").add(MIN_USER_ETH);
 export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25");
+export const LOGFILE_PATH = "ops/data";
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
@@ -50,6 +50,12 @@ export type Agent = {
   address: string;
   origin: Wallet;
   destination: Wallet;
+};
+
+export type TestAgents = {
+  user: Agent;
+  router?: Agent;
+  deployer?: Agent;
 };
 
 // Asynchronous domain info setup.

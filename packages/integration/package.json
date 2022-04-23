@@ -44,9 +44,9 @@
     "@connext/nxtp-sequencer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "axios": "^0.26.1",
     "ethers": "^5.5.4",
-    "ts-node": "^10.2.0",
-    "axios": "^0.26.1"
+    "ts-node": "^10.2.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
