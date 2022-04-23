@@ -54,22 +54,6 @@ export const storeBid = async (
     });
   }
 
-  // Sanity: Check router is approved.
-  // TODO: Do we need to check if router has been approved? A router technically can't add liquidity if they
-  // aren't approved, but they can have liquidity and later have their approval status revoked.
-  // Also, it may have slipped the router operator's mind to get approved for the domain in question... this
-  // serves as an informative sanity check, if nothing else.
-  const { router } = bid;
-  const { destinationDomain } = bidData.params;
-  let routerApproved = await cache.routers.getApproval(router, destinationDomain);
-  if (!routerApproved) {
-    // Regardless of whether the cache returned false or undefined, we want to check via subgraph
-    // now to see if router is approved.
-    routerApproved = await subgraph.isRouterApproved(destinationDomain, router);
-    // Cache this approval status in the DB.
-    cache.routers.setApproval(router, destinationDomain, routerApproved);
-  }
-
   // TODO: Check that a relayer is configured/approved for this chain (?).
 
   const res = await cache.auctions.upsertAuction({

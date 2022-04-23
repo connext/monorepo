@@ -9,11 +9,7 @@ import { Cache } from "./cache";
  * Redis Store Details:
  * Router Liquidity:
  *   key: $router:$domain:liquidity:$asset | value: string;
- *
- * Router Approval:
- *   key: $router:$domain:approval | value: boolean;
- *
- * NOTE: Both of the above stored items do expire after a set amount of time.
+ * NOTE: Router Liquidity will expire after a set amount of time.
  */
 export class RoutersCache extends Cache {
   // TODO: Implement configurable expiry times per domain.
@@ -60,40 +56,6 @@ export class RoutersCache extends Cache {
       JSON.stringify({
         timestamp: getNtpTimeSeconds(),
         value: BigNumber.from(amount).toString(),
-      }),
-    );
-  }
-
-  /**
-   * Get the approval status of a given router in a given domain.
-   * @param domain - Domain number.
-   * @param router - Router address.
-   * @returns True if router is approved, false if router is not approved, undefined if record not found.
-   */
-  public async getApproval(domain: string, router: string): Promise<boolean | undefined> {
-    const key = `${this.prefix}:${domain}:${router}`;
-    const res = await this.data.hget(key, "approval");
-    const parsed = res ? (JSON.parse(res) as TimestampedCacheValue<boolean>) : undefined;
-    // Only return the value if it's not expired.
-    return parsed && getNtpTimeSeconds() - parsed.timestamp < RoutersCache.DEFAULT_APPROVAL_EXPIRY
-      ? parsed.value
-      : undefined;
-  }
-
-  /**
-   * Set the approval status of a given router in a given domain.
-   * @param domain - Domain number.
-   * @param router - Router address.
-   * @returns 1 if added, 0 if updated.
-   */
-  public async setApproval(domain: string, router: string, approval: boolean): Promise<number> {
-    const key = `${this.prefix}:${domain}:${router}`;
-    return await this.data.hset(
-      key,
-      "approval",
-      JSON.stringify({
-        timestamp: getNtpTimeSeconds(),
-        value: approval,
       }),
     );
   }
