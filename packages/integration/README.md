@@ -12,7 +12,7 @@ Create a .env file and fill in the following information:
 ROUTER_MNEMONIC="<...>"
 USER_MNEMONIC="<...>"
 DEPLOYER_MNEMONIC="<...>"
-INFURA_API_KEY="<...>"
+INFURA_KEY="<...>"
 ```
 
 **If you don't specify a `ROUTER_MNEMONIC`, we won't run a local router/sequencer instance. Instead, the test will be conducted using any active live counterparts.**

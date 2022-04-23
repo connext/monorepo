@@ -75,7 +75,8 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     throw new Error("Could not get chain data for origin or destination");
   }
 
-  const infuraKey = process.env.INFURA_KEY;
+  const infuraKey =
+    process.env.INFURA_KEY || process.env.INFURA_API_KEY || process.env.INFURA_PROJECT || process.env.INFURA_PROJECT_ID;
   const originProvider =
     process.env.ORIGIN_PROVIDER ?? infuraKey ? `https://kovan.infura.io/v3/${infuraKey}` : undefined;
   const destinationProvider =

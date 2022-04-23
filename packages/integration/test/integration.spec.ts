@@ -49,12 +49,16 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
 
 // TODO: Move to helpers
 // Helper for logging steps in the integration test.
-const logfile = path.join(__dirname, LOGFILE_PATH, getNtpTimeSeconds().toString());
+const logdir = path.join(__dirname, LOGFILE_PATH);
+const logfile = path.join(logdir, getNtpTimeSeconds().toString());
+if (!fs.existsSync(logdir)) {
+  fs.mkdirSync(logdir, { recursive: true });
+}
 let step = 0;
 const log = {
-  print: (mod: string, message: string, etc: any = {}) => {
+  print: (mod: string, message: string, etc?: any) => {
     console.log(mod, message, etc ? "\n" : "", etc ?? "");
-    fs.appendFileSync(logfile, message + JSON.stringify(etc));
+    fs.appendFileSync(logfile, message + (etc ? JSON.stringify(etc) : ""));
   },
   params: (params: string) => {
     log.print("\x1b[35m\x1b[4m%s\x1b[0m", "TEST PARAMETERS");
