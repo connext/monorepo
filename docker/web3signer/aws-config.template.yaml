@@ -1,4 +1,0 @@
-type: "aws-secret"
-authenticationMode: "ENVIRONMENT"
-keyType: "BLS"
-secretName: "${AWS_SM_SECRET_NAME}"
