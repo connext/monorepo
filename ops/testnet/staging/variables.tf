@@ -72,11 +72,3 @@ variable "logdna_key" {
 variable "web3_signer_private_key" {
   type = string
 }
-
-variable "web3signer_aws_access_key_id" {
-  type = string
-}
-
-variable "web3signer_aws_secret_access_key" {
-  type = string
-}

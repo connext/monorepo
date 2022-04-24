@@ -10,10 +10,7 @@ locals {
     { name = "ENVIRONMENT", value = var.environment }
   ])
   web3signer_env_vars = jsondecode([
-    { name = "AWS_SM_SECRET_NAME", value = module.aws_secrets.web3signer_secret_name },
-    { name = "AWS_ACCESS_KEY_ID", value = var.web3signer_aws_access_key_id },
-    { name = "AWS_SECRET_ACCESS_KEY", value = var.web3signer_aws_secret_access_key },
-    { name = "AWS_REGION", value = var.region },
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key }
   ])
 }
 

@@ -23,13 +23,6 @@ data "aws_route53_zone" "primary" {
 }
 
 
-module "aws_secrets" {
-  source                  = "../../modules/sm"
-  environment             = var.environment
-  stage                   = var.stage
-  web3_signer_private_key = var.web3_signer_private_key
-}
-
 module "router" {
   source                   = "../../modules/service"
   region                   = var.region

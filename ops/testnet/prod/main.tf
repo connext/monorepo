@@ -22,12 +22,6 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
-module "aws_secrets" {
-  source                  = "../../modules/sm"
-  environment             = var.environment
-  stage                   = var.stage
-  web3_signer_private_key = var.web3_signer_private_key
-}
 
 module "router" {
   source                   = "../../modules/service"
