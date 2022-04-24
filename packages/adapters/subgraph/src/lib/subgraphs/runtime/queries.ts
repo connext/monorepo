@@ -314,6 +314,63 @@ export const getReconciledTransfersByIds = gql`
   }
 `;
 
+export const getReconciledTransfers = gql`
+  query GetReconciledTransfersByIds($maxReconciledBlockNumber: BigInt!) {
+    transfers(where: { reconciledBlockNumber_lte: $maxReconciledBlockNumber, status_in: [Reconciled] }) {
+      id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledCaller
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }
+  }
+`;
+
 export const getTransfersStatus = gql`
   query GetTransfersStatus($transferIds: [Bytes!]) {
     transfers(where: { transferId_in: $transferIds, status_in: [Executed, Reconciled] }) {

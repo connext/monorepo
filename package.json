@@ -23,6 +23,7 @@
     "packages/agents/router",
     "packages/agents/sequencer",
     "packages/agents/sdk",
+    "packages/agents/lighthouse",
     "packages/examples/sdk-server"
   ],
   "scripts": {

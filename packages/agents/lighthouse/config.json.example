@@ -1,0 +1,9 @@
+{
+  "logLevel": "debug",
+  "sequencerUrl": "http://localhost:8001",
+  "server": {
+    "adminToken": "blahblah"
+  },
+  "chains": {},
+  "mnemonic": "test test test test test test test test test test test test"
+}
