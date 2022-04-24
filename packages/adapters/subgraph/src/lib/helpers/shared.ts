@@ -1,12 +1,6 @@
-import { ChainData } from "@connext/nxtp-utils";
+import { getMeshOptions as _getMeshOptions } from "../../../.graphclient";
+import { getBuiltGraphClient as _getBuiltGraphClient } from "../../../.graphclient";
 
-/**
- * Gets subgraph prefix by domain. `prefix` is used in composing the cross-chain queries.
- * @param domain - The domain Id you're going to get the prefix by
- */
-export const getPrefixByDomain = (domain: string, chainData: Map<string, ChainData>): string => {
-  if (chainData.has(domain)) {
-    return chainData.get(domain)!.network;
-  }
-  throw Error(`Prefix doesn't exist in chainData`);
-};
+export const getMeshOptions = _getMeshOptions;
+
+export const getBuiltGraphClient = _getBuiltGraphClient;

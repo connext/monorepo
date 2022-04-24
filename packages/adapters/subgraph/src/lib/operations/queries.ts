@@ -1,5 +1,8 @@
 import { gql } from "graphql-request";
 import { SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { getHelpers } from "../helpers";
+import { getPrefixBySource } from "../helpers/shared";
+import { SubgraphReaderConfig } from "../entities";
 
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   return gql`
@@ -82,8 +85,8 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
 const getXCalledTransferQueryString = (
   prefix: string,
   destinationDomains: string[],
-  maxBlockNumber: string,
-  nonce: string,
+  maxBlockNumber: number,
+  nonce: number,
 ): string => {
   return `
     ${prefix}_transfers(
@@ -149,4 +152,29 @@ const getXCalledTransferQueryString = (
         }
       `;
 };
-export const getXCalledTransfersQuery = async (agents: Map<string, SubgraphQueryMetaParams>): string => {};
+export const getXCalledTransfersQuery = async (
+  agents: Map<string, SubgraphQueryMetaParams>,
+  config: SubgraphReaderConfig,
+): Promise<string> => {
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += getXCalledTransferQueryString(
+        prefix,
+        domains,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.latestNonce,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetXCalledTransfers { 
+        ${combinedQuery}
+      }
+  `;
+};

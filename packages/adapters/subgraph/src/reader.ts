@@ -9,21 +9,23 @@ import {
   getAssetByLocalQuery,
   getRouterQuery,
 } from "./lib/operations";
-import { getMeshOptions } from "../.graphclient";
+import { SubgraphReaderConfig } from "./lib/entities";
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
-  private readonly chainData: Map<string, ChainData>;
+  private readonly config: SubgraphReaderConfig;
 
-  private constructor(chainData: Map<string, ChainData>) {
-    this.chainData = chainData;
+  private constructor(config: SubgraphReaderConfig) {
+    this.config = config;
   }
 
   public static async create(chainData: Map<string, ChainData>): Promise<SubgraphReader> {
     if (SubgraphReader.instance) {
       return SubgraphReader.instance;
     }
-    return new SubgraphReader(chainData);
+    const { create } = getHelpers();
+    const config = await create(chainData);
+    return new SubgraphReader(config);
   }
 
   /**
@@ -36,8 +38,8 @@ export class SubgraphReader {
    * @returns The available balance
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain, this.chainData);
+    const { execute } = getHelpers();
+    const prefix = this.config.sources[domain].prefix;
     const query = getAssetBalanceQuery(prefix, router, local);
     const response = await execute(query);
     return BigNumber.from(response.amount);
@@ -51,8 +53,8 @@ export class SubgraphReader {
    * @returns An array of asset ids and amounts of liquidity
    */
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain, this.chainData);
+    const { execute } = getHelpers();
+    const prefix = this.config.sources[domain].prefix;
     const query = getAssetBalancesQuery(prefix, router);
     const { assetBalances } = await execute(query);
     const balances: Record<string, BigNumber> = {};
@@ -68,16 +70,16 @@ export class SubgraphReader {
    * @returns A boolean indicating the router is approved
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain, this.chainData);
+    const { execute } = getHelpers();
+    const prefix = this.config.sources[domain].prefix;
     const query = getRouterQuery(prefix, _router);
     const { router } = await execute(query);
     return !!router?.id;
   }
 
   public async getAssetByLocal(domain: string, local: string): Promise<any | undefined> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain, this.chainData);
+    const { execute } = getHelpers();
+    const prefix = this.config.sources[domain].prefix;
     const query = getAssetByLocalQuery(prefix, local);
     const { assets } = await execute(query);
     if (assets.length === 0) {
@@ -88,8 +90,8 @@ export class SubgraphReader {
   }
 
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<any | undefined> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain, this.chainData);
+    const { execute } = getHelpers();
+    const prefix = this.config.sources[domain].prefix;
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId);
     const { assets } = await execute(query);
 

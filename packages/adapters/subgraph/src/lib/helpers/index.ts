@@ -1,12 +1,14 @@
 import { execute } from "./client";
+import { create } from "./create";
 import * as parser from "./parse";
-import { getPrefixByDomain } from "./shared";
+import { getMeshOptions, getBuiltGraphClient } from "./shared";
 
 export const getHelpers = () => {
   return {
     execute,
-    // Helpers for parsing subgraph entities.
+    create,
     parser,
-    getPrefixByDomain,
+    getMeshOptions,
+    getBuiltGraphClient,
   };
 };
