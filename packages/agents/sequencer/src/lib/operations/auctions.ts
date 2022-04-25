@@ -73,13 +73,9 @@ export const storeBid = async (
 
 export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
-    logger,
-<<<<<<< HEAD
-    adapters: { cache, subgraph },
-=======
     config,
-    adapters: { cache },
->>>>>>> amarok
+    logger,
+    adapters: { cache, subgraph },
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
