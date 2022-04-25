@@ -1,4 +1,4 @@
-import { XTransfer } from "@connext/nxtp-utils";
+import { XTransfer, XTransferStatus } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -126,6 +126,13 @@ export const getTransferByTransferId = async (transferId: string, _pool?: Pool):
 
   const x = await db.selectOne("transfers", { transfer_id: transferId }).run(poolToUse);
   return x ? convertFromDbTransfer(x) : undefined;
+};
+
+export const getTransfersByStatus = async (status: XTransferStatus, _pool?: Pool): Promise<XTransfer[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const x = await db.select("transfers", { status }).run(poolToUse);
+  return x.map(convertFromDbTransfer);
 };
 
 export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<number> => {

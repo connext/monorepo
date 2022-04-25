@@ -116,6 +116,10 @@ export class SubgraphReader {
     return assets[0];
   }
 
+  public getLatestBlockNumber(domain: string): number {
+    return this.subgraphs.get(domain)!.runtime.records[0].latestBlock;
+  }
+
   // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
   /**
    * Get all transfers on a domain from a specified nonce that are routing to one of the given destination domains.
