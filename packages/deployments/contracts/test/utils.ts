@@ -13,7 +13,7 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, ConnextHandler } from "../typechain-types";
+import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, ConnextHandler, ConnextUtils, TestERC20 } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -275,3 +275,32 @@ export async function restoreSnapshot(id: number) {
   await send("evm_revert", [id]);
   await mineBlock();
 }
+
+export const connextXCall = async (
+  user: Wallet,
+  asset: TestERC20,
+  amount: number,
+  relayerFee: number,
+  params: { to: string; callData: string; originDomain: number; destinationDomain: number },
+  connext: ConnextHandler,
+  connextUtils: ConnextUtils,
+) => {
+  // Approve user
+  await asset.connect(user).approve(connext.address, amount);
+
+  // Prepare from the user
+  const transactingAssetId = asset.address;
+  const prepare = await connext
+    .connect(user)
+    .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+  const prepareReceipt = await prepare.wait();
+
+  const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
+  const originTmEvent = connextUtils.interface.parseLog(
+    prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
+  );
+
+  const nonce = (originTmEvent!.args as any).nonce;
+  const transferId = (originTmEvent!.args as any).transferId;
+  return { nonce, transferId };
+};

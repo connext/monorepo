@@ -14,36 +14,62 @@ library AssetLogic {
    * @notice Handles transferring funds from msg.sender to the Connext contract.
    * @dev If using the native asset, will automatically wrap
    * @param _assetId - The address to transfer
-   * @param _specifiedAmount - The specified amount to transfer. May not be the
+   * @param _assetAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
+   * @param _fee - The fee amount in native asset included as part of the transaction that
+   * should not be considered for the transfer amount.
    * @param _wrapper - The address of the wrapper for the native asset on this domain
    * @return The assetId of the transferred asset
    * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
    * if the token is a fee-on-transfer token)
    */
-  function transferAssetToContract(
+  function handleIncomingAsset(
     address _assetId,
-    uint256 _specifiedAmount,
+    uint256 _assetAmount,
+    uint256 _fee,
     IWrapped _wrapper
   ) external returns (address, uint256) {
-    uint256 trueAmount = _specifiedAmount;
+    uint256 trueAmount = _assetAmount;
 
     if (_assetId == address(0)) {
+      if (msg.value != _assetAmount + _fee) revert AssetLogic__transferAssetToContract_notAmount();
+
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
-      if (msg.value != _specifiedAmount) revert AssetLogic__transferAssetToContract_notAmount();
-      _wrapper.deposit{value: _specifiedAmount}();
+      wrapNativeAsset(_assetAmount, _wrapper);
       _assetId = address(_wrapper);
     } else {
-      // Validate correct amounts are transferred
-      uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-      if (msg.value != 0) revert AssetLogic__transferAssetToContract_ethWithErcTransfer();
-      SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _specifiedAmount);
-      // Calculate the *actual* amount that was sent here
-      trueAmount = IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
+      if (msg.value != _fee) revert AssetLogic__transferAssetToContract_ethWithErcTransfer();
+
+      // Transfer asset to contract
+      trueAmount = transferAssetToContract(_assetId, _assetAmount);
     }
 
     return (_assetId, trueAmount);
+  }
+
+  /**
+   * @notice Wrap the native asset
+   * @param _amount - The specified amount to wrap
+   * @param _wrapper - The address of the wrapper for the native asset on this domain
+   */
+  function wrapNativeAsset(uint256 _amount, IWrapped _wrapper) internal {
+    _wrapper.deposit{value: _amount}();
+  }
+
+  /**
+   * @notice Transfer asset funds from msg.sender to the Connext contract.
+   * @param _assetId - The address to transfer
+   * @param _amount - The specified amount to transfer
+   * @return The amount of the asset that was seen by the contract
+   */
+  function transferAssetToContract(address _assetId, uint256 _amount) internal returns (uint256) {
+    // Validate correct amounts are transferred
+    uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
+
+    SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _amount);
+    // Calculate the *actual* amount that was sent here
+    return IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
   }
 
   /**
@@ -59,7 +85,7 @@ library AssetLogic {
     address _to,
     uint256 _amount,
     IWrapped _wrapper
-  ) internal {
+  ) external {
     // No native assets should ever be stored on this contract
     if (_assetId == address(0)) revert AssetLogic__transferAssetFromContract_notNative();
 

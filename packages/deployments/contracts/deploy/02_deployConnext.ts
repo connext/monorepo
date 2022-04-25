@@ -27,6 +27,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const domain = getDomainInfoFromChainId(network.chainId);
   console.log("domain: ", domain);
 
+  console.log("Deploying relayer fee router...");
+  // Get RelayerFeeRouter and TokenRegistry deployments.
+  const relayerFeeRouterDeployment = await hre.deployments.getOrNull("RelayerFeeRouterUpgradeBeaconProxy");
+  if (!relayerFeeRouterDeployment) {
+    throw new Error(`RelayerFeRelayerFeeRoutere not deployed`);
+  }
+  const relayerFeeRouter = new hre.ethers.Contract(
+    relayerFeeRouterDeployment.address,
+    (await hre.deployments.getOrNull("RelayerFeeRouter"))!.abi,
+  ).connect(deployer);
+
   // Get xapp connection manager
   const xappConnectionManagerDeployment = await hre.deployments.getOrNull("XAppConnectionManager");
   if (!xappConnectionManagerDeployment) {
@@ -44,12 +55,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Deploy Connext logic libraries
-
-  console.log("Deploying asset logic, utils, permissions manager...");
-  const assetLogic = await hre.deployments.deploy("AssetLogic", {
-    from: deployer.address,
-    log: true,
-  });
+  console.log("Deploying utils, permissions manager...");
   const connextUtils = await hre.deployments.deploy("ConnextUtils", {
     from: deployer.address,
     log: true,
@@ -62,7 +68,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // verify libs
   console.log("verifying connext libraries...");
   await Promise.all([
-    assetLogic.newlyDeployed ? verify(hre, assetLogic.address) : Promise.resolve(),
     connextUtils.newlyDeployed ? verify(hre, connextUtils.address) : Promise.resolve(),
     routerPermissionsManagerLogic.newlyDeployed
       ? verify(hre, routerPermissionsManagerLogic.address)
@@ -72,7 +77,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Deploy connext contract
   console.log("Deploying connext...");
   const libraries = {
-    AssetLogic: assetLogic.address,
     ConnextUtils: connextUtils.address,
     RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
   };
@@ -89,6 +93,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             xappConnectionManagerDeployment.address,
             tokenRegistry.address,
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+            relayerFeeRouter.address,
           ],
         },
       },
@@ -98,6 +103,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
+
+  // Add connext to relayer fee router
+  if ((await relayerFeeRouter.connext()) !== connextAddress) {
+    console.log("setting connext on relayer fee router");
+    const addTm = await relayerFeeRouter.connect(deployer).setConnext(connextAddress);
+    await addTm.wait();
+  } else {
+    console.log("relayer fee router connext set");
+  }
 
   // verify implementation
   if (connext.newlyDeployed) {

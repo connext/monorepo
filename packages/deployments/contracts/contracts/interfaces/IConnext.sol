@@ -29,11 +29,13 @@ interface IConnext {
    * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
    * or the representational asset
    * @param amount - The amount of transferring asset the tx called xcall with
+   * @param relayerFee - The amount of relayer fee the tx called xcall with
    */
   struct XCallArgs {
     CallParams params;
     address transactingAssetId; // Could be adopted, local, or wrapped
     uint256 amount;
+    uint256 relayerFee;
   }
 
   /**
@@ -56,68 +58,6 @@ interface IConnext {
     address originSender;
   }
 
-  // ============ Events ============
-
-  /**
-   * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
-   * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
-   * @param domain - The domain of the canonical token for the local <> adopted amm
-   * @param swapPool - The address of the AMM
-   * @param caller - The account that called the function
-   */
-  event StableSwapAdded(bytes32 canonicalId, uint32 domain, address swapPool, address caller);
-
-  /**
-   * @notice Emitted when a new asset is added
-   * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
-   * @param domain - The domain of the canonical token for the local <> adopted amm
-   * @param adoptedAsset - The address of the adopted (user-expected) asset
-   * @param supportedAsset - The address of the whitelisted asset. If the native asset is to be whitelisted,
-   * the address of the wrapped version will be stored
-   * @param caller - The account that called the function
-   */
-  event AssetAdded(bytes32 canonicalId, uint32 domain, address adoptedAsset, address supportedAsset, address caller);
-
-  /**
-   * @notice Emitted when an asset is removed from whitelists
-   * @param canonicalId - The canonical identifier of the token removed
-   * @param caller - The account that called the function
-   */
-  event AssetRemoved(bytes32 canonicalId, address caller);
-
-  /**
-   * @notice Emitted when a rlayer is added or removed from whitelists
-   * @param relayer - The relayer address to be added or removed
-   * @param caller - The account that called the function
-   */
-  event RelayerAdded(address relayer, address caller);
-
-  /**
-   * @notice Emitted when a rlayer is added or removed from whitelists
-   * @param relayer - The relayer address to be added or removed
-   * @param caller - The account that called the function
-   */
-  event RelayerRemoved(address relayer, address caller);
-
-  /**
-   * @notice Emitted when a router withdraws liquidity from the contract
-   * @param router - The router you are removing liquidity from
-   * @param to - The address the funds were withdrawn to
-   * @param local - The address of the token withdrawn
-   * @param amount - The amount of liquidity withdrawn
-   * @param caller - The account that called the function
-   */
-  event LiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
-
-  /**
-   * @notice Emitted when a router adds liquidity to the contract
-   * @param router - The address of the router the funds were credited to
-   * @param local - The address of the token added (all liquidity held in local asset)
-   * @param amount - The amount of liquidity added
-   * @param caller - The account that called the function
-   */
-  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
-
   /**
    * @notice Emitted when the maxRoutersPerTransfer variable is updated
    * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
@@ -125,81 +65,14 @@ interface IConnext {
    */
   event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
 
-  /**
-   * @notice Emitted when `xcall` is called on the origin domain
-   * @param transferId - The unique identifier of the crosschain transfer
-   * @param to - The CallParams.to provided, created as indexed parameter
-   * @param params - The CallParams provided to the function
-   * @param transactingAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
-   * or the representational asset
-   * @param localAsset - The asset sent over the bridge. Will be the local asset of nomad that corresponds
-   * to the provided `transactingAsset`
-   * @param transactingAmount - The amount of transferring asset the tx xcalled with
-   * @param localAmount - The amount sent over the bridge (initialAmount with slippage)
-   * @param nonce - The nonce of the origin domain contract. Used to create the unique identifier
-   * for the transfer
-   * @param caller - The account that called the function
-   */
-  event XCalled(
-    bytes32 indexed transferId,
-    address indexed to,
-    CallParams params,
-    address transactingAsset,
-    address localAsset,
-    uint256 transactingAmount,
-    uint256 localAmount,
-    uint256 nonce,
-    bytes message,
-    address caller
-  );
-
-  /**
-  //  * @notice Emitted when `reconciled` is called by the bridge on the destination domain
-   * @param transferId - The unique identifier of the crosschain transaction
-   * @param origin - The origin domain of the transfer
-   * @param routers - The CallParams.recipient provided, created as indexed parameter
-   * @param asset - The asset that was provided by the bridge
-   * @param amount - The amount that was provided by the bridge
-   * @param caller - The account that called the function
-   */
-  // TODO: make `routers` indexed?
-  event Reconciled(
-    bytes32 indexed transferId,
-    uint32 indexed origin,
-    address[] routers,
-    address asset,
-    uint256 amount,
-    address caller
-  );
-
-  /**
-   * @notice Emitted when `execute` is called on the destination chain
-   * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
-   * @param transferId - The unique identifier of the crosschain transfer
-   * @param to - The CallParams.to provided, created as indexed parameter
-   * @param args - The ExecuteArgs provided to the function
-   * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
-   * adopted asset on that chain.
-   * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
-   * executed with
-   * @param caller - The account that called the function
-   */
-  event Executed(
-    bytes32 indexed transferId,
-    address indexed to,
-    ExecuteArgs args,
-    address transactingAsset,
-    uint256 transactingAmount,
-    address caller
-  );
-
   // ============ Admin Functions ============
 
   function initialize(
     uint256 _domain,
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative
+    address _wrappedNative,
+    address _relayerFeeRouter
   ) external;
 
   function setupRouter(
@@ -245,4 +118,12 @@ interface IConnext {
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32);
+
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external;
+
+  function claim(address _recipient, bytes32[] calldata _transferIds) external;
 }
