@@ -16,7 +16,7 @@ export const TChainConfig = Type.Object({
   subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
 });
 export const Backend = Type.Object({
-  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
+  subgraphPollInterval: Type.Integer({ minimum: 1000 }),
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
     Type.Literal("fatal"),

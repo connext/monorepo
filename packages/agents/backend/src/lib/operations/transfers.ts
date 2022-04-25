@@ -1,4 +1,4 @@
-import { createLoggingContext, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, SubgraphQueryMetaParams, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
 
 import { getContext } from "../../backend";
 
@@ -40,6 +40,7 @@ export const updateTransfers = async () => {
 
   // now query pending transfers to see if any status updates happened
   const pendingTransfers = await database.getTransfersByStatus(XTransferStatus.pending);
+  const executedReconciled = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
 
-  // separate into
+  await database.saveTransfers(executedReconciled);
 };
