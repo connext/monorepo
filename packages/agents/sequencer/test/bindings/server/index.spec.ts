@@ -72,7 +72,7 @@ describe("Bindings:Server", () => {
       });
 
       expect(response.statusCode).to.be.eq(200);
-      expect(JSON.parse(response.payload).message).to.be.eq("Sent bid to auctioneer");
+      expect(JSON.parse(response.payload).message).to.be.eq("Bid received");
       expect(storeBidStub.callCount).to.be.eq(1);
       expect(storeBidStub.getCall(0).args.slice(0, 3)).to.be.deep.eq([transferId, bid, bidData]);
     });

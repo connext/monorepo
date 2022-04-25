@@ -51,8 +51,10 @@ export class TransactionService extends ChainReader {
    * @param signer The Signer or Wallet instance, or private key, for signing transactions.
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.
+   * @param ghostInstance Used in the event that we are conducting an integration test (which will have
+   * multiple txservice instances) and want to prevent this instantiation from being saved as the singleton.
    */
-  constructor(logger: Logger, config: any, signer: string | Signer) {
+  constructor(logger: Logger, config: any, signer: string | Signer, _ghostInstance = false) {
     super(logger, config, signer);
     const { requestContext, methodContext } = createLoggingContext("ChainService.constructor");
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
@@ -67,7 +69,9 @@ export class TransactionService extends ChainReader {
       throw error;
     }
     // Set the singleton instance.
-    TransactionService.instance = this;
+    if (!_ghostInstance) {
+      TransactionService.instance = this;
+    }
   }
 
   /**
