@@ -178,6 +178,7 @@ contract ConnextHandler is
   error ConnextHandler__addLiquidityForRouter_badAsset();
   error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
   error ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
+  error ConnextHandler__bumpTransfer_valueIsZero();
   error ConnextHandler__execute_unapprovedRelayer();
 
   // ============ Modifiers ============
@@ -392,7 +393,12 @@ contract ConnextHandler is
       remote: remote
     });
 
-    (bytes32 transferId, uint256 newNonce) = ConnextUtils.xcall(libArgs, adoptedToCanonical, adoptedToLocalPools, relayerFees);
+    (bytes32 transferId, uint256 newNonce) = ConnextUtils.xcall(
+      libArgs,
+      adoptedToCanonical,
+      adoptedToLocalPools,
+      relayerFees
+    );
 
     nonce = newNonce;
 
@@ -426,7 +432,7 @@ contract ConnextHandler is
    * used.
    */
   function execute(ExecuteArgs calldata _args) external override returns (bytes32 transferId) {
-     // If the sender is not approved relayer, revert()
+    // If the sender is not approved relayer, revert()
     if (!approvedRelayers[msg.sender]) {
       revert ConnextHandler__execute_unapprovedRelayer();
     }

@@ -140,7 +140,6 @@ contract RelayerFeeRouter is Version0, Router {
     address recipient = _msg.recipient();
     bytes32[] memory transferIds = _msg.transferIds();
 
-    // TODO - claim fee in connext
     connext.claim(recipient, transferIds);
 
     // emit Receive event

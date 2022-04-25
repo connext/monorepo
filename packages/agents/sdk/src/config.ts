@@ -29,8 +29,8 @@ export type ChainConfig = Static<typeof TChainConfig>;
 
 export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
-  logLevel: TLogLevel,
   signerAddress: TAddress,
+  logLevel: Type.Optional(TLogLevel),
   maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
   network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
 });

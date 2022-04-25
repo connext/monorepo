@@ -84,6 +84,7 @@ const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
 export type SubgraphQueryMetaParams = {
   maxBlockNumber: number;
   latestNonce: number;
+  destinationDomains?: string[];
 };
 
 export const graphQuery = async (url: string, query: string): Promise<any> => {

@@ -13,7 +13,14 @@ import {
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, ConnextHandler, ConnextUtils, TestERC20 } from "../typechain-types";
+import {
+  ProposedOwnableUpgradeable,
+  GenericERC20,
+  UpgradeBeaconProxy,
+  ConnextHandler,
+  TestERC20,
+  TransparentUpgradeableProxy,
+} from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -78,7 +85,7 @@ export const upgradeBeaconProxy = async (name: string, beaconAddress: string): P
   return true;
 };
 
-export const deployUpgradeableProxy = async <T extends Contract = Contract>(
+export const deployUpgradeableBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   initArgs: any[],
   controllerAddress: string,
@@ -101,6 +108,34 @@ export const deployUpgradeableProxy = async <T extends Contract = Contract>(
   // Deploy proxy
   const proxyFactory = await ethers.getContractFactory("UpgradeBeaconProxy");
   const proxy = await deployFromFactory<UpgradeBeaconProxy>(proxyFactory, beacon.address, initData);
+  return new Contract(proxy.address, implementation.interface) as T;
+};
+
+export const deployUpgradeableProxy = async <T extends Contract = Contract>(
+  name: string,
+  proxyOwner: string,
+  initArgs: any[],
+  libraries: Record<string, string> = {},
+  ...constructorArgs: any[]
+): Promise<T> => {
+  // Get init data
+  const factory = (await ethers.getContractFactory(name, {
+    libraries,
+  })) as ContractFactory;
+  const initData = factory.interface.encodeFunctionData("initialize", initArgs);
+
+  // Deploy implementation
+  const implementation = await deployFromFactory(factory, ...constructorArgs);
+
+  // Deploy proxy
+  const proxyFactory = await ethers.getContractFactory("TransparentUpgradeableProxy");
+  const proxy = await deployFromFactory<TransparentUpgradeableProxy>(
+    proxyFactory,
+    implementation.address,
+    proxyOwner,
+    initData,
+  );
+
   return new Contract(proxy.address, implementation.interface) as T;
 };
 
@@ -295,7 +330,7 @@ export const connextXCall = async (
     .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
   const prepareReceipt = await prepare.wait();
 
-  const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
+  const xcalledTopic = connextUtils.filters.XCalled().topics as string[];
   const originTmEvent = connextUtils.interface.parseLog(
     prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
   );

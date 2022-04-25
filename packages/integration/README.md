@@ -1,121 +1,68 @@
 # Integration
 
-Contains the integration and load testing logic for nxtp.
+A test script to validate the end-to-end cross-chain transfer process.
 
-## Running the tests
+## Setup
 
-### Local router, chains, and messaging
+1. ENVIRONMENT
 
-Update your `packages/router/config.json` to have a proper local config, i.e.:
+Create a .env file and fill in the following information:
 
-```json
-{
-  "adminToken": "blahblah",
-  "chainConfig": {
-    "1337": {
-      "providers": ["http://localhost:8545"],
-      "confirmations": 1,
-      "subgraph": "http://localhost:8010/subgraphs/name/connext/nxtp",
-      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
-    },
-    "1338": {
-      "providers": ["http://localhost:8546"],
-      "confirmations": 1,
-      "subgraph": "http://localhost:9010/subgraphs/name/connext/nxtp",
-      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0"
-    }
-  },
-  "logLevel": "info",
-  "natsUrl": "nats://localhost:4222",
-  "authUrl": "http://localhost:5040",
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
-  "swapPools": [
-    {
-      "name": "TEST",
-      "assets": [
-        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
-      ]
-    }
-  ]
-}
+```sh
+ROUTER_MNEMONIC="<...>"
+USER_MNEMONIC="<...>"
+DEPLOYER_MNEMONIC="<...>"
+INFURA_KEY="<...>"
 ```
 
-Start the chains and messaging with:
+**If you don't specify a `ROUTER_MNEMONIC`, we won't run a local router/sequencer instance. Instead, the test will be conducted using any active live counterparts.**
 
-```
-yarn workspace @connext/nxtp-integration docker:services:up
-```
+The `USER_MNEMONIC` can literally be any random mnemonic. While it's not necessary (the integration test will just generate a fresh random wallet), it's recommended that you specify one to use continually so as to recycle dust and save ETH on additional setup steps during execution.
 
-Make sure you have added your router address to the `TEST_ROUTERS` array in `packages/contracts/deploy.ts` (this will ensure the router has liquidity and both the router and the asset are whitelisted), then deploy + setup the contracts:
+You can generate a random wallet easily using node shell, assuming you have `ethers.js` installed globally (or locally)
 
-```
-bash setup-integration-test.sh
-```
-
-The start the router:
-
-```
-yarn workspace @connext/nxtp-router dev
+```s
+$ node
+Welcome to Node.js v16.14.2.
+Type ".help" for more information.
+> require("ethers").Wallet.createRandom()._mnemonic().phrase
+'provide tray domain smooth gentle now dad mesh artwork coast estate great'
+>
 ```
 
-Make sure you put a similarly structured config in your `packages/integration/ops/config/load/config.json` (can use the same mnemonic as router, make sure accounts[0] is funded):
+`DEPLOYER_MNEMONIC` is only necessary if you want to run your router locally and the router hasn't been approved (on the destination domain) yet.
 
-```json
-{
-  "adminToken": "blahblah",
-  "chainConfig": {
-    "1337": {
-      "providers": ["http://localhost:8545"],
-      "confirmations": 1,
-      "subgraph": "http://localhost:8010/subgraphs/name/connext/nxtp",
-      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-      "safeRelayerFee": 100
-    },
-    "1338": {
-      "providers": ["http://localhost:8546"],
-      "confirmations": 1,
-      "subgraph": "http://localhost:9010/subgraphs/name/connext/nxtp",
-      "transactionManagerAddress": "0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0",
-      "safeRelayerFee": 100
-    }
-  },
-  "logLevel": "info",
-  "natsUrl": "nats://localhost:4222",
-  "authUrl": "http://localhost:5040",
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
-  "swapPools": [
-    {
-      "name": "TEST",
-      "assets": [
-        { "chainId": 1337, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" },
-        { "chainId": 1338, "assetId": "0x345cA3e014Aaf5dcA488057592ee47305D9B3e10" }
-      ]
-    }
-  ]
-}
+If you don't have an `INFURA_API_KEY`, head over to [infura.io](https://infura.io/) and make an account (it's free). It should be under Project Settings > Project ID (_not Project Secret!_). If you really don't want to use Infura, you can specify `ORIGIN_PROVIDER` and `DESTINATION_PROVIDER` directly, although it's less flexible. At the time of writing this README, the default transfer route for the test is Kovan (origin) => Rinkeby (destination).
+
+2. FUNDING
+
+#### With a local router
+
+Your router's wallet (the wallet to which `ROUTER_MNEMONIC` belongs) must have some ETH supplied on both the origin and destination domains. Ultimately, once initial setup transactions are taken care of, the router _should not_ be using any ETH on the destination domain. However, it will require additional ETH on origin to fund the user agent as needed.
+
+If you're not sure which domains to fund your router wallet for, you can check `constants.ts` under `Integration Settings`.
+
+#### With live router
+
+If `ROUTER_MNEMONIC` isn't specified, the `USER_MNEMONIC` will need to be pre-funded with ETH.
+
+And that's it! No additional set up is required. All pre-flight tasking will be taken care of.
+
+## Execution
+
+To execute the test, just run (in NXTP root):
+
+```s
+yarn workspace @connext/nxtp-integration run test
 ```
 
-Then run the tests using the appropriate script. For example, to run the router concurrency tests, use:
+NOTE: Do **NOT** run the router or sequencer separately, both will be initialized within the test itself.
 
-```
-yarn workspace @connext/nxtp-integration concurrency:router
-```
+## FAQ:
 
-### Running Web3Signer locally and testing integration
-
-Web3Signer is used to securely host private keys for signing transactions. (see: https://docs.web3signer.consensys.net/en/latest/)
-
-A sample key file is provided in ops/config/router/. To create a docker container to host web3signer locally, use:
-
-```
-yarn workspace @connext/nxtp-integration docker:web3signer:up
-```
-
-To run the router with this test integration instance of web3signer, add to the router config:
-
-```
-"web3SignerUrl": "http://0.0.0.0:9000"
-```
-
-Remove the "mnemonic" entry from the config if you have one. Make sure the docker instance is running and web3signer is reachable.
+- Q: Do I need to run the router or sequencer separately for this to work? A: No. Both will be run inside the test, assuming a `ROUTER_MNEMONIC` is specified.
+- Q: How can I save the test execution logs? A: They are saved automatically by timestamp in the ops/data folder.
+- Q: Does this have to run on testnet? A: Yes.
+- Q: Can I change the execution router and/or domains? A: Not yet.
+- Q: Is this test intended to be run as a step in the CI pipeline? A: No.
+- Q: How can I get the `DEPLOYER_MNEMONIC`? A: Ask the team.

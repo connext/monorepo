@@ -38,7 +38,7 @@ contract ConnextHandlerTest is ForgeHelper {
   event MaxRoutersPerTransferUpdated(uint256 maxRouters, address caller);
   event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
   event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
-    event XCalled(
+  event XCalled(
     bytes32 indexed transferId,
     IConnext.XCallArgs xcallArgs,
     ConnextUtils.xCalledEventArgs args,
@@ -314,7 +314,7 @@ contract ConnextHandlerTest is ForgeHelper {
     bytes
       memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70aca0184c1e32ae98daca86416c9ece9d32771270d0b1ef32fb55bf30918e8cc7b";
 
-    ConnextUtils.xCalledEventArgs memory eventArg = ConnextUtils.xCalledEventArgs( {
+    ConnextUtils.xCalledEventArgs memory eventArg = ConnextUtils.xCalledEventArgs({
       transactingAssetId: address(originAdopted),
       amount: 0,
       bridgedAmt: 0,
@@ -322,16 +322,29 @@ contract ConnextHandlerTest is ForgeHelper {
     });
 
     vm.expectEmit(true, true, true, true);
-    emit XCalled(
-      id,
-      args,
-      eventArg,
-      0,
-      message,
-      address(this)
+    emit XCalled(id, args, eventArg, 0, message, address(this));
+    connext.xcall{value: relayerFee}(args);
+  }
+
+  // Works if relayerFee is set to 0
+  function test_ConnextHandler__xcall_zeroRelayerFeeWorks() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0;
+    address transactingAssetId = address(originAdopted);
+
+    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
+    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+
+    bytes32 id = keccak256(
+      abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
     );
 
+    assertEq(connext.relayerFees(id), 0);
+
     connext.xcall{value: relayerFee}(args);
+
+    assertEq(connext.relayerFees(id), 0);
   }
 
   // Correctly account for relayerFee in token transfer
@@ -388,13 +401,19 @@ contract ConnextHandlerTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(
+      abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector)
+    );
     connext.xcall{value: 0}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(
+      abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector)
+    );
     connext.xcall{value: relayerFee - 1}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(
+      abi.encodeWithSelector(ConnextUtils.ConnextUtils__transferAssetToContract_ethWithErcTransfer.selector)
+    );
     connext.xcall{value: relayerFee + 1}(args);
   }
 
@@ -502,11 +521,14 @@ contract ConnextHandlerTest is ForgeHelper {
     connext.bumpTransfer{value: 0}(transferId);
   }
 
-  // Fail if invalid transfer
-  function test_ConnextHandler__bumpTransfer_failsIfInvalidTransfer() public {
+  // Works if initial relayerFees is zero
+  function test_ConnextHandler__bumpTransfer_initialFeeZeroWorks() public {
     bytes32 transferId = bytes32("0x123");
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__bumpTransfer_invalidTransfer.selector));
-    connext.bumpTransfer{value: 100}(transferId);
+    assertEq(connext.relayerFees(transferId), 0);
+
+    uint256 newFee = 0.01 ether;
+    connext.bumpTransfer{value: newFee}(transferId);
+    assertEq(connext.relayerFees(transferId), newFee);
   }
 }
