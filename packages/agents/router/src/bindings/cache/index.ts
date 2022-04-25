@@ -4,20 +4,19 @@ import interval from "interval-promise";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
-export const CACHE_POLL_INTERVAL = 20_000;
-
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindCache = async (_pollInterval = CACHE_POLL_INTERVAL) => {
+export const bindCache = async (_pollInterval?: number) => {
   const { config } = getContext();
+  const pollInterval = _pollInterval ?? config.polling.cache;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
       await pollCache();
     }
-  }, _pollInterval);
+  }, pollInterval);
 };
 
 export const pollCache = async () => {
@@ -47,7 +46,7 @@ export const pollCache = async () => {
     }
 
     // Check the transfer status and update if it gets executed or reconciled on the destination domain
-    const confirmedTransfers = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+    const confirmedTransfers: XTransfer[] = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
     if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
 
     const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
