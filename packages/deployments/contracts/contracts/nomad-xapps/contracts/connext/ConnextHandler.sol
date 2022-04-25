@@ -188,7 +188,6 @@ contract ConnextHandler is
   error ConnextHandler__xcall_wrongDomain();
   error ConnextHandler__xcall_notSupportedAsset();
   error ConnextHandler__xcall_emptyTo();
-  error ConnextHandler__xcall_relayerFeeIsZero();
   error ConnextHandler__handle_invalidAction();
   error ConnextHandler__execute_unapprovedRelayer();
   error ConnextHandler__execute_alreadyExecuted();
@@ -204,7 +203,6 @@ contract ConnextHandler is
   error ConnextHandler__addAssetId_alreadyAdded();
   error ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
   error ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
-  error ConnextHandler__bumpTransfer_invalidTransfer();
   error ConnextHandler__bumpTransfer_valueIsZero();
 
   // ============ Modifiers ============
@@ -440,8 +438,6 @@ contract ConnextHandler is
       revert ConnextHandler__xcall_emptyTo();
     }
 
-    if (_args.relayerFee == 0) revert ConnextHandler__xcall_relayerFeeIsZero();
-
     // get the true transacting asset id (using wrapped native instead native)
     address _transactingAssetId = _args.transactingAssetId == address(0) ? address(wrapper) : _args.transactingAssetId;
 
@@ -493,20 +489,20 @@ contract ConnextHandler is
       _bridgedAmt
     );
 
-      // emit event
-      emit XCalled(
-        _transferId,
-        _args.params.to,
-        _args.params,
-        _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
-        _bridged,
-        _amount,
-        _bridgedAmt,
-        0, // TODO use _args.relayerFee (stack too deep error)
-        nonce - 1,
-        _message,
-        msg.sender
-      );
+    // emit event
+    emit XCalled(
+      _transferId,
+      _args.params.to,
+      _args.params,
+      _transactingAssetId, // NOTE: this will switch from input to wrapper if native used
+      _bridged,
+      _amount,
+      _bridgedAmt,
+      0, // TODO use _args.relayerFee (stack too deep error)
+      nonce - 1,
+      _message,
+      msg.sender
+    );
 
     return _transferId;
   }
@@ -516,7 +512,6 @@ contract ConnextHandler is
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId) external payable {
-    if (relayerFees[_transferId] == 0) revert ConnextHandler__bumpTransfer_invalidTransfer();
     if (msg.value == 0) revert ConnextHandler__bumpTransfer_valueIsZero();
 
     relayerFees[_transferId] += msg.value;

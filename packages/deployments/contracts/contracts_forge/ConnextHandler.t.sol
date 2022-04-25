@@ -336,8 +336,8 @@ contract ConnextHandlerTest is ForgeHelper {
     connext.xcall{value: relayerFee}(args);
   }
 
-  // Fail if relayerFee is set to 0
-  function test_ConnextHandler__xcall_failsIfZeroRelayerFee() public {
+  // Works if relayerFee is set to 0
+  function test_ConnextHandler__xcall_zeroRelayerFeeWorks() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0;
@@ -346,8 +346,15 @@ contract ConnextHandlerTest is ForgeHelper {
     IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
     IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextHandler.ConnextHandler__xcall_relayerFeeIsZero.selector));
+    bytes32 id = keccak256(
+      abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
+    );
+
+    assertEq(connext.relayerFees(id), 0);
+
     connext.xcall{value: relayerFee}(args);
+
+    assertEq(connext.relayerFees(id), 0);
   }
 
   // Correctly account for relayerFee in token transfer
@@ -518,11 +525,14 @@ contract ConnextHandlerTest is ForgeHelper {
     connext.bumpTransfer{value: 0}(transferId);
   }
 
-  // Fail if invalid transfer
-  function test_ConnextHandler__bumpTransfer_failsIfInvalidTransfer() public {
+  // Works if initial relayerFees is zero
+  function test_ConnextHandler__bumpTransfer_initialFeeZeroWorks() public {
     bytes32 transferId = bytes32("0x123");
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextHandler.ConnextHandler__bumpTransfer_invalidTransfer.selector));
-    connext.bumpTransfer{value: 100}(transferId);
+    assertEq(connext.relayerFees(transferId), 0);
+
+    uint256 newFee = 0.01 ether;
+    connext.bumpTransfer{value: newFee}(transferId);
+    assertEq(connext.relayerFees(transferId), newFee);
   }
 }
