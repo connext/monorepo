@@ -11,14 +11,14 @@ locals {
 
     logLevel = "debug"
     chains = {
-      2000 = {
+      "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
         "assets" = [{
           "name"    = "TEST"
-          "address" = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
+          "address" = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
         }]
       }
-      "3000" = {
+      "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
         "assets" = [{
           "name"    = "TEST"
@@ -43,16 +43,16 @@ locals {
       port       = 8080
     }
     chains = {
-      2000 = {
+      "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [
           {
             name    = "TEST"
-            address = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
+            address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
           }
         ]
       }
-      3000 = {
+      "2221" = {
         "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
         assets = [
           {
