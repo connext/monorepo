@@ -334,20 +334,6 @@ contract ConnextHandlerTest is ForgeHelper {
     connext.xcall{value: relayerFee}(args);
   }
 
-  // Fail if relayerFee is set to 0
-  function test_ConnextHandler__xcall_failsIfZeroRelayerFee() public {
-    address to = address(100);
-    uint256 amount = 1 ether;
-    uint256 relayerFee = 0;
-    address transactingAssetId = address(originAdopted);
-
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
-
-    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__xcall_relayerFeeIsZero.selector));
-    connext.xcall{value: relayerFee}(args);
-  }
-
   // Correctly account for relayerFee in token transfer
   function test_ConnextHandler__xcall_considersRelayerFeeValueInTokenTransfer() public {
     address to = address(100);

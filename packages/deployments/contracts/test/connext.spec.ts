@@ -1012,6 +1012,104 @@ describe("Connext", () => {
     expect(postReconcile).to.be.eq(preReconcile.add(amount));
   });
 
+  it("should not be able to execute the same transfer twice", async () => {
+    // Setup stable swap for adopted => canonical on origin
+    const swapCanonical = await stableSwap
+      .connect(admin)
+      .setupPool(originAdopted.address, canonical.address, SEED, SEED);
+    await swapCanonical.wait();
+
+    // Setup stable swap for local => adopted on dest
+    const swapLocal = await stableSwap
+      .connect(admin)
+      .setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
+    await swapLocal.wait();
+
+    // Add router liquidity
+    const approveLiq = await local.connect(router).approve(destinationBridge.address, parseEther("100000"));
+    await approveLiq.wait();
+    const addLiq = await destinationBridge.connect(router).addLiquidity(parseEther("0.1"), local.address);
+    await addLiq.wait();
+
+    // Approve user
+    const approveAmt = await originAdopted.connect(user).approve(originBridge.address, parseEther("100000"));
+    await approveAmt.wait();
+
+    // Prepare from the user
+    const params = {
+      to: user.address,
+      callData: "0x",
+      originDomain,
+      destinationDomain,
+    };
+    const transactingAssetId = originAdopted.address;
+    const amount = utils.parseEther("0.0001");
+    const relayerFee = utils.parseEther("0.00000001");
+    const prepare = await originBridge
+      .connect(user)
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+    const prepareReceipt = await prepare.wait();
+
+    const xcalledTopic = connextUtils.filters.XCalled().topics as string[]
+    const originBridgeEvent = connextUtils.interface.parseLog(
+      prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
+    );
+
+    const nonce = (originBridgeEvent!.args as any).nonce;
+    const message = (originBridgeEvent!.args as any).message;
+
+    // Fulfill with the router
+    const routerAmount = amount.mul(9995).div(10000);
+    const execute = await destinationBridge.connect(router).execute({
+      params,
+      nonce,
+      local: local.address,
+      amount,
+      routers: [router.address],
+      originSender: user.address,
+    });
+    const execReceipt = await execute.wait();
+
+    const executedTopic = connextUtils.filters.Executed().topics as string[]
+    const destTmEvent = connextUtils.interface.parseLog(
+      execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
+    );
+    const transferId = (destTmEvent!.args as any).transferId;
+
+    expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+
+    // before reconcile
+    await expect(
+      destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        routers: [router.address],
+        originSender: user.address,
+      }),
+    ).to.revertedWith("ConnextUtils__execute_alreadyExecuted()");
+
+    // Reconcile via bridge
+    const reconcile = await destinationBridge
+      .connect(admin)
+      .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
+    await reconcile.wait();
+
+    // after reconcile
+    await expect(
+      destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        routers: [router.address],
+        originSender: user.address,
+      }),
+    ).to.revertedWith("ConnextUtils__execute_alreadyExecuted()");
+
+  });
+
   describe("multipath", () => {
     const params = {
       to: user.address,

@@ -258,11 +258,12 @@ library ConnextUtils {
     // Update approved assets mapping
     _approvedAssets[_canonical.id] = true;
 
+    address supported = _adoptedAssetId == address(0) ? _wrapper : _adoptedAssetId;
+
     // Update the adopted mapping
-    _adoptedToCanonical[_adoptedAssetId] = _canonical;
+    _adoptedToCanonical[supported] = _canonical;
 
     // Update the canonical mapping
-    address supported = _adoptedAssetId == address(0) ? _wrapper : _adoptedAssetId;
     _canonicalToAdopted[_canonical.id] = supported;
 
     // Emit event
@@ -458,7 +459,7 @@ library ConnextUtils {
     _xcallSanityChecks(_args);
 
     // get the true transacting asset id (using wrapped native instead native)
-    (bytes32 transferId, bytes memory message, xCalledEventArgs memory evetArgs) = _processXcall(
+    (bytes32 transferId, bytes memory message, xCalledEventArgs memory eventArgs) = _processXcall(
       _args,
       _adoptedToCanonical,
       _adoptedToLocalPools
@@ -468,7 +469,7 @@ library ConnextUtils {
     _relayerFees[transferId] = _args.xCallArgs.relayerFee;
 
     // emit event
-    emit XCalled(transferId, _args.xCallArgs, evetArgs, _args.nonce, message, msg.sender);
+    emit XCalled(transferId, _args.xCallArgs, eventArgs, _args.nonce, message, msg.sender);
 
     return (transferId, _args.nonce + 1);
   }
@@ -489,7 +490,7 @@ library ConnextUtils {
     RouterPermissionsManagerInfo storage _routerInfo,
     mapping(bytes32 => address) storage _transferRelayer
   ) external returns (bytes32 transferId) {
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, _routedTransfers, _reconciledTransfers);
+    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, _transferRelayer, _reconciledTransfers);
 
     // check to see if the transfer was reconciled
     (uint256 amount, address adopted) = _handleExecuteLiquidity(
@@ -522,13 +523,14 @@ library ConnextUtils {
    * @param _amount - The amount of liquidity to add for the router
    * @param _local - The address of the nomad representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
+   * @param _canonicalId - Canonical asset id from the representation
    */
   function addLiquidityForRouter(
     uint256 _amount,
     address _local,
     address _router,
     mapping(address => mapping(address => uint256)) storage _routerBalances,
-    bytes32 _id,
+    bytes32 _canonicalId,
     IWrapped _wrapper
   ) external {
     // Transfer funds to contract
@@ -539,7 +541,7 @@ library ConnextUtils {
     _routerBalances[_router][asset] += received;
 
     // Emit event
-    emit LiquidityAdded(_router, asset, _id, received, msg.sender);
+    emit LiquidityAdded(_router, asset, _canonicalId, received, msg.sender);
   }
 
    /**
@@ -622,7 +624,7 @@ library ConnextUtils {
    */
   function _executeSanityChecks(
     ExecuteLibArgs calldata _args,
-    mapping(bytes32 => address[]) storage _routedTransfers,
+    mapping(bytes32 => address) storage _transferRelayer,
     mapping(bytes32 => bool) storage _reconciledTransfers
   ) private returns (bytes32, bool) {
     if (_args.executeArgs.routers.length > _args.maxRoutersPerTransfer)
@@ -631,8 +633,7 @@ library ConnextUtils {
     bytes32 transferId = _getTransferId(_args);
 
     // require this transfer has not already been executed
-    // NOTE: in slow liquidity path, the router should *never* be filled
-    if (_routedTransfers[transferId].length != 0) {
+    if (_transferRelayer[transferId] != address(0)) {
       revert ConnextUtils__execute_alreadyExecuted();
     }
 
@@ -750,8 +751,6 @@ library ConnextUtils {
     if (_args.xCallArgs.params.to == address(0)) {
       revert ConnextUtils__xcall_emptyTo();
     }
-
-    if (_args.xCallArgs.relayerFee == 0) revert ConnextUtils__xcall_relayerFeeIsZero();
   }
 
   /**
@@ -980,16 +979,7 @@ library ConnextUtils {
           i++;
         }
       }
-    } else {
-      // this is the slow liquidity path
-
-      // save a dummy address for the router to ensure the transfer is not able
-      // to be executed twice
-      // TODO: better ways to enforce this safety check?
-      _routedTransfers[_transferId] = [address(1)];
     }
-
-    // TODO: payout relayer fee
 
     // swap out of mad* asset into adopted asset if needed
     return _swapFromLocalAssetIfNeeded(

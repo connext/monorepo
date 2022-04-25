@@ -504,7 +504,6 @@ contract ConnextHandler is
     address _router
   ) internal {
     // Sanity check: router is sensible
-    // Sanity check: router is sensible
     if (_router == address(0)) revert ConnextHandler__addLiquidityForRouter_routerEmpty();
 
     // Sanity check: nonzero amounts
