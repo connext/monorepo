@@ -28,6 +28,7 @@ import {
   restoreSnapshot,
   takeSnapshot,
   connextXCall,
+  deployUpgradeableBeaconProxy,
 } from "./utils";
 
 import { BigNumber, BigNumberish, constants, Contract, utils, Wallet } from "ethers";
@@ -65,7 +66,7 @@ const executeProxyWrite = async <T extends Contract>(
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Connext", () => {
   // Get wallets
-  const [admin, router, user, router2, router3] = waffle.provider.getWallets() as Wallet[];
+  const [admin, router, user, router2, router3, proxyOwner] = waffle.provider.getWallets() as Wallet[];
 
   // Token scenario:
   // - user prepares in adopted on origin
@@ -118,12 +119,12 @@ describe("Connext", () => {
     originXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     destinationXappConnectionManager = await deployContract<XAppConnectionManager>("XAppConnectionManager");
     //Deploy token registry
-    originTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+    originTokenRegistry = await deployUpgradeableBeaconProxy<TokenRegistry>(
       "TokenRegistry",
       [upgradeBeaconController.address, originXappConnectionManager.address],
       upgradeBeaconController.address,
     );
-    destinationTokenRegistry = await deployUpgradeableProxy<TokenRegistry>(
+    destinationTokenRegistry = await deployUpgradeableBeaconProxy<TokenRegistry>(
       "TokenRegistry",
       [upgradeBeaconController.address, destinationXappConnectionManager.address],
       upgradeBeaconController.address,
@@ -138,22 +139,21 @@ describe("Connext", () => {
     const routerPermissionsManagerLogic = await deployContract("RouterPermissionsManagerLogic");
 
     // Deploy RelayerFeeRouters
-    originRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>(
-      "RelayerFeeRouter",
-      [originXappConnectionManager.address],
-      upgradeBeaconController.address,
-    );
+    originRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>("RelayerFeeRouter", proxyOwner.address, [
+      originXappConnectionManager.address,
+    ]);
 
     destinationRelayerFeeRouter = await deployUpgradeableProxy<RelayerFeeRouter>(
       "RelayerFeeRouter",
+      proxyOwner.address,
       [destinationXappConnectionManager.address],
-      upgradeBeaconController.address,
     );
 
     // Deploy bridge
     originBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
         "ConnextHandler",
+        proxyOwner.address,
         [
           originDomain,
           originXappConnectionManager.address,
@@ -161,7 +161,6 @@ describe("Connext", () => {
           weth.address,
           originRelayerFeeRouter.address,
         ],
-        upgradeBeaconController.address,
         {
           AssetLogic: assetLogic.address,
           ConnextUtils: connextUtils.address,
@@ -173,6 +172,7 @@ describe("Connext", () => {
     destinationBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
         "ConnextHandler",
+        proxyOwner.address,
         [
           destinationDomain,
           destinationXappConnectionManager.address,
@@ -180,7 +180,6 @@ describe("Connext", () => {
           weth.address,
           destinationRelayerFeeRouter.address,
         ],
-        upgradeBeaconController.address,
         {
           AssetLogic: assetLogic.address,
           ConnextUtils: connextUtils.address,
