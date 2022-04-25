@@ -102,9 +102,9 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     await bindCache();
 
     logger.info("Bindings initialized.");
+    logger.info("Router boot complete!");
 
     console.log(
-      "Router boot complete!",
       `
 
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
