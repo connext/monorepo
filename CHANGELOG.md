@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.2.0-alpha.4
+
+- [amarok] hardfork alpha release
+
 ## 0.1.25
 
 - [sdk] sdk subgraph active polling

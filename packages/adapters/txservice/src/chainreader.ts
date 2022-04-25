@@ -197,7 +197,7 @@ export class ChainReader {
     chainId: number,
     tx: ReadTransaction | WriteTransaction,
   ): Promise<BigNumber> {
-    return await this.getProvider(chainId).estimateGas(tx);
+    return await this.getProvider(chainId).estimateGas({ ...tx, chainId: undefined });
   }
 
   /// CONTRACT READ METHODS

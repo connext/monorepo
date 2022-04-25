@@ -29,9 +29,6 @@ export const sendToRelayer = async (
   const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
 
   const encodedData = encodeExecuteFromBid(selectedRouters, bidData);
-  logger.info("Encoded data", requestContext, methodContext, {
-    encodedData,
-  });
 
   const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
   if (!isSupportedByGelato) {
@@ -40,9 +37,17 @@ export const sendToRelayer = async (
 
   // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await getGelatoRelayerAddress(destinationChainId, logger);
-  logger.info("Got relayer address", requestContext, methodContext, {
+  logger.debug("Got relayer address", requestContext, methodContext, {
     relayerAddress,
   });
+
+  logger.info("Getting gas estimate", requestContext, methodContext, {
+    chainId: destinationChainId,
+    to: destinationConnextAddress,
+    data: encodedData,
+    from: relayerAddress,
+  });
+
   const gas = await chainreader.getGasEstimateWithRevertCode(Number(bidData.params.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,

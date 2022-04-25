@@ -3819,7 +3819,12 @@
               ],
               "stateMutability": "view",
               "type": "function"
-            },
+            }
+          ]
+        },
+        "ConnextUtils": {
+          "address": "0x41E885C322A7C9a8A4Cf8Bd08d569c7bf48D6428",
+          "abi": [
             {
               "inputs": [
                 {
@@ -3904,7 +3909,12 @@
               ],
               "stateMutability": "view",
               "type": "function"
-            },
+            }
+          ]
+        },
+        "Connext_Implementation": {
+          "address": "0x29f13A268200d152B1e26A526CBC906848D901f0",
+          "abi": [
             {
               "inputs": [
                 {
@@ -25863,6 +25873,39 @@
             {
               "inputs": [
                 {
+                  "internalType": "contract TransparentUpgradeableProxy",
+                  "name": "proxy",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "implementation",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "data",
+                  "type": "bytes"
+                }
+              ],
+              "name": "upgradeAndCall",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            }
+          ]
+        },
+        "ConnextUtils": {
+          "address": "0x1855be445F9D3a53aF5Cc35e3ef1D894b3151fBC",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
                   "internalType": "address",
                   "name": "",
                   "type": "address"
@@ -25967,6 +26010,101 @@
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
+            }
+          ]
+        },
+        "Connext_Implementation": {
+          "address": "0xbC769EC4924B37D4a4902A47B92e9436012A6fbF",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "AssetLogic__transferAssetFromContract_notNative",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addAssetId_alreadyAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badAsset",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_badRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addLiquidityForRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayerFees_notValue",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__addRelayer_alreadyApproved",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__decrementLiquidity_notEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__execute_notSlowParams",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notApprovedRelayer",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__handleRelayerFees_notRtrSig",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__onlyBridgeRouter_notBridge",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeAssetId_notAdded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_amountIsZero",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_insufficientFunds",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "Connext__removeLiquidity_recipientEmpty",
+              "type": "error"
             },
             {
               "inputs": [],
