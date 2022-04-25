@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.4",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -38,13 +38,14 @@
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
-    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-contracts": "workspace:*",
+    "@connext/nxtp-router": "workspace:*",
     "@connext/nxtp-sdk": "workspace:*",
+    "@connext/nxtp-sequencer": "workspace:*",
+    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "axios": "^0.26.1",
     "ethers": "^5.5.4",
-    "evt": "^1.10.1",
-    "pino": "^7.10.0",
     "ts-node": "^10.2.0"
   },
   "devDependencies": {

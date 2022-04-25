@@ -16,10 +16,6 @@ import { getContext } from "../../sequencer";
 
 import { getOperations } from ".";
 
-// TODO: Move elsewhere
-// How long we let an auction sit queued in the DB before we handle execution.
-export const AUCTION_PERIOD = 30 * 1_000;
-
 export const storeBid = async (
   transferId: string,
   bid: Bid,
@@ -81,6 +77,7 @@ export const storeBid = async (
 export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
     logger,
+    config,
     adapters: { cache },
   } = getContext();
   // TODO: Bit of an antipattern here.
@@ -89,10 +86,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
   } = getOperations();
   const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
 
-  logger.info(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
+  logger.debug(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
 
   // Fetch all the queued transfer IDs from the cache.
   const transferIds: string[] = await cache.auctions.getQueuedTransfers();
+
+  if (transferIds.length === 0) {
+    logger.debug("No auctions to execute", requestContext, methodContext);
+    return;
+  }
 
   logger.info("Queued transfers", requestContext, methodContext, {
     transferIds,
@@ -107,7 +109,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
       if (auction) {
         const startTime = Number(auction.timestamp);
         const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
-        if (elapsed > AUCTION_PERIOD) {
+        if (elapsed > config.auctionWaitTime) {
           const domain = auction.destination;
           auctions[domain] = {
             ...(auctions[domain] || {}),
