@@ -17,7 +17,9 @@ export const pollSubgraph = async () => {
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
   try {
+    logger.debug("Polling subgraph", requestContext, methodContext);
     await updateTransfers();
+    logger.debug("Polled subgraph", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(
       "Error getting pending txs, waiting for next loop",

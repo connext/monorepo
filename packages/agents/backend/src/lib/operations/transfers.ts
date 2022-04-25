@@ -40,6 +40,9 @@ export const updateTransfers = async () => {
 
   // now query pending transfers to see if any status updates happened
   const pendingTransfers = await database.getTransfersByStatus(XTransferStatus.pending);
+  logger.debug("Got pending", requestContext, methodContext, {
+    pendingTransfers: pendingTransfers.map((transfer) => transfer.transferId),
+  });
   const executedReconciled = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
 
   await database.saveTransfers(executedReconciled);

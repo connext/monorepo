@@ -46,4 +46,12 @@ export const makeBackend = async () => {
 
   // setup bindings
   await bindSubgraph(context.config.subgraphPollInterval);
+
+  context.logger.info(`Backend initialized!
+    _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+  _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+  _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+  _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+    _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+  `);
 };

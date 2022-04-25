@@ -27,7 +27,7 @@ export const Backend = Type.Object({
     Type.Literal("trace"),
     Type.Literal("silent"),
   ]),
-  databaseUrl: Type.String({ format: "url" }),
+  databaseUrl: Type.String({ format: "uri" }),
 });
 
 export type BackendConfig = Static<typeof Backend>;
@@ -76,6 +76,9 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): BackendConfig =
   };
 
   // add contract deployments if they exist
+  if (!nxtpConfig.chains) {
+    nxtpConfig.chains = {};
+  }
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
 
