@@ -43,6 +43,7 @@
     "zapatos": "^5.0.2"
   },
   "devDependencies": {
+    "@types/pg": "^8.6.5",
     "concurrently": "^7.0.0",
     "eslint": "^8.11.0",
     "nodemon": "^2.0.15",

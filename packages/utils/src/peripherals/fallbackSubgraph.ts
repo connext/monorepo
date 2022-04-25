@@ -189,7 +189,6 @@ export class FallbackSubgraph<T> {
    * @param method - anonymous callback function that takes an SdkLike client and executes a subgraph sdk method.
    * @param syncRequired - whether it's required for the subgraphs to be in-sync for this call, or if we can tolerate
    *  them being out of sync.
-   * @param minBlock - minimum block number for the subgraphs to be in-sync to for this call.
    * @returns A Promise of the generic type.
    * @throws Error if the subgraphs are out of sync (and syncRequired is true).
    */

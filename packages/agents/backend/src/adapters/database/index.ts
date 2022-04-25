@@ -17,7 +17,7 @@ export let pool: Pool;
 export const getDatabase = async (): Promise<Database> => {
   const { config, logger } = getContext();
   pool = new Pool({ connectionString: config.databaseUrl });
-  pool.on("error", (err) => logger.error("Database error", undefined, undefined, jsonifyError(err))); // don't let a pg restart kill your app
+  pool.on("error", (err: Error) => logger.error("Database error", undefined, undefined, jsonifyError(err))); // don't let a pg restart kill your app
 
   try {
     await pool.query("SELECT NOW()");

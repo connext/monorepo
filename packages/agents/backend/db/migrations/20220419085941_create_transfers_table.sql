@@ -1,11 +1,11 @@
 -- migrate:up
-create type transfer_status as enum ('pending', 'xcalled', 'executed', 'reconciled', 'failed');
+create type transfer_status as enum ('Pending', 'XCalled', 'Executed', 'Reconciled', 'Failed');
 create table transfers (
   -- meta
   transfer_id character(66) primary key,
   origin_domain varchar(255) not null,
   destination_domain varchar(255) not null,
-  status transfer_status not null default 'pending',
+  status transfer_status not null default 'Pending',
 
   -- transfer data
   "to" character(42) not null,

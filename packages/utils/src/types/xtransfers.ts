@@ -3,11 +3,11 @@ import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TDecimalString, TIntegerString } from ".";
 
 export const XTransferStatus = {
-  pending: "pending",
-  xcalled: "xcalled",
-  executed: "executed",
-  reconciled: "reconciled",
-  failed: "failed",
+  Pending: "Pending",
+  XCalled: "XCalled",
+  Executed: "Executed",
+  Reconciled: "Reconciled",
+  Failed: "Failed",
 } as const;
 export type XTransferStatus = keyof typeof XTransferStatus;
 

@@ -18,9 +18,9 @@ declare module 'zapatos/schema' {
 
   /* --- enums --- */
 
-  export type transfer_status = 'executed' | 'failed' | 'pending' | 'reconciled' | 'xcalled';
+  export type transfer_status = 'Executed' | 'Failed' | 'Pending' | 'Reconciled' | 'XCalled';
   export namespace every {
-    export type transfer_status = ['executed', 'failed', 'pending', 'reconciled', 'xcalled'];
+    export type transfer_status = ['Executed', 'Failed', 'Pending', 'Reconciled', 'XCalled'];
   }
 
   /* --- tables --- */
@@ -189,7 +189,7 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.status**
       * - `transfer_status` in database
-      * - `NOT NULL`, default: `'pending'::transfer_status`
+      * - `NOT NULL`, default: `'Pending'::transfer_status`
       */
       status: transfer_status;
       /**
@@ -431,7 +431,7 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.status**
       * - `transfer_status` in database
-      * - `NOT NULL`, default: `'pending'::transfer_status`
+      * - `NOT NULL`, default: `'Pending'::transfer_status`
       */
       status: transfer_status;
       /**
@@ -673,7 +673,7 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.status**
       * - `transfer_status` in database
-      * - `NOT NULL`, default: `'pending'::transfer_status`
+      * - `NOT NULL`, default: `'Pending'::transfer_status`
       */
       status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
       /**
@@ -915,7 +915,7 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.status**
       * - `transfer_status` in database
-      * - `NOT NULL`, default: `'pending'::transfer_status`
+      * - `NOT NULL`, default: `'Pending'::transfer_status`
       */
       status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment;
       /**
@@ -1157,7 +1157,7 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.status**
       * - `transfer_status` in database
-      * - `NOT NULL`, default: `'pending'::transfer_status`
+      * - `NOT NULL`, default: `'Pending'::transfer_status`
       */
       status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment>;
       /**

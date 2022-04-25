@@ -1,4 +1,10 @@
-import { createLoggingContext, SubgraphQueryMetaParams, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  getSubgraphHealth,
+  getSubgraphName,
+  SubgraphQueryMetaParams,
+  XTransferStatus,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../backend";
 
@@ -12,10 +18,24 @@ export const updateTransfers = async () => {
 
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   for (const domain of Object.keys(config.chains)) {
-    const latestBlockNumber = subgraph.getLatestBlockNumber(domain);
+    // TODO: Needs to implement the selection algorithm
+    const healthUrls = config.chains[domain].subgraph.runtime.map((url) => {
+      return { name: getSubgraphName(url.query), url: url.health };
+    });
+    let latestBlockNumber = 0;
+    for (const healthEp of healthUrls) {
+      const subgraphHealth = await getSubgraphHealth(healthEp.name, healthEp.url);
+      if (subgraphHealth && subgraphHealth.synced && subgraphHealth.latestBlock > latestBlockNumber)
+        latestBlockNumber = subgraphHealth.latestBlock;
+    }
 
     if (latestBlockNumber === 0) {
-      logger.error(`Error getting the latestBlockNumber, domain: ${domain}}`, requestContext, methodContext);
+      logger.error(
+        `Error getting the latestBlockNumber, domain: ${domain}, healthUrls: ${healthUrls.flat()}`,
+        requestContext,
+        methodContext,
+      );
+
       continue;
     }
 
@@ -27,11 +47,15 @@ export const updateTransfers = async () => {
     });
   }
 
-  if ([...subgraphQueryMetaParams.keys()].length > 0) {
+  logger.debug("subgraphQueryMetaParams: ", requestContext, methodContext, {
+    subgraphQueryMetaParams: [...subgraphQueryMetaParams],
+  });
+  console.log("subgraphQueryMetaParams: ", subgraphQueryMetaParams);
+  if (subgraphQueryMetaParams.size > 0) {
     const transactions = await subgraph.getXCalls(subgraphQueryMetaParams);
 
     const transferIds = transactions.map((transaction) => transaction.transferId);
-    logger.debug("Got transactions", requestContext, methodContext, {
+    logger.debug("Got xcalled transactions", requestContext, methodContext, {
       transferIds,
     });
 
@@ -39,7 +63,7 @@ export const updateTransfers = async () => {
   }
 
   // now query pending transfers to see if any status updates happened
-  const pendingTransfers = await database.getTransfersByStatus(XTransferStatus.pending);
+  const pendingTransfers = await database.getTransfersByStatus(XTransferStatus.Pending);
   logger.debug("Got pending", requestContext, methodContext, {
     pendingTransfers: pendingTransfers.map((transfer) => transfer.transferId),
   });

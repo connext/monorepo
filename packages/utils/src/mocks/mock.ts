@@ -119,7 +119,7 @@ export const mock: any = {
       originDomain: string,
       destinationDomain: string,
       amount = "1000",
-      status: XTransferStatus = XTransferStatus.xcalled,
+      status: XTransferStatus = XTransferStatus.XCalled,
       asset: string = mock.asset.A.address,
       transferId: string = getRandomBytes32(),
       nonce = 1234,
@@ -156,7 +156,7 @@ export const mock: any = {
 
         // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
         execute:
-          status === XTransferStatus.executed
+          status === XTransferStatus.Executed
             ? {
                 caller: mock.address.relayer,
                 transferringAmount: amount,
