@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, Signer, BigNumber, Wallet } from "ethers";
 import { config } from "dotenv";
 
-import { getDeploymentName, verify } from "../src/utils";
+import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
 
 config();
@@ -39,8 +39,6 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   let implementation: string | undefined;
   let beaconAddress: string | undefined;
 
-  let deployedImplementation = false;
-
   if (proxyDeployment) {
     console.log(`${name} proxy deployed. upgrading...`);
     // Get beacon and implementation addresses
@@ -64,7 +62,6 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
         contract: name,
       });
       implementation = upgradeDeployment.address;
-      deployedImplementation = true;
       console.log(`upgrading proxy to implementation logic at: ${implementation}`);
 
       // Then, upgrade proxy via beacon controller
@@ -88,7 +85,6 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
       contract: name,
     });
     implementation = implementationDeployment.address;
-    deployedImplementation = true;
     console.log(`deployed implementation: ${implementation}`);
 
     // 2. Deploy UpgradeBeacon
@@ -111,11 +107,6 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
     });
   }
 
-  // Verify implementation
-  if (deployedImplementation) {
-    await verify(hre, implementation);
-  }
-
   const proxy = new Contract(
     proxyDeployment.address,
     (await hre.deployments.getOrNull(implementationName))!.abi,
@@ -136,7 +127,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
   const deployer = _deployer as Wallet;
-  console.log("============================= Deploying Nomad ===============================");
+  console.log("\n============================= Deploying Nomad ===============================");
   console.log("deployer: ", deployer.address);
 
   // ========== Start: Nomad BridgeRouter Deployment ==========
@@ -156,9 +147,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deploy tx:", xappDeployment.transactionHash);
   const xappConnectionManagerAddress = xappDeployment.address;
   console.log("xappConnectionManagerAddress:", xappConnectionManagerAddress);
-
-  // verify xapp connection manager
-  await verify(hre, xappDeployment.address);
 
   const xappConnectionManager = (
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)

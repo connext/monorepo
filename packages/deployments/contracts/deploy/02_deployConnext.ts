@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { constants, Wallet } from "ethers";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
-import { getDeploymentName, verify } from "../src/utils";
+import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
 
 /**
@@ -20,14 +20,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
   const deployer = _deployer as Wallet;
-  console.log("============================= Deploying Connext ===============================");
+  console.log("\n============================= Deploying Connext ===============================");
   console.log("deployer: ", deployer.address);
 
   const network = await hre.ethers.provider.getNetwork();
   const domainConfig = getDomainInfoFromChainId(network.chainId);
 
   console.log("Fetching bridge router...");
-  // Get BridgeRouter and TokenRegistry deployments.
   const bridgeRouterDeploymentName = getDeploymentName("BridgeRouterUpgradeBeaconProxy");
   const bridgeRouterDeployment = await hre.deployments.getOrNull(bridgeRouterDeploymentName);
   if (!bridgeRouterDeployment) {
@@ -70,16 +69,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contract: "RouterPermissionsManagerLogic",
   });
 
-  // verify libs
-  console.log("verifying connext libraries...");
-  await Promise.all([
-    assetLogic.newlyDeployed ? verify(hre, assetLogic.address) : Promise.resolve(),
-    connextUtils.newlyDeployed ? verify(hre, connextUtils.address) : Promise.resolve(),
-    routerPermissionsManagerLogic.newlyDeployed
-      ? verify(hre, routerPermissionsManagerLogic.address)
-      : Promise.resolve(),
-  ]);
-
   // Deploy connext contract
   console.log("Deploying connext...");
   const libraries = {
@@ -112,12 +101,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
-  // verify implementation
-  if (connext.newlyDeployed) {
-    console.log("verifying connext implementation...");
-    await verify(hre, connext.implementation ?? connext.address, [], libraries);
-  }
-
   // Add tm to bridge
   if ((await bridge.connext()) !== connextAddress) {
     console.log("setting connext on bridge");
@@ -137,7 +120,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     } catch (e: unknown) {
       console.log("ConnextPriceOracle not deployed yet:", (e as Error).message);
     }
-    const { newlyDeployed: oracleNewlyDeployed } = await hre.deployments.deploy("ConnextPriceOracle", {
+    await hre.deployments.deploy(priceOracleDeploymentName, {
       from: deployer.address,
       args: [WRAPPED_ETH_MAP.get(+chainId)],
       log: true,
@@ -154,12 +137,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log("setV1PriceOracle tx: ", tx);
       await tx.wait();
     }
-
-    // verify
-    if (oracleNewlyDeployed) {
-      console.log("verifying price oracle...");
-      await verify(hre, newPriceOracleAddress, [WRAPPED_ETH_MAP.get(+chainId)]);
-    }
   }
 
   console.log("Deploying multicall...");
@@ -171,12 +148,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contract: "Multicall",
   });
 
-  // verify multicall
-  console.log("verifying multicall...");
-  if (deployment.newlyDeployed) {
-    await verify(hre, deployment.address);
-  }
-
   if (!SKIP_SETUP.includes(parseInt(chainId))) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
@@ -186,36 +157,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       // salt: keccak256("amarokrulez"),
       skipIfAlreadyDeployed: true,
     });
-    // verify test erc20
-    console.log("verifying token...");
-    if (deployment.newlyDeployed) {
-      await verify(hre, deployment.address);
-    }
     console.log("TestERC20: ", deployment.address);
-
-    // verify deployment
-    console.log("verifying TestERC20");
-    await verify(hre, deployment.address);
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
   }
-
-  // Verify libraries
-  console.log("verifying AssetLogic implementation");
-  await verify(hre, assetLogic.address);
-  console.log("verifying ConnextUtils implementation");
-  await verify(hre, connextUtils.address);
-  console.log("verifying RouterPermissionsManagerLogic implementation");
-  await verify(hre, routerPermissionsManagerLogic.address);
-
-  // Verify connext implementation
-  console.log("verifying connext implementation");
-  const implementation = await hre.deployments.get(connextName + "_Implementation");
-  await verify(hre, implementation.address, [], {
-    AssetLogic: assetLogic.address,
-    ConnextUtils: connextUtils.address,
-    RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
-  });
 };
 
 export default func;

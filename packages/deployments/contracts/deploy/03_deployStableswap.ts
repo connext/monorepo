@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
 
-import { getDeploymentName, verify } from "../src/utils";
+import { getDeploymentName } from "../src/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
@@ -13,7 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
   const deployer = _deployer as Wallet;
-  console.log("============================= Deploying StableSwap ===============================");
+  console.log("\n============================= Deploying StableSwap ===============================");
   console.log("deployer: ", deployer.address);
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (lpToken) {
     console.log(`reusing "LPToken" at ${lpToken.address}`);
   } else {
-    const lpDeployment = await deployments.deploy("LPToken", {
+    await deployments.deploy("LPToken", {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
@@ -37,9 +37,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "Nxtp Stable LP Token",
       "NxtpStableLPToken",
     );
-
-    console.log("verifying LPToken");
-    await verify(hre, lpDeployment.address);
   }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +65,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ////  StableSwap
   /////////////////////////////////////////////////////////////////////////////////
   const stableSwapName = getDeploymentName("StableSwap");
-  const stableSwapDeployment = await deployments.deploy(stableSwapName, {
+  await deployments.deploy(stableSwapName, {
     from: deployer.address,
     log: true,
     libraries: {
@@ -77,18 +74,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     },
     skipIfAlreadyDeployed: true,
     contract: "StableSwap",
-  });
-
-  console.log("verifying SwapUtils");
-  await verify(hre, swapUtilsDeployment.address);
-
-  console.log("verifying AmplificationUtils");
-  await verify(hre, amplificationUtilsDeployment.address);
-
-  console.log("verifying StableSwap");
-  await verify(hre, stableSwapDeployment.address, [], {
-    SwapUtils: swapUtilsDeployment.address,
-    AmplificationUtils: amplificationUtilsDeployment.address,
   });
 };
 
