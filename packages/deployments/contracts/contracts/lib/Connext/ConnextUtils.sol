@@ -7,6 +7,7 @@ import "../../interfaces/IWrapped.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {LibCrossDomainProperty} from "../LibCrossDomainProperty.sol";
 import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol";
+import {AssetLogic} from "./AssetLogic.sol";
 
 import "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
@@ -65,7 +66,7 @@ library ConnextUtils {
     bytes32 remote;
   }
 
-  struct xCalledEventArgs {
+  struct XCalledEventArgs {
     address transactingAssetId;
     uint256 amount;
     uint256 bridgedAmt;
@@ -159,7 +160,7 @@ library ConnextUtils {
   event XCalled(
     bytes32 indexed transferId,
     IConnext.XCallArgs xcallArgs,
-    xCalledEventArgs args,
+    XCalledEventArgs args,
     uint256 nonce,
     bytes message,
     address caller
@@ -459,7 +460,7 @@ library ConnextUtils {
     _xcallSanityChecks(_args);
 
     // get the true transacting asset id (using wrapped native instead native)
-    (bytes32 transferId, bytes memory message, xCalledEventArgs memory eventArgs) = _processXcall(
+    (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _processXcall(
       _args,
       _adoptedToCanonical,
       _adoptedToLocalPools
@@ -489,7 +490,7 @@ library ConnextUtils {
     mapping(bytes32 => address) storage canonicalToAdopted,
     RouterPermissionsManagerInfo storage _routerInfo,
     mapping(bytes32 => address) storage _transferRelayer
-  ) external returns (bytes32 transferId) {
+  ) external returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, _transferRelayer, _reconciledTransfers);
 
     // check to see if the transfer was reconciled
@@ -534,7 +535,7 @@ library ConnextUtils {
     IWrapped _wrapper
   ) external {
     // Transfer funds to contract
-    (address asset, uint256 received) = _handleIncomingAsset(_local, _amount, 0, _wrapper);
+    (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0, _wrapper);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens
@@ -765,7 +766,7 @@ library ConnextUtils {
     returns (
       bytes32,
       bytes memory,
-      xCalledEventArgs memory
+      XCalledEventArgs memory
     )
   {
     address transactingAssetId = _args.xCallArgs.transactingAssetId == address(0)
@@ -780,7 +781,12 @@ library ConnextUtils {
 
     // transfer funds of transacting asset to the contract from user
     // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 amount) = _handleIncomingAsset(_args);
+    (, uint256 amount) = AssetLogic.handleIncomingAsset(
+      _args.xCallArgs.transactingAssetId,
+      _args.xCallArgs.amount,
+      _args.xCallArgs.relayerFee,
+      _args.wrapper
+    );
 
     // swap to the local asset from adopted
     (uint256 bridgedAmt, address bridged) = _swapToLocalAssetIfNeeded(
@@ -799,7 +805,7 @@ library ConnextUtils {
     return (
       transferId,
       message,
-      xCalledEventArgs({
+      XCalledEventArgs({
         transactingAssetId: transactingAssetId,
         amount: amount,
         bridgedAmt: bridgedAmt,
@@ -989,61 +995,6 @@ library ConnextUtils {
         _args.executeArgs.local,
         toSwap
       );
-  }
-
-  /**
-   * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev This overload is used to prevent stack too deep errors
-   * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
-   * if the token is a fee-on-transfer token)
-   */
-  function _handleIncomingAsset(xCallLibArgs calldata _args) private returns (address, uint256) {
-    return
-      _handleIncomingAsset(
-        _args.xCallArgs.transactingAssetId,
-        _args.xCallArgs.amount,
-        _args.xCallArgs.relayerFee,
-        _args.wrapper
-      );
-  }
-
-  /**
-   * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically wrap
-   * @param _assetId - The address to transfer
-   * @param _assetAmount - The specified amount to transfer. May not be the
-   * actual amount transferred (i.e. fee on transfer tokens)
-   * @param _fee - The fee amount in native asset included as part of the transaction that
-   * should not be considered for the transfer amount.
-   * @param _wrapper - The address of the wrapper for the native asset on this domain
-   * @return The assetId of the transferred asset
-   * @return The amount of the asset that was seen by the contract (may not be the specifiedAmount
-   * if the token is a fee-on-transfer token)
-   */
-  function _handleIncomingAsset(
-    address _assetId,
-    uint256 _assetAmount,
-    uint256 _fee,
-    IWrapped _wrapper
-  ) private returns (address, uint256) {
-    uint256 trueAmount = _assetAmount;
-    address transactingAssetId = _assetId;
-
-    if (_assetId == address(0)) {
-      if (msg.value != _assetAmount + _fee) revert ConnextUtils__transferAssetToContract_notAmount();
-
-      // When transferring native asset to the contract, always make sure that the
-      // asset is properly wrapped
-      _wrapNativeAsset(_assetAmount, _wrapper);
-      transactingAssetId = address(_wrapper);
-    } else {
-      if (msg.value != _fee) revert ConnextUtils__transferAssetToContract_ethWithErcTransfer();
-
-      // Transfer asset to contract
-      trueAmount = _transferAssetToContract(_assetId, _assetAmount);
-    }
-
-    return (transactingAssetId, trueAmount);
   }
 
   /**
