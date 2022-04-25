@@ -465,7 +465,7 @@ library ConnextUtils {
       _adoptedToLocalPools
     );
 
-      // Store the relayer fee
+    // Store the relayer fee
     _relayerFees[transferId] = _args.xCallArgs.relayerFee;
 
     // emit event
@@ -544,7 +544,7 @@ library ConnextUtils {
     emit LiquidityAdded(_router, asset, _canonicalId, received, msg.sender);
   }
 
-   /**
+  /**
    * @notice Called by relayer when they want to claim owed funds on a given domain
    * @dev Domain should be the origin domain of all the transfer ids
    * @param _domain - domain to claim funds on
@@ -608,7 +608,6 @@ library ConnextUtils {
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId, mapping(bytes32 => uint256) storage relayerFees) external {
-    if (relayerFees[_transferId] == 0) revert ConnextUtils__bumpTransfer_invalidTransfer();
     if (msg.value == 0) revert ConnextUtils__bumpTransfer_valueIsZero();
 
     relayerFees[_transferId] += msg.value;
@@ -982,13 +981,14 @@ library ConnextUtils {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return _swapFromLocalAssetIfNeeded(
-      _canonicalToAdopted,
-      _adoptedToLocalPools,
-      _args.tokenRegistry,
-      _args.executeArgs.local,
-      toSwap
-    );
+    return
+      _swapFromLocalAssetIfNeeded(
+        _canonicalToAdopted,
+        _adoptedToLocalPools,
+        _args.tokenRegistry,
+        _args.executeArgs.local,
+        toSwap
+      );
   }
 
   /**
@@ -998,7 +998,13 @@ library ConnextUtils {
    * if the token is a fee-on-transfer token)
    */
   function _handleIncomingAsset(xCallLibArgs calldata _args) private returns (address, uint256) {
-    return _handleIncomingAsset(_args.xCallArgs.transactingAssetId, _args.xCallArgs.amount, _args.xCallArgs.relayerFee, _args.wrapper);
+    return
+      _handleIncomingAsset(
+        _args.xCallArgs.transactingAssetId,
+        _args.xCallArgs.amount,
+        _args.xCallArgs.relayerFee,
+        _args.wrapper
+      );
   }
 
   /**

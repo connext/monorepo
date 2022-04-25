@@ -406,18 +406,6 @@ contract ConnextHandler is
   }
 
   /**
-   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
-   * @param _transferId - The unique identifier of the crosschain transaction
-   */
-  function bumpTransfer(bytes32 _transferId) external payable {
-    if (msg.value == 0) revert ConnextHandler__bumpTransfer_valueIsZero();
-
-    relayerFees[_transferId] += msg.value;
-
-    emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
-  }
-
-  /**
    * @notice Handles an incoming message
    * @dev This function relies on nomad relayers and should not consume arbitrary amounts of
    * gas
