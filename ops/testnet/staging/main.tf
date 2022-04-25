@@ -88,7 +88,8 @@ module "web3signer" {
   timeout                  = 180
   environment              = var.environment
   stage                    = var.stage
-  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  internal_lb              = true
+  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
