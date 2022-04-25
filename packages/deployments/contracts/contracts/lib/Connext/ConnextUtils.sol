@@ -158,9 +158,8 @@ library ConnextUtils {
    */
   event XCalled(
     bytes32 indexed transferId,
-    IConnext.CallParams params,
+    IConnext.XCallArgs xcallArgs,
     xCalledEventArgs args,
-    uint256 relayerFee,
     uint256 nonce,
     bytes message,
     address caller
@@ -469,7 +468,7 @@ library ConnextUtils {
     _relayerFees[transferId] = _args.xCallArgs.relayerFee;
 
     // emit event
-    emit XCalled(transferId, _args.xCallArgs.params, evetArgs, _args.xCallArgs.relayerFee, _args.nonce, message, msg.sender);
+    emit XCalled(transferId, _args.xCallArgs, evetArgs, _args.nonce, message, msg.sender);
 
     return (transferId, _args.nonce + 1);
   }

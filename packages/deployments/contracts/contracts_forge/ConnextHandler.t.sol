@@ -38,11 +38,10 @@ contract ConnextHandlerTest is ForgeHelper {
   event MaxRoutersPerTransferUpdated(uint256 maxRouters, address caller);
   event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
   event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
-  event XCalled(
+    event XCalled(
     bytes32 indexed transferId,
-    IConnext.CallParams params,
+    IConnext.XCallArgs xcallArgs,
     ConnextUtils.xCalledEventArgs args,
-    uint256 relayerFee,
     uint256 nonce,
     bytes message,
     address caller
@@ -325,9 +324,8 @@ contract ConnextHandlerTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit XCalled(
       id,
-      callParams,
+      args,
       eventArg,
-      relayerFee,
       0,
       message,
       address(this)
