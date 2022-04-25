@@ -29,7 +29,7 @@ export const storeBid = async (
 ): Promise<void> => {
   const {
     logger,
-    adapters: { cache, subgraph },
+    adapters: { cache },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
