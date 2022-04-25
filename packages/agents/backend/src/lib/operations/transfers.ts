@@ -28,7 +28,7 @@ export const updateTransfers = async () => {
   }
 
   if ([...subgraphQueryMetaParams.keys()].length > 0) {
-    const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.xcalled);
+    const transactions = await subgraph.getXCalls(subgraphQueryMetaParams);
 
     const transferIds = transactions.map((transaction) => transaction.transferId);
     logger.debug("Got transactions", requestContext, methodContext, {

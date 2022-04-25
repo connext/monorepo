@@ -639,22 +639,11 @@ __metadata:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": ^0.23.4
-    "@types/chai": ^4.3.0
-    "@types/chai-as-promised": ^7.1.5
-    "@types/chai-subset": ^1.3.3
-    "@types/mocha": ^9.1.0
-    "@types/pg": ^8
-    "@types/secp256k1": ^4.0.3
-    "@types/sinon": ^10.0.11
-    chai: ^4.3.6
-    chai-as-promised: ^7.1.1
-    chai-subset: ^1.6.0
     concurrently: ^7.0.0
     dotenv: ^16.0.0
     eslint: ^8.11.0
     ethers: ^5.6.4
     interval-promise: ^1.4.0
-    mocha: ^9.2.2
     nodemon: ^2.0.15
     nyc: ^15.1.0
     pg: ^8.7.3
@@ -663,7 +652,6 @@ __metadata:
     rimraf: ^3.0.2
     sinclair: ^0.2.0
     sinon: ^13.0.1
-    ts-mocha: ^9.0.2
     ts-node: ^10.7.0
     tslib: ^2.3.1
     typescript: ^4.6.2
@@ -3373,17 +3361,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pg@npm:^8":
-  version: 8.6.5
-  resolution: "@types/pg@npm:8.6.5"
-  dependencies:
-    "@types/node": "*"
-    pg-protocol: "*"
-    pg-types: ^2.2.0
-  checksum: 49ef858d95e84a6c1be193d367996581c991cf383d8628449507cc4ce67ef43b75acb18a0f9f49f870594cdec3501ddf4d2ac3fbe0dcdaab35c295c038d47199
-  languageName: node
-  linkType: hard
-
 "@types/pino-pretty@npm:*":
   version: 4.7.5
   resolution: "@types/pino-pretty@npm:4.7.5"
@@ -5985,7 +5962,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai-as-promised@npm:7.1.1, chai-as-promised@npm:^7.1.1":
+"chai-as-promised@npm:7.1.1":
   version: 7.1.1
   resolution: "chai-as-promised@npm:7.1.1"
   dependencies:
@@ -16124,14 +16101,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-protocol@npm:*, pg-protocol@npm:^1.5.0":
+"pg-protocol@npm:^1.5.0":
   version: 1.5.0
   resolution: "pg-protocol@npm:1.5.0"
   checksum: b839d12cafe942ef9cbc5b13c174eb2356804fb4fe8ead8279f46a36be90722d19a91409955beb8a3d5301639c44854e49749de4aef02dc361fee3e2a61fb1e4
   languageName: node
   linkType: hard
 
-"pg-types@npm:^2.1.0, pg-types@npm:^2.2.0":
+"pg-types@npm:^2.1.0":
   version: 2.2.0
   resolution: "pg-types@npm:2.2.0"
   dependencies:

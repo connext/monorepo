@@ -33,6 +33,8 @@ export const makeBackend = async () => {
     name: "Backend",
   });
 
+  context.logger.info("Config generated", undefined, undefined, { config: context.config });
+
   const chains: { [chain: string]: any } = {};
   Object.entries(context.config.chains).forEach(([chainId, config]) => {
     chains[chainId] = config.subgraph;
