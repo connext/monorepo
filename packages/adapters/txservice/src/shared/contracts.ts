@@ -2,16 +2,16 @@ import { utils } from "ethers";
 import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import {
   IERC20Minimal as TIERC20Minimal,
-  Connext as TConnext,
+  ConnextHandler as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
   TokenRegistry as TTokenRegistry,
   StableSwap as TStableSwap,
 } from "@connext/nxtp-contracts/typechain-types";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
-import ConnextArtifact from "@connext/nxtp-contracts/artifacts/contracts/Connext.sol/Connext.json";
+import ConnextArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/connext/ConnextHandler.sol/ConnextHandler.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
-import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
+import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/connext/TokenRegistry.sol/TokenRegistry.json";
 
 /// MARK - CONTRACT DEPLOYMENTS
 /**

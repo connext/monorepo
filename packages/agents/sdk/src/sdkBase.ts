@@ -116,7 +116,7 @@ export class NxtpSdkBase {
     // }
 
     /// create a bid
-    const { params, amount, transactingAssetId } = xcallParams;
+    const { params, amount, transactingAssetId, relayerFee } = xcallParams;
 
     const { originDomain } = params;
 
@@ -125,9 +125,10 @@ export class NxtpSdkBase {
     const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
     const data = this.contracts.connext.encodeFunctionData("xcall", [
       {
-        params: params,
-        amount: amount,
-        transactingAssetId: transactingAssetId,
+        params,
+        amount,
+        transactingAssetId,
+        relayerFee,
       },
     ]);
 
