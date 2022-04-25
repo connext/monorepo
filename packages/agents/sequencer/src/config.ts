@@ -61,9 +61,12 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
+    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
+
+  const contractPostfix = _sequencerConfig.environment === "production" ? "" : _sequencerConfig.environment;
 
   // add contract deployments if they exist
   Object.entries(_sequencerConfig.chains).forEach(([domainId, chainConfig]) => {
@@ -76,7 +79,7 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }

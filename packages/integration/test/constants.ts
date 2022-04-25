@@ -175,6 +175,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
+    environment: "staging",
   };
 })();
 
@@ -208,5 +209,6 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     },
     auctionWaitTime: 1,
     network: "testnet",
+    environment: "staging",
   };
 })();

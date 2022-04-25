@@ -13,6 +13,8 @@ import ConnextArtifact from "@connext/nxtp-contracts/artifacts/contracts/Connext
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
 
+export type ContractPostfix = "staging" | "";
+
 /// MARK - CONTRACT DEPLOYMENTS
 /**
  * Helper to allow easy mocking
@@ -25,11 +27,15 @@ export const _getContractDeployments = (): Record<string, Record<string, any>> =
  * Returns the address of the `Connext` deployed to the provided chain, or undefined if it has not been deployed
  *
  * @param chainId - The chain you want the address on
+ * @param postfix - The postfix to use for the contract
  * @returns The deployed address or `undefined` if it has not been deployed yet
  */
-export const getDeployedConnextContract = (chainId: number): { address: string; abi: any } | undefined => {
+export const getDeployedConnextContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts?.Connext;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -58,34 +64,54 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
  * given chain ID; returns undefined if no such contract has been deployed.
  *
  * @param chainId - The chain you want the address on.
- *
+ * @param postfix - The postfix to use for the contract
  * @returns The deployed address or undefined if the contract has not yet been
  * deployed.
  */
-export const getDeployedPriceOracleContract = (chainId: number): { address: string; abi: any } | undefined => {
+export const getDeployedPriceOracleContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
   const _contractDeployments = _getContractDeployments();
   const record = _contractDeployments[chainId.toString()] ?? {};
   const name = Object.keys(record)[0] as string | undefined;
   if (!name) {
     return undefined;
   }
-  const contract = record[name]?.contracts?.ConnextPriceOracle;
+  const contract = record[name]?.contracts ? record[name]?.contracts[`ConnextPriceOracle${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export type ConnextContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+export const getDeployedTokenRegistryContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const _contractDeployments = _getContractDeployments();
+  const record = _contractDeployments[chainId.toString()] ?? {};
+  const name = Object.keys(record)[0] as string | undefined;
+  if (!name) {
+    return undefined;
+  }
+  const contract = record[name]?.contracts ? record[name]?.contracts[`TokenRegistry${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export type ConnextContractDeploymentGetter = (
+  chainId: number,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
   priceOracle: ConnextContractDeploymentGetter;
-  // TODO:
-  // tokenRegistry: ConnextContractDeploymentGetter;
+  tokenRegistry: ConnextContractDeploymentGetter;
   // stableSwap: ConnextContractDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
   connext: getDeployedConnextContract,
   priceOracle: getDeployedPriceOracleContract,
+  tokenRegistry: getDeployedTokenRegistryContract,
 };
 
 /// MARK - CONTRACT INTERFACES
