@@ -13,12 +13,9 @@ const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
-<<<<<<< HEAD
 const DEFAULT_CONFIRMATIONS = 3;
-=======
 const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
->>>>>>> amarok
 
 dotenvConfig();
 
@@ -85,12 +82,8 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-<<<<<<< HEAD
-  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
-  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-=======
   polling: TPollingConfig,
->>>>>>> amarok
+  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
