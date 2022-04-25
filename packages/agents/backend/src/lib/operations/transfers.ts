@@ -50,7 +50,6 @@ export const updateTransfers = async () => {
   logger.debug("subgraphQueryMetaParams: ", requestContext, methodContext, {
     subgraphQueryMetaParams: [...subgraphQueryMetaParams],
   });
-  console.log("subgraphQueryMetaParams: ", subgraphQueryMetaParams);
   if (subgraphQueryMetaParams.size > 0) {
     const transactions = await subgraph.getXCalls(subgraphQueryMetaParams);
 
@@ -63,11 +62,21 @@ export const updateTransfers = async () => {
   }
 
   // now query pending transfers to see if any status updates happened
-  const pendingTransfers = await database.getTransfersByStatus(XTransferStatus.Pending);
-  logger.debug("Got pending", requestContext, methodContext, {
-    pendingTransfers: pendingTransfers.map((transfer) => transfer.transferId),
-  });
-  const executedReconciled = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+  const xcalledTransfers = await database.getTransfersByStatus(XTransferStatus.XCalled);
+  const executedTransfers = await database.getTransfersByStatus(XTransferStatus.Executed);
 
+  logger.debug("Got pending", requestContext, methodContext, {
+    executedTransfers: executedTransfers.map((transfer) => transfer.transferId),
+    xcalledTransfers: xcalledTransfers.map((transfer) => transfer.transferId),
+  });
+
+  const executedReconciled = await subgraph.getExecutedAndReconciledTransfers(
+    xcalledTransfers.concat(executedTransfers),
+  );
+  logger.debug("Got executed/reconciled", requestContext, methodContext, {
+    completedTransfers: xcalledTransfers.map((transfer) => {
+      return { transferId: transfer.transferId, status: transfer.status };
+    }),
+  });
   await database.saveTransfers(executedReconciled);
 };

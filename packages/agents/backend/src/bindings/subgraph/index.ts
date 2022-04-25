@@ -22,7 +22,7 @@ export const pollSubgraph = async () => {
     logger.debug("Polled subgraph", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(
-      "Error getting pending txs, waiting for next loop",
+      "Error getting txs, waiting for next loop",
       requestContext,
       methodContext,
       jsonifyError(err as NxtpError),
