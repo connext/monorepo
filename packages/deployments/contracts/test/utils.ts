@@ -318,6 +318,7 @@ export const connextXCall = async (
   relayerFee: number,
   params: { to: string; callData: string; originDomain: number; destinationDomain: number },
   connext: ConnextHandler,
+  connextUtils: ConnextUtils,
 ) => {
   // Approve user
   await asset.connect(user).approve(connext.address, amount);
@@ -329,8 +330,9 @@ export const connextXCall = async (
     .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
   const prepareReceipt = await prepare.wait();
 
-  const originTmEvent = (await connext.queryFilter(connext.filters.XCalled())).find(
-    (a: { blockNumber: any }) => a.blockNumber === prepareReceipt.blockNumber,
+  const xcalledTopic = connextUtils.filters.XCalled().topics as string[];
+  const originTmEvent = connextUtils.interface.parseLog(
+    prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
   );
 
   const nonce = (originTmEvent!.args as any).nonce;
