@@ -13,7 +13,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
 
-import { getConfig } from "./config";
+import { getConfig, NxtpRouterConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
 import { AppContext } from "./lib/entities";
 
@@ -21,7 +21,7 @@ import { AppContext } from "./lib/entities";
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeRouter = async () => {
+export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
   const requestContext = createRequestContext("makeRouter");
   const methodContext = createMethodContext(makeRouter.name);
 
@@ -33,7 +33,7 @@ export const makeRouter = async () => {
     }
     context.adapters = {} as any;
     context.chainData = chainData;
-    context.config = await getConfig(chainData, contractDeployments);
+    context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
 
     // Create adapter instances.
     context.adapters.wallet = context.config.mnemonic
@@ -47,7 +47,7 @@ export const makeRouter = async () => {
       level: context.config.logLevel,
       name: context.routerAddress,
     });
-    context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
+    context.logger.info("Generated config.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: "*****" },
     });
 
@@ -56,18 +56,19 @@ export const makeRouter = async () => {
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
 
     context.adapters.txservice = new TransactionService(
-      context.logger.child({ module: "TransactionService" }, context.config.logLevel),
+      context.logger.child({ module: "TransactionService", level: context.config.logLevel }),
       context.config.chains,
       context.adapters.wallet,
     );
 
     context.adapters.contracts = getContractInterfaces();
 
-    context.logger.info("Router config generated", requestContext, methodContext, {
+    context.logger.info("Router config generated.", requestContext, methodContext, {
       config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
     });
 
     try {
+      console.log(context.config.sequencerUrl);
       const res = await axios.get(`${context.config.sequencerUrl}/ping`);
       context.logger.info("Ping response received from sequencer", requestContext, methodContext, {
         response: res.data,
@@ -97,10 +98,23 @@ export const makeRouter = async () => {
     }
     await bindServer();
     await bindMetrics();
-    await bindSubgraph(context.config.subgraphPollInterval!);
+    await bindSubgraph();
     await bindCache();
 
-    logger.info("Router ready!");
+    logger.info("Bindings initialized.");
+    logger.info("Router boot complete!");
+
+    console.log(
+      `
+
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+      `,
+    );
   } catch (e: unknown) {
     console.error("Error starting router. Sad! :(", e);
     process.exit();

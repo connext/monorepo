@@ -1,0 +1,4 @@
+type: "file-raw"
+keyType: "SECP256K1"
+privateKey: "${WEB3_SIGNER_PRIVATE_KEY}"
+
