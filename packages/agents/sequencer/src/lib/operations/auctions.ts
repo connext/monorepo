@@ -172,6 +172,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             bids,
           });
           continue;
+        } else if (!transfer.xcall || !transfer.relayerFee) {
+          // TODO: Same as above!
+          // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
+          logger.error("XCall or Relayer Fee not found for transfer!", requestContext, methodContext, undefined, {
+            transferId,
+            transfer,
+            bids,
+          });
+          continue;
         }
 
         // TODO: Reimplement auction rounds!
@@ -207,7 +216,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               randomBid,
             });
             // Send the relayer request based on chosen bids.
-            taskId = await sendToRelayer([randomBid.router], transfer, relayerFee, requestContext);
+            taskId = await sendToRelayer(
+              [randomBid.router],
+              transfer,
+              {
+                amount: transfer.relayerFee!,
+                asset: transfer.xcall!.transferringAsset,
+              },
+              requestContext,
+            );
             logger.info("Sent bid to relayer", requestContext, methodContext, {
               transferId,
               taskId,

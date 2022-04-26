@@ -76,6 +76,7 @@ To deploy the contracts:
 
 ```sh
 export MNEMONIC="<YOUR_MNEMONIC_HERE>"
+export ENV="staging" # either staging or production
 export ETH_PROVIDER_URL="<YOUR_PROVIDER_URL_HERE>"
 export ETHERSCAN_API_KEY="<ETHERSCAN_API_KEY_HERE>" # optional, but highly recommended
 ```

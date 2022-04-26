@@ -15,35 +15,7 @@ export const ClearCacheRequestSchema = AdminSchema;
 export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
 /// MARK - Sequencer API ----------------------------------------------------------------------------
-// TODO: Bid Data is a temporary solution - routers supply the execution args needed for sequencer to encode
-// data for `execute` call. Should be replaced by having the sequencer use the subgraph to get the data needed.
-
-// Bids should omit the routers field, since the sequencer will determine this based on the auction round, (i.e.
-// in the event of multipath transfers, will be multiple routers' bids).
-// TODO: Nested schema references are not working here (specifically)... not sure why.
-// -> seeing TypeError: Cannot read properties of undefined (reading 'modifier')
-// export const BidDataSchema = Type.Omit(ExecuteArgsSchema, ["routers"]);
-export const BidDataSchema = Type.Object({
-  params: Type.Object({
-    to: TAddress,
-    callData: Type.String(),
-    originDomain: Type.String(),
-    destinationDomain: Type.String(),
-  }),
-  local: Type.String(),
-  amount: TDecimalString,
-  nonce: Type.Integer(),
-  originSender: TAddress,
-});
-
-export type BidData = Static<typeof BidDataSchema>;
-
-export const AuctionsApiPostBidReqSchema = Type.Object({
-  transferId: Type.String(),
-  // TODO: See Bid Data TODO above. This should be deprecated.
-  data: BidDataSchema,
-  bid: BidSchema,
-});
+export const AuctionsApiPostBidReqSchema = BidSchema;
 
 export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
 
