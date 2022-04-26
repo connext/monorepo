@@ -4,7 +4,7 @@ locals {
     { name = "ENVIRONMENT", value = var.environment }
   ])
   router_env_vars = jsondecode([
-    { name = "NXTP_CONFIG", value = local.local_sequencer_config },
+    { name = "NXTP_CONFIG", value = local.local_router_config },
     { name = "ENVIRONMENT", value = var.environment }
   ])
   web3signer_env_vars = jsondecode([
