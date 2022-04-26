@@ -42,7 +42,7 @@ contract ConnextHandlerTest is ForgeHelper {
   event XCalled(
     bytes32 indexed transferId,
     IConnext.XCallArgs xcallArgs,
-    ConnextUtils.XCalledEventArgs args,
+    ConnextLogic.XCalledEventArgs args,
     uint256 nonce,
     bytes message,
     address caller
@@ -183,9 +183,7 @@ contract ConnextHandlerTest is ForgeHelper {
   // Fail maxRouters is 0
   function test_ConnextHandler__setMaxRouters_failsIfEmpty() public {
     vm.expectRevert(
-      abi.encodeWithSelector(
-        ConnextHandler.ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector
-      )
+      abi.encodeWithSelector(ConnextLogic.ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector)
     );
     connext.setMaxRoutersPerTransfer(0);
   }
@@ -202,7 +200,7 @@ contract ConnextHandlerTest is ForgeHelper {
     vm.prank(kakaroto);
 
     vm.expectRevert(
-      abi.encodeWithSelector(ConnextUtils.ConnextUtils__initiateClaim_notRelayer.selector, bytes32("BBB"))
+      abi.encodeWithSelector(ConnextLogic.ConnextLogic__initiateClaim_notRelayer.selector, bytes32("BBB"))
     );
 
     connext.initiateClaim(uint32(1), kakaroto, transactionIds);
@@ -317,7 +315,7 @@ contract ConnextHandlerTest is ForgeHelper {
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
-    ConnextUtils.XCalledEventArgs memory eventArg = ConnextUtils.XCalledEventArgs({
+    ConnextLogic.XCalledEventArgs memory eventArg = ConnextLogic.XCalledEventArgs({
       transactingAssetId: address(originAdopted),
       amount: 0,
       bridgedAmt: 0,
@@ -514,7 +512,7 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 initialFee = 0.01 ether;
     setRelayerFees(transferId, initialFee);
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextUtils.ConnextUtils__bumpTransfer_valueIsZero.selector));
+    vm.expectRevert(abi.encodeWithSelector(ConnextLogic.ConnextLogic__bumpTransfer_valueIsZero.selector));
     connext.bumpTransfer{value: 0}(transferId);
   }
 

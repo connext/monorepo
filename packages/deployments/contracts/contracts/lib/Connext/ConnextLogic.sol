@@ -19,7 +19,7 @@ import {Home} from "../../nomad-core/contracts/Home.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-library ConnextUtils {
+library ConnextLogic {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -29,30 +29,27 @@ library ConnextUtils {
 
   // ============ Errors ============
 
-  error ConnextUtils__addAssetId_alreadyAdded();
-  error ConnextUtils__removeAssetId_notAdded();
-  error ConnextUtils__addRelayer_alreadyApproved();
-  error ConnextUtils__removeRelayer_notApproved();
-  error ConnextUtils__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
-  error ConnextUtils__reconcile_invalidAction();
-  error ConnextUtils__reconcile_alreadyReconciled();
-  error ConnextUtils__transferAssetFromContract_notNative();
-  error ConnextUtils__transferAssetToContract_notAmount();
-  error ConnextUtils__transferAssetToContract_ethWithErcTransfer();
-  error ConnextUtils__removeLiquidity_recipientEmpty();
-  error ConnextUtils__removeLiquidity_amountIsZero();
-  error ConnextUtils__removeLiquidity_insufficientFunds();
-  error ConnextUtils__xcall_wrongDomain();
-  error ConnextUtils__xcall_emptyTo();
-  error ConnextUtils__xcall_notSupportedAsset();
-  error ConnextUtils__xcall_relayerFeeIsZero();
-  error ConnextUtils__execute_unapprovedRelayer();
-  error ConnextUtils__execute_maxRoutersExceeded();
-  error ConnextUtils__execute_alreadyExecuted();
-  error ConnextUtils__execute_notSupportedRouter();
-  error ConnextUtils__initiateClaim_notRelayer(bytes32 transferId);
-  error ConnextUtils__bumpTransfer_invalidTransfer();
-  error ConnextUtils__bumpTransfer_valueIsZero();
+  error ConnextLogic__addAssetId_alreadyAdded();
+  error ConnextLogic__removeAssetId_notAdded();
+  error ConnextLogic__addRelayer_alreadyApproved();
+  error ConnextLogic__removeRelayer_notApproved();
+  error ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error ConnextLogic__reconcile_invalidAction();
+  error ConnextLogic__reconcile_alreadyReconciled();
+  error ConnextLogic__removeLiquidity_recipientEmpty();
+  error ConnextLogic__removeLiquidity_amountIsZero();
+  error ConnextLogic__removeLiquidity_insufficientFunds();
+  error ConnextLogic__xcall_wrongDomain();
+  error ConnextLogic__xcall_emptyTo();
+  error ConnextLogic__xcall_notSupportedAsset();
+  error ConnextLogic__xcall_relayerFeeIsZero();
+  error ConnextLogic__execute_unapprovedRelayer();
+  error ConnextLogic__execute_maxRoutersExceeded();
+  error ConnextLogic__execute_alreadyExecuted();
+  error ConnextLogic__execute_notSupportedRouter();
+  error ConnextLogic__initiateClaim_notRelayer(bytes32 transferId);
+  error ConnextLogic__bumpTransfer_invalidTransfer();
+  error ConnextLogic__bumpTransfer_valueIsZero();
 
   // ============ Structs ============
 
@@ -75,6 +72,7 @@ library ConnextUtils {
 
   struct ExecuteLibArgs {
     IConnext.ExecuteArgs executeArgs;
+    bool isRouterOwnershipRenounced;
     uint256 maxRoutersPerTransfer;
     ITokenRegistry tokenRegistry;
     IWrapped wrapper;
@@ -127,24 +125,6 @@ library ConnextUtils {
   event RelayerRemoved(address relayer, address caller);
 
   /**
-   * @notice Emitted when `reconciled` is called by the bridge on the destination domain
-   * @param transferId - The unique identifier of the crosschain transaction
-   * @param origin - The origin domain of the transfer
-   * @param routers - The CallParams.recipient provided, created as indexed parameter
-   * @param asset - The asset that was provided by the bridge
-   * @param amount - The amount that was provided by the bridge
-   * @param caller - The account that called the function
-   */
-  event Reconciled(
-    bytes32 indexed transferId,
-    uint32 indexed origin,
-    address[] routers,
-    address asset,
-    uint256 amount,
-    address caller
-  );
-
-  /**
    * @notice Emitted when a router withdraws liquidity from the contract
    * @param router - The router you are removing liquidity from
    * @param to - The address the funds were withdrawn to
@@ -153,6 +133,22 @@ library ConnextUtils {
    * @param caller - The account that called the function
    */
   event LiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when a router adds liquidity to the contract
+   * @param router - The address of the router the funds were credited to
+   * @param local - The address of the token added (all liquidity held in local asset)
+   * @param amount - The amount of liquidity added
+   * @param caller - The account that called the function
+   */
+  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when the maxRoutersPerTransfer variable is updated
+   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
+   * @param caller - The account that called the function
+   */
+  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -188,13 +184,22 @@ library ConnextUtils {
   );
 
   /**
-   * @notice Emitted when a router adds liquidity to the contract
-   * @param router - The address of the router the funds were credited to
-   * @param local - The address of the token added (all liquidity held in local asset)
-   * @param amount - The amount of liquidity added
+   * @notice Emitted when `reconciled` is called by the bridge on the destination domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param origin - The origin domain of the transfer
+   * @param routers - The CallParams.recipient provided, created as indexed parameter
+   * @param asset - The asset that was provided by the bridge
+   * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
    */
-  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
+  event Reconciled(
+    bytes32 indexed transferId,
+    uint32 indexed origin,
+    address[] routers,
+    address asset,
+    uint256 amount,
+    address caller
+  );
 
   /**
    * @notice Emitted when `bumpTransfer` is called by an user on the origin domain
@@ -254,7 +259,7 @@ library ConnextUtils {
     mapping(bytes32 => address) storage _canonicalToAdopted
   ) external {
     // Sanity check: needs approval
-    if (_approvedAssets[_canonical.id]) revert ConnextUtils__addAssetId_alreadyAdded();
+    if (_approvedAssets[_canonical.id]) revert ConnextLogic__addAssetId_alreadyAdded();
 
     // Update approved assets mapping
     _approvedAssets[_canonical.id] = true;
@@ -285,7 +290,7 @@ library ConnextUtils {
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical
   ) external {
     // Sanity check: already approval
-    if (!_approvedAssets[_canonicalId]) revert ConnextUtils__removeAssetId_notAdded();
+    if (!_approvedAssets[_canonicalId]) revert ConnextLogic__removeAssetId_notAdded();
 
     // Update mapping
     delete _approvedAssets[_canonicalId];
@@ -305,7 +310,7 @@ library ConnextUtils {
    * @param _relayer - The relayer address to add
    */
   function addRelayer(address _relayer, mapping(address => bool) storage _approvedRelayers) external {
-    if (_approvedRelayers[_relayer]) revert ConnextUtils__addRelayer_alreadyApproved();
+    if (_approvedRelayers[_relayer]) revert ConnextLogic__addRelayer_alreadyApproved();
     _approvedRelayers[_relayer] = true;
 
     emit RelayerAdded(_relayer, msg.sender);
@@ -316,23 +321,111 @@ library ConnextUtils {
    * @param _relayer - The relayer address to remove
    */
   function removeRelayer(address _relayer, mapping(address => bool) storage _approvedRelayers) external {
-    if (!_approvedRelayers[_relayer]) revert ConnextUtils__removeRelayer_notApproved();
+    if (!_approvedRelayers[_relayer]) revert ConnextLogic__removeRelayer_notApproved();
     delete _approvedRelayers[_relayer];
 
     emit RelayerRemoved(_relayer, msg.sender);
   }
 
+  /**
+   * @notice Used to set the max amount of routers a payment can be routed through
+   * @param _newMax The new max amount of routers
+   */
+  function setMaxRoutersPerTransfer(uint256 _newMax, uint256 _currentMax) external {
+    if (_newMax == 0 || _newMax == _currentMax)
+      revert ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+
+    emit MaxRoutersPerTransferUpdated(_newMax, msg.sender);
+  }
+
   // ============ Functions ============
 
   /**
-   * @notice Holds the logic to recover the signer from an encoded payload.
-   * @dev Will hash and convert to an eth signed message.
-   * @param _encoded The payload that was signed
-   * @param _sig The signature you are recovering the signer from
+   * @notice Contains the logic to verify + increment a given routers liquidity
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the nomad representation of the asset
+   * @param _router - The router you are adding liquidity on behalf of
+   * @param _canonicalId - Canonical asset id from the representation
    */
-  function recoverSignature(bytes memory _encoded, bytes calldata _sig) external pure returns (address) {
-    // Recover
-    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
+  function addLiquidityForRouter(
+    uint256 _amount,
+    address _local,
+    address _router,
+    mapping(address => mapping(address => uint256)) storage _routerBalances,
+    bytes32 _canonicalId,
+    IWrapped _wrapper
+  ) external {
+    // Transfer funds to contract
+    (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0, _wrapper);
+
+    // Update the router balances. Happens after pulling funds to account for
+    // the fee on transfer tokens
+    _routerBalances[_router][asset] += received;
+
+    // Emit event
+    emit LiquidityAdded(_router, asset, _canonicalId, received, msg.sender);
+  }
+
+  /**
+   * @notice This is used by any router to decrease their available liquidity for a given asset.
+   * @param _amount - The amount of liquidity to remove for the router
+   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
+   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _recipient The address that will receive the liquidity being removed
+   */
+  function removeLiquidity(
+    uint256 _amount,
+    address _local,
+    address _recipient,
+    mapping(address => mapping(address => uint256)) storage _routerBalances,
+    IWrapped _wrapper
+  ) external {
+    // Sanity check: to is sensible
+    if (_recipient == address(0)) revert ConnextLogic__removeLiquidity_recipientEmpty();
+
+    // Sanity check: nonzero amounts
+    if (_amount == 0) revert ConnextLogic__removeLiquidity_amountIsZero();
+
+    uint256 routerBalance = _routerBalances[msg.sender][_local];
+    // Sanity check: amount can be deducted for the router
+    if (routerBalance < _amount) revert ConnextLogic__removeLiquidity_insufficientFunds();
+
+    // Update router balances
+    unchecked {
+      _routerBalances[msg.sender][_local] = routerBalance - _amount;
+    }
+
+    // Transfer from contract to specified to
+    AssetLogic.transferAssetFromContract(_local, _recipient, _amount, _wrapper);
+
+    // Emit event
+    emit LiquidityRemoved(msg.sender, _recipient, _local, _amount, msg.sender);
+  }
+
+  function xcall(
+    xCallLibArgs calldata _args,
+    mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => uint256) storage _relayerFees
+  ) external returns (bytes32, uint256) {
+    _xcallSanityChecks(_args);
+
+    // get the true transacting asset id (using wrapped native instead native)
+    (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _processXcall(
+      _args,
+      _adoptedToCanonical,
+      _adoptedToLocalPools
+    );
+
+    // Store the relayer fee
+    _relayerFees[transferId] = _args.xCallArgs.relayerFee;
+
+    // emit event
+    emit XCalled(transferId, _args.xCallArgs, eventArgs, _args.nonce, message, msg.sender);
+
+    return (transferId, _args.nonce + 1);
   }
 
   /**
@@ -355,7 +448,7 @@ library ConnextUtils {
 
     // assert the action is valid
     if (!action.isTransfer()) {
-      revert ConnextUtils__reconcile_invalidAction();
+      revert ConnextLogic__reconcile_invalidAction();
     }
 
     // load the transferId
@@ -363,7 +456,7 @@ library ConnextUtils {
 
     // ensure the transaction has not been handled
     if (_reconciledTransfers[transferId]) {
-      revert ConnextUtils__reconcile_alreadyReconciled();
+      revert ConnextLogic__reconcile_alreadyReconciled();
     }
 
     // get the token contract for the given tokenId on this chain
@@ -416,66 +509,6 @@ library ConnextUtils {
   }
 
   /**
-   * @notice This is used by any router to decrease their available liquidity for a given asset.
-   * @param _amount - The amount of liquidity to remove for the router
-   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
-   * native asset, routers may use `address(0)` or the wrapped asset
-   * @param _recipient The address that will receive the liquidity being removed
-   */
-  function removeLiquidity(
-    uint256 _amount,
-    address _local,
-    address _recipient,
-    mapping(address => mapping(address => uint256)) storage _routerBalances,
-    IWrapped _wrapper
-  ) external {
-    // Sanity check: to is sensible
-    if (_recipient == address(0)) revert ConnextUtils__removeLiquidity_recipientEmpty();
-
-    // Sanity check: nonzero amounts
-    if (_amount == 0) revert ConnextUtils__removeLiquidity_amountIsZero();
-
-    uint256 routerBalance = _routerBalances[msg.sender][_local];
-    // Sanity check: amount can be deducted for the router
-    if (routerBalance < _amount) revert ConnextUtils__removeLiquidity_insufficientFunds();
-
-    // Update router balances
-    unchecked {
-      _routerBalances[msg.sender][_local] = routerBalance - _amount;
-    }
-
-    // Transfer from contract to specified to
-    _transferAssetFromContract(_local, _recipient, _amount, _wrapper);
-
-    // Emit event
-    emit LiquidityRemoved(msg.sender, _recipient, _local, _amount, msg.sender);
-  }
-
-  function xcall(
-    xCallLibArgs calldata _args,
-    mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
-    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => uint256) storage _relayerFees
-  ) external returns (bytes32, uint256) {
-    _xcallSanityChecks(_args);
-
-    // get the true transacting asset id (using wrapped native instead native)
-    (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _processXcall(
-      _args,
-      _adoptedToCanonical,
-      _adoptedToLocalPools
-    );
-
-    // Store the relayer fee
-    _relayerFees[transferId] = _args.xCallArgs.relayerFee;
-
-    // emit event
-    emit XCalled(transferId, _args.xCallArgs, eventArgs, _args.nonce, message, msg.sender);
-
-    return (transferId, _args.nonce + 1);
-  }
-
-  /**
    * @notice Called on the destination domain to disburse correct assets to end recipient
    * and execute any included calldata
    * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
@@ -491,7 +524,12 @@ library ConnextUtils {
     RouterPermissionsManagerInfo storage _routerInfo,
     mapping(bytes32 => address) storage _transferRelayer
   ) external returns (bytes32) {
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, _transferRelayer, _reconciledTransfers);
+    (bytes32 transferId, bool reconciled) = _executeSanityChecks(
+      _args,
+      _transferRelayer,
+      _reconciledTransfers,
+      _routerInfo.approvedRouters
+    );
 
     // check to see if the transfer was reconciled
     (uint256 amount, address adopted) = _handleExecuteLiquidity(
@@ -518,34 +556,6 @@ library ConnextUtils {
   }
 
   /**
-   * @notice Contains the logic to verify + increment a given routers liquidity
-   * @dev The liquidity will be held in the local asset, which is the representation if you
-   * are *not* on the canonical domain, and the canonical asset otherwise.
-   * @param _amount - The amount of liquidity to add for the router
-   * @param _local - The address of the nomad representation of the asset
-   * @param _router - The router you are adding liquidity on behalf of
-   * @param _canonicalId - Canonical asset id from the representation
-   */
-  function addLiquidityForRouter(
-    uint256 _amount,
-    address _local,
-    address _router,
-    mapping(address => mapping(address => uint256)) storage _routerBalances,
-    bytes32 _canonicalId,
-    IWrapped _wrapper
-  ) external {
-    // Transfer funds to contract
-    (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0, _wrapper);
-
-    // Update the router balances. Happens after pulling funds to account for
-    // the fee on transfer tokens
-    _routerBalances[_router][asset] += received;
-
-    // Emit event
-    emit LiquidityAdded(_router, asset, _canonicalId, received, msg.sender);
-  }
-
-  /**
    * @notice Called by relayer when they want to claim owed funds on a given domain
    * @dev Domain should be the origin domain of all the transfer ids
    * @param _domain - domain to claim funds on
@@ -564,7 +574,7 @@ library ConnextUtils {
     // Ensure the relayer can claim all transfers specified
     for (uint256 i; i < _transferIds.length; ) {
       if (_transferRelayer[_transferIds[i]] != msg.sender)
-        revert ConnextUtils__initiateClaim_notRelayer(_transferIds[i]);
+        revert ConnextLogic__initiateClaim_notRelayer(_transferIds[i]);
       unchecked {
         i++;
       }
@@ -609,7 +619,7 @@ library ConnextUtils {
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId, mapping(bytes32 => uint256) storage relayerFees) external {
-    if (msg.value == 0) revert ConnextUtils__bumpTransfer_valueIsZero();
+    if (msg.value == 0) revert ConnextLogic__bumpTransfer_valueIsZero();
 
     relayerFees[_transferId] += msg.value;
 
@@ -625,16 +635,34 @@ library ConnextUtils {
   function _executeSanityChecks(
     ExecuteLibArgs calldata _args,
     mapping(bytes32 => address) storage _transferRelayer,
-    mapping(bytes32 => bool) storage _reconciledTransfers
+    mapping(bytes32 => bool) storage _reconciledTransfers,
+    mapping(address => bool) storage _approvedRouters
   ) private returns (bytes32, bool) {
-    if (_args.executeArgs.routers.length > _args.maxRoutersPerTransfer)
-      revert ConnextUtils__execute_maxRoutersExceeded();
+    // get number of facilitating routers
+    uint256 pathLength = _args.executeArgs.routers.length;
 
+    // make sure number of routers is valid
+    if (pathLength > _args.maxRoutersPerTransfer) revert ConnextLogic__execute_maxRoutersExceeded();
+
+    // make sure routers are all approved if needed
+    // TODO: check the signature of each of the routers within this loop
+    if (!_args.isRouterOwnershipRenounced) {
+      for (uint256 i; i < pathLength; ) {
+        if (!_approvedRouters[_args.executeArgs.routers[i]]) {
+          revert ConnextLogic__execute_notSupportedRouter();
+        }
+        unchecked {
+          i++;
+        }
+      }
+    }
+
+    // get transfer id
     bytes32 transferId = _getTransferId(_args);
 
     // require this transfer has not already been executed
     if (_transferRelayer[transferId] != address(0)) {
-      revert ConnextUtils__execute_alreadyExecuted();
+      revert ConnextLogic__execute_alreadyExecuted();
     }
 
     // get reconciled record
@@ -658,98 +686,18 @@ library ConnextUtils {
   }
 
   /**
-   * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
-   * @dev Will not swap if the asset passed in is the local asset
-   * @param _canonical - The canonical token
-   * @param _pool - The StableSwap pool
-   * @param _tokenRegistry - The local nomad token registry
-   * @param _asset - The address of the adopted asset to swap into the local asset
-   * @param _amount - The amount of the adopted asset to swap
-   * @return The amount of local asset received from swap
-   * @return The address of asset received post-swap
-   */
-  function _swapToLocalAssetIfNeeded(
-    ConnextMessage.TokenId memory _canonical,
-    IStableSwap _pool,
-    ITokenRegistry _tokenRegistry,
-    address _asset,
-    uint256 _amount
-  ) private returns (uint256, address) {
-    // Check to see if the asset must be swapped because it is not the local asset
-    if (_canonical.id == bytes32(0)) {
-      // This is *not* the adopted asset, meaning it must be the local asset
-      return (_amount, _asset);
-    }
-
-    // Get the local token for this domain (may return canonical or representation)
-    address local = _tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
-
-    // if theres no amount, no need to swap
-    if (_amount == 0) {
-      return (_amount, local);
-    }
-
-    // Check the case where the adopted asset *is* the local asset
-    if (local == _asset) {
-      // No need to swap
-      return (_amount, _asset);
-    }
-
-    // Approve pool
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(_pool), _amount);
-
-    // Swap the asset to the proper local asset
-    return (_pool.swapExact(_amount, _asset, local), local);
-  }
-
-  /**
-   * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
-   * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _canonicalToAdopted - Mapping of adopted to canonical on this domain
-   * @param _adoptedToLocalPools - Mapping holding the AMMs for swapping in and out of local assets
-   * @param _tokenRegistry - The local nomad token registry
-   * @param _asset - The address of the local asset to swap into the adopted asset
-   * @param _amount - The amount of the local asset to swap
-   * @return The amount of adopted asset received from swap
-   * @return The address of asset received post-swap
-   */
-  function _swapFromLocalAssetIfNeeded(
-    mapping(bytes32 => address) storage _canonicalToAdopted,
-    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    ITokenRegistry _tokenRegistry,
-    address _asset,
-    uint256 _amount
-  ) private returns (uint256, address) {
-    // Get the token id
-    (, bytes32 id) = _tokenRegistry.getTokenId(_asset);
-
-    // If the adopted asset is the local asset, no need to swap
-    address adopted = _canonicalToAdopted[id];
-    if (adopted == _asset) {
-      return (_amount, _asset);
-    }
-
-    // Approve pool
-    IStableSwap pool = _adoptedToLocalPools[id];
-    SafeERC20Upgradeable.safeApprove(IERC20Upgradeable(_asset), address(pool), _amount);
-
-    // Otherwise, swap to adopted asset
-    return (pool.swapExact(_amount, _asset, adopted), adopted);
-  }
-
-  /**
    * @notice Performs some sanity checks for `xcall`
    * @dev Need this to prevent stack too deep
    */
   function _xcallSanityChecks(xCallLibArgs calldata _args) private {
     // ensure this is the right domain
     if (_args.xCallArgs.params.originDomain != _args.domain) {
-      revert ConnextUtils__xcall_wrongDomain();
+      revert ConnextLogic__xcall_wrongDomain();
     }
 
     // ensure theres a recipient defined
     if (_args.xCallArgs.params.to == address(0)) {
-      revert ConnextUtils__xcall_emptyTo();
+      revert ConnextLogic__xcall_emptyTo();
     }
   }
 
@@ -776,7 +724,7 @@ library ConnextUtils {
     // check that the asset is supported -- can be either adopted or local
     ConnextMessage.TokenId memory canonical = _adoptedToCanonical[transactingAssetId];
     if (canonical.id == bytes32(0)) {
-      revert ConnextUtils__xcall_notSupportedAsset();
+      revert ConnextLogic__xcall_notSupportedAsset();
     }
 
     // transfer funds of transacting asset to the contract from user
@@ -789,7 +737,7 @@ library ConnextUtils {
     );
 
     // swap to the local asset from adopted
-    (uint256 bridgedAmt, address bridged) = _swapToLocalAssetIfNeeded(
+    (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
       canonical,
       _adoptedToLocalPools[canonical.id],
       _args.tokenRegistry,
@@ -915,10 +863,10 @@ library ConnextUtils {
     // execute the the transaction
     if (keccak256(_args.executeArgs.params.callData) == EMPTY) {
       // no call data, send funds to the user
-      _transferAssetFromContract(_adopted, _args.executeArgs.params.to, _amount, _args.wrapper);
+      AssetLogic.transferAssetFromContract(_adopted, _args.executeArgs.params.to, _amount, _args.wrapper);
     } else {
       // execute calldata w/funds
-      _transferAssetFromContract(_adopted, address(_args.executor), _amount, _args.wrapper);
+      AssetLogic.transferAssetFromContract(_adopted, address(_args.executor), _amount, _args.wrapper);
       _args.executor.execute(
         _transferId,
         _amount,
@@ -970,13 +918,6 @@ library ConnextUtils {
       // for each router, assert they are approved, and deduct liquidity
       uint256 routerAmount = toSwap / pathLen;
       for (uint256 i; i < pathLen; ) {
-        // while theres no way for a router to have sufficient liquidity
-        // if they have never been approved, this check ensures they weren't
-        // removed from the whitelist
-        if (!_routerInfo.approvedRouters[_args.executeArgs.routers[i]]) {
-          revert ConnextUtils__execute_notSupportedRouter();
-        }
-
         // decrement routers liquidity
         _routerBalances[_args.executeArgs.routers[i]][_args.executeArgs.local] -= routerAmount;
 
@@ -988,7 +929,7 @@ library ConnextUtils {
 
     // swap out of mad* asset into adopted asset if needed
     return
-      _swapFromLocalAssetIfNeeded(
+      AssetLogic.swapFromLocalAssetIfNeeded(
         _canonicalToAdopted,
         _adoptedToLocalPools,
         _args.tokenRegistry,
@@ -998,54 +939,13 @@ library ConnextUtils {
   }
 
   /**
-   * @notice Wrap the native asset
-   * @param _amount - The specified amount to wrap
-   * @param _wrapper - The address of the wrapper for the native asset on this domain
+   * @notice Holds the logic to recover the signer from an encoded payload.
+   * @dev Will hash and convert to an eth signed message.
+   * @param _encoded The payload that was signed
+   * @param _sig The signature you are recovering the signer from
    */
-  function _wrapNativeAsset(uint256 _amount, IWrapped _wrapper) private {
-    _wrapper.deposit{value: _amount}();
-  }
-
-  /**
-   * @notice Transfer asset funds from msg.sender to the Connext contract.
-   * @param _assetId - The address to transfer
-   * @param _amount - The specified amount to transfer
-   * @return The amount of the asset that was seen by the contract
-   */
-  function _transferAssetToContract(address _assetId, uint256 _amount) private returns (uint256) {
-    // Validate correct amounts are transferred
-    uint256 starting = IERC20Upgradeable(_assetId).balanceOf(address(this));
-
-    SafeERC20Upgradeable.safeTransferFrom(IERC20Upgradeable(_assetId), msg.sender, address(this), _amount);
-    // Calculate the *actual* amount that was sent here
-    return IERC20Upgradeable(_assetId).balanceOf(address(this)) - starting;
-  }
-
-  /**
-   * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically unwrap
-   * @param _assetId - The address to transfer
-   * @param _to - The account that will receive the withdrawn funds
-   * @param _amount - The amount to withdraw from contract
-   * @param _wrapper - The address of the wrapper for the native asset on this domain
-   */
-  function _transferAssetFromContract(
-    address _assetId,
-    address _to,
-    uint256 _amount,
-    IWrapped _wrapper
-  ) private {
-    // No native assets should ever be stored on this contract
-    if (_assetId == address(0)) revert ConnextUtils__transferAssetFromContract_notNative();
-
-    if (_assetId == address(_wrapper)) {
-      // If dealing with wrapped assets, make sure they are properly unwrapped
-      // before sending from contract
-      _wrapper.withdraw(_amount);
-      AddressUpgradeable.sendValue(payable(_to), _amount);
-    } else {
-      // Transfer ERC20 asset
-      SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(_assetId), _to, _amount);
-    }
+  function recoverSignature(bytes memory _encoded, bytes calldata _sig) external pure returns (address) {
+    // Recover
+    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
   }
 }

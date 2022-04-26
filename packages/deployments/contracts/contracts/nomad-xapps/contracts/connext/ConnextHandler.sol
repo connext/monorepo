@@ -5,24 +5,20 @@ pragma solidity ^0.8.11;
 // TODO: import from nomad, summa packages
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {Home} from "../../../nomad-core/contracts/Home.sol";
-import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 import {RelayerFeeRouter} from "../../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Router} from "../Router.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 
-import {ConnextUtils} from "../../../lib/Connext/ConnextUtils.sol";
+import {ConnextLogic} from "../../../lib/Connext/ConnextLogic.sol";
 
 import {ITokenRegistry} from "../../interfaces/bridge/ITokenRegistry.sol";
-
 import {IWrapped} from "../../../interfaces/IWrapped.sol";
 import {IConnext} from "../../../interfaces/IConnext.sol";
 import {IExecutor} from "../../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../../interfaces/IStableSwap.sol";
 
 import {Executor} from "../../../interpreters/Executor.sol";
-
-import {ProposedOwnableUpgradeable} from "../../../ProposedOwnableUpgradeable.sol";
 import {RouterPermissionsManager} from "../../../RouterPermissionsManager.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -33,17 +29,12 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 /**
  * @title ConnextHandler
  * @author Connext Labs
- * @dev Contains logic to facilitate bridging via nomad, including the provision of
+ * @notice Contains logic to facilitate bridging via nomad, including the provision of
  * fast liquidity
+ * @dev This contract primarily contains the storage used by the functions within the
+ * `ConnextLogic` contract, which contains the meaningful logic
  */
-contract ConnextHandler is
-  Initializable,
-  Version0,
-  ReentrancyGuardUpgradeable,
-  Router,
-  RouterPermissionsManager,
-  IConnext
-{
+contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, RouterPermissionsManager, IConnext {
   // ============ Libraries ============
 
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -210,7 +201,6 @@ contract ConnextHandler is
     executor = new Executor(address(this));
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
-    relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
     EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
     LIQUIDITY_FEE_NUMERATOR = 9995;
     LIQUIDITY_FEE_DENOMINATOR = 10000;
@@ -249,7 +239,7 @@ contract ConnextHandler is
     override
     onlyOwner
   {
-    ConnextUtils.addStableSwapPool(_canonical, _stableSwapPool, adoptedToLocalPools);
+    ConnextLogic.addStableSwapPool(_canonical, _stableSwapPool, adoptedToLocalPools);
   }
 
   /**
@@ -269,7 +259,7 @@ contract ConnextHandler is
     address _stableSwapPool
   ) external override onlyOwner {
     // Add the asset
-    ConnextUtils.addAssetId(
+    ConnextLogic.addAssetId(
       _canonical,
       _adoptedAssetId,
       address(wrapper),
@@ -279,7 +269,7 @@ contract ConnextHandler is
     );
 
     // Add the swap pool
-    ConnextUtils.addStableSwapPool(_canonical, _stableSwapPool, adoptedToLocalPools);
+    ConnextLogic.addStableSwapPool(_canonical, _stableSwapPool, adoptedToLocalPools);
   }
 
   /**
@@ -288,7 +278,7 @@ contract ConnextHandler is
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
   function removeAssetId(bytes32 _canonicalId, address _adoptedAssetId) external override onlyOwner {
-    ConnextUtils.removeAssetId(
+    ConnextLogic.removeAssetId(
       _canonicalId,
       _adoptedAssetId,
       address(wrapper),
@@ -303,7 +293,7 @@ contract ConnextHandler is
    * @param _relayer - The relayer address to add
    */
   function addRelayer(address _relayer) external override onlyOwner {
-    ConnextUtils.addRelayer(_relayer, approvedRelayers);
+    ConnextLogic.addRelayer(_relayer, approvedRelayers);
   }
 
   /**
@@ -311,7 +301,7 @@ contract ConnextHandler is
    * @param _relayer - The relayer address to remove
    */
   function removeRelayer(address _relayer) external override onlyOwner {
-    ConnextUtils.removeRelayer(_relayer, approvedRelayers);
+    ConnextLogic.removeRelayer(_relayer, approvedRelayers);
   }
 
   /**
@@ -319,12 +309,9 @@ contract ConnextHandler is
    * @param _newMaxRouters The new max amount of routers
    */
   function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external override onlyOwner {
-    if (_newMaxRouters == 0 || _newMaxRouters == maxRoutersPerTransfer)
-      revert ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+    ConnextLogic.setMaxRoutersPerTransfer(_newMaxRouters, maxRoutersPerTransfer);
 
     maxRoutersPerTransfer = _newMaxRouters;
-
-    emit MaxRoutersPerTransferUpdated(_newMaxRouters, msg.sender);
   }
 
   // ============ External functions ============
@@ -376,14 +363,14 @@ contract ConnextHandler is
     address recipient = routerRecipients(msg.sender);
     recipient = recipient == address(0) ? _to : recipient;
 
-    ConnextUtils.removeLiquidity(_amount, _local, recipient, routerBalances, wrapper);
+    ConnextLogic.removeLiquidity(_amount, _local, recipient, routerBalances, wrapper);
   }
 
   function xcall(XCallArgs calldata _args) external payable override returns (bytes32) {
     // get remote BridgeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
 
-    ConnextUtils.xCallLibArgs memory libArgs = ConnextUtils.xCallLibArgs({
+    ConnextLogic.xCallLibArgs memory libArgs = ConnextLogic.xCallLibArgs({
       xCallArgs: _args,
       wrapper: wrapper,
       nonce: nonce,
@@ -393,7 +380,7 @@ contract ConnextHandler is
       remote: remote
     });
 
-    (bytes32 transferId, uint256 newNonce) = ConnextUtils.xcall(
+    (bytes32 transferId, uint256 newNonce) = ConnextLogic.xcall(
       libArgs,
       adoptedToCanonical,
       adoptedToLocalPools,
@@ -422,7 +409,7 @@ contract ConnextHandler is
     bytes memory _message
   ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
     // handle the action
-    ConnextUtils.reconcile(_origin, _message, reconciledTransfers, tokenRegistry, routedTransfers, routerBalances);
+    ConnextLogic.reconcile(_origin, _message, reconciledTransfers, tokenRegistry, routedTransfers, routerBalances);
   }
 
   /**
@@ -437,8 +424,9 @@ contract ConnextHandler is
       revert ConnextHandler__execute_unapprovedRelayer();
     }
 
-    ConnextUtils.ExecuteLibArgs memory libArgs = ConnextUtils.ExecuteLibArgs({
+    ConnextLogic.ExecuteLibArgs memory libArgs = ConnextLogic.ExecuteLibArgs({
       executeArgs: _args,
+      isRouterOwnershipRenounced: isRouterOwnershipRenounced(),
       maxRoutersPerTransfer: maxRoutersPerTransfer,
       tokenRegistry: tokenRegistry,
       wrapper: wrapper,
@@ -448,7 +436,7 @@ contract ConnextHandler is
     });
 
     return
-      ConnextUtils.execute(
+      ConnextLogic.execute(
         libArgs,
         routedTransfers,
         reconciledTransfers,
@@ -465,7 +453,7 @@ contract ConnextHandler is
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId) external payable {
-    ConnextUtils.bumpTransfer(_transferId, relayerFees);
+    ConnextLogic.bumpTransfer(_transferId, relayerFees);
   }
 
   /**
@@ -480,7 +468,7 @@ contract ConnextHandler is
     address _recipient,
     bytes32[] calldata _transferIds
   ) external override {
-    ConnextUtils.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
+    ConnextLogic.initiateClaim(_domain, _recipient, _transferIds, relayerFeeRouter, transferRelayer);
   }
 
   /**
@@ -491,7 +479,7 @@ contract ConnextHandler is
    * @param _transferIds - transferIds to claim
    */
   function claim(address _recipient, bytes32[] calldata _transferIds) external override onlyRelayerFeeRouter {
-    ConnextUtils.claim(_recipient, _transferIds, relayerFees);
+    ConnextLogic.claim(_recipient, _transferIds, relayerFees);
   }
 
   // ============ Internal functions ============
@@ -525,6 +513,6 @@ contract ConnextHandler is
     // Asset is approved
     if (!isAssetOwnershipRenounced() && !approvedAssets[id]) revert ConnextHandler__addLiquidityForRouter_badAsset();
 
-    ConnextUtils.addLiquidityForRouter(_amount, _local, _router, routerBalances, id, wrapper);
+    ConnextLogic.addLiquidityForRouter(_amount, _local, _router, routerBalances, id, wrapper);
   }
 }
