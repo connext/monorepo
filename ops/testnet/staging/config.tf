@@ -25,6 +25,7 @@ locals {
       adminToken = var.admin_token_router
     }
 
+    logLevel = "debug"
     chains = {
       "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
@@ -45,7 +46,7 @@ locals {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
       }
     }
-    logLevel = "debug"
+
   })
 }
 

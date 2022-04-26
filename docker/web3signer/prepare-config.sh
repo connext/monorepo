@@ -6,4 +6,4 @@ rm -f "${KEY_PATH}/local-config.yaml" "${KEY_PATH}/temp.yml"
   echo "EOF";
 ) >"${KEY_PATH}/temp.yml"
 . "${KEY_PATH}/temp.yml"
-cat "${KEY_PATH}/local/local-config.yaml"
+

@@ -45,11 +45,11 @@ module "router" {
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
+  stage                    = var.stage
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  stage                    = var.stage
   container_env_vars       = local.router_env_vars
 }
 
@@ -87,13 +87,27 @@ module "sequencer" {
   instance_count           = 1
   timeout                  = 180
   environment              = var.environment
+  stage                    = var.stage
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  stage                    = var.stage
   container_env_vars       = local.sequencer_env_vars
 }
+
+module "sequencer_logdna_lambda_exporter" {
+  source          = "../../modules/lambda"
+  environment     = var.environment
+  log_group_name  = module.sequencer.log_group_name
+  logdna_key      = var.logdna_key
+  private_subnets = module.network.private_subnets
+  public_subnets  = module.network.public_subnets
+  service         = "sequencer"
+  stage           = var.stage
+  vpc_id          = module.network.vpc_id
+  log_group_arn   = module.sequencer.log_group_arn
+}
+
 
 module "web3signer" {
   source                   = "../../modules/service"
@@ -117,24 +131,12 @@ module "web3signer" {
   timeout                  = 180
   environment              = var.environment
   stage                    = var.stage
-  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  internal_lb              = true
+  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.web3signer_env_vars
-}
-
-module "sequencer_logdna_lambda_exporter" {
-  source          = "../../modules/lambda"
-  environment     = var.environment
-  log_group_name  = module.sequencer.log_group_name
-  logdna_key      = var.logdna_key
-  private_subnets = module.network.private_subnets
-  public_subnets  = module.network.public_subnets
-  service         = "sequencer"
-  stage           = var.stage
-  vpc_id          = module.network.vpc_id
-  log_group_arn   = module.sequencer.log_group_arn
 }
 
 module "network" {

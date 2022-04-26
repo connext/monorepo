@@ -5,11 +5,11 @@ locals {
   ])
   router_env_vars = jsondecode([
     { name = "NXTP_CONFIG", value = local.local_sequencer_config },
-    { name = "NXTP_MNEMONIC", value = var.mnemonic },
     { name = "ENVIRONMENT", value = var.environment }
   ])
   web3signer_env_vars = jsondecode([
-    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key }
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ])
 }
 
@@ -77,6 +77,6 @@ locals {
         ]
       }
     }
-    mnemonic = var.mnemonic
+    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
   })
 }
