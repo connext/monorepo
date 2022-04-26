@@ -77,8 +77,8 @@ library ConnextLogic {
     ITokenRegistry tokenRegistry;
     IWrapped wrapper;
     IExecutor executor;
-    uint256 LIQUIDITY_FEE_NUMERATOR;
-    uint256 LIQUIDITY_FEE_DENOMINATOR;
+    uint256 liquidityFeeNumerator;
+    uint256 liquidityFeeDenominator;
   }
 
   // ============ Events ============
@@ -404,6 +404,14 @@ library ConnextLogic {
     emit LiquidityRemoved(msg.sender, _recipient, _local, _amount, msg.sender);
   }
 
+  /**
+   * @notice This function is called ConnextHandler when a user who is looking to bridge funds
+   * @param _args - The XCallArgs
+   * @param _adoptedToCanonical - Mapping of canonical to adopted assets on this domain
+   * @param _adoptedToLocalPools - Mapping holding the AMMs for swapping in and out of local assets
+   * @param _relayerFees - Mapping of relayer fee for a transfer
+   * @return The transfer id of the crosschain transfer
+   */
   function xcall(
     XCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
@@ -413,7 +421,7 @@ library ConnextLogic {
     _xcallSanityChecks(_args);
 
     // get the true transacting asset id (using wrapped native instead native)
-    (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _processXcall(
+    (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _xcallProcess(
       _args,
       _adoptedToCanonical,
       _adoptedToLocalPools
@@ -520,7 +528,7 @@ library ConnextLogic {
     mapping(bytes32 => bool) storage _reconciledTransfers,
     mapping(address => mapping(address => uint256)) storage _routerBalances,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => address) storage canonicalToAdopted,
+    mapping(bytes32 => address) storage _canonicalToAdopted,
     RouterPermissionsManagerInfo storage _routerInfo,
     mapping(bytes32 => address) storage _transferRelayer
   ) external returns (bytes32) {
@@ -531,7 +539,7 @@ library ConnextLogic {
       _routerInfo.approvedRouters
     );
 
-    // check to see if the transfer was reconciled
+    // execute router liquidity when this is a fast transfer
     (uint256 amount, address adopted) = _handleExecuteLiquidity(
       transferId,
       !reconciled,
@@ -539,8 +547,7 @@ library ConnextLogic {
       _routedTransfers,
       _routerBalances,
       _adoptedToLocalPools,
-      canonicalToAdopted,
-      _routerInfo
+      _canonicalToAdopted
     );
 
     // execute the transaction
@@ -705,8 +712,8 @@ library ConnextLogic {
    * @notice Processes an `xcall`
    * @dev Need this to prevent stack too deep
    */
-  function _processXcall(
-    XCallLibArgs calldata _args,
+  function _xcallProcess(
+    xCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools
   )
@@ -763,7 +770,7 @@ library ConnextLogic {
   }
 
   /**
-   * @notice Calculates a transferId base son `execute` arguments
+   * @notice Calculates a transferId based on `execute` arguments
    * @dev Need this to prevent stack too deep
    */
   function _getTransferId(ExecuteLibArgs calldata _args) private view returns (bytes32) {
@@ -783,7 +790,7 @@ library ConnextLogic {
   }
 
   /**
-   * @notice Calculates a transferId base son `xcall` arguments
+   * @notice Calculates a transferId based on `xcall` arguments
    * @dev Need this to prevent stack too deep
    */
   function _getTransferId(XCallLibArgs calldata _args, ConnextMessage.TokenId memory _canonical)
@@ -853,6 +860,10 @@ library ConnextLogic {
     return ConnextMessage.formatMessage(tokenId, action);
   }
 
+  /**
+   * @notice Process the transfer, and calldata if needed, when calling `execute`
+   * @dev Need this to prevent stack too deep
+   */
   function _handleExecuteTransaction(
     ExecuteLibArgs calldata _args,
     uint256 _amount,
@@ -894,8 +905,7 @@ library ConnextLogic {
     mapping(bytes32 => address[]) storage _routedTransfers,
     mapping(address => mapping(address => uint256)) storage _routerBalances,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => address) storage _canonicalToAdopted,
-    RouterPermissionsManagerInfo storage _routerInfo
+    mapping(bytes32 => address) storage _canonicalToAdopted
   ) private returns (uint256, address) {
     uint256 toSwap = _args.executeArgs.amount;
     uint256 pathLen = _args.executeArgs.routers.length;
@@ -906,8 +916,8 @@ library ConnextLogic {
       // calculate amount with fast liquidity fee
       toSwap = _getFastTransferAmount(
         _args.executeArgs.amount,
-        _args.LIQUIDITY_FEE_NUMERATOR,
-        _args.LIQUIDITY_FEE_DENOMINATOR
+        _args.liquidityFeeNumerator,
+        _args.liquidityFeeDenominator
       );
 
       // TODO: validate routers signature on path / transferId

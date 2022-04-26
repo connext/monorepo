@@ -9,21 +9,27 @@ import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "et
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("execute-eg", "Prepare a cross-chain tx")
   .addOptionalParam("connextAddress", "Override connext address")
-  .setAction(async ({ connextAddress: _connextAddress }: TaskArgs, { deployments, ethers }) => {
+  .addOptionalParam("env", "Environment of contracts")
+  .setAction(async ({ connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
+    const env = mustGetEnv(_env);
+    console.log("env:", env);
+    const connextName = getDeploymentName("Connext", env);
     let connextAddress = _connextAddress ?? process.env.EG_CONNEXT_ADDRESS;
     if (!connextAddress) {
-      const connextDeployment = await deployments.get("ConnextHandler");
+      const connextDeployment = await deployments.get(connextName);
       connextAddress = connextDeployment.address;
     }
     console.log("connextAddress: ", connextAddress);
-    const connext = await ethers.getContractAt("ConnextHandler", connextAddress);
+    const connext = await ethers.getContractAt(connextName, connextAddress);
     const originDomain = process.env.TRANSFER_ORIGIN_DOMAIN;
     const destinationDomain = process.env.TRANSFER_DESTINATION_DOMAIN;
     if (!originDomain || !destinationDomain) {
@@ -67,10 +73,12 @@ export default task("execute-eg", "Prepare a cross-chain tx")
           transactingAssetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
+          const tokenRegistryAddress = (
+            await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env))
+          ).address;
           const tokenRegistry = await ethers.getContractAt(
             (
-              await deployments.getArtifact("TokenRegistry")
+              await deployments.get(getDeploymentName("TokenRegistry", env))
             ).abi,
             tokenRegistryAddress,
           );

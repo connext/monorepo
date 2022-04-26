@@ -1,6 +1,7 @@
-import { BigNumber, constants, providers, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { task } from "hardhat/config";
 
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 type TaskArgs = {
@@ -10,6 +11,7 @@ type TaskArgs = {
   destinationDomain?: string;
   callData?: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
@@ -19,6 +21,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("destinationDomain", "Destination domain")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
+  .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
       {
@@ -28,11 +31,15 @@ export default task("xcall", "Prepare a cross-chain tx")
         to: _to,
         callData: _callData,
         destinationDomain: _destinationDomain,
+        env: _env,
       }: TaskArgs,
       { deployments, ethers },
     ) => {
       let tx: providers.TransactionResponse;
       const [sender] = await ethers.getSigners();
+
+      const env = mustGetEnv(_env);
+      console.log("env:", env);
       console.log("sender: ", sender.address);
 
       // Get the origin and destination domains.
@@ -76,12 +83,11 @@ export default task("xcall", "Prepare a cross-chain tx")
           transactingAssetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
-          const tokenRegistry = await ethers.getContractAt(
-            (
-              await deployments.getArtifact("TokenRegistry")
-            ).abi,
-            tokenRegistryAddress,
+          const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
+          const tokenRegistry = new Contract(
+            tokenDeployment.address,
+            (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
+            sender,
           );
           transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
           if (transactingAssetId === constants.AddressZero) {
@@ -101,11 +107,10 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("Transfer to: ", to);
       console.log("callData: ", callData);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
+      const connextName = getDeploymentName("Connext", env);
+      const connextDeployment = await deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      const connext = new Contract(connextAddress, connextDeployment.abi, sender);
       console.log("connextAddress: ", connextAddress);
 
       let balance: BigNumber;
@@ -127,7 +132,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
       }
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
       const args = {
         params: {
           to,

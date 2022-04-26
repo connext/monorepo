@@ -1,7 +1,7 @@
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress } from "@connext/nxtp-utils";
+import { Logger, mkAddress } from "@connext/nxtp-utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
@@ -51,7 +51,7 @@ export const mochaHooks = {
       },
       config: mock.config(),
       chainData: mock.context().chainData,
-      logger: mock.context().logger,
+      logger: new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" }),
     };
     stub(SequencerFns, "getContext").returns(ctxMock);
   },

@@ -4,7 +4,6 @@ import {
   RequestContext,
   createLoggingContext,
   ajv,
-  BidData,
   AuctionStatus,
   getNtpTimeSeconds,
   Auction,
@@ -16,19 +15,15 @@ import { getContext } from "../../sequencer";
 
 import { getOperations } from ".";
 
-export const storeBid = async (
-  transferId: string,
-  origin: string,
-  bid: Bid,
-  bidData: BidData,
-  _requestContext: RequestContext,
-): Promise<void> => {
+export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     adapters: { cache, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
+
+  const { transferId, origin } = bid;
 
   // Validate Input schema
   const validateInput = ajv.compile(BidSchema);
@@ -83,8 +78,8 @@ export const storeBid = async (
   // Update and/or create the auction instance in the cache if necessary.
   const res = await cache.auctions.upsertAuction({
     transferId,
-    origin: bidData.params.originDomain,
-    destination: bidData.params.destinationDomain,
+    origin: transfer.originDomain,
+    destination: transfer.destinationDomain,
     bid,
   });
   logger.info("Updated auction", requestContext, methodContext, {
@@ -92,11 +87,6 @@ export const storeBid = async (
     auction: await cache.auctions.getAuction(transferId),
     status: await cache.auctions.getStatus(transferId),
   });
-
-  // If status of auction was previously None, then it's a new auction. Create the bid data record for it.
-  if (status === AuctionStatus.None) {
-    await cache.auctions.setBidData(transferId, bidData);
-  }
 
   return;
 };
@@ -172,6 +162,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             bids,
           });
           continue;
+        } else if (!transfer.xcall || !transfer.relayerFee) {
+          // TODO: Same as above!
+          // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
+          logger.error("XCall or Relayer Fee not found for transfer!", requestContext, methodContext, undefined, {
+            transferId,
+            transfer,
+            bids,
+          });
+          continue;
         }
 
         // TODO: Reimplement auction rounds!
@@ -207,7 +206,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               randomBid,
             });
             // Send the relayer request based on chosen bids.
-            taskId = await sendToRelayer([randomBid.router], transfer, relayerFee, requestContext);
+            taskId = await sendToRelayer(
+              [randomBid.router],
+              transfer,
+              {
+                amount: transfer.relayerFee!,
+                asset: transfer.xcall!.localAsset,
+              },
+              requestContext,
+            );
             logger.info("Sent bid to relayer", requestContext, methodContext, {
               transferId,
               taskId,
