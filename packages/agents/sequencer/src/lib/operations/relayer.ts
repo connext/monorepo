@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, BidData } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, BidData, XTransfer } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { GelatoSendFailed } from "../errors";
@@ -7,7 +7,11 @@ import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
   selectedRouters: string[],
-  bidData: BidData,
+  transfer: XTransfer,
+  relayerFee: {
+    asset: string;
+    amount: string;
+  },
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
@@ -68,8 +72,8 @@ export const sendToRelayer = async (
     destinationChainId,
     destinationConnextAddress,
     encodedData,
-    bidData.local,
-    bidData.feePercentage,
+    relayerFee.asset,
+    relayerFee.amount,
   );
   if ((result as AxiosError).isAxiosError) {
     throw new GelatoSendFailed({ result });

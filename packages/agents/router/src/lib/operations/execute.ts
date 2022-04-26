@@ -75,8 +75,6 @@ export const execute = async (params: XTransfer): Promise<void> => {
     local: executeLocalAsset,
     amount: receivingAmount,
     nonce: Number(nonce),
-    feePercentage: RELAYER_FEE_PERCENTAGE,
-    relayerSignature: signature,
     originSender: xcall.caller,
   };
 
