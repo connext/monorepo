@@ -223,23 +223,26 @@ export function handleExecuted(event: Executed): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleReconciled(event: Reconciled): void {
-  // TODO: MUST FIX WHEN IRL MULTIPATH IMPLEMENTED
-  // let router = Router.load(event.params.executed.routers[0].toHex());
-  // if (router == null) {
-  //   router = new Router(event.params.executed.routers[0].toHex());
-  //   router.save();
-  // }
-
   let transfer = Transfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new Transfer(event.params.transferId.toHexString());
+  }
+
+  const routers: string[] = [];
+  if (transfer.routers !== null) {
+    const r: string[] = transfer.routers!;
+    const n = r.length;
+    for (let i = 0; i < n; i++) {
+      const router: string = r[i];
+      routers.push(router);
+    }
   }
 
   // Meta
   transfer.chainId = getChainId();
   transfer.status = "Reconciled";
   // If the routers have already been set by an execute event, don't overwrite them.
-  transfer.routers = [];
+  transfer.routers = routers;
 
   // Transfer Data
   transfer.transferId = event.params.transferId;
