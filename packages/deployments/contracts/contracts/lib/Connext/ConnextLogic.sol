@@ -47,6 +47,7 @@ library ConnextLogic {
   error ConnextLogic__execute_maxRoutersExceeded();
   error ConnextLogic__execute_alreadyExecuted();
   error ConnextLogic__execute_notSupportedRouter();
+  error ConnextLogic__execute_invalidRouterSignature();
   error ConnextLogic__initiateClaim_notRelayer(bytes32 transferId);
   error ConnextLogic__bumpTransfer_invalidTransfer();
   error ConnextLogic__bumpTransfer_valueIsZero();
@@ -651,21 +652,24 @@ library ConnextLogic {
     // make sure number of routers is valid
     if (pathLength > _args.maxRoutersPerTransfer) revert ConnextLogic__execute_maxRoutersExceeded();
 
-    // make sure routers are all approved if needed
-    // TODO: check the signature of each of the routers within this loop
-    if (!_args.isRouterOwnershipRenounced) {
-      for (uint256 i; i < pathLength; ) {
-        if (!_approvedRouters[_args.executeArgs.routers[i]]) {
-          revert ConnextLogic__execute_notSupportedRouter();
-        }
-        unchecked {
-          i++;
-        }
-      }
-    }
-
     // get transfer id
     bytes32 transferId = _getTransferId(_args);
+
+    // get the payload the router should have signed
+    bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
+
+    // make sure routers are all approved if needed
+    for (uint256 i; i < pathLength; ) {
+      if (!_args.isRouterOwnershipRenounced && !_approvedRouters[_args.executeArgs.routers[i]]) {
+        revert ConnextLogic__execute_notSupportedRouter();
+      }
+      if (_args.executeArgs.routers[i] != _recoverSignature(routerHash, _args.executeArgs.routerSignatures[i])) {
+        revert ConnextLogic__execute_invalidRouterSignature();
+      }
+      unchecked {
+        i++;
+      }
+    }
 
     // require this transfer has not already been executed
     if (_transferRelayer[transferId] != address(0)) {
@@ -951,11 +955,11 @@ library ConnextLogic {
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
    * @dev Will hash and convert to an eth signed message.
-   * @param _encoded The payload that was signed
+   * @param _signed The hash that was signed
    * @param _sig The signature you are recovering the signer from
    */
-  function recoverSignature(bytes memory _encoded, bytes calldata _sig) external pure returns (address) {
+  function _recoverSignature(bytes32 _signed, bytes calldata _sig) internal pure returns (address) {
     // Recover
-    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(keccak256(_encoded)), _sig);
+    return ECDSAUpgradeable.recover(ECDSAUpgradeable.toEthSignedMessageHash(_signed), _sig);
   }
 }

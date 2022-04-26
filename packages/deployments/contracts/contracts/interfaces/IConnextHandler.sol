@@ -53,6 +53,7 @@ interface IConnextHandler {
     CallParams params;
     address local; // local representation of canonical token
     address[] routers;
+    bytes[] routerSignatures;
     uint256 amount;
     uint256 nonce;
     address originSender;

@@ -20,6 +20,7 @@ import {
   ConnextHandler,
   TestERC20,
   TransparentUpgradeableProxy,
+  ConnextLogic,
 } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
@@ -318,7 +319,7 @@ export const connextXCall = async (
   relayerFee: number,
   params: { to: string; callData: string; originDomain: number; destinationDomain: number },
   connext: ConnextHandler,
-  connextUtils: ConnextUtils,
+  connextLogic: ConnextLogic,
 ) => {
   // Approve user
   await asset.connect(user).approve(connext.address, amount);
@@ -330,8 +331,8 @@ export const connextXCall = async (
     .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
   const prepareReceipt = await prepare.wait();
 
-  const xcalledTopic = connextUtils.filters.XCalled().topics as string[];
-  const originTmEvent = connextUtils.interface.parseLog(
+  const xcalledTopic = connextLogic.filters.XCalled().topics as string[];
+  const originTmEvent = connextLogic.interface.parseLog(
     prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
   );
 

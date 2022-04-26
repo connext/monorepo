@@ -24,7 +24,7 @@ describe("Operations:Execute", () => {
     beforeEach(() => {
       mock.helpers.execute.sanityCheck.resolves();
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
-      mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
+      mock.helpers.shared.signRouterPathPayload.resolves(mock.signature);
       mockContext.adapters.subgraph.isRouterApproved.resolves(true);
       mockContext.adapters.subgraph.getAssetBalance.resolves(constants.MaxUint256);
     });

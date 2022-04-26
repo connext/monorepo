@@ -43,17 +43,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`XappConnectionManager not deployed`);
   }
 
-  console.log("Fetching bridge router...");
-  const bridgeRouterDeploymentName = getDeploymentName("BridgeRouterUpgradeBeaconProxy");
-  const bridgeRouterDeployment = await hre.deployments.getOrNull(bridgeRouterDeploymentName);
-  if (!bridgeRouterDeployment) {
-    throw new Error(`BridgeRouter not deployed`);
-  }
-  const bridge = new hre.ethers.Contract(
-    bridgeRouterDeployment.address,
-    (await hre.deployments.getOrNull(getDeploymentName("BridgeRouter")))!.abi,
-  ).connect(deployer);
-
   console.log("Fetching token registry...");
   const tokenRegistryDeployment = await hre.deployments.getOrNull("TokenRegistryUpgradeBeaconProxy");
   if (!tokenRegistryDeployment) {
@@ -68,16 +57,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Deploy Connext logic libraries
   console.log("Deploying asset logic, utils, permissions manager...");
   const assetLogicName = getDeploymentName("AssetLogic");
-  const assetLogic = await hre.deployments.deploy(assetLogicName, {
+  await hre.deployments.deploy(assetLogicName, {
     from: deployer.address,
     log: true,
     contract: "AssetLogic",
   });
-  const utilsLogicName = getDeploymentName("ConnextUtils");
-  const connextUtils = await hre.deployments.deploy(utilsLogicName, {
+  const utilsLogicName = getDeploymentName("ConnextLogic");
+  const connextLogic = await hre.deployments.deploy(utilsLogicName, {
     from: deployer.address,
     log: true,
-    contract: "ConnextUtils",
+    contract: "ConnextLogic",
   });
   const routersLogicName = getDeploymentName("RouterPermissionsManagerLogic");
   const routerPermissionsManagerLogic = await hre.deployments.deploy(routersLogicName, {
@@ -86,19 +75,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contract: "RouterPermissionsManagerLogic",
   });
 
-  // verify libs
-  console.log("verifying connext libraries...");
-  await Promise.all([
-    connextUtils.newlyDeployed ? verify(hre, connextUtils.address) : Promise.resolve(),
-    routerPermissionsManagerLogic.newlyDeployed
-      ? verify(hre, routerPermissionsManagerLogic.address)
-      : Promise.resolve(),
-  ]);
-
   // Deploy connext contract
   console.log("Deploying connext...");
   const libraries = {
-    ConnextUtils: connextUtils.address,
+    ConnextLogic: connextLogic.address,
     RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
   };
   const connext = await hre.deployments.deploy("ConnextHandler", {
@@ -111,7 +91,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
           methodName: "initialize",
           args: [
             domainConfig.domain,
-            bridge.address,
+            xappConnectionManagerDeployment.address,
             tokenRegistry.address,
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
             relayerFeeRouter.address,
@@ -133,12 +113,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await addTm.wait();
   } else {
     console.log("relayer fee router connext set");
-  }
-
-  // verify implementation
-  if (connext.newlyDeployed) {
-    console.log("verifying connext implementation...");
-    await verify(hre, connext.implementation ?? connext.address, [], libraries);
   }
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {

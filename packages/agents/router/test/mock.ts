@@ -170,7 +170,7 @@ export const mock = {
     shared: {
       getDestinationLocalAsset: stub(),
       getTransactionId: stub(),
-      signHandleRelayerFeePayload: stub(),
+      signRouterPathPayload: stub(),
     },
   },
   operations: {
