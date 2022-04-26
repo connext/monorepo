@@ -20,7 +20,6 @@ variable "environment" {
   default     = "testnet"
 }
 
-
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
@@ -66,5 +65,9 @@ variable "kovan_alchemy_key_1" {
 }
 
 variable "logdna_key" {
+  type = string
+}
+
+variable "web3_signer_private_key" {
   type = string
 }

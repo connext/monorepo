@@ -1,5 +1,5 @@
 import { utils, BigNumber } from "ethers";
-import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
+import { ChainReader, getRouterPermissionsManagerInterface } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
@@ -101,17 +101,17 @@ export const getRouterApproval = async (
       },
     },
   } = input;
-  const connext = getConnextInterface();
+  const rpm = getRouterPermissionsManagerInterface();
 
   if (!router) {
     throw new Error("Cannot approve non-existent router!");
   }
 
-  const encoded = connext.encodeFunctionData("approvedRouters", [router.address]);
+  const encoded = rpm.encodeFunctionData("getRouterApproval", [router.address]);
   const result = await chainreader.readTx({
     chainId: chain,
     to: contract,
     data: encoded,
   });
-  return connext.decodeFunctionResult("approvedRouters", result)[0] as boolean;
+  return rpm.decodeFunctionResult("getRouterApproval", result)[0] as boolean;
 };

@@ -1,21 +1,15 @@
 import { constants, utils, BigNumber } from "ethers";
-import { Bid, BidData, DEFAULT_ROUTER_FEE, expect, mkAddress } from "@connext/nxtp-utils";
+import { Bid, DEFAULT_ROUTER_FEE, expect, XTransfer } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
-import {
-  SlippageInvalid,
-  ParamsInvalid,
-  RouterNotApproved,
-  NotEnoughAmount,
-  MissingXCall,
-} from "../../../src/lib/errors";
+import { SlippageInvalid, ParamsInvalid, NotEnoughAmount, MissingXCall } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
 const { execute } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockXTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
-const mockRouter = mock.address.router;
+const mockXTransfer: XTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockRouter: string = mock.address.router;
 
 describe("Operations:Execute", () => {
   let mockContext: any;
@@ -37,26 +31,28 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const expectedBid: Bid = {
+        transferId: mockXTransfer.transferId,
+        origin: mockXTransfer.originDomain,
         fee: DEFAULT_ROUTER_FEE,
         router: mockRouter,
         signatures: {
           "1": mock.signature,
         },
       };
-      const expectedBidData: BidData = {
-        params: {
-          to: mockXTransfer.to,
-          callData: mockXTransfer.callData,
-          originDomain: mockXTransfer.originDomain,
-          destinationDomain: mockXTransfer.destinationDomain,
-        },
-        local: mockFulfillLocalAsset,
-        feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
-        amount: mockXTransfer.xcall.localAmount,
-        nonce: mockXTransfer.nonce,
-        originSender: mkAddress("0xfaded"),
-        relayerSignature: mock.signature,
-      };
+      // const expectedBidData: BidData = {
+      //   params: {
+      //     to: mockXTransfer.to,
+      //     callData: mockXTransfer.callData,
+      //     originDomain: mockXTransfer.originDomain,
+      //     destinationDomain: mockXTransfer.destinationDomain,
+      //   },
+      //   local: mockFulfillLocalAsset,
+      //   feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
+      //   amount: mockXTransfer.xcall.localAmount,
+      //   nonce: mockXTransfer.nonce,
+      //   originSender: mkAddress("0xfaded"),
+      //   relayerSignature: mock.signature,
+      // };
 
       await expect(execute(mockXTransfer)).to.be.fulfilled;
 
@@ -70,12 +66,8 @@ describe("Operations:Execute", () => {
         mockXTransfer.xcall.localAsset,
         mockXTransfer.destinationDomain,
       );
-      expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
-      expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 3)).to.deep.equal([
-        mockXTransfer.transferId,
-        expectedBid,
-        expectedBidData,
-      ]);
+      expect(mock.helpers.shared.signHandleRelayerFeePayload).to.be.calledOnce;
+      expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
     });
 
     it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
@@ -83,7 +75,7 @@ describe("Operations:Execute", () => {
         ...mockXTransfer,
         callData: 12345,
       };
-      await expect(execute(invalidParams)).to.be.rejectedWith(ParamsInvalid);
+      await expect(execute(invalidParams as any)).to.be.rejectedWith(ParamsInvalid);
     });
 
     it("should throw NotEnoughAmount if router doesn't have enough tokens", async () => {

@@ -14,7 +14,7 @@ import {ConnextLogic} from "../../../lib/Connext/ConnextLogic.sol";
 
 import {ITokenRegistry} from "../../interfaces/bridge/ITokenRegistry.sol";
 import {IWrapped} from "../../../interfaces/IWrapped.sol";
-import {IConnext} from "../../../interfaces/IConnext.sol";
+import {IConnextHandler} from "../../../interfaces/IConnextHandler.sol";
 import {IExecutor} from "../../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../../interfaces/IStableSwap.sol";
 
@@ -34,7 +34,13 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
  * @dev This contract primarily contains the storage used by the functions within the
  * `ConnextLogic` contract, which contains the meaningful logic
  */
-contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, RouterPermissionsManager, IConnext {
+contract ConnextHandler is
+  Initializable,
+  ReentrancyGuardUpgradeable,
+  Router,
+  RouterPermissionsManager,
+  IConnextHandler
+{
   // ============ Libraries ============
 
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -366,6 +372,13 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
     ConnextLogic.removeLiquidity(_amount, _local, recipient, routerBalances, wrapper);
   }
 
+  /**
+   * @notice This function is called by a user who is looking to bridge funds
+   * @dev This contract must have approval to transfer the adopted assets. They are then swapped to
+   * the local nomad assets via the configured AMM and sent over the bridge router.
+   * @param _args - The XCallArgs
+   * @return The transfer id of the crosschain transfer
+   */
   function xcall(XCallArgs calldata _args) external payable override returns (bytes32) {
     // get remote BridgeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
@@ -401,7 +414,6 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
    * @param _sender The sender address
    * @param _message The message
    */
-  // ROUTER
   function handle(
     uint32 _origin,
     uint32 _nonce,
@@ -431,8 +443,8 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
       tokenRegistry: tokenRegistry,
       wrapper: wrapper,
       executor: executor,
-      LIQUIDITY_FEE_NUMERATOR: LIQUIDITY_FEE_NUMERATOR,
-      LIQUIDITY_FEE_DENOMINATOR: LIQUIDITY_FEE_DENOMINATOR
+      liquidityFeeNumerator: LIQUIDITY_FEE_NUMERATOR,
+      liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
     });
 
     return

@@ -14,12 +14,9 @@ import { HardhatUserConfig } from "hardhat/types";
 
 import "./src/tasks/setupRouter";
 import "./src/tasks/setupAsset";
-import "./src/tasks/createRouter";
-import "./src/tasks/removeRelayerFee";
 import "./src/tasks/addLiquidity";
 import "./src/tasks/mintTestToken";
 import "./src/tasks/setupTestRouter";
-import "./src/tasks/getChainId";
 import "./src/tasks/renounceOwnership";
 import "./src/tasks/proposeTransferOwnership";
 import "./src/tasks/setAggregator";
@@ -28,14 +25,14 @@ import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
 import "./src/tasks/enrollHandler";
-import "./src/tasks/ensureLocal";
+import "./src/tasks/enrollCustom";
 import "./src/tasks/xcall";
 import "./src/tasks/setLocalDomain";
 import "./src/tasks/traceMessage";
 import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
 import "./src/tasks/executeEstimateGas";
-import "./src/tasks/enrollCustom";
+import "./src/tasks/exportAbi";
 
 dotEnvConfig();
 

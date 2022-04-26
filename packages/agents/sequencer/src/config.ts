@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
 import { ajv, ChainData } from "@connext/nxtp-utils";
-import { ConnextContractDeployments } from "@connext/nxtp-txservice";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
@@ -61,9 +61,15 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
+    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
+
+  const contractPostfix: ContractPostfix =
+    _sequencerConfig.environment === "production"
+      ? ""
+      : (`${_sequencerConfig.environment[0].toUpperCase()}${_sequencerConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
   Object.entries(_sequencerConfig.chains).forEach(([domainId, chainConfig]) => {
@@ -76,7 +82,7 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }
@@ -120,7 +126,6 @@ export let sequencerConfig: SequencerConfig | undefined;
 
 /**
  * Gets and validates the router config from the environment.
- * @param useDefaultLocal - (optional) If true, use the default local config.
  * @returns The router config with sensible defaults
  */
 export const getConfig = async (

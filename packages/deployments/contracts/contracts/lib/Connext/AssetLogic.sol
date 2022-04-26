@@ -9,8 +9,8 @@ import {ITokenRegistry} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry
 import {SafeERC20Upgradeable, IERC20Upgradeable, AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library AssetLogic {
-  error AssetLogic__transferAssetToContract_notAmount();
-  error AssetLogic__transferAssetToContract_ethWithErcTransfer();
+  error AssetLogic__handleIncomingAsset_notAmount();
+  error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__transferAssetFromContract_notNative();
 
   /**
@@ -35,14 +35,14 @@ library AssetLogic {
     uint256 trueAmount = _assetAmount;
 
     if (_assetId == address(0)) {
-      if (msg.value != _assetAmount + _fee) revert AssetLogic__transferAssetToContract_notAmount();
+      if (msg.value != _assetAmount + _fee) revert AssetLogic__handleIncomingAsset_notAmount();
 
       // When transferring native asset to the contract, always make sure that the
       // asset is properly wrapped
       wrapNativeAsset(_assetAmount, _wrapper);
       _assetId = address(_wrapper);
     } else {
-      if (msg.value != _fee) revert AssetLogic__transferAssetToContract_ethWithErcTransfer();
+      if (msg.value != _fee) revert AssetLogic__handleIncomingAsset_ethWithErcTransfer();
 
       // Transfer asset to contract
       trueAmount = transferAssetToContract(_assetId, _assetAmount);

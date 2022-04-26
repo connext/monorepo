@@ -789,6 +789,7 @@ __metadata:
     "@types/mocha": ^9.1.0
     "@types/sinon": ^10.0.11
     axios: ^0.26.1
+    concurrently: ^7.1.0
     dotenv: ^16.0.0
     eslint: ^8.11.0
     ethers: ^5.6.1
@@ -849,6 +850,7 @@ __metadata:
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": ^0.23.4
     axios: ^0.26.1
+    concurrently: ^7.1.0
     eslint: ^8.11.0
     ethers: ^5.6.1
     fastify: ^3.27.4
@@ -2318,10 +2320,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:^0.1.0-rc.12":
-  version: 0.1.0-rc.14
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.14"
-  checksum: 0352f185b9499de94c67e442c6dbabd0b92d5854ab8b230c071dde1041076040fddbf0fb6201e1cd20f01c4896715d132faaa0ac7e5beef280091f6dff69eb6c
+"@nomad-xyz/configuration@npm:^0.1.0-rc.12, @nomad-xyz/configuration@npm:^0.1.0-rc.15":
+  version: 0.1.0-rc.15
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.15"
+  checksum: 62bbaa74c45683616013e9f8e5560234935be4b02e0bb6c74affd11738ff20d34ac00dd1774f661df421b4f6a34ffa21262a4c659947d2725c713e18093e6948
   languageName: node
   linkType: hard
 
@@ -2372,15 +2374,15 @@ __metadata:
   linkType: hard
 
 "@nomad-xyz/sdk-bridge@npm:^1.0.0-rc.7":
-  version: 1.0.0-rc.8
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.8"
+  version: 1.0.0-rc.9
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.9"
   dependencies:
-    "@nomad-xyz/configuration": ^0.1.0-rc.12
+    "@nomad-xyz/configuration": ^0.1.0-rc.15
     "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
-    "@nomad-xyz/sdk": ^2.0.0-rc.8
+    "@nomad-xyz/sdk": ^2.0.0-rc.9
     ethers: ^5.0.0
     web3: ^1.6.1
-  checksum: 4ed780c39b9d85e15b3ee512ac218668f5cb61432f656e74d7b597a9f287a369191a298ebc87a1a25a674ea8c8cfaefaea0ba8cb7ebabb3995874f36b08a312a
+  checksum: 4964b59a617625d72e873311be6cfc20e9cd48e941c4902c1009db2e6d1390dbec394a72d9f13c3660dc0d815cf740deb2749b6fd35229c8e96286b08285c8d0
   languageName: node
   linkType: hard
 
@@ -3612,11 +3614,11 @@ __metadata:
   linkType: hard
 
 "acorn@npm:^8.4.1, acorn@npm:^8.7.0":
-  version: 8.7.0
-  resolution: "acorn@npm:8.7.0"
+  version: 8.7.1
+  resolution: "acorn@npm:8.7.1"
   bin:
     acorn: bin/acorn
-  checksum: e0f79409d68923fbf1aa6d4166f3eedc47955320d25c89a20cc822e6ba7c48c5963d5bc657bc242d68f7a4ac9faf96eef033e8f73656da6c640d4219935fdfd0
+  checksum: aca0aabf98826717920ac2583fdcad0a6fbe4e583fdb6e843af2594e907455aeafe30b1e14f1757cd83ce1776773cf8296ffc3a4acf13f0bd3dfebcf1db6ae80
   languageName: node
   linkType: hard
 
@@ -6324,6 +6326,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"concurrently@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "concurrently@npm:7.1.0"
+  dependencies:
+    chalk: ^4.1.0
+    date-fns: ^2.16.1
+    lodash: ^4.17.21
+    rxjs: ^6.6.3
+    spawn-command: ^0.0.2-1
+    supports-color: ^8.1.0
+    tree-kill: ^1.2.2
+    yargs: ^16.2.0
+  bin:
+    concurrently: dist/bin/concurrently.js
+  checksum: 723996afc73af7ea914a03726c75b63be6ce83f0825b0bc54de0568ba89490e217ca88523f251fe1e5c30ee2780572dce830b530ef35e435e64c1f94cfd4e4af
+  languageName: node
+  linkType: hard
+
 "console-control-strings@npm:^1.1.0":
   version: 1.1.0
   resolution: "console-control-strings@npm:1.1.0"
@@ -6664,6 +6684,13 @@ __metadata:
   version: 1.30.1
   resolution: "date-fns@npm:1.30.1"
   checksum: 86b1f3269cbb1f3ee5ac9959775ea6600436f4ee2b78430cd427b41a0c9fabf740b1a5d401c085f3003539a6f4755c7c56c19fbd70ce11f6f673f6bc8075b710
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.16.1":
+  version: 2.28.0
+  resolution: "date-fns@npm:2.28.0"
+  checksum: a0516b2e4f99b8bffc6cc5193349f185f195398385bdcaf07f17c2c4a24473c99d933eb0018be4142a86a6d46cb0b06be6440ad874f15e795acbedd6fd727a1f
   languageName: node
   linkType: hard
 
@@ -7233,9 +7260,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.118":
-  version: 1.4.119
-  resolution: "electron-to-chromium@npm:1.4.119"
-  checksum: af77e5e0e606f6b639456b60eb76a9a2301cda049b911cd6439fe34c67f790471adb8b53e5e9a3df6ece5461ec394d33305b5db24c6c9b8fa653cef4446b6573
+  version: 1.4.121
+  resolution: "electron-to-chromium@npm:1.4.121"
+  checksum: 85be9ff2d56370215bc186e266a1883cfc50f2f41ac6908432aac44ba4c4ffcd20c6e7a828d8082cae9c0a71d0c329af40ea5dec67901400776269b0617e2210
   languageName: node
   linkType: hard
 
@@ -16682,7 +16709,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^6.3.3, rxjs@npm:^6.4.0":
+"rxjs@npm:^6.3.3, rxjs@npm:^6.4.0, rxjs@npm:^6.6.3":
   version: 6.6.7
   resolution: "rxjs@npm:6.6.7"
   dependencies:
@@ -17541,6 +17568,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"spawn-command@npm:^0.0.2-1":
+  version: 0.0.2
+  resolution: "spawn-command@npm:0.0.2"
+  checksum: e35c5d28177b4d461d33c88cc11f6f3a5079e2b132c11e1746453bbb7a0c0b8a634f07541a2a234fa4758239d88203b758def509161b651e81958894c0b4b64b
+  languageName: node
+  linkType: hard
+
 "spawn-wrap@npm:^2.0.0":
   version: 2.0.0
   resolution: "spawn-wrap@npm:2.0.0"
@@ -17963,7 +17997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supports-color@npm:8.1.1":
+"supports-color@npm:8.1.1, supports-color@npm:^8.1.0":
   version: 8.1.1
   resolution: "supports-color@npm:8.1.1"
   dependencies:
@@ -18443,6 +18477,15 @@ __metadata:
   version: 0.0.3
   resolution: "tr46@npm:0.0.3"
   checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
+  languageName: node
+  linkType: hard
+
+"tree-kill@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "tree-kill@npm:1.2.2"
+  bin:
+    tree-kill: cli.js
+  checksum: 49117f5f410d19c84b0464d29afb9642c863bc5ba40fcb9a245d474c6d5cc64d1b177a6e6713129eb346b40aebb9d4631d967517f9fbe8251c35b21b13cd96c7
   languageName: node
   linkType: hard
 
@@ -20779,7 +20822,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs@npm:16.2.0, yargs@npm:^16.0.3":
+"yargs@npm:16.2.0, yargs@npm:^16.0.3, yargs@npm:^16.2.0":
   version: 16.2.0
   resolution: "yargs@npm:16.2.0"
   dependencies:

@@ -32,7 +32,7 @@ export class TransfersCache extends Cache {
     if (res) {
       return parseInt(res);
     }
-    return 0;
+    return -1;
   }
 
   /// MARK - Transfer Data

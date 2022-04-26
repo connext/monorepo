@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.6
+
+- [ops] Staging and prod envs separated
+
 ## 0.2.0-alpha.4
 
 - [amarok] hardfork alpha release
@@ -246,7 +250,7 @@
 
 ## 0.0.84
 
-- [utils] Update `add-router` and `deploy-subgraph` scripts to include optimism
+- [utils] Update `setup-router` and `deploy-subgraph` scripts to include optimism
 - [txservice] Remove min gas enforcement for optimism
 - [router] Ensure handling tracker is pruned properly
 
