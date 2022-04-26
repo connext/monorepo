@@ -652,17 +652,15 @@ library ConnextLogic {
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
     // make sure routers are all approved if needed
-    if (!_args.isRouterOwnershipRenounced) {
-      for (uint256 i; i < pathLength; ) {
-        if (!_approvedRouters[_args.executeArgs.routers[i]]) {
-          revert ConnextLogic__execute_notSupportedRouter();
-        }
-        if (_args.executeArgs.routers[i] != _recoverSignature(routerHash, _args.executeArgs.routerSignatures[i])) {
-          revert ConnextLogic__execute_invalidRouterSignature();
-        }
-        unchecked {
-          i++;
-        }
+    for (uint256 i; i < pathLength; ) {
+      if (!_args.isRouterOwnershipRenounced && !_approvedRouters[_args.executeArgs.routers[i]]) {
+        revert ConnextLogic__execute_notSupportedRouter();
+      }
+      if (_args.executeArgs.routers[i] != _recoverSignature(routerHash, _args.executeArgs.routerSignatures[i])) {
+        revert ConnextLogic__execute_invalidRouterSignature();
+      }
+      unchecked {
+        i++;
       }
     }
 
