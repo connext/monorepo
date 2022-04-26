@@ -71,6 +71,7 @@ export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   routers: Type.Array(TAddress),
+  routerSignatures: Type.Array(Type.String()),
   amount: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,

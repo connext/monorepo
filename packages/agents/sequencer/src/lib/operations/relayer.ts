@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, XTransfer } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, XTransfer, Bid } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { GelatoSendFailed } from "../errors";
@@ -6,7 +6,7 @@ import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
-  routers: string[],
+  bids: Bid[],
   transfer: XTransfer,
   relayerFee: {
     asset: string;
@@ -21,7 +21,7 @@ export const sendToRelayer = async (
     adapters: { chainreader },
   } = getContext();
   const {
-    auctions: { encodeExecuteFromBid },
+    auctions: { encodeExecuteFromBids },
     relayer: { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress },
   } = getHelpers();
 
@@ -32,7 +32,7 @@ export const sendToRelayer = async (
 
   const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBid(routers, transfer);
+  const encodedData = encodeExecuteFromBids(bids, transfer);
 
   const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
   if (!isSupportedByGelato) {

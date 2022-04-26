@@ -44,11 +44,12 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
 };
 
 /**
- * Generates a signature on the router path length payload in `execute` transaction
+ * Generates a signature on the router path length payload in `execute` transaction. Represents
+ * consent of the signing router to use a portion of their liquidity (minus a fee) to `execute` the
+ * transfer.
  *
- * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
- * the transaction id for the crosschain transaction
- * @param pathLength - The number of routers in transfer
+ * @param transferId - The ID of the transfer.
+ * @param pathLength - The number of routers that are supplying fast liquidity for the transfer.
  * @returns Signature of the payload from the signer
  */
 export const signRouterPathPayload = async (

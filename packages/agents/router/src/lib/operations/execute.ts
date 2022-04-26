@@ -56,9 +56,18 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   const receivingAmount = xcall.localAmount;
 
-  // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signRouterPathPayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
-  logger.debug("Signed payload", requestContext, methodContext, { signature });
+  // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
+  // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
+  // only on the first auction round.
+  // Produce the router path signatures for each auction round we want to bid on.
+  const signatures = {
+    "1": await signRouterPathPayload(transferId, RELAYER_FEE_PERCENTAGE, wallet),
+  };
+  logger.debug("Signed payloads", requestContext, methodContext, {
+    rounds: Object.keys(signatures),
+    // Sanitized with ellipsis.
+    sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
+  });
 
   const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
@@ -66,12 +75,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
     origin: originDomain,
     router: routerAddress,
     fee,
-    // TODO: This list of signatures should reflect the auction rounds we want to bid on;
-    // we should eventually calculate which rounds we can afford to bid on, and then pass those in.
-    // For now, this is hardcoded to bid only on the first auction round.
-    signatures: {
-      "1": signature,
-    },
+    signatures,
   };
 
   // sanity check

@@ -83,6 +83,7 @@ export const mock: any = {
       params: mock.entity.callParams(),
       local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
+      routerSignatures: [mock.signature],
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),

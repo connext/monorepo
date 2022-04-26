@@ -1,8 +1,8 @@
-import { ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
-export const encodeExecuteFromBid = (routers: string[], transfer: XTransfer): string => {
+export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer): string => {
   const {
     adapters: { contracts },
   } = getContext();
@@ -12,8 +12,6 @@ export const encodeExecuteFromBid = (routers: string[], transfer: XTransfer): st
   }
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
-    nonce: transfer.nonce,
-    routers: routers,
     params: {
       originDomain: transfer.originDomain,
       destinationDomain: transfer.destinationDomain,
@@ -21,7 +19,10 @@ export const encodeExecuteFromBid = (routers: string[], transfer: XTransfer): st
       callData: transfer.callData,
     },
     local: transfer.xcall.localAsset,
+    routers: bids.map((b) => b.router),
+    routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
     amount: transfer.xcall.localAmount,
+    nonce: transfer.nonce,
     originSender: transfer.xcall.caller,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);

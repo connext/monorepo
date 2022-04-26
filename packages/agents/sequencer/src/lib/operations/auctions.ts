@@ -199,8 +199,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         for (const randomBid of randomized) {
           // Sanity: Check if this router has enough funds.
           const { router } = randomBid;
-          const { amount: _amount, local: asset } = bidData;
-          const amount = BigNumber.from(_amount);
+          const amount = BigNumber.from(transfer.xcall.transferringAmount);
+          const asset = transfer.xcall.transferringAsset;
           let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
 
           if (!routerLiquidity) {
@@ -249,7 +249,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             });
             // Send the relayer request based on chosen bids.
             taskId = await sendToRelayer(
-              [randomBid.router],
+              [randomBid],
               transfer,
               {
                 amount: transfer.relayerFee!,
