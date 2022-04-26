@@ -15,11 +15,7 @@ resource "aws_ecs_task_definition" "service" {
       image       = var.docker_image
       cpu         = var.cpu
       memory      = var.memory
-      environment = [
-        { name = var.service_config_name, value = var.service_config_value },
-        { name = "NXTP_MNEMONIC", value = var.mnemonic },
-        { name = "ENVIRONMENT", value = var.environment }
-      ]
+      environment = var.container_env_vars
       networkMode      = "awsvpc"
       logConfiguration = {
         logDriver = "awslogs",
@@ -123,9 +119,6 @@ resource "aws_security_group" "lb" {
     cidr_blocks = var.allow_all_cdir_blocks
   }
 }
-
-#var.environment != "prod" ? "${var.environment}.${var.hosted_zone_url}" : var.hosted_zone_url
-
 
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id

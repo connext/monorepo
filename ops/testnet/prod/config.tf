@@ -1,4 +1,19 @@
 locals {
+  sequencer_env_vars = jsondecode([
+    { name = "SEQ_CONFIG", value = local.local_sequencer_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ])
+  router_env_vars = jsondecode([
+    { name = "NXTP_CONFIG", value = local.local_sequencer_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ])
+  web3signer_env_vars = jsondecode([
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
+  ])
+}
+
+locals {
   local_sequencer_config = jsonencode({
     redis =  {
       host: module.sequencer_cache.redis_instance_address,
@@ -62,6 +77,6 @@ locals {
         ]
       }
     }
-    mnemonic = var.mnemonic
+    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
   })
 }

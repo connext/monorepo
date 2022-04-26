@@ -10,14 +10,14 @@ variable "az_count" {
   default = "2"
 }
 
-variable "stage" {
-  description = "stage of deployment"
-  default     = "prod"
-}
-
 variable "environment" {
   description = "env we're deploying to"
   default     = "testnet"
+}
+
+variable "stage" {
+  description = "stage of deployment"
+  default     = "prod"
 }
 
 
@@ -62,6 +62,11 @@ variable "rinkeby_alchemy_key_1" {
 }
 
 variable "kovan_alchemy_key_1" {
+  type = string
+}
+
+
+variable "web3_signer_private_key" {
   type = string
 }
 

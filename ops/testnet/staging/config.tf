@@ -1,3 +1,19 @@
+
+locals {
+  sequencer_env_vars = [
+    { name = "SEQ_CONFIG", value = local.local_sequencer_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ]
+  router_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_router_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ]
+  web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
+  ]
+}
+
 locals {
   local_sequencer_config = jsonencode({
     redis = {
@@ -9,6 +25,7 @@ locals {
       adminToken = var.admin_token_router
     }
 
+    logLevel = "debug"
     chains = {
       "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
@@ -29,7 +46,7 @@ locals {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
       }
     }
-    logLevel = "debug"
+
   })
 }
 
@@ -66,6 +83,6 @@ locals {
         ]
       }
     }
-    mnemonic = var.mnemonic
+    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
   })
 }
