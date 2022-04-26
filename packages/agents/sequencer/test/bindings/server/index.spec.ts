@@ -106,5 +106,30 @@ describe("Bindings:Server", () => {
 
       expect(response.statusCode).to.be.eq(500);
     });
+
+    it("happy: should call clearCache", async () => {
+      fastifyApp = await BindingFns.bindServer();
+      ctxMock.config.server.adminToken = "good-token <3";
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/clear-cache",
+        payload: {
+          adminToken: "good-token <3",
+        },
+      });
+      expect(response.statusCode).to.be.eq(200);
+    });
+
+    it("should reject clearCache with incorrect admin token", async () => {
+      fastifyApp = await BindingFns.bindServer();
+      const response = await fastifyApp.inject({
+        method: "POST",
+        url: "/clear-cache",
+        payload: {
+          adminToken: "bad-token >:(",
+        },
+      });
+      expect(response.statusCode).to.be.eq(401);
+    });
   });
 });
