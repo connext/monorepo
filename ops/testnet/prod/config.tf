@@ -3,9 +3,8 @@ locals {
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment }
   ]
-  router_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_sequencer_config },
-    { name = "ENVIRONMENT", value = var.environment }
+  router_env_vars = jsondecode([
+    { name = "NXTP_CONFIG", value = local.local_router_config },
   ]
   web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
