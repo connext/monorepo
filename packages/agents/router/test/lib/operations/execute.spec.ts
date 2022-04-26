@@ -39,20 +39,6 @@ describe("Operations:Execute", () => {
           "1": mock.signature,
         },
       };
-      // const expectedBidData: BidData = {
-      //   params: {
-      //     to: mockXTransfer.to,
-      //     callData: mockXTransfer.callData,
-      //     originDomain: mockXTransfer.originDomain,
-      //     destinationDomain: mockXTransfer.destinationDomain,
-      //   },
-      //   local: mockFulfillLocalAsset,
-      //   feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
-      //   amount: mockXTransfer.xcall.localAmount,
-      //   nonce: mockXTransfer.nonce,
-      //   originSender: mkAddress("0xfaded"),
-      //   relayerSignature: mock.signature,
-      // };
 
       await expect(execute(mockXTransfer)).to.be.fulfilled;
 
@@ -66,7 +52,7 @@ describe("Operations:Execute", () => {
         mockXTransfer.xcall.localAsset,
         mockXTransfer.destinationDomain,
       );
-      expect(mock.helpers.shared.signHandleRelayerFeePayload).to.be.calledOnce;
+      expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
       expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
     });
 

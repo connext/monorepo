@@ -155,12 +155,12 @@ describe("Operations:Auctions", () => {
         expect(getTransferStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
         expect(sendToRelayerStub.getCall(i).args[0].length).to.eq(1);
 
-        const routers = sendToRelayerStub.getCall(i).args[0];
+        const bids = sendToRelayerStub.getCall(i).args[0];
         const transfer = sendToRelayerStub.getCall(i).args[1];
         const relayerFee = sendToRelayerStub.getCall(i).args[2];
         expect(transfer).to.deep.eq(transfers[i]);
-        for (const router of routers) {
-          expect(Object.keys(auctions[i].bids)).to.include(router);
+        for (const bid of bids) {
+          expect(Object.keys(auctions[i].bids)).to.include(bid.router);
         }
         expect(relayerFee.amount).to.eq(transfers[i].relayerFee);
         expect(relayerFee.asset).to.eq(transfers[i].xcall.localAsset);

@@ -43,7 +43,6 @@ const mockRelayerFees = [
 ];
 
 const mockBids = [mock.entity.bid(mockTransfers[0]), mock.entity.bid(mockTransfers[1])];
-const mockSelectedRouters = mockBids.map((bid) => bid.router);
 
 const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 const mockAxiosSuccessResponse = { taskId: 1, msg: "success" };
@@ -52,12 +51,12 @@ describe("#relayer", () => {
   describe("#sendToRelayer", () => {
     let gelatoSendStub: SinonStub;
     let isChainSupportedByGelatoStub: SinonStub;
-    let encodeExecuteFromBidStub: SinonStub;
+    let encodeExecuteFromBidsStub: SinonStub;
     let getGelatoRelayerAddressStub: SinonStub;
     beforeEach(() => {
       gelatoSendStub = stub();
       isChainSupportedByGelatoStub = stub();
-      encodeExecuteFromBidStub = stub();
+      encodeExecuteFromBidsStub = stub();
       getGelatoRelayerAddressStub = stub();
 
       getHelpersStub.returns({
@@ -67,7 +66,7 @@ describe("#relayer", () => {
           getGelatoRelayerAddress: getGelatoRelayerAddressStub,
         },
         auctions: {
-          encodeExecuteFromBid: encodeExecuteFromBidStub,
+          encodeExecuteFromBids: encodeExecuteFromBidsStub,
         },
       });
     });
@@ -79,12 +78,7 @@ describe("#relayer", () => {
     it("should error if gelato doesn't support", async () => {
       isChainSupportedByGelatoStub.resolves(false);
       expect(
-        sendToRelayer(
-          mockSelectedRouters.slice(0, 1),
-          mockTransfers[0],
-          mockRelayerFees[0],
-          loggingContext.requestContext,
-        ),
+        sendToRelayer(mockBids.slice(0, 1), mockTransfers[0], mockRelayerFees[0], loggingContext.requestContext),
       ).to.eventually.be.throw(new Error("Chain not supported by gelato."));
     });
 
@@ -92,24 +86,14 @@ describe("#relayer", () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosErrorResponse);
       expect(
-        sendToRelayer(
-          mockSelectedRouters.slice(0, 1),
-          mockTransfers[0],
-          mockRelayerFees[0],
-          loggingContext.requestContext,
-        ),
+        sendToRelayer(mockBids.slice(0, 1), mockTransfers[0], mockRelayerFees[0], loggingContext.requestContext),
       ).to.eventually.be.throw(new GelatoSendFailed());
     });
 
     it("should send the bid to the sequencer", async () => {
       isChainSupportedByGelatoStub.resolves(true);
       gelatoSendStub.resolves(mockAxiosSuccessResponse);
-      await sendToRelayer(
-        mockSelectedRouters.slice(0, 1),
-        mockTransfers[0],
-        mockRelayerFees[0],
-        loggingContext.requestContext,
-      );
+      await sendToRelayer(mockBids.slice(0, 1), mockTransfers[0], mockRelayerFees[0], loggingContext.requestContext);
       expect(gelatoSendStub).to.be.calledOnce;
     });
   });

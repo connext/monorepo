@@ -78,8 +78,8 @@ export const mock = {
       priceCaching: false,
     },
     polling: {
-      subgraph: 1,
-      cache: 1,
+      subgraph: 10_000,
+      cache: 10_000,
     },
     environment: "staging",
   }),
