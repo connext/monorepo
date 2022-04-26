@@ -31,7 +31,7 @@ library AssetLogic {
     uint256 _assetAmount,
     uint256 _fee,
     IWrapped _wrapper
-  ) external returns (address, uint256) {
+  ) internal returns (address, uint256) {
     uint256 trueAmount = _assetAmount;
 
     if (_assetId == address(0)) {
@@ -88,7 +88,7 @@ library AssetLogic {
     address _to,
     uint256 _amount,
     IWrapped _wrapper
-  ) external {
+  ) internal {
     // No native assets should ever be stored on this contract
     if (_assetId == address(0)) revert AssetLogic__transferAssetFromContract_notNative();
 
