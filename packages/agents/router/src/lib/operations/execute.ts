@@ -46,18 +46,10 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
+  const { originDomain, destinationDomain, transferId, xcall } = params;
   if (!xcall) {
     throw new MissingXCall({ requestContext, methodContext });
   }
-
-  // Format the transfer's call params.
-  const callParams: CallParams = {
-    to,
-    callData,
-    originDomain,
-    destinationDomain,
-  };
 
   const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
