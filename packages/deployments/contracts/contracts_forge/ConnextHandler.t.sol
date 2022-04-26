@@ -41,7 +41,7 @@ contract ConnextHandlerTest is ForgeHelper {
   event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
   event XCalled(
     bytes32 indexed transferId,
-    IConnext.XCallArgs xcallArgs,
+    IConnextHandler.XCallArgs xcallArgs,
     ConnextLogic.XCalledEventArgs args,
     uint256 nonce,
     bytes message,
@@ -280,8 +280,18 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -301,8 +311,13 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes(""), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(to, bytes(""), domain, destinationDomain);
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -334,8 +349,18 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0;
     address transactingAssetId = address(originAdopted);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -355,8 +380,18 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -374,8 +409,18 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(wrapper)), domain, amount)
@@ -399,8 +444,18 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
     connext.xcall{value: 0}(args);
@@ -419,8 +474,18 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes("0x"), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     vm.mockCall(
       address(tokenRegistry),
@@ -447,8 +512,13 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnext.CallParams memory callParams = IConnext.CallParams(to, bytes(""), domain, destinationDomain);
-    IConnext.XCallArgs memory args = IConnext.XCallArgs(callParams, transactingAssetId, amount, relayerFee);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(to, bytes(""), domain, destinationDomain);
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
