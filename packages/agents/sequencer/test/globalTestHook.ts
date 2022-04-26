@@ -1,4 +1,4 @@
-import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { AuctionsCache, RoutersCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { Logger, mkAddress } from "@connext/nxtp-utils";

@@ -1,12 +1,4 @@
-import {
-  CallParams,
-  Bid,
-  createLoggingContext,
-  XTransfer,
-  DEFAULT_ROUTER_FEE,
-  ajv,
-  XTransferSchema,
-} from "@connext/nxtp-utils";
+import { Bid, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE, ajv, XTransferSchema } from "@connext/nxtp-utils";
 
 import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";

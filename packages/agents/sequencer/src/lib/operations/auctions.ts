@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 import {
   Bid,
   BidSchema,
@@ -50,10 +50,10 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Check to see if we have the XCall data saved locally for this.
   let transfer = await cache.transfers.getTransfer(transferId);
-  if (!transfer) {
+  if (!transfer || !transfer.xcall) {
     // Get the XCall from the subgraph for this transfer.
     transfer = await subgraph.getTransfer(origin, transferId);
-    if (!transfer) {
+    if (!transfer || !transfer.xcall) {
       // Router shouldn't be bidding on a transfer that doesn't exist.
       throw new MissingXCall(origin, transferId, {
         bid,
@@ -206,7 +206,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           if (!routerLiquidity) {
             // Either we haven't cached the liquidity yet, or the value cached has become expired.
             routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
-            if (routerLiquidity) {
+            if (!routerLiquidity.eq(constants.Zero)) {
               await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
             } else {
               // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
