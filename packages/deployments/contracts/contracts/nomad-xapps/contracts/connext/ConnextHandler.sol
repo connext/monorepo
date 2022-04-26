@@ -14,7 +14,7 @@ import {ConnextLogic} from "../../../lib/Connext/ConnextLogic.sol";
 
 import {ITokenRegistry} from "../../interfaces/bridge/ITokenRegistry.sol";
 import {IWrapped} from "../../../interfaces/IWrapped.sol";
-import {IConnext} from "../../../interfaces/IConnext.sol";
+import {IConnextHandler} from "../../../interfaces/IConnextHandler.sol";
 import {IExecutor} from "../../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../../interfaces/IStableSwap.sol";
 
@@ -34,7 +34,13 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
  * @dev This contract primarily contains the storage used by the functions within the
  * `ConnextLogic` contract, which contains the meaningful logic
  */
-contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, RouterPermissionsManager, IConnext {
+contract ConnextHandler is
+  Initializable,
+  ReentrancyGuardUpgradeable,
+  Router,
+  RouterPermissionsManager,
+  IConnextHandler
+{
   // ============ Libraries ============
 
   using SafeERC20Upgradeable for IERC20Upgradeable;

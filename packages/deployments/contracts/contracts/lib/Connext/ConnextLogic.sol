@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {IConnext} from "../../interfaces/IConnext.sol";
+import {IConnextHandler} from "../../interfaces/IConnextHandler.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 import {IWrapped} from "../../interfaces/IWrapped.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";

@@ -2,7 +2,7 @@
 pragma solidity 0.8.11;
 
 // ============ Internal Imports ============
-import {IConnext} from "../../../interfaces/IConnext.sol";
+import {IConnextHandler} from "../../../interfaces/IConnextHandler.sol";
 import {Router} from "../Router.sol";
 import {XAppConnectionClient} from "../XAppConnectionClient.sol";
 import {PromiseMessage} from "./PromiseMessage.sol";
