@@ -31,10 +31,8 @@ export const BidDataSchema = Type.Object({
     destinationDomain: Type.String(),
   }),
   local: Type.String(),
-  feePercentage: TDecimalString,
   amount: TDecimalString,
   nonce: Type.Integer(),
-  relayerSignature: Type.String(),
   originSender: TAddress,
 });
 

@@ -70,10 +70,8 @@ export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   routers: Type.Array(TAddress),
-  feePercentage: TIntegerString,
   amount: TIntegerString,
   nonce: Type.Integer(),
-  relayerSignature: Type.String(),
   originSender: TAddress,
 });
 
