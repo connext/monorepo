@@ -3,7 +3,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractDeployments } from "@connext/nxtp-txservice";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { getHelpers } from "./lib/helpers";
 
@@ -181,7 +181,10 @@ export const getEnvConfig = (
     throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
   }
 
-  const contractPostfix = nxtpConfig.environment === "production" ? "" : nxtpConfig.environment;
+  const contractPostfix: ContractPostfix =
+    nxtpConfig.environment === "production"
+      ? ""
+      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {

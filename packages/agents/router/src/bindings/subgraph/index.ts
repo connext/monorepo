@@ -76,7 +76,9 @@ export const pollSubgraph = async () => {
       const transfers = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
 
       if (transfers.length === 0) {
-        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext);
+        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+        });
       } else {
         // Clean log all the transfers by domain.
         const domains: Record<string, { queryParams: SubgraphQueryMetaParams; transfers: string[] }> = {};

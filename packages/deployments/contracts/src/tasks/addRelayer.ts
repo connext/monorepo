@@ -29,7 +29,7 @@ export default task("add-relayer", "Add Relayer to whitelist")
     const connextAddress = _connextAddress ?? connextDeployment.address;
     console.log("connextAddress: ", connextAddress);
 
-    const connext = new Contract(connextAddress, connextDeployment.address, deployer);
+    const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
 
     if (!isAddress(relayer) || relayer === ethers.constants.AddressZero) {
       throw new Error("Invalid Relayer address");
