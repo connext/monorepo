@@ -10,16 +10,15 @@ variable "az_count" {
   default = "2"
 }
 
-variable "environment" {
-  description = "env we're deploying to"
-  default     = "testnet"
-}
-
 variable "stage" {
   description = "stage of deployment"
   default     = "prod"
 }
 
+variable "environment" {
+  description = "env we're deploying to"
+  default     = "testnet"
+}
 
 variable "full_image_name_router" {
   type        = string
@@ -65,11 +64,10 @@ variable "kovan_alchemy_key_1" {
   type = string
 }
 
-
-variable "web3_signer_private_key" {
+variable "logdna_key" {
   type = string
 }
 
-variable "logdna_key" {
+variable "web3_signer_private_key" {
   type = string
 }

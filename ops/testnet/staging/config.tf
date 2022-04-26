@@ -1,4 +1,3 @@
-
 locals {
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },

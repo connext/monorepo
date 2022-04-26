@@ -15,7 +15,6 @@ variable "stage" {
   default     = "staging"
 }
 
-
 variable "environment" {
   description = "env we're deploying to"
   default     = "testnet"
