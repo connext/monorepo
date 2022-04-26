@@ -1,7 +1,6 @@
 import {
   CallParams,
   Bid,
-  BidData,
   createLoggingContext,
   XTransfer,
   DEFAULT_ROUTER_FEE,
@@ -69,17 +68,10 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
   logger.debug("Signed payload", requestContext, methodContext, { signature });
 
-  // TODO: Eventually, sending the bid data to the sequencer should be deprecated.
-  const bidData: BidData = {
-    params: callParams,
-    local: executeLocalAsset,
-    amount: receivingAmount,
-    nonce: Number(nonce),
-    originSender: xcall.caller,
-  };
-
   const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
+    transferId,
+    origin: originDomain,
     router: routerAddress,
     fee,
     // TODO: This list of signatures should reflect the auction rounds we want to bid on;
@@ -101,5 +93,5 @@ export const execute = async (params: XTransfer): Promise<void> => {
   }
   logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
-  await sendBid(transferId, bid, bidData, requestContext);
+  await sendBid(bid, requestContext);
 };

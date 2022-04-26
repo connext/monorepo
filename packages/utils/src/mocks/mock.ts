@@ -6,7 +6,6 @@ import {
   XTransferStatus,
   getRandomBytes32,
   Bid,
-  BidData,
   CallParams,
   ExecuteArgs,
   createLoggingContext,

@@ -22,7 +22,7 @@ export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
 export const AuctionsApiBidResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
-  bid: BidSchema,
+  router: Type.String(),
   error: Type.Optional(NxtpErrorJsonSchema),
 });
 export type AuctionsApiBidResponse = Static<typeof AuctionsApiBidResponseSchema>;

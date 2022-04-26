@@ -6,7 +6,7 @@ import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
-  selectedRouters: string[],
+  routers: string[],
   transfer: XTransfer,
   relayerFee: {
     asset: string;
@@ -26,13 +26,13 @@ export const sendToRelayer = async (
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
-  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { bidData });
+  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
 
-  const destinationChainId = chainData.get(bidData.params.destinationDomain)!.chainId;
+  const destinationChainId = chainData.get(transfer.destinationDomain)!.chainId;
 
-  const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
+  const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBid(selectedRouters, bidData);
+  const encodedData = encodeExecuteFromBid(routers, transfer);
 
   const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
   if (!isSupportedByGelato) {
@@ -52,7 +52,7 @@ export const sendToRelayer = async (
     from: relayerAddress,
   });
 
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(bidData.params.destinationDomain), {
+  const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,
     data: encodedData,
@@ -66,7 +66,7 @@ export const sendToRelayer = async (
   logger.info("Sending to Gelato network", requestContext, methodContext, {
     encodedData,
     destinationConnextAddress,
-    domain: bidData.params.destinationDomain,
+    domain: transfer.destinationDomain,
   });
   const result = await gelatoSend(
     destinationChainId,
