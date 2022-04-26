@@ -8,7 +8,7 @@ import {
   Executed,
   Reconciled,
   AssetAdded,
-} from "../../generated/Connext/Connext";
+} from "../../generated/Connext/ConnextUtils";
 import {
   RouterRemoved,
   RouterAdded,
@@ -132,24 +132,25 @@ export function handleXCalled(event: XCalled): void {
   }
 
   // Meta
-  transfer.originDomain = event.params.params.originDomain;
-  transfer.destinationDomain = event.params.params.destinationDomain;
+  transfer.originDomain = event.params.xcallArgs.params.originDomain;
+  transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
   transfer.chainId = getChainId();
   transfer.status = "XCalled";
 
   // Transfer Data
-  transfer.to = event.params.to;
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
-  transfer.callTo = event.params.params.to;
-  transfer.callData = event.params.params.callData;
+  transfer.callTo = event.params.xcallArgs.params.to;
+  transfer.callData = event.params.xcallArgs.params.callData;
+  transfer.relayerFee = event.params.xcallArgs.relayerFee;
+  transfer.routers = [];
 
   // XCalled
   transfer.xcalledCaller = event.params.caller;
-  transfer.xcalledTransactingAmount = event.params.transactingAmount;
-  transfer.xcalledLocalAmount = event.params.localAmount;
-  transfer.xcalledTransactingAsset = event.params.transactingAsset;
-  transfer.xcalledLocalAsset = event.params.localAsset;
+  transfer.xcalledTransactingAmount = event.params.args.bridgedAmt;
+  transfer.xcalledLocalAmount = event.params.xcallArgs.amount;
+  transfer.xcalledTransactingAsset = event.params.args.bridged;
+  transfer.xcalledLocalAsset = event.params.xcallArgs.transactingAssetId;
 
   // Transaction XCalled
   transfer.xcalledTransactionHash = event.transaction.hash;
@@ -167,10 +168,18 @@ export function handleXCalled(event: XCalled): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleExecuted(event: Executed): void {
-  let router = Router.load(event.params.router.toHex());
-  if (router == null) {
-    router = new Router(event.params.router.toHex());
-    router.save();
+  const num = event.params.args.routers.length;
+  const routers: string[] = [];
+  for (let i = 0; i < num; i++) {
+    const param = event.params.args.routers[i].toHex();
+    let router = Router.load(param);
+    if (router == null) {
+      // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
+      // router?
+      router = new Router(param);
+      router.save();
+    }
+    routers.push(router.id);
   }
 
   let transfer = Transfer.load(event.params.transferId.toHexString());
@@ -179,24 +188,24 @@ export function handleExecuted(event: Executed): void {
   }
 
   // Meta
-  transfer.originDomain = event.params.params.originDomain;
-  transfer.destinationDomain = event.params.params.destinationDomain;
+  transfer.originDomain = event.params.args.params.originDomain;
+  transfer.destinationDomain = event.params.args.params.destinationDomain;
   transfer.chainId = getChainId();
   transfer.status = "Executed";
 
   // Transfer Data
   transfer.transferId = event.params.transferId;
   transfer.to = event.params.to;
-  transfer.router = router.id;
-  transfer.callTo = event.params.params.to;
-  transfer.callData = event.params.params.callData;
+  transfer.routers = routers;
+  transfer.callTo = event.params.args.params.to;
+  transfer.callData = event.params.args.params.callData;
 
   // Fulfill
   transfer.executedCaller = event.params.caller;
   transfer.executedTransactingAmount = event.params.transactingAmount;
-  transfer.executedLocalAmount = event.params.localAmount;
+  transfer.executedLocalAmount = event.params.args.amount;
   transfer.executedTransactingAsset = event.params.transactingAsset;
-  transfer.executedLocalAsset = event.params.localAsset;
+  transfer.executedLocalAsset = event.params.args.local;
 
   // TransactionFulfilled
   transfer.executedTransactionHash = event.transaction.hash;
@@ -229,17 +238,16 @@ export function handleReconciled(event: Reconciled): void {
   // Meta
   transfer.chainId = getChainId();
   transfer.status = "Reconciled";
+  // If the routers have already been set by an execute event, don't overwrite them.
+  transfer.routers = [];
 
   // Transfer Data
   transfer.transferId = event.params.transferId;
-  transfer.to = event.params.to;
-  // TODO: MUST FIX SCHEMA WHEN IRL MULTIPATH IMPLEMENTED
-  // transfer.router = router.id;
 
   // Fulfill
   transfer.reconciledCaller = event.params.caller;
-  transfer.reconciledLocalAmount = event.params.localAmount;
-  transfer.reconciledLocalAsset = event.params.localAsset;
+  transfer.reconciledLocalAmount = event.params.amount;
+  transfer.reconciledLocalAsset = event.params.asset;
 
   // TransactionFulfilled
   transfer.reconciledTransactionHash = event.transaction.hash;
