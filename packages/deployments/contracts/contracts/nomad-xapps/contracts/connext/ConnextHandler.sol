@@ -370,7 +370,7 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
     // get remote BridgeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
 
-    ConnextLogic.xCallLibArgs memory libArgs = ConnextLogic.xCallLibArgs({
+    ConnextLogic.XCallLibArgs memory libArgs = ConnextLogic.XCallLibArgs({
       xCallArgs: _args,
       wrapper: wrapper,
       nonce: nonce,

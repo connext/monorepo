@@ -53,7 +53,7 @@ library ConnextLogic {
 
   // ============ Structs ============
 
-  struct xCallLibArgs {
+  struct XCallLibArgs {
     IConnext.XCallArgs xCallArgs;
     IWrapped wrapper;
     uint256 nonce;
@@ -405,7 +405,7 @@ library ConnextLogic {
   }
 
   function xcall(
-    xCallLibArgs calldata _args,
+    XCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
     mapping(bytes32 => uint256) storage _relayerFees
@@ -689,7 +689,7 @@ library ConnextLogic {
    * @notice Performs some sanity checks for `xcall`
    * @dev Need this to prevent stack too deep
    */
-  function _xcallSanityChecks(xCallLibArgs calldata _args) private {
+  function _xcallSanityChecks(XCallLibArgs calldata _args) private {
     // ensure this is the right domain
     if (_args.xCallArgs.params.originDomain != _args.domain) {
       revert ConnextLogic__xcall_wrongDomain();
@@ -706,7 +706,7 @@ library ConnextLogic {
    * @dev Need this to prevent stack too deep
    */
   function _processXcall(
-    xCallLibArgs calldata _args,
+    XCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools
   )
@@ -786,7 +786,7 @@ library ConnextLogic {
    * @notice Calculates a transferId base son `xcall` arguments
    * @dev Need this to prevent stack too deep
    */
-  function _getTransferId(xCallLibArgs calldata _args, ConnextMessage.TokenId memory _canonical)
+  function _getTransferId(XCallLibArgs calldata _args, ConnextMessage.TokenId memory _canonical)
     private
     view
     returns (bytes32)
@@ -809,7 +809,7 @@ library ConnextLogic {
    * @dev Need this to prevent stack too deep
    */
   function _formatMessage(
-    xCallLibArgs calldata _args,
+    XCallLibArgs calldata _args,
     address _asset,
     bytes32 _transferId,
     uint256 _amount
