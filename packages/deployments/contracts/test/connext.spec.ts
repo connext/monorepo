@@ -396,13 +396,13 @@ describe("Connext", () => {
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
       await expect(originBridge.setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
-        "ConnextUtils__addRouter_routerEmpty",
+        "ConnextLogic__addRouter_routerEmpty",
       );
     });
 
     it("should fail if its already added", async () => {
       await expect(originBridge.setupRouter(router.address, router.address, router.address)).to.be.revertedWith(
-        "ConnextUtils__addRouter_alreadyAdded",
+        "ConnextLogic__addRouter_alreadyAdded",
       );
     });
 
@@ -425,14 +425,14 @@ describe("Connext", () => {
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("ConnextUtils__removeRouter_routerEmpty");
+      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("ConnextLogic__removeRouter_routerEmpty");
     });
 
     it("should fail if its already removed", async () => {
       const tx = await originBridge.removeRouter(router.address);
       await tx.wait();
 
-      await expect(originBridge.removeRouter(router.address)).to.be.revertedWith("ConnextUtils__removeRouter_notAdded");
+      await expect(originBridge.removeRouter(router.address)).to.be.revertedWith("ConnextLogic__removeRouter_notAdded");
     });
 
     it("should work", async () => {
@@ -512,7 +512,7 @@ describe("Connext", () => {
           originAdopted.address,
           stableSwap.address,
         ),
-      ).to.be.revertedWith("ConnextUtils__addAssetId_alreadyAdded");
+      ).to.be.revertedWith("ConnextLogic__addAssetId_alreadyAdded");
     });
 
     it("should work", async () => {
@@ -545,7 +545,7 @@ describe("Connext", () => {
     it("should fail if it is not approved canonical", async () => {
       const toRemove = Wallet.createRandom().address;
       await expect(originBridge.removeAssetId(addressToBytes32(toRemove), originAdopted.address)).to.be.revertedWith(
-        "ConnextUtils__removeAssetId_notAdded",
+        "ConnextLogic__removeAssetId_notAdded",
       );
     });
 
@@ -618,7 +618,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "ConnextUtils__transferAssetToContract_notAmount",
+        "AssetLogic__transferAssetToContract_notAmount",
       );
       expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
@@ -630,7 +630,7 @@ describe("Connext", () => {
 
       await expect(
         originBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith("ConnextUtils__transferAssetToContract_notAmount");
+      ).to.be.revertedWith("AssetLogic__transferAssetToContract_notAmount");
       expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
@@ -640,7 +640,7 @@ describe("Connext", () => {
       const assetId = local.address;
       await expect(
         destinationBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith("ConnextUtils__transferAssetToContract_ethWithErcTransfer");
+      ).to.be.revertedWith("AssetLogic__transferAssetToContract_ethWithErcTransfer");
       expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
@@ -701,7 +701,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "ConnextUtils__removeLiquidity_recipientEmpty",
+        "ConnextLogic__removeLiquidity_recipientEmpty",
       );
     });
 
@@ -710,7 +710,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "ConnextUtils__removeLiquidity_amountIsZero",
+        "ConnextLogic__removeLiquidity_amountIsZero",
       );
     });
 
@@ -719,7 +719,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, router.address)).to.be.revertedWith(
-        "ConnextUtils__removeLiquidity_insufficientFunds",
+        "ConnextLogic__removeLiquidity_insufficientFunds",
       );
     });
 
@@ -1092,7 +1092,7 @@ describe("Connext", () => {
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
       }),
-    ).to.revertedWith("ConnextUtils__execute_alreadyExecuted()");
+    ).to.revertedWith("ConnextLogic__execute_alreadyExecuted()");
 
     // Reconcile via bridge
     const reconcile = await destinationBridge
@@ -1111,7 +1111,7 @@ describe("Connext", () => {
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
       }),
-    ).to.revertedWith("ConnextUtils__execute_alreadyExecuted()");
+    ).to.revertedWith("ConnextLogic__execute_alreadyExecuted()");
   });
 
   describe("multipath", () => {
@@ -1177,26 +1177,25 @@ describe("Connext", () => {
       reconciledTopics = ConnextLogic.filters.Reconciled().topics as string[];
     });
 
-    const routerScenarios = [
-      [router.address],
-      [router.address, router2.address],
-      [router.address, router2.address, router3.address],
-    ];
+    const routerScenarios = [[router], [router, router2], [router, router2, router3]];
 
     routerScenarios.forEach((routers) => {
       it(`should work with ${routers.length} routers`, async () => {
+        const routerAddresses = routers.map((r) => r.address);
+
         // Get pre-execute balances
         const userPreExecute = await destinationAdopted.balanceOf(user.address);
-        const preExecute = await getRoutersBalances(routers, destinationBridge, local.address);
+        const preExecute = await getRoutersBalances(routerAddresses, destinationBridge, local.address);
 
         // Fulfill with the router
         const routersAmount = amount
           .mul(await destinationBridge.LIQUIDITY_FEE_NUMERATOR())
           .div(await destinationBridge.LIQUIDITY_FEE_DENOMINATOR());
         const routerProportionalAmount = routersAmount.div(routers.length);
+
         const routerSignatures = await Promise.all(
           routers.map(async (r) => {
-            return signRouterPathPayload(transferId, routers.length.toString());
+            return signRouterPathPayload(transferId, routers.length.toString(), r);
           }),
         );
 
@@ -1205,7 +1204,7 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount,
-          routers,
+          routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
         });
@@ -1216,13 +1215,13 @@ describe("Connext", () => {
         const destTmEvent = ConnextLogic.interface.parseLog(
           execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
         );
-        const transferId = (destTmEvent!.args as any).transferId;
+        const executeTransferId = (destTmEvent!.args as any).transferId;
 
-        expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+        expect(await destinationBridge.transferRelayer(executeTransferId)).to.eq(router.address);
 
         // Check balance of user + bridge
         const userPostExecute = await destinationAdopted.balanceOf(user.address);
-        const postExecute = await getRoutersBalances(routers, destinationBridge, local.address);
+        const postExecute = await getRoutersBalances(routerAddresses, destinationBridge, local.address);
 
         expect(userPostExecute).to.be.eq(userPreExecute.add(routersAmount));
         routers.forEach((_addr, i) => {
@@ -1230,7 +1229,7 @@ describe("Connext", () => {
         });
 
         // Reconcile via bridge
-        const preReconcile = await getRoutersBalances(routers, destinationBridge, local.address);
+        const preReconcile = await getRoutersBalances(routerAddresses, destinationBridge, local.address);
 
         const reconcile = await destinationBridge
           .connect(admin)
@@ -1245,12 +1244,12 @@ describe("Connext", () => {
         expect(reconciledEvent.args.origin).eql(originDomain);
         expect(reconciledEvent.args.asset).eql(local.address);
         expect(reconciledEvent.args.amount).eql(bridgedAmount);
-        expect(reconciledEvent.args.routers).eql(routers);
+        expect(reconciledEvent.args.routers).eql(routerAddresses);
         expect(reconciledEvent.args.caller).eql(admin.address);
 
         const routerReconciledAmount = amount.div(routers.length);
 
-        const postReconcile = await getRoutersBalances(routers, destinationBridge, local.address);
+        const postReconcile = await getRoutersBalances(routerAddresses, destinationBridge, local.address);
 
         routers.forEach((_addr, i) => {
           expect(postReconcile[i]).to.be.eq(preReconcile[i].add(routerReconciledAmount));
@@ -1267,10 +1266,11 @@ describe("Connext", () => {
       const routersAmount = amount
         .mul(await destinationBridge.LIQUIDITY_FEE_NUMERATOR())
         .div(await destinationBridge.LIQUIDITY_FEE_DENOMINATOR());
-      const routers = [router.address, router2.address, router3.address];
+      const routers = [router, router2, router3];
+      const routerAddresses = routers.map((r) => r.address);
       const routerSignatures = await Promise.all(
         routers.map(async (r) => {
-          return signRouterPathPayload(transferId, routers.length.toString());
+          return signRouterPathPayload(transferId, routers.length.toString(), r);
         }),
       );
 
@@ -1280,8 +1280,8 @@ describe("Connext", () => {
           params,
           nonce,
           local: local.address,
-          amount: routersAmount,
-          routers,
+          amount,
+          routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
         }),
@@ -1295,8 +1295,8 @@ describe("Connext", () => {
         params,
         nonce,
         local: local.address,
-        amount: routersAmount,
-        routers,
+        amount,
+        routers: routerAddresses,
         routerSignatures,
         originSender: user.address,
       });
@@ -1310,10 +1310,11 @@ describe("Connext", () => {
       const routersAmount = amount
         .mul(await destinationBridge.LIQUIDITY_FEE_NUMERATOR())
         .div(await destinationBridge.LIQUIDITY_FEE_DENOMINATOR());
-      const routers = [router.address, router2.address, router3.address];
+      const routers = [router, router2, router3];
+      const routerAddresses = routers.map((r) => r.address);
       const routerSignatures = await Promise.all(
         routers.map(async (r) => {
-          return signRouterPathPayload(transferId, routers.length.toString());
+          return signRouterPathPayload(transferId, routers.length.toString(), r);
         }),
       );
 
@@ -1323,11 +1324,11 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
-          routers,
+          routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
         }),
-      ).to.revertedWith("ConnextUtils__execute_maxRoutersExceeded()");
+      ).to.revertedWith("ConnextLogic__execute_maxRoutersExceeded()");
     });
   });
 
@@ -1402,7 +1403,7 @@ describe("Connext", () => {
             local: local.address,
             amount: amounts[i],
             routers: [router.address],
-            routerSignatures: [await signRouterPathPayload(transferIds[i], "1", router)],
+            routerSignatures: [await signRouterPathPayload(transferIds[i].transferId, "1", router)],
             originSender: user.address,
           });
         }
