@@ -18,14 +18,25 @@ import { AuctionsCache } from "../../../src/index";
 const RedisMock = require("ioredis-mock");
 const redis = new RedisMock();
 
+const mockReplyTransformer = (hgetReply: Record<string, string>): any => {
+  console.log(hgetReply[1])
+
+}
+
 describe("AuctionCache", () => {
   const prefix = "auctions";
   // Helpers for accessing mock cache directly and altering state.
   const mockRedisHelpers = {
     setAuction: async (transferId: string, auction: Auction) =>
-      await redis.hset(`${prefix}:auction`, transferId, JSON.stringify(auction)),
+      await redis.hmset(`${prefix}:auction:${transferId}`,
+        "origin", auction.origin,
+        "destination", auction.destination,
+        "timestamp", auction.timestamp,
+        "bids", JSON.stringify(auction.bids)),
     getAuction: async (transferId: string): Promise<Auction | null> => {
-      const res = await redis.hget(`${prefix}:auction`, transferId);
+      const res = await redis.hget(`${prefix}:auction:${transferId}`);
+
+      console.log(`getauction res ${res}`);
       return res ? JSON.parse(res) : null;
     },
 
@@ -70,6 +81,7 @@ describe("AuctionCache", () => {
         });
         await mockRedisHelpers.setAuction(transferId, auction);
         const res = await cache.getAuction(transferId);
+       
         expect(res).to.deep.eq(auction);
       });
 

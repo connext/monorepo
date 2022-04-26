@@ -30,15 +30,9 @@ export class AuctionsCache extends Cache {
    * @returns Auction data if exists, undefined otherwise.
    */
   public async getAuction(transferId: string): Promise<Auction | undefined> {
-    IORedis.Command.setReplyTransformer("hgetall", (result) => {
-      const arr = [];
-      for (let i = 0; i < result.length; i += 2) {
-        arr.push([result[i], result[i + 1]]);
-      }
-      return arr;
-    });
     const res = await this.data.hgetall(`${this.prefix}:auction:${transferId}`);
-    return res ? (JSON.parse(res) as Auction) : undefined;
+    //@ts-ignore
+    return res ? (res as Auction) : undefined;
   }
   /**
    *
@@ -93,7 +87,10 @@ export class AuctionsCache extends Cache {
       },
     };
 
-    const res = await this.data.hset(`${this.prefix}:auction:${transferId}`, this.mapAuctionTypeToRedisHashType(auction));
+    const res = await this.data.hset(
+      `${this.prefix}:auction:${transferId}`,
+      this.mapAuctionTypeToRedisHashType(auction),
+    );
     if (!existing) {
       // If the auction didn't previously exist, create an entry for status as well.
       await this.setStatus(transferId, AuctionStatus.Queued);
