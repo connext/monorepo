@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.4
+
+- [ops] Staging and prod envs separated
+
 ## 0.2.0-alpha.4
 
 - [amarok] hardfork alpha release
