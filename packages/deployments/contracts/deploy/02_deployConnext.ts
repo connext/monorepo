@@ -56,7 +56,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy Connext logic libraries
   console.log("Deploying utils, permissions manager...");
-  const connextUtils = await hre.deployments.deploy("ConnextUtils", {
+  const connextLogic = await hre.deployments.deploy("ConnextLogic", {
     from: deployer.address,
     log: true,
   });
@@ -68,7 +68,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // verify libs
   console.log("verifying connext libraries...");
   await Promise.all([
-    connextUtils.newlyDeployed ? verify(hre, connextUtils.address) : Promise.resolve(),
+    connextLogic.newlyDeployed ? verify(hre, connextLogic.address) : Promise.resolve(),
     routerPermissionsManagerLogic.newlyDeployed
       ? verify(hre, routerPermissionsManagerLogic.address)
       : Promise.resolve(),
@@ -77,7 +77,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Deploy connext contract
   console.log("Deploying connext...");
   const libraries = {
-    ConnextUtils: connextUtils.address,
+    ConnextLogic: connextLogic.address,
     RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
   };
   const connext = await hre.deployments.deploy("ConnextHandler", {
