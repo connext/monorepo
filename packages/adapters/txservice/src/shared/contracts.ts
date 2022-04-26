@@ -13,7 +13,7 @@ import ConnextArtifact from "@connext/nxtp-contracts/artifacts/contracts/Connext
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/bridge/TokenRegistry.sol/TokenRegistry.json";
 
-export type ContractPostfix = "staging" | "";
+export type ContractPostfix = "Staging" | "";
 
 /// MARK - CONTRACT DEPLOYMENTS
 /**
