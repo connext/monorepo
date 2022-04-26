@@ -618,7 +618,7 @@ describe("Connext", () => {
       const assetId = ZERO_ADDRESS;
 
       await expect(originBridge.connect(router).addLiquidityFor(amount, assetId, router.address)).to.be.revertedWith(
-        "AssetLogic__transferAssetToContract_notAmount",
+        "AssetLogic__handleIncomingAsset_notAmount",
       );
       expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
@@ -630,7 +630,7 @@ describe("Connext", () => {
 
       await expect(
         originBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: falseValue }),
-      ).to.be.revertedWith("AssetLogic__transferAssetToContract_notAmount");
+      ).to.be.revertedWith("AssetLogic__handleIncomingAsset_notAmount");
       expect(await originBridge.routerBalances(router.address, weth.address)).to.eq(BigNumber.from(0));
     });
 
@@ -640,7 +640,7 @@ describe("Connext", () => {
       const assetId = local.address;
       await expect(
         destinationBridge.connect(router).addLiquidityFor(amount, assetId, router.address, { value: amount }),
-      ).to.be.revertedWith("AssetLogic__transferAssetToContract_ethWithErcTransfer");
+      ).to.be.revertedWith("AssetLogic__handleIncomingAsset_ethWithErcTransfer");
       expect(await destinationBridge.routerBalances(router.address, assetId)).to.eq(BigNumber.from(0));
     });
 
