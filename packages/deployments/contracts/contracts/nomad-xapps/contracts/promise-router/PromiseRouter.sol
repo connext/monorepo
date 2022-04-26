@@ -31,7 +31,7 @@ contract PromiseRouter is Version0, Router {
 
   // ============ Public Storage ============
 
-  IConnext public connext;
+  IConnextHandler public connext;
 
   // ============ Upgrade Gap ============
 
@@ -101,7 +101,7 @@ contract PromiseRouter is Version0, Router {
    * @param _connext The address of the Connext implementation
    */
   function setConnext(address _connext) external onlyOwner {
-    connext = IConnext(_connext);
+    connext = IConnextHandler(_connext);
     emit SetConnext(_connext);
   }
 

@@ -55,7 +55,7 @@ library ConnextLogic {
   // ============ Structs ============
 
   struct XCallLibArgs {
-    IConnext.XCallArgs xCallArgs;
+    IConnextHandler.XCallArgs xCallArgs;
     IWrapped wrapper;
     uint256 nonce;
     ITokenRegistry tokenRegistry;
@@ -72,7 +72,7 @@ library ConnextLogic {
   }
 
   struct ExecuteLibArgs {
-    IConnext.ExecuteArgs executeArgs;
+    IConnextHandler.ExecuteArgs executeArgs;
     bool isRouterOwnershipRenounced;
     uint256 maxRoutersPerTransfer;
     ITokenRegistry tokenRegistry;
@@ -156,7 +156,7 @@ library ConnextLogic {
    */
   event XCalled(
     bytes32 indexed transferId,
-    IConnext.XCallArgs xcallArgs,
+    IConnextHandler.XCallArgs xcallArgs,
     XCalledEventArgs args,
     uint256 nonce,
     bytes message,
@@ -178,7 +178,7 @@ library ConnextLogic {
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
-    IConnext.ExecuteArgs args,
+    IConnextHandler.ExecuteArgs args,
     address transactingAsset,
     uint256 transactingAmount,
     address caller
