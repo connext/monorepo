@@ -602,7 +602,7 @@ contract Connext is
     } else {
       // Send funds to executor
       AssetLogic.transferAssetFromContract(adopted, address(executor), amount, wrapper);
-      _handleExcute(_transferId, amount, adopted, _isFast, _args);
+      _handleExecute(_transferId, amount, adopted, _isFast, _args);
     }
 
     // Save gas used
@@ -820,7 +820,7 @@ contract Connext is
    * @param _isFast Is the Fast liquidity?
    * @param _args - The `ExecuteArgs` for the transfer
    */
-  function _handleExcute(
+  function _handleExecute(
     bytes32 _transferId,
     uint256 _amount,
     address _assetId,

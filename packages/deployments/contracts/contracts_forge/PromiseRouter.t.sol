@@ -16,7 +16,7 @@ import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
-contract MackPromiseRouter is PromiseRouter {
+contract MockPromiseRouter is PromiseRouter {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using PromiseMessage for bytes29;
@@ -89,7 +89,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   // ============ Storage ============
 
-  MackPromiseRouter promiseRouter;
+  MockPromiseRouter promiseRouter;
 
   address internal xAppConnectionManager = address(1);
   address internal home;
@@ -112,7 +112,7 @@ contract PromiseRouterTest is ForgeHelper {
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("isReplica(address)"), abi.encode(bool(true)));
     vm.mockCall(home, abi.encodeWithSignature("localDomain()"), abi.encode(localDomain));
 
-    promiseRouter = new MackPromiseRouter();
+    promiseRouter = new MockPromiseRouter();
 
     promiseRouter.initialize(xAppConnectionManager);
     promiseRouter.setConnext(address(connext));
