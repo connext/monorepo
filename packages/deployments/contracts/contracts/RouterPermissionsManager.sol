@@ -28,7 +28,7 @@ abstract contract RouterPermissionsManager is Initializable {
 
   uint256 private _delay;
 
-  // ============ Public Storage =============
+  // ============ Public storage =============
 
   RouterPermissionsManagerInfo internal routerInfo;
 
@@ -45,25 +45,50 @@ abstract contract RouterPermissionsManager is Initializable {
     _delay = 7 days;
   }
 
-  // ============ Public methods =============
+  // ============ Public methods ==============
 
-  function approvedRouters(address _approved) public view returns (bool) {
-    return routerInfo.approvedRouters[_approved];
+  /**
+   * @notice Returns the approved router for the given router address
+   * @param _router The relevant router address
+   */
+  function getRouterApproval(address _router) public view returns (bool) {
+    return routerInfo.approvedRouters[_router];
   }
 
-  function routerRecipients(address _router) public view returns (address) {
+  /**
+   * @notice Returns the recipient for the specified router
+   * @dev The recipient (if set) receives all funds when router liquidity is removed
+   * @param _router The relevant router address
+   */
+  function getRouterRecipient(address _router) public view returns (address) {
     return routerInfo.routerRecipients[_router];
   }
 
-  function routerOwners(address _router) public view returns (address) {
-    return routerInfo.routerOwners[_router];
+  /**
+   * @notice Returns the router owner if it is set, or the router itself if not
+   * @dev Uses logic function here to handle the case where router owner is not set.
+   * Other getters within this interface use explicitly the stored value
+   * @param _router The relevant router address
+   */
+  function getRouterOwner(address _router) public view returns (address) {
+    return RouterPermissionsManagerLogic.getRouterOwner(_router, routerInfo.routerOwners);
   }
 
-  function proposedRouterOwners(address _router) public view returns (address) {
+  /**
+   * @notice Returns the currently proposed router owner
+   * @dev All routers must wait for the delay timeout before accepting a new owner
+   * @param _router The relevant router address
+   */
+  function getProposedRouterOwner(address _router) public view returns (address) {
     return routerInfo.proposedRouterOwners[_router];
   }
 
-  function proposedRouterTimestamp(address _router) public view returns (uint256) {
+  /**
+   * @notice Returns the currently proposed router owner timestamp
+   * @dev All routers must wait for the delay timeout before accepting a new owner
+   * @param _router The relevant router address
+   */
+  function getProposedRouterOwnerTimestamp(address _router) public view returns (uint256) {
     return routerInfo.proposedRouterTimestamp[_router];
   }
 

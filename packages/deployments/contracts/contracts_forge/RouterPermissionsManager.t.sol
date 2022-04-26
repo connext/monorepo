@@ -40,7 +40,14 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     proxy = new ERC1967Proxy(
       address(connext),
-      abi.encodeWithSelector(ConnextHandler.initialize.selector, domain, payable(bridgeRouter), tokenRegistry, wrapper, relayerFeeRouter)
+      abi.encodeWithSelector(
+        ConnextHandler.initialize.selector,
+        domain,
+        payable(bridgeRouter),
+        tokenRegistry,
+        wrapper,
+        relayerFeeRouter
+      )
     );
 
     connext = ConnextHandler(payable(address(proxy)));
@@ -80,11 +87,12 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   }
 
   // Should work
+
   function test_RouterPermissionsManager__setupRouter_works() public {
     connext.setupRouter(address(1), address(2), address(3));
-    assertTrue(connext.approvedRouters(address(1)));
-    assertEq(connext.routerOwners(address(1)), address(2));
-    assertEq(connext.routerRecipients(address(1)), address(3));
+    assertTrue(connext.getRouterApproval(address(1)));
+    assertEq(connext.getRouterOwner(address(1)), address(2));
+    assertEq(connext.getRouterRecipient(address(1)), address(3));
   }
 
   // ============ removeRouter ============
@@ -123,7 +131,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     connext.setupRouter(address(1), address(1), address(1));
 
     connext.removeRouter(address(1));
-    assertTrue(!connext.approvedRouters(address(1)));
+    assertTrue(!connext.getRouterApproval(address(1)));
   }
 
   // ============ setRouterRecipient ============
@@ -175,7 +183,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     vm.prank(_router);
     connext.setRouterRecipient(_router, address(2));
-    assertEq(connext.routerRecipients(_router), address(2));
+    assertEq(connext.getRouterRecipient(_router), address(2));
   }
 
   // Should work if  msg.sender == owner
@@ -185,7 +193,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     vm.prank(address(3));
     connext.setRouterRecipient(_router, address(2));
-    assertEq(connext.routerRecipients(_router), address(2));
+    assertEq(connext.getRouterRecipient(_router), address(2));
   }
 
   // ============ proposeRouterOwner ============
@@ -227,7 +235,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     vm.prank(address(3));
     connext.proposeRouterOwner(_router, address(2));
-    assertEq(connext.proposedRouterOwners(_router), address(2));
+    assertEq(connext.getProposedRouterOwner(_router), address(2));
   }
 
   // ============ acceptProposedRouterOwner ============
@@ -282,7 +290,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     vm.prank(_router);
     connext.acceptProposedRouterOwner(_router);
-    assertEq(connext.routerOwners(_router), address(0));
+    assertEq(connext.getRouterOwner(_router), _router);
   }
 
   // Should work if proposed == address(0)  &&  msg.sender == owner
@@ -292,7 +300,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     vm.prank(address(3));
     connext.acceptProposedRouterOwner(_router);
-    assertEq(connext.routerOwners(_router), address(0));
+    assertEq(connext.getRouterOwner(_router), _router);
   }
 
   // Should work if proposed != address(0)  &&  msg.sender == _proposed
@@ -305,6 +313,6 @@ contract RouterPermissionsManagerTest is ForgeHelper {
     vm.warp(block.timestamp + 8 days);
 
     connext.acceptProposedRouterOwner(_router);
-    assertEq(connext.routerOwners(_router), address(1));
+    assertEq(connext.getRouterOwner(_router), address(1));
   }
 }

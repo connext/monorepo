@@ -360,7 +360,7 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
     address payable _to
   ) external override nonReentrant {
     // transfer to specicfied recipient IF recipient not set
-    address recipient = routerRecipients(msg.sender);
+    address recipient = getRouterRecipient(msg.sender);
     recipient = recipient == address(0) ? _to : recipient;
 
     ConnextLogic.removeLiquidity(_amount, _local, recipient, routerBalances, wrapper);
@@ -507,7 +507,7 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
     (, bytes32 id) = tokenRegistry.getTokenId(_local == address(0) ? address(wrapper) : _local);
 
     // Router is approved
-    if (!isRouterOwnershipRenounced() && !routerInfo.approvedRouters[_router])
+    if (!isRouterOwnershipRenounced() && !getRouterApproval(_router))
       revert ConnextHandler__addLiquidityForRouter_badRouter();
 
     // Asset is approved
