@@ -110,8 +110,8 @@ export const mock: any = {
       ...overrides,
     }),
     xtransfer: (
-      originDomain: string,
-      destinationDomain: string,
+      originDomain: string = mock.domain.A,
+      destinationDomain: string = mock.domain.B,
       amount = "1000",
       status: XTransferStatus = XTransferStatus.XCalled,
       asset: string = mock.asset.A.address,
@@ -133,6 +133,7 @@ export const mock: any = {
         idx: "0",
         nonce,
         router: mock.address.router,
+        relayerFee: "12345",
 
         // XCalled
         xcall: {

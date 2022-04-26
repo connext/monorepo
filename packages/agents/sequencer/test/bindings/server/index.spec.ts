@@ -56,14 +56,8 @@ describe("Bindings:Server", () => {
 
     it("happy: should succeed to post a bid", async () => {
       storeBidStub.resolves();
-      const transferId = getRandomBytes32();
       const bid = mock.entity.bid();
-      const bidData = mock.entity.bidData();
-      const data: AuctionsApiPostBidReq = {
-        transferId,
-        bid,
-        data: bidData,
-      };
+      const data: AuctionsApiPostBidReq = bid;
 
       const response = await fastifyApp.inject({
         method: "POST",
@@ -74,7 +68,7 @@ describe("Bindings:Server", () => {
       expect(response.statusCode).to.be.eq(200);
       expect(JSON.parse(response.payload).message).to.be.eq("Bid received");
       expect(storeBidStub.callCount).to.be.eq(1);
-      expect(storeBidStub.getCall(0).args.slice(0, 3)).to.be.deep.eq([transferId, bid, bidData]);
+      expect(storeBidStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([bid]);
     });
 
     it("happy: should get empty queued bids", async () => {
@@ -101,14 +95,8 @@ describe("Bindings:Server", () => {
 
     it("happy: should receive 500 error if handling the bid fails", async () => {
       storeBidStub.throws(new Error("Handling the bid failed!"));
-      const transferId = getRandomBytes32();
       const bid = mock.entity.bid();
-      const bidData = mock.entity.bidData();
-      const data: AuctionsApiPostBidReq = {
-        transferId,
-        bid,
-        data: bidData,
-      };
+      const data: AuctionsApiPostBidReq = bid;
 
       const response = await fastifyApp.inject({
         method: "POST",

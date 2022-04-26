@@ -4,8 +4,8 @@ import {
   expect,
   AuctionStatus,
   getRandomBytes32,
-  BidData,
   getNtpTimeSeconds,
+  XTransfer,
 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
@@ -20,12 +20,11 @@ describe("Operations:Auctions", () => {
   // db
   let getQueuedTransfersStub: SinonStub;
   let getAuctionStub: SinonStub;
-  let setBidDataStub: SinonStub;
-  let getBidDataStub: SinonStub;
   let upsertTaskStub: SinonStub;
   let upsertAuctionStub: SinonStub;
   let getStatusStub: SinonStub;
   let setStatusStub: SinonStub;
+  let getTransferStub: SinonStub;
 
   // operations
   let sendToRelayerStub: SinonStub;
@@ -33,7 +32,7 @@ describe("Operations:Auctions", () => {
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
   beforeEach(() => {
-    const { auctions } = ctxMock.adapters.cache;
+    const { auctions, transfers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
     getAuctionStub = stub(auctions, "getAuction");
 
@@ -44,8 +43,7 @@ describe("Operations:Auctions", () => {
 
     upsertTaskStub = stub(auctions, "upsertTask").resolves(0);
 
-    setBidDataStub = stub(auctions, "setBidData").resolves(0);
-    getBidDataStub = stub(auctions, "getBidData");
+    getTransferStub = stub(transfers, "getTransfer");
 
     sendToRelayerStub = stub().resolves();
     getOperationsStub.returns({
@@ -69,36 +67,35 @@ describe("Operations:Auctions", () => {
 
   describe("#storeBid", () => {
     it("happy: should store bid in auction cache", async () => {
-      const transferId = getRandomBytes32();
-      const bid: Bid = mock.entity.bid();
-      const bidData: BidData = mock.entity.bidData();
+      const transfer: XTransfer = mock.entity.xtransfer();
+      const transferId = transfer.transferId;
+      getTransferStub.resolves(transfer);
+
+      const bid: Bid = mock.entity.bid({ transferId });
+
       getStatusStub.onCall(0).resolves(AuctionStatus.None);
       getStatusStub.onCall(1).resolves(AuctionStatus.Queued);
 
-      await storeBid(transferId, bid, bidData, requestContext);
+      await storeBid(bid, requestContext);
 
-      expect(upsertAuctionStub).to.be.calledOnceWithExactly({
+      expect(upsertAuctionStub).to.have.been.calledOnceWithExactly({
         transferId,
-        origin: bidData.params.originDomain,
-        destination: bidData.params.destinationDomain,
+        origin: transfer.originDomain,
+        destination: transfer.destinationDomain,
         bid,
       });
+      expect(getTransferStub).to.have.been.calledOnceWithExactly(transferId);
       expect(getStatusStub.callCount).to.eq(2);
       expect(getStatusStub.getCall(0).args).to.be.deep.eq([transferId]);
       expect(getStatusStub.getCall(1).args).to.be.deep.eq([transferId]);
-      expect(setBidDataStub).to.be.calledOnceWithExactly(transferId, bidData);
-      expect(setBidDataStub).to.have.been.calledOnceWithExactly(transferId, bidData);
     });
 
     it("should error if input validation fails", async () => {
-      const transferId = getRandomBytes32();
-      const bidData: BidData = mock.entity.bidData();
-
       const invalidBid1: any = {
         ...mock.entity.bid(),
         fee: 1,
       };
-      await expect(storeBid(transferId, invalidBid1, bidData, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
 
       const invalidBid2: any = {
         ...mock.entity.bid(),
@@ -107,44 +104,42 @@ describe("Operations:Auctions", () => {
         },
       };
 
-      await expect(storeBid(transferId, invalidBid2, bidData, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeBid(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
 
     it("should error if the auction has expired", async () => {
-      const transferId = getRandomBytes32();
       const bid: Bid = mock.entity.bid();
-      const bidData: BidData = mock.entity.bidData();
       getStatusStub.resolves(AuctionStatus.Sent);
-      await expect(storeBid(transferId, bid, bidData, requestContext)).to.be.rejectedWith(AuctionExpired);
+      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
   });
 
   describe("#executeAuctions", () => {
-    const mockTransferIdBatch = (count: number) => new Array(count).fill(0).map(() => getRandomBytes32());
     const mockAuctionDataBatch = (count: number) =>
       new Array(count).fill(0).map(() =>
         mock.entity.auction({
           timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
         }),
       );
-    const mockBidDataBatch = (count: number) => new Array(count).fill(0).map(() => mock.entity.bidData());
+    const mockTransfersBatch = (count: number) => new Array(count).fill(0).map(() => mock.entity.xtransfer());
 
     it("happy case: should send best bid to the relayer for each transfer", async () => {
       const taskId = getRandomBytes32();
       sendToRelayerStub.resolves(taskId);
 
       const count = 3;
-      const transferIds = mockTransferIdBatch(count);
-      getQueuedTransfersStub.resolves(transferIds);
-      const auctions = mockAuctionDataBatch(count);
 
+      const transfers = mockTransfersBatch(count);
       for (let i = 0; i < count; i++) {
-        getAuctionStub.onCall(i).resolves(auctions[i]);
+        getTransferStub.onCall(i).resolves(transfers[i]);
       }
 
-      const bidDatas = mockBidDataBatch(count);
+      const transferIds = transfers.map((t) => t.transferId);
+      getQueuedTransfersStub.resolves(transferIds);
+
+      const auctions = mockAuctionDataBatch(count);
       for (let i = 0; i < count; i++) {
-        getBidDataStub.onCall(i).resolves(bidDatas[i]);
+        getAuctionStub.onCall(i).resolves(auctions[i]);
       }
 
       await executeAuctions(requestContext);
@@ -152,17 +147,23 @@ describe("Operations:Auctions", () => {
       expect(getQueuedTransfersStub.callCount).to.eq(1);
 
       expect(getAuctionStub.callCount).to.be.eq(count);
-      expect(getBidDataStub.callCount).to.be.eq(count);
+      expect(getTransferStub.callCount).to.be.eq(count);
       expect(sendToRelayerStub.callCount).to.be.eq(count);
 
       for (let i = 0; i < count; i++) {
         expect(getAuctionStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
-        expect(getBidDataStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
+        expect(getTransferStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
         expect(sendToRelayerStub.getCall(i).args[0].length).to.eq(1);
 
-        const { relayerSignature, ...bidDataIsh } = sendToRelayerStub.getCall(i).args[1];
-        const { relayerSignature: _, ...bidData } = bidDatas[i];
-        expect(bidDataIsh).to.be.deep.eq(bidData);
+        const routers = sendToRelayerStub.getCall(i).args[0];
+        const transfer = sendToRelayerStub.getCall(i).args[1];
+        const relayerFee = sendToRelayerStub.getCall(i).args[2];
+        expect(transfer).to.deep.eq(transfers[i]);
+        for (const router of routers) {
+          expect(Object.keys(auctions[i].bids)).to.include(router);
+        }
+        expect(relayerFee.amount).to.eq(transfers[i].relayerFee);
+        expect(relayerFee.asset).to.eq(transfers[i].xcall.localAsset);
 
         expect(setStatusStub.getCall(i).args).to.be.deep.eq([transferIds[i], AuctionStatus.Sent]);
         expect(upsertTaskStub.getCall(i).args).to.be.deep.eq([{ transferId: transferIds[i], taskId }]);
@@ -186,13 +187,11 @@ describe("Operations:Auctions", () => {
         ],
       });
       getAuctionStub.resolves(auction);
-      const bidData = mock.entity.bidData();
-      getBidDataStub.resolves(bidData);
 
       await executeAuctions(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
-      expect(getBidDataStub.callCount).to.be.eq(0);
+      expect(getTransferStub.callCount).to.be.eq(0);
       expect(sendToRelayerStub.callCount).to.be.eq(0);
     });
 
@@ -203,7 +202,10 @@ describe("Operations:Auctions", () => {
       const router1 = mkAddress("0x1");
       const router2 = mkAddress("0x2");
       const router3 = mkAddress("0x3");
-      const transferId = getRandomBytes32();
+
+      const transfer = mock.entity.xtransfer();
+      const transferId = transfer.transferId;
+
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mock.entity.auction({
         timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
@@ -223,13 +225,12 @@ describe("Operations:Auctions", () => {
         ],
       });
       getAuctionStub.resolves(auction);
-      const bidData = mock.entity.bidData();
-      getBidDataStub.resolves(bidData);
+      getTransferStub.resolves(transfer);
 
       await executeAuctions(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
-      expect(getBidDataStub.callCount).to.be.eq(1);
+      expect(getTransferStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
 
       // Just selected 1 router.
@@ -244,7 +245,10 @@ describe("Operations:Auctions", () => {
       const router2 = mkAddress("0x2");
       const router3 = mkAddress("0x3");
       const router4 = mkAddress("0x4");
-      const transferId = getRandomBytes32();
+
+      const transfer = mock.entity.xtransfer();
+      const transferId = transfer.transferId;
+
       getQueuedTransfersStub.resolves([transferId]);
       // Based on this bid arrangement, there's only 1 option: select the 3
       // routers that can afford a 3-path transfer.
@@ -292,13 +296,12 @@ describe("Operations:Auctions", () => {
         ],
       });
       getAuctionStub.resolves(auction);
-      const bidData = mock.entity.bidData();
-      getBidDataStub.resolves(bidData);
+      getTransferStub.resolves(transfer);
 
       await executeAuctions(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
-      expect(getBidDataStub.callCount).to.be.eq(1);
+      expect(getTransferStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
 
       // Ensure we selected the correct 3 routers.

@@ -211,7 +211,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               transfer,
               {
                 amount: transfer.relayerFee!,
-                asset: transfer.xcall!.transferringAsset,
+                asset: transfer.xcall!.localAsset,
               },
               requestContext,
             );
