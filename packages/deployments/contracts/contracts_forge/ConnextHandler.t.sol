@@ -326,7 +326,7 @@ contract ConnextHandlerTest is ForgeHelper {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000c5ed37081ead254397fdbee6e8b6509b278877b8030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70ae608b2a1ce083fd8a1d1da8558fe67f7f5112b8546715ab8ce2f66019312fe4b";
+      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70aca0184c1e32ae98daca86416c9ece9d32771270d0b1ef32fb55bf30918e8cc7b";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -457,13 +457,13 @@ contract ConnextHandlerTest is ForgeHelper {
       relayerFee
     );
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
     connext.xcall{value: 0}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
     connext.xcall{value: relayerFee - 1}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_ethWithErcTransfer.selector));
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
     connext.xcall{value: relayerFee + 1}(args);
   }
 
@@ -493,13 +493,13 @@ contract ConnextHandlerTest is ForgeHelper {
       abi.encode(address(wrapper))
     );
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
     connext.xcall{value: amount}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
     connext.xcall{value: amount + relayerFee - 1}(args);
 
-    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__transferAssetToContract_notAmount.selector));
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
     connext.xcall{value: amount + relayerFee + 1}(args);
   }
 
