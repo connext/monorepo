@@ -14,7 +14,7 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     callData: subgEntity.callData,
     idx: subgEntity.idx,
     nonce: subgEntity.nonce,
-    router: subgEntity.router,
+    router: subgEntity.router?.id,
 
     // XCall
     xcall: subgEntity.xcalledTransactionHash

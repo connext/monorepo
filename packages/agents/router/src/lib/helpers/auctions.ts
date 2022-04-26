@@ -11,7 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
-import { SequencerResponseInvalid } from "../errors";
+import { AuctionExpired, SequencerResponseInvalid } from "../errors";
 
 export const sendBid = async (
   transferId: string,
@@ -43,8 +43,14 @@ export const sendBid = async (
     logger.info("Sent bid to sequencer", requestContext, methodContext, { data: response.data });
     return response.data;
   } catch (error: any) {
-    logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
-    throw error;
+    if (error.response?.data?.message === "AuctionExpired") {
+      // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
+      // if the sequencer decides relayer execution has timed out.
+      throw new AuctionExpired({ transferId });
+    } else {
+      logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
+      throw error;
+    }
   }
 };
 
