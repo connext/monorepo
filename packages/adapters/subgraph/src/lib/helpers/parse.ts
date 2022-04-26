@@ -15,7 +15,9 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     idx: subgEntity.idx,
     nonce: subgEntity.nonce,
     routers:
-      subgEntity.routers && subgEntity.routers.length > 0 ? subgEntity.routers.map((router) => router.id) : undefined,
+      subgEntity.routers && subgEntity.routers.length > 0
+        ? subgEntity.routers.map((router: any) => router.id)
+        : undefined,
     relayerFee: subgEntity.relayerFee,
 
     // XCall
