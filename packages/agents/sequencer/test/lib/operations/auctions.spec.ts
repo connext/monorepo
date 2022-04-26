@@ -368,14 +368,14 @@ describe("Operations:Auctions", () => {
       expect(setLiquidityStub.getCall(0).args).to.be.deep.eq([
         router,
         transfer.destinationDomain,
-        transfer.xcall.transferringAsset,
+        transfer.xcall.localAsset,
         routerFunds,
       ]);
       // Should update to reflect new "theoretical amount".
       expect(setLiquidityStub.getCall(1).args).to.be.deep.eq([
         router,
         transfer.destinationDomain,
-        transfer.xcall.transferringAsset,
+        transfer.xcall.localAsset,
         expectedRouterFunds,
       ]);
 

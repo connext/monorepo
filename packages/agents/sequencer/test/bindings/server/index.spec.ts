@@ -19,6 +19,7 @@ describe("Bindings:Server", () => {
 
     // operations
     let storeBidStub: SinonStub;
+
     beforeEach(() => {
       const { auctions } = ctxMock.adapters.cache;
       upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
@@ -108,7 +109,6 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should call clearCache", async () => {
-      fastifyApp = await BindingFns.bindServer();
       ctxMock.config.server.adminToken = "good-token <3";
       const response = await fastifyApp.inject({
         method: "POST",
@@ -121,7 +121,6 @@ describe("Bindings:Server", () => {
     });
 
     it("should reject clearCache with incorrect admin token", async () => {
-      fastifyApp = await BindingFns.bindServer();
       const response = await fastifyApp.inject({
         method: "POST",
         url: "/clear-cache",

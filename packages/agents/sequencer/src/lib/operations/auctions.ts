@@ -199,8 +199,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         for (const randomBid of randomized) {
           // Sanity: Check if this router has enough funds.
           const { router } = randomBid;
-          const amount = BigNumber.from(transfer.xcall.transferringAmount);
-          const asset = transfer.xcall.transferringAsset;
+          const amount = BigNumber.from(transfer.xcall.localAmount);
+          const asset = transfer.xcall.localAsset;
           let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
 
           if (!routerLiquidity) {
