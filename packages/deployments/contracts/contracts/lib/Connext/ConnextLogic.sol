@@ -713,7 +713,7 @@ library ConnextLogic {
    * @dev Need this to prevent stack too deep
    */
   function _xcallProcess(
-    xCallLibArgs calldata _args,
+    XCallLibArgs calldata _args,
     mapping(address => ConnextMessage.TokenId) storage _adoptedToCanonical,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools
   )
