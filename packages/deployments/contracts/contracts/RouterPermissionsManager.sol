@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import {RouterPermissionsManagerLogic, RouterPermissionsManagerInfo} from "./lib/Connext/RouterPermissionsManagerLogic.sol";
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @notice

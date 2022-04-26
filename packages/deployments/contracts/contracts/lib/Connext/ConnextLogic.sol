@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../../interfaces/IConnext.sol";
-import "../../interfaces/IStableSwap.sol";
-import "../../interfaces/IWrapped.sol";
+import {IConnext} from "../../interfaces/IConnext.sol";
+import {IStableSwap} from "../../interfaces/IStableSwap.sol";
+import {IWrapped} from "../../interfaces/IWrapped.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {LibCrossDomainProperty} from "../LibCrossDomainProperty.sol";
 import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol";
 import {AssetLogic} from "./AssetLogic.sol";
 
-import "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
-import "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
-import "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
+import {RelayerFeeRouter} from "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {ITokenRegistry, IBridgeToken} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import {ConnextMessage} from "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 import {Home} from "../../nomad-core/contracts/Home.sol";
 
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import {SafeERC20Upgradeable, AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library ConnextLogic {
   // ============ Libraries ============
