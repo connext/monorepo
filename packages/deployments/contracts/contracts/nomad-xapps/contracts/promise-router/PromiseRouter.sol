@@ -44,7 +44,7 @@ contract PromiseRouter is Version0, Router {
    * @notice Emitted when a fees claim has been initialized in this domain
    * @param domain The domain where to claim the fees
    * @param remote Remote PromiseRouter address
-   * @param transferId The transferId 
+   * @param transferId The transferId
    * @param callbackAddress The address of the callback
    * @param data The calldata which will executed on the destination domain
    * @param message The message sent to the destination domain
@@ -56,15 +56,15 @@ contract PromiseRouter is Version0, Router {
    * @param originAndNonce Domain where the transfer originated and the unique identifier
    * for the message from origin to destination, combined in a single field ((origin << 32) & nonce)
    * @param origin Domain where the transfer originated
-   * @param transferId The transferId 
+   * @param transferId The transferId
    * @param callbackAddress The address of the callback
    * @param data The calldata
    */
   event Receive(
     uint64 indexed originAndNonce,
     uint32 indexed origin,
-    bytes32 transferId, 
-    address callbackAddress, 
+    bytes32 transferId,
+    address callbackAddress,
     bytes data
   );
 
@@ -110,7 +110,7 @@ contract PromiseRouter is Version0, Router {
   /**
    * @notice Sends a request to claim the fees in the originated domain
    * @param _domain The domain where to claim the fees
-   * @param _transferId The transferId 
+   * @param _transferId The transferId
    * @param _callbackAddress A callback address to be called when promise callback is received
    * @param _calldata The calldata for promise callback
    */
@@ -155,7 +155,7 @@ contract PromiseRouter is Version0, Router {
     bytes32 transferId = _msg.transferId();
     address callbackAddress = _msg.callbackAddress();
     bytes memory data = _msg.returnCallData();
-    
+
     //TODO process callback
 
     // emit Receive event
@@ -164,14 +164,11 @@ contract PromiseRouter is Version0, Router {
 
   function process(bytes32 transactionId, bytes memory _message) internal {
     // Should parse out the return data and callback address from message
-
     // Should execute the callback() function on the provided Callback address
-
     // Should enforce relayer is whitelisted by calling local connext contract
-
     // Should transfer the stored relayer fee to the msg.sender
   }
-    
+
   /**
    * @dev explicit override for compiler inheritance
    * @dev explicit override for compiler inheritance

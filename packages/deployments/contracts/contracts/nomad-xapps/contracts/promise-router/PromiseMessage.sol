@@ -30,7 +30,6 @@ library PromiseMessage {
   // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback + 32 bytes length = 85 bytes
   uint256 private constant CALLDATA_START = 85;
 
-
   // ============ Modifiers ============
 
   /**
@@ -52,11 +51,11 @@ library PromiseMessage {
    * @param _data The callback data
    * @return The formatted message
    */
-  function formatPromiseCallback(bytes32 _transferId, address _callbackAddress, bytes calldata _data)
-    internal
-    pure
-    returns (bytes memory)
-  {
+  function formatPromiseCallback(
+    bytes32 _transferId,
+    address _callbackAddress,
+    bytes calldata _data
+  ) internal pure returns (bytes memory) {
     return abi.encodePacked(uint8(Types.PromiseCallback), _transferId, _callbackAddress, _data.length, _data);
   }
 
@@ -91,23 +90,27 @@ library PromiseMessage {
     return _view.indexUint(LENGTH_CALLDATA_START, LENGTH_CALLDATA_LEN);
   }
 
-
   /**
    * @notice Parse calldata from the message
    * @param _view The message
    * @return returnData
    */
-  function returnCallData(bytes29 _view) internal view typeAssert(_view, Types.PromiseCallback) returns (bytes memory returnData) {
+  function returnCallData(bytes29 _view)
+    internal
+    view
+    typeAssert(_view, Types.PromiseCallback)
+    returns (bytes memory returnData)
+  {
     uint256 length = lengthOfCalldata(_view);
 
     uint8 bitLength = uint8(length * 8);
     uint256 _loc = _view.loc();
-    
+
     uint256 _mask;
     assembly {
-        // solium-disable-previous-line security/no-inline-assembly
-        _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
-        returnData := and(mload(add(_loc, CALLDATA_START)), _mask)
+      // solium-disable-previous-line security/no-inline-assembly
+      _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
+      returnData := and(mload(add(_loc, CALLDATA_START)), _mask)
     }
   }
 

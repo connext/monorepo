@@ -366,6 +366,13 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
     ConnextLogic.removeLiquidity(_amount, _local, recipient, routerBalances, wrapper);
   }
 
+  /**
+   * @notice This function is called by a user who is looking to bridge funds
+   * @dev This contract must have approval to transfer the adopted assets. They are then swapped to
+   * the local nomad assets via the configured AMM and sent over the bridge router.
+   * @param _args - The XCallArgs
+   * @return The transfer id of the crosschain transfer
+   */
   function xcall(XCallArgs calldata _args) external payable override returns (bytes32) {
     // get remote BridgeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
@@ -401,7 +408,6 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
    * @param _sender The sender address
    * @param _message The message
    */
-  // ROUTER
   function handle(
     uint32 _origin,
     uint32 _nonce,
@@ -431,8 +437,8 @@ contract ConnextHandler is Initializable, ReentrancyGuardUpgradeable, Router, Ro
       tokenRegistry: tokenRegistry,
       wrapper: wrapper,
       executor: executor,
-      LIQUIDITY_FEE_NUMERATOR: LIQUIDITY_FEE_NUMERATOR,
-      LIQUIDITY_FEE_DENOMINATOR: LIQUIDITY_FEE_DENOMINATOR
+      liquidityFeeNumerator: LIQUIDITY_FEE_NUMERATOR,
+      liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
     });
 
     return
