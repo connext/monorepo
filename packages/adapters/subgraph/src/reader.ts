@@ -213,7 +213,7 @@ export class SubgraphReader {
                 maxXCallBlockNumber: maxBlockNumber.toString(),
                 nonce,
                 originDomain: domain,
-              }); // TODO: nonce + maxPrepareBlockNumber
+              });
             },
           );
           return transfers;

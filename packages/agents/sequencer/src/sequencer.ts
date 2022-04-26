@@ -1,4 +1,4 @@
-import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
+import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
@@ -12,8 +12,7 @@ const context: AppContext = {} as any;
 export const getContext = () => context;
 
 export const makeSequencer = async (_configOverride?: SequencerConfig) => {
-  const requestContext = createRequestContext("makeSequencer");
-  const methodContext = createMethodContext(makeSequencer.name);
+  const { requestContext, methodContext } = createLoggingContext(makeSequencer.name);
   try {
     context.adapters = {} as any;
 

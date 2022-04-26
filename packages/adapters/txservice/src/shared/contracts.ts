@@ -15,7 +15,7 @@ import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/Stab
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/connext/TokenRegistry.sol/TokenRegistry.json";
 import RouterPermissionsManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/RouterPermissionsManager.sol/RouterPermissionsManager.json";
 
-export type ContractPostfix = "staging" | "";
+export type ContractPostfix = "Staging" | "";
 
 /// MARK - CONTRACT DEPLOYMENTS
 /**
