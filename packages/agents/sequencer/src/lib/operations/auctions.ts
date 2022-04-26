@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import {
   Bid,
   BidSchema,
@@ -15,10 +16,6 @@ import { AuctionExpired, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 
 import { getOperations } from ".";
-
-// TODO: Move elsewhere
-// How long we let an auction sit queued in the DB before we handle execution.
-export const AUCTION_PERIOD = 30 * 1_000;
 
 export const storeBid = async (
   transferId: string,
@@ -53,11 +50,7 @@ export const storeBid = async (
     });
   }
 
-  // TODO: Verify the following (and cache it for records):
-  // - Router is approved.
-  // - Asset is approved.
-  // - Relayer is approved for this chain (?).
-  // - Router has sufficient funds (?). May want to actually check this later.
+  // TODO: Check that a relayer is configured/approved for this chain (?).
 
   const res = await cache.auctions.upsertAuction({
     transferId,
@@ -80,8 +73,9 @@ export const storeBid = async (
 
 export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
+    config,
     logger,
-    adapters: { cache },
+    adapters: { cache, subgraph },
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
@@ -89,10 +83,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
   } = getOperations();
   const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
 
-  logger.info(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
+  logger.debug(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
 
   // Fetch all the queued transfer IDs from the cache.
   const transferIds: string[] = await cache.auctions.getQueuedTransfers();
+
+  if (transferIds.length === 0) {
+    logger.debug("No auctions to execute", requestContext, methodContext);
+    return;
+  }
 
   logger.info("Queued transfers", requestContext, methodContext, {
     transferIds,
@@ -107,7 +106,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
       if (auction) {
         const startTime = Number(auction.timestamp);
         const elapsed = (getNtpTimeSeconds() - startTime) * 1000;
-        if (elapsed > AUCTION_PERIOD) {
+        if (elapsed > config.auctionWaitTime) {
           const domain = auction.destination;
           auctions[domain] = {
             ...(auctions[domain] || {}),
@@ -170,10 +169,55 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         let taskId: string | undefined;
         // Try every bid until we find one that works.
         for (const randomBid of randomized) {
+          // Sanity: Check if this router has enough funds.
+          const { router } = randomBid;
+          const { amount: _amount, local: asset } = bidData;
+          const amount = BigNumber.from(_amount);
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
+
+          if (!routerLiquidity) {
+            // Either we haven't cached the liquidity yet, or the value cached has become expired.
+            routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
+            if (routerLiquidity) {
+              await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+            } else {
+              // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
+              // have added liquidity for the asset on the corresponding domain.
+              logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
+                transfer: {
+                  transferId,
+                  asset,
+                  destination,
+                  amount: amount.toString(),
+                },
+                router,
+              });
+              continue;
+            }
+          }
+
+          if (routerLiquidity.lt(amount)) {
+            logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
+              transfer: {
+                transferId,
+                asset,
+                destination,
+                amount: amount.toString(),
+              },
+              router,
+              liquidity: routerLiquidity.toString(),
+            });
+            continue;
+          }
+
           try {
             logger.info("Sending bid to relayer", requestContext, methodContext, {
               transferId,
-              randomBid,
+              bid: {
+                // NOTE: Obfuscating signatures here for safety.
+                router: randomBid.router,
+                fee: randomBid.fee,
+              },
             });
             // Send the relayer request based on chosen bids.
             taskId = await sendToRelayer(
@@ -194,6 +238,12 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               origin,
               destination,
             });
+
+            // Update router liquidity record to reflect spending.
+            routerLiquidity = routerLiquidity.sub(amount);
+            await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+
+            // Break out from the bid selection loop.
             break;
           } catch (error: any) {
             logger.error(

@@ -34,11 +34,19 @@ export class SubgraphReader {
     return new SubgraphReader(subgraphs);
   }
 
-  // TODO: query
-  public async query() {}
+  /**
+   * Make a direct GraphQL query to the subgraph of the given domain.
+   *
+   * @param domain - The domain you want to determine liquidity on.
+   * @param query - The GraphQL query string you want to send.
+   * @returns Query result (any).
+   */
+  public async query(domain: string, query: string): Promise<any> {
+    const subgraph = this.subgraphs.get(domain);
+    return await subgraph!.runtime.query(query);
+  }
 
   /**
-   *
    * Returns available liquidity for the given asset on the Connext on the provided chain.
    *
    * @param domain - The domain you want to determine liquidity on
@@ -49,7 +57,7 @@ export class SubgraphReader {
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
     const subgraph = this.subgraphs.get(domain);
     const { assetBalance } = await subgraph!.runtime.request<GetAssetBalanceQuery>((client) => {
-      return client.GetAssetBalance({ assetBalanceId: `${local}-${router}` });
+      return client.GetAssetBalance({ assetBalanceId: `${local.toLowerCase()}-${router.toLowerCase()}` });
     });
     if (!assetBalance) {
       return constants.Zero;
@@ -68,7 +76,7 @@ export class SubgraphReader {
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
     const subgraph = this.subgraphs.get(domain);
     const { assetBalances } = await subgraph!.runtime.request<GetAssetBalancesQuery>((client) => {
-      return client.GetAssetBalances({ router });
+      return client.GetAssetBalances({ router: router.toLowerCase() });
     });
     const balances: Record<string, BigNumber> = {};
     assetBalances.forEach((bal) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
@@ -146,11 +154,11 @@ export class SubgraphReader {
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
           const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>((client) => {
-            const nonce = agents.get(domain)!.latestNonce;
+            const { latestNonce: nonce, maxBlockNumber, destinationDomains: _destinationDomains } = agents.get(domain)!;
 
             return client.GetXCalledTransfers({
-              destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
+              destinationDomains: _destinationDomains ?? destinationDomains,
+              maxXCallBlockNumber: maxBlockNumber.toString(),
               nonce,
               originDomain: domain,
             });
@@ -179,14 +187,18 @@ export class SubgraphReader {
         [...this.subgraphs].map(async ([domain, subgraph]) => {
           const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>(
             (client: { GetXCalledTransfers: (arg0: GetXCalledTransfersQueryVariables) => any }) => {
-              const nonce = agents.get(domain)!.latestNonce;
+              const {
+                latestNonce: nonce,
+                maxBlockNumber,
+                destinationDomains: _destinationDomains,
+              } = agents.get(domain)!;
 
               return client.GetXCalledTransfers({
-                destinationDomains,
-                maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
+                destinationDomains: _destinationDomains ?? destinationDomains,
+                maxXCallBlockNumber: maxBlockNumber.toString(),
                 nonce,
                 originDomain: domain,
-              }); // TODO: nonce + maxPrepareBlockNumber
+              });
             },
           );
           return transfers;

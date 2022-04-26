@@ -1,4 +1,5 @@
 import { XTransfer } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 export const xtransfer = (subgEntity: any): XTransfer => {
   return {
@@ -12,9 +13,9 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     transferId: subgEntity.transferId,
     callTo: subgEntity.callTo,
     callData: subgEntity.callData,
-    idx: subgEntity.idx,
-    nonce: subgEntity.nonce,
-    router: subgEntity.router,
+    idx: subgEntity.idx ? subgEntity.idx : undefined,
+    nonce: BigNumber.from(subgEntity.nonce ?? "0").toNumber(),
+    router: subgEntity.router?.id,
 
     // XCall
     xcall: subgEntity.xcalledTransactionHash
@@ -25,10 +26,10 @@ export const xtransfer = (subgEntity: any): XTransfer => {
           transferringAsset: subgEntity.xcalledTransactingAsset,
           localAsset: subgEntity.xcalledLocalAsset,
           transactionHash: subgEntity.xcalledTransactionHash,
-          timestamp: subgEntity.xcalledTimestamp,
+          timestamp: BigNumber.from(subgEntity.xcalledTimestamp ?? "0").toNumber(),
           gasPrice: subgEntity.xcalledGasPrice,
           gasLimit: subgEntity.xcalledGasLimit,
-          blockNumber: subgEntity.xcalledBlockNumber,
+          blockNumber: BigNumber.from(subgEntity.xcalledBlockNumber ?? "0").toNumber(),
         }
       : undefined,
 
@@ -40,10 +41,10 @@ export const xtransfer = (subgEntity: any): XTransfer => {
           transferringAsset: subgEntity.executedTransactingAsset,
           localAsset: subgEntity.executedLocalAsset,
           transactionHash: subgEntity.executedTransactionHash,
-          timestamp: subgEntity.executedTimestamp,
+          timestamp: BigNumber.from(subgEntity.executedTimestamp ?? "0").toNumber(),
           gasPrice: subgEntity.executedGasPrice,
           gasLimit: subgEntity.executedGasLimit,
-          blockNumber: subgEntity.executedBlockNumber,
+          blockNumber: BigNumber.from(subgEntity.executedBlockNumber ?? "0").toNumber(),
         }
       : undefined,
 
@@ -55,10 +56,10 @@ export const xtransfer = (subgEntity: any): XTransfer => {
           transferringAsset: subgEntity.reconciledTransactingAsset,
           localAsset: subgEntity.reconciledLocalAsset,
           transactionHash: subgEntity.reconciledTransactionHash,
-          timestamp: subgEntity.reconciledTimestamp,
+          timestamp: BigNumber.from(subgEntity.reconciledTimestamp ?? "0").toNumber(),
           gasPrice: subgEntity.reconciledGasPrice,
           gasLimit: subgEntity.reconciledGasLimit,
-          blockNumber: subgEntity.reconciledBlockNumber,
+          blockNumber: BigNumber.from(subgEntity.reconciledBlockNumber ?? "0").toNumber(),
         }
       : undefined,
   };

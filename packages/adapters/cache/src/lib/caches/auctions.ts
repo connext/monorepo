@@ -154,7 +154,7 @@ export class AuctionsCache extends Cache {
    */
   public async getQueuedTransfers(): Promise<string[]> {
     const stream = this.data.hscanStream(`${this.prefix}:status`);
-    let keys: string[] = [];
+    const keys: string[] = [];
     await new Promise((res) => {
       stream.on("data", (resultKeys: string[] = []) => {
         // Note that resultKeys will sometimes contain duplicates due to SCAN's implementation in Redis

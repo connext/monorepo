@@ -12,7 +12,7 @@ import { stub, restore, reset, SinonStub } from "sinon";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
 import { AuctionExpired, ParamsInvalid } from "../../../src/lib/errors";
-import { AUCTION_PERIOD, executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
+import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
 
@@ -124,7 +124,7 @@ describe("Operations:Auctions", () => {
     const mockAuctionDataBatch = (count: number) =>
       new Array(count).fill(0).map(() =>
         mock.entity.auction({
-          timestamp: (getNtpTimeSeconds() - AUCTION_PERIOD - 20).toString(),
+          timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
         }),
       );
     const mockBidDataBatch = (count: number) => new Array(count).fill(0).map(() => mock.entity.bidData());
@@ -206,7 +206,7 @@ describe("Operations:Auctions", () => {
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mock.entity.auction({
-        timestamp: (getNtpTimeSeconds() - AUCTION_PERIOD - 20).toString(),
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
         bids: [
           {
             ...mock.entity.bid(),
@@ -249,7 +249,7 @@ describe("Operations:Auctions", () => {
       // Based on this bid arrangement, there's only 1 option: select the 3
       // routers that can afford a 3-path transfer.
       const auction = mock.entity.auction({
-        timestamp: (getNtpTimeSeconds() - AUCTION_PERIOD - 20).toString(),
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
         bids: [
           // Router 1 is wealthy and can afford a 2-path and 3-path transfer.
           // ... but there's not enough routers for 2-path!
