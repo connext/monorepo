@@ -31,7 +31,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   } = getContext();
   const {
     auctions: { sendBid },
-    shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
+    shared: { getDestinationLocalAsset, signRouterPathPayload },
   } = getHelpers();
 
   logger.debug("Method start", requestContext, methodContext, { params });
@@ -66,7 +66,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const receivingAmount = xcall.localAmount;
 
   // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
+  const signature = await signRouterPathPayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
   logger.debug("Signed payload", requestContext, methodContext, { signature });
 
   // TODO: Eventually, sending the bid data to the sequencer should be deprecated.

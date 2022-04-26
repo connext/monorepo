@@ -30,7 +30,7 @@ describe("Operations:Execute", () => {
     beforeEach(() => {
       mock.helpers.execute.sanityCheck.resolves();
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
-      mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
+      mock.helpers.shared.signRouterPathPayload.resolves(mock.signature);
       mockContext.adapters.subgraph.isRouterApproved.resolves(true);
       mockContext.adapters.subgraph.getAssetBalance.resolves(constants.MaxUint256);
     });
@@ -70,7 +70,7 @@ describe("Operations:Execute", () => {
         mockXTransfer.xcall.localAsset,
         mockXTransfer.destinationDomain,
       );
-      expect(mock.helpers.shared.signHandleRelayerFeePayload).to.be.calledOnce;
+      expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
       expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 3)).to.deep.equal([
         mockXTransfer.transferId,
         expectedBid,

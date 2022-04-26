@@ -2,7 +2,7 @@ import { expect } from "@connext/nxtp-utils";
 import { keccak256 } from "ethers/lib/utils";
 
 import {
-  encodeHandleRelayerFeeData,
+  encodeRouterPathPayload,
   encodeReconcileData,
   getReconciledHash,
   getRandomBytes32,
@@ -25,11 +25,11 @@ const externalCallData: ExternalCall = {
   callData: getRandomBytes32(),
 };
 describe("Helpers:Encode", () => {
-  describe("#encodeHandleRelayerFeeData", () => {
+  describe("#encodeRouterPathPayload", () => {
     it("happy case", () => {
       const transferId = getRandomBytes32();
       const feePercentage = "1";
-      let encodedData = encodeHandleRelayerFeeData(transferId, feePercentage);
+      let encodedData = encodeRouterPathPayload(transferId, feePercentage);
       encodedData = encodedData.replace(/^0x/, "");
       expect(encodedData.length).to.be.eq(128);
       expect(encodedData[127]).to.be.eq("1");
