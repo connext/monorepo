@@ -106,7 +106,7 @@ library PromiseMessage {
    * @param _view The message
    * @return The returnData length
    */
-  function lengthOfReturndata(bytes29 _view) internal pure returns (uint256) {
+  function lengthOfReturnData(bytes29 _view) internal pure returns (uint256) {
     return _view.indexUint(LENGTH_RETURNDATA_START, LENGTH_RETURNDATA_LEN);
   }
 
@@ -121,7 +121,7 @@ library PromiseMessage {
     typeAssert(_view, Types.PromiseCallback)
     returns (bytes memory data)
   {
-    uint256 length = lengthOfReturndata(_view);
+    uint256 length = lengthOfReturnData(_view);
 
     data = _view.slice(RETURNDATA_START, length, 0).clone();
   }
@@ -133,7 +133,7 @@ library PromiseMessage {
    */
   function isValidPromiseCallbackLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
-    uint256 _length = lengthOfReturndata(_view);
+    uint256 _length = lengthOfReturnData(_view);
     // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 1 byte success + 32 bytes length + x bytes data
     // nonzero return data
     return _len > RETURNDATA_START && _length > 0 && (RETURNDATA_START + _length) == _len;
