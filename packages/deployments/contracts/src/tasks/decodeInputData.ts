@@ -19,7 +19,7 @@ export default task("decode-input-data", "Decodes input data")
     console.log("inputData: ", inputData);
     console.log("type: ", type);
 
-    const connextDeployment = await deployments.get(getDeploymentName("Connext", env));
+    const connextDeployment = await deployments.get(getDeploymentName("ConnextHandler", env));
     const connextInterface = new Interface(connextDeployment.abi);
 
     if (type === "execute") {

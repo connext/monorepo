@@ -107,7 +107,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("Transfer to: ", to);
       console.log("callData: ", callData);
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, sender);

@@ -28,18 +28,13 @@ export default task("enroll-handler", "Add a remote router")
     console.log("chain:", chain);
     console.log("deployer: ", deployer.address);
 
-    const localRouterDeployment = await deployments.get(getDeploymentName("BridgeRouterUpgradeBeaconProxy", env));
+    const localRouterDeployment = await deployments.get(getDeploymentName("ConnextHandler", env));
     const local = _local ?? localRouterDeployment.address;
     console.log("local: ", local);
 
     const { domain } = getDomainInfoFromChainId(+chain);
 
-    const localRouter = await ethers.getContractAt(
-      (
-        await deployments.get(getDeploymentName("BridgeRouter", env))
-      ).abi,
-      local,
-    );
+    const localRouter = await ethers.getContractAt(localRouterDeployment.abi, local);
     const enrollTx = await localRouter.enrollRemoteRouter(domain, hexZeroPad(handler, 32));
     console.log("enroll tx:", enrollTx);
     const receipt = await enrollTx.wait();
