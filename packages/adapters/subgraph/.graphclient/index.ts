@@ -488,7 +488,6 @@ export type rinkeby_Router = {
   proposedOwner?: Maybe<Scalars["rinkeby_Bytes"]>;
   proposedTimestamp?: Maybe<Scalars["BigInt"]>;
   assetBalances: Array<rinkeby_AssetBalance>;
-  transfers: Array<rinkeby_Transfer>;
 };
 
 export type rinkeby_RouterassetBalancesArgs = {
@@ -497,14 +496,6 @@ export type rinkeby_RouterassetBalancesArgs = {
   orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
   orderDirection?: InputMaybe<rinkeby_OrderDirection>;
   where?: InputMaybe<rinkeby_AssetBalance_filter>;
-};
-
-export type rinkeby_RoutertransfersArgs = {
-  skip?: InputMaybe<Scalars["Int"]>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Transfer_filter>;
 };
 
 export type rinkeby_Router_filter = {
@@ -557,8 +548,7 @@ export type rinkeby_Router_orderBy =
   | "recipient"
   | "proposedOwner"
   | "proposedTimestamp"
-  | "assetBalances"
-  | "transfers";
+  | "assetBalances";
 
 export type rinkeby_Transfer = {
   id: Scalars["ID"];
@@ -572,7 +562,8 @@ export type rinkeby_Transfer = {
   callData?: Maybe<Scalars["rinkeby_Bytes"]>;
   idx?: Maybe<Scalars["BigInt"]>;
   nonce?: Maybe<Scalars["BigInt"]>;
-  router?: Maybe<rinkeby_Router>;
+  routers?: Maybe<Array<rinkeby_Router>>;
+  relayerFee?: Maybe<Scalars["BigInt"]>;
   xcalledTransactingAsset?: Maybe<Scalars["rinkeby_Bytes"]>;
   xcalledLocalAsset?: Maybe<Scalars["rinkeby_Bytes"]>;
   xcalledTransactingAmount?: Maybe<Scalars["BigInt"]>;
@@ -601,6 +592,14 @@ export type rinkeby_Transfer = {
   reconciledGasPrice?: Maybe<Scalars["BigInt"]>;
   reconciledGasLimit?: Maybe<Scalars["BigInt"]>;
   reconciledBlockNumber?: Maybe<Scalars["BigInt"]>;
+};
+
+export type rinkeby_TransferroutersArgs = {
+  skip?: InputMaybe<Scalars["Int"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
 };
 
 export type rinkeby_TransferStatus = "XCalled" | "Executed" | "Reconciled";
@@ -682,26 +681,20 @@ export type rinkeby_Transfer_filter = {
   nonce_lte?: InputMaybe<Scalars["BigInt"]>;
   nonce_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   nonce_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  router?: InputMaybe<Scalars["String"]>;
-  router_not?: InputMaybe<Scalars["String"]>;
-  router_gt?: InputMaybe<Scalars["String"]>;
-  router_lt?: InputMaybe<Scalars["String"]>;
-  router_gte?: InputMaybe<Scalars["String"]>;
-  router_lte?: InputMaybe<Scalars["String"]>;
-  router_in?: InputMaybe<Array<Scalars["String"]>>;
-  router_not_in?: InputMaybe<Array<Scalars["String"]>>;
-  router_contains?: InputMaybe<Scalars["String"]>;
-  router_contains_nocase?: InputMaybe<Scalars["String"]>;
-  router_not_contains?: InputMaybe<Scalars["String"]>;
-  router_not_contains_nocase?: InputMaybe<Scalars["String"]>;
-  router_starts_with?: InputMaybe<Scalars["String"]>;
-  router_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  router_not_starts_with?: InputMaybe<Scalars["String"]>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  router_ends_with?: InputMaybe<Scalars["String"]>;
-  router_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-  router_not_ends_with?: InputMaybe<Scalars["String"]>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  routers?: InputMaybe<Array<Scalars["String"]>>;
+  routers_not?: InputMaybe<Array<Scalars["String"]>>;
+  routers_contains?: InputMaybe<Array<Scalars["String"]>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  routers_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  relayerFee?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_not?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_gt?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_lt?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_gte?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_lte?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   xcalledTransactingAsset?: InputMaybe<Scalars["rinkeby_Bytes"]>;
   xcalledTransactingAsset_not?: InputMaybe<Scalars["rinkeby_Bytes"]>;
   xcalledTransactingAsset_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
@@ -920,7 +913,8 @@ export type rinkeby_Transfer_orderBy =
   | "callData"
   | "idx"
   | "nonce"
-  | "router"
+  | "routers"
+  | "relayerFee"
   | "xcalledTransactingAsset"
   | "xcalledLocalAsset"
   | "xcalledTransactingAmount"
@@ -1128,7 +1122,6 @@ export type kovan_Router = {
   proposedOwner?: Maybe<Scalars["kovan_Bytes"]>;
   proposedTimestamp?: Maybe<Scalars["BigInt"]>;
   assetBalances: Array<kovan_AssetBalance>;
-  transfers: Array<kovan_Transfer>;
 };
 
 export type kovan_RouterassetBalancesArgs = {
@@ -1137,14 +1130,6 @@ export type kovan_RouterassetBalancesArgs = {
   orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
   orderDirection?: InputMaybe<kovan_OrderDirection>;
   where?: InputMaybe<kovan_AssetBalance_filter>;
-};
-
-export type kovan_RoutertransfersArgs = {
-  skip?: InputMaybe<Scalars["Int"]>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<kovan_Transfer_orderBy>;
-  orderDirection?: InputMaybe<kovan_OrderDirection>;
-  where?: InputMaybe<kovan_Transfer_filter>;
 };
 
 export type kovan_Router_filter = {
@@ -1197,8 +1182,7 @@ export type kovan_Router_orderBy =
   | "recipient"
   | "proposedOwner"
   | "proposedTimestamp"
-  | "assetBalances"
-  | "transfers";
+  | "assetBalances";
 
 export type kovan_Transfer = {
   id: Scalars["ID"];
@@ -1212,7 +1196,8 @@ export type kovan_Transfer = {
   callData?: Maybe<Scalars["kovan_Bytes"]>;
   idx?: Maybe<Scalars["BigInt"]>;
   nonce?: Maybe<Scalars["BigInt"]>;
-  router?: Maybe<kovan_Router>;
+  routers?: Maybe<Array<kovan_Router>>;
+  relayerFee?: Maybe<Scalars["BigInt"]>;
   xcalledTransactingAsset?: Maybe<Scalars["kovan_Bytes"]>;
   xcalledLocalAsset?: Maybe<Scalars["kovan_Bytes"]>;
   xcalledTransactingAmount?: Maybe<Scalars["BigInt"]>;
@@ -1241,6 +1226,14 @@ export type kovan_Transfer = {
   reconciledGasPrice?: Maybe<Scalars["BigInt"]>;
   reconciledGasLimit?: Maybe<Scalars["BigInt"]>;
   reconciledBlockNumber?: Maybe<Scalars["BigInt"]>;
+};
+
+export type kovan_TransferroutersArgs = {
+  skip?: InputMaybe<Scalars["Int"]>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<kovan_Router_orderBy>;
+  orderDirection?: InputMaybe<kovan_OrderDirection>;
+  where?: InputMaybe<kovan_Router_filter>;
 };
 
 export type kovan_TransferStatus = "XCalled" | "Executed" | "Reconciled";
@@ -1322,26 +1315,20 @@ export type kovan_Transfer_filter = {
   nonce_lte?: InputMaybe<Scalars["BigInt"]>;
   nonce_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   nonce_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  router?: InputMaybe<Scalars["String"]>;
-  router_not?: InputMaybe<Scalars["String"]>;
-  router_gt?: InputMaybe<Scalars["String"]>;
-  router_lt?: InputMaybe<Scalars["String"]>;
-  router_gte?: InputMaybe<Scalars["String"]>;
-  router_lte?: InputMaybe<Scalars["String"]>;
-  router_in?: InputMaybe<Array<Scalars["String"]>>;
-  router_not_in?: InputMaybe<Array<Scalars["String"]>>;
-  router_contains?: InputMaybe<Scalars["String"]>;
-  router_contains_nocase?: InputMaybe<Scalars["String"]>;
-  router_not_contains?: InputMaybe<Scalars["String"]>;
-  router_not_contains_nocase?: InputMaybe<Scalars["String"]>;
-  router_starts_with?: InputMaybe<Scalars["String"]>;
-  router_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  router_not_starts_with?: InputMaybe<Scalars["String"]>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  router_ends_with?: InputMaybe<Scalars["String"]>;
-  router_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-  router_not_ends_with?: InputMaybe<Scalars["String"]>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  routers?: InputMaybe<Array<Scalars["String"]>>;
+  routers_not?: InputMaybe<Array<Scalars["String"]>>;
+  routers_contains?: InputMaybe<Array<Scalars["String"]>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  routers_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  relayerFee?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_not?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_gt?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_lt?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_gte?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_lte?: InputMaybe<Scalars["BigInt"]>;
+  relayerFee_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   xcalledTransactingAsset?: InputMaybe<Scalars["kovan_Bytes"]>;
   xcalledTransactingAsset_not?: InputMaybe<Scalars["kovan_Bytes"]>;
   xcalledTransactingAsset_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
@@ -1560,7 +1547,8 @@ export type kovan_Transfer_orderBy =
   | "callData"
   | "idx"
   | "nonce"
-  | "router"
+  | "routers"
+  | "relayerFee"
   | "xcalledTransactingAsset"
   | "xcalledLocalAsset"
   | "xcalledTransactingAmount"
@@ -2087,12 +2075,6 @@ export type rinkeby_RouterResolvers<
     ContextType,
     RequireFields<rinkeby_RouterassetBalancesArgs, "skip" | "first">
   >;
-  transfers?: Resolver<
-    Array<ResolversTypes["rinkeby_Transfer"]>,
-    ParentType,
-    ContextType,
-    RequireFields<rinkeby_RoutertransfersArgs, "skip" | "first">
-  >;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2111,7 +2093,13 @@ export type rinkeby_TransferResolvers<
   callData?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
   idx?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
-  router?: Resolver<Maybe<ResolversTypes["rinkeby_Router"]>, ParentType, ContextType>;
+  routers?: Resolver<
+    Maybe<Array<ResolversTypes["rinkeby_Router"]>>,
+    ParentType,
+    ContextType,
+    RequireFields<rinkeby_TransferroutersArgs, "skip" | "first">
+  >;
+  relayerFee?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
   xcalledTransactingAsset?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
   xcalledLocalAsset?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
   xcalledTransactingAmount?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
@@ -2210,12 +2198,6 @@ export type kovan_RouterResolvers<
     ContextType,
     RequireFields<kovan_RouterassetBalancesArgs, "skip" | "first">
   >;
-  transfers?: Resolver<
-    Array<ResolversTypes["kovan_Transfer"]>,
-    ParentType,
-    ContextType,
-    RequireFields<kovan_RoutertransfersArgs, "skip" | "first">
-  >;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -2234,7 +2216,13 @@ export type kovan_TransferResolvers<
   callData?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
   idx?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
-  router?: Resolver<Maybe<ResolversTypes["kovan_Router"]>, ParentType, ContextType>;
+  routers?: Resolver<
+    Maybe<Array<ResolversTypes["kovan_Router"]>>,
+    ParentType,
+    ContextType,
+    RequireFields<kovan_TransferroutersArgs, "skip" | "first">
+  >;
+  relayerFee?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
   xcalledTransactingAsset?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
   xcalledLocalAsset?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
   xcalledTransactingAmount?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
@@ -2565,7 +2553,6 @@ export namespace ConnextRinkebyTypes {
     proposedOwner?: Maybe<Scalars["rinkeby_Bytes"]>;
     proposedTimestamp?: Maybe<Scalars["BigInt"]>;
     assetBalances: Array<rinkeby_AssetBalance>;
-    transfers: Array<rinkeby_Transfer>;
   };
 
   export type rinkeby_RouterassetBalancesArgs = {
@@ -2574,14 +2561,6 @@ export namespace ConnextRinkebyTypes {
     orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
     orderDirection?: InputMaybe<rinkeby_OrderDirection>;
     where?: InputMaybe<rinkeby_AssetBalance_filter>;
-  };
-
-  export type rinkeby_RoutertransfersArgs = {
-    skip?: InputMaybe<Scalars["Int"]>;
-    first?: InputMaybe<Scalars["Int"]>;
-    orderBy?: InputMaybe<rinkeby_Transfer_orderBy>;
-    orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-    where?: InputMaybe<rinkeby_Transfer_filter>;
   };
 
   export type rinkeby_Router_filter = {
@@ -2634,8 +2613,7 @@ export namespace ConnextRinkebyTypes {
     | "recipient"
     | "proposedOwner"
     | "proposedTimestamp"
-    | "assetBalances"
-    | "transfers";
+    | "assetBalances";
 
   export type Subscription = {
     rinkeby_asset?: Maybe<rinkeby_Asset>;
@@ -2730,7 +2708,8 @@ export namespace ConnextRinkebyTypes {
     callData?: Maybe<Scalars["rinkeby_Bytes"]>;
     idx?: Maybe<Scalars["BigInt"]>;
     nonce?: Maybe<Scalars["BigInt"]>;
-    router?: Maybe<rinkeby_Router>;
+    routers?: Maybe<Array<rinkeby_Router>>;
+    relayerFee?: Maybe<Scalars["BigInt"]>;
     xcalledTransactingAsset?: Maybe<Scalars["rinkeby_Bytes"]>;
     xcalledLocalAsset?: Maybe<Scalars["rinkeby_Bytes"]>;
     xcalledTransactingAmount?: Maybe<Scalars["BigInt"]>;
@@ -2759,6 +2738,14 @@ export namespace ConnextRinkebyTypes {
     reconciledGasPrice?: Maybe<Scalars["BigInt"]>;
     reconciledGasLimit?: Maybe<Scalars["BigInt"]>;
     reconciledBlockNumber?: Maybe<Scalars["BigInt"]>;
+  };
+
+  export type rinkeby_TransferroutersArgs = {
+    skip?: InputMaybe<Scalars["Int"]>;
+    first?: InputMaybe<Scalars["Int"]>;
+    orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+    orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+    where?: InputMaybe<rinkeby_Router_filter>;
   };
 
   export type rinkeby_TransferStatus = "XCalled" | "Executed" | "Reconciled";
@@ -2840,26 +2827,20 @@ export namespace ConnextRinkebyTypes {
     nonce_lte?: InputMaybe<Scalars["BigInt"]>;
     nonce_in?: InputMaybe<Array<Scalars["BigInt"]>>;
     nonce_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-    router?: InputMaybe<Scalars["String"]>;
-    router_not?: InputMaybe<Scalars["String"]>;
-    router_gt?: InputMaybe<Scalars["String"]>;
-    router_lt?: InputMaybe<Scalars["String"]>;
-    router_gte?: InputMaybe<Scalars["String"]>;
-    router_lte?: InputMaybe<Scalars["String"]>;
-    router_in?: InputMaybe<Array<Scalars["String"]>>;
-    router_not_in?: InputMaybe<Array<Scalars["String"]>>;
-    router_contains?: InputMaybe<Scalars["String"]>;
-    router_contains_nocase?: InputMaybe<Scalars["String"]>;
-    router_not_contains?: InputMaybe<Scalars["String"]>;
-    router_not_contains_nocase?: InputMaybe<Scalars["String"]>;
-    router_starts_with?: InputMaybe<Scalars["String"]>;
-    router_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-    router_not_starts_with?: InputMaybe<Scalars["String"]>;
-    router_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-    router_ends_with?: InputMaybe<Scalars["String"]>;
-    router_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-    router_not_ends_with?: InputMaybe<Scalars["String"]>;
-    router_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+    routers?: InputMaybe<Array<Scalars["String"]>>;
+    routers_not?: InputMaybe<Array<Scalars["String"]>>;
+    routers_contains?: InputMaybe<Array<Scalars["String"]>>;
+    routers_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+    routers_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+    routers_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+    relayerFee?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_not?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_gt?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_lt?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_gte?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_lte?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+    relayerFee_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
     xcalledTransactingAsset?: InputMaybe<Scalars["rinkeby_Bytes"]>;
     xcalledTransactingAsset_not?: InputMaybe<Scalars["rinkeby_Bytes"]>;
     xcalledTransactingAsset_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
@@ -3078,7 +3059,8 @@ export namespace ConnextRinkebyTypes {
     | "callData"
     | "idx"
     | "nonce"
-    | "router"
+    | "routers"
+    | "relayerFee"
     | "xcalledTransactingAsset"
     | "xcalledLocalAsset"
     | "xcalledTransactingAmount"
@@ -3501,7 +3483,6 @@ export namespace ConnextKovanTypes {
     proposedOwner?: Maybe<Scalars["kovan_Bytes"]>;
     proposedTimestamp?: Maybe<Scalars["BigInt"]>;
     assetBalances: Array<kovan_AssetBalance>;
-    transfers: Array<kovan_Transfer>;
   };
 
   export type kovan_RouterassetBalancesArgs = {
@@ -3510,14 +3491,6 @@ export namespace ConnextKovanTypes {
     orderBy?: InputMaybe<kovan_AssetBalance_orderBy>;
     orderDirection?: InputMaybe<kovan_OrderDirection>;
     where?: InputMaybe<kovan_AssetBalance_filter>;
-  };
-
-  export type kovan_RoutertransfersArgs = {
-    skip?: InputMaybe<Scalars["Int"]>;
-    first?: InputMaybe<Scalars["Int"]>;
-    orderBy?: InputMaybe<kovan_Transfer_orderBy>;
-    orderDirection?: InputMaybe<kovan_OrderDirection>;
-    where?: InputMaybe<kovan_Transfer_filter>;
   };
 
   export type kovan_Router_filter = {
@@ -3570,8 +3543,7 @@ export namespace ConnextKovanTypes {
     | "recipient"
     | "proposedOwner"
     | "proposedTimestamp"
-    | "assetBalances"
-    | "transfers";
+    | "assetBalances";
 
   export type Subscription = {
     kovan_asset?: Maybe<kovan_Asset>;
@@ -3666,7 +3638,8 @@ export namespace ConnextKovanTypes {
     callData?: Maybe<Scalars["kovan_Bytes"]>;
     idx?: Maybe<Scalars["BigInt"]>;
     nonce?: Maybe<Scalars["BigInt"]>;
-    router?: Maybe<kovan_Router>;
+    routers?: Maybe<Array<kovan_Router>>;
+    relayerFee?: Maybe<Scalars["BigInt"]>;
     xcalledTransactingAsset?: Maybe<Scalars["kovan_Bytes"]>;
     xcalledLocalAsset?: Maybe<Scalars["kovan_Bytes"]>;
     xcalledTransactingAmount?: Maybe<Scalars["BigInt"]>;
@@ -3695,6 +3668,14 @@ export namespace ConnextKovanTypes {
     reconciledGasPrice?: Maybe<Scalars["BigInt"]>;
     reconciledGasLimit?: Maybe<Scalars["BigInt"]>;
     reconciledBlockNumber?: Maybe<Scalars["BigInt"]>;
+  };
+
+  export type kovan_TransferroutersArgs = {
+    skip?: InputMaybe<Scalars["Int"]>;
+    first?: InputMaybe<Scalars["Int"]>;
+    orderBy?: InputMaybe<kovan_Router_orderBy>;
+    orderDirection?: InputMaybe<kovan_OrderDirection>;
+    where?: InputMaybe<kovan_Router_filter>;
   };
 
   export type kovan_TransferStatus = "XCalled" | "Executed" | "Reconciled";
@@ -3776,26 +3757,20 @@ export namespace ConnextKovanTypes {
     nonce_lte?: InputMaybe<Scalars["BigInt"]>;
     nonce_in?: InputMaybe<Array<Scalars["BigInt"]>>;
     nonce_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-    router?: InputMaybe<Scalars["String"]>;
-    router_not?: InputMaybe<Scalars["String"]>;
-    router_gt?: InputMaybe<Scalars["String"]>;
-    router_lt?: InputMaybe<Scalars["String"]>;
-    router_gte?: InputMaybe<Scalars["String"]>;
-    router_lte?: InputMaybe<Scalars["String"]>;
-    router_in?: InputMaybe<Array<Scalars["String"]>>;
-    router_not_in?: InputMaybe<Array<Scalars["String"]>>;
-    router_contains?: InputMaybe<Scalars["String"]>;
-    router_contains_nocase?: InputMaybe<Scalars["String"]>;
-    router_not_contains?: InputMaybe<Scalars["String"]>;
-    router_not_contains_nocase?: InputMaybe<Scalars["String"]>;
-    router_starts_with?: InputMaybe<Scalars["String"]>;
-    router_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-    router_not_starts_with?: InputMaybe<Scalars["String"]>;
-    router_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-    router_ends_with?: InputMaybe<Scalars["String"]>;
-    router_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-    router_not_ends_with?: InputMaybe<Scalars["String"]>;
-    router_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+    routers?: InputMaybe<Array<Scalars["String"]>>;
+    routers_not?: InputMaybe<Array<Scalars["String"]>>;
+    routers_contains?: InputMaybe<Array<Scalars["String"]>>;
+    routers_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+    routers_not_contains?: InputMaybe<Array<Scalars["String"]>>;
+    routers_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+    relayerFee?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_not?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_gt?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_lt?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_gte?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_lte?: InputMaybe<Scalars["BigInt"]>;
+    relayerFee_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+    relayerFee_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
     xcalledTransactingAsset?: InputMaybe<Scalars["kovan_Bytes"]>;
     xcalledTransactingAsset_not?: InputMaybe<Scalars["kovan_Bytes"]>;
     xcalledTransactingAsset_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
@@ -4014,7 +3989,8 @@ export namespace ConnextKovanTypes {
     | "callData"
     | "idx"
     | "nonce"
-    | "router"
+    | "routers"
+    | "relayerFee"
     | "xcalledTransactingAsset"
     | "xcalledLocalAsset"
     | "xcalledTransactingAmount"
@@ -4275,14 +4251,20 @@ export const rawConfig: YamlConfig.Config = {
     {
       name: "Connext_Kovan",
       handler: {
-        graphql: { endpoint: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan" },
+        graphql: {
+          endpoint: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
+          retry: 5,
+        },
       },
       transforms: [{ prefix: { value: "kovan_", includeRootOperations: true, ignore: ["_SubgraphErrorPolicy_"] } }],
     },
     {
       name: "Connext_Rinkeby",
       handler: {
-        graphql: { endpoint: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby" },
+        graphql: {
+          endpoint: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
+          retry: 5,
+        },
       },
       transforms: [{ prefix: { value: "rinkeby_", includeRootOperations: true, ignore: ["_SubgraphErrorPolicy_"] } }],
     },

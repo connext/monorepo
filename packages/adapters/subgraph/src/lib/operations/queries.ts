@@ -1,69 +1,80 @@
 import { gql } from "graphql-request";
 import { SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import { SubgraphReaderConfig } from "../entities";
+import { getContext } from "../../reader";
 
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
+  const queryString = `
+    ${prefix}_assetBalance(id: "${local}-${router}") {
+      amount
+      asset {
+        canonicalId
+        canonicalDomain
+        local
+        adoptedAsset
+        blockNumber
+      }
+    }`;
   return gql`
     query GetAssetBalance {
-      ${prefix}_assetBalance(id: ${local}-${router}) {
-        amount
-        asset {
-          canonicalId
-          canonicalDomain
-          local
-          adoptedAsset
-          blockNumber
-        }
-      }
+      ${queryString}
     }
   `;
 };
 
 export const getAssetBalancesQuery = (prefix: string, router: string): string => {
+  const queryString = `
+    ${prefix}_assetBalances(where: { router: "${router}" }) {
+      amount
+      asset {
+          canonicalId
+          canonicalDomain
+          local
+          adoptedAsset
+          blockNumber
+      }
+    }`;
+
   return gql`
       query GetAssetBalance {
-        ${prefix}_assetBalances(where: { router: ${router} }) {
-            amount
-            asset {
-                canonicalId
-                canonicalDomain
-                local
-                adoptedAsset
-                blockNumber
-            }
-        }
+        ${queryString}
       }
     `;
 };
 
 export const getRouterQuery = (prefix: string, router: string): string => {
+  const queryString = `
+    ${prefix}_router(id: "${router}") {
+      id
+    }`;
+
   return gql`
     query GetRouter {
-      ${prefix}_router(id: ${router}) {
-        id
-      }
+      ${queryString}
     }
   `;
 };
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
+  const queryString = `
+    ${prefix}_assets(where: { local: "${local}" }) {
+      id
+      local
+      adoptedAsset
+      canonicalId
+      canonicalDomain
+      blockNumber
+    }`;
   return gql`
     query GetAssetByLocal {
-      ${prefix}_assets(where: { local: ${local} }) {
-        id
-        local
-        adoptedAsset
-        canonicalId
-        canonicalDomain
-        blockNumber
-      }
+      ${queryString}
     }
   `;
 };
 
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
-    ${prefix}_assets(where: { canonicalId: ${canonicalId} }, orderBy: blockNumber, orderDirection: desc) {
+    ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
             id
             local
             adoptedAsset
@@ -150,10 +161,8 @@ const xCalledTransferQueryString = (
         }
       `;
 };
-export const getXCalledTransfersQuery = (
-  agents: Map<string, SubgraphQueryMetaParams>,
-  config: SubgraphReaderConfig,
-): string => {
+export const getXCalledTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+  const { config } = getContext();
   let combinedQuery = "";
   const domains = Object.keys(config.sources);
   for (const domain of domains) {
@@ -242,8 +251,8 @@ const executedTransfersByIdsQueryString = (
 export const getExecutedTransfersByIdsQuery = (
   txIdsByDestinationDomain: Map<string, string[]>,
   agents: Map<string, SubgraphQueryMetaParams>,
-  config: SubgraphReaderConfig,
 ): string => {
+  const { config } = getContext();
   let combinedQuery = "";
   for (const destinationDomain of txIdsByDestinationDomain.keys()) {
     if (agents.has(destinationDomain)) {
@@ -329,8 +338,8 @@ const reconciledTransfersByIdsQueryString = (
 export const getReconciledTransfersByIdsQuery = (
   txIdsByDestinationDomain: Map<string, string[]>,
   agents: Map<string, SubgraphQueryMetaParams>,
-  config: SubgraphReaderConfig,
 ): string => {
+  const { config } = getContext();
   let combinedQuery = "";
   for (const destinationDomain of txIdsByDestinationDomain.keys()) {
     if (agents.has(destinationDomain)) {
@@ -405,10 +414,8 @@ const transfersStatusQueryByDomain = (prefix: string, transferIds: string[]) => 
     reconciledBlockNumber
   }`;
 };
-export const getTransfersStatusQuery = (
-  txIdsByDestinationDomain: Map<string, string[]>,
-  config: SubgraphReaderConfig,
-): string => {
+export const getTransfersStatusQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
+  const { config } = getContext();
   let combinedQuery = "";
   for (const destinationDomain of txIdsByDestinationDomain.keys()) {
     const prefix = config.sources[destinationDomain].prefix;
@@ -423,58 +430,58 @@ export const getTransfersStatusQuery = (
 
 export const getTransferQuery = (prefix: string, transferId: string): string => {
   const queryStr = `
-  ${prefix}_transfers(where: { transferId: ${transferId} }) {
-    id
-    # Meta
-    originDomain
-    destinationDomain
-    chainId
-    status
-    # Transfer Data
-    to
-    transferId
-    callTo
-    callData
-    idx
-    nonce
-    router {
+    ${prefix}_transfers(where: { transferId: "${transferId}" }) {
       id
-    }
-    # XCalled
-    xcalledCaller
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    # XCalled Transaction
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
-    # Executed
-    executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
-    # Executed Transaction
-    executedTransactionHash
-    executedTimestamp
-    executedGasPrice
-    executedGasLimit
-    executedBlockNumber
-    # Reconciled
-    reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
-    # Reconciled Transaction
-    reconciledTransactionHash
-    reconciledTimestamp
-    reconciledGasPrice
-    reconciledGasLimit
-    reconciledBlockNumber
-  }`;
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledCaller
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }`;
   return gql`
     query GetTransfer {
       ${queryStr}

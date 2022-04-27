@@ -295,7 +295,6 @@ type Router {
   proposedOwner: Bytes
   proposedTimestamp: BigInt
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: AssetBalance_orderBy, orderDirection: OrderDirection, where: AssetBalance_filter): [AssetBalance!]!
-  transfers(skip: Int = 0, first: Int = 100, orderBy: Transfer_orderBy, orderDirection: OrderDirection, where: Transfer_filter): [Transfer!]!
 }
 
 input Router_filter {
@@ -349,7 +348,6 @@ enum Router_orderBy {
   proposedOwner
   proposedTimestamp
   assetBalances
-  transfers
 }
 
 type Subscription {
@@ -473,7 +471,8 @@ type Transfer {
   callData: Bytes
   idx: BigInt
   nonce: BigInt
-  router: Router
+  routers(skip: Int = 0, first: Int = 100, orderBy: Router_orderBy, orderDirection: OrderDirection, where: Router_filter): [Router!]
+  relayerFee: BigInt
   xcalledTransactingAsset: Bytes
   xcalledLocalAsset: Bytes
   xcalledTransactingAmount: BigInt
@@ -587,26 +586,20 @@ input Transfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
   xcalledTransactingAsset: Bytes
   xcalledTransactingAsset_not: Bytes
   xcalledTransactingAsset_in: [Bytes!]
@@ -825,7 +818,8 @@ enum Transfer_orderBy {
   callData
   idx
   nonce
-  router
+  routers
+  relayerFee
   xcalledTransactingAsset
   xcalledLocalAsset
   xcalledTransactingAmount

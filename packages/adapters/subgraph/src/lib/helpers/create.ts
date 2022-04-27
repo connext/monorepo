@@ -12,10 +12,10 @@ export const create = async (chaindata: Map<string, ChainData>): Promise<Subgrap
 
   [...chaindata.values()].forEach((chainData) => {
     if (prefixes.includes(chainData.network)) {
-      sources.set(chainData.domainId, {
+      sources[chainData.domainId] = {
         domain: chainData.domainId,
         prefix: chainData.network,
-      });
+      };
     } else {
       console.log(`Not configured yet in .graphclientrc.yml, domainId: ${chainData.domainId}`);
     }

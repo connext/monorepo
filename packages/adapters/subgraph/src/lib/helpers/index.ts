@@ -1,7 +1,7 @@
 import { execute } from "./client";
 import { create } from "./create";
 import * as parser from "./parse";
-import { getMeshOptions, getBuiltGraphClient } from "./shared";
+import { getMeshOptions, getBuiltGraphClient, getPrefixByDomain, getDomainByPrefix } from "./shared";
 
 export const getHelpers = () => {
   return {
@@ -10,5 +10,7 @@ export const getHelpers = () => {
     parser,
     getMeshOptions,
     getBuiltGraphClient,
+    getPrefixByDomain,
+    getDomainByPrefix,
   };
 };

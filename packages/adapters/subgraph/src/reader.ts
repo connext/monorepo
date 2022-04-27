@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, XTransferStatus, ChainData } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams, XTransferStatus, ChainData, Asset } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
 import {
@@ -15,13 +15,16 @@ import {
   getXCalledTransfersQuery,
 } from "./lib/operations";
 import { SubgraphReaderConfig } from "./lib/entities";
+import { DomainInvalid } from "./lib/errors";
+
+let context: { config: SubgraphReaderConfig };
+export const getContext = () => context;
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
-  private readonly config: SubgraphReaderConfig;
 
   private constructor(config: SubgraphReaderConfig) {
-    this.config = config;
+    context = { config };
   }
 
   public static async create(chainData: Map<string, ChainData>): Promise<SubgraphReader> {
@@ -40,7 +43,7 @@ export class SubgraphReader {
    * @param query - The GraphQL query string you want to send.
    * @returns Query result (any).
    */
-  public async query(domain: string, query: string): Promise<any> {
+  public async query(query: string): Promise<any> {
     const { execute } = getHelpers();
     return await execute(query);
   }
@@ -54,11 +57,13 @@ export class SubgraphReader {
    * @returns The available balance
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
-    const { execute } = getHelpers();
-    const prefix = this.config.sources[domain].prefix;
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain) as string;
+    if (!prefix) throw new DomainInvalid({ domain });
+
     const query = getAssetBalanceQuery(prefix, router, local);
     const response = await execute(query);
-    return BigNumber.from(response.amount);
+    return BigNumber.from([...response.values()][0][0].amount);
   }
 
   /**
@@ -69,10 +74,13 @@ export class SubgraphReader {
    * @returns An array of asset ids and amounts of liquidity
    */
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
-    const { execute } = getHelpers();
-    const prefix = this.config.sources[domain].prefix;
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain) as string;
+    if (!prefix) throw new DomainInvalid({ domain });
+
     const query = getAssetBalancesQuery(prefix, router);
-    const { assetBalances } = await execute(query);
+    const response = await execute(query);
+    const assetBalances = [...response.values()][0][0];
     const balances: Record<string, BigNumber> = {};
     assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
     return balances;
@@ -86,36 +94,53 @@ export class SubgraphReader {
    * @returns A boolean indicating the router is approved
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
-    const { execute } = getHelpers();
-    const prefix = this.config.sources[domain].prefix;
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain) as string;
+    if (!prefix) throw new DomainInvalid({ domain });
+
     const query = getRouterQuery(prefix, _router);
-    const { router } = await execute(query);
+    const response = await execute(query);
+    const router = [...response.values()][0][0];
     return !!router?.id;
   }
 
-  public async getAssetByLocal(domain: string, local: string): Promise<any | undefined> {
-    const { execute } = getHelpers();
-    const prefix = this.config.sources[domain].prefix;
+  /**
+   * Gets the asset by the local address on the specific domain
+   * @param domain - The domain you're going to get the asset on
+   * @param local - The local asset address
+   */
+  public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain) as string;
+    if (!prefix) throw new DomainInvalid({ domain });
+
     const query = getAssetByLocalQuery(prefix, local);
-    const { assets } = await execute(query);
+    const response = await execute(query);
+    const assets = [...response.values()][0][0];
     if (assets.length === 0) {
       return undefined;
     }
-    // convert to nice typescript type
-    return assets[0];
+    return assets[0] as Asset;
   }
 
-  public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<any | undefined> {
-    const { execute } = getHelpers();
-    const prefix = this.config.sources[domain].prefix;
-    const query = getAssetByCanonicalIdQuery(prefix, canonicalId);
-    const { assets } = await execute(query);
+  /**
+   * Gets the asset by the canoncialId on the specific domain
+   * @param domain - The domain you're going to get the asset on
+   * @param canonicalId - The canoncialId defined by Nomad
+   */
+  public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
+    const { execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain) as string;
+    if (!prefix) throw new DomainInvalid({ domain });
 
+    const query = getAssetByCanonicalIdQuery(prefix, canonicalId);
+    const response = await execute(query);
+    console.log({ response });
+    const assets = [...response.values()][0][0];
     if (assets.length === 0) {
       return undefined;
     }
-    // convert to nice typescript type
-    return assets[0];
+    return assets[0] as Asset;
   }
 
   /**
@@ -126,16 +151,19 @@ export class SubgraphReader {
    * @returns Parsed XTransfer object if transfer exists, otherwise undefined.
    */
   public async getTransfer(domain: string, transferId: string): Promise<XTransfer | undefined> {
-    const { parser, execute } = getHelpers();
-    const prefix = this.config.sources[domain].prefix;
+    const { parser, execute, getPrefixByDomain } = getHelpers();
+    const prefix = getPrefixByDomain(domain);
+    if (!prefix) throw new DomainInvalid({ domain });
+
     const query = getTransferQuery(prefix, transferId);
-    const { transfers } = await execute(query);
+    const response = await execute(query);
+    const transfers = [...response.values()][0][0];
     return transfers.length === 1 ? parser.xtransfer(transfers[0]) : undefined;
   }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
-    const query = getXCalledTransfersQuery(agents, this.config);
+    const query = getXCalledTransfersQuery(agents);
 
     const xcalledTransfers = await execute(query);
 
@@ -152,7 +180,7 @@ export class SubgraphReader {
     status: XTransferStatus,
   ): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getXCalledTransfersQuery(agents, this.config);
+    const xcalledXQuery = getXCalledTransfersQuery(agents);
     const xcalledTransfers = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
 
@@ -176,7 +204,7 @@ export class SubgraphReader {
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
 
-    const executedXQuery = getExecutedTransfersByIdsQuery(txIdsByDestinationDomain, agents, this.config);
+    const executedXQuery = getExecutedTransfersByIdsQuery(txIdsByDestinationDomain, agents);
     const executedTransfers = await execute(executedXQuery);
 
     executedTransfers.forEach((_tx: any) => {
@@ -186,7 +214,7 @@ export class SubgraphReader {
       allTxById.set(tx.transferId, inMap);
     });
 
-    const reconciledXQuery = getReconciledTransfersByIdsQuery(txIdsByDestinationDomain, agents, this.config);
+    const reconciledXQuery = getReconciledTransfersByIdsQuery(txIdsByDestinationDomain, agents);
     const reconciledTransfers = await execute(reconciledXQuery);
 
     reconciledTransfers.forEach((_tx: any) => {
@@ -215,7 +243,7 @@ export class SubgraphReader {
     });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
-    const transfersStatusXQuery = getTransfersStatusQuery(txIdsByDestinationDomain, this.config);
+    const transfersStatusXQuery = getTransfersStatusQuery(txIdsByDestinationDomain);
     const executedAndReconciledTransfers = await execute(transfersStatusXQuery);
     executedAndReconciledTransfers.forEach((_tx: any) => {
       const tx = parser.xtransfer(_tx);

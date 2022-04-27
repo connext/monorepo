@@ -668,7 +668,6 @@ type rinkeby_Router {
   proposedOwner: rinkeby_Bytes
   proposedTimestamp: BigInt
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: rinkeby_AssetBalance_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_AssetBalance_filter): [rinkeby_AssetBalance!]!
-  transfers(skip: Int = 0, first: Int = 100, orderBy: rinkeby_Transfer_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_Transfer_filter): [rinkeby_Transfer!]!
 }
 
 input rinkeby_Router_filter {
@@ -723,7 +722,6 @@ enum rinkeby_Router_orderBy {
   proposedOwner
   proposedTimestamp
   assetBalances
-  transfers
 }
 
 type rinkeby_Transfer {
@@ -738,7 +736,8 @@ type rinkeby_Transfer {
   callData: rinkeby_Bytes
   idx: BigInt
   nonce: BigInt
-  router: rinkeby_Router
+  routers(skip: Int = 0, first: Int = 100, orderBy: rinkeby_Router_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_Router_filter): [rinkeby_Router!]
+  relayerFee: BigInt
   xcalledTransactingAsset: rinkeby_Bytes
   xcalledLocalAsset: rinkeby_Bytes
   xcalledTransactingAmount: BigInt
@@ -852,26 +851,20 @@ input rinkeby_Transfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
   xcalledTransactingAsset: rinkeby_Bytes
   xcalledTransactingAsset_not: rinkeby_Bytes
   xcalledTransactingAsset_in: [rinkeby_Bytes!]
@@ -1091,7 +1084,8 @@ enum rinkeby_Transfer_orderBy {
   callData
   idx
   nonce
-  router
+  routers
+  relayerFee
   xcalledTransactingAsset
   xcalledLocalAsset
   xcalledTransactingAmount
@@ -1322,7 +1316,6 @@ type kovan_Router {
   proposedOwner: kovan_Bytes
   proposedTimestamp: BigInt
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: kovan_AssetBalance_orderBy, orderDirection: kovan_OrderDirection, where: kovan_AssetBalance_filter): [kovan_AssetBalance!]!
-  transfers(skip: Int = 0, first: Int = 100, orderBy: kovan_Transfer_orderBy, orderDirection: kovan_OrderDirection, where: kovan_Transfer_filter): [kovan_Transfer!]!
 }
 
 input kovan_Router_filter {
@@ -1377,7 +1370,6 @@ enum kovan_Router_orderBy {
   proposedOwner
   proposedTimestamp
   assetBalances
-  transfers
 }
 
 type kovan_Transfer {
@@ -1392,7 +1384,8 @@ type kovan_Transfer {
   callData: kovan_Bytes
   idx: BigInt
   nonce: BigInt
-  router: kovan_Router
+  routers(skip: Int = 0, first: Int = 100, orderBy: kovan_Router_orderBy, orderDirection: kovan_OrderDirection, where: kovan_Router_filter): [kovan_Router!]
+  relayerFee: BigInt
   xcalledTransactingAsset: kovan_Bytes
   xcalledLocalAsset: kovan_Bytes
   xcalledTransactingAmount: BigInt
@@ -1506,26 +1499,20 @@ input kovan_Transfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
   xcalledTransactingAsset: kovan_Bytes
   xcalledTransactingAsset_not: kovan_Bytes
   xcalledTransactingAsset_in: [kovan_Bytes!]
@@ -1745,7 +1732,8 @@ enum kovan_Transfer_orderBy {
   callData
   idx
   nonce
-  router
+  routers
+  relayerFee
   xcalledTransactingAsset
   xcalledLocalAsset
   xcalledTransactingAmount

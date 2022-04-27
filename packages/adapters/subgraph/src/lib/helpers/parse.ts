@@ -1,5 +1,7 @@
 import { XTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { getHelpers } from ".";
+import { getContext } from "../../reader";
 
 export const xtransfer = (subgEntity: any): XTransfer => {
   return {
@@ -77,4 +79,33 @@ export const xtransfer = (subgEntity: any): XTransfer => {
  */
 export const xtransfers = (subgEntity: any): Map<string, XTransfer[]> => {
   throw Error(`Not implemented yet`);
+};
+
+/**
+ * Parses raw response of crosschain query request and group by domain
+ * @param response The raw response from endpoints
+ */
+export const xquery = (response: any): Map<string, any[]> => {
+  const { config } = getContext();
+  const { getDomainByPrefix } = getHelpers();
+  const result: Map<string, any[]> = new Map();
+  if (response.data) {
+    const entityRes = response.data;
+    for (const key of Object.keys(entityRes)) {
+      const prefix = key.split("_")[0].toLowerCase();
+      const domain = getDomainByPrefix(prefix);
+      if (domain) {
+        const value = entityRes[key];
+        if (result.has(domain)) {
+          result.get(domain)!.push(value);
+        } else {
+          result.set(domain, [value]);
+        }
+      }
+    }
+
+    return result;
+  } else {
+    throw new Error(`Parsing subgraph response failed!`);
+  }
 };

@@ -1,3 +1,4 @@
+import { getHelpers } from ".";
 import { getBuiltGraphClient } from "./shared";
 
 /**
@@ -6,8 +7,9 @@ import { getBuiltGraphClient } from "./shared";
  * @param variables - The variables you're going to put
  * @returns The response from subgraph
  */
-export const execute = async (document: any, variables = {}): Promise<any> => {
+export const execute = async (document: any, variables = {}): Promise<Map<string, any[]>> => {
   const { execute } = await getBuiltGraphClient();
+  const { parser } = getHelpers();
   const response = await execute(document, variables);
-  return response;
+  return parser.xquery(response);
 };
