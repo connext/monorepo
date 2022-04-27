@@ -40,10 +40,10 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   let beaconAddress: string | undefined;
 
   if (proxyDeployment) {
-    console.log(`${name} proxy deployed. upgrading...`);
+    console.log(`${implementationName} proxy deployed. upgrading...`);
     // Get beacon and implementation addresses
     beaconAddress = (await hre.deployments.getOrNull(upgradeBeaconName))?.address;
-    implementation = (await hre.deployments.getOrNull(name))?.address;
+    implementation = (await hre.deployments.getOrNull(implementationName))?.address;
     if (!implementation || !beaconAddress) {
       throw new Error(`Could not find beacon or implementation address for ${name}`);
     }
@@ -152,7 +152,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)
   ).connect(deployer);
 
-  console.log("Deploying token registry...");
+  // console.log("Deploying token registry...");
   const tokenRegistry = await deployNomadBeaconProxy(
     "TokenRegistry",
     [domainConfig.contracts.bridge.bridgeToken.beacon, xappConnectionManagerAddress],

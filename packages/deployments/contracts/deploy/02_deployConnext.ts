@@ -28,13 +28,21 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   console.log("Deploying relayer fee router...");
   // Get RelayerFeeRouter and TokenRegistry deployments.
-  const relayerFeeRouterDeployment = await hre.deployments.getOrNull("RelayerFeeRouterUpgradeBeaconProxy");
-  if (!relayerFeeRouterDeployment) {
-    throw new Error(`RelayerFeRelayerFeeRoutere not deployed`);
+  const relayerFeeRouterName = getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy");
+  const relayerFeeRouterDeployment = await hre.deployments.getOrNull(relayerFeeRouterName);
+  const relayerFeeRouterImplementationName = getDeploymentName("RelayerFeeRouter");
+  const relayerFeeRouterImplementationDeployment = await hre.deployments.getOrNull(relayerFeeRouterImplementationName);
+
+  if (!relayerFeeRouterDeployment || !relayerFeeRouterImplementationDeployment) {
+    throw new Error(
+      `RelayerFeeRouterUpgradeBeaconProxy not deployed. ` +
+        `Upgrade Beacon: ${!!relayerFeeRouterDeployment}; Implementation: ${!!relayerFeeRouterImplementationDeployment}`,
+    );
   }
+
   const relayerFeeRouter = new hre.ethers.Contract(
     relayerFeeRouterDeployment.address,
-    (await hre.deployments.getOrNull("RelayerFeeRouter"))!.abi,
+    relayerFeeRouterImplementationDeployment.abi,
   ).connect(deployer);
 
   // Get xapp connection manager
@@ -101,7 +109,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       proxyContract: "OpenZeppelinTransparentProxy",
       viaAdminContract: { name: getDeploymentName("ConnextProxyAdmin"), artifact: "ConnextProxyAdmin" },
     },
-    contract: "Connext",
+    contract: "ConnextHandler",
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
