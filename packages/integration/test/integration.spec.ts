@@ -14,7 +14,6 @@ import {
 } from "@connext/nxtp-utils";
 import {
   ChainReader,
-  contractDeployments,
   getConnextInterface,
   getDeployedTokenRegistryContract,
   getTokenRegistryInterface,
@@ -145,8 +144,6 @@ describe("Integration:E2E", () => {
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
     const destinationConnextAddress = domainInfo.DESTINATION.config.deployments.connext;
-    console.log(getDeployedTokenRegistryContract(domainInfo.DESTINATION.chain)?.address);
-    console.log(getDeployedTokenRegistryContract(domainInfo.ORIGIN.chain)?.address);
 
     // Log setup.
     log.params(
@@ -281,6 +278,7 @@ describe("Integration:E2E", () => {
                 local: localAsset,
                 adoptedToCanonical,
                 canonicalToAdopted,
+                canonicalTokenId,
               },
             });
           }
@@ -498,7 +496,7 @@ describe("Integration:E2E", () => {
             const receipt = await tx.wait(1);
 
             routerTokens = await chainreader.getBalance(
-              domainInfo.ORIGIN.chain,
+              domainInfo.DESTINATION.chain,
               agents.router.address,
               DESTINATION_ASSET.address,
             );
@@ -511,11 +509,11 @@ describe("Integration:E2E", () => {
 
         {
           const tokenRegistry = getTokenRegistryInterface();
-          const tr = contractDeployments.tokenRegistry(domainInfo.DESTINATION.chain);
+          const tr = getDeployedTokenRegistryContract(domainInfo.DESTINATION.chain, "Staging");
           const encoded = tokenRegistry.encodeFunctionData("getTokenId", [DESTINATION_ASSET.address]);
           const result = await chainreader.readTx({
             chainId: domainInfo.DESTINATION.chain,
-            to: tr.address,
+            to: tr!.address,
             data: encoded,
           });
           const info = tokenRegistry.decodeFunctionResult("getTokenId", result);
@@ -532,7 +530,6 @@ describe("Integration:E2E", () => {
             },
           });
         }
-        throw new Error();
 
         // Add liquidity.
         log.info("Adding liquidity for Router...", {
@@ -621,10 +618,6 @@ describe("Integration:E2E", () => {
       const tx = await agents.user.origin.sendTransaction({
         to: originConnextAddress,
         data: encoded,
-<<<<<<< Updated upstream
-=======
-        // gasLimit: BigNumber.from("300000"),
->>>>>>> Stashed changes
       });
       const receipt = await tx.wait(1);
       log.info("XCall sent.", {

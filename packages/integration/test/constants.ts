@@ -13,7 +13,7 @@ export const ORIGIN_ASSET = {
 };
 export const DESTINATION_ASSET = {
   name: "TEST",
-  address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
+  address: "0xb7b1d3cc52e658922b2af00c5729001cea98142c",
 };
 
 /// MARK - Integration Settings
