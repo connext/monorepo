@@ -55,6 +55,7 @@ interface IConnextHandler {
     address[] routers;
     bytes[] routerSignatures;
     uint256 amount;
+    uint256 relayerFee;
     uint256 nonce;
     address originSender;
   }
@@ -92,6 +93,8 @@ interface IConnextHandler {
   function addRelayer(address relayer) external;
 
   function removeRelayer(address relayer) external;
+
+  function setSponsorVault(address sponsorVault) external;
 
   // ============ Public Functions ===========
 

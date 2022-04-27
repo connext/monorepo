@@ -34,6 +34,7 @@ library ConnextLogic {
   error ConnextLogic__addRelayer_alreadyApproved();
   error ConnextLogic__removeRelayer_notApproved();
   error ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error ConnextLogic__setSponsorVault_invalidSponsorVault();
   error ConnextLogic__reconcile_invalidAction();
   error ConnextLogic__reconcile_alreadyReconciled();
   error ConnextLogic__removeLiquidity_recipientEmpty();
@@ -150,6 +151,13 @@ library ConnextLogic {
    * @param caller - The account that called the function
    */
   event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
+
+  /**
+   * @notice Emitted when the sponsorVault variable is updated
+   * @param sponsorVault - The sponsorVault new value
+   * @param caller - The account that called the function
+   */
+  event SponsorVaultUpdated(address sponsorVault, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -337,6 +345,18 @@ library ConnextLogic {
       revert ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
     emit MaxRoutersPerTransferUpdated(_newMax, msg.sender);
+  }
+
+  /**
+   * @notice Used to set the sponsor vault
+   * @param _sponsorVault The new sponsor vault
+   * @param _currentSponsorVault The current sponsor vault
+   */
+  function setSponsorVault(address _sponsorVault, address _currentSponsorVault) external {
+    if (_sponsorVault == _currentSponsorVault)
+      revert ConnextLogic__setSponsorVault_invalidSponsorVault();
+
+    emit SponsorVaultUpdated(_sponsorVault, msg.sender);
   }
 
   // ============ Functions ============
