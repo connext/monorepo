@@ -6,6 +6,6 @@
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
   "exclude": ["test/**/*.ts"],
-  "include": ["src/**/*.ts", ".graphclient/*.ts"],
+  "include": ["src/**/*.ts", ".graphclient/**/*.ts"],
   "references": []
 }
