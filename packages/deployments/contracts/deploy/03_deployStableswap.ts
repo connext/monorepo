@@ -1,33 +1,38 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { Wallet } from "ethers";
+
+import { getDeploymentName } from "../src/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
 
-  let deployer;
-  ({ deployer } = await hre.getNamedAccounts());
-  if (!deployer) {
-    [deployer] = await hre.getUnnamedAccounts();
+  let _deployer: any;
+  ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
+  if (!_deployer) {
+    [_deployer] = await hre.ethers.getUnnamedSigners();
   }
-  console.log("============================= Deploying StableSwap ===============================");
-  console.log("deployer: ", deployer);
+  const deployer = _deployer as Wallet;
+  console.log("\n============================= Deploying StableSwap ===============================");
+  console.log("deployer: ", deployer.address);
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  LP Token
   /////////////////////////////////////////////////////////////////////////////////
+  // NOTE: *NOT* using -Staging deployment for LP token
   const lpToken = await deployments.getOrNull("LPToken");
   if (lpToken) {
     console.log(`reusing "LPToken" at ${lpToken.address}`);
   } else {
     await deployments.deploy("LPToken", {
-      from: deployer,
+      from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
     });
 
     await deployments.execute(
       "LPToken",
-      { from: deployer, log: true },
+      { from: deployer.address, log: true },
       "initialize",
       "Nxtp Stable LP Token",
       "NxtpStableLPToken",
@@ -37,47 +42,39 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  AmplificationUtils
   /////////////////////////////////////////////////////////////////////////////////
-  await deployments.deploy("AmplificationUtils", {
-    from: deployer,
+  const amplificationUtilsName = getDeploymentName("AmplificationUtils");
+  const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
+    from: deployer.address,
     log: true,
     skipIfAlreadyDeployed: true,
+    contract: "AmplificationUtils",
   });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  SwapUtils
   /////////////////////////////////////////////////////////////////////////////////
-  await deployments.deploy("SwapUtils", {
-    from: deployer,
+  const swapUtilsName = getDeploymentName("SwapUtils");
+  const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
+    from: deployer.address,
     log: true,
     skipIfAlreadyDeployed: true,
+    contract: "SwapUtils",
   });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  StableSwap
   /////////////////////////////////////////////////////////////////////////////////
-  const stableSwapDeployment = await deployments.deploy("StableSwap", {
-    from: deployer,
+  const stableSwapName = getDeploymentName("StableSwap");
+  await deployments.deploy(stableSwapName, {
+    from: deployer.address,
     log: true,
     libraries: {
-      SwapUtils: (await deployments.get("SwapUtils")).address,
-      AmplificationUtils: (await deployments.get("AmplificationUtils")).address,
+      SwapUtils: swapUtilsDeployment.address,
+      AmplificationUtils: amplificationUtilsDeployment.address,
     },
     skipIfAlreadyDeployed: true,
+    contract: "StableSwap",
   });
-
-  try {
-    //verify stable swap contract
-    await hre.run("verify:verify", {
-      address: stableSwapDeployment.address,
-      constructorArguments: [],
-      libraries: {
-        SwapUtils: (await deployments.get("SwapUtils")).address,
-        AmplificationUtils: (await deployments.get("AmplificationUtils")).address,
-      },
-    });
-  } catch (e: unknown) {
-    console.log("Errow while verify stableswap contract", stableSwapDeployment.address);
-  }
 };
 
 export default func;

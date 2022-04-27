@@ -10,7 +10,6 @@ import {
   getRandomBytes32,
   Bid,
   getNtpTimeSeconds,
-  BidData,
 } from "@connext/nxtp-utils";
 
 import { AuctionsCache } from "../../../src/index";
@@ -40,13 +39,6 @@ describe("AuctionCache", () => {
       await redis.hset(`${prefix}:task`, transferId, JSON.stringify(task)),
     getTask: async (transferId: string): Promise<AuctionTask | null> => {
       const res = await redis.hget(`${prefix}:task`, transferId);
-      return res ? JSON.parse(res) : null;
-    },
-
-    setBidData: async (transferId: string, bid: BidData) =>
-      await redis.hset(`${prefix}:bidData`, transferId, JSON.stringify(bid)),
-    getBidData: async (transferId: string): Promise<BidData | null> => {
-      const res = await redis.hget(`${prefix}:bidData`, transferId);
       return res ? JSON.parse(res) : null;
     },
   };
@@ -107,7 +99,9 @@ describe("AuctionCache", () => {
         expect(auction).to.deep.eq({
           origin: args.origin,
           destination: args.destination,
-          bids: [args.bid],
+          bids: {
+            [args.bid.router]: args.bid,
+          },
         });
       });
 
@@ -133,7 +127,9 @@ describe("AuctionCache", () => {
           ...args,
           origin,
           destination,
-          bids: [firstBid],
+          bids: {
+            [firstBid.router]: firstBid,
+          },
         });
 
         const secondCallRes = await cache.upsertAuction({
@@ -148,7 +144,10 @@ describe("AuctionCache", () => {
           timestamp: firstCallTimestamp,
           origin,
           destination,
-          bids: [firstBid, secondBid],
+          bids: {
+            [firstBid.router]: firstBid,
+            [secondBid.router]: secondBid,
+          },
         });
       });
     });
@@ -288,39 +287,6 @@ describe("AuctionCache", () => {
       it("sad: should return empty array if no queued transfers exist", async () => {
         const res = await cache.getQueuedTransfers();
         expect(res).to.deep.eq([]);
-      });
-    });
-
-    describe("#getBidData", () => {
-      it("happy: should retrieve existing bid data", async () => {
-        const transferId = getRandomBytes32();
-        const bidData: BidData = mock.entity.bidData();
-
-        await mockRedisHelpers.setBidData(transferId, bidData);
-        const res = await cache.getBidData(transferId);
-        expect(res).to.deep.eq(bidData);
-      });
-
-      it("sad: should return undefined if bid data does not exist", async () => {
-        const transferId = getRandomBytes32();
-        const res = await cache.getBidData(transferId);
-        expect(res).to.deep.eq(undefined);
-      });
-    });
-
-    describe("#setBidData", () => {
-      it("happy: should set/update bid data", async () => {
-        const transferId = getRandomBytes32();
-        const bidData = mock.entity.bidData();
-
-        const resOne = await cache.setBidData(transferId, bidData);
-        expect(resOne).to.eq(1);
-
-        const resTwo = await cache.setBidData(transferId, bidData);
-        expect(resTwo).to.eq(0);
-
-        const entry = await mockRedisHelpers.getBidData(transferId);
-        expect(entry).to.deep.eq(bidData);
       });
     });
   });

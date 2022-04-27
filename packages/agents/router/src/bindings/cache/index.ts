@@ -4,25 +4,24 @@ import interval from "interval-promise";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
-export const CACHE_POLL_INTERVAL = 20_000;
-
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindCache = async (_pollInterval = CACHE_POLL_INTERVAL) => {
+export const bindCache = async (_pollInterval?: number) => {
   const { config } = getContext();
+  const pollInterval = _pollInterval ?? config.polling.cache;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
       await pollCache();
     }
-  }, _pollInterval);
+  }, pollInterval);
 };
 
 export const pollCache = async () => {
   const {
-    adapters: { cache },
+    adapters: { cache, subgraph },
     logger,
     config,
   } = getContext();
@@ -36,8 +35,22 @@ export const pollCache = async () => {
       continue;
     }
     // Retrieve the list of all pending transfer IDs for this domain.
-    const pending = await cache.transfers.getPending(domain);
+    let pending = await cache.transfers.getPending(domain);
     logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
+
+    const pendingTransfers: XTransfer[] = [];
+    for (const transferId of pending) {
+      // Retrieve the transfer data.
+      const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
+      if (transfer) pendingTransfers.push(transfer);
+    }
+
+    // Check the transfer status and update if it gets executed or reconciled on the destination domain
+    const confirmedTransfers: XTransfer[] = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+    if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
+
+    const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
+    pending = pending.filter((txid) => !confirmedTxIds.includes(txid));
 
     for (const transferId of pending) {
       // Retrieve the transfer data.

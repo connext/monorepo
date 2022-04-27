@@ -3,7 +3,9 @@ import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TDecimalString, TIntegerString } from "./primitives";
 
 export const BidSchema = Type.Object({
-  router: TAddress,
+  transferId: Type.String(), // The Transfer ID.
+  origin: Type.String(), // Origin domain of the transfer. Needed for sequencer to confirm transfer is valid.
+  router: TAddress, // The address of the router sending this bid.
   fee: TDecimalString, // Router % fee.
   // Array indexed by auction round (determines how many router(s) the sequencer may split the transfer between).
   signatures: Type.Record(TIntegerString, Type.String()),
@@ -40,7 +42,9 @@ export type AuctionHeader = Static<typeof AuctionHeaderSchema>;
 
 // Auction type - used for caching.
 export type Auction = AuctionHeader & {
-  bids: Bid[];
+  bids: {
+    [router: string]: Bid;
+  };
 };
 
 // Record of important data for an auction's meta tx.

@@ -5,9 +5,11 @@ pragma solidity >=0.6.11;
 // import {Home} from "../../../../nomad-core-sol/contracts/Home.sol";
 import {Home} from "../../nomad-core/contracts/Home.sol";
 import {XAppConnectionManager} from "../../nomad-core/contracts/XAppConnectionManager.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-abstract contract XAppConnectionClient is OwnableUpgradeable {
+// TODO: refactor proposed ownable to be one basic + one router/asset
+import {ProposedOwnableUpgradeable} from "../../ProposedOwnableUpgradeable.sol";
+
+abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
   // ============ Mutable Storage ============
 
   XAppConnectionManager public xAppConnectionManager;
@@ -27,7 +29,7 @@ abstract contract XAppConnectionClient is OwnableUpgradeable {
 
   function __XAppConnectionClient_initialize(address _xAppConnectionManager) internal initializer {
     xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
-    __Ownable_init();
+    __ProposedOwnable_init();
   }
 
   // ============ External functions ============

@@ -3,9 +3,9 @@ import { gql } from "graphql-request";
 // Contains all subgraph queries used by router
 
 export const getTransfers = gql`
-  query GetTransfers($destinationDomains: [BigInt!], $nonce: BigInt!) {
+  query GetTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $nonce: BigInt!) {
     transfers(
-      where: { destinationDomain_in: $destinationDomains, nonce_gte: $nonce }
+      where: { destinationDomain_in: $destinationDomains, nonce_gte: $nonce, originDomain: $originDomain }
       orderBy: xcalledBlockNumber
       orderDirection: desc
     ) {
@@ -64,9 +64,15 @@ export const getTransfers = gql`
 `;
 
 export const getXCalledTransfers = gql`
-  query GetXCalledTransfers($destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
+  query GetXCalledTransfers(
+    $originDomain: BigInt!
+    $destinationDomains: [BigInt!]
+    $maxXCallBlockNumber: BigInt!
+    $nonce: BigInt!
+  ) {
     transfers(
       where: {
+        originDomain: $originDomain
         status: XCalled
         destinationDomain_in: $destinationDomains
         xcalledBlockNumber_lte: $maxXCallBlockNumber
@@ -254,6 +260,63 @@ export const getReconciledTransfersByIds = gql`
         status_in: [Reconciled]
       }
     ) {
+      id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledCaller
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }
+  }
+`;
+
+export const getTransfersStatus = gql`
+  query GetTransfersStatus($transferIds: [Bytes!]) {
+    transfers(where: { transferId_in: $transferIds, status_in: [Executed, Reconciled] }) {
       id
       # Meta
       originDomain

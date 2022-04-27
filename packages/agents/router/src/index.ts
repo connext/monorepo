@@ -1,5 +1,6 @@
 import { makeRouter } from "./router";
 
-export { NxtpRouterConfig } from "./config";
+export { NxtpRouterConfig, ChainConfig } from "./config";
+export { makeRouter };
 
 makeRouter();

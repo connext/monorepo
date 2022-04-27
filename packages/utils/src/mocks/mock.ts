@@ -6,7 +6,6 @@ import {
   XTransferStatus,
   getRandomBytes32,
   Bid,
-  BidData,
   CallParams,
   ExecuteArgs,
   createLoggingContext,
@@ -84,10 +83,9 @@ export const mock: any = {
       params: mock.entity.callParams(),
       local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
-      feePercentage: "0.05",
+      routerSignatures: [mock.signature],
       amount: utils.parseEther("1").toString(),
       nonce: 0,
-      relayerSignature: "0xsig",
       originSender: mkAddress(),
       ...overrides,
     }),
@@ -95,10 +93,14 @@ export const mock: any = {
       timestamp: getNtpTimeSeconds().toString(),
       origin: mock.domain.A,
       destination: mock.domain.B,
-      bids: [mock.entity.bid()],
+      bids: {
+        [mock.address.router]: mock.entity.bid(),
+      },
       ...overrides,
     }),
     bid: (overrides: Partial<Bid> = {}): Bid => ({
+      transferId: getRandomBytes32(),
+      origin: mock.domain.A,
       router: mock.address.router,
       fee: "0.05",
       signatures: {
@@ -108,14 +110,9 @@ export const mock: any = {
       },
       ...overrides,
     }),
-    bidData: (): BidData => {
-      const bidData = mock.entity.executeArgs();
-      delete bidData["routers"];
-      return bidData;
-    },
     xtransfer: (
-      originDomain: string,
-      destinationDomain: string,
+      originDomain: string = mock.domain.A,
+      destinationDomain: string = mock.domain.B,
       amount = "1000",
       status: XTransferStatus = XTransferStatus.XCalled,
       asset: string = mock.asset.A.address,
@@ -137,6 +134,7 @@ export const mock: any = {
         idx: "0",
         nonce,
         router: mock.address.router,
+        relayerFee: "12345",
 
         // XCalled
         xcall: {

@@ -1,22 +1,16 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-alpha.6",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@jtbennett/ts-project-scripts": "^1.0.0-rc.4",
-    "@types/node": "^17.0.23",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
-    "concurrently": "^7.0.0",
     "eslint": "^8.11.0",
-    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-jsdoc": "^38.0.6",
     "eslint-plugin-node": "^11.1.0",
-    "prettier": "^2.6.0",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.6.2"
+    "rimraf": "^3.0.2"
   },
   "workspaces": [
     "packages/utils",
@@ -29,15 +23,16 @@
     "packages/agents/router",
     "packages/agents/sequencer",
     "packages/agents/sdk",
+    "packages/integration",
     "packages/examples/sdk-server"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run lint --fix",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-sdk-server --exclude @connext/nxtp-sdk run test",
-    "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph run clean",
+    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/nxtp-sdk-server --exclude @connext/nxtp-sdk run test",
+    "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach -pt --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
-    "version:all": "yarn workspaces foreach version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
+    "version:all": "yarn workspaces foreach run version $0 && git commit -am \"v$0\" && git tag -a \"v$0\" -m \"v$0\"",
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
     "tsp:root": "tsp",
     "tsp": "tsp",

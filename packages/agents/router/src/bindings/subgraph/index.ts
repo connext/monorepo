@@ -13,15 +13,16 @@ import { getContext } from "../../router";
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (_pollInterval: number) => {
+export const bindSubgraph = async (_pollInterval?: number) => {
   const { config } = getContext();
+  const pollInterval = _pollInterval ?? config.polling.subgraph;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
       await pollSubgraph();
     }
-  }, _pollInterval);
+  }, pollInterval);
 };
 
 export const pollSubgraph = async () => {
@@ -35,11 +36,14 @@ export const pollSubgraph = async () => {
     shared: { getSubgraphHealth, getSubgraphName },
   } = getHelpers();
   try {
+    const destinationDomains: string[] = Object.entries(config.chains)
+      .filter(([, config]) => config.assets.length > 0)
+      .map(([chain]) => chain);
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
     for (const domain of Object.keys(config.chains)) {
       // TODO: Needs to implement the selection algorithm
       const healthUrls = config.chains[domain].subgraph.runtime.map((url) => {
-        return { name: getSubgraphName(url.query ), url: url.health };
+        return { name: getSubgraphName(url.query), url: url.health };
       });
       let latestBlockNumber = 0;
       for (const healthEp of healthUrls) {
@@ -64,18 +68,34 @@ export const pollSubgraph = async () => {
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
+        destinationDomains,
       });
     }
 
     if ([...subgraphQueryMetaParams.keys()].length > 0) {
-      const transactions = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
+      const transfers = await subgraph.getTransactionsWithStatuses(subgraphQueryMetaParams, XTransferStatus.XCalled);
 
-      const transferIds = transactions.map((transaction) => transaction.transferId);
-      logger.debug("Got transactions", requestContext, methodContext, {
-        transferIds,
-      });
+      if (transfers.length === 0) {
+        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+        });
+      } else {
+        // Clean log all the transfers by domain.
+        const domains: Record<string, { queryParams: SubgraphQueryMetaParams; transfers: string[] }> = {};
+        for (const domain of Object.keys(config.chains)) {
+          domains[domain] = {
+            queryParams: subgraphQueryMetaParams.get(domain)!,
+            transfers: transfers
+              .filter((transfer) => transfer.destinationDomain === domain)
+              .map(({ transferId }) => transferId),
+          };
+        }
+        logger.info("Retrieved pending transfers.", requestContext, methodContext, {
+          domains,
+        });
 
-      await cache.transfers.storeTransfers(transactions);
+        await cache.transfers.storeTransfers(transfers);
+      }
     }
   } catch (err: unknown) {
     logger.error(

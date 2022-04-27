@@ -1,15 +1,15 @@
-import { constants, utils } from "ethers";
-import { Bid, BidData, DEFAULT_ROUTER_FEE, expect, mkAddress } from "@connext/nxtp-utils";
+import { constants, utils, BigNumber } from "ethers";
+import { Bid, DEFAULT_ROUTER_FEE, expect, XTransfer } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
-import { SlippageInvalid, ParamsInvalid, RouterNotApproved, NotEnoughAmount } from "../../../src/lib/errors";
+import { SlippageInvalid, ParamsInvalid, NotEnoughAmount, MissingXCall } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 
 const { execute } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockXTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
-const mockRouter = mock.address.router;
+const mockXTransfer: XTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockRouter: string = mock.address.router;
 
 describe("Operations:Execute", () => {
   let mockContext: any;
@@ -24,32 +24,20 @@ describe("Operations:Execute", () => {
     beforeEach(() => {
       mock.helpers.execute.sanityCheck.resolves();
       mock.helpers.shared.getDestinationLocalAsset.resolves(mockFulfillLocalAsset);
-      mock.helpers.shared.signHandleRelayerFeePayload.resolves(mock.signature);
+      mock.helpers.shared.signRouterPathPayload.resolves(mock.signature);
       mockContext.adapters.subgraph.isRouterApproved.resolves(true);
       mockContext.adapters.subgraph.getAssetBalance.resolves(constants.MaxUint256);
     });
 
     it("happy", async () => {
       const expectedBid: Bid = {
+        transferId: mockXTransfer.transferId,
+        origin: mockXTransfer.originDomain,
         fee: DEFAULT_ROUTER_FEE,
         router: mockRouter,
         signatures: {
           "1": mock.signature,
         },
-      };
-      const expectedBidData: BidData = {
-        params: {
-          to: mockXTransfer.to,
-          callData: mockXTransfer.callData,
-          originDomain: mockXTransfer.originDomain,
-          destinationDomain: mockXTransfer.destinationDomain,
-        },
-        local: mockFulfillLocalAsset,
-        feePercentage: ExecuteFns.RELAYER_FEE_PERCENTAGE,
-        amount: mockXTransfer.xcall.localAmount,
-        nonce: mockXTransfer.nonce,
-        originSender: mkAddress("0xfaded"),
-        relayerSignature: mock.signature,
       };
 
       await expect(execute(mockXTransfer)).to.be.fulfilled;
@@ -64,26 +52,31 @@ describe("Operations:Execute", () => {
         mockXTransfer.xcall.localAsset,
         mockXTransfer.destinationDomain,
       );
-      expect(mock.helpers.shared.signHandleRelayerFeePayload).to.be.calledOnce;
-      expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 3)).to.deep.equal([
-        mockXTransfer.transferId,
-        expectedBid,
-        expectedBidData,
-      ]);
+      expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
+      expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
     });
 
     it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
       const invalidParams = {
         ...mockXTransfer,
-        to: "0x0",
-        callData: "0x0",
-        originDomain: "-1",
-        destinationDomain: "-2",
+        callData: 12345,
       };
-      expect(execute(invalidParams)).to.eventually.be.throw(new ParamsInvalid());
+      await expect(execute(invalidParams as any)).to.be.rejectedWith(ParamsInvalid);
     });
 
-    it.skip("should throw NotEnoughAmount if final receiving amount < 0", async () => {});
+    it("should throw NotEnoughAmount if router doesn't have enough tokens", async () => {
+      mockContext.adapters.subgraph.getAssetBalance.resolves(BigNumber.from("0"));
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(NotEnoughAmount);
+    });
+
+    it("should throw MissingXCall if the transfer is missing xcall param", async () => {
+      await expect(
+        execute({
+          ...mockXTransfer,
+          xcall: undefined,
+        }),
+      ).to.be.rejectedWith(MissingXCall);
+    });
 
     it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";

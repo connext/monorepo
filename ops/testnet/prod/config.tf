@@ -1,41 +1,58 @@
 locals {
-  local_sequencer_config = jsonencode({
-    redis =  {
-      host: module.sequencer_cache.redis_instance_address,
-      port: module.sequencer_cache.redis_instance_port
-    },
+  sequencer_env_vars = [
+    { name = "SEQ_CONFIG", value = local.local_sequencer_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ]
+  router_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_router_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ]
+  web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
+  ]
+}
 
-    server       = {
+locals {
+  local_sequencer_config = jsonencode({
+    redis = {
+      host = module.sequencer_cache.redis_instance_address,
+      port = module.sequencer_cache.redis_instance_port
+    }
+
+    server = {
       adminToken = var.admin_token_router
     }
 
     logLevel = "debug"
     chains = {
-      2000 = {
+      "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
-        "assets" = [{
-          "name"    = "TEST"
-          "address" = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
+        assets = [{
+          name    = "TEST"
+          address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
         }]
       }
-      "3000" = {
+      "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
-        "assets" = [{
-          "name"    = "TEST"
-          "address" = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+        assets = [{
+          name    = "TEST"
+          address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
         }]
       }
     }
+
+    environment = "production"
   })
 }
 
 
 locals {
   local_router_config = jsonencode({
-    redis =  {
-      host: module.router_cache.redis_instance_address,
-      port: module.router_cache.redis_instance_port
-    },
+    redis = {
+      host = module.router_cache.redis_instance_address,
+      port = module.router_cache.redis_instance_port
+    }
     logLevel     = "debug"
     sequencerUrl = "https://${module.sequencer.service_endpoint}"
     server = {
@@ -43,17 +60,17 @@ locals {
       port       = 8080
     }
     chains = {
-      2000 = {
+      "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [
           {
             name    = "TEST"
-            address = "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2"
+            address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
           }
         ]
       }
-      3000 = {
-        "providers" = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
+      "2221" = {
+        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
         assets = [
           {
             name    = "TEST"
@@ -62,6 +79,7 @@ locals {
         ]
       }
     }
-    mnemonic = var.mnemonic
+    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
+    environment   = "production"
   })
 }

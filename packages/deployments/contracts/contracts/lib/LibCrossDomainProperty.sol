@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../nomad-core/libs/TypedMemView.sol";
+import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 
 library LibCrossDomainProperty {
   // ============ Libraries ============

@@ -2,7 +2,7 @@ import { getAuctionStatus, sendBid } from "./auctions";
 import {
   getDestinationLocalAsset,
   getTransactionId,
-  signHandleRelayerFeePayload,
+  signRouterPathPayload,
   getSubgraphHealth,
   getSubgraphName,
   existsSync,
@@ -18,7 +18,7 @@ export const getHelpers = () => {
     shared: {
       getDestinationLocalAsset,
       getTransactionId,
-      signHandleRelayerFeePayload,
+      signRouterPathPayload,
       getSubgraphHealth,
       getSubgraphName,
       existsSync,

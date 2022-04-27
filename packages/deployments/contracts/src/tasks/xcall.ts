@@ -1,26 +1,27 @@
-import { BigNumber, constants, providers, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { task } from "hardhat/config";
 
-import { canonizeId } from "../nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
+import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 type TaskArgs = {
   transactingAssetId?: string;
   amount?: string;
   to?: string;
-  originDomain?: string;
   destinationDomain?: string;
   callData?: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("transactingAssetId", "Transacting asset Id")
   .addOptionalParam("amount", "Amount to transfer")
   .addOptionalParam("to", "To address")
-  .addOptionalParam("originDomain", "Origin domain")
   .addOptionalParam("destinationDomain", "Destination domain")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
+  .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
       {
@@ -29,22 +30,24 @@ export default task("xcall", "Prepare a cross-chain tx")
         connextAddress: _connextAddress,
         to: _to,
         callData: _callData,
-        originDomain: _originDomain,
         destinationDomain: _destinationDomain,
+        env: _env,
       }: TaskArgs,
       { deployments, ethers },
     ) => {
       let tx: providers.TransactionResponse;
       const [sender] = await ethers.getSigners();
+
+      const env = mustGetEnv(_env);
+      console.log("env:", env);
       console.log("sender: ", sender.address);
 
       // Get the origin and destination domains.
-      const originDomain = _originDomain ?? process.env.TRANSFER_ORIGIN_DOMAIN;
-      const destinationDomain = _destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN;
-      if (!originDomain || !destinationDomain) {
-        throw new Error(
-          "Origin and destination domains must be specified as params or from env (TRANSFER_ORIGIN_DOMAIN, TRANSFER_DESTINATION_DOMAIN)",
-        );
+      const network = await ethers.provider.getNetwork();
+      const originDomain = getDomainInfoFromChainId(network.chainId).domain;
+      const destinationDomain = +(_destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN ?? "0");
+      if (!destinationDomain) {
+        throw new Error("Destination domain must be specified as params or from env (TRANSFER_DESTINATION_DOMAIN)");
       }
 
       // Get the "to" address.
@@ -75,17 +78,16 @@ export default task("xcall", "Prepare a cross-chain tx")
         const canonicalTokenId = utils.hexlify(canonizeId(canonicalAsset));
 
         // Retrieve the local asset from the token registry, if applicable.
-        if (canonicalDomain === originDomain) {
+        if (+canonicalDomain === originDomain) {
           // Use the canonical asset as the local asset since we're on the canonical network.
           transactingAssetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
-          const tokenRegistry = await ethers.getContractAt(
-            (
-              await deployments.getArtifact("TokenRegistry")
-            ).abi,
-            tokenRegistryAddress,
+          const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
+          const tokenRegistry = new Contract(
+            tokenDeployment.address,
+            (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
+            sender,
           );
           transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
           if (transactingAssetId === constants.AddressZero) {
@@ -105,11 +107,10 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("Transfer to: ", to);
       console.log("callData: ", callData);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
+      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextDeployment = await deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      const connext = new Contract(connextAddress, connextDeployment.abi, sender);
       console.log("connextAddress: ", connextAddress);
 
       let balance: BigNumber;
@@ -131,7 +132,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
       }
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
       const args = {
         params: {
           to,
@@ -142,7 +142,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         transactingAssetId,
         amount,
       };
-      console.log("xcall args", args);
+      console.log("xcall args", JSON.stringify(args));
       const encoded = connext.interface.encodeFunctionData("xcall", [args]);
       console.log("encoded: ", encoded);
       console.log("to: ", connext.address);

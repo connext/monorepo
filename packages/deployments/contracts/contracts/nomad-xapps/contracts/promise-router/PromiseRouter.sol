@@ -2,7 +2,7 @@
 pragma solidity 0.8.11;
 
 // ============ Internal Imports ============
-import {IConnext} from "../../../interfaces/IConnext.sol";
+import {IConnextHandler} from "../../../interfaces/IConnextHandler.sol";
 import {ICallback} from "../../../interfaces/ICallback.sol";
 import {Router} from "../Router.sol";
 import {XAppConnectionClient} from "../XAppConnectionClient.sol";
@@ -40,7 +40,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
   // ============ Public Storage ============
 
-  IConnext public connext;
+  IConnextHandler public connext;
 
   /**
    * @notice Mapping of transferId to promise callback messages
@@ -151,7 +151,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
    * @param _connext The address of the Connext implementation
    */
   function setConnext(address _connext) external onlyOwner {
-    connext = IConnext(_connext);
+    connext = IConnextHandler(_connext);
     emit SetConnext(_connext);
   }
 

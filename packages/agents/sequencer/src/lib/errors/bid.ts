@@ -11,3 +11,13 @@ export class AuctionExpired extends NxtpError {
     super("This auction has already expired.", { status, ...context }, AuctionExpired.name);
   }
 }
+
+export class MissingXCall extends NxtpError {
+  constructor(domain: string, transferId: string, context: any = {}) {
+    super(
+      "No XCall was found in the subgraph for this auction.",
+      { domain, transferId, ...context },
+      MissingXCall.name,
+    );
+  }
+}

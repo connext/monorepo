@@ -6,22 +6,18 @@ import {
   RequestContext,
   createLoggingContext,
   jsonifyError,
-  BidData,
   formatUrl,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
-import { SequencerResponseInvalid } from "../errors";
+import { AuctionExpired, SequencerResponseInvalid } from "../errors";
 
-export const sendBid = async (
-  transferId: string,
-  bid: Bid,
-  bidData: BidData,
-  _requestContext: RequestContext,
-): Promise<any> => {
+export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const { config, logger } = getContext();
   const { sequencerUrl } = config;
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
+
+  const { transferId } = bid;
 
   logger.info("Sending bid to sequencer", requestContext, methodContext, {
     transferId,
@@ -31,11 +27,7 @@ export const sendBid = async (
 
   const url = formatUrl(sequencerUrl, "auctions");
   try {
-    const response = await axios.post<any, AxiosResponse<any, any>, AuctionsApiPostBidReq>(url, {
-      transferId,
-      bid,
-      data: bidData,
-    });
+    const response = await axios.post<any, AxiosResponse<any, any>, AuctionsApiPostBidReq>(url, bid);
     // Make sure response.data is valid.
     if (!response || !response.data) {
       throw new SequencerResponseInvalid({ response });
@@ -43,8 +35,14 @@ export const sendBid = async (
     logger.info("Sent bid to sequencer", requestContext, methodContext, { data: response.data });
     return response.data;
   } catch (error: any) {
-    logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
-    throw error;
+    if (error.response?.data?.message === "AuctionExpired") {
+      // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
+      // if the sequencer decides relayer execution has timed out.
+      throw new AuctionExpired({ transferId });
+    } else {
+      logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
+      throw error;
+    }
   }
 };
 
