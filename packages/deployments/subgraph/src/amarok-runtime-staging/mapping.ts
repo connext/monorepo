@@ -230,6 +230,7 @@ export function handleReconciled(event: Reconciled): void {
 
   const routers: string[] = [];
   if (transfer.routers !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const r: string[] = transfer.routers!;
     const n = r.length;
     for (let i = 0; i < n; i++) {

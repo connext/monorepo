@@ -46,7 +46,7 @@ dataSources:
     network: "{{network}}"
     source:
       address: "{{address}}"
-      abi: ConnextUtils
+      abi: ConnextLogic
       # prettier-ignore
       startBlock: {{startBlock}}
     mapping:
@@ -61,8 +61,8 @@ dataSources:
       abis:
         - name: ConnextHandler
           file: ./src/amarok-runtime-staging/abis/ConnextHandler.json
-        - name: ConnextUtils
-          file: ./src/amarok-runtime-staging/abis/ConnextUtils.json
+        - name: ConnextLogic
+          file: ./src/amarok-runtime-staging/abis/ConnextLogic.json
       eventHandlers:
         # AssetAdded: canonicalId, domain, adoptedAsset, supportedAsset, caller
         - event: AssetAdded(bytes32,uint32,address,address,address)
@@ -77,9 +77,9 @@ dataSources:
           #   args(transactingAssetId, amount, bridgedAmt, bridged), nonce, message, caller
         - event: XCalled(indexed bytes32,((address,bytes,uint32,uint32),address,uint256,uint256),(address,uint256,uint256,address),uint256,bytes,address)
           handler: handleXCalled
-          # Executed: transferId, to, args(params(to, callData, originDomain, destinationDomain), local, routers, amount, nonce, originSender),
-          #   transactingAsset, transactingAmount, caller
-        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32),address,address[],uint256,uint256,address),address,uint256,address)
+          # Executed: transferId, to, args(params(to, callData, originDomain, destinationDomain), local, routers, routerSignatures amount,
+          #   nonce, originSender), transactingAsset, transactingAmount, caller
+        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32),address,address[],bytes[],uint256,uint256,address),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
         - event: Reconciled(indexed bytes32,indexed uint32,address[],address,uint256,address)
