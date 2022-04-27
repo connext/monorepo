@@ -311,6 +311,14 @@ contract ConnextHandler is
   }
 
   /**
+   * @notice Check if the address is approved relayer or not
+   * @param _relayer - The relayer address to check
+   */
+  function isApprovedRelayer(address _relayer) external view returns (bool) {
+    return approvedRelayers[_relayer];
+  }
+
+  /**
    * @notice Used to set the max amount of routers a payment can be routed through
    * @param _newMaxRouters The new max amount of routers
    */

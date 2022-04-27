@@ -120,4 +120,6 @@ interface IConnextHandler {
   ) external;
 
   function claim(address _recipient, bytes32[] calldata _transferIds) external;
+
+  function isApprovedRelayer(address _relayer) external view returns (bool);
 }
