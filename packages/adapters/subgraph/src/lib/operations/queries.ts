@@ -80,7 +80,7 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
   `;
 };
 
-const getXCalledTransferQueryString = (
+const xCalledTransferQueryString = (
   prefix: string,
   destinationDomains: string[],
   maxBlockNumber: number,
@@ -159,7 +159,7 @@ export const getXCalledTransfersQuery = (
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      combinedQuery += getXCalledTransferQueryString(
+      combinedQuery += xCalledTransferQueryString(
         prefix,
         domains,
         agents.get(domain)!.maxBlockNumber,
@@ -177,25 +177,235 @@ export const getXCalledTransfersQuery = (
   `;
 };
 
-export const getExecutedTransfersByIdsQuery = (
+const executedTransfersByIdsQueryString = (
   prefix: string,
   transferIds: string[],
   maxExecutedBlockNumber: number,
 ): string => {
-  // Not implemented yet
-  return "";
+  return `
+    ${prefix}_transfers(
+      where: { transferId_in: ${transferIds}, executedBlockNumber_lte: ${maxExecutedBlockNumber}, status_in: [Executed] }
+    ) {
+      id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledCaller
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }
+  `;
+};
+
+export const getExecutedTransfersByIdsQuery = (
+  txIdsByDestinationDomain: Map<string, string[]>,
+  agents: Map<string, SubgraphQueryMetaParams>,
+  config: SubgraphReaderConfig,
+): string => {
+  let combinedQuery = "";
+  for (const destinationDomain of txIdsByDestinationDomain.keys()) {
+    if (agents.has(destinationDomain)) {
+      const prefix = config.sources[destinationDomain].prefix;
+      combinedQuery += executedTransfersByIdsQueryString(
+        prefix,
+        txIdsByDestinationDomain.get(destinationDomain)!,
+        agents.get(destinationDomain)!.maxBlockNumber,
+      );
+    } else {
+      console.log(`No agents for domain: ${destinationDomain}`);
+    }
+  }
+  return combinedQuery;
+};
+const reconciledTransfersByIdsQueryString = (
+  prefix: string,
+  transferIds: string[],
+  maxExecutedBlockNumber: number,
+): string => {
+  return `
+    ${prefix}_transfers(
+      where: { transferId_in: ${transferIds}, executedBlockNumber_lte: ${maxExecutedBlockNumber}, status_in: [Reconciled] }
+    ) {
+      id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callTo
+      callData
+      idx
+      nonce
+      router {
+        id
+      }
+      # XCalled
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledCaller
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+    }
+  `;
 };
 
 export const getReconciledTransfersByIdsQuery = (
-  prefix: string,
-  transferIds: string[],
-  maxReconciledBlockNumber: number,
+  txIdsByDestinationDomain: Map<string, string[]>,
+  agents: Map<string, SubgraphQueryMetaParams>,
+  config: SubgraphReaderConfig,
 ): string => {
-  // Not implemented yet
-  return "";
+  let combinedQuery = "";
+  for (const destinationDomain of txIdsByDestinationDomain.keys()) {
+    if (agents.has(destinationDomain)) {
+      const prefix = config.sources[destinationDomain].prefix;
+      combinedQuery += reconciledTransfersByIdsQueryString(
+        prefix,
+        txIdsByDestinationDomain.get(destinationDomain)!,
+        agents.get(destinationDomain)!.maxBlockNumber,
+      );
+    } else {
+      console.log(`No agents for domain: ${destinationDomain}`);
+    }
+  }
+  return combinedQuery;
 };
 
-const getTransfersStatusQueryByDomain = (prefix: string) => {};
-export const getTransfersStatusQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
-  [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {});
+const transfersStatusQueryByDomain = (prefix: string, transferIds: string[]) => {
+  return `${prefix}_transfers(where: { transferId_in: ${transferIds}, status_in: [Executed, Reconciled] }) {
+    id
+    # Meta
+    originDomain
+    destinationDomain
+    chainId
+    status
+    # Transfer Data
+    to
+    transferId
+    callTo
+    callData
+    idx
+    nonce
+    router {
+      id
+    }
+    # XCalled
+    xcalledTransactingAsset
+    xcalledLocalAsset
+    xcalledTransactingAmount
+    xcalledLocalAmount
+    xcalledCaller
+    # XCalled Transaction
+    xcalledTransactionHash
+    xcalledTimestamp
+    xcalledGasPrice
+    xcalledGasLimit
+    xcalledBlockNumber
+    # Executed
+    executedCaller
+    executedTransactingAmount
+    executedLocalAmount
+    executedTransactingAsset
+    executedLocalAsset
+    # Executed Transaction
+    executedTransactionHash
+    executedTimestamp
+    executedGasPrice
+    executedGasLimit
+    executedBlockNumber
+    # Reconciled
+    reconciledCaller
+    reconciledLocalAsset
+    reconciledLocalAmount
+    # Reconciled Transaction
+    reconciledTransactionHash
+    reconciledTimestamp
+    reconciledGasPrice
+    reconciledGasLimit
+    reconciledBlockNumber
+  }`;
+};
+export const getTransfersStatusQuery = (
+  txIdsByDestinationDomain: Map<string, string[]>,
+  config: SubgraphReaderConfig,
+): string => {
+  let combinedQuery = "";
+  for (const destinationDomain of txIdsByDestinationDomain.keys()) {
+    const prefix = config.sources[destinationDomain].prefix;
+    combinedQuery += transfersStatusQueryByDomain(prefix, txIdsByDestinationDomain.get(destinationDomain)!);
+  }
+  return combinedQuery;
 };
