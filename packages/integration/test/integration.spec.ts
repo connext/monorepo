@@ -525,6 +525,7 @@ describe("Integration:E2E", () => {
           log.info("Sanity check: token registry's canonical ID is approved.", {
             domain: domainInfo.DESTINATION,
             etc: {
+              tokenRegistry: tr?.address,
               info,
               isApproved,
             },
