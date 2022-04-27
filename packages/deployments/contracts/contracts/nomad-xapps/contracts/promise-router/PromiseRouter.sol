@@ -42,8 +42,17 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
   IConnext public connext;
 
-  // callback messages transferId => message
+  /**
+   * @notice Mapping of transferId to promise callback messages
+   * @dev While handling the message, it will parse transferId from incomming message and store the message in the mapping
+   */
   mapping(bytes32 => bytes) public promiseMessages;
+
+  /**
+   * @notice Mapping of transferId to callback fee
+   * @dev This will track all the callback fees for each transferId.
+   * Can add while xcall or bumping callback fee
+   */
   mapping(bytes32 => uint256) public callbackFees;
 
   // ============ Upgrade Gap ============
