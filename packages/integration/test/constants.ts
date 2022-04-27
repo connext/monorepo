@@ -28,7 +28,7 @@ const DESTINATION_DOMAIN = "1111"; // Rinkeby
 export const CANONICAL_DOMAIN = "ORIGIN";
 
 // Environment setting.
-export const ENVIRONMENT = Environment.Staging;
+export const ENVIRONMENT = process.env.ENV || process.env.ENVIRONMENT || Environment.Staging;
 
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
