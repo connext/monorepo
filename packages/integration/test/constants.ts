@@ -3,6 +3,7 @@ import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
+import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 
 // TODO: Should have an overrides in env:
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
@@ -16,9 +17,6 @@ export const DESTINATION_ASSET = {
 };
 
 /// MARK - Integration Settings
-// TODO: Why is the deployments lookup not working here? Having to hardcode this for now.
-const ORIGIN_CONNEXT_ADDRESS = "0x983d9d70c1003baAE321fAA9C36BEb0eA37BD6E3";
-const DESTINATION_CONNEXT_ADDRESS = "0x3e99898Da8A01Ed909976AF13e4Fa6094326cB10";
 const ORIGIN_DOMAIN = "2221"; // Kovan
 const DESTINATION_DOMAIN = "1111"; // Rinkeby
 export const CANONICAL_DOMAIN = "ORIGIN";
@@ -94,13 +92,13 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
   }
 
   // See above TODO regarding hardcoded contract addresses.
-  // const getConnextContract = (chainId: number): string => {
-  //   const contract = contractDeployments.connext(chainId);
-  //   if (!contract) {
-  //     throw new Error(`No Connext contract deployed on chain ${chainId}`);
-  //   }
-  //   return contract.address;
-  // };
+  const getConnextContract = (chainId: number): string => {
+    const contract = getDeployedConnextContract(chainId, "Staging");
+    if (!contract) {
+      throw new Error(`No Connext contract deployed on chain ${chainId}`);
+    }
+    return contract.address;
+  };
   return {
     ORIGIN: {
       name: originChainData.name,
@@ -118,8 +116,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         gasStations: [],
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
-          // connext: getConnextContract(originChainData.chainId),
-          connext: ORIGIN_CONNEXT_ADDRESS,
+          connext: getConnextContract(originChainData.chainId),
         },
       },
     },
@@ -139,8 +136,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         gasStations: [],
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {
-          // connext: getConnextContract(destinationChainData.chainId),
-          connext: DESTINATION_CONNEXT_ADDRESS,
+          connext: getConnextContract(destinationChainData.chainId),
         },
       },
     },

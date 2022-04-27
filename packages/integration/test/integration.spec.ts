@@ -5,7 +5,6 @@ import { makeRouter } from "@connext/nxtp-router/src/router";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import {
-  AuctionsApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
   delay,
   ERC20Abi,
@@ -13,7 +12,13 @@ import {
   XCallArgs,
   XTransfer,
 } from "@connext/nxtp-utils";
-import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
+import {
+  ChainReader,
+  contractDeployments,
+  getConnextInterface,
+  getDeployedTokenRegistryContract,
+  getTokenRegistryInterface,
+} from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { xtransfer as parseXTransfer } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
 
@@ -33,11 +38,15 @@ import {
   SUBG_POLL_PARITY,
 } from "./constants";
 import {
-  canonizeTokenId,
+  checkOnchainLocalAsset,
+  formatEtherscanLink,
   formatSubgraphGetTransferQuery,
   getAllowance,
+  getAssetApproval,
   getRouterApproval,
   OperationContext,
+  removeAsset,
+  setupAsset,
 } from "./helpers";
 import { log } from "./log";
 
@@ -136,6 +145,8 @@ describe("Integration:E2E", () => {
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
     const destinationConnextAddress = domainInfo.DESTINATION.config.deployments.connext;
+    console.log(getDeployedTokenRegistryContract(domainInfo.DESTINATION.chain)?.address);
+    console.log(getDeployedTokenRegistryContract(domainInfo.ORIGIN.chain)?.address);
 
     // Log setup.
     log.params(
@@ -145,82 +156,136 @@ describe("Integration:E2E", () => {
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
         `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tUser:    \t${agents.user.address}` +
-        `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tDestination:\t${destinationConnextAddress}` +
+        `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
+          network: domainInfo.ORIGIN.network,
+          address: originConnextAddress,
+        })}\n\tDestination:\t${destinationConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
+          network: domainInfo.DESTINATION.network,
+          address: destinationConnextAddress,
+        })}` +
         `\nASSETS\n\tOrigin:   \t${ORIGIN_ASSET.address}\n\tDestination:\t${DESTINATION_ASSET.address}`,
     );
 
     if (agents.router) {
-      // Make sure router's signer address is approved on destination chain.
       log.next("VERIFY ROUTER APPROVAL");
-      let isApproved = getRouterApproval(context, {
-        domain: domainInfo.DESTINATION,
-      });
-      if (!isApproved) {
-        if (agents.deployer) {
-          // Router is not approved. Use deployer to approve router.
-          const encoded = connext.encodeFunctionData("setupRouter", [
-            agents.router.address,
-            agents.router.address,
-            agents.router.address,
-          ]);
-          const tx = await agents.deployer.destination.sendTransaction({
-            to: destinationConnextAddress,
-            data: encoded,
-          });
-          await tx.wait(1);
+      // Make sure router's signer address is approved on origin and destination chain.
+      for (const { domain, deployer } of [
+        // { domain: domainInfo.ORIGIN, deployer: agents.deployer?.origin },
+        { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
+      ]) {
+        let isApproved = getRouterApproval(context, {
+          domain,
+        });
+        if (!isApproved) {
+          if (deployer) {
+            // Router is not approved. Use deployer to approve router.
+            const encoded = connext.encodeFunctionData("setupRouter", [
+              agents.router.address,
+              agents.router.address,
+              agents.router.address,
+            ]);
+            const tx = await deployer.sendTransaction({
+              to: domain.config.deployments.connext,
+              data: encoded,
+            });
+            await tx.wait(1);
 
-          isApproved = getRouterApproval(context, {
-            domain: domainInfo.DESTINATION,
-          });
+            isApproved = getRouterApproval(context, {
+              domain,
+            });
 
-          if (!isApproved) {
-            log.fail("Router approval attempt failed.", { domain: domainInfo.DESTINATION, hash: tx.hash });
+            if (!isApproved) {
+              log.fail("Router approval attempt failed.", { domain, hash: tx.hash });
+            }
+
+            log.info("Successfully approved router.");
+          } else {
+            log.fail("Router needs approval. Specify the DEPLOYER_MNEMONIC in env to have this done automatically.", {
+              domain: domainInfo.ORIGIN,
+            });
           }
-
-          log.info("Successfully approved router.");
-        } else {
-          log.fail("Router needs approval. Specify the DEPLOYER_MNEMONIC in env to have this done automatically.", {
-            domain: domainInfo.DESTINATION,
-          });
         }
+        log.info("Router is approved!", { domain });
       }
-      log.info("Router is approved!", { domain: domainInfo.DESTINATION });
     }
 
     log.next("VERIFY ASSET APPROVAL");
     // Make sure the assets on origin and destination are approved.
     {
-      const canonicalAsset = domainInfo[CANONICAL_DOMAIN].config.assets[0].address;
-      const canonicalTokenId = utils.hexlify(canonizeTokenId(canonicalAsset));
-      // Check origin asset approval.
-      {
-        const encoded = connext.encodeFunctionData("approvedAssets", [canonicalTokenId]);
-        const result = await chainreader.readTx({
-          chainId: domainInfo.ORIGIN.chain,
-          to: originConnextAddress,
-          data: encoded,
+      const canonicalAsset = domainInfo[CANONICAL_DOMAIN].config.assets[0].address.toLowerCase();
+      for (const { domain, deployer } of [
+        { domain: domainInfo.ORIGIN, deployer: agents.deployer?.origin },
+        { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
+      ]) {
+        const localAsset = domain.config.assets[0].address.toLowerCase();
+        const isApproved = await getAssetApproval(context, {
+          domain,
+          canonical: canonicalAsset,
         });
-        const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
         if (!isApproved) {
-          log.fail(`Origin asset needs approval.`, { domain: domainInfo.ORIGIN });
+          if (!deployer) {
+            log.fail("Asset needs approval on this domain.", { domain });
+          }
+          const hash = await setupAsset(context, {
+            deployer,
+            domain,
+            canonical: canonicalAsset,
+            local: localAsset,
+          });
+          log.info("Added asset to chain.", { domain, hash });
+        } else {
+          // Check to make sure canonical -> local is correct onchain.
+          const { adoptedToCanonical, canonicalToAdopted, canonicalTokenId } = await checkOnchainLocalAsset(context, {
+            domain,
+            canonical: canonicalAsset,
+            adopted: localAsset,
+          });
+          if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalTokenId) {
+            log.info("Asset needs to be overwritten! Wrong local asset set on this domain.", {
+              domain,
+              etc: {
+                canonical: canonicalAsset,
+                local: localAsset,
+                adoptedToCanonical,
+                canonicalToAdopted,
+                canonicalTokenId,
+              },
+            });
+            if (!deployer) {
+              log.info("No deployer available to overwrite incorrect asset.", { domain });
+            }
+            // Overwrite the local asset set on chain with the correct one.
+            {
+              const hash = await removeAsset(context, {
+                deployer,
+                domain,
+                canonical: canonicalAsset,
+                local: localAsset,
+              });
+              log.info("Removed asset.", { domain, hash });
+            }
+            {
+              const hash = await setupAsset(context, {
+                deployer,
+                domain,
+                canonical: canonicalAsset,
+                local: localAsset,
+              });
+              log.info("Replaced asset.", { domain, hash });
+            }
+          } else {
+            log.info("Transfer asset is approved.", {
+              domain,
+              etc: {
+                canonical: canonicalAsset,
+                local: localAsset,
+                adoptedToCanonical,
+                canonicalToAdopted,
+              },
+            });
+          }
         }
       }
-      log.info("Transfer asset is approved on origin chain.", { domain: domainInfo.ORIGIN });
-
-      // Check destination asset approval.
-      {
-        const encoded = connext.encodeFunctionData("approvedAssets", [canonicalTokenId]);
-        const result = await chainreader.readTx({
-          chainId: domainInfo.DESTINATION.chain,
-          to: destinationConnextAddress,
-          data: encoded,
-        });
-        const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
-        if (!isApproved) {
-          log.fail(`Destination asset needs approval.`, { domain: domainInfo.DESTINATION });
-        }
-      }
-      log.info("Transfer asset is approved on destination chain.", { domain: domainInfo.DESTINATION });
     }
 
     log.next("FUND USER AGENT");
@@ -444,8 +509,36 @@ describe("Integration:E2E", () => {
           }
         }
 
+        {
+          const tokenRegistry = getTokenRegistryInterface();
+          const tr = contractDeployments.tokenRegistry(domainInfo.DESTINATION.chain);
+          const encoded = tokenRegistry.encodeFunctionData("getTokenId", [DESTINATION_ASSET.address]);
+          const result = await chainreader.readTx({
+            chainId: domainInfo.DESTINATION.chain,
+            to: tr.address,
+            data: encoded,
+          });
+          const info = tokenRegistry.decodeFunctionResult("getTokenId", result);
+          const canonical = info[1];
+          const isApproved = await getAssetApproval(context, {
+            domain: domainInfo.DESTINATION,
+            canonical,
+          });
+          log.info("Sanity check: token registry's canonical ID is approved.", {
+            domain: domainInfo.DESTINATION,
+            etc: {
+              info,
+              isApproved,
+            },
+          });
+        }
+        throw new Error();
+
         // Add liquidity.
-        log.info("Adding liquidity for Router...", { domain: domainInfo.DESTINATION });
+        log.info("Adding liquidity for Router...", {
+          domain: domainInfo.DESTINATION,
+          etc: { amount: TRANSFER_TOKEN_AMOUNT.toString(), asset: DESTINATION_ASSET.address },
+        });
         {
           // NOTE: We could add liquidity for another 100 test iterations, HOWEVER, arguably, adding
           // liquidity should be a part of the test!
@@ -456,7 +549,6 @@ describe("Integration:E2E", () => {
           const tx = await agents.router.destination.sendTransaction({
             to: destinationConnextAddress,
             data: encoded,
-            value: BigNumber.from("0"),
           });
           const receipt = await tx.wait(1);
 
@@ -529,6 +621,10 @@ describe("Integration:E2E", () => {
       const tx = await agents.user.origin.sendTransaction({
         to: originConnextAddress,
         data: encoded,
+<<<<<<< Updated upstream
+=======
+        // gasLimit: BigNumber.from("300000"),
+>>>>>>> Stashed changes
       });
       const receipt = await tx.wait(1);
       log.info("XCall sent.", {

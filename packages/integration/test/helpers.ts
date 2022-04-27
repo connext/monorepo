@@ -1,5 +1,5 @@
-import { utils, BigNumber } from "ethers";
-import { ChainReader, getRouterPermissionsManagerInterface } from "@connext/nxtp-txservice";
+import { utils, BigNumber, constants, Wallet } from "ethers";
+import { ChainReader, getConnextInterface, getRouterPermissionsManagerInterface } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
@@ -16,8 +16,8 @@ export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
   return utils.zeroPad(buf, 32);
 };
 
-export const formatEtherscanLink = (input: { network: string; hash: string }): string => {
-  const { network: _network, hash } = input;
+export const formatEtherscanLink = (input: { network: string; hash?: string; address?: string }): string => {
+  const { network: _network, hash, address } = input;
   const network = _network.toLowerCase();
   const networkNameToUrl: Record<string, string> = {
     mainnet: "etherscan.io",
@@ -29,7 +29,12 @@ export const formatEtherscanLink = (input: { network: string; hash: string }): s
   if (!url) {
     throw new Error(`Unknown network: ${network}`);
   }
-  return `https://${url}/tx/${hash}`;
+  if (hash) {
+    return `https://${url}/tx/${hash}`;
+  } else if (address) {
+    return `https://${url}/address/${address}`;
+  }
+  return "";
 };
 
 export const formatSubgraphGetTransferQuery = (
@@ -81,6 +86,171 @@ export const getAllowance = async (
     data: encoded,
   });
   return erc20.decodeFunctionResult("allowance", result)[0];
+};
+
+export const getAssetApproval = async (
+  context: OperationContext,
+  input: {
+    canonical: string;
+    domain: DomainInfo;
+  },
+): Promise<boolean> => {
+  const { chainreader } = context;
+  const {
+    canonical,
+    domain: {
+      chain,
+      config: {
+        deployments: { connext: contract },
+      },
+    },
+  } = input;
+  const canonicalTokenId = utils.hexlify(canonizeTokenId(canonical));
+  const connext = getConnextInterface();
+
+  const encoded = connext.encodeFunctionData("approvedAssets", [canonicalTokenId]);
+  const result = await chainreader.readTx({
+    chainId: chain,
+    to: contract,
+    data: encoded,
+  });
+  return connext.decodeFunctionResult("approvedAssets", result)[0] as boolean;
+};
+
+export const checkOnchainLocalAsset = async (
+  context: OperationContext,
+  input: {
+    adopted: string;
+    canonical: string;
+    domain: DomainInfo;
+  },
+): Promise<{
+  canonicalToAdopted: string;
+  adoptedToCanonical: string;
+  canonicalTokenId: string;
+}> => {
+  const { chainreader } = context;
+  const {
+    canonical,
+    adopted,
+    domain: {
+      chain,
+      config: {
+        deployments: { connext: contract },
+      },
+    },
+  } = input;
+  const canonicalTokenId = utils.hexlify(canonizeTokenId(canonical));
+  const connext = getConnextInterface();
+
+  let canonicalToAdopted: string;
+  let adoptedToCanonical: string;
+  {
+    const encoded = connext.encodeFunctionData("canonicalToAdopted", [canonicalTokenId]);
+    const result = await chainreader.readTx({
+      chainId: chain,
+      to: contract,
+      data: encoded,
+    });
+    canonicalToAdopted = connext.decodeFunctionResult("canonicalToAdopted", result)[0] as string;
+  }
+
+  {
+    const encoded = connext.encodeFunctionData("adoptedToCanonical", [adopted]);
+    const result = await chainreader.readTx({
+      chainId: chain,
+      to: contract,
+      data: encoded,
+    });
+    adoptedToCanonical = connext.decodeFunctionResult("adoptedToCanonical", result)[1] as string;
+  }
+  return {
+    canonicalToAdopted: canonicalToAdopted.toLowerCase(),
+    adoptedToCanonical: adoptedToCanonical.toLowerCase(),
+    canonicalTokenId: canonicalTokenId.toLowerCase(),
+  };
+};
+
+export const removeAsset = async (
+  _: OperationContext,
+  input: {
+    deployer?: Wallet;
+    canonical: string;
+    local: string;
+    domain: DomainInfo;
+  },
+): Promise<string> => {
+  const {
+    deployer,
+    canonical,
+    local,
+    domain: {
+      chain,
+      config: {
+        deployments: { connext: contract },
+      },
+    },
+  } = input;
+  const canonicalTokenId = utils.hexlify(canonizeTokenId(canonical));
+  const connext = getConnextInterface();
+  if (!deployer) {
+    throw new Error("Need deployer agent to remove asset");
+  }
+
+  // Asset is not approved. Use deployer to approve asset.
+  const encoded = connext.encodeFunctionData("removeAssetId", [canonicalTokenId, local]);
+  const tx = await deployer.sendTransaction({
+    chainId: chain,
+    to: contract,
+    data: encoded,
+  });
+  await tx.wait(1);
+  return tx.hash;
+};
+
+export const setupAsset = async (
+  _: OperationContext,
+  input: {
+    deployer?: Wallet;
+    canonical: string;
+    local: string;
+    domain: DomainInfo;
+  },
+): Promise<string> => {
+  const {
+    deployer,
+    canonical,
+    local,
+    domain: {
+      domain,
+      chain,
+      config: {
+        deployments: { connext: contract },
+      },
+    },
+  } = input;
+  const canonicalTokenId = utils.hexlify(canonizeTokenId(canonical));
+  const connext = getConnextInterface();
+  if (!deployer) {
+    throw new Error("Need deployer agent to setup asset");
+  }
+
+  // Asset is not approved. Use deployer to approve asset.
+  const encoded = connext.encodeFunctionData("setupAsset", [
+    {
+      id: canonicalTokenId,
+      domain: domain,
+    },
+    local,
+    constants.AddressZero,
+  ]);
+  const tx = await deployer.sendTransaction({
+    chainId: chain,
+    to: contract,
+    data: encoded,
+  });
+  await tx.wait(1);
+  return tx.hash;
 };
 
 export const getRouterApproval = async (
