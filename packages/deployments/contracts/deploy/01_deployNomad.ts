@@ -152,7 +152,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)
   ).connect(deployer);
 
-  // console.log("Deploying token registry...");
+  // TODO: Expose the domain publicly or something so we dont have to do this every time.
+  console.log("Deploying token registry...");
   const tokenRegistry = await deployNomadBeaconProxy(
     "TokenRegistry",
     [domainConfig.contracts.bridge.bridgeToken.beacon, xappConnectionManagerAddress],
