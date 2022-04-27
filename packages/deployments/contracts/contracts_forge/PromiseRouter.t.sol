@@ -8,6 +8,8 @@ import "../contracts/interfaces/ICallback.sol";
 import "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
 // run a single test:
@@ -20,6 +22,10 @@ contract MockPromiseRouter is PromiseRouter {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using PromiseMessage for bytes29;
+
+  function initialize(address _xAppConnectionManager) public override initializer {
+    super.initialize(_xAppConnectionManager);
+  }
 
   function mockHandle(
     address callbackAddress,
@@ -90,6 +96,8 @@ contract PromiseRouterTest is ForgeHelper {
   // ============ Storage ============
 
   MockPromiseRouter promiseRouter;
+  MockPromiseRouter promiseRouterImpl;
+  ERC1967Proxy proxy;
 
   address internal xAppConnectionManager = address(1);
   address internal home;
@@ -112,11 +120,17 @@ contract PromiseRouterTest is ForgeHelper {
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("isReplica(address)"), abi.encode(bool(true)));
     vm.mockCall(home, abi.encodeWithSignature("localDomain()"), abi.encode(localDomain));
 
-    promiseRouter = new MockPromiseRouter();
-
-    promiseRouter.initialize(xAppConnectionManager);
+    promiseRouterImpl = new MockPromiseRouter();
+    promiseRouterImpl.initialize(xAppConnectionManager);
+    
+    // proxy = new ERC1967Proxy(
+    //   address(promiseRouterImpl),
+    //   abi.encodeWithSelector(MockPromiseRouter.initialize.selector, xAppConnectionManager)
+    // );
+    
+    // promiseRouter = MockPromiseRouter(payable(address(proxy)));
+    
     promiseRouter.setConnext(address(connext));
-
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
   }
 
