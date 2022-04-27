@@ -46,13 +46,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
 
   // Get xapp connection manager
-  const xappConnectionManagerDeployment = await hre.deployments.getOrNull("XAppConnectionManager");
+  const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
   if (!xappConnectionManagerDeployment) {
     throw new Error(`XappConnectionManager not deployed`);
   }
 
   console.log("Fetching token registry...");
-  const tokenRegistryDeployment = await hre.deployments.getOrNull("TokenRegistryUpgradeBeaconProxy");
+  const tokenRegistryDeployment = await hre.deployments.getOrNull(getDeploymentName("TokenRegistryUpgradeBeaconProxy"));
   if (!tokenRegistryDeployment) {
     throw new Error(`TokenRegistry not deployed`);
   }
@@ -89,7 +89,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     ConnextLogic: connextLogic.address,
     RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
   };
-  const connext = await hre.deployments.deploy("ConnextHandler", {
+  const connext = await hre.deployments.deploy(getDeploymentName("ConnextHandler"), {
     from: deployer.address,
     log: true,
     libraries,
