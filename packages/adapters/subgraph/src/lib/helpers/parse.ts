@@ -63,3 +63,13 @@ export const xtransfer = (subgEntity: any): XTransfer => {
       : undefined,
   };
 };
+
+/**
+ * Parses the response of crosschain query
+ *
+ * @param subgEntity The object you're going to parse
+ * @returns domain => XTranfers mapping
+ */
+export const xtransfers = (subgEntity: any): Map<string, XTransfer[]> => {
+  throw Error(`Not implemented yet`);
+};
