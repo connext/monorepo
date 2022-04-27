@@ -10,6 +10,7 @@ import {
   getExecutedTransfersByIdsQuery,
   getReconciledTransfersByIdsQuery,
   getRouterQuery,
+  getTransferQuery,
   getTransfersStatusQuery,
   getXCalledTransfersQuery,
 } from "./lib/operations";
@@ -33,7 +34,18 @@ export class SubgraphReader {
   }
 
   /**
+   * Make a direct GraphQL query to the subgraph of the given domain.
    *
+   * @param domain - The domain you want to determine liquidity on.
+   * @param query - The GraphQL query string you want to send.
+   * @returns Query result (any).
+   */
+  public async query(domain: string, query: string): Promise<any> {
+    const { execute } = getHelpers();
+    return await execute(query);
+  }
+
+  /**
    * Returns available liquidity for the given asset on the Connext on the provided chain.
    *
    * @param domain - The domain you want to determine liquidity on
@@ -104,6 +116,21 @@ export class SubgraphReader {
     }
     // convert to nice typescript type
     return assets[0];
+  }
+
+  /**
+   * Retrieve a target transfer belonging to a given domain by ID.
+   *
+   * @param domain - The domain you want to get transfers from.
+   * @param transferId - The ID of the transfer you want to retrieve.
+   * @returns Parsed XTransfer object if transfer exists, otherwise undefined.
+   */
+  public async getTransfer(domain: string, transferId: string): Promise<XTransfer | undefined> {
+    const { parser, execute } = getHelpers();
+    const prefix = this.config.sources[domain].prefix;
+    const query = getTransferQuery(prefix, transferId);
+    const { transfers } = await execute(query);
+    return transfers.length === 1 ? parser.xtransfer(transfers[0]) : undefined;
   }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {

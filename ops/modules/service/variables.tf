@@ -53,8 +53,6 @@ variable "region" {}
 
 variable "environment" {}
 
-variable "mnemonic" {}
-
 variable "ingress_cdir_blocks" {
   type = list(string)
 }
@@ -69,10 +67,6 @@ variable "allow_all_cdir_blocks" {
 variable "service_security_groups" {
   type = list(string)
 }
-
-variable "service_config_value" {}
-variable "service_config_name" {}
-
 
 variable "internal_lb" {
   default = false
@@ -93,4 +87,8 @@ variable "base_domain" {
 
 variable "stage" {
   description = "stage of deployment"
+}
+
+variable "container_env_vars" {
+  description = "env vars for running container"
 }

@@ -1,6 +1,6 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { AuctionsCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
+import { AuctionsCache, RoutersCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
@@ -66,17 +66,17 @@ export const mock = {
     mode: {
       cleanup: false,
     },
+    environment: "staging",
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
       const cache = createStubInstance(StoreManager);
-      const transactions = createStubInstance(TransfersCache);
       const auctions = createStubInstance(AuctionsCache);
+      const routers = createStubInstance(RoutersCache);
       // NOTE: if this override doesn't work, we should resort to just making a mock object with
       // these caches as properties.
-      (cache as any).transactions = transactions;
       (cache as any).auctions = auctions;
-      transactions.getLatestNonce.resolves(0);
+      (cache as any).routers = routers;
       return cache;
     },
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
@@ -120,7 +120,12 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20 = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
+        erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
@@ -134,7 +139,7 @@ export const mock = {
       isChainSupportedByGelato: stub(),
     },
     auctions: {
-      encodeExecuteFromBid: stub(),
+      encodeExecuteFromBids: stub(),
     },
   },
   operations: {

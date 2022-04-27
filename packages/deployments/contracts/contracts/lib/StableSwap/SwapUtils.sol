@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./AmplificationUtils.sol";
-import "./LPToken.sol";
-import "./MathUtils.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {AmplificationUtils} from "./AmplificationUtils.sol";
+import {LPToken} from "./LPToken.sol";
+import {MathUtils} from "./MathUtils.sol";
 
 /**
  * @title SwapUtils library

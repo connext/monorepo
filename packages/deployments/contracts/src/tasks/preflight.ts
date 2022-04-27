@@ -1,7 +1,8 @@
-import { BigNumber, constants, utils } from "ethers";
+import { BigNumber, constants, Contract, utils } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
@@ -16,6 +17,7 @@ type TaskArgs = {
   connextAddress?: string;
   pool?: string;
   relayer?: string;
+  env?: Env;
 };
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
@@ -26,6 +28,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("pool", "The adopted <> local stable swap pool address")
   .addOptionalParam("relayer", "The relayer address to approve")
+  .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
       {
@@ -36,14 +39,23 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         asset: _asset,
         pool: _pool,
         relayer: _relayer,
+        env: _env,
       }: TaskArgs,
-      { deployments, ethers, run, getNamedAccounts },
+      { deployments, ethers, run },
     ) => {
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
+      const env = mustGetEnv(_env);
+      console.log("env:", env);
+
+      let { deployer } = await ethers.getNamedSigners();
+      if (!deployer) {
+        [deployer] = await ethers.getUnnamedSigners();
       }
+
+      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextDeployment = await deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+      console.log("connextAddress: ", connextAddress);
 
       // Get the router address.
       const router = _router ?? process.env.ROUTER_ADDRESS;
@@ -79,12 +91,11 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         localAsset = canonicalAsset;
       } else {
         // Current network's domain is not canonical domain, so we need to get the local asset representation.
-        const tokenRegistryAddress = (await deployments.get("TokenRegistryUpgradeBeaconProxy")).address;
-        const tokenRegistry = await ethers.getContractAt(
-          (
-            await deployments.getArtifact("TokenRegistry")
-          ).abi,
-          tokenRegistryAddress,
+        const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
+        const tokenRegistry = new Contract(
+          tokenDeployment.address,
+          (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
+          deployer,
         );
         localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
         if (localAsset === constants.AddressZero) {
@@ -96,8 +107,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
 
       // Make sure router's signer address is approved.
-      const connext = await ethers.getContractAt("Connext", connextAddress);
-      const isRouterApproved = await connext.approvedRouters(router);
+      const isRouterApproved = await connext.getRouterApproval(router);
       console.log("\nRouter: ", router, " is approved: ", isRouterApproved);
       if (!isRouterApproved) {
         console.log("*** Approving router!");
@@ -117,7 +127,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         await run("setup-asset", {
           canonical: canonicalTokenId,
           adopted: localAsset,
-          domain: domainInfo.domain.toString(),
+          domain: canonicalDomain,
           connextAddress,
           pool,
         });
@@ -128,23 +138,23 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       // contract in the block explorer and reading the routerBalances mapping, putting in the
       // router signer address and Rinkeby asset ID.
 
-      const erc20 = await ethers.getContractAt("TestERC20", localAsset);
+      const erc20Deployment = await deployments.get(getDeploymentName("TestERC20", env));
+      const erc20 = new Contract(erc20Deployment.address, erc20Deployment.abi, deployer);
       // The amount to mint / add liquidity for. Convert units, coerce to number to remove
       // decimal point, then back to string.
       const amount = _amount ?? DEFAULT_AMOUNT;
       const targetLiquidity = utils.parseUnits(amount, (await erc20.decimals()) as BigNumber);
       const liquidity = await connext.routerBalances(router, localAsset);
-      const namedAccounts = await getNamedAccounts();
       if (liquidity.lt(targetLiquidity)) {
         if (localAsset !== ethers.constants.AddressZero) {
-          const balance = await erc20.balanceOf(namedAccounts.deployer);
+          const balance = await erc20.balanceOf(deployer.address);
           console.log("\nDeployer Balance: ", balance.toString());
           if (balance.lt(targetLiquidity)) {
             console.log("*** Minting tokens!");
             await run("mint", {
               amount,
               asset: localAsset,
-              receiver: namedAccounts.deployer,
+              receiver: deployer.address,
             });
           }
         } else {
@@ -160,38 +170,10 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("*** Sufficient liquidity present!");
       }
 
-      // Make sure the router's signer address has relayer fees by checking the
-      // Connext contract on chain and reading the routerRelayerFees function.
-      const targetRelayerFees = utils.parseEther(DEFAULT_RELAYER_FEES_ETH);
-      let relayerFees: BigNumber = await connext.routerRelayerFees(router);
-      console.log("\nRelayer Fees: ", relayerFees.toString());
-      console.log("Target relayer fees: ", targetRelayerFees.toString(), `(${DEFAULT_RELAYER_FEES_ETH} ETH)`);
-      if (relayerFees.lt(targetRelayerFees)) {
-        console.log("*** Adding relayer fee ETH!");
-        const additionalEthNeeded = targetRelayerFees.sub(relayerFees);
-        const tx = await connext.addRelayerFees(router, {
-          from: namedAccounts.deployer,
-          value: additionalEthNeeded,
-          // gasLimit: BigNumber.from("10000000"),
-        });
-        console.log("addRelayerFees tx:", tx.hash);
-        await tx.wait(1);
-        relayerFees = await connext.routerRelayerFees(router);
-        console.log("Updated Relayer Fees: ", relayerFees.toString());
-        if (relayerFees.lt(targetRelayerFees)) {
-          throw new Error(`Failed to add relayer fees! Needed to add:  ${additionalEthNeeded.toString()}`);
-        }
-        console.log("*** Sufficient relayer fees added!");
-      } else {
-        console.log("*** Sufficient relayer fees present!");
-      }
-
       if (relayer) {
         console.log("*** Whitelisting relayer!");
         // Add relayer
-        const tx = await connext.addRelayer(relayer, {
-          from: namedAccounts.deployer,
-        });
+        const tx = await connext.addRelayer(relayer);
         console.log("addRelayer tx:", tx.hash);
         await tx.wait(1);
         console.log("*** Added relayer to whitelist", relayer);

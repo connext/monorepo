@@ -1,4 +1,4 @@
-import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask, BidData } from "@connext/nxtp-utils";
+import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -12,12 +12,6 @@ import { Cache } from "./cache";
  *
  * Auction Tasks:
  *   key: $transferId | value: JSON.stringify(AuctionTask);
- *
- * TODO: This a temporary solution to store the relevant data needed to encode
- * execute calldata for the meta tx. Should be deprecated once the sequencer
- * uses the subgraph to get the data needed.
- * BidData:
- *   key: $domain | value: string;
  */
 export class AuctionsCache extends Cache {
   private readonly prefix = "auctions";
@@ -131,7 +125,7 @@ export class AuctionsCache extends Cache {
    */
   public async getQueuedTransfers(): Promise<string[]> {
     const stream = this.data.hscanStream(`${this.prefix}:status`);
-    let keys: string[] = [];
+    const keys: string[] = [];
     await new Promise((res) => {
       stream.on("data", (resultKeys: string[] = []) => {
         // Note that resultKeys will sometimes contain duplicates due to SCAN's implementation in Redis
@@ -152,36 +146,6 @@ export class AuctionsCache extends Cache {
       }
     }
     return filtered;
-  }
-
-  /// MARK - Bid Data
-  /**
-   * Gets the bid data for the given transfer ID.
-   *
-   * @notice This is temporary solution to store the relevant data needed to encode execute calldata.
-   * Should be deprecated.
-   *
-   * @param transferId - The ID of the transfer we are auctioning.
-   * @returns BidData if exists, undefined otherwise.
-   */
-  public async getBidData(transferId: string): Promise<BidData | undefined> {
-    const res = await this.data.hget(`${this.prefix}:bidData`, transferId);
-    return res ? (JSON.parse(res) as BidData) : undefined;
-  }
-
-  /**
-   * Sets the bid data for the given transfer ID.
-   *
-   * @notice This is temporary solution to store the relevant data needed to encode execute calldata.
-   * Should be deprecated.
-   *
-   * @param transferId - The ID of the transfer we are auctioning.
-   * @param data - Bid data to store.
-   *
-   * @returns 0 if updated, 1 if created
-   */
-  public async setBidData(transferId: string, data: BidData): Promise<number> {
-    return await this.data.hset(`${this.prefix}:bidData`, transferId, JSON.stringify(data));
   }
 
   /**

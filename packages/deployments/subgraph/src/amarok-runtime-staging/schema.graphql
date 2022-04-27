@@ -23,7 +23,6 @@ type Router @entity {
   proposedOwner: Bytes
   proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
-  transfers: [Transfer!]! @derivedFrom(field: "router")
 }
 
 enum TransferStatus {
@@ -48,7 +47,8 @@ type Transfer @entity {
   callData: Bytes
   idx: BigInt
   nonce: BigInt
-  router: Router
+  routers: [Router!]
+  relayerFee: BigInt
 
   # XCalled
   xcalledTransactingAsset: Bytes

@@ -26,7 +26,7 @@ resource "aws_lambda_function" "cloudwatch-logdna-lambda" {
   environment {
     variables = {
       LOGDNA_KEY  = var.logdna_key
-      LOGDNA_TAGS = "${var.stage},${var.environment},${var.service}"
+      LOGDNA_TAGS = "${var.stage},${var.environment},${var.service},amarok"
     }
   }
 }

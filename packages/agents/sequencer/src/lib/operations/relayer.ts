@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, BidData } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, XTransfer, Bid } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { GelatoSendFailed } from "../errors";
@@ -6,8 +6,12 @@ import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
-  selectedRouters: string[],
-  bidData: BidData,
+  bids: Bid[],
+  transfer: XTransfer,
+  relayerFee: {
+    asset: string;
+    amount: string;
+  },
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
@@ -17,21 +21,18 @@ export const sendToRelayer = async (
     adapters: { chainreader },
   } = getContext();
   const {
-    auctions: { encodeExecuteFromBid },
+    auctions: { encodeExecuteFromBids },
     relayer: { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
-  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { bidData });
+  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
 
-  const destinationChainId = chainData.get(bidData.params.destinationDomain)!.chainId;
+  const destinationChainId = chainData.get(transfer.destinationDomain)!.chainId;
 
-  const destinationConnextAddress = config.chains[bidData.params.destinationDomain].deployments.connext;
+  const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBid(selectedRouters, bidData);
-  logger.info("Encoded data", requestContext, methodContext, {
-    encodedData,
-  });
+  const encodedData = encodeExecuteFromBids(bids, transfer);
 
   const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
   if (!isSupportedByGelato) {
@@ -40,10 +41,18 @@ export const sendToRelayer = async (
 
   // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await getGelatoRelayerAddress(destinationChainId, logger);
-  logger.info("Got relayer address", requestContext, methodContext, {
+  logger.debug("Got relayer address", requestContext, methodContext, {
     relayerAddress,
   });
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(bidData.params.destinationDomain), {
+
+  logger.info("Getting gas estimate", requestContext, methodContext, {
+    chainId: destinationChainId,
+    to: destinationConnextAddress,
+    data: encodedData,
+    from: relayerAddress,
+  });
+
+  const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,
     data: encodedData,
@@ -57,14 +66,14 @@ export const sendToRelayer = async (
   logger.info("Sending to Gelato network", requestContext, methodContext, {
     encodedData,
     destinationConnextAddress,
-    domain: bidData.params.destinationDomain,
+    domain: transfer.destinationDomain,
   });
   const result = await gelatoSend(
     destinationChainId,
     destinationConnextAddress,
     encodedData,
-    bidData.local,
-    bidData.feePercentage,
+    relayerFee.asset,
+    relayerFee.amount,
   );
   if ((result as AxiosError).isAxiosError) {
     throw new GelatoSendFailed({ result });

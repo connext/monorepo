@@ -35,7 +35,7 @@ fi
 for chain in ${chains[*]}
 do
   echo "Adding router to $chain"
-  MNEMONIC="${mnemonic}" yarn workspace @connext/nxtp-contracts hardhat add-router --router "${router}" --network "${chain}"
+  MNEMONIC="${mnemonic}" yarn workspace @connext/nxtp-contracts hardhat setup-router --router "${router}" --network "${chain}"
   echo "Added router to $chain"
   echo ""
 done

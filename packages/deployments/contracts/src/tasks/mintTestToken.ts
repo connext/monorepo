@@ -1,31 +1,38 @@
+import { Contract } from "ethers";
 import { task } from "hardhat/config";
+
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   amount: string;
   receiver: string;
   asset?: string;
+  env?: Env;
 };
 
 export default task("mint", "Mint test tokens")
   .addParam("amount", "Amount (real units)")
   .addParam("receiver", "Override address to mint to")
   .addOptionalParam("asset", "Override token address")
-  .setAction(async ({ receiver, asset: _assetId, amount }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
-    const namedAccounts = await getNamedAccounts();
-    console.log("namedAccounts: ", namedAccounts);
-
-    let assetIdAddress = _assetId;
-    if (!assetIdAddress) {
-      const assetIdDeployment = await deployments.get("TestERC20");
-      assetIdAddress = assetIdDeployment.address;
+  .addOptionalParam("env", "Environment of contracts")
+  .setAction(async ({ receiver, asset: _assetId, amount, env: _env }: TaskArgs, { deployments, ethers }) => {
+    let { deployer } = await ethers.getNamedSigners();
+    if (!deployer) {
+      [deployer] = await ethers.getUnnamedSigners();
     }
-    console.log("asset address: ", assetIdAddress);
+
+    const env = mustGetEnv(_env);
+    console.log("env:", env);
+    console.log("deployer: ", deployer.address);
+
+    const tokenName = getDeploymentName("TestERC20", env);
+    const tokenDeployment = await deployments.get(tokenName);
+    const assetId = _assetId ?? tokenDeployment.address;
+    console.log("asset address: ", assetId);
     console.log("receiver: ", receiver);
 
-    const erc20 = await ethers.getContractAt("TestERC20", assetIdAddress);
-    const tx = await erc20.mint(receiver, amount, {
-      from: namedAccounts.deployer,
-    });
+    const erc20 = new Contract(assetId, tokenDeployment.abi, deployer);
+    const tx = await erc20.mint(receiver, amount);
     console.log("mint tx: ", tx);
     const receipt = await tx.wait(1);
     console.log("mint tx mined: ", receipt.transactionHash);

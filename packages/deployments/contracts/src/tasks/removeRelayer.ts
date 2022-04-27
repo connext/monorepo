@@ -1,44 +1,48 @@
+import { Contract } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
+
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   relayer: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("remove-relayer", "Remove Relayer from whitelist")
   .addParam("relayer", "The address of relayer to remove")
   .addOptionalParam("connextAddress", "Override connext address")
-  .setAction(
-    async ({ relayer, connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
-      const namedAccounts = await getNamedAccounts();
+  .addOptionalParam("env", "The environment for the contract")
+  .setAction(async ({ relayer, connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
+    let { deployer } = await ethers.getNamedSigners();
+    if (!deployer) {
+      [deployer] = await ethers.getUnnamedSigners();
+    }
 
-      console.log("relayer: ", relayer);
+    console.log("relayer: ", relayer);
+    const env = mustGetEnv(_env);
+    console.log("env:", env);
+    console.log("deployer:", deployer.address);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
-      console.log("connextAddress: ", connextAddress);
+    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextDeployment = await deployments.get(connextName);
+    const connextAddress = _connextAddress ?? connextDeployment.address;
+    const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+    console.log("connextAddress: ", connextAddress);
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
+    if (!isAddress(relayer) || relayer === ethers.constants.AddressZero) {
+      throw new Error("Invalid Relayer address");
+    }
 
-      if (!isAddress(relayer) || relayer === ethers.constants.AddressZero) {
-        throw new Error("Invalid Relayer address");
-      }
+    const approvedRelayer = await connext.approvedRelayer(relayer);
+    console.log("approvedRelayer: ", approvedRelayer);
+    if (!approvedRelayer) {
+      throw new Error("Not approved relayer");
+    }
 
-      const approvedRelayer = await connext.approvedRelayer(relayer);
-      console.log("approvedRelayer: ", approvedRelayer);
-      if (!approvedRelayer) {
-        throw new Error("Not approved relayer");
-      }
-
-      const tx = await connext.removeRelayer(relayer, {
-        from: namedAccounts.deployer,
-      });
-      console.log("removeRelayer tx: ", tx);
-      const receipt = await tx.wait();
-      console.log("removeRelayer tx mined: ", receipt.transactionHash);
-    },
-  );
+    const tx = await connext.removeRelayer(relayer);
+    console.log("removeRelayer tx: ", tx);
+    const receipt = await tx.wait();
+    console.log("removeRelayer tx mined: ", receipt.transactionHash);
+  });
