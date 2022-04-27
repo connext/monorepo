@@ -8,6 +8,7 @@ import {
   getAssetByCanonicalIdQuery,
   getAssetByLocalQuery,
   getRouterQuery,
+  getXCalledTransfersQuery,
 } from "./lib/operations";
 import { SubgraphReaderConfig } from "./lib/entities";
 
@@ -103,28 +104,15 @@ export class SubgraphReader {
   }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
-    const destinationDomains = [...this.subgraphs.keys()];
-    const { parser } = getHelpers();
+    const { execute, parser } = getHelpers();
+    const query = getXCalledTransfersQuery(agents, this.config);
+
+    const xcalledTransfers = await execute(query);
 
     // first get prepared transactions on all chains
-    const allPrepared: XTransfer[] = (
-      await Promise.all(
-        [...this.subgraphs].map(async ([domain, subgraph]) => {
-          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>((client) => {
-            const nonce = agents.get(domain)!.latestNonce;
-
-            return client.GetXCalledTransfers({
-              destinationDomains,
-              maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
-              nonce,
-            });
-          });
-          return transfers;
-        }),
-      )
-    )
+    const allPrepared: XTransfer[] = xcalledTransfers
       .flat()
-      .filter((x) => !!x)
+      .filter((x: any) => !!x)
       .map(parser.xtransfer);
     return allPrepared;
   }
@@ -133,38 +121,19 @@ export class SubgraphReader {
     agents: Map<string, SubgraphQueryMetaParams>,
     status: XTransferStatus,
   ): Promise<XTransfer[]> {
-    const destinationDomains = [...this.subgraphs.keys()];
+    const { execute, parser } = getHelpers();
+    const query = getXCalledTransfersQuery(agents, this.config);
+
+    const xcalledTransfers = await execute(query);
+
+    const destinationDomains = Object.keys(this.config.sources);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
-    const { parser } = getHelpers();
 
     // first get prepared transactions on all chains
-    const allOrigin: [string, XTransfer][] = (
-      await Promise.all(
-        [...this.subgraphs].map(async ([domain, subgraph]) => {
-          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>(
-            (client: {
-              GetXCalledTransfers: (arg0: {
-                destinationDomains: string[];
-                maxXCallBlockNumber: any;
-                nonce: any;
-              }) => any;
-            }) => {
-              const nonce = agents.get(domain)!.latestNonce;
-
-              return client.GetXCalledTransfers({
-                destinationDomains,
-                maxXCallBlockNumber: agents.get(domain)!.maxBlockNumber.toString(),
-                nonce,
-              }); // TODO: nonce + maxPrepareBlockNumber
-            },
-          );
-          return transfers;
-        }),
-      )
-    )
+    const allOrigin: [string, XTransfer][] = xcalledTransfers
       .flat()
-      .filter((x) => !!x)
-      .map((s) => {
+      .filter((x: any) => !!x)
+      .map((s: any) => {
         const tx = parser.xtransfer(s);
 
         // set into a map by destination domain

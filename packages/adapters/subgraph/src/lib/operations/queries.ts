@@ -1,7 +1,5 @@
 import { gql } from "graphql-request";
 import { SubgraphQueryMetaParams } from "@connext/nxtp-utils";
-import { getHelpers } from "../helpers";
-import { getPrefixBySource } from "../helpers/shared";
 import { SubgraphReaderConfig } from "../entities";
 
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
@@ -152,10 +150,10 @@ const getXCalledTransferQueryString = (
         }
       `;
 };
-export const getXCalledTransfersQuery = async (
+export const getXCalledTransfersQuery = (
   agents: Map<string, SubgraphQueryMetaParams>,
   config: SubgraphReaderConfig,
-): Promise<string> => {
+): string => {
   let combinedQuery = "";
   const domains = Object.keys(config.sources);
   for (const domain of domains) {
@@ -177,4 +175,27 @@ export const getXCalledTransfersQuery = async (
         ${combinedQuery}
       }
   `;
+};
+
+export const getExecutedTransfersByIdsQuery = (
+  prefix: string,
+  transferIds: string[],
+  maxExecutedBlockNumber: number,
+): string => {
+  // Not implemented yet
+  return "";
+};
+
+export const getReconciledTransfersByIdsQuery = (
+  prefix: string,
+  transferIds: string[],
+  maxReconciledBlockNumber: number,
+): string => {
+  // Not implemented yet
+  return "";
+};
+
+const getTransfersStatusQueryByDomain = (prefix: string) => {};
+export const getTransfersStatusQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
+  [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {});
 };
