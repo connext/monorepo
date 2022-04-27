@@ -5,6 +5,7 @@ import { makeRouter } from "@connext/nxtp-router/src/router";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import {
+  AuctionsApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
   delay,
   ERC20Abi,
@@ -12,12 +13,7 @@ import {
   XCallArgs,
   XTransfer,
 } from "@connext/nxtp-utils";
-import {
-  ChainReader,
-  getConnextInterface,
-  getDeployedTokenRegistryContract,
-  getTokenRegistryInterface,
-} from "@connext/nxtp-txservice";
+import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { xtransfer as parseXTransfer } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
 
@@ -29,12 +25,14 @@ import {
   ORIGIN_ASSET,
   MIN_USER_ETH,
   TRANSFER_TOKEN_AMOUNT,
+  RELAYER_FEE_AMOUNT,
   MIN_FUNDER_ETH,
   DESTINATION_ASSET,
   CANONICAL_DOMAIN,
   TestAgents,
   EXECUTE_TIMEOUT,
   SUBG_POLL_PARITY,
+  XCALL_TIMEOUT,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
@@ -232,13 +230,14 @@ describe("Integration:E2E", () => {
           log.info("Added asset to chain.", { domain, hash });
         } else {
           // Check to make sure canonical -> local is correct onchain.
-          const { adoptedToCanonical, canonicalToAdopted, canonicalTokenId } = await checkOnchainLocalAsset(context, {
-            domain,
-            canonical: canonicalAsset,
-            adopted: localAsset,
-          });
+          const { adoptedToCanonical, canonicalToAdopted, canonicalTokenId, getTokenId, tokenRegistry } =
+            await checkOnchainLocalAsset(context, {
+              domain,
+              canonical: canonicalAsset,
+              adopted: localAsset,
+            });
           if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalTokenId) {
-            log.info("Asset needs to be overwritten! Wrong local asset set on this domain.", {
+            log.fail("Asset needs to be overwritten! Wrong local asset set on this domain.", {
               domain,
               etc: {
                 canonical: canonicalAsset,
@@ -246,6 +245,7 @@ describe("Integration:E2E", () => {
                 adoptedToCanonical,
                 canonicalToAdopted,
                 canonicalTokenId,
+                getTokenId,
               },
             });
             if (!deployer) {
@@ -279,6 +279,8 @@ describe("Integration:E2E", () => {
                 adoptedToCanonical,
                 canonicalToAdopted,
                 canonicalTokenId,
+                getTokenId,
+                tokenRegistry,
               },
             });
           }
@@ -507,31 +509,6 @@ describe("Integration:E2E", () => {
           }
         }
 
-        {
-          const tokenRegistry = getTokenRegistryInterface();
-          const tr = getDeployedTokenRegistryContract(domainInfo.DESTINATION.chain, "Staging");
-          const encoded = tokenRegistry.encodeFunctionData("getTokenId", [DESTINATION_ASSET.address]);
-          const result = await chainreader.readTx({
-            chainId: domainInfo.DESTINATION.chain,
-            to: tr!.address,
-            data: encoded,
-          });
-          const info = tokenRegistry.decodeFunctionResult("getTokenId", result);
-          const canonical = info[1];
-          const isApproved = await getAssetApproval(context, {
-            domain: domainInfo.DESTINATION,
-            canonical,
-          });
-          log.info("Sanity check: token registry's canonical ID is approved.", {
-            domain: domainInfo.DESTINATION,
-            etc: {
-              tokenRegistry: tr?.address,
-              info,
-              isApproved,
-            },
-          });
-        }
-
         // Add liquidity.
         log.info("Adding liquidity for Router...", {
           domain: domainInfo.DESTINATION,
@@ -614,11 +591,14 @@ describe("Integration:E2E", () => {
         },
         transactingAssetId: ORIGIN_ASSET.address,
         amount: TRANSFER_TOKEN_AMOUNT.toString(),
+        relayerFee: RELAYER_FEE_AMOUNT.toString(),
       };
+      console.log("args", args);
       const encoded = connext.encodeFunctionData("xcall", [args]);
       const tx = await agents.user.origin.sendTransaction({
         to: originConnextAddress,
         data: encoded,
+        value: RELAYER_FEE_AMOUNT,
       });
       const receipt = await tx.wait(1);
       log.info("XCall sent.", {
@@ -628,8 +608,8 @@ describe("Integration:E2E", () => {
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const parity = 5_000;
-      const attempts = 10;
+      const parity = SUBG_POLL_PARITY;
+      const attempts = Math.floor(XCALL_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
         xcallTransactionHash: receipt.transactionHash,
       });
@@ -751,7 +731,7 @@ describe("Integration:E2E", () => {
       log.info("Transfer completed successfully!", {
         domain: domainInfo.DESTINATION,
         etc: {
-          locallyExecuted: agents.router && transfer.router && transfer.router === agents.router?.address,
+          locallyExecuted: agents.router && transfer.routers && transfer.routers.includes(agents.router.address),
           transfer,
         },
       });
@@ -759,7 +739,7 @@ describe("Integration:E2E", () => {
   };
 
   it.only("should complete a fast liquidity transfer", async function () {
-    this.timeout(300_000 + EXECUTE_TIMEOUT);
+    this.timeout(300_000 + EXECUTE_TIMEOUT + XCALL_TIMEOUT);
     await test();
     log.done();
   });

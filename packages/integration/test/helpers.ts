@@ -1,5 +1,10 @@
 import { utils, BigNumber, constants, Wallet } from "ethers";
-import { ChainReader, getConnextInterface, getRouterPermissionsManagerInterface } from "@connext/nxtp-txservice";
+import {
+  ChainReader,
+  getConnextInterface,
+  getDeployedTokenRegistryContract,
+  getTokenRegistryInterface,
+} from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
@@ -128,6 +133,8 @@ export const checkOnchainLocalAsset = async (
   canonicalToAdopted: string;
   adoptedToCanonical: string;
   canonicalTokenId: string;
+  tokenRegistry: string;
+  getTokenId: string;
 }> => {
   const { chainreader } = context;
   const {
@@ -145,6 +152,8 @@ export const checkOnchainLocalAsset = async (
 
   let canonicalToAdopted: string;
   let adoptedToCanonical: string;
+  let trAddress: string;
+  let getTokenId: string;
   {
     const encoded = connext.encodeFunctionData("canonicalToAdopted", [canonicalTokenId]);
     const result = await chainreader.readTx({
@@ -164,10 +173,25 @@ export const checkOnchainLocalAsset = async (
     });
     adoptedToCanonical = connext.decodeFunctionResult("adoptedToCanonical", result)[1] as string;
   }
+
+  {
+    const tr = getTokenRegistryInterface();
+    trAddress = getDeployedTokenRegistryContract(chain, "Staging", true)!.address;
+    const encoded = tr.encodeFunctionData("getTokenId", [adopted]);
+    const result = await chainreader.readTx({
+      chainId: chain,
+      to: trAddress,
+      data: encoded,
+    });
+    getTokenId = tr.decodeFunctionResult("getTokenId", result)[1] as string;
+  }
+
   return {
     canonicalToAdopted: canonicalToAdopted.toLowerCase(),
     adoptedToCanonical: adoptedToCanonical.toLowerCase(),
     canonicalTokenId: canonicalTokenId.toLowerCase(),
+    getTokenId: getTokenId.toLowerCase(),
+    tokenRegistry: trAddress,
   };
 };
 
@@ -271,17 +295,16 @@ export const getRouterApproval = async (
       },
     },
   } = input;
-  const rpm = getRouterPermissionsManagerInterface();
-
   if (!router) {
     throw new Error("Cannot approve non-existent router!");
   }
 
-  const encoded = rpm.encodeFunctionData("getRouterApproval", [router.address]);
+  const connext = getConnextInterface();
+  const encoded = connext.encodeFunctionData("getRouterApproval", [router.address]);
   const result = await chainreader.readTx({
     chainId: chain,
     to: contract,
     data: encoded,
   });
-  return rpm.decodeFunctionResult("getRouterApproval", result)[0] as boolean;
+  return connext.decodeFunctionResult("getRouterApproval", result)[0] as boolean;
 };
