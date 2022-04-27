@@ -150,7 +150,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // ============ initialize ============
-  function testInitializeParameters() public {
+  function test_PromiseRouter__initializeParameters_shouldWork() public {
     assertEq(address(promiseRouter.xAppConnectionManager()), address(xAppConnectionManager));
     assertEq(address(promiseRouter.connext()), address(connext));
   }
@@ -158,7 +158,7 @@ contract PromiseRouterTest is ForgeHelper {
   // ============ setConnext ============
 
   // Should work
-  function testSetConnext() public {
+  function test_PromiseRouter__setConnext_shouldWork() public {
     vm.expectEmit(true, true, true, true);
     emit SetConnext(connext2);
 
@@ -169,7 +169,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Fail if not called by owner
-  function testSetConnextOnlyOwner() public {
+  function test_PromiseRouter__setConnext_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert("Ownable: caller is not the owner");
     promiseRouter.setConnext(connext2);
@@ -177,7 +177,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   // ============ send ============
   // Fail if not called by connext
-  function testSendOnlyConnext(bool returnSuccess, bytes calldata returnData) public {
+  function test_PromiseRouter__send_failsIfNotConnext(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length > 0);
     vm.prank(address(0));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__onlyConnext_notConnext.selector));
@@ -189,7 +189,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Fail if return data is empty
-  function testSendEmptyReturnData(bool returnSuccess, bytes calldata returnData) public {
+  function test_PromiseRouter__send_failsIfEmptyReturnData(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length == 0);
     vm.prank(address(connext));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_returndataEmpty.selector));
@@ -201,7 +201,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Fail if callback address is not contract
-  function testSendNonContractCallback(bool returnSuccess, bytes calldata returnData) public {
+  function test_PromiseRouter__send_failsIfNonContractCallback(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length > 0);
     vm.prank(address(connext));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_callbackAddressNotContract.selector));
@@ -213,7 +213,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Should work
-  function testSend(bool returnSuccess, bytes calldata returnData) public {
+  function test_PromiseRouter__send_shouldWork(bool returnSuccess, bytes calldata returnData) public {
     vm.prank(address(connext));
     vm.assume(returnData.length > 0);
 
@@ -231,7 +231,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   // ============ handle ============
   // Should work
-  function testHandle(bytes calldata returnData, uint32 _nonce) public {
+  function test_PromiseRouter__handle_shouldWork(bytes calldata returnData, uint32 _nonce) public {
     vm.assume(returnData.length != 0);
 
     uint64 originAndNonce = (uint64(remoteDomain) << 32) | _nonce;
@@ -255,7 +255,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   // ============ process ============
   // Fail if relayer is not approved on connext contract
-  function testProcessNotApprovedRelayer(bytes calldata returnData) public {
+  function test_PromiseRouter__process_failsIfNotApprovedRelayer(bytes calldata returnData) public {
     vm.assume(returnData.length != 0);
     bytes32 transferId = "A";
     address callbackAddress = address(callback);
@@ -272,7 +272,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Fail if callback fee is zero
-  function testProcessZeroCallbackfee(bytes calldata returnData) public {
+  function test_PromiseRouter__process_failsIfZeroCallbackfee(bytes calldata returnData) public {
     vm.assume(returnData.length != 0);
     bytes32 transferId = "A";
     address callbackAddress = address(callback);
@@ -290,7 +290,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Should work
-  function testProcess(bytes calldata returnData, uint32 _nonce) public {
+  function test_PromiseRouter__process_shouldWork(bytes calldata returnData, uint32 _nonce) public {
     vm.assume(returnData.length != 0);
     bytes32 transferId = "A";
     address callbackAddress = address(callback);
@@ -335,7 +335,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   // ============ bumpCallbackFee ============
   // Fail if value is zero
-  function testBumpCallbackFeeZeroValue() public {
+  function test_PromiseRouter__bumpCallbackFee_failsIfZeroValue() public {
     bytes32 transferId = "A";
 
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__bumpCallbackFee_valueIsZero.selector));
@@ -345,7 +345,7 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   // Should work
-  function testBumpCallbackFee() public {
+  function test_PromiseRouter__bumpCallbackFee_shouldWork() public {
     bytes32 transferId = "A";
 
     uint256 initialFee = 0.5 ether;

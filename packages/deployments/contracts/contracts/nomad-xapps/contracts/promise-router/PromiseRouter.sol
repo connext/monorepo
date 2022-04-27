@@ -216,12 +216,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     // enforce relayer is whitelisted by calling local connext contract
     if (!connext.isApprovedRelayer(msg.sender)) revert PromiseRouter__process_notApprovedRelayer();
 
-    // Should transfer the stored relayer fee to the msg.sender
-    // TODO check if callbackFee which already paid is sufficient or not
-    //      If not, should revert and should add more fee.
-    // if (gasFee > callbackFees[transferId]) {
-    //   revert PromiseRouter__process_insufficientCallbackFee();
-    // }
+    // enfore callback fee is not zero
     if (callbackFees[transferId] == 0) revert PromiseRouter__process_insufficientCallbackFee();
 
     address callbackAddress = _msg.callbackAddress();
@@ -231,6 +226,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
     delete promiseMessages[transferId];
 
+    // Should transfer the stored relayer fee to the msg.sender
     AddressUpgradeable.sendValue(payable(msg.sender), callbackFees[transferId]);
     callbackFees[transferId] = 0;
   }

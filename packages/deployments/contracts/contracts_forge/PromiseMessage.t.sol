@@ -29,7 +29,7 @@ contract PromiseMessageTest is ForgeHelper {
 
   // ============ format/parse ============
   // Should work
-  function test_PromiseCallbackMessage_should_format_and_parse_a_massage_properly(
+  function test_PromiseMessage__parseMessage_formatMessage_shouldWork(
     bytes32 _transferId,
     address _callbackAddress,
     bool _returnSuccess,
