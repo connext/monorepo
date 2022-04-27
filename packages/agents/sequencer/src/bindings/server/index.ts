@@ -31,7 +31,7 @@ export const bindServer = () =>
       logger,
       adapters: { cache },
     } = getContext();
-    const server = fastify({ logger: pino({ level: config.logLevel }) });
+    const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");
@@ -76,7 +76,7 @@ export const bindServer = () =>
             },
           });
         } catch (error: unknown) {
-          logger.error(`Auction by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
+          logger.debug(`Auction by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
           return response
             .code(500)
             .send({ message: `Auction by TransferId Get Error`, error: jsonifyError(error as Error) });

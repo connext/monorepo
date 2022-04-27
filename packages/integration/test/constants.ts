@@ -5,7 +5,7 @@ import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
 import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 
-enum Environment {
+export enum Environment {
   Staging = "staging",
   Production = "production",
 }
@@ -14,7 +14,7 @@ enum Environment {
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 export const ORIGIN_ASSET = {
   name: "TEST",
-  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
+  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F".toLowerCase(),
 };
 export const DESTINATION_ASSET = {
   name: "TEST",
@@ -33,6 +33,7 @@ export const ENVIRONMENT = Environment.Staging;
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
 export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25"); // In TEST.
+export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000000"); // In TEST.
 
 // Min amounts needed for testing.
 export const MIN_USER_ETH = utils.parseEther("0.02").add(RELAYER_FEE_AMOUNT);
@@ -47,10 +48,14 @@ export const LOGFILE_PATH = "ops/data";
 export const XCALL_TIMEOUT = 120_000;
 // Time period in ms, after which we consider the fast liquidity layer's `execute` to have timed out.
 // NOTE: This should reflect agent response time.
-export const EXECUTE_TIMEOUT = 300_000;
+export const EXECUTE_TIMEOUT = 3_000_000;
+
+export const SKIP_SEQUENCER_CHECKS = true;
 
 // Used in polling loops.
 export const SUBG_POLL_PARITY = 5_000;
+
+export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_HASH;
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
@@ -121,7 +126,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     if (!contract) {
       throw new Error(`No Connext contract deployed on chain ${chainId}`);
     }
-    return contract.address;
+    return contract.address.toLowerCase();
   };
   const originRuntimeSubgraph = originChainData.subgraphs.runtime[0]
     ? {

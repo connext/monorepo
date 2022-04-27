@@ -33,6 +33,9 @@ import {
   EXECUTE_TIMEOUT,
   SUBG_POLL_PARITY,
   XCALL_TIMEOUT,
+  ROUTER_DESIRED_LIQUIDITY,
+  DEBUG_XCALL_TXHASH,
+  SKIP_SEQUENCER_CHECKS,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
@@ -91,20 +94,20 @@ describe("Integration:E2E", () => {
     agents = {
       router: router
         ? {
-            address: router.address,
+            address: router.address.toLowerCase(),
             origin: router.connect(originProvider),
             destination: router.connect(destinationProvider),
           }
         : undefined,
       deployer: deployer
         ? {
-            address: deployer.address,
+            address: deployer.address.toLowerCase(),
             origin: deployer.connect(originProvider),
             destination: deployer.connect(destinationProvider),
           }
         : undefined,
       user: {
-        address: user.address,
+        address: user.address.toLowerCase(),
         origin: user.connect(originProvider),
         destination: user.connect(destinationProvider),
       },
@@ -484,11 +487,10 @@ describe("Integration:E2E", () => {
             },
           });
 
-          if (routerTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
+          if (routerTokens.lt(ROUTER_DESIRED_LIQUIDITY)) {
             // Mint TEST tokens.
             log.info("Minting TEST tokens for Router...", { domain: domainInfo.DESTINATION });
-            // Mint enough for another 100 test iterations...
-            const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
+            const amount = ROUTER_DESIRED_LIQUIDITY.mul(10);
             const encoded = testERC20.encodeFunctionData("mint", [agents.router.address, amount]);
             const tx = await agents.router.destination.sendTransaction({
               to: DESTINATION_ASSET.address,
@@ -510,17 +512,13 @@ describe("Integration:E2E", () => {
         }
 
         // Add liquidity.
+        const amount = ROUTER_DESIRED_LIQUIDITY.mul(2);
         log.info("Adding liquidity for Router...", {
           domain: domainInfo.DESTINATION,
-          etc: { amount: TRANSFER_TOKEN_AMOUNT.toString(), asset: DESTINATION_ASSET.address },
+          etc: { amount: amount.toString(), asset: DESTINATION_ASSET.address },
         });
         {
-          // NOTE: We could add liquidity for another 100 test iterations, HOWEVER, arguably, adding
-          // liquidity should be a part of the test!
-          const encoded = connext.encodeFunctionData("addLiquidity", [
-            TRANSFER_TOKEN_AMOUNT,
-            DESTINATION_ASSET.address,
-          ]);
+          const encoded = connext.encodeFunctionData("addLiquidity", [amount, DESTINATION_ASSET.address]);
           const tx = await agents.router.destination.sendTransaction({
             to: destinationConnextAddress,
             data: encoded,
@@ -541,7 +539,7 @@ describe("Integration:E2E", () => {
             routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
           }
 
-          if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
+          if (routerBalance.lt(amount)) {
             log.fail("Add liquidity operation failed!", {
               domain: domainInfo.DESTINATION,
               hash: receipt.transactionHash,
@@ -561,8 +559,6 @@ describe("Integration:E2E", () => {
       }
     }
 
-    // TODO: Add relayer fees?
-
     if (agents.router) {
       log.next("SEQUENCER START");
       await makeSequencer({
@@ -581,39 +577,46 @@ describe("Integration:E2E", () => {
     let transfer: XTransfer | undefined;
     log.next("XCALL");
     {
-      log.info("Sending XCall...", { domain: domainInfo.ORIGIN });
-      const args: XCallArgs = {
-        params: {
-          to: agents.user.address,
-          callData: "0x",
-          originDomain: domainInfo.ORIGIN.domain,
-          destinationDomain: domainInfo.DESTINATION.domain,
-        },
-        transactingAssetId: ORIGIN_ASSET.address,
-        amount: TRANSFER_TOKEN_AMOUNT.toString(),
-        relayerFee: RELAYER_FEE_AMOUNT.toString(),
-      };
-      const encoded = connext.encodeFunctionData("xcall", [args]);
-      const tx = await agents.user.origin.sendTransaction({
-        to: originConnextAddress,
-        data: encoded,
-        value: RELAYER_FEE_AMOUNT,
-      });
-      const receipt = await tx.wait(1);
-      log.info("XCall sent.", {
-        domain: domainInfo.ORIGIN,
-        hash: receipt.transactionHash,
-        etc: {
-          ...args,
-        },
-      });
+      let transactionHash: string;
+      if (DEBUG_XCALL_TXHASH) {
+        transactionHash = DEBUG_XCALL_TXHASH;
+        log.info("Using already existing XCall...", { domain: domainInfo.ORIGIN, hash: transactionHash });
+      } else {
+        log.info("Sending XCall...", { domain: domainInfo.ORIGIN });
+        const args: XCallArgs = {
+          params: {
+            to: agents.user.address,
+            callData: "0x",
+            originDomain: domainInfo.ORIGIN.domain,
+            destinationDomain: domainInfo.DESTINATION.domain,
+          },
+          transactingAssetId: ORIGIN_ASSET.address,
+          amount: TRANSFER_TOKEN_AMOUNT.toString(),
+          relayerFee: RELAYER_FEE_AMOUNT.toString(),
+        };
+        const encoded = connext.encodeFunctionData("xcall", [args]);
+        const tx = await agents.user.origin.sendTransaction({
+          to: originConnextAddress,
+          data: encoded,
+          value: RELAYER_FEE_AMOUNT,
+        });
+        const receipt = await tx.wait(1);
+        log.info("XCall sent.", {
+          domain: domainInfo.ORIGIN,
+          hash: receipt.transactionHash,
+          etc: {
+            ...args,
+          },
+        });
+        transactionHash = receipt.transactionHash;
+      }
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
       const parity = SUBG_POLL_PARITY;
       const attempts = Math.floor(XCALL_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
-        xcallTransactionHash: receipt.transactionHash,
+        xcallTransactionHash: transactionHash,
       });
       let i;
       for (i = 0; i < attempts; i++) {
@@ -654,16 +657,12 @@ describe("Integration:E2E", () => {
         throw new Error("CRITICAL: transfer is undefined!");
       }
 
-      const waitPeriod = agents.router ? 30 : 60;
-      log.info(`Waiting ${waitPeriod}s to allow the XCall to propagate...`);
-      await delay(waitPeriod * 1_000);
-
       if (agents.router) {
-        // Poll the sequencer a few times to see if we can get the auction status.
-        // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
-        log.info("Polling sequencer for auction status...");
-        {
-          const attempts = 10;
+        if (!SKIP_SEQUENCER_CHECKS) {
+          log.info("Polling sequencer for auction status...");
+          // Poll the sequencer a few times to see if we can get the auction status.
+          // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
+          const attempts = Math.floor(60_000 / SUBG_POLL_PARITY);
           let error: any | undefined;
           let status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined;
           let i;

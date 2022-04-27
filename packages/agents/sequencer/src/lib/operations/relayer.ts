@@ -26,7 +26,7 @@ export const sendToRelayer = async (
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
-  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
+  logger.debug(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
 
   const destinationChainId = chainData.get(transfer.destinationDomain)!.chainId;
 
@@ -41,17 +41,13 @@ export const sendToRelayer = async (
 
   // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await getGelatoRelayerAddress(destinationChainId, logger);
-  logger.debug("Got relayer address", requestContext, methodContext, {
-    relayerAddress,
-  });
 
-  logger.info("Getting gas estimate", requestContext, methodContext, {
+  logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,
     to: destinationConnextAddress,
     data: encodedData,
     from: relayerAddress,
   });
-
   const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,
@@ -59,14 +55,12 @@ export const sendToRelayer = async (
     from: relayerAddress,
   });
 
-  logger.info("Estimated gas", requestContext, methodContext, {
-    gas: gas.toString(),
-  });
-
-  logger.info("Sending to Gelato network", requestContext, methodContext, {
-    encodedData,
-    destinationConnextAddress,
+  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+    relayer: relayerAddress,
+    connext: destinationConnextAddress,
     domain: transfer.destinationDomain,
+    gas: gas.toString(),
+    relayerFee,
   });
   const result = await gelatoSend(
     destinationChainId,
@@ -80,13 +74,8 @@ export const sendToRelayer = async (
   } else {
     const { taskId } = result;
     logger.info("Sent to Gelato network", requestContext, methodContext, {
-      result,
       taskId,
-      // response: response.data,
     });
     return taskId;
   }
-
-  // const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
-  // TODO: check response, if it didn't work, send the next!
 };

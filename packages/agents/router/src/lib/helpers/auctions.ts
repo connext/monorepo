@@ -19,7 +19,7 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
 
   const { transferId } = bid;
 
-  logger.info("Sending bid to sequencer", requestContext, methodContext, {
+  logger.debug("Sending bid to sequencer", requestContext, methodContext, {
     transferId,
     // Remove actual signatures (sensitive data) from logs, but list participating rounds.
     bid: { ...bid, signatures: Object.keys(bid.signatures).join(",") },

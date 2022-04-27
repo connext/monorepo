@@ -1,7 +1,7 @@
 import { Bid, ExecuteArgs, expect, XTransfer } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
-import { encodeExecuteFromBids } from "../../../src/lib/helpers/auctions";
+import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
 import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 
@@ -28,7 +28,7 @@ describe("Helpers:Auctions", () => {
         params: {
           originDomain: transfer.originDomain,
           destinationDomain: transfer.destinationDomain,
-          to: transfer.callTo,
+          to: transfer.to,
           callData: transfer.callData,
         },
         local: transfer.xcall.localAsset,
@@ -50,6 +50,26 @@ describe("Helpers:Auctions", () => {
       const bids: Bid[] = [mock.entity.bid()];
 
       expect(() => encodeExecuteFromBids(bids, transfer)).to.throw();
+    });
+  });
+
+  describe("#getDestinationLocalAsset", () => {
+    it("should return the local asset for the destination chain", async () => {
+      const canonicalId = "0x123";
+      const mockLocalAsset = "0x456";
+      (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ canonicalId });
+      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ local: mockLocalAsset });
+      const origin = mock.domain.A;
+      const originLocal = mock.asset.A.address;
+      const destination = mock.domain.B;
+
+      const localAsset = await getDestinationLocalAsset(origin, originLocal, destination);
+      expect(localAsset).to.be.eq(mockLocalAsset);
+      expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
+      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(
+        Number(destination),
+        canonicalId,
+      );
     });
   });
 });
