@@ -80,6 +80,7 @@ library ConnextLogic {
     ITokenRegistry tokenRegistry;
     IWrapped wrapper;
     IExecutor executor;
+    PromiseRouter promiseRouter;
     uint256 liquidityFeeNumerator;
     uint256 liquidityFeeDenominator;
   }
@@ -889,7 +890,7 @@ library ConnextLogic {
     } else {
       // execute calldata w/funds
       AssetLogic.transferAssetFromContract(_adopted, address(_args.executor), _amount, _args.wrapper);
-      _args.executor.execute(
+      (bool success, bytes memory returnData) = _args.executor.execute(
         _transferId,
         _amount,
         payable(_args.executeArgs.params.to),
@@ -902,6 +903,17 @@ library ConnextLogic {
           : LibCrossDomainProperty.EMPTY_BYTES,
         _args.executeArgs.params.callData
       );
+
+      // If callback address is not zero, send on the PromiseRouter
+      if (_args.executeArgs.params.callback != address(0)) {
+        _args.promiseRouter.send(
+          _args.executeArgs.params.originDomain,
+          _transferId,
+          _args.executeArgs.params.callback,
+          success,
+          returnData
+        );
+      }
     }
   }
 

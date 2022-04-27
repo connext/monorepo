@@ -460,6 +460,7 @@ contract ConnextHandler is
       tokenRegistry: tokenRegistry,
       wrapper: wrapper,
       executor: executor,
+      promiseRouter: promiseRouter,
       liquidityFeeNumerator: LIQUIDITY_FEE_NUMERATOR,
       liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
     });
