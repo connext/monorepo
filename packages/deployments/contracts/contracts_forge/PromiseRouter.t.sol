@@ -90,6 +90,7 @@ contract PromiseRouterTest is ForgeHelper {
   );
 
   event CallbackFeeAdded(bytes32 indexed transferId, uint256 addedFee, uint256 totalFee, address caller);
+  event CallbackExecuted(bytes32 indexed transferId, bool success, address relayer);
 
   event SetConnext(address indexed connext);
 
@@ -122,14 +123,14 @@ contract PromiseRouterTest is ForgeHelper {
 
     promiseRouterImpl = new MockPromiseRouter();
     promiseRouterImpl.initialize(xAppConnectionManager);
-    
+
     // proxy = new ERC1967Proxy(
     //   address(promiseRouterImpl),
     //   abi.encodeWithSelector(MockPromiseRouter.initialize.selector, xAppConnectionManager)
     // );
-    
+
     // promiseRouter = MockPromiseRouter(payable(address(proxy)));
-    
+
     promiseRouter.setConnext(address(connext));
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
   }
@@ -317,6 +318,9 @@ contract PromiseRouterTest is ForgeHelper {
       address(callback),
       abi.encodeWithSelector(MockCallback.callback.selector, transferId, success, returnData)
     );
+
+    vm.expectEmit(true, true, true, true);
+    emit CallbackExecuted(transferId, true, relayer);
 
     vm.prank(relayer);
     promiseRouter.process(transferId);

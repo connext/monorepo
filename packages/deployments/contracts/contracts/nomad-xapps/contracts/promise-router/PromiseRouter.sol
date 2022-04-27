@@ -103,7 +103,22 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bytes message
   );
 
+  /**
+   * @notice Emitted when transaction fee for callback added
+   * @param transferId The transferId
+   * @param addedFee The fee amount that added newly
+   * @param totalFee The total fee amount, can be bumped by multiple times
+   * @param caller The transaction caller
+   */
   event CallbackFeeAdded(bytes32 indexed transferId, uint256 addedFee, uint256 totalFee, address caller);
+
+  /**
+   * @notice Emitted when callback function executed
+   * @param transferId The transferId
+   * @param success If the callback executed successfully or not
+   * @param relayer The address of the relayer which executed the callback
+   */
+  event CallbackExecuted(bytes32 indexed transferId, bool success, address relayer);
 
   /**
    * @notice Emitted when a new Connext address is set
@@ -223,8 +238,12 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
     if (!AddressUpgradeable.isContract(callbackAddress)) revert PromiseRouter__process_notContractCallback();
 
-    ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
+    (bool success, ) = callbackAddress.call(
+      abi.encodeWithSelector(ICallback.callback.selector, transferId, _msg.returnSuccess(), _msg.returnData())
+    );
     delete promiseMessages[transferId];
+
+    emit CallbackExecuted(transferId, success, msg.sender);
 
     // Should transfer the stored relayer fee to the msg.sender
     AddressUpgradeable.sendValue(payable(msg.sender), callbackFees[transferId]);
