@@ -6,6 +6,7 @@ pragma solidity ^0.8.11;
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {RelayerFeeRouter} from "../../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Router} from "../Router.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
@@ -70,6 +71,11 @@ contract ConnextHandler is
    * @notice The local nomad relayer fee router
    */
   RelayerFeeRouter public relayerFeeRouter;
+
+  /**
+   * @notice The local nomad promise router
+   */
+  PromiseRouter public promiseRouter;
 
   /**
    * @notice The address of the wrapper for the native asset on this domain
@@ -195,7 +201,8 @@ contract ConnextHandler is
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative,
-    address _relayerFeeRouter
+    address _relayerFeeRouter,
+    address payable _promiseRouter
   ) public override initializer {
     __XAppConnectionClient_initialize(_xAppConnectionManager);
     __ReentrancyGuard_init();
@@ -204,6 +211,7 @@ contract ConnextHandler is
     nonce = 0;
     domain = _domain;
     relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+    promiseRouter = PromiseRouter(_promiseRouter);
     executor = new Executor(address(this));
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     wrapper = IWrapped(_wrappedNative);
@@ -398,7 +406,8 @@ contract ConnextHandler is
       tokenRegistry: tokenRegistry,
       domain: domain,
       home: xAppConnectionManager.home(),
-      remote: remote
+      remote: remote,
+      promiseRouter: promiseRouter
     });
 
     (bytes32 transferId, uint256 newNonce) = ConnextLogic.xcall(

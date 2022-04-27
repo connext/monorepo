@@ -10,6 +10,7 @@ import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol"
 import {AssetLogic} from "./AssetLogic.sol";
 
 import {RelayerFeeRouter} from "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {ITokenRegistry, IBridgeToken} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {ConnextMessage} from "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
@@ -62,6 +63,7 @@ library ConnextLogic {
     uint256 domain;
     Home home;
     bytes32 remote;
+    PromiseRouter promiseRouter;
   }
 
   struct XCalledEventArgs {
@@ -743,7 +745,7 @@ library ConnextLogic {
     (, uint256 amount) = AssetLogic.handleIncomingAsset(
       _args.xCallArgs.transactingAssetId,
       _args.xCallArgs.amount,
-      _args.xCallArgs.relayerFee,
+      _args.xCallArgs.relayerFee + _args.xCallArgs.params.callbackFee,
       _args.wrapper
     );
 
@@ -757,6 +759,11 @@ library ConnextLogic {
     );
 
     bytes32 transferId = _getTransferId(_args, canonical);
+
+    // Transfer callback fee to PromiseRouter if set
+    if (_args.xCallArgs.params.callbackFee != 0) {
+      _args.promiseRouter.bumpCallbackFee{value: _args.xCallArgs.params.callbackFee}(transferId);
+    }
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     _args.home.dispatch(_args.xCallArgs.params.destinationDomain, _args.remote, message);
