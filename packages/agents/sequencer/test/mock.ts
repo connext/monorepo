@@ -66,6 +66,7 @@ export const mock = {
     mode: {
       cleanup: false,
     },
+    environment: "staging",
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -119,7 +120,12 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20 = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
+        erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
@@ -133,7 +139,7 @@ export const mock = {
       isChainSupportedByGelato: stub(),
     },
     auctions: {
-      encodeExecuteFromBid: stub(),
+      encodeExecuteFromBids: stub(),
     },
   },
   operations: {

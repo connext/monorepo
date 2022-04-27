@@ -77,6 +77,11 @@ export const mock = {
       cleanup: false,
       priceCaching: false,
     },
+    polling: {
+      subgraph: 10_000,
+      cache: 10_000,
+    },
+    environment: "staging",
   }),
   adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {
@@ -142,7 +147,12 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20 = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
+        erc20: erc20 as any,
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
@@ -156,6 +166,7 @@ export const mock = {
           abi: {},
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
+        tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
       };
     },
   },
@@ -170,7 +181,7 @@ export const mock = {
     shared: {
       getDestinationLocalAsset: stub(),
       getTransactionId: stub(),
-      signHandleRelayerFeePayload: stub(),
+      signRouterPathPayload: stub(),
     },
   },
   operations: {

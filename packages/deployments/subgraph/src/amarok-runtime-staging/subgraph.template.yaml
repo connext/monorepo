@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./src/amarok-runtime-v0/schema.graphql
+  file: ./src/amarok-runtime-staging/schema.graphql
 dataSources:
   # RouterPermissionsManagerLogic.sol events
   - kind: ethereum/contract
@@ -15,14 +15,14 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/amarok-runtime-v0/mapping.ts
+      file: ./src/amarok-runtime-staging/mapping.ts
       entities:
         - Router
       abis:
-        - name: Connext
-          file: ./src/amarok-runtime-v0/abis/Connext.json
+        - name: ConnextHandler
+          file: ./src/amarok-runtime-staging/abis/ConnextHandler.json
         - name: RouterPermissionsManagerLogic
-          file: ./src/amarok-runtime-v0/abis/RouterPermissionsManagerLogic.json
+          file: ./src/amarok-runtime-staging/abis/RouterPermissionsManagerLogic.json
       eventHandlers:
         - event: RouterAdded(indexed address,address)
           topic0: "0xbc68405e644da2aaf25623ce2199da82c6dfd2e1de102b400eba6a091704d4f4"
@@ -40,13 +40,13 @@ dataSources:
           topic0: "0xd73892e8827a6025d74a01fca72a8e0d9e2c04080272e728f8861410c7d3c2d1"
           handler: handleRouterOwnerAccepted
 
-  # Connext.sol events
+  # ConnextHandler.sol events
   - kind: ethereum/contract
     name: Connext
     network: "{{network}}"
     source:
       address: "{{address}}"
-      abi: Connext
+      abi: ConnextUtils
       # prettier-ignore
       startBlock: {{startBlock}}
     mapping:
@@ -54,26 +54,37 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
+        - Asset
         - AssetBalance
         - Router
-        - Transaction
+        - Transfer
       abis:
-        - name: Connext
-          file: ./src/amarok-runtime-v0/abis/Connext.json
+        - name: ConnextHandler
+          file: ./src/amarok-runtime-staging/abis/ConnextHandler.json
+        - name: ConnextUtils
+          file: ./src/amarok-runtime-staging/abis/ConnextUtils.json
       eventHandlers:
+        # AssetAdded: canonicalId, domain, adoptedAsset, supportedAsset, caller
         - event: AssetAdded(bytes32,uint32,address,address,address)
           handler: handleAssetAdded
+          # LiquidityAdded: router, local, canonicalId, amount, caller
         - event: LiquidityAdded(indexed address,address,bytes32,uint256,address)
           handler: handleLiquidityAdded
+          # LiquidityRemoved: router, to, local, amount, caller
         - event: LiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleLiquidityRemoved
-        - event: XCalled(indexed bytes32,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,uint256,address)
+          # XCalled: transferId, xcallArgs(params(to, callData, originDomain, destinationDomain), transactingAssetId, amount, relayerFee),
+          #   args(transactingAssetId, amount, bridgedAmt, bridged), nonce, message, caller
+        - event: XCalled(indexed bytes32,((address,bytes,uint32,uint32),address,uint256,uint256),(address,uint256,uint256,address),uint256,bytes,address)
           handler: handleXCalled
-        - event: Executed(indexed bytes32,indexed address,indexed address,(address,bytes,uint32,uint32),address,address,uint256,uint256,address)
+          # Executed: transferId, to, args(params(to, callData, originDomain, destinationDomain), local, routers, amount, nonce, originSender),
+          #   transactingAsset, transactingAmount, caller
+        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32),address,address[],uint256,uint256,address),address,uint256,address)
           handler: handleExecuted
-        - event: Reconciled(indexed bytes32,indexed uint32,address,address,uint256,(address[],uint256),address)
+          # Reconciled: transferId, origin, routers, asset, amount, caller
+        - event: Reconciled(indexed bytes32,indexed uint32,address[],address,uint256,address)
           handler: handleReconciled
-      file: ./src/amarok-runtime-v0/mapping.ts
+      file: ./src/amarok-runtime-staging/mapping.ts
 
   # - kind: ethereum/contract
   #   name: TokenRegistry
@@ -91,8 +102,8 @@ dataSources:
   #       - Token
   #     abis:
   #       - name: TokenRegistry
-  #         file: ./src/amarok-runtime-v0/abis/TokenRegistry.json
+  #         file: ./src/amarok-runtime-staging/abis/TokenRegistry.json
   #     eventHandlers:
   #       - event: TokenDeployed(indexed uint32,indexed bytes32,indexed address)
   #         handler: handleTokenDeployed
-  #     file: ./src/amarok-runtime-v0/mapping.ts
+  #     file: ./src/amarok-runtime-staging/mapping.ts
