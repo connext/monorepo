@@ -51,7 +51,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         [deployer] = await ethers.getUnnamedSigners();
       }
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
@@ -107,7 +107,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
 
       // Make sure router's signer address is approved.
-      const isRouterApproved = await connext.approvedRouters(router);
+      const isRouterApproved = await connext.getRouterApproval(router);
       console.log("\nRouter: ", router, " is approved: ", isRouterApproved);
       if (!isRouterApproved) {
         console.log("*** Approving router!");
@@ -168,30 +168,6 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       } else {
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Sufficient liquidity present!");
-      }
-
-      // Make sure the router's signer address has relayer fees by checking the
-      // Connext contract on chain and reading the routerRelayerFees function.
-      const targetRelayerFees = utils.parseEther(DEFAULT_RELAYER_FEES_ETH);
-      let relayerFees: BigNumber = await connext.routerRelayerFees(router);
-      console.log("\nRelayer Fees: ", relayerFees.toString());
-      console.log("Target relayer fees: ", targetRelayerFees.toString(), `(${DEFAULT_RELAYER_FEES_ETH} ETH)`);
-      if (relayerFees.lt(targetRelayerFees)) {
-        console.log("*** Adding relayer fee ETH!");
-        const additionalEthNeeded = targetRelayerFees.sub(relayerFees);
-        const tx = await connext.addRelayerFees(router, {
-          value: additionalEthNeeded,
-        });
-        console.log("addRelayerFees tx:", tx.hash);
-        await tx.wait(1);
-        relayerFees = await connext.routerRelayerFees(router);
-        console.log("Updated Relayer Fees: ", relayerFees.toString());
-        if (relayerFees.lt(targetRelayerFees)) {
-          throw new Error(`Failed to add relayer fees! Needed to add:  ${additionalEthNeeded.toString()}`);
-        }
-        console.log("*** Sufficient relayer fees added!");
-      } else {
-        console.log("*** Sufficient relayer fees present!");
       }
 
       if (relayer) {

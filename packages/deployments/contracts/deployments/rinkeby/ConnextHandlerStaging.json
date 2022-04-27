@@ -1,5 +1,5 @@
 {
-  "address": "0x7A54f67a36428835f52aA053C43ee0e94A37956e",
+  "address": "0x53bA0A0Fe47e4B079EF33AAF90f1e87F28E46a9B",
   "abi": [
     {
       "anonymous": false,
@@ -126,107 +126,42 @@
     },
     {
       "inputs": [],
-      "name": "AssetLogic__transferAssetFromContract_notNative",
+      "name": "ConnextHandler__addLiquidityForRouter_amountIsZero",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addAssetId_alreadyAdded",
+      "name": "ConnextHandler__addLiquidityForRouter_badAsset",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addLiquidityForRouter_amountIsZero",
+      "name": "ConnextHandler__addLiquidityForRouter_badRouter",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addLiquidityForRouter_badAsset",
+      "name": "ConnextHandler__addLiquidityForRouter_routerEmpty",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addLiquidityForRouter_badRouter",
+      "name": "ConnextHandler__bumpTransfer_valueIsZero",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addLiquidityForRouter_routerEmpty",
+      "name": "ConnextHandler__execute_unapprovedRelayer",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addRelayerFees_notValue",
+      "name": "ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "Connext__addRelayer_alreadyApproved",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__decrementLiquidity_maxRoutersExceeded",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__decrementLiquidity_notEmpty",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__execute_notSlowParams",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__handleRelayerFees_notApprovedRelayer",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__handleRelayerFees_notRtrSig",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__onlyBridgeRouter_notBridge",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__removeAssetId_notAdded",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__removeLiquidity_amountIsZero",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__removeLiquidity_insufficientFunds",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__removeLiquidity_recipientEmpty",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__removeRelayer_notApproved",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "Connext__xcall_notSupportedAsset",
+      "name": "ConnextHandler__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
       "type": "error"
     },
     {
@@ -329,43 +264,6 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint32",
-          "name": "domain",
-          "type": "uint32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "adoptedAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "supportedAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "AssetAdded",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
           "internalType": "bool",
           "name": "renounced",
           "type": "bool"
@@ -385,201 +283,6 @@
         }
       ],
       "name": "AssetOwnershipRenunciationProposed",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "AssetRemoved",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "transferId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "router",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "callData",
-              "type": "bytes"
-            },
-            {
-              "internalType": "uint32",
-              "name": "originDomain",
-              "type": "uint32"
-            },
-            {
-              "internalType": "uint32",
-              "name": "destinationDomain",
-              "type": "uint32"
-            }
-          ],
-          "indexed": false,
-          "internalType": "struct IConnext.CallParams",
-          "name": "params",
-          "type": "tuple"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "localAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "transactingAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "localAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "transactingAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "Executed",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "router",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "local",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "LiquidityAdded",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "router",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "local",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "LiquidityRemoved",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "maxRoutersPerTransfer",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "MaxRoutersPerTransferUpdated",
       "type": "event"
     },
     {
@@ -618,105 +321,6 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "transferId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint32",
-          "name": "origin",
-          "type": "uint32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "localAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "localAmount",
-          "type": "uint256"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address[]",
-              "name": "routers",
-              "type": "address[]"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "indexed": false,
-          "internalType": "struct IConnext.ExecutedTransfer",
-          "name": "executed",
-          "type": "tuple"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "Reconciled",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "relayer",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "RelayerAdded",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "relayer",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "RelayerRemoved",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
           "indexed": false,
           "internalType": "bool",
           "name": "renounced",
@@ -740,118 +344,30 @@
       "type": "event"
     },
     {
-      "anonymous": false,
-      "inputs": [
+      "inputs": [],
+      "name": "LIQUIDITY_FEE_DENOMINATOR",
+      "outputs": [
         {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint32",
-          "name": "domain",
-          "type": "uint32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "swapPool",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
-      "name": "StableSwapAdded",
-      "type": "event"
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      "anonymous": false,
-      "inputs": [
+      "inputs": [],
+      "name": "LIQUIDITY_FEE_NUMERATOR",
+      "outputs": [
         {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "transferId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes",
-              "name": "callData",
-              "type": "bytes"
-            },
-            {
-              "internalType": "uint32",
-              "name": "originDomain",
-              "type": "uint32"
-            },
-            {
-              "internalType": "uint32",
-              "name": "destinationDomain",
-              "type": "uint32"
-            }
-          ],
-          "indexed": false,
-          "internalType": "struct IConnext.CallParams",
-          "name": "params",
-          "type": "tuple"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "transactingAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "localAsset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
           "internalType": "uint256",
-          "name": "transactingAmount",
+          "name": "",
           "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "localAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "nonce",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
         }
       ],
-      "name": "XCalled",
-      "type": "event"
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -877,12 +393,12 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "amount",
+          "name": "_amount",
           "type": "uint256"
         },
         {
           "internalType": "address",
-          "name": "local",
+          "name": "_local",
           "type": "address"
         }
       ],
@@ -895,17 +411,17 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "amount",
+          "name": "_amount",
           "type": "uint256"
         },
         {
           "internalType": "address",
-          "name": "local",
+          "name": "_local",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "router",
+          "name": "_router",
           "type": "address"
         }
       ],
@@ -918,26 +434,13 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "relayer",
+          "name": "_relayer",
           "type": "address"
         }
       ],
       "name": "addRelayer",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "router",
-          "type": "address"
-        }
-      ],
-      "name": "addRelayerFees",
-      "outputs": [],
-      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -955,13 +458,13 @@
               "type": "bytes32"
             }
           ],
-          "internalType": "struct BridgeMessage.TokenId",
-          "name": "canonical",
+          "internalType": "struct ConnextMessage.TokenId",
+          "name": "_canonical",
           "type": "tuple"
         },
         {
           "internalType": "address",
-          "name": "stableSwapPool",
+          "name": "_stableSwapPool",
           "type": "address"
         }
       ],
@@ -1052,25 +555,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_approved",
-          "type": "address"
-        }
-      ],
-      "name": "approvedRouters",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "assetOwnershipTimestamp",
       "outputs": [
@@ -1084,16 +568,16 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "bridgeRouter",
-      "outputs": [
+      "inputs": [
         {
-          "internalType": "contract BridgeRouter",
-          "name": "",
-          "type": "address"
+          "internalType": "bytes32",
+          "name": "_transferId",
+          "type": "bytes32"
         }
       ],
-      "stateMutability": "view",
+      "name": "bumpTransfer",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -1113,6 +597,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_transferIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1144,6 +646,24 @@
     {
       "inputs": [
         {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_router",
+          "type": "bytes32"
+        }
+      ],
+      "name": "enrollRemoteRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "components": [
             {
               "components": [
@@ -1168,7 +688,7 @@
                   "type": "uint32"
                 }
               ],
-              "internalType": "struct IConnext.CallParams",
+              "internalType": "struct IConnextHandler.CallParams",
               "name": "params",
               "type": "tuple"
             },
@@ -1183,9 +703,9 @@
               "type": "address[]"
             },
             {
-              "internalType": "uint32",
-              "name": "feePercentage",
-              "type": "uint32"
+              "internalType": "bytes[]",
+              "name": "routerSignatures",
+              "type": "bytes[]"
             },
             {
               "internalType": "uint256",
@@ -1198,17 +718,12 @@
               "type": "uint256"
             },
             {
-              "internalType": "bytes",
-              "name": "relayerSignature",
-              "type": "bytes"
-            },
-            {
               "internalType": "address",
               "name": "originSender",
               "type": "address"
             }
           ],
-          "internalType": "struct IConnext.ExecuteArgs",
+          "internalType": "struct IConnextHandler.ExecuteArgs",
           "name": "_args",
           "type": "tuple"
         }
@@ -1217,7 +732,7 @@
       "outputs": [
         {
           "internalType": "bytes32",
-          "name": "",
+          "name": "transferId",
           "type": "bytes32"
         }
       ],
@@ -1240,13 +755,136 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getProposedRouterOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getProposedRouterOwnerTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterApproval",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterRecipient",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_origin",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_nonce",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_sender",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_message",
+          "type": "bytes"
+        }
+      ],
+      "name": "handle",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "_domain",
           "type": "uint256"
         },
         {
-          "internalType": "address payable",
-          "name": "_bridgeRouter",
+          "internalType": "address",
+          "name": "_xAppConnectionManager",
           "type": "address"
         },
         {
@@ -1258,9 +896,37 @@
           "internalType": "address",
           "name": "_wrappedNative",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_relayerFeeRouter",
+          "type": "address"
         }
       ],
       "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_transferIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "initiateClaim",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1389,44 +1055,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_router",
-          "type": "address"
-        }
-      ],
-      "name": "proposedRouterOwners",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_router",
-          "type": "address"
-        }
-      ],
-      "name": "proposedRouterTimestamp",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "proposedTimestamp",
       "outputs": [
@@ -1443,33 +1071,32 @@
       "inputs": [
         {
           "internalType": "bytes32",
-          "name": "_transferId",
+          "name": "",
           "type": "bytes32"
-        },
-        {
-          "internalType": "uint32",
-          "name": "_origin",
-          "type": "uint32"
-        },
-        {
-          "internalType": "address",
-          "name": "_local",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_recipient",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
         }
       ],
-      "name": "reconcile",
-      "outputs": [],
-      "stateMutability": "payable",
+      "name": "reconciledTransfers",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "relayerFeeRouter",
+      "outputs": [
+        {
+          "internalType": "contract RelayerFeeRouter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1480,7 +1107,26 @@
           "type": "bytes32"
         }
       ],
-      "name": "reconciledTransfers",
+      "name": "relayerFees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "remotes",
       "outputs": [
         {
           "internalType": "bytes32",
@@ -1495,12 +1141,12 @@
       "inputs": [
         {
           "internalType": "bytes32",
-          "name": "canonicalId",
+          "name": "_canonicalId",
           "type": "bytes32"
         },
         {
           "internalType": "address",
-          "name": "adoptedAssetId",
+          "name": "_adoptedAssetId",
           "type": "address"
         }
       ],
@@ -1513,17 +1159,17 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "amount",
+          "name": "_amount",
           "type": "uint256"
         },
         {
           "internalType": "address",
-          "name": "local",
+          "name": "_local",
           "type": "address"
         },
         {
           "internalType": "address payable",
-          "name": "to",
+          "name": "_to",
           "type": "address"
         }
       ],
@@ -1536,7 +1182,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "relayer",
+          "name": "_relayer",
           "type": "address"
         }
       ],
@@ -1548,26 +1194,8 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address payable",
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "removeRelayerFees",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
-          "name": "router",
+          "name": "_router",
           "type": "address"
         }
       ],
@@ -1616,38 +1244,19 @@
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "name": "routedTransfers",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
+          "internalType": "address",
           "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "routedTransfersGas",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "gasUsed",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "gasPrice",
-          "type": "uint256"
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -1678,25 +1287,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_router",
-          "type": "address"
-        }
-      ],
-      "name": "routerOwners",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "routerOwnershipTimestamp",
       "outputs": [
@@ -1712,46 +1302,8 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_router",
-          "type": "address"
-        }
-      ],
-      "name": "routerRecipients",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "routerRelayerFees",
-      "outputs": [
-        {
           "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "newMaxRouters",
+          "name": "_newMaxRouters",
           "type": "uint256"
         }
       ],
@@ -1781,6 +1333,19 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_xAppConnectionManager",
+          "type": "address"
+        }
+      ],
+      "name": "setXAppConnectionManager",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "components": [
             {
               "internalType": "uint32",
@@ -1793,18 +1358,18 @@
               "type": "bytes32"
             }
           ],
-          "internalType": "struct BridgeMessage.TokenId",
-          "name": "canonical",
+          "internalType": "struct ConnextMessage.TokenId",
+          "name": "_canonical",
           "type": "tuple"
         },
         {
           "internalType": "address",
-          "name": "adoptedAssetId",
+          "name": "_adoptedAssetId",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "stableSwapPool",
+          "name": "_stableSwapPool",
           "type": "address"
         }
       ],
@@ -1817,17 +1382,17 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "router",
+          "name": "_router",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "owner",
+          "name": "_owner",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "recipient",
+          "name": "_recipient",
           "type": "address"
         }
       ],
@@ -1841,7 +1406,26 @@
       "name": "tokenRegistry",
       "outputs": [
         {
-          "internalType": "contract TokenRegistry",
+          "internalType": "contract ITokenRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "transferRelayer",
+      "outputs": [
+        {
+          "internalType": "address",
           "name": "",
           "type": "address"
         }
@@ -1855,6 +1439,19 @@
       "outputs": [
         {
           "internalType": "contract IWrapped",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "xAppConnectionManager",
+      "outputs": [
+        {
+          "internalType": "contract XAppConnectionManager",
           "name": "",
           "type": "address"
         }
@@ -1889,7 +1486,7 @@
                   "type": "uint32"
                 }
               ],
-              "internalType": "struct IConnext.CallParams",
+              "internalType": "struct IConnextHandler.CallParams",
               "name": "params",
               "type": "tuple"
             },
@@ -1902,9 +1499,14 @@
               "internalType": "uint256",
               "name": "amount",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "relayerFee",
+              "type": "uint256"
             }
           ],
-          "internalType": "struct IConnext.XCallArgs",
+          "internalType": "struct IConnextHandler.XCallArgs",
           "name": "_args",
           "type": "tuple"
         }
@@ -1942,66 +1544,66 @@
       "type": "constructor"
     }
   ],
-  "transactionHash": "0xcc4897a4f4152b52501156abe26ef87932155602f012efec88a0b96306fd9b53",
+  "transactionHash": "0x48946f763a8bf6f4293346d696345f87ff92f0b833bbaaeb090f80170081aff7",
   "receipt": {
     "to": null,
     "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
-    "contractAddress": "0x7A54f67a36428835f52aA053C43ee0e94A37956e",
-    "transactionIndex": 17,
-    "gasUsed": "2076677",
-    "logsBloom": "0x00000000000000000000000000000000400010000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000401000000000000000000000000000000000000060000000000000000000800000000800000000000000000000000400000000000000000000000000000000008000000000000000000000000800000000000000000000100000000000000000080000000000000000000000000000000000020000000000000000000000000000400000400040000080000000020000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0xb101a3903c0b2b443bc34f51f74905cb7df6175b4c46ab9969a3c36c8036b40d",
-    "transactionHash": "0xcc4897a4f4152b52501156abe26ef87932155602f012efec88a0b96306fd9b53",
+    "contractAddress": "0x53bA0A0Fe47e4B079EF33AAF90f1e87F28E46a9B",
+    "transactionIndex": 21,
+    "gasUsed": "2144119",
+    "logsBloom": "0x00000000004000000000000000000000400010000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000401000000000000000000000000000008000000020000000000000000000800000000800000000000000000000000400000000008000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000400000000080000000020000000000000000000000000000000000000000000000000000000000010000002",
+    "blockHash": "0x724ad39d6c7adb818a0fd0c8c08111eaeb315636750de005a239a444931927e8",
+    "transactionHash": "0x48946f763a8bf6f4293346d696345f87ff92f0b833bbaaeb090f80170081aff7",
     "logs": [
       {
-        "transactionIndex": 17,
-        "blockNumber": 10567092,
-        "transactionHash": "0xcc4897a4f4152b52501156abe26ef87932155602f012efec88a0b96306fd9b53",
-        "address": "0x7A54f67a36428835f52aA053C43ee0e94A37956e",
+        "transactionIndex": 21,
+        "blockNumber": 10575490,
+        "transactionHash": "0x48946f763a8bf6f4293346d696345f87ff92f0b833bbaaeb090f80170081aff7",
+        "address": "0x53bA0A0Fe47e4B079EF33AAF90f1e87F28E46a9B",
         "topics": [
           "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b",
-          "0x0000000000000000000000009f1bfdded1ddd579ef0ba33cbeb4868c6a3fe9f8"
+          "0x000000000000000000000000740ffca56a41fcb9846fa89e633e7b5a18cd8408"
         ],
         "data": "0x",
-        "logIndex": 1,
-        "blockHash": "0xb101a3903c0b2b443bc34f51f74905cb7df6175b4c46ab9969a3c36c8036b40d"
+        "logIndex": 14,
+        "blockHash": "0x724ad39d6c7adb818a0fd0c8c08111eaeb315636750de005a239a444931927e8"
       },
       {
-        "transactionIndex": 17,
-        "blockNumber": 10567092,
-        "transactionHash": "0xcc4897a4f4152b52501156abe26ef87932155602f012efec88a0b96306fd9b53",
-        "address": "0x7A54f67a36428835f52aA053C43ee0e94A37956e",
+        "transactionIndex": 21,
+        "blockNumber": 10575490,
+        "transactionHash": "0x48946f763a8bf6f4293346d696345f87ff92f0b833bbaaeb090f80170081aff7",
+        "address": "0x53bA0A0Fe47e4B079EF33AAF90f1e87F28E46a9B",
         "topics": [
           "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x00000000000000000000000054baa998771639628ffc0206c3b916c466b79c89"
         ],
         "data": "0x",
-        "logIndex": 2,
-        "blockHash": "0xb101a3903c0b2b443bc34f51f74905cb7df6175b4c46ab9969a3c36c8036b40d"
+        "logIndex": 15,
+        "blockHash": "0x724ad39d6c7adb818a0fd0c8c08111eaeb315636750de005a239a444931927e8"
       },
       {
-        "transactionIndex": 17,
-        "blockNumber": 10567092,
-        "transactionHash": "0xcc4897a4f4152b52501156abe26ef87932155602f012efec88a0b96306fd9b53",
-        "address": "0x7A54f67a36428835f52aA053C43ee0e94A37956e",
+        "transactionIndex": 21,
+        "blockNumber": 10575490,
+        "transactionHash": "0x48946f763a8bf6f4293346d696345f87ff92f0b833bbaaeb090f80170081aff7",
+        "address": "0x53bA0A0Fe47e4B079EF33AAF90f1e87F28E46a9B",
         "topics": [
           "0x7e644d79422f17c01e4894b5f4f588d331ebfa28653d42ae832dc59e38c9798f"
         ],
-        "data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000008b48a9e32d332e4894e3946d7036b64b5aad14a8",
-        "logIndex": 3,
-        "blockHash": "0xb101a3903c0b2b443bc34f51f74905cb7df6175b4c46ab9969a3c36c8036b40d"
+        "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000039f922a71efb7570f718375a37a97329ff9ae9d2",
+        "logIndex": 16,
+        "blockHash": "0x724ad39d6c7adb818a0fd0c8c08111eaeb315636750de005a239a444931927e8"
       }
     ],
-    "blockNumber": 10567092,
-    "cumulativeGasUsed": "2749549",
+    "blockNumber": 10575490,
+    "cumulativeGasUsed": "4522595",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0x9F1bfDdED1dDD579EF0Ba33cBeB4868C6a3FE9F8",
-    "0x8b48A9E32D332E4894e3946d7036B64B5Aad14a8",
-    "0x754d1d540000000000000000000000000000000000000000000000000000000000000457000000000000000000000000858ac1d39b80f8b0fb7499d4ee6869542cbe665200000000000000000000000046da2894aea868f6c86eff925a5d1834e7068b8a000000000000000000000000c778417e063141139fce010982780140aa0cd5ab"
+    "0x740fFCa56a41FCB9846Fa89E633E7B5a18cD8408",
+    "0x39f922A71Efb7570F718375A37A97329FF9Ae9D2",
+    "0x3641e0830000000000000000000000000000000000000000000000000000000000000457000000000000000000000000becfc473bb8c4d09dcc9d98ddb543dad7ac369a700000000000000000000000029dd9c0edfa5bcc4324df4f981b9951ab1165b81000000000000000000000000c778417e063141139fce010982780140aa0cd5ab000000000000000000000000961c661f0b71767248b471e481ba4fc6d086f8c2"
   ],
   "numDeployments": 1,
   "solcInputHash": "0e89febeebc7444140de8e67c9067d2c",
@@ -2012,12 +1614,13 @@
     "methodName": "initialize",
     "args": [
       1111,
-      "0x858aC1d39B80f8b0fb7499d4ee6869542cbe6652",
-      "0x46Da2894aeA868F6c86EFf925A5D1834E7068b8A",
-      "0xc778417E063141139Fce010982780140Aa0cD5Ab"
+      "0xbEcFc473bB8c4D09DcC9d98DDb543dAd7Ac369A7",
+      "0x29DD9c0EdfA5BcC4324Df4F981b9951AB1165B81",
+      "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+      "0x961c661F0B71767248b471e481BA4Fc6d086f8c2"
     ]
   },
-  "implementation": "0x9F1bfDdED1dDD579EF0Ba33cBeB4868C6a3FE9F8",
+  "implementation": "0x740fFCa56a41FCB9846Fa89E633E7B5a18cD8408",
   "devdoc": {
     "details": "This contract implements a proxy that is upgradeable by an admin. To avoid https://medium.com/nomic-labs-blog/malicious-backdoors-in-ethereum-proxies-62629adf3357[proxy selector clashing], which can potentially be used in an attack, this contract uses the https://blog.openzeppelin.com/the-transparent-proxy-pattern/[transparent proxy pattern]. This pattern implies two things that go hand in hand: 1. If any account other than the admin calls the proxy, the call will be forwarded to the implementation, even if that call matches one of the admin functions exposed by the proxy itself. 2. If the admin calls the proxy, it can access the admin functions, but its calls will never be forwarded to the implementation. If the admin tries to call a function on the implementation it will fail with an error that says \"admin cannot fallback to proxy target\". These properties mean that the admin account can only be used for admin actions like upgrading the proxy or changing the admin, so it's best if it's a dedicated account that is not used for anything else. This will avoid headaches due to sudden errors when trying to call a function from the proxy implementation. Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way, you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.",
     "kind": "dev",

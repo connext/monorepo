@@ -42,7 +42,7 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("asset: ", asset);
       console.log("deployer: ", deployer.address);
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);
@@ -70,7 +70,7 @@ export default task("add-liquidity", "Add liquidity for a router")
         amount = utils.parseEther(_amount);
       }
 
-      const approvedRouter = await connext.approvedRouters(router);
+      const approvedRouter = await connext.getRouterApproval(router);
       console.log("approvedRouter: ", approvedRouter);
       if (!approvedRouter) {
         throw new Error("Router not approved");
