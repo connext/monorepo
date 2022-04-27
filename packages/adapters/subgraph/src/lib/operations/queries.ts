@@ -258,7 +258,11 @@ export const getExecutedTransfersByIdsQuery = (
       console.log(`No agents for domain: ${destinationDomain}`);
     }
   }
-  return combinedQuery;
+  return gql`
+    query GetExecutedTransfersByIds { 
+        ${combinedQuery}
+      }
+  `;
 };
 const reconciledTransfersByIdsQueryString = (
   prefix: string,
@@ -341,7 +345,11 @@ export const getReconciledTransfersByIdsQuery = (
       console.log(`No agents for domain: ${destinationDomain}`);
     }
   }
-  return combinedQuery;
+  return gql`
+    query GetReconciledTransfersByIds { 
+        ${combinedQuery}
+      }
+  `;
 };
 
 const transfersStatusQueryByDomain = (prefix: string, transferIds: string[]) => {
@@ -407,5 +415,9 @@ export const getTransfersStatusQuery = (
     const prefix = config.sources[destinationDomain].prefix;
     combinedQuery += transfersStatusQueryByDomain(prefix, txIdsByDestinationDomain.get(destinationDomain)!);
   }
-  return combinedQuery;
+  return gql`
+    query GetTransfersStatus { 
+        ${combinedQuery}
+      }
+  `;
 };
