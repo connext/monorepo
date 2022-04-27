@@ -222,6 +222,11 @@ const config: HardhatUserConfig = {
       chainId: 2221,
       url: "https://evm.evm-alpha.kava.io",
     },
+    evmos: {
+      accounts,
+      chainId: 9001,
+      url: "https://eth.bd.evmos.org:8545",
+    },
     "arbitrum-one": {
       accounts,
       chainId: 42161,
