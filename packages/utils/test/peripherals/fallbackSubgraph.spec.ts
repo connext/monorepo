@@ -2,7 +2,7 @@ import axios from "axios";
 import { SinonStub, stub } from "sinon";
 
 import { expect } from "../../src/mocks";
-import { FallbackSubgraph, SubgraphDomain, NxtpError, SubgraphSyncRecord } from "../../src";
+import { FallbackSubgraph, NxtpError, SubgraphSyncRecord } from "../../src";
 import * as FallbackSubgraphIndex from "../../src/peripherals/fallbackSubgraph";
 
 type MockSubgraphSdk = {
@@ -54,7 +54,6 @@ describe("FallbackSubgraph", () => {
       mockChainId,
       (_: string) => ({ MockSubgraphSdkMethod: MockSubgraphSdkMethod }),
       mockMaxLag,
-      SubgraphDomain.TEST,
     );
     MockFailingSubgraphSdkMethod = stub().rejects(failingSubgraphSdkError);
   });

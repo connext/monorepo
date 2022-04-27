@@ -593,7 +593,6 @@ describe("Integration:E2E", () => {
         amount: TRANSFER_TOKEN_AMOUNT.toString(),
         relayerFee: RELAYER_FEE_AMOUNT.toString(),
       };
-      console.log("args", args);
       const encoded = connext.encodeFunctionData("xcall", [args]);
       const tx = await agents.user.origin.sendTransaction({
         to: originConnextAddress,
@@ -604,6 +603,9 @@ describe("Integration:E2E", () => {
       log.info("XCall sent.", {
         domain: domainInfo.ORIGIN,
         hash: receipt.transactionHash,
+        etc: {
+          ...args,
+        },
       });
 
       // Poll the origin subgraph until the new XCall transfer appears.

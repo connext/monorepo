@@ -11,7 +11,6 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     // Transfer Data
     to: subgEntity.to,
     transferId: subgEntity.transferId,
-    callTo: subgEntity.callTo,
     callData: subgEntity.callData,
     idx: subgEntity.idx ? subgEntity.idx : undefined,
     nonce: BigNumber.from(subgEntity.nonce ?? "0").toNumber(),

@@ -1,4 +1,4 @@
-import { FallbackSubgraph, SubgraphDomain } from "@connext/nxtp-utils";
+import { FallbackSubgraph } from "@connext/nxtp-utils";
 
 import { Sdk as RuntimeSdk } from "../subgraphs/runtime/graphqlsdk";
 import { SubgraphReaderConfig, SubgraphMap } from "../entities";
@@ -15,7 +15,6 @@ export const create = async (config: SubgraphReaderConfig): Promise<SubgraphMap>
         Number(chainId),
         (url: string) => getRuntimeSdk(url),
         maxLag,
-        SubgraphDomain.RUNTIME,
         queryUrls,
       ),
     });

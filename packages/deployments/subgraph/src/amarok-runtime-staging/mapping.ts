@@ -140,7 +140,7 @@ export function handleXCalled(event: XCalled): void {
   // Transfer Data
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
-  transfer.callTo = event.params.xcallArgs.params.to;
+  transfer.to = event.params.xcallArgs.params.to;
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.relayerFee = event.params.xcallArgs.relayerFee;
   transfer.routers = [];
@@ -195,9 +195,8 @@ export function handleExecuted(event: Executed): void {
 
   // Transfer Data
   transfer.transferId = event.params.transferId;
-  transfer.to = event.params.to;
   transfer.routers = routers;
-  transfer.callTo = event.params.args.params.to;
+  transfer.to = event.params.args.params.to;
   transfer.callData = event.params.args.params.callData;
 
   // Fulfill
