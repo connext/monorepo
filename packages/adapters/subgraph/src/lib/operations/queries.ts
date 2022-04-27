@@ -239,7 +239,6 @@ const executedTransfersByIdsQueryString = (
     }
   `;
 };
-
 export const getExecutedTransfersByIdsQuery = (
   txIdsByDestinationDomain: Map<string, string[]>,
   agents: Map<string, SubgraphQueryMetaParams>,
@@ -264,6 +263,7 @@ export const getExecutedTransfersByIdsQuery = (
       }
   `;
 };
+
 const reconciledTransfersByIdsQueryString = (
   prefix: string,
   transferIds: string[],
@@ -326,7 +326,6 @@ const reconciledTransfersByIdsQueryString = (
     }
   `;
 };
-
 export const getReconciledTransfersByIdsQuery = (
   txIdsByDestinationDomain: Map<string, string[]>,
   agents: Map<string, SubgraphQueryMetaParams>,
@@ -419,5 +418,66 @@ export const getTransfersStatusQuery = (
     query GetTransfersStatus { 
         ${combinedQuery}
       }
+  `;
+};
+
+export const getTransferQuery = (prefix: string, transferId: string): string => {
+  const queryStr = `
+  ${prefix}_transfers(where: { transferId: ${transferId} }) {
+    id
+    # Meta
+    originDomain
+    destinationDomain
+    chainId
+    status
+    # Transfer Data
+    to
+    transferId
+    callTo
+    callData
+    idx
+    nonce
+    router {
+      id
+    }
+    # XCalled
+    xcalledCaller
+    xcalledTransactingAmount
+    xcalledLocalAmount
+    xcalledTransactingAsset
+    xcalledLocalAsset
+    # XCalled Transaction
+    xcalledTransactionHash
+    xcalledTimestamp
+    xcalledGasPrice
+    xcalledGasLimit
+    xcalledBlockNumber
+    # Executed
+    executedCaller
+    executedTransactingAmount
+    executedLocalAmount
+    executedTransactingAsset
+    executedLocalAsset
+    # Executed Transaction
+    executedTransactionHash
+    executedTimestamp
+    executedGasPrice
+    executedGasLimit
+    executedBlockNumber
+    # Reconciled
+    reconciledCaller
+    reconciledLocalAsset
+    reconciledLocalAmount
+    # Reconciled Transaction
+    reconciledTransactionHash
+    reconciledTimestamp
+    reconciledGasPrice
+    reconciledGasLimit
+    reconciledBlockNumber
+  }`;
+  return gql`
+    query GetTransfer {
+      ${queryStr}
+    }
   `;
 };
