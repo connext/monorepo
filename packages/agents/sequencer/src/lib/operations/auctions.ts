@@ -13,9 +13,9 @@ import {
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
+import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
-import { getHelpers } from "../helpers";
 
 export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
