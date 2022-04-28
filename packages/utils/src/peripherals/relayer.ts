@@ -2,23 +2,18 @@ import axios from "axios";
 import { BigNumber } from "ethers";
 
 import { Logger } from "../logging";
-import { jsonifyError } from "../types";
+import { jsonifyError, GelatoApiTaskRequestParams } from "../types";
 
-const gelatoServer = "https://relay.gelato.digital";
+const GELATO_SERVER = "https://relay.gelato.digital";
 
 export const gelatoSend = async (
   chainId: number,
-  dest: string,
-  data: string,
-  token: string,
-  relayerFee: string,
+  params: GelatoApiTaskRequestParams,
   logger?: Logger,
 ): Promise<any> => {
-  const params = { dest, data, token, relayerFee };
-
   let output;
   try {
-    const res = await axios.post(`${gelatoServer}/relays/${chainId}`, params);
+    const res = await axios.post(`${GELATO_SERVER}/relays/${chainId}`, params);
     output = res.data;
   } catch (error: unknown) {
     if (logger) logger.error("Error in gelato send", undefined, undefined, jsonifyError(error as Error));
@@ -35,7 +30,7 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
 export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger): Promise<string> => {
   let result = [];
   try {
-    const res = await axios.get(`${gelatoServer}/relays/${chainId}/address`);
+    const res = await axios.get(`${GELATO_SERVER}/relays/${chainId}/address`);
     result = res.data.address;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayerAddress", undefined, undefined, jsonifyError(error as Error));
@@ -48,7 +43,7 @@ export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger):
 export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${gelatoServer}/relays/`);
+    const res = await axios.get(`${GELATO_SERVER}/relays/`);
     result = res.data.relays;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoRelayChains", undefined, undefined, jsonifyError(error as Error));
@@ -68,7 +63,7 @@ export const getEstimatedFee = async (
   const params = { paymentToken, gasLimit, isHighPriority };
 
   try {
-    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, { params });
+    const res = await axios.get(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
   } catch (error: unknown) {
     if (logger) logger.error("Error in getEstimatedFee", undefined, undefined, jsonifyError(error as Error));
@@ -84,7 +79,7 @@ export const isOracleActive = async (chainId: number): Promise<boolean> => {
 export const getGelatoOracles = async (logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${gelatoServer}/oracles/`);
+    const res = await axios.get(`${GELATO_SERVER}/oracles/`);
     result = res.data.oracles;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoOracles", undefined, undefined, jsonifyError(error as Error));
@@ -104,7 +99,7 @@ export const isPaymentTokenSupported = async (chainId: number, token: string): P
 export const getPaymentTokens = async (chainId: number, logger?: Logger): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/paymentTokens/`);
+    const res = await axios.get(`${GELATO_SERVER}/oracles/${chainId}/paymentTokens/`);
     result = res.data.paymentTokens;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getPaymentTokens", undefined, undefined, jsonifyError(error as Error));

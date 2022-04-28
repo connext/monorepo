@@ -43,7 +43,6 @@ export type AuctionsApiGetAuctionStatusResponse = Static<typeof AuctionsApiGetAu
 export const AuctionsApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
-
 export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
 
 export const AuctionsApiErrorResponseSchema = Type.Object({
@@ -84,3 +83,59 @@ export const RemoveLiquidityResponseSchema = Type.Object({
   transactionHash: Type.String(),
 });
 export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
+
+/// MARK - Relayer API ------------------------------------------------------------------------------
+
+export const RelayerApiFeeSchema = Type.Object({
+  chain: Type.Integer(),
+  amount: Type.String(),
+  token: Type.String(),
+});
+
+export const RelayerApiPostTaskRequestParamsSchema = Type.Object({
+  to: Type.String(),
+  data: Type.String(),
+  fee: RelayerApiFeeSchema,
+});
+export type RelayerApiPostTaskRequestParams = Static<typeof RelayerApiPostTaskRequestParamsSchema>;
+
+export const RelayerApiPostTaskResponseSchema = Type.Object({
+  message: Type.String(),
+  taskId: Type.String(),
+});
+export type RelayerApiPostTaskResponse = Static<typeof RelayerApiPostTaskResponseSchema>;
+
+export const RelayerApiErrorResponseSchema = Type.Object({
+  message: Type.String(),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+export type RelayerApiErrorResponse = Static<typeof RelayerApiErrorResponseSchema>;
+
+export enum RelayerTaskStatus {
+  Pending = "Pending",
+  Cancelled = "Cancelled",
+  Completed = "Completed",
+}
+
+export const RelayerApiStatusResponseSchema = Type.Object({
+  chain: Type.String(),
+  taskId: Type.String(),
+  status: Type.Enum(RelayerTaskStatus),
+  error: Type.String(),
+});
+export type RelayerApiStatusResponse = Static<typeof RelayerApiStatusResponseSchema>;
+
+/// MARK - Gelato API -------------------------------------------------------------------------------
+export type GelatoApiTaskRequestParams = { dest: string; data: string; token: string; relayerFee: string };
+
+export type GelatoApiStatusResponse = {
+  chain: string;
+  taskId: string;
+  taskState: string;
+  lastCheck: {
+    taskState: string;
+    message: string;
+    reason: string;
+  };
+  lastExecution: string;
+};

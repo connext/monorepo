@@ -28,13 +28,25 @@ describe("Peripherals:Gelato", () => {
   describe("#gelatoSend", () => {
     it("happy: should post data successfully!", async () => {
       axiosPostStub.resolves({ data: "Gelato sent successfully!" });
-      const res = await gelatoSend(1337, "0x1", "0x", "0xa", "1");
+      const res = await gelatoSend(1337, {
+        dest: "0x1",
+        data: "0x",
+        token: "0xa",
+        relayerFee: "1",
+      });
       expect(res).to.be.deep.eq("Gelato sent successfully!");
     });
 
     it("should throw if post fails", async () => {
       axiosPostStub.throws(new Error("Request failed!"));
-      await expect(gelatoSend(1337, "0x1", "0x", "0xa", "1")).to.be.rejectedWith("Error in Gelato send");
+      await expect(
+        gelatoSend(1337, {
+          dest: "0x1",
+          data: "0x",
+          token: "0xa",
+          relayerFee: "1",
+        }),
+      ).to.be.rejectedWith("Error in Gelato send");
     });
   });
 

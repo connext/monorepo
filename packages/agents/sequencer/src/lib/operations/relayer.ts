@@ -62,13 +62,12 @@ export const sendToRelayer = async (
     gas: gas.toString(),
     relayerFee,
   });
-  const result = await gelatoSend(
-    destinationChainId,
-    destinationConnextAddress,
-    encodedData,
-    relayerFee.asset,
-    relayerFee.amount,
-  );
+  const result = await gelatoSend(destinationChainId, {
+    dest: destinationConnextAddress,
+    data: encodedData,
+    token: relayerFee.asset,
+    relayerFee: relayerFee.amount,
+  });
   if ((result as AxiosError).isAxiosError) {
     throw new GelatoSendFailed({ result });
   } else {
