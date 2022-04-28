@@ -147,9 +147,9 @@ describe("Integration:E2E", () => {
           maxLag: domainInfo.ORIGIN.config.subgraph.maxLag,
         },
         [domainInfo.DESTINATION.domain]: {
-          runtime: domainInfo.ORIGIN.config.subgraph.runtime,
-          analytics: domainInfo.ORIGIN.config.subgraph.analytics,
-          maxLag: domainInfo.ORIGIN.config.subgraph.maxLag,
+          runtime: domainInfo.DESTINATION.config.subgraph.runtime,
+          analytics: domainInfo.DESTINATION.config.subgraph.analytics,
+          maxLag: domainInfo.DESTINATION.config.subgraph.maxLag,
         },
       },
     });
@@ -619,7 +619,7 @@ describe("Integration:E2E", () => {
       }
     }
 
-    if (agents.relayer) {
+    if (agents.router && agents.relayer) {
       log.next("RELAYER START");
       await makeRelayer({
         ...relayerConfig,
@@ -772,6 +772,7 @@ describe("Integration:E2E", () => {
       for (i = 0; i < attempts; i++) {
         await delay(SUBG_POLL_PARITY);
         const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
+        console.log("HELLO", domainInfo.DESTINATION.domain, result.transfers.length, result.transfers);
         if (result.transfers.length === 1) {
           const _transfer = parseXTransfer(result.transfers[0]);
           transfer = {

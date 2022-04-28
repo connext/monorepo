@@ -139,7 +139,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         health: "https://api.thegraph.com/index-node/graphql",
       }
     : undefined;
-  const destinationRuntimeSubgraph = originChainData.subgraphs.runtime[0]
+  const destinationRuntimeSubgraph = destinationChainData.subgraphs.runtime[0]
     ? {
         query:
           ENVIRONMENT == Environment.Staging
@@ -148,7 +148,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         health: "https://api.thegraph.com/index-node/graphql",
       }
     : undefined;
-
   return {
     ORIGIN: {
       name: originChainData.name,
