@@ -33,6 +33,8 @@ export const XTransferSchema = Type.Object({
   transferId: Type.String(),
   callTo: Type.String(),
   callData: Type.String(),
+  callback: Type.Optional(TAddress),
+  callbackFee: Type.Optional(TIntegerString),
   idx: Type.Optional(TIntegerString),
   nonce: Type.Integer(),
   routers: Type.Optional(Type.Array(TAddress)),
@@ -54,6 +56,8 @@ export const CallParamsSchema = Type.Object({
   callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
+  callback: TAddress,
+  callbackFee: TIntegerString,
 });
 
 export type CallParams = Static<typeof CallParamsSchema>;

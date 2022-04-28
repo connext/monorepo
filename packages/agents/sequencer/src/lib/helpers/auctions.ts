@@ -1,4 +1,5 @@
 import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
 
@@ -13,10 +14,12 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer): string 
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
     params: {
+      to: transfer.to,
+      callData: transfer.callData,
       originDomain: transfer.originDomain,
       destinationDomain: transfer.destinationDomain,
-      to: transfer.callTo,
-      callData: transfer.callData,
+      callback: transfer.callback ?? constants.AddressZero,
+      callbackFee: transfer.callbackFee ?? "0",
     },
     local: transfer.xcall.localAsset,
     routers: bids.map((b) => b.router),

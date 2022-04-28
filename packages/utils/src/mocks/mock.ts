@@ -77,6 +77,8 @@ export const mock: any = {
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
+      callback: mkAddress("0xbbbb"),
+      callbackFee: "0",
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
