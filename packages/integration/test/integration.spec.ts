@@ -118,8 +118,22 @@ describe("Integration:E2E", () => {
 
     subgraph = await SubgraphReader.create({
       chains: {
-        [domainInfo.ORIGIN.domain]: domainInfo.ORIGIN.config.subgraph,
-        [domainInfo.DESTINATION.domain]: domainInfo.DESTINATION.config.subgraph,
+        [domainInfo.ORIGIN.domain]: {
+          runtime: [
+            {
+              health: "https://api.thegraph.com/index-node/graphql",
+              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
+            },
+          ],
+        },
+        [domainInfo.DESTINATION.domain]: {
+          runtime: [
+            {
+              health: "https://api.thegraph.com/index-node/graphql",
+              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
+            },
+          ],
+        },
       },
     });
 

@@ -12,7 +12,7 @@ export const ORIGIN_ASSET = {
 };
 export const DESTINATION_ASSET = {
   name: "TEST",
-  address: "0xcF4d2994088a8CDE52FB584fE29608b63Ec063B2",
+  address: "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C",
 };
 
 /// MARK - Integration Settings
@@ -112,7 +112,12 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         assets: [ORIGIN_ASSET],
         subgraph: {
           analytics: originChainData.subgraphs.analytics ? originChainData.subgraphs.analytics : [],
-          runtime: originChainData.subgraphs.runtime,
+          runtime: [
+            {
+              health: "https://api.thegraph.com/index-node/graphql",
+              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
+            },
+          ],
           maxLag: 25,
         },
         gasStations: [],
@@ -133,7 +138,12 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         assets: [DESTINATION_ASSET],
         subgraph: {
           analytics: destinationChainData.subgraphs.analytics ? destinationChainData.subgraphs.analytics : [],
-          runtime: destinationChainData.subgraphs.runtime,
+          runtime: [
+            {
+              health: "https://api.thegraph.com/index-node/graphql",
+              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
+            },
+          ],
           maxLag: 25,
         },
         gasStations: [],
