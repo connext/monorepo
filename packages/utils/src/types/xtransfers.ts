@@ -31,6 +31,7 @@ export const XTransferSchema = Type.Object({
   // Transfer Data
   to: TAddress,
   transferId: Type.String(),
+  callTo: Type.String(),
   callData: Type.String(),
   idx: Type.Optional(TIntegerString),
   nonce: Type.Integer(),
