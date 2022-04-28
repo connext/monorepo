@@ -9,11 +9,9 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     originDomain: subgEntity.originDomain,
     destinationDomain: subgEntity.destinationDomain,
     status: subgEntity.status,
-
     // Transfer Data
     to: subgEntity.to,
     transferId: subgEntity.transferId,
-    callTo: subgEntity.callTo,
     callData: subgEntity.callData,
     idx: subgEntity.idx ? subgEntity.idx : undefined,
     nonce: BigNumber.from(subgEntity.nonce ?? "0").toNumber(),

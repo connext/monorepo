@@ -7,8 +7,7 @@ import {
   getAssetBalancesQuery,
   getAssetByCanonicalIdQuery,
   getAssetByLocalQuery,
-  getExecutedTransfersByIdsQuery,
-  getReconciledTransfersByIdsQuery,
+  getExecutedAndReconciledTransfersByIdsQuery,
   getRouterQuery,
   getTransferQuery,
   getTransfersStatusQuery,
@@ -135,7 +134,6 @@ export class SubgraphReader {
 
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId);
     const response = await execute(query);
-    console.log({ response });
     const assets = [...response.values()][0][0];
     if (assets.length === 0) {
       return undefined;
@@ -161,11 +159,20 @@ export class SubgraphReader {
     return transfers.length === 1 ? parser.xtransfer(transfers[0]) : undefined;
   }
 
+  /**
+   * Fetches all the transfers across the chains with `agents`
+   * @param agents - The reference parameters
+   * @returns The list of XTransfer
+   */
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
     const query = getXCalledTransfersQuery(agents);
-
-    const xcalledTransfers = await execute(query);
+    const response = await execute(query);
+    const xcalledTransfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      xcalledTransfers.push(value![0]);
+    }
 
     // first get prepared transactions on all chains
     const allPrepared: XTransfer[] = xcalledTransfers
@@ -175,50 +182,50 @@ export class SubgraphReader {
     return allPrepared;
   }
 
+  /**
+   * Gets the transactions by XTransferStatus across all the chains
+   * @param agents - The reference parameters
+   * @param status - The XTransferStatus to get the transactions by
+   * @returns The list of XTransfer
+   */
   public async getTransactionsWithStatuses(
     agents: Map<string, SubgraphQueryMetaParams>,
     status: XTransferStatus,
   ): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getXCalledTransfersQuery(agents);
-    const xcalledTransfers = await execute(xcalledXQuery);
+    let response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const allTxById: Map<string, XTransfer> = new Map();
+    for (const domain of response.keys()) {
+      const value = response.get(domain);
+      const xtransfersByDomain = value![0];
+      for (const xtransfer of xtransfersByDomain) {
+        allTxById.set(xtransfer.transferId as string, xtransfer as XTransfer);
+        if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
+          txIdsByDestinationDomain
+            .get(xtransfer.destinationDomain as string)!
+            .push(`"${xtransfer.transferId as string}"`);
+        } else {
+          txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
+        }
+      }
+    }
 
-    // first get prepared transactions on all chains
-    const allOrigin: [string, XTransfer][] = xcalledTransfers
+    const executedAndReconciledXQuery = getExecutedAndReconciledTransfersByIdsQuery(txIdsByDestinationDomain, agents);
+    response = await execute(executedAndReconciledXQuery);
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value!.flat());
+    }
+
+    const executedAndReconciledTransfers: XTransfer[] = transfers
       .flat()
       .filter((x: any) => !!x)
-      .map((s: any) => {
-        const tx = parser.xtransfer(s);
+      .map(parser.xtransfer);
 
-        // set into a map by destination domain
-        const destinationDomainRecord = txIdsByDestinationDomain.get(tx.destinationDomain);
-        const txIds = destinationDomainRecord
-          ? destinationDomainRecord.includes(tx.transferId)
-            ? destinationDomainRecord
-            : destinationDomainRecord.concat(tx.transferId)
-          : [tx.transferId];
-        txIdsByDestinationDomain.set(tx.destinationDomain, txIds);
-        return [tx.transferId, tx];
-      });
-
-    const allTxById = new Map<string, XTransfer>(allOrigin);
-
-    const executedXQuery = getExecutedTransfersByIdsQuery(txIdsByDestinationDomain, agents);
-    const executedTransfers = await execute(executedXQuery);
-
-    executedTransfers.forEach((_tx: any) => {
-      const tx = parser.xtransfer(_tx);
-      const inMap = allTxById.get(tx.transferId)!;
-      inMap.status = tx.status;
-      allTxById.set(tx.transferId, inMap);
-    });
-
-    const reconciledXQuery = getReconciledTransfersByIdsQuery(txIdsByDestinationDomain, agents);
-    const reconciledTransfers = await execute(reconciledXQuery);
-
-    reconciledTransfers.forEach((_tx: any) => {
-      const tx = parser.xtransfer(_tx);
+    executedAndReconciledTransfers.forEach((tx) => {
       const inMap = allTxById.get(tx.transferId)!;
       inMap.status = tx.status;
       allTxById.set(tx.transferId, inMap);
@@ -228,25 +235,39 @@ export class SubgraphReader {
     return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
   }
 
+  /**
+   * Retrieves the transaction status across all the chains
+   * @param transfers - The xtransfers you're going to get the status for
+   * @returns Executed/Reconciled xtransfers
+   */
   public async getExecutedAndReconciledTransfers(transfers: XTransfer[]): Promise<XTransfer[]> {
     const { parser, execute } = getHelpers();
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
-      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain);
-      const txIds = destinationDomainRecord
-        ? destinationDomainRecord.includes(transfer.transferId)
-          ? destinationDomainRecord
-          : destinationDomainRecord.concat(transfer.transferId)
-        : [transfer.transferId];
-      txIdsByDestinationDomain.set(transfer.destinationDomain, txIds);
+      if (txIdsByDestinationDomain.has(transfer.destinationDomain)) {
+        txIdsByDestinationDomain.get(transfer.destinationDomain)!.push(`"${transfer.transferId}"`);
+      } else {
+        txIdsByDestinationDomain.set(transfer.destinationDomain, [`"${transfer.transferId}"`]);
+      }
       return [transfer.transferId, transfer];
     });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
+
     const transfersStatusXQuery = getTransfersStatusQuery(txIdsByDestinationDomain);
-    const executedAndReconciledTransfers = await execute(transfersStatusXQuery);
-    executedAndReconciledTransfers.forEach((_tx: any) => {
-      const tx = parser.xtransfer(_tx);
+    const response = await execute(transfersStatusXQuery);
+    const _executedAndReconciledTransfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      _executedAndReconciledTransfers.push(value!.flat());
+    }
+
+    const executedAndReconciledTransfers: XTransfer[] = _executedAndReconciledTransfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.xtransfer);
+
+    executedAndReconciledTransfers.forEach((tx) => {
       const inMap = allTxById.get(tx.transferId)!;
       inMap.status = tx.status;
       inMap.execute = tx.execute;
