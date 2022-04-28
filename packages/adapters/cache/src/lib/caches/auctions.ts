@@ -1,5 +1,6 @@
 import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask, BidData } from "@connext/nxtp-utils";
 import IORedis, { ValueType as IORedisValueType } from "ioredis";
+import { isConstructorDeclaration } from "typescript";
 
 import { Cache } from "./cache";
 
@@ -53,6 +54,30 @@ export class AuctionsCache extends Cache {
     ];
     return mappedAuctionToRedisHash;
   }
+
+  //@dev private  functions to manage the lifecycle of storing transferIds of in redis set to purge later only need latest transferId per originDomain.
+  private async addTransferIdToDomainSet(transferId: string, originDomain: string) {
+    await this.data.set(`trackedTransfers:${originDomain}`, `${this.prefix}:auction:${transferId}`);
+  }
+  
+  private async getSetDomainSetMemebers(originDomain: string): Promise<[string, string[]]>{
+    const setMembers = await this.data.sscan(`trackedTransfers:${originDomain}`);
+    return setMembers
+  };
+
+  private async deleteOldTransferIdsPerDomain(originDomain: string) {
+    //there shouldn't be many (only one or a few) transferIds in this set. 
+    const transferIdsToDelete = await this.getSetDomainSetMemebers(originDomain);
+    for (const txfrId in transferIdsToDelete) {
+      //remove from auction 
+      const delres = await this.data.del(`${this.prefix}:auction:${txfrId}`);
+      //remove from set tracking
+      await this.data.srem(`trackedTransfers:${originDomain}`, txfrId);
+      if (delres < 1) {
+        //error
+      }
+    }
+  }
   /**
    * Creates or updates an existing auction entry for the given transfer ID.
    *
@@ -87,10 +112,18 @@ export class AuctionsCache extends Cache {
       },
     };
 
+    const hashValue = `${this.prefix}:auction:${transferId}`;
+
     const res = await this.data.hset(
-      `${this.prefix}:auction:${transferId}`,
+      hashValue,
       this.mapAuctionTypeToRedisHashType(auction),
     );
+
+    //remove previous latest transaction for origin domain
+    this.deleteOldTransferIdsPerDomain(auction.origin);
+    //add this to the domain's set 
+    this.addTransferIdToDomainSet(transferId, auction.origin);
+
     if (!existing) {
       // If the auction didn't previously exist, create an entry for status as well.
       await this.setStatus(transferId, AuctionStatus.Queued);
