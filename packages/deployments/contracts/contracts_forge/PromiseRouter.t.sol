@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import "../contracts/Connext.sol";
+import "../contracts/nomad-xapps/contracts/connext/ConnextHandler.sol";
 import "../contracts/interfaces/ICallback.sol";
 import "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
@@ -102,7 +102,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   address internal xAppConnectionManager = address(1);
   address internal home;
-  Connext internal connext;
+  ConnextHandler internal connext;
   MockCallback internal callback;
   address internal connext2 = address(3);
   address internal recipient = address(4);
@@ -114,7 +114,7 @@ contract PromiseRouterTest is ForgeHelper {
   // ============ Test set up ============
 
   function setUp() public {
-    connext = new Connext();
+    connext = new ConnextHandler();
     callback = new MockCallback();
     home = address(new MockHome());
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));

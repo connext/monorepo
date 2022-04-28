@@ -3,7 +3,6 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import "../contracts/interfaces/IConnext.sol";
 import "../contracts/nomad-xapps/contracts/promise-router/PromiseMessage.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 

@@ -284,7 +284,9 @@ contract ConnextHandlerTest is ForgeHelper {
       to,
       bytes("0x"),
       domain,
-      destinationDomain
+      destinationDomain,
+      address(0),
+      0
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -311,7 +313,14 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(to, bytes(""), domain, destinationDomain);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes(""),
+      domain,
+      destinationDomain,
+      address(0),
+      0
+    );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
       transactingAssetId,
@@ -353,7 +362,9 @@ contract ConnextHandlerTest is ForgeHelper {
       to,
       bytes("0x"),
       domain,
-      destinationDomain
+      destinationDomain,
+      address(0),
+      0
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -384,7 +395,9 @@ contract ConnextHandlerTest is ForgeHelper {
       to,
       bytes("0x"),
       domain,
-      destinationDomain
+      destinationDomain,
+      address(0),
+      0
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -413,7 +426,9 @@ contract ConnextHandlerTest is ForgeHelper {
       to,
       bytes("0x"),
       domain,
-      destinationDomain
+      destinationDomain,
+      address(0),
+      0
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -448,7 +463,9 @@ contract ConnextHandlerTest is ForgeHelper {
       to,
       bytes("0x"),
       domain,
-      destinationDomain
+      destinationDomain,
+      address(0),
+      0
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -478,7 +495,9 @@ contract ConnextHandlerTest is ForgeHelper {
       to,
       bytes("0x"),
       domain,
-      destinationDomain
+      destinationDomain,
+      address(0),
+      0
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -512,7 +531,14 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(to, bytes(""), domain, destinationDomain);
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes(""),
+      domain,
+      destinationDomain,
+      address(0),
+      0
+    );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
       transactingAssetId,

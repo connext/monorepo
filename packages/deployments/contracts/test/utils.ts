@@ -317,7 +317,14 @@ export const connextXCall = async (
   asset: TestERC20,
   amount: number,
   relayerFee: number,
-  params: { to: string; callData: string; originDomain: number; destinationDomain: number },
+  params: {
+    to: string;
+    callData: string;
+    originDomain: number;
+    destinationDomain: number;
+    callback: string;
+    callbackFee: number;
+  },
   connext: ConnextHandler,
   connextLogic: ConnextLogic,
 ) => {
