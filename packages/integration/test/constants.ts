@@ -31,6 +31,9 @@ export const CANONICAL_DOMAIN = "ORIGIN";
 // Environment setting.
 export const ENVIRONMENT = process.env.ENV || process.env.ENVIRONMENT || Environment.Staging;
 
+// Whether or not to run the relayer agent locally.
+export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
+
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
 export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25"); // In TEST.
@@ -259,7 +262,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     auctionWaitTime: 1,
     network: "testnet",
     environment: ENVIRONMENT.toString() as "staging" | "production",
-    relayerUrl: `http://${LOCALHOST}:8082`,
+    relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
   };
 })();
 

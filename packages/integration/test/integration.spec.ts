@@ -38,6 +38,7 @@ import {
   DEBUG_XCALL_TXHASH,
   SKIP_SEQUENCER_CHECKS,
   RELAYER_CONFIG,
+  LOCAL_RELAYER_ENABLED,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
@@ -106,13 +107,14 @@ describe("Integration:E2E", () => {
             destination: router.connect(destinationProvider),
           }
         : undefined,
-      relayer: relayer
-        ? {
-            address: relayer.address.toLowerCase(),
-            origin: relayer.connect(originProvider),
-            destination: relayer.connect(destinationProvider),
-          }
-        : undefined,
+      relayer:
+        relayer && LOCAL_RELAYER_ENABLED
+          ? {
+              address: relayer.address.toLowerCase(),
+              origin: relayer.connect(originProvider),
+              destination: relayer.connect(destinationProvider),
+            }
+          : undefined,
       deployer: deployer
         ? {
             address: deployer.address.toLowerCase(),
@@ -630,7 +632,10 @@ describe("Integration:E2E", () => {
 
     if (agents.router) {
       log.next("SEQUENCER START");
-      await makeSequencer(sequencerConfig);
+      await makeSequencer({
+        ...sequencerConfig,
+        relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      });
       await delay(1_000);
 
       log.next("ROUTER START");
