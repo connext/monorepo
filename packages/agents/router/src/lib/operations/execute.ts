@@ -53,7 +53,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   // only on the first auction round.
   // Produce the router path signatures for each auction round we want to bid on.
   const signatures = {
-    "1": await signRouterPathPayload(transferId, RELAYER_FEE_PERCENTAGE, wallet),
+    "1": await signRouterPathPayload(transferId, "1", wallet),
   };
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
