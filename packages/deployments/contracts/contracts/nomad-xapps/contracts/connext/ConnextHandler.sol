@@ -454,6 +454,7 @@ contract ConnextHandler is
       tokenRegistry: tokenRegistry,
       wrapper: wrapper,
       executor: executor,
+      sponsorVault: sponsorVault,
       liquidityFeeNumerator: LIQUIDITY_FEE_NUMERATOR,
       liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
     });
