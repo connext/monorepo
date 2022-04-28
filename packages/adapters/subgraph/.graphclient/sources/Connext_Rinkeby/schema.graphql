@@ -463,7 +463,6 @@ type rinkeby_Transfer {
   status: rinkeby_TransferStatus
   to: rinkeby_Bytes
   transferId: rinkeby_Bytes
-  callTo: rinkeby_Bytes
   callData: rinkeby_Bytes
   idx: BigInt
   nonce: BigInt
@@ -554,12 +553,6 @@ input rinkeby_Transfer_filter {
   transferId_not_in: [rinkeby_Bytes!]
   transferId_contains: rinkeby_Bytes
   transferId_not_contains: rinkeby_Bytes
-  callTo: rinkeby_Bytes
-  callTo_not: rinkeby_Bytes
-  callTo_in: [rinkeby_Bytes!]
-  callTo_not_in: [rinkeby_Bytes!]
-  callTo_contains: rinkeby_Bytes
-  callTo_not_contains: rinkeby_Bytes
   callData: rinkeby_Bytes
   callData_not: rinkeby_Bytes
   callData_in: [rinkeby_Bytes!]
@@ -810,7 +803,6 @@ enum rinkeby_Transfer_orderBy {
   status
   to
   transferId
-  callTo
   callData
   idx
   nonce

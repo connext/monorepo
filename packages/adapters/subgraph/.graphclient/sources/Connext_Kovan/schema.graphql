@@ -463,7 +463,6 @@ type kovan_Transfer {
   status: kovan_TransferStatus
   to: kovan_Bytes
   transferId: kovan_Bytes
-  callTo: kovan_Bytes
   callData: kovan_Bytes
   idx: BigInt
   nonce: BigInt
@@ -554,12 +553,6 @@ input kovan_Transfer_filter {
   transferId_not_in: [kovan_Bytes!]
   transferId_contains: kovan_Bytes
   transferId_not_contains: kovan_Bytes
-  callTo: kovan_Bytes
-  callTo_not: kovan_Bytes
-  callTo_in: [kovan_Bytes!]
-  callTo_not_in: [kovan_Bytes!]
-  callTo_contains: kovan_Bytes
-  callTo_not_contains: kovan_Bytes
   callData: kovan_Bytes
   callData_not: kovan_Bytes
   callData_in: [kovan_Bytes!]
@@ -810,7 +803,6 @@ enum kovan_Transfer_orderBy {
   status
   to
   transferId
-  callTo
   callData
   idx
   nonce

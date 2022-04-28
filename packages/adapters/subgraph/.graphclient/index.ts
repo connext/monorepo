@@ -558,7 +558,6 @@ export type rinkeby_Transfer = {
   status?: Maybe<rinkeby_TransferStatus>;
   to?: Maybe<Scalars["rinkeby_Bytes"]>;
   transferId?: Maybe<Scalars["rinkeby_Bytes"]>;
-  callTo?: Maybe<Scalars["rinkeby_Bytes"]>;
   callData?: Maybe<Scalars["rinkeby_Bytes"]>;
   idx?: Maybe<Scalars["BigInt"]>;
   nonce?: Maybe<Scalars["BigInt"]>;
@@ -653,12 +652,6 @@ export type rinkeby_Transfer_filter = {
   transferId_not_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
   transferId_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
   transferId_not_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-  callTo?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-  callTo_not?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-  callTo_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
-  callTo_not_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
-  callTo_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-  callTo_not_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
   callData?: InputMaybe<Scalars["rinkeby_Bytes"]>;
   callData_not?: InputMaybe<Scalars["rinkeby_Bytes"]>;
   callData_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
@@ -909,7 +902,6 @@ export type rinkeby_Transfer_orderBy =
   | "status"
   | "to"
   | "transferId"
-  | "callTo"
   | "callData"
   | "idx"
   | "nonce"
@@ -1192,7 +1184,6 @@ export type kovan_Transfer = {
   status?: Maybe<kovan_TransferStatus>;
   to?: Maybe<Scalars["kovan_Bytes"]>;
   transferId?: Maybe<Scalars["kovan_Bytes"]>;
-  callTo?: Maybe<Scalars["kovan_Bytes"]>;
   callData?: Maybe<Scalars["kovan_Bytes"]>;
   idx?: Maybe<Scalars["BigInt"]>;
   nonce?: Maybe<Scalars["BigInt"]>;
@@ -1287,12 +1278,6 @@ export type kovan_Transfer_filter = {
   transferId_not_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
   transferId_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
   transferId_not_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
-  callTo?: InputMaybe<Scalars["kovan_Bytes"]>;
-  callTo_not?: InputMaybe<Scalars["kovan_Bytes"]>;
-  callTo_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
-  callTo_not_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
-  callTo_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
-  callTo_not_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
   callData?: InputMaybe<Scalars["kovan_Bytes"]>;
   callData_not?: InputMaybe<Scalars["kovan_Bytes"]>;
   callData_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
@@ -1543,7 +1528,6 @@ export type kovan_Transfer_orderBy =
   | "status"
   | "to"
   | "transferId"
-  | "callTo"
   | "callData"
   | "idx"
   | "nonce"
@@ -2089,7 +2073,6 @@ export type rinkeby_TransferResolvers<
   status?: Resolver<Maybe<ResolversTypes["rinkeby_TransferStatus"]>, ParentType, ContextType>;
   to?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
   transferId?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
-  callTo?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
   callData?: Resolver<Maybe<ResolversTypes["rinkeby_Bytes"]>, ParentType, ContextType>;
   idx?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
@@ -2212,7 +2195,6 @@ export type kovan_TransferResolvers<
   status?: Resolver<Maybe<ResolversTypes["kovan_TransferStatus"]>, ParentType, ContextType>;
   to?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
   transferId?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
-  callTo?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
   callData?: Resolver<Maybe<ResolversTypes["kovan_Bytes"]>, ParentType, ContextType>;
   idx?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes["BigInt"]>, ParentType, ContextType>;
@@ -2704,7 +2686,6 @@ export namespace ConnextRinkebyTypes {
     status?: Maybe<rinkeby_TransferStatus>;
     to?: Maybe<Scalars["rinkeby_Bytes"]>;
     transferId?: Maybe<Scalars["rinkeby_Bytes"]>;
-    callTo?: Maybe<Scalars["rinkeby_Bytes"]>;
     callData?: Maybe<Scalars["rinkeby_Bytes"]>;
     idx?: Maybe<Scalars["BigInt"]>;
     nonce?: Maybe<Scalars["BigInt"]>;
@@ -2799,12 +2780,6 @@ export namespace ConnextRinkebyTypes {
     transferId_not_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
     transferId_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
     transferId_not_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-    callTo?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-    callTo_not?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-    callTo_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
-    callTo_not_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
-    callTo_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
-    callTo_not_contains?: InputMaybe<Scalars["rinkeby_Bytes"]>;
     callData?: InputMaybe<Scalars["rinkeby_Bytes"]>;
     callData_not?: InputMaybe<Scalars["rinkeby_Bytes"]>;
     callData_in?: InputMaybe<Array<Scalars["rinkeby_Bytes"]>>;
@@ -3055,7 +3030,6 @@ export namespace ConnextRinkebyTypes {
     | "status"
     | "to"
     | "transferId"
-    | "callTo"
     | "callData"
     | "idx"
     | "nonce"
@@ -3634,7 +3608,6 @@ export namespace ConnextKovanTypes {
     status?: Maybe<kovan_TransferStatus>;
     to?: Maybe<Scalars["kovan_Bytes"]>;
     transferId?: Maybe<Scalars["kovan_Bytes"]>;
-    callTo?: Maybe<Scalars["kovan_Bytes"]>;
     callData?: Maybe<Scalars["kovan_Bytes"]>;
     idx?: Maybe<Scalars["BigInt"]>;
     nonce?: Maybe<Scalars["BigInt"]>;
@@ -3729,12 +3702,6 @@ export namespace ConnextKovanTypes {
     transferId_not_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
     transferId_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
     transferId_not_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
-    callTo?: InputMaybe<Scalars["kovan_Bytes"]>;
-    callTo_not?: InputMaybe<Scalars["kovan_Bytes"]>;
-    callTo_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
-    callTo_not_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
-    callTo_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
-    callTo_not_contains?: InputMaybe<Scalars["kovan_Bytes"]>;
     callData?: InputMaybe<Scalars["kovan_Bytes"]>;
     callData_not?: InputMaybe<Scalars["kovan_Bytes"]>;
     callData_in?: InputMaybe<Array<Scalars["kovan_Bytes"]>>;
@@ -3985,7 +3952,6 @@ export namespace ConnextKovanTypes {
     | "status"
     | "to"
     | "transferId"
-    | "callTo"
     | "callData"
     | "idx"
     | "nonce"

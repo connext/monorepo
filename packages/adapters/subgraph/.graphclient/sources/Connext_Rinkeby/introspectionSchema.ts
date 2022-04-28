@@ -467,7 +467,6 @@ type Transfer {
   status: TransferStatus
   to: Bytes
   transferId: Bytes
-  callTo: Bytes
   callData: Bytes
   idx: BigInt
   nonce: BigInt
@@ -558,12 +557,6 @@ input Transfer_filter {
   transferId_not_in: [Bytes!]
   transferId_contains: Bytes
   transferId_not_contains: Bytes
-  callTo: Bytes
-  callTo_not: Bytes
-  callTo_in: [Bytes!]
-  callTo_not_in: [Bytes!]
-  callTo_contains: Bytes
-  callTo_not_contains: Bytes
   callData: Bytes
   callData_not: Bytes
   callData_in: [Bytes!]
@@ -814,7 +807,6 @@ enum Transfer_orderBy {
   status
   to
   transferId
-  callTo
   callData
   idx
   nonce
