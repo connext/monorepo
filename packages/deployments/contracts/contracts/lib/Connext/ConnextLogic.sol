@@ -5,6 +5,7 @@ import {IConnextHandler} from "../../interfaces/IConnextHandler.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 import {IWrapped} from "../../interfaces/IWrapped.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";
+import {IAavePool} from "../../interfaces/IAavePool.sol";
 import {LibCrossDomainProperty} from "../LibCrossDomainProperty.sol";
 import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol";
 import {AssetLogic} from "./AssetLogic.sol";
@@ -17,7 +18,7 @@ import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 import {Home} from "../../nomad-core/contracts/Home.sol";
 
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import {SafeERC20Upgradeable, AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20Upgradeable, IERC20Upgradeable, AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library ConnextLogic {
   // ============ Libraries ============
@@ -25,6 +26,8 @@ library ConnextLogic {
   using TypedMemView for bytes29;
   using ConnextMessage for bytes29;
 
+  // TODO Get Aave referral code for Connext
+  uint16 public constant AAVE_REFERRAL_CODE = 0;
   bytes32 internal constant EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
 
   // ============ Errors ============
@@ -47,6 +50,7 @@ library ConnextLogic {
   error ConnextLogic__execute_maxRoutersExceeded();
   error ConnextLogic__execute_alreadyExecuted();
   error ConnextLogic__execute_notSupportedRouter();
+  error ConnextLogic__execute_notApprovedForPortals();
   error ConnextLogic__execute_invalidRouterSignature();
   error ConnextLogic__initiateClaim_notRelayer(bytes32 transferId);
   error ConnextLogic__bumpTransfer_invalidTransfer();
@@ -80,6 +84,7 @@ library ConnextLogic {
     IExecutor executor;
     uint256 liquidityFeeNumerator;
     uint256 liquidityFeeDenominator;
+    address aavePool;
   }
 
   // ============ Events ============
@@ -448,7 +453,13 @@ library ConnextLogic {
     mapping(bytes32 => bool) storage _reconciledTransfers,
     ITokenRegistry _tokenRegistry,
     mapping(bytes32 => address[]) storage _routedTransfers,
-    mapping(address => mapping(address => uint256)) storage _routerBalances
+    mapping(address => mapping(address => uint256)) storage _routerBalances,
+    address _aavePool,
+    mapping(bytes32 => uint256) storage _aavePortalsTransfers,
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => address) storage _canonicalToAdopted,
+    uint256 _portalFeeNumerator,
+    uint256 _portalFeeDenominator
   ) external {
     // parse tokenId and action from message
     bytes29 msg_ = _message.ref(0).mustBeMessage();
@@ -498,16 +509,71 @@ library ConnextLogic {
     // mark the transfer as reconciled
     _reconciledTransfers[transferId] = true;
 
-    // get the transfer
     address[] storage routers = _routedTransfers[transferId];
+    uint256 routersAmount = amount;
+    address routersAsset = token;
 
+    uint256 portalTransferAmount = _aavePortalsTransfers[transferId];
+
+    // If transfer was made using Portal liquidity, we need to repay
+    if (portalTransferAmount > 0) {
+      (uint256 adoptedAmountOut, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
+        _canonicalToAdopted,
+        _adoptedToLocalPools,
+        _tokenRegistry,
+        token,
+        amount
+      );
+
+      uint256 portalFee = (portalTransferAmount * _portalFeeNumerator) / _portalFeeDenominator;
+      uint256 backUnbackedAmount = portalTransferAmount;
+      uint256 totalRepayAmount = backUnbackedAmount + portalFee;
+
+      // If not enough funds to repay the portal transfer + portal fees
+      // try to repay as much as unbacked as possible
+      if (totalRepayAmount > adoptedAmountOut) {
+        if (adoptedAmountOut > backUnbackedAmount) {
+          // Repay the whole transfer and a partial amount of fees
+          portalFee = adoptedAmountOut - backUnbackedAmount;
+        } else {
+          // Repay a partial amount of the transfer and no fees
+          backUnbackedAmount = adoptedAmountOut;
+          portalFee = 0;
+        }
+
+        totalRepayAmount = backUnbackedAmount + portalFee;
+
+        // TODO should emit some event to notify we are paying less than we should?
+      }
+
+      // Edge case: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
+      // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it have to be set to 0 first.
+      // Should we call approve(0) and approve(totalRepayAmount) instead? or with a try catch to not affect gas on all cases?
+      // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
+      SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(adopted), _aavePool, totalRepayAmount);
+
+      // TODO: What if backUnbacked call fails? For example if the asset is inactive, paused or frozen?
+      // Does it affects anything if this transfer reconcile reverts?
+      IAavePool(_aavePool).backUnbacked(adopted, backUnbackedAmount, portalFee);
+
+      // TODO: Do we need to check balance before and after to get the exact amount paid and give the routers the rest?
+      // Aave accounts a global unbacked variable for all, not by address/bridge.
+      // Someone can repay more than it should, so then a the moment of calling backUnbacked()
+      // aave can pull a smaller amount than backUnbackedAmount.
+
+      // Account leftovers in adopted to routers
+      routersAmount = adoptedAmountOut - totalRepayAmount;
+      routersAsset = adopted;
+    }
+
+    // get the transfer
     uint256 pathLen = routers.length;
     if (pathLen != 0) {
       // fast liquidity path
       // credit the router the asset
-      uint256 routerAmt = amount / pathLen;
+      uint256 routerAmt = routersAmount / pathLen;
       for (uint256 i; i < pathLen; ) {
-        _routerBalances[routers[i]][token] += routerAmt;
+        _routerBalances[routers[i]][routersAsset] += routerAmt;
         unchecked {
           i++;
         }
@@ -531,7 +597,8 @@ library ConnextLogic {
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
     mapping(bytes32 => address) storage _canonicalToAdopted,
     RouterPermissionsManagerInfo storage _routerInfo,
-    mapping(bytes32 => address) storage _transferRelayer
+    mapping(bytes32 => address) storage _transferRelayer,
+    mapping(bytes32 => uint256) storage _aavePortalsTransfers
   ) external returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(
       _args,
@@ -548,7 +615,9 @@ library ConnextLogic {
       _routedTransfers,
       _routerBalances,
       _adoptedToLocalPools,
-      _canonicalToAdopted
+      _canonicalToAdopted,
+      _aavePortalsTransfers,
+      _routerInfo.approvedForPortalRouters
     );
 
     // execute the transaction
@@ -909,34 +978,66 @@ library ConnextLogic {
     mapping(bytes32 => address[]) storage _routedTransfers,
     mapping(address => mapping(address => uint256)) storage _routerBalances,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => address) storage _canonicalToAdopted
+    mapping(bytes32 => address) storage _canonicalToAdopted,
+    mapping(bytes32 => uint256) storage _aavePortalsTransfers,
+    mapping(address => bool) storage _approvedForPortalRouters
   ) private returns (uint256, address) {
-    uint256 toSwap = _args.executeArgs.amount;
+    uint256 fastTransferAmount = _args.executeArgs.amount;
     uint256 pathLen = _args.executeArgs.routers.length;
+
     if (_isFast) {
       // this is the fast liquidity path
       // ensure the router is whitelisted
 
       // calculate amount with fast liquidity fee
-      toSwap = _getFastTransferAmount(
+      fastTransferAmount = _getFastTransferAmount(
         _args.executeArgs.amount,
         _args.liquidityFeeNumerator,
         _args.liquidityFeeDenominator
       );
 
-      // TODO: validate routers signature on path / transferId
-
       // store the routers address
       _routedTransfers[_transferId] = _args.executeArgs.routers;
 
-      // for each router, assert they are approved, and deduct liquidity
-      uint256 routerAmount = toSwap / pathLen;
-      for (uint256 i; i < pathLen; ) {
-        // decrement routers liquidity
-        _routerBalances[_args.executeArgs.routers[i]][_args.executeArgs.local] -= routerAmount;
+      // If router does not have enough liquidity, try to use Aave Portals
+      // TODO: check if this is the correct way to do this. Assumes 1 router
+      // Other option: In case of several routers, if one of them doesn't have enough liquidity, 
+      // any of them would provide liquidity at all if taken from Aave Portals
+      if (
+        pathLen == 1 &&
+        _routerBalances[_args.executeArgs.routers[0]][_args.executeArgs.local] < fastTransferAmount &&
+        _args.aavePool != address(0)
+      ) {
+        if (!_approvedForPortalRouters[_args.executeArgs.routers[0]])
+          revert ConnextLogic__execute_notApprovedForPortals();
 
-        unchecked {
-          i++;
+        // Calculate local to adopted swap output if needed
+        (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
+          _canonicalToAdopted,
+          _adoptedToLocalPools,
+          _args.tokenRegistry,
+          _args.executeArgs.local,
+          fastTransferAmount
+        );
+
+        IAavePool(_args.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
+
+        // Improvement: Instead of withdrawing to Connext, withdraw directly to the user or executor to save 1 transfer
+        IAavePool(_args.aavePool).withdraw(adopted, userAmount, address(this));
+
+        _aavePortalsTransfers[_transferId] = userAmount;
+
+        return (userAmount, adopted);
+      } else {
+        // for each router, assert they are approved, and deduct liquidity
+        uint256 routerAmount = fastTransferAmount / pathLen;
+        for (uint256 i; i < pathLen; ) {
+          // decrement routers liquidity
+          _routerBalances[_args.executeArgs.routers[i]][_args.executeArgs.local] -= routerAmount;
+
+          unchecked {
+            i++;
+          }
         }
       }
     }
@@ -948,7 +1049,7 @@ library ConnextLogic {
         _adoptedToLocalPools,
         _args.tokenRegistry,
         _args.executeArgs.local,
-        toSwap
+        fastTransferAmount
       );
   }
 

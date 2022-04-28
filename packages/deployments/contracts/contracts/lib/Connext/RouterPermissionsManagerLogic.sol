@@ -16,6 +16,7 @@ pragma solidity 0.8.11;
  */
 struct RouterPermissionsManagerInfo {
   mapping(address => bool) approvedRouters;
+  mapping(address => bool) approvedForPortalRouters;
   mapping(address => address) routerRecipients;
   mapping(address => address) routerOwners;
   mapping(address => address) proposedRouterOwners;

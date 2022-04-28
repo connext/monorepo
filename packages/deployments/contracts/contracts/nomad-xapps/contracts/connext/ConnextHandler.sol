@@ -167,6 +167,22 @@ contract ConnextHandler is
    */
   uint256 public maxRoutersPerTransfer;
 
+  /**
+   * @notice Address of Aave Pool contract
+   */
+  address public aavePool;
+
+  /**
+   * @notice Fee percentage numerator for using Portal liquidity
+   * @dev Assumes the same basis points as the liquidity fee
+   */
+  uint256 public aavePortalFeeNumerator;
+
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) public aavePortalsTransfers;
+
   // ============ Errors ============
 
   error ConnextHandler__addLiquidityForRouter_routerEmpty();
@@ -421,7 +437,20 @@ contract ConnextHandler is
     bytes memory _message
   ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
     // handle the action
-    ConnextLogic.reconcile(_origin, _message, reconciledTransfers, tokenRegistry, routedTransfers, routerBalances);
+    ConnextLogic.reconcile(
+      _origin,
+      _message,
+      reconciledTransfers,
+      tokenRegistry,
+      routedTransfers,
+      routerBalances,
+      aavePool,
+      aavePortalsTransfers,
+      adoptedToLocalPools,
+      canonicalToAdopted,
+      aavePortalFeeNumerator,
+      LIQUIDITY_FEE_DENOMINATOR
+    );
   }
 
   /**
@@ -444,7 +473,8 @@ contract ConnextHandler is
       wrapper: wrapper,
       executor: executor,
       liquidityFeeNumerator: LIQUIDITY_FEE_NUMERATOR,
-      liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
+      liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR,
+      aavePool: aavePool
     });
 
     return
@@ -456,7 +486,8 @@ contract ConnextHandler is
         adoptedToLocalPools,
         canonicalToAdopted,
         routerInfo,
-        transferRelayer
+        transferRelayer,
+        aavePortalsTransfers
       );
   }
 
