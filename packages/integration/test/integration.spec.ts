@@ -772,7 +772,6 @@ describe("Integration:E2E", () => {
       for (i = 0; i < attempts; i++) {
         await delay(SUBG_POLL_PARITY);
         const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-        console.log("HELLO", domainInfo.DESTINATION.domain, result.transfers.length, result.transfers);
         if (result.transfers.length === 1) {
           const _transfer = parseXTransfer(result.transfers[0]);
           transfer = {
