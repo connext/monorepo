@@ -4,11 +4,12 @@ pragma solidity 0.8.11;
 import "./ForgeHelper.sol";
 
 import "../contracts/nomad-xapps/contracts/connext/ConnextHandler.sol";
-import "../contracts/interfaces/ICallback.sol";
 import "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
+import "../contracts/ProposedOwnableUpgradeable.sol";
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {MockHome, MockCallback, MockPromiseRouter} from "./Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -17,49 +18,6 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
-
-contract MockPromiseRouter is PromiseRouter {
-  using TypedMemView for bytes;
-  using TypedMemView for bytes29;
-  using PromiseMessage for bytes29;
-
-  function initialize(address _xAppConnectionManager) public override initializer {
-    super.initialize(_xAppConnectionManager);
-  }
-
-  function mockHandle(
-    address callbackAddress,
-    bool returnSuccess,
-    bytes calldata returnData
-  ) public {
-    bytes32 transferId = "A";
-
-    bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, returnSuccess, returnData);
-    bytes29 _msg = message.ref(0).mustBePromiseCallback();
-
-    promiseMessages[transferId] = message;
-  }
-}
-
-contract MockHome {
-  function dispatch(
-    uint32 _destinationDomain,
-    bytes32 _recipientAddress,
-    bytes memory _messageBody
-  ) external {
-    1 == 1;
-  }
-}
-
-contract MockCallback is ICallback {
-  function callback(
-    bytes32 transferId,
-    bool success,
-    bytes memory data
-  ) external {
-    require(data.length != 0);
-  }
-}
 
 contract PromiseRouterTest is ForgeHelper {
   using TypedMemView for bytes;
@@ -122,14 +80,13 @@ contract PromiseRouterTest is ForgeHelper {
     vm.mockCall(home, abi.encodeWithSignature("localDomain()"), abi.encode(localDomain));
 
     promiseRouterImpl = new MockPromiseRouter();
-    promiseRouterImpl.initialize(xAppConnectionManager);
 
-    // proxy = new ERC1967Proxy(
-    //   address(promiseRouterImpl),
-    //   abi.encodeWithSelector(MockPromiseRouter.initialize.selector, xAppConnectionManager)
-    // );
+    proxy = new ERC1967Proxy(
+      address(promiseRouterImpl),
+      abi.encodeWithSelector(PromiseRouter.initialize.selector, xAppConnectionManager)
+    );
 
-    // promiseRouter = MockPromiseRouter(payable(address(proxy)));
+    promiseRouter = MockPromiseRouter(payable(address(proxy)));
 
     promiseRouter.setConnext(address(connext));
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
@@ -172,7 +129,9 @@ contract PromiseRouterTest is ForgeHelper {
   // Fail if not called by owner
   function test_PromiseRouter__setConnext_failsIfNotOwner() public {
     vm.prank(address(0));
-    vm.expectRevert("Ownable: caller is not the owner");
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
     promiseRouter.setConnext(connext2);
   }
 
@@ -296,9 +255,10 @@ contract PromiseRouterTest is ForgeHelper {
     bytes32 transferId = "A";
     address callbackAddress = address(callback);
     bool success = true;
+    uint256 beforeBalance = 1 ether;
 
-    // transfer 200 wei to promiseRouter as callback fee
-    payable(address(promiseRouter)).transfer(1 ether);
+    // transfer 1 ether wei to promiseRouter as callback fee
+    address(promiseRouter).call{value: beforeBalance}("");
 
     uint256 relayerBeforeBalance = relayer.balance;
     uint256 callbackFee = 0.5 ether;
@@ -334,7 +294,7 @@ contract PromiseRouterTest is ForgeHelper {
     // check if callback fee is transferred to relayer
     uint256 relayerAfterBalance = relayer.balance;
     assertEq(relayerAfterBalance, relayerBeforeBalance + callbackFee);
-    assertEq(address(promiseRouter).balance, 1 ether - callbackFee);
+    assertEq(address(promiseRouter).balance, beforeBalance - callbackFee);
   }
 
   // ============ bumpCallbackFee ============

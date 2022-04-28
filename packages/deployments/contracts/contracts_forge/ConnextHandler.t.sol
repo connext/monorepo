@@ -12,7 +12,7 @@ import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeabl
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WETH} from "../contracts/test/TestWeth.sol";
 
-import {MockHome} from "./RelayerFeeRouter.t.sol";
+import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback} from "./Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -21,16 +21,6 @@ import {MockHome} from "./RelayerFeeRouter.t.sol";
 
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
-
-contract MockRelayerFeeRouter {
-  function send(
-    uint32 _domain,
-    address _recipient,
-    bytes32[] calldata _transactionIds
-  ) external {
-    1 == 1;
-  }
-}
 
 contract ConnextHandlerTest is ForgeHelper {
   // ============ Libraries ============
@@ -64,6 +54,8 @@ contract ConnextHandlerTest is ForgeHelper {
   bytes32 internal remote = "remote";
 
   MockRelayerFeeRouter relayerFeeRouter;
+  MockPromiseRouter promiseRouter;
+  MockCallback callback;
   WETH wrapper;
   address canonical = address(4);
   TestERC20 originAdopted;
@@ -76,6 +68,8 @@ contract ConnextHandlerTest is ForgeHelper {
     originAdopted = new TestERC20();
     wrapper = new WETH();
     home = address(new MockHome());
+    promiseRouter = new MockPromiseRouter();
+    callback = new MockCallback();
 
     connextImpl = new ConnextHandler();
 
@@ -87,7 +81,8 @@ contract ConnextHandlerTest is ForgeHelper {
         xAppConnectionManager,
         tokenRegistry,
         address(wrapper),
-        address(relayerFeeRouter)
+        address(relayerFeeRouter),
+        address(promiseRouter)
       )
     );
 
@@ -335,7 +330,7 @@ contract ConnextHandlerTest is ForgeHelper {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70aca0184c1e32ae98daca86416c9ece9d32771270d0b1ef32fb55bf30918e8cc7b";
+      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a747136416651ffe40851fbe308e045079987fc3f10ccfe4b215867a350d94d4e";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -520,6 +515,122 @@ contract ConnextHandlerTest is ForgeHelper {
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
     connext.xcall{value: amount + relayerFee + 1}(args);
+  }
+
+  // Fail if callbackFee in param and value does not match in native transfer
+  function test_ConnextHandler__xcall_failsIfDifferentCallbackFeeValueAndParamInNativeTransfer() public {
+    address to = address(100);
+    address callbackAddr = address(callback);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    uint256 callbackFee = 0.02 ether;
+    address transactingAssetId = address(0);
+
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      callbackAddr,
+      callbackFee
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
+
+    vm.mockCall(
+      address(tokenRegistry),
+      abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+      abi.encode(address(wrapper))
+    );
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
+    connext.xcall{value: amount}(args);
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
+    connext.xcall{value: amount + relayerFee + callbackFee - 1}(args);
+
+    vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
+    connext.xcall{value: amount + relayerFee + callbackFee + 1}(args);
+  }
+
+  // Fail if callback address is not contract and callback fee is not zero
+  function test_ConnextHandler__xcall_failsIfNonZeroCallbackFeeForNonContractCallback() public {
+    address to = address(100);
+    address callbackAddr = address(0);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    uint256 callbackFee = 0.02 ether;
+    address transactingAssetId = address(0);
+
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      callbackAddr,
+      callbackFee
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
+
+    vm.mockCall(
+      address(tokenRegistry),
+      abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+      abi.encode(address(wrapper))
+    );
+
+    vm.expectRevert(
+      abi.encodeWithSelector(ConnextLogic.ConnextLogic__xcall_nonZeroCallbackFeeForNonContractCallback.selector)
+    );
+    connext.xcall{value: amount + relayerFee + callbackFee}(args);
+  }
+
+  // Should work with callback address and callback fee
+  function test_ConnextHandler__xcall_callbackFeeBumpWorks() public {
+    address to = address(100);
+    uint256 amount = 1 ether;
+    uint256 relayerFee = 0.01 ether;
+    uint256 callbackFee = 0.01 ether;
+    address callbackAddr = address(callback);
+    address transactingAssetId = address(originAdopted);
+    address promiseRouterAddr = address(connext.promiseRouter());
+
+    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+      to,
+      bytes(""),
+      domain,
+      destinationDomain,
+      callbackAddr,
+      callbackFee
+    );
+    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
+      callParams,
+      transactingAssetId,
+      amount,
+      relayerFee
+    );
+
+    bytes32 id = keccak256(
+      abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
+    );
+
+    uint256 beforePromiseRouterBalance = promiseRouterAddr.balance;
+
+    assertEq(beforePromiseRouterBalance, 0);
+
+    vm.expectCall(promiseRouterAddr, abi.encodeWithSelector(PromiseRouter.bumpCallbackFee.selector, id));
+
+    connext.xcall{value: relayerFee + callbackFee}(args);
+
+    assertEq(promiseRouterAddr.balance, callbackFee);
   }
 
   // ============ bumpTransfer ============

@@ -44,6 +44,7 @@ library ConnextLogic {
   error ConnextLogic__xcall_emptyTo();
   error ConnextLogic__xcall_notSupportedAsset();
   error ConnextLogic__xcall_relayerFeeIsZero();
+  error ConnextLogic__xcall_nonZeroCallbackFeeForNonContractCallback();
   error ConnextLogic__execute_unapprovedRelayer();
   error ConnextLogic__execute_maxRoutersExceeded();
   error ConnextLogic__execute_alreadyExecuted();
@@ -712,6 +713,11 @@ library ConnextLogic {
     // ensure theres a recipient defined
     if (_args.xCallArgs.params.to == address(0)) {
       revert ConnextLogic__xcall_emptyTo();
+    }
+
+    // ensure callback fee is zero when callback address is not contract
+    if (!AddressUpgradeable.isContract(_args.xCallArgs.params.callback) && _args.xCallArgs.params.callbackFee > 0) {
+      revert ConnextLogic__xcall_nonZeroCallbackFeeForNonContractCallback();
     }
   }
 

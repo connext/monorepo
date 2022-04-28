@@ -32,7 +32,7 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   address tokenRegistry = address(2);
   address wrapper = address(3);
   address relayerFeeRouter = address(4);
-  address promiseRouter = address(3);
+  address promiseRouter = address(5);
 
   // ============ Test set up ============
 
@@ -47,7 +47,8 @@ contract RouterPermissionsManagerTest is ForgeHelper {
         payable(bridgeRouter),
         tokenRegistry,
         wrapper,
-        relayerFeeRouter
+        relayerFeeRouter,
+        promiseRouter
       )
     );
 
