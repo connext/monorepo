@@ -116,6 +116,8 @@ export function handleTransactionPrepared(event: TransactionPrepared): void {
     chainId = BigInt.fromI32(2001);
   } else if (network == "kava-alphanet") {
     chainId = BigInt.fromI32(2221);
+  } else if (network == "evmos") {
+    chainId = BigInt.fromI32(9001);
   } else if (network == "arbitrum-one") {
     chainId = BigInt.fromI32(42161);
   } else if (network == "fuji") {
