@@ -7,7 +7,6 @@ import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000";
-const DEFAULT_RELAYER_FEES_ETH = "0.02";
 
 type TaskArgs = {
   router?: string;
