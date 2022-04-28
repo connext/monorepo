@@ -22,6 +22,12 @@ export type SubgraphHealth = {
   url: string;
 };
 
+export type SubgraphQueryMetaParams = {
+  maxBlockNumber: number;
+  latestNonce: number;
+  destinationDomains?: string[];
+};
+
 const MIN_SUBGRAPH_MAX_LAG = 25;
 export const SubgraphReaderChainConfigSchema = Type.Object({
   analytics: Type.Array(
@@ -44,6 +50,11 @@ export const SubgraphReaderConfigSchema = Type.Object({
 });
 
 export type SubgraphReaderConfig = Static<typeof SubgraphReaderConfigSchema>;
+
+export const getSubgraphName = (url: string) => {
+  const split = url.split("/");
+  return split[split.length - 1];
+};
 
 export const getSubgraphHealth = async (
   subgraphName: string,
