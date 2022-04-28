@@ -1,10 +1,12 @@
+import { Wallet } from "ethers";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
+import { getContractInterfaces, contractDeployments, TransactionService } from "@connext/nxtp-txservice";
 
 import { RelayerConfig, AppContext } from "./lib/entities";
 import { getConfig } from "./config";
-import { bindServer } from "./bindings";
+import { bindServer, bindRelays } from "./bindings";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -27,15 +29,22 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
 
-    context.adapters.chainreader = new ChainReader(
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic as string)
+      : new Web3Signer(context.config.web3SignerUrl! as string);
+
+    context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
+      context.adapters.wallet as Wallet | Web3Signer,
     );
 
     context.adapters.contracts = getContractInterfaces();
 
     // Create server, set up routes, and start listening.
     await bindServer();
+
+    await bindRelays();
 
     context.logger.info("Relayer has been activated.", requestContext, methodContext, {
       port: context.config.server.port,

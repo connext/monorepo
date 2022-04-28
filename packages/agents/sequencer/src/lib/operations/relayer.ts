@@ -1,4 +1,4 @@
-import { RequestContext, createLoggingContext, XTransfer, Bid } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, XTransfer, Bid, connextRelayerSend } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { GelatoSendFailed } from "../errors";
@@ -28,11 +28,38 @@ export const sendToRelayer = async (
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
   logger.debug(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
 
+  const originChainId = chainData.get(transfer.originDomain)!.chainId;
   const destinationChainId = chainData.get(transfer.destinationDomain)!.chainId;
 
   const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
   const encodedData = encodeExecuteFromBids(bids, transfer);
+
+  // Try sending the tx to the connext relayer, if configured.
+  if (config.relayerUrl) {
+    try {
+      const result = await connextRelayerSend(config.relayerUrl, destinationChainId, {
+        fee: {
+          chain: originChainId,
+          amount: relayerFee.amount,
+          token: relayerFee.asset,
+        },
+        to: destinationConnextAddress,
+        data: encodedData,
+      });
+      const { taskId } = result;
+      logger.info("Sent meta transaction to Connext relayer", requestContext, methodContext, {
+        taskId,
+        transferId: transfer.transferId,
+      });
+      return taskId;
+    } catch (error: unknown) {
+      logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
+        transferId: transfer.transferId,
+        error,
+      });
+    }
+  }
 
   const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
   if (!isSupportedByGelato) {
@@ -62,6 +89,7 @@ export const sendToRelayer = async (
     gas: gas.toString(),
     relayerFee,
   });
+
   const result = await gelatoSend(destinationChainId, {
     dest: destinationConnextAddress,
     data: encodedData,
@@ -72,7 +100,7 @@ export const sendToRelayer = async (
     throw new GelatoSendFailed({ result });
   } else {
     const { taskId } = result;
-    logger.info("Sent to Gelato network", requestContext, methodContext, {
+    logger.info("Sent meta transaction to Gelato network", requestContext, methodContext, {
       taskId,
     });
     return taskId;

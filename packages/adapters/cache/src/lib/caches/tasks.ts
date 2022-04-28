@@ -4,6 +4,7 @@ import { Cache } from "./cache";
 
 export type CachedTaskData = {
   chain: number;
+  to: string;
   data: string;
   fee: RelayerApiFee;
   status: RelayerTaskStatus;
@@ -16,6 +17,12 @@ export type CachedTaskData = {
  *
  * Task Status:
  *   key: status:$taskId | value: RelayerApiTaskStatus;
+ *
+ * Task Errors:
+ *   key: error:$taskId | value: JSON.stringify(NxtpError);
+ *
+ * Task Tx Hash:
+ *   key: hash:$taskId | value: string;
  */
 export class TasksCache extends Cache {
   private readonly prefix = "tasks";
@@ -67,8 +74,53 @@ export class TasksCache extends Cache {
    * @param status - The status to set.
    * @returns Number indicating whether the status was updated.
    */
-  public async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+  private async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
     return await this.data.hset(`${this.prefix}:status`, taskId, status.toString());
+  }
+
+  /// MARK - Task Errors
+  /**
+   * Get the error saved to a given task.
+   * @param taskId - The ID of the task.
+   * @returns The error string if found, undefined if not found.
+   */
+  public async getError(taskId: string): Promise<string | undefined> {
+    const res = await this.data.hget(`${this.prefix}:error`, taskId);
+    return res ?? undefined;
+  }
+
+  /**
+   * Sets the error of a given task. Additionally, will update the status of the task to RelayerTaskStatus.Error.
+   * @param taskId - The ID of the task.
+   * @param error - The error to set.
+   * @returns Number indicating whether the error was updated.
+   */
+  public async setError(taskId: string, error: string): Promise<number> {
+    await this.setStatus(taskId, RelayerTaskStatus.Cancelled);
+    return await this.data.hset(`${this.prefix}:error`, taskId, error);
+  }
+
+  /// MARK - Transaction Hash
+  /**
+   * Get the transaction hash for a given task.
+   * @param taskId - The ID of the task.
+   * @returns The transaction hash if found, undefined if not found.
+   * @returns The transaction hash if found, undefined if not found.
+   */
+  public async getHash(taskId: string): Promise<string | undefined> {
+    const res = await this.data.hget(`${this.prefix}:hash`, taskId);
+    return res ?? undefined;
+  }
+
+  /**
+   * Set the transaction hash for a given task. Will also set the status of the task to RelayerTaskStatus.Completed.
+   * @param taskId - The ID of the task.
+   * @param txHash - The transaction hash to set.
+   * @returns Number indicating whether the transaction hash was updated.
+   */
+  public async setHash(taskId: string, txHash: string): Promise<number> {
+    await this.setStatus(taskId, RelayerTaskStatus.Completed);
+    return await this.data.hset(`${this.prefix}:hash`, taskId, txHash);
   }
 
   /// MARK - Pending Tasks
@@ -77,7 +129,7 @@ export class TasksCache extends Cache {
    *
    * @returns An array of task IDs.
    */
-  public async getPendingTasks(): Promise<string[]> {
+  public async getPending(): Promise<string[]> {
     const stream = this.data.hscanStream(`${this.prefix}:status`);
     const keys: string[] = [];
     await new Promise((res) => {

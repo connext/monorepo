@@ -22,6 +22,10 @@ export const TRedisConfig = Type.Object({
   host: Type.Optional(Type.String()),
 });
 
+export const TModeConfig = Type.Object({
+  cleanup: Type.Boolean(),
+});
+
 export const RelayerConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
@@ -34,8 +38,11 @@ export const RelayerConfigSchema = Type.Object({
     Type.Literal("silent"),
   ]),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  mnemonic: Type.Optional(Type.String()),
+  web3SignerUrl: Type.Optional(Type.String()),
   redis: TRedisConfig,
   server: TServerConfig,
+  mode: TModeConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 

@@ -89,8 +89,11 @@ export const createTask = async (
     });
   }
 
+  // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
+
   const taskId: string = await cache.tasks.createTask({
     chain,
+    to,
     data,
     fee,
   });

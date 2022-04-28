@@ -4,6 +4,7 @@ import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } fr
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
 import { getDeployedConnextContract } from "@connext/nxtp-txservice";
+import { RelayerConfig } from "@connext/nxtp-relayer";
 
 export enum Environment {
   Staging = "staging",
@@ -238,13 +239,13 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     },
     chains: {
       [ORIGIN.domain]: {
-        providers: ["https://rpc.ankr.com/eth_rinkeby"],
+        providers: ORIGIN.config.providers,
         subgraph: ORIGIN.config.subgraph,
         confirmations: ORIGIN.config.confirmations,
         deployments: ORIGIN.config.deployments,
       },
       [DESTINATION.domain]: {
-        providers: ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
+        providers: DESTINATION.config.providers,
         subgraph: DESTINATION.config.subgraph,
         confirmations: DESTINATION.config.confirmations,
         deployments: DESTINATION.config.deployments,
@@ -255,6 +256,38 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       cleanup: false,
     },
     auctionWaitTime: 1,
+    network: "testnet",
+    environment: ENVIRONMENT.toString() as "staging" | "production",
+    relayerUrl: `http://${LOCALHOST}:8082`,
+  };
+})();
+
+/// MARK - RELAYER CONFIG
+export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<RelayerConfig> => {
+  const { ORIGIN, DESTINATION } = await DOMAINS;
+  return {
+    redis: {},
+    server: {
+      adminToken: "c",
+      port: 8082,
+      host: LOCALHOST,
+    },
+    chains: {
+      [ORIGIN.domain]: {
+        providers: ORIGIN.config.providers,
+        confirmations: ORIGIN.config.confirmations,
+        deployments: ORIGIN.config.deployments,
+      },
+      [DESTINATION.domain]: {
+        providers: DESTINATION.config.providers,
+        confirmations: DESTINATION.config.confirmations,
+        deployments: DESTINATION.config.deployments,
+      },
+    },
+    logLevel: "info",
+    mode: {
+      cleanup: false,
+    },
     network: "testnet",
     environment: ENVIRONMENT.toString() as "staging" | "production",
   };

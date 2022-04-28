@@ -23,6 +23,7 @@
     "packages/agents/router",
     "packages/agents/sequencer",
     "packages/agents/sdk",
+    "packages/agents/relayer",
     "packages/integration",
     "packages/examples/sdk-server"
   ],
