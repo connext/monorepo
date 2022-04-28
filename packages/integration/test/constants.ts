@@ -122,7 +122,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     );
   }
 
-  // See above TODO regarding hardcoded contract addresses.
   const getConnextContract = (chainId: number): string => {
     const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
     if (!contract) {
@@ -130,6 +129,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     }
     return contract.address.toLowerCase();
   };
+
   const originRuntimeSubgraph = originChainData.subgraphs.runtime[0]
     ? {
         query:
@@ -145,9 +145,10 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
           ENVIRONMENT == Environment.Staging
             ? destinationChainData.subgraphs.runtime[0].query.replace("v0", "staging")
             : destinationChainData.subgraphs.runtime[0].query,
-        health: destinationChainData.subgraphs.runtime[0].health,
+        health: "https://api.thegraph.com/index-node/graphql",
       }
     : undefined;
+
   return {
     ORIGIN: {
       name: originChainData.name,

@@ -434,7 +434,6 @@ export type SubscriptionTransfersArgs = {
 export type Transfer = {
   __typename?: 'Transfer';
   callData?: Maybe<Scalars['Bytes']>;
-  callTo?: Maybe<Scalars['Bytes']>;
   chainId?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
@@ -500,12 +499,6 @@ export type Transfer_Filter = {
   callData_not?: InputMaybe<Scalars['Bytes']>;
   callData_not_contains?: InputMaybe<Scalars['Bytes']>;
   callData_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  callTo?: InputMaybe<Scalars['Bytes']>;
-  callTo_contains?: InputMaybe<Scalars['Bytes']>;
-  callTo_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  callTo_not?: InputMaybe<Scalars['Bytes']>;
-  callTo_not_contains?: InputMaybe<Scalars['Bytes']>;
-  callTo_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   chainId?: InputMaybe<Scalars['BigInt']>;
   chainId_gt?: InputMaybe<Scalars['BigInt']>;
   chainId_gte?: InputMaybe<Scalars['BigInt']>;
@@ -790,7 +783,6 @@ export type Transfer_Filter = {
 
 export enum Transfer_OrderBy {
   CallData = 'callData',
-  CallTo = 'callTo',
   ChainId = 'chainId',
   DestinationDomain = 'destinationDomain',
   ExecutedBlockNumber = 'executedBlockNumber',

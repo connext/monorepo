@@ -179,7 +179,7 @@ export function handleExecuted(event: Executed): void {
       router = new Router(param);
       router.save();
     }
-    routers.push(router.id);
+    routers.push(router.id as string);
   }
 
   let transfer = Transfer.load(event.params.transferId.toHexString());
