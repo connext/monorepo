@@ -45,6 +45,7 @@ describe("FallbackSubgraph", () => {
 
   const successfulSubgraphSdkResult = "test-result";
   const failingSubgraphSdkError = new Error("test");
+  const mockHealthEndpoint = "test-health-endpoint";
 
   let fallbackSubgraph: FallbackSubgraph<MockSubgraphSdk>;
 
@@ -54,6 +55,8 @@ describe("FallbackSubgraph", () => {
       mockChainId,
       (_: string) => ({ MockSubgraphSdkMethod: MockSubgraphSdkMethod }),
       mockMaxLag,
+      undefined,
+      mockHealthEndpoint,
     );
     MockFailingSubgraphSdkMethod = stub().rejects(failingSubgraphSdkError);
   });

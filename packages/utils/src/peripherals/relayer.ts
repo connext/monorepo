@@ -23,8 +23,9 @@ export const gelatoSend = async (
     const res = await axios.post(`${GELATO_SERVER}/relays/${chainId}`, params);
     output = res.data;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in gelato send", undefined, undefined, jsonifyError(error as Error));
-    throw new NxtpError("Error sending request to Gelato Relayer", { error: jsonifyError(error as Error) });
+    if (logger)
+      logger.error("Error sending request to Gelato Relay", undefined, undefined, jsonifyError(error as Error));
+    throw new NxtpError("Error sending request to Gelato Relay", { error: jsonifyError(error as Error) });
   }
   return output;
 };

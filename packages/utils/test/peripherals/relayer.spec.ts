@@ -1,6 +1,7 @@
 import { restore, reset, stub, SinonStub } from "sinon";
 import axios from "axios";
-import { expect } from "../../src/mocks";
+import { BigNumber } from "ethers";
+
 import {
   gelatoSend,
   getGelatoRelayChains,
@@ -11,20 +12,26 @@ import {
   mkAddress,
   isPaymentTokenSupported,
   getPaymentTokens,
+  NxtpError,
+  connextRelayerSend,
+  RelayerApiPostTaskRequestParams,
+  expect,
 } from "../../src";
-import { BigNumber } from "ethers";
 
 describe("Peripherals:Gelato", () => {
   let axiosGetStub: SinonStub;
   let axiosPostStub: SinonStub;
+
   beforeEach(() => {
     axiosGetStub = stub(axios, "get");
     axiosPostStub = stub(axios, "post");
   });
+
   afterEach(() => {
     restore();
     reset();
   });
+
   describe("#gelatoSend", () => {
     it("happy: should post data successfully!", async () => {
       axiosPostStub.resolves({ data: "Gelato sent successfully!" });
@@ -46,7 +53,7 @@ describe("Peripherals:Gelato", () => {
           token: "0xa",
           relayerFee: "1",
         }),
-      ).to.be.rejectedWith("Error in Gelato send");
+      ).to.be.rejectedWith("Error sending request to Gelato Relay");
     });
   });
 
@@ -218,6 +225,43 @@ describe("Peripherals:Gelato", () => {
       axiosGetStub.throws(new Error("Request failed!"));
 
       expect(await getPaymentTokens(1337)).to.be.deep.eq([]);
+    });
+  });
+
+  describe("#connextRelayerSend", () => {
+    it("happy: should post data successfully", async () => {
+      const resultData = "result data";
+      axiosPostStub.resolves({ data: resultData });
+      const url = "mock-url";
+      const chainId = 1337;
+      const params: RelayerApiPostTaskRequestParams = {
+        to: "0x1",
+        data: "0x",
+        fee: {
+          amount: "0",
+          token: "0xa",
+          chain: 1338,
+        },
+      };
+      const res = await connextRelayerSend(url, chainId, params);
+      expect(axiosPostStub).to.have.been.calledOnceWithExactly(`${url}/relays/${chainId}`, params);
+      expect(res).to.be.deep.eq(resultData);
+    });
+
+    it("should throw if post fails", async () => {
+      axiosPostStub.throws(new Error("Request failed!"));
+      const url = "mock-url";
+      const chainId = 1337;
+      const params: RelayerApiPostTaskRequestParams = {
+        to: "0x1",
+        data: "0x",
+        fee: {
+          amount: "0",
+          token: "0xa",
+          chain: 1338,
+        },
+      };
+      await expect(connextRelayerSend(url, chainId, params)).to.be.rejectedWith(NxtpError);
     });
   });
 });
