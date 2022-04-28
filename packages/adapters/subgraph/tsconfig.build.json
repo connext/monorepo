@@ -1,6 +1,7 @@
 {
   "extends": "../../../config/tsconfig.node.json",
   "compilerOptions": {
+    "rootDirs": ["./src", "./.graphclient"],
     "outDir": "dist",
     "composite": true,
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"

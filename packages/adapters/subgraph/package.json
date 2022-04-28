@@ -2,8 +2,8 @@
   "name": "@connext/nxtp-adapters-subgraph",
   "version": "0.2.0-alpha.6",
   "description": "adapter for subgraph interaction of nxtp protocol",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*"
   ],
@@ -27,12 +27,9 @@
     "ext": "js,json",
     "watch": [
       ".env",
-      "./dist"
+      "./dist/src"
     ]
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {

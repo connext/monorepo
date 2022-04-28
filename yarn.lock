@@ -3085,12 +3085,12 @@ __metadata:
   linkType: hard
 
 "@jridgewell/gen-mapping@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@jridgewell/gen-mapping@npm:0.1.0"
+  version: 0.1.1
+  resolution: "@jridgewell/gen-mapping@npm:0.1.1"
   dependencies:
-    "@jridgewell/set-array": 1.0.0
+    "@jridgewell/set-array": ^1.0.0
     "@jridgewell/sourcemap-codec": ^1.4.10
-  checksum: 8611de5acbea55fa84bcde0d6f803e006560f7a8ce618ba427e20a76913d18308fc14d5cfb324e30d0051556a96527fbc4e64cf65d68f121170776243387dcce
+  checksum: 3bcc21fe786de6ffbf35c399a174faab05eb23ce6a03e8769569de28abbf4facc2db36a9ddb0150545ae23a8d35a7cf7237b2aa9e9356a7c626fb4698287d5cc
   languageName: node
   linkType: hard
 
@@ -3101,10 +3101,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/set-array@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@jridgewell/set-array@npm:1.0.0"
-  checksum: 35dd48a205099839fa8b9e9b7138d382d1f33457404c4e96c95ad1cd9aea99904737b351d4dea8b21fa17b50fcd0dc2fdbf4c04fc4bcd3c1a42d079217261444
+"@jridgewell/set-array@npm:^1.0.0":
+  version: 1.1.0
+  resolution: "@jridgewell/set-array@npm:1.1.0"
+  checksum: 86ddd72ce7d2f7756dfb69804b35d0e760a85dcef30ed72e8610bf2c5e843f8878d977a0c77c4fdfa6a0e3d5b18e5bde4a1f1dd73fd2db06b200c998e9b5a6c5
   languageName: node
   linkType: hard
 
@@ -3237,10 +3237,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:^0.1.0-rc.12, @nomad-xyz/configuration@npm:^0.1.0-rc.15":
-  version: 0.1.0-rc.15
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.15"
-  checksum: 62bbaa74c45683616013e9f8e5560234935be4b02e0bb6c74affd11738ff20d34ac00dd1774f661df421b4f6a34ffa21262a4c659947d2725c713e18093e6948
+"@nomad-xyz/configuration@npm:^0.1.0-rc.12, @nomad-xyz/configuration@npm:^0.1.0-rc.16":
+  version: 0.1.0-rc.16
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.16"
+  checksum: ffaca02f4acbd87eef22d642ae7a83e57a87cf262a3b286e67f854f9dbbe8a7571e119ec6c6df57663c99c06c598b0f881fbd272e935dc7c7812e244b40c3e95
   languageName: node
   linkType: hard
 
@@ -3291,15 +3291,15 @@ __metadata:
   linkType: hard
 
 "@nomad-xyz/sdk-bridge@npm:^1.0.0-rc.7":
-  version: 1.0.0-rc.9
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.9"
+  version: 1.0.0-rc.12
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.12"
   dependencies:
-    "@nomad-xyz/configuration": ^0.1.0-rc.15
+    "@nomad-xyz/configuration": ^0.1.0-rc.16
     "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
-    "@nomad-xyz/sdk": ^2.0.0-rc.9
+    "@nomad-xyz/sdk": ^2.0.0-rc.10
     ethers: ^5.0.0
     web3: ^1.6.1
-  checksum: 4964b59a617625d72e873311be6cfc20e9cd48e941c4902c1009db2e6d1390dbec394a72d9f13c3660dc0d815cf740deb2749b6fd35229c8e96286b08285c8d0
+  checksum: 345781df195401405bee970e1c0bb9667f806cae4f15ae58966d54107bfe3980de70d3bcfb715c0668eb723bea0371457b850ef22b5728e131e56f5f3ba87a3b
   languageName: node
   linkType: hard
 
@@ -6498,8 +6498,8 @@ __metadata:
   linkType: hard
 
 "cacache@npm:^16.0.2":
-  version: 16.0.6
-  resolution: "cacache@npm:16.0.6"
+  version: 16.0.7
+  resolution: "cacache@npm:16.0.7"
   dependencies:
     "@npmcli/fs": ^2.1.0
     "@npmcli/move-file": ^2.0.0
@@ -6519,7 +6519,7 @@ __metadata:
     ssri: ^9.0.0
     tar: ^6.1.11
     unique-filename: ^1.1.1
-  checksum: c9813d4aa0452ecfdb7f796d931d0b8068fc921a3575fb858c26ab12ed41634a995135dbd56afd64ec4de141bd78c7021ce5aeabce83453c7342d3ed126815df
+  checksum: 2155b099b7e0f0369fb1155ca4673532ca7efe2ebdbec63acca8743580b8446b5d4fd7184626b1cb059001af77b981cdc67035c7855544d365d4f048eafca2ca
   languageName: node
   linkType: hard
 
@@ -6658,9 +6658,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001332
-  resolution: "caniuse-lite@npm:1.0.30001332"
-  checksum: e54182ea42ab3d2ff1440f9a6480292f7ab23c00c188df7ad65586312e4da567e8bedd5cb5fb8f0ff4193dc027a54e17e0b3c0b6db5d5a3fb61c7726ff9c45b3
+  version: 1.0.30001334
+  resolution: "caniuse-lite@npm:1.0.30001334"
+  checksum: 1a1c783942d53ca37dc3dbdd7c4a6f7994996d0bfd178d4f4cdd714c6b09d9d9f48a3a2452e009e8203aba4b7a2da43f3d9d88060668a46fc237dbe0d39358a3
   languageName: node
   linkType: hard
 
@@ -7452,9 +7452,9 @@ __metadata:
   linkType: hard
 
 "core-js-pure@npm:^3.0.1":
-  version: 3.22.2
-  resolution: "core-js-pure@npm:3.22.2"
-  checksum: d0618aa2f45182fbce5feb6b436c72a71e1d2a739ec7546be453460fc9938d30235da4506ea128a22780ca00b84f4f5528da8019719a2fba16da6f44999d3bff
+  version: 3.22.3
+  resolution: "core-js-pure@npm:3.22.3"
+  checksum: 83b60a6ca8c4e40a7948d0ba4ea6983b45d54ed93f00cd99f31ed6ded76dff44f7475c830455745fea39efb0c26be010691c9fbc3bcd079f37295a891cb98638
   languageName: node
   linkType: hard
 
@@ -7675,8 +7675,8 @@ __metadata:
   linkType: hard
 
 "cross-undici-fetch@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "cross-undici-fetch@npm:0.3.0"
+  version: 0.3.1
+  resolution: "cross-undici-fetch@npm:0.3.1"
   dependencies:
     abort-controller: ^3.0.0
     form-data-encoder: ^1.7.1
@@ -7684,7 +7684,7 @@ __metadata:
     node-fetch: ^2.6.7
     undici: ^5.0.0
     web-streams-polyfill: ^3.2.0
-  checksum: 819892ea76ad1ce582a983834f9ad8d6277296688ba272d320bb858a2f7727950ef2022c35e0c3fefc586232b68fc80ca47c65487ad736d552a4df98d8468966
+  checksum: 6f72eb8dbd11996eb64a23ac6249d16ba5f70a63c61b0bda077e3c0c1d2a02c5ebc80f7d16b8daca238e8ff36efbac2b7b4ec543962655bae5dbb8c9fc6663dd
   languageName: node
   linkType: hard
 
@@ -8353,9 +8353,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.118":
-  version: 1.4.123
-  resolution: "electron-to-chromium@npm:1.4.123"
-  checksum: da7800ead12e233cf503182d6168f22c1c21c24c314150f54a01e54a612a3abe61b976c43c9c69003787b3844660733b9ed3e842470d906b8bbd03e50b966772
+  version: 1.4.124
+  resolution: "electron-to-chromium@npm:1.4.124"
+  checksum: 04551666fbc4e39e44d07b20348c6cbb23b5049bad62a78bbf65bde7a94c53b12db56a5e529806c325860763c28afe3523fa1ac00e0444fd6745c7ab35efc788
   languageName: node
   linkType: hard
 
@@ -19098,11 +19098,11 @@ __metadata:
   linkType: hard
 
 "sonic-boom@npm:^2.1.0, sonic-boom@npm:^2.2.0, sonic-boom@npm:^2.2.1":
-  version: 2.7.0
-  resolution: "sonic-boom@npm:2.7.0"
+  version: 2.8.0
+  resolution: "sonic-boom@npm:2.8.0"
   dependencies:
     atomic-sleep: ^1.0.0
-  checksum: 00dfa56fe9f3b9989fed08809c48645b1ea33759d81a22319ab87211a64e6834c33909dbfa75aa0ec6f6a7502290342a79ce7ba460d137a58579a2acb8ebe835
+  checksum: c7f9c89f931d7f60f8e0741551a729f0d81e6dc407a99420fc847a9a4c25af048a615b1188ab3c4f1fb3708fe4904973ddab6ebcc8ed5b78b50ab81a99045910
   languageName: node
   linkType: hard
 
