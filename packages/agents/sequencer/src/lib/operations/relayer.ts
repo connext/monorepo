@@ -7,6 +7,7 @@ import { getHelpers } from "../helpers";
 export const sendToRelayer = async (
   bids: Bid[],
   transfer: XTransfer,
+  local: string,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
@@ -27,7 +28,7 @@ export const sendToRelayer = async (
 
   const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBids(bids, transfer);
+  const encodedData = encodeExecuteFromBids(bids, transfer, local);
 
   const relayerFee = {
     // TODO: Is this correct?

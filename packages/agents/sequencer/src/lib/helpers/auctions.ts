@@ -2,7 +2,7 @@ import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
-export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer): string => {
+export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: string): string => {
   const {
     adapters: { contracts },
   } = getContext();
@@ -10,6 +10,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer): string 
   if (!transfer.xcall) {
     throw new Error("XTransfer provided did not have XCall present!");
   }
+
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
     params: {
@@ -18,7 +19,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer): string 
       to: transfer.to,
       callData: transfer.callData,
     },
-    local: transfer.xcall.localAsset,
+    local,
     routers: bids.map((b) => b.router),
     routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
     amount: transfer.xcall.localAmount,

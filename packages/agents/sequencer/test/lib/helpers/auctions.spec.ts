@@ -1,4 +1,4 @@
-import { Bid, ExecuteArgs, expect, XTransfer } from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, expect, mkAddress, XTransfer } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
@@ -8,6 +8,8 @@ import { mock } from "../../mock";
 describe("Helpers:Auctions", () => {
   describe("#encodeExecuteFromBids", () => {
     const mockEncoded = "123456789qwertyuiopasdfghjklzxcvbnm";
+    const mockLocalAsset = mkAddress("0xdedddddddddddddd");
+
     let encodeFunctionDataStub: SinonStub;
 
     beforeEach(() => {
@@ -31,7 +33,7 @@ describe("Helpers:Auctions", () => {
           to: transfer.to,
           callData: transfer.callData,
         },
-        local: transfer.xcall.localAsset,
+        local: mockLocalAsset,
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
         amount: transfer.xcall.localAmount,
@@ -39,7 +41,7 @@ describe("Helpers:Auctions", () => {
         originSender: transfer.xcall.caller,
       };
 
-      const encoded = encodeExecuteFromBids(bids, transfer);
+      const encoded = encodeExecuteFromBids(bids, transfer, mockLocalAsset);
       expect(encoded).to.be.eq(mockEncoded);
       expect(encodeFunctionDataStub.calledWith("execute", [expectedArgs])).to.be.true;
     });
@@ -49,7 +51,7 @@ describe("Helpers:Auctions", () => {
       transfer.xcall = undefined;
       const bids: Bid[] = [mock.entity.bid()];
 
-      expect(() => encodeExecuteFromBids(bids, transfer)).to.throw();
+      expect(() => encodeExecuteFromBids(bids, transfer, mockLocalAsset)).to.throw();
     });
   });
 

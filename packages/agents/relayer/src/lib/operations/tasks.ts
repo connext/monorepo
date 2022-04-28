@@ -63,7 +63,7 @@ export const createTask = async (
       nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
     };
-    console.log("parsed args", args);
+    logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
   } catch (error: unknown) {
     throw new DecodeExecuteError({
       decoded,

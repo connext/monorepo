@@ -253,7 +253,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               },
             });
             // Send the relayer request based on chosen bids.
-            taskId = await sendToRelayer([randomBid], transfer, requestContext);
+            taskId = await sendToRelayer([randomBid], transfer, asset, requestContext);
             logger.info("Sent bid to relayer", requestContext, methodContext, {
               transferId,
               taskId,

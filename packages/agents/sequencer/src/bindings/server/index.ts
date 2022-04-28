@@ -158,7 +158,6 @@ export const api = {
     admin: (body: AdminRequest, res: FastifyReply, nested: (res: FastifyReply) => Promise<void>) => {
       const { config } = getContext();
       const { adminToken } = body;
-      console.log("adminToken: ", adminToken);
       if (adminToken !== config.server.adminToken) {
         return res.status(401).send("Unauthorized to perform this operation");
       }

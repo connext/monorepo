@@ -67,7 +67,6 @@ describe("TasksCache", () => {
       const taskId = getRandomBytes32();
       await mockRedisHelpers.createTask(taskId, mockTask);
       const res = await cache.getTask(taskId);
-      console.log(res, mockTask);
       expect(res).to.be.deep.eq(mockTask);
     });
 
