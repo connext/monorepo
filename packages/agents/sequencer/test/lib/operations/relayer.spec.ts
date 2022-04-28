@@ -59,13 +59,13 @@ describe("#relayer", () => {
       await sendToRelayer(mockBids.slice(0, 1), mockTransfers[0], loggingContext.requestContext);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(Number(mock.domain.B));
       expect((ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).getCall(0).args[1]).to.deep.eq({
-        chainId: mock.chain.B,
+        chainId: Number(mock.chain.B),
         to: ctxMock.config.chains[mock.domain.B].deployments.connext,
         data: "0xbeef",
         from: mockRelayerAddress,
       });
       expect(ctxMock.adapters.relayer.send).to.be.calledOnceWith(
-        mock.chain.B,
+        Number(mock.chain.B),
         ctxMock.config.chains[mock.domain.B].deployments.connext,
         "0xbeef",
       );
