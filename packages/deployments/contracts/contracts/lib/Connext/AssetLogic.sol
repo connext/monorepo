@@ -182,4 +182,38 @@ library AssetLogic {
     // Otherwise, swap to adopted asset
     return (pool.swapExact(_amount, _asset, adopted), adopted);
   }
+
+  /**
+   * @notice Calculate amount of tokens you receive on a local nomad asset for the adopted asset
+   * using the stored stable swap
+   * @dev Will not use the stored stable swap if the asset passed in is the adopted asset
+   * @param _canonicalToAdopted - Mapping of adopted to canonical on this domain
+   * @param _adoptedToLocalPools - Mapping holding the AMMs for swapping in and out of local assets
+   * @param _tokenRegistry - The local nomad token registry
+   * @param _asset - The address of the local asset to swap into the adopted asset
+   * @param _amount - The amount of the local asset to swap
+   * @return The amount of adopted asset received from swap
+   * @return The address of asset received post-swap
+   */
+  function calculateSwapFromLocalAssetIfNeeded(
+    mapping(bytes32 => address) storage _canonicalToAdopted,
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    ITokenRegistry _tokenRegistry,
+    address _asset,
+    uint256 _amount
+  ) internal view returns (uint256, address) {
+    // Get the token id
+    (, bytes32 id) = _tokenRegistry.getTokenId(_asset);
+
+    // If the adopted asset is the local asset, no need to swap
+    address adopted = _canonicalToAdopted[id];
+    if (adopted == _asset) {
+      return (_amount, _asset);
+    }
+
+    IStableSwap pool = _adoptedToLocalPools[id];
+
+    // Otherwise, swap to adopted asset
+    return (pool.calculateSwap(_asset, adopted, _amount), adopted);
+  }
 }

@@ -79,6 +79,14 @@ contract DummySwap is IStableSwap {
   }
 
   function calculateSwap(
+    address assetIn,
+    address assetOut,
+    uint256 amountIn
+  ) external view returns (uint256) {
+    require(false, "!implemented");
+  }
+
+  function calculateSwap(
     uint8 tokenIndexFrom,
     uint8 tokenIndexTo,
     uint256 dx

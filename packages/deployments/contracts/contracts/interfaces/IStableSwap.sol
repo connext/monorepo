@@ -60,6 +60,12 @@ interface IStableSwap {
     uint256 dx
   ) external view returns (uint256);
 
+  function calculateSwap(
+    address assetIn,
+    address assetOut,
+    uint256 amountIn
+  ) external view returns (uint256);
+
   function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view returns (uint256);
 
   function calculateRemoveLiquidity(uint256 amount) external view returns (uint256[] memory);
