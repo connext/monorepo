@@ -265,7 +265,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
 
 /// MARK - RELAYER CONFIG
 export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<RelayerConfig> => {
-  const { ORIGIN, DESTINATION } = await DOMAINS;
+  const { DESTINATION } = await DOMAINS;
   return {
     redis: {},
     server: {
@@ -274,11 +274,11 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
       host: LOCALHOST,
     },
     chains: {
-      [ORIGIN.domain]: {
-        providers: ORIGIN.config.providers,
-        confirmations: ORIGIN.config.confirmations,
-        deployments: ORIGIN.config.deployments,
-      },
+      // [ORIGIN.domain]: {
+      //   providers: ORIGIN.config.providers,
+      //   confirmations: ORIGIN.config.confirmations,
+      //   deployments: ORIGIN.config.deployments,
+      // },
       [DESTINATION.domain]: {
         providers: DESTINATION.config.providers,
         confirmations: DESTINATION.config.confirmations,

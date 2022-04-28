@@ -579,15 +579,49 @@ describe("Integration:E2E", () => {
     // TODO: Check if relayer has ETH if necessary.
 
     // TODO: Check if relayer needs approval ??
+    if (agents.relayer) {
+      log.next("VERIFY RELAYER APPROVED");
+      {
+        const encoded = connext.encodeFunctionData("approvedRelayers", [agents.relayer.address]);
+        const result = await chainreader.readTx({
+          chainId: domainInfo.DESTINATION.chain,
+          to: destinationConnextAddress,
+          data: encoded,
+        });
+        const approved = connext.decodeFunctionResult("approvedRelayers", result)[0];
+        if (!approved) {
+          if (!agents.deployer) {
+            log.fail("Relayer needs to be approved on chain.", { domain: domainInfo.DESTINATION });
+          } else {
+            log.info("Relayer is not approved. Approving Relayer...", {
+              domain: domainInfo.DESTINATION,
+              etc: { relayer: agents.relayer.address },
+            });
+            const encoded = connext.encodeFunctionData("addRelayer", [agents.relayer.address]);
+            const tx = await agents.deployer.destination.sendTransaction({
+              to: destinationConnextAddress,
+              data: encoded,
+            });
+            const receipt = await tx.wait(1);
+            log.info("Approved Relayer.", {
+              domain: domainInfo.DESTINATION,
+              hash: receipt.transactionHash,
+            });
+          }
+        }
+      }
+    }
 
-    if (agents.router) {
+    if (agents.relayer) {
       log.next("RELAYER START");
       await makeRelayer({
         ...relayerConfig,
         mnemonic: RELAYER_MNEMONIC || ROUTER_MNEMONIC,
       });
       await delay(1_000);
+    }
 
+    if (agents.router) {
       log.next("SEQUENCER START");
       await makeSequencer(sequencerConfig);
       await delay(1_000);
