@@ -61,15 +61,6 @@ export const execute = async (params: XTransfer): Promise<void> => {
     sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
   });
 
-  const fee = DEFAULT_ROUTER_FEE;
-  const bid: Bid = {
-    transferId,
-    origin: originDomain,
-    router: routerAddress,
-    fee,
-    signatures,
-  };
-
   // sanity check
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   if (balance.lt(receivingAmount)) {
@@ -79,6 +70,15 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
+
+  const fee = DEFAULT_ROUTER_FEE;
+  const bid: Bid = {
+    transferId,
+    origin: originDomain,
+    router: routerAddress.toLowerCase(),
+    fee,
+    signatures,
+  };
 
   await sendBid(bid, requestContext);
 };

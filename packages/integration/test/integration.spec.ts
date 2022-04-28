@@ -696,14 +696,14 @@ describe("Integration:E2E", () => {
         log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
           domain: domainInfo.ORIGIN,
           etc: {
-            polled: `${parity * i}ms.`,
+            polled: `${(parity * (i + 1)) / 1_000}s.`,
           },
         });
       }
       log.info("XCall retrieved.", {
         domain: domainInfo.ORIGIN,
         etc: {
-          took: `${parity * i}ms.`,
+          took: `${(parity * (i + 1)) / 1_000}s.`,
           transferID: transfer?.transferId,
           transfer,
         },

@@ -221,7 +221,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       priceCaching: false,
     },
     polling: {
-      subgraph: 10_000,
+      subgraph: 5_000,
       cache: 5_000,
     },
     environment,
