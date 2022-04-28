@@ -91,6 +91,7 @@ export const RelayerApiFeeSchema = Type.Object({
   amount: Type.String(),
   token: Type.String(),
 });
+export type RelayerApiFee = Static<typeof RelayerApiFeeSchema>;
 
 export const RelayerApiPostTaskRequestParamsSchema = Type.Object({
   to: Type.String(),
@@ -112,6 +113,7 @@ export const RelayerApiErrorResponseSchema = Type.Object({
 export type RelayerApiErrorResponse = Static<typeof RelayerApiErrorResponseSchema>;
 
 export enum RelayerTaskStatus {
+  None = "None",
   Pending = "Pending",
   Cancelled = "Cancelled",
   Completed = "Completed",

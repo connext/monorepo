@@ -5,7 +5,7 @@
 GET {{relayerUrl}}/ping
 
 ### RELAY
-POST {{relayerUrl}}/relay/:chainId
+POST {{relayerUrl}}/relays/:chainId
 Content-Type: application/json
 
 {

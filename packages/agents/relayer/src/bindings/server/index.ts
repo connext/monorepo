@@ -29,7 +29,7 @@ export const bindServer = () =>
       Body: RelayerApiPostTaskRequestParams;
       Reply: RelayerApiPostTaskResponse | RelayerApiErrorResponse;
     }>(
-      "/relay/:chainId",
+      "/relays/:chainId",
       {
         schema: {
           body: RelayerApiPostTaskRequestParamsSchema,
@@ -40,7 +40,7 @@ export const bindServer = () =>
         },
       },
       async (request, response) => {
-        const { requestContext, methodContext } = createLoggingContext("POST /relay/:chainId endpoint");
+        const { requestContext, methodContext } = createLoggingContext("POST /relays/:chainId endpoint");
         const {
           tasks: { createTask },
         } = getOperations();

@@ -2,8 +2,15 @@ import axios from "axios";
 import { BigNumber } from "ethers";
 
 import { Logger } from "../logging";
-import { jsonifyError, GelatoApiTaskRequestParams } from "../types";
+import {
+  jsonifyError,
+  GelatoApiTaskRequestParams,
+  RelayerApiPostTaskRequestParams,
+  NxtpError,
+  RelayerApiPostTaskResponse,
+} from "../types";
 
+/// MARK - Gelato Relay API
 const GELATO_SERVER = "https://relay.gelato.digital";
 
 export const gelatoSend = async (
@@ -17,7 +24,7 @@ export const gelatoSend = async (
     output = res.data;
   } catch (error: unknown) {
     if (logger) logger.error("Error in gelato send", undefined, undefined, jsonifyError(error as Error));
-    throw new Error("Error in Gelato send");
+    throw new NxtpError("Error sending request to Gelato Relayer", { error: jsonifyError(error as Error) });
   }
   return output;
 };
@@ -106,4 +113,20 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
   }
 
   return result;
+};
+
+/// MARK - Connext Relayer
+export const connextRelayerSend = async (
+  url: string,
+  chainId: number,
+  params: RelayerApiPostTaskRequestParams,
+): Promise<RelayerApiPostTaskResponse> => {
+  let output;
+  try {
+    const res = await axios.post(`${url}/relays/${chainId}`, params);
+    output = res.data as RelayerApiPostTaskResponse;
+  } catch (error: unknown) {
+    throw new NxtpError("Error sending request to Connext Relayer", { error: jsonifyError(error as Error) });
+  }
+  return output;
 };

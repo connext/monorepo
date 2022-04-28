@@ -1,12 +1,14 @@
 import { Logger } from "@connext/nxtp-utils";
 
-import { TransfersCache, AuctionsCache, ConsumersCache, RoutersCache } from "./lib/caches";
+import { TransfersCache, AuctionsCache, ConsumersCache, RoutersCache, TasksCache } from "./lib/caches";
 import { StoreManagerParams, StoreChannel } from "./lib/entities";
 
 export interface Store {
   readonly transfers: TransfersCache;
   readonly auctions: AuctionsCache;
   readonly consumers: ConsumersCache;
+  readonly routers: RoutersCache;
+  readonly tasks: TasksCache;
 }
 
 /**
@@ -23,6 +25,7 @@ export class StoreManager implements Store {
   public readonly auctions: AuctionsCache;
   public readonly consumers: ConsumersCache;
   public readonly routers: RoutersCache;
+  public readonly tasks: TasksCache;
 
   private constructor({ redis, logger, mock }: StoreManagerParams) {
     this.logger = logger;
@@ -50,6 +53,12 @@ export class StoreManager implements Store {
       port,
       mock: !!mock,
       logger: this.logger.child({ name: "ConsumersCache" }),
+    });
+    this.tasks = new TasksCache({
+      host,
+      port,
+      mock: !!mock,
+      logger: this.logger.child({ name: "TasksCache" }),
     });
   }
 

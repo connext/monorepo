@@ -1,4 +1,4 @@
-import { BigNumber, constants } from "ethers";
+import { constants } from "ethers";
 import {
   RequestContext,
   createLoggingContext,
@@ -33,14 +33,10 @@ export const createTask = async (
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
 
-  const {
-    to,
-    data,
-    fee: { token },
-  } = params;
+  const { to, data, fee } = params;
 
   // TODO: Allow alternative shitcoins.
-  if (token !== constants.AddressZero) {
+  if (fee.token !== constants.AddressZero) {
     throw new Error("Only ETH is supported for now.");
   }
 
@@ -93,6 +89,11 @@ export const createTask = async (
     });
   }
 
-  const taskId: string = await cache.tasks.createTask(args);
+  const taskId: string = await cache.tasks.createTask({
+    chain,
+    data,
+    fee,
+  });
+  logger.info("Created a new task.", requestContext, methodContext, { taskId });
   return taskId;
 };
