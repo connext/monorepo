@@ -7,7 +7,6 @@ export type CachedTaskData = {
   to: string;
   data: string;
   fee: RelayerApiFee;
-  status: RelayerTaskStatus;
 };
 
 /**
@@ -49,7 +48,7 @@ export class TasksCache extends Cache {
    * @returns New task's ID.
    * @throws Error if task already exists.
    */
-  public async createTask(params: Omit<CachedTaskData, "status">): Promise<string> {
+  public async createTask(params: CachedTaskData): Promise<string> {
     // TODO: Make the Task ID a hash of the calldata to add an additional recovery vector.
     const taskId = getRandomBytes32();
     const key = `${this.prefix}:data`;
@@ -75,7 +74,7 @@ export class TasksCache extends Cache {
    * Set the status of a given task.
    * @param taskId - The ID of the task we are setting the status of.
    * @param status - The status to set.
-   * @returns Number indicating whether the status was updated.
+   * @returns 1 if added, 0 if updated.
    */
   private async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
     return await this.data.hset(`${this.prefix}:status`, taskId, status.toString());

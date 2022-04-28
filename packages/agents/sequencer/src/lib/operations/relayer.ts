@@ -1,3 +1,4 @@
+import { constants } from "ethers";
 import { RequestContext, createLoggingContext, XTransfer, Bid, connextRelayerSend } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
@@ -28,7 +29,17 @@ export const sendToRelayer = async (
 
   const encodedData = encodeExecuteFromBids(bids, transfer);
 
-  // Try sending the tx to the connext relayer, if configured.
+  const relayerFee = {
+    // TODO: Is this correct?
+    amount: "0",
+    // amount: transfer.relayerFee!,
+    // TODO: should handle relayer fee paid in alternative assets once that is implemented.
+    asset: constants.AddressZero,
+  };
+
+  // TODO: Might want to move this logic inside the `relayer.send` method below.
+  // Try sending the tx to the custom configured relayer, if applicable.
+  // If this fails, we'll resort to using the default relayer network.
   if (config.relayerUrl) {
     try {
       const result = await connextRelayerSend(config.relayerUrl, destinationChainId, {

@@ -142,20 +142,14 @@ describe("Integration:E2E", () => {
     subgraph = await SubgraphReader.create({
       chains: {
         [domainInfo.ORIGIN.domain]: {
-          runtime: [
-            {
-              health: "https://api.thegraph.com/index-node/graphql",
-              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
-            },
-          ],
+          runtime: domainInfo.ORIGIN.config.subgraph.runtime,
+          analytics: domainInfo.ORIGIN.config.subgraph.analytics,
+          maxLag: domainInfo.ORIGIN.config.subgraph.maxLag,
         },
         [domainInfo.DESTINATION.domain]: {
-          runtime: [
-            {
-              health: "https://api.thegraph.com/index-node/graphql",
-              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
-            },
-          ],
+          runtime: domainInfo.ORIGIN.config.subgraph.runtime,
+          analytics: domainInfo.ORIGIN.config.subgraph.analytics,
+          maxLag: domainInfo.ORIGIN.config.subgraph.maxLag,
         },
       },
     });
@@ -591,8 +585,8 @@ describe("Integration:E2E", () => {
 
     // TODO: Check if relayer has ETH if necessary.
 
-    // TODO: Check if relayer needs approval ??
     if (agents.relayer) {
+      // Check if relayer needs approval.
       log.next("VERIFY RELAYER APPROVED");
       {
         const encoded = connext.encodeFunctionData("approvedRelayers", [agents.relayer.address]);
