@@ -58,7 +58,6 @@ export const signRouterPathPayload = async (
   signer: Wallet | Signer,
 ): Promise<string> => {
   const hash = getRouterPathHashToSign(transferId, pathLength);
-  console.log("hash: ", transferId, hash);
 
   return await sign(hash, signer);
 };
