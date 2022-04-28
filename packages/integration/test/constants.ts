@@ -1,8 +1,8 @@
 import { utils, Wallet } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
-import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
-import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
+import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
+import { TRANSFER_ENTITY } from "@connext/nxtp-adapters-subgraph/src/lib/operations";
 
 // TODO: Should have an overrides in env:
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
@@ -32,13 +32,7 @@ export const SUBG_POLL_PARITY = 5_000;
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
-export const SUBG_TRANSFER_ENTITY_PARAMS = getTransfers
-  .slice(getTransfers.lastIndexOf(") {"), getTransfers.lastIndexOf("}"))
-  .replace(/router \{\n.*id\n.*\}/, "router { id }")
-  .split("\n")
-  .slice(1, -2)
-  .filter((line) => !line.includes("#"))
-  .map((line) => line.trim());
+export const SUBG_TRANSFER_ENTITY_PARAMS = TRANSFER_ENTITY;
 
 /// MARK - General
 export type DomainInfo = {
@@ -65,6 +59,7 @@ export type TestAgents = {
 export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> = (async (): Promise<{
   ORIGIN: DomainInfo;
   DESTINATION: DomainInfo;
+  CHAIND_DATA: Map<string, ChainData>;
 }> => {
   const chainData = await getChainData();
   if (!chainData) {
@@ -144,6 +139,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         },
       },
     },
+    CHAIND_DATA: chainData,
   };
 })();
 

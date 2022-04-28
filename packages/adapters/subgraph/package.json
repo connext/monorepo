@@ -27,7 +27,7 @@
     "ext": "js,json",
     "watch": [
       ".env",
-      "./dist/src"
+      "./dist"
     ]
   },
   "author": "Connext",

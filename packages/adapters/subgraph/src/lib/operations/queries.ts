@@ -89,7 +89,7 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
     }
   `;
 };
-const transferEntity = `
+export const TRANSFER_ENTITY = `
     id
     # Meta
     originDomain
@@ -156,7 +156,7 @@ const xCalledTransferQueryString = (
             }
             orderBy: xcalledBlockNumber
             orderDirection: desc
-        ) {${transferEntity}}
+        ) {${TRANSFER_ENTITY}}
       `;
 };
 export const getXCalledTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
@@ -192,10 +192,10 @@ const executedAndReconciledTransfersByIdsQueryString = (
   return `
     ${prefix}_executedTransfers : ${prefix}_transfers (
       where: { transferId_in: [${transferIds}], executedBlockNumber_lte: ${maxBlockNumber}, status: Executed }
-    ) {${transferEntity}}
+    ) {${TRANSFER_ENTITY}}
     ${prefix}_reconciledTransfers : ${prefix}_transfers (
       where: { transferId_in: [${transferIds}], reconciledBlockNumber_lte: ${maxBlockNumber}, status: Reconciled }
-    ) {${transferEntity}}
+    ) {${TRANSFER_ENTITY}}
   `;
 };
 export const getExecutedAndReconciledTransfersByIdsQuery = (
@@ -224,7 +224,7 @@ export const getExecutedAndReconciledTransfersByIdsQuery = (
 };
 
 const transfersStatusQueryByDomain = (prefix: string, transferIds: string[]) => {
-  return `${prefix}_transfers(where: { transferId_in: [${transferIds}], status_in: [Executed, Reconciled] }) {${transferEntity}}`;
+  return `${prefix}_transfers(where: { transferId_in: [${transferIds}], status_in: [Executed, Reconciled] }) {${TRANSFER_ENTITY}}`;
 };
 export const getTransfersStatusQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
   const { config } = getContext();
@@ -242,7 +242,7 @@ export const getTransfersStatusQuery = (txIdsByDestinationDomain: Map<string, st
 
 export const getTransferQuery = (prefix: string, transferId: string): string => {
   const queryStr = `
-    ${prefix}_transfers(where: { transferId: "${transferId}" }) {${transferEntity}}`;
+    ${prefix}_transfers(where: { transferId: "${transferId}" }) {${TRANSFER_ENTITY}}`;
   return gql`
     query GetTransfer {
       ${queryStr}

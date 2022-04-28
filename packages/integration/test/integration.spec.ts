@@ -116,12 +116,7 @@ describe("Integration:E2E", () => {
       },
     );
 
-    subgraph = await SubgraphReader.create({
-      chains: {
-        [domainInfo.ORIGIN.domain]: domainInfo.ORIGIN.config.subgraph,
-        [domainInfo.DESTINATION.domain]: domainInfo.DESTINATION.config.subgraph,
-      },
-    });
+    subgraph = await SubgraphReader.create(DOMAINS.CHAIN_DATA);
 
     // Setup contexts (used for injection into helpers).
     context = {
@@ -540,23 +535,14 @@ describe("Integration:E2E", () => {
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
       const parity = 5_000;
       const attempts = 10;
-      const query = formatSubgraphGetTransferQuery({
+      const query = formatSubgraphGetTransferQuery(domainInfo.ORIGIN.domain, {
         xcallTransactionHash: receipt.transactionHash,
       });
-      let i;
-      for (i = 0; i < attempts; i++) {
-        await delay(parity);
-        try {
-          const result = await subgraph.query(domainInfo.ORIGIN.domain, query);
-          if (result.transfers.length === 1) {
-            transfer = parseXTransfer(result.transfers[0]);
-            break;
-          }
-        } catch (e: unknown) {
-          console.log(e, (e as any).errors);
-          throw e;
-        }
-      }
+      const startTime = Date.now();
+      const response = await subgraph.query(query);
+      const transfers = [...response.values()][0][0];
+      if (transfers.length == 1) transfer = parseXTransfer(transfers[0]);
+      const endTime = Date.now();
       if (!transfer) {
         log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
           domain: domainInfo.ORIGIN,
@@ -568,7 +554,7 @@ describe("Integration:E2E", () => {
       log.info("XCall retrieved.", {
         domain: domainInfo.ORIGIN,
         etc: {
-          took: `${parity * i}ms.`,
+          took: `${endTime - startTime}ms.`,
           transferID: transfer?.transferId,
           transfer,
         },
@@ -626,22 +612,14 @@ describe("Integration:E2E", () => {
 
       log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
       const attempts = Math.floor(EXECUTE_TIMEOUT / SUBG_POLL_PARITY);
-      const query = formatSubgraphGetTransferQuery({
+      const query = formatSubgraphGetTransferQuery(domainInfo.DESTINATION.domain, {
         transferId: transfer.transferId,
       });
-      let i;
-      for (i = 0; i < attempts; i++) {
-        await delay(SUBG_POLL_PARITY);
-        const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-        if (result.transfers.length === 1) {
-          const _transfer = parseXTransfer(result.transfers[0]);
-          transfer = {
-            ..._transfer,
-            xcall: transfer?.xcall,
-          };
-          break;
-        }
-      }
+      const startTime = Date.now();
+      const response = await subgraph.query(query);
+      const transfers = [...response.values()][0][0];
+      if (transfers.length == 1) transfer = parseXTransfer(transfers[0]);
+      const endTime = Date.now();
       if (!transfer.execute?.transactionHash) {
         log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
           domain: domainInfo.DESTINATION,
@@ -654,7 +632,7 @@ describe("Integration:E2E", () => {
         domain: domainInfo.DESTINATION,
         hash: transfer.execute?.transactionHash,
         etc: {
-          took: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
+          took: `~${(endTime - startTime) / 1_000}s`,
         },
       });
 

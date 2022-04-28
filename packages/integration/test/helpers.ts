@@ -3,6 +3,7 @@ import { ChainReader, getRouterPermissionsManagerInterface } from "@connext/nxtp
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
+import { getPrefixByDomain } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/shared";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -33,19 +34,20 @@ export const formatEtherscanLink = (input: { network: string; hash: string }): s
 };
 
 export const formatSubgraphGetTransferQuery = (
+  domain: string,
   input: { xcallTransactionHash: string } | { transferId: string },
 ): string => {
   const params = SUBG_TRANSFER_ENTITY_PARAMS;
+  const prefix = getPrefixByDomain(domain);
   const { xcallTransactionHash, transferId } = input as any;
   const condition = xcallTransactionHash
     ? `xcalledTransactionHash: "${xcallTransactionHash}"`
     : `transferId: "${transferId}"`;
   return `
   {
-    transfers(
+    ${prefix}_transfers(
       where: { ${condition} }
-    ) {\n\t${params.map((param) => `${param}`).join("\n\t")}
-    }
+    ) {${params}}
   }`.trim();
 };
 
