@@ -1,17 +1,15 @@
-import {
-  createLoggingContext,
-  gelatoSend,
-  getGelatoRelayerAddress,
-  isChainSupportedByGelato,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { RelayerSendFailed } from "../../lib/errors";
+import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../sequencer";
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {
   const { logger } = getContext();
+  const {
+    relayer: { getGelatoRelayerAddress },
+  } = getHelpers();
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
   return relayerAddress;
 };
@@ -23,6 +21,9 @@ export const send = async (
   _requestContext: RequestContext,
 ): Promise<string> => {
   const { logger } = getContext();
+  const {
+    relayer: { gelatoSend, isChainSupportedByGelato },
+  } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
   const isSupportedByGelato = await isChainSupportedByGelato(chainId);
