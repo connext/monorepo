@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.35
+
+- [contracts] Evmos chain deployments
+
 ## 0.1.34
 
 - [router] Metrics fix
