@@ -136,7 +136,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
           ENVIRONMENT == Environment.Staging
             ? originChainData.subgraphs.runtime[0].query.replace("v0", "staging")
             : originChainData.subgraphs.runtime[0].query,
-        health: originChainData.subgraphs.runtime[0].health,
+        health: "https://api.thegraph.com/index-node/graphql",
       }
     : undefined;
   const destinationRuntimeSubgraph = originChainData.subgraphs.runtime[0]

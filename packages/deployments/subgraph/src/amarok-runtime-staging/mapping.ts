@@ -8,7 +8,7 @@ import {
   Executed,
   Reconciled,
   AssetAdded,
-} from "../../generated/Connext/ConnextUtils";
+} from "../../generated/Connext/ConnextLogic";
 import {
   RouterRemoved,
   RouterAdded,

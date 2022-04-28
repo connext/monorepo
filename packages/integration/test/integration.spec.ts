@@ -27,7 +27,6 @@ import {
   ORIGIN_ASSET,
   MIN_USER_ETH,
   TRANSFER_TOKEN_AMOUNT,
-  RELAYER_FEE_AMOUNT,
   MIN_FUNDER_ETH,
   DESTINATION_ASSET,
   CANONICAL_DOMAIN,
@@ -142,8 +141,22 @@ describe("Integration:E2E", () => {
 
     subgraph = await SubgraphReader.create({
       chains: {
-        [domainInfo.ORIGIN.domain]: domainInfo.ORIGIN.config.subgraph,
-        [domainInfo.DESTINATION.domain]: domainInfo.DESTINATION.config.subgraph,
+        [domainInfo.ORIGIN.domain]: {
+          runtime: [
+            {
+              health: "https://api.thegraph.com/index-node/graphql",
+              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
+            },
+          ],
+        },
+        [domainInfo.DESTINATION.domain]: {
+          runtime: [
+            {
+              health: "https://api.thegraph.com/index-node/graphql",
+              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
+            },
+          ],
+        },
       },
     });
 
@@ -652,13 +665,13 @@ describe("Integration:E2E", () => {
           },
           transactingAssetId: ORIGIN_ASSET.address,
           amount: TRANSFER_TOKEN_AMOUNT.toString(),
-          relayerFee: RELAYER_FEE_AMOUNT.toString(),
+          relayerFee: "0",
         };
         const encoded = connext.encodeFunctionData("xcall", [args]);
         const tx = await agents.user.origin.sendTransaction({
           to: originConnextAddress,
           data: encoded,
-          value: RELAYER_FEE_AMOUNT,
+          // value: RELAYER_FEE_AMOUNT,
         });
         const receipt = await tx.wait(1);
         log.info("XCall sent.", {
