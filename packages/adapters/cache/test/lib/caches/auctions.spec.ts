@@ -58,6 +58,13 @@ describe("AuctionCache", () => {
       const res = await redis.hget(`${prefix}:bidData`, transferId);
       return res ? JSON.parse(res) : null;
     },
+    addTxfrIdToDomainSet: async (originDomain: string, transferId: string) => {
+      await redis.sadd(`trackedTransfers:${originDomain}`, transferId)
+    },
+    getTxfrIdsInDomainSet: async (originDomain: string) => {
+      const res = await redis.smembers(`trackedTransfers:${originDomain}`);
+      return res;
+    }
   };
 
   const logger = new Logger({ level: "debug" });
@@ -167,16 +174,6 @@ describe("AuctionCache", () => {
         console.log(`AUCTION FROM MOCK ${JSON.stringify(auction)}`);
         expect(auction.origin).to.eq("1337");
 
-      //   expect(auction).to.deep.eq({
-      //     // Timestamp shouldn't have been overwritten.
-      //     timestamp: firstCallTimestamp,
-      //     origin,
-      //     destination,
-      //     bids: {
-      //       [firstBid.router]: firstBid,
-      //       [secondBid.router]: secondBid,
-      //     },
-      //   });
       });
     });
 
@@ -350,5 +347,25 @@ describe("AuctionCache", () => {
         expect(entry).to.deep.eq(bidData);
       });
     });
+    describe("#addTransferIdToDomainSet", () => {
+      const originDomain = "1337";
+      const transferId = "0xdeadbeef";
+
+      it(`happy: should add txid: ${transferId} to SET for ${originDomain}`, async () => {
+        const res = await cache.addTransferIdToDomainSet(originDomain, transferId);
+        expect(res).to.greaterThanOrEqual(1);
+      })
+
+      it(`happy: should get domain tracked transfers for ${originDomain}`, async () => {
+        const res = await mockRedisHelpers.getTxfrIdsInDomainSet(originDomain);
+        //sadcase
+        expect(res).to.eq(undefined)
+      })
+
+      it(`happy: should delete all old transfers for domain`, async () => {
+        
+      })
+    })
+
   });
 });

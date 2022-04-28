@@ -56,12 +56,13 @@ export class AuctionsCache extends Cache {
   }
 
   //@dev private  functions to manage the lifecycle of storing transferIds of in redis set to purge later only need latest transferId per originDomain.
-  private async addTransferIdToDomainSet(transferId: string, originDomain: string) {
-    await this.data.set(`trackedTransfers:${originDomain}`, `${this.prefix}:auction:${transferId}`);
+  public async addTransferIdToDomainSet(originDomain: string, transferId: string): Promise<number> {
+    const added = await this.data.sadd(`trackedTransfers:${originDomain}`, transferId);
+    return added;
   }
   
-  private async getSetDomainSetMemebers(originDomain: string): Promise<[string, string[]]>{
-    const setMembers = await this.data.sscan(`trackedTransfers:${originDomain}`);
+  public async getSetDomainSetMemebers(originDomain: string): Promise<string[]>{
+    const setMembers = await this.data.smembers(`trackedTransfers:${originDomain}`);
     return setMembers
   };
 
