@@ -15,7 +15,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer): string 
     params: {
       originDomain: transfer.originDomain,
       destinationDomain: transfer.destinationDomain,
-      to: transfer.callTo,
+      to: transfer.to,
       callData: transfer.callData,
     },
     local: transfer.xcall.localAsset,
