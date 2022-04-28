@@ -12,5 +12,5 @@ interface ISponsorVault {
   // - convert that amount to destination domain gas
   // - send the user the destination domain gas
   // -
-  function reimburseRelayerFees(uint32 originDomain, address to, uint256 relayerFee) external;
+  function reimburseRelayerFees(uint32 originDomain, address payable to, uint256 relayerFee) external;
 }

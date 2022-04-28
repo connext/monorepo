@@ -28,7 +28,7 @@ contract TestSponsorVault is ISponsorVault {
     return liquidityFeeToReturn;
   }
 
-  function reimburseRelayerFees(uint32 originDomain, address to, uint256 relayerFee) external override {
+  function reimburseRelayerFees(uint32 originDomain, address payable to, uint256 relayerFee) external override {
     to.call{value: relayerFeeToSend}("");
   }
 

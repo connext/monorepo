@@ -922,7 +922,7 @@ library ConnextLogic {
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      _args.sponsorVault.reimburseRelayerFees(_args.executeArgs.params.originDomain, _args.executeArgs.params.to, _args.executeArgs.relayerFee);
+      _args.sponsorVault.reimburseRelayerFees(_args.executeArgs.params.originDomain, payable(_args.executeArgs.params.to), _args.executeArgs.relayerFee);
     }
 
     // execute the the transaction
