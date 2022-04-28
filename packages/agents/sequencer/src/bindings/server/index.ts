@@ -101,9 +101,9 @@ export const bindServer = () =>
           auctions: { storeBid },
         } = getOperations();
         try {
-          const { transferId, bid, data: bidData } = request.body;
-          await storeBid(transferId, bid, bidData, requestContext);
-          return response.status(200).send({ message: "Bid received", transferId, bid });
+          const bid = request.body;
+          await storeBid(bid, requestContext);
+          return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
         } catch (error: unknown) {
           const type = (error as NxtpError).type;
           if (type !== AuctionExpired.name) {

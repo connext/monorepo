@@ -31,7 +31,7 @@ abstract contract Router is XAppConnectionClient, IMessageRecipient {
    * @param _domain The domain of the remote xApp Router
    * @param _router The address of the remote xApp Router
    */
-  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external {
+  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwner {
     remotes[_domain] = _router;
   }
 

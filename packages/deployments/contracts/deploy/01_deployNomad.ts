@@ -40,10 +40,10 @@ const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   let beaconAddress: string | undefined;
 
   if (proxyDeployment) {
-    console.log(`${name} proxy deployed. upgrading...`);
+    console.log(`${implementationName} proxy deployed. upgrading...`);
     // Get beacon and implementation addresses
     beaconAddress = (await hre.deployments.getOrNull(upgradeBeaconName))?.address;
-    implementation = (await hre.deployments.getOrNull(name))?.address;
+    implementation = (await hre.deployments.getOrNull(implementationName))?.address;
     if (!implementation || !beaconAddress) {
       throw new Error(`Could not find beacon or implementation address for ${name}`);
     }
@@ -152,6 +152,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await hre.ethers.getContractAt("XAppConnectionManager", xappConnectionManagerAddress)
   ).connect(deployer);
 
+  // TODO: Expose the domain publicly or something so we dont have to do this every time.
   console.log("Deploying token registry...");
   const tokenRegistry = await deployNomadBeaconProxy(
     "TokenRegistry",
@@ -199,14 +200,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`replica for ${replicaDomainName} (${replicaDomain}) enrolled`);
     }
   }
-
-  // Deploy bridge router
-  console.log("Deploying bridge router...");
-  const bridge = (
-    await deployNomadBeaconProxy("BridgeRouter", [tokenRegistry.address, xappConnectionManagerAddress], deployer, hre)
+  // Deploy relayer fee router
+  console.log("Deploying relayer fee router...");
+  const relayerFeeRouter = (
+    await deployNomadBeaconProxy("RelayerFeeRouter", [xappConnectionManagerAddress], deployer, hre)
   ).connect(deployer);
-  console.log("bridge address:", bridge.address);
-  console.log("bridge owner:", await bridge.owner());
+  console.log("relayer fee router address:", relayerFeeRouter.address);
+  console.log("relayer fee router owner:", await relayerFeeRouter.owner());
 };
+
 export default func;
 func.tags = ["Nomad"];

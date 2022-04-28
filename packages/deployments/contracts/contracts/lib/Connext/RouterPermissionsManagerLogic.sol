@@ -140,7 +140,7 @@ library RouterPermissionsManagerLogic {
     _onlyRouterOwner(router, routerInfo.routerOwners[router]);
 
     // Check that proposed is different than current owner
-    if (_getRouterOwner(router, routerInfo.routerOwners) == proposed)
+    if (getRouterOwner(router, routerInfo.routerOwners) == proposed)
       revert RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
@@ -166,7 +166,7 @@ library RouterPermissionsManagerLogic {
   ) external {
     _onlyProposedRouterOwner(router, routerInfo.routerOwners[router], routerInfo.proposedRouterOwners[router]);
 
-    address owner = _getRouterOwner(router, routerInfo.routerOwners);
+    address owner = getRouterOwner(router, routerInfo.routerOwners);
 
     // Check timestamp has passed
     if (block.timestamp - routerInfo.proposedRouterTimestamp[router] <= _delay)
@@ -262,13 +262,16 @@ library RouterPermissionsManagerLogic {
 
   /**
    * @notice Returns the router owner if it is set, or the router itself if not
+   * @dev Router owners have the ability to propose new owners and set recipients
+   * @param _router The relevant router address
+   * @param _routerOwners The mapping of owners for routers
    */
-  function _getRouterOwner(address router, mapping(address => address) storage _routerOwners)
+  function getRouterOwner(address _router, mapping(address => address) storage _routerOwners)
     internal
     view
     returns (address)
   {
-    address _owner = _routerOwners[router];
-    return _owner == address(0) ? router : _owner;
+    address _owner = _routerOwners[_router];
+    return _owner == address(0) ? _router : _owner;
   }
 }

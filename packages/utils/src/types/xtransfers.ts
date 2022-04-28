@@ -1,6 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TAddress, TDecimalString, TIntegerString } from ".";
+import { TAddress, TIntegerString } from ".";
 
 export enum XTransferStatus {
   XCalled = "XCalled",
@@ -35,7 +35,8 @@ export const XTransferSchema = Type.Object({
   callData: Type.String(),
   idx: Type.Optional(TIntegerString),
   nonce: Type.Integer(),
-  router: Type.Optional(TAddress),
+  routers: Type.Optional(Type.Array(TAddress)),
+  relayerFee: Type.Optional(TIntegerString),
 
   // XCalled
   xcall: Type.Optional(XTransferMethodCallSchema),
@@ -60,7 +61,8 @@ export type CallParams = Static<typeof CallParamsSchema>;
 export const XCallArgsSchema = Type.Object({
   params: CallParamsSchema,
   transactingAssetId: Type.String(),
-  amount: TDecimalString,
+  amount: TIntegerString,
+  relayerFee: TIntegerString,
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
@@ -69,10 +71,9 @@ export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
   local: TAddress,
   routers: Type.Array(TAddress),
-  feePercentage: TDecimalString,
-  amount: TDecimalString,
+  routerSignatures: Type.Array(Type.String()),
+  amount: TIntegerString,
   nonce: Type.Integer(),
-  relayerSignature: Type.String(),
   originSender: TAddress,
 });
 

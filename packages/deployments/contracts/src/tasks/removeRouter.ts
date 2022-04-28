@@ -24,13 +24,13 @@ export default task("remove-router", "Remove a router")
     console.log("router: ", router);
     console.log("namedAccounts: ", deployer.address);
 
-    const connextName = getDeploymentName("Connext", env);
+    const connextName = getDeploymentName("ConnextHandler", env);
     const connextDeployment = await deployments.get(connextName);
     const connextAddress = _connextAddress ?? connextDeployment.address;
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
     console.log("connextAddress: ", connextAddress);
 
-    const approved = await connext.approvedRouters(router);
+    const approved = await connext.getRouterApproval(router);
     if (!approved) {
       console.log("not approved, no need to remove");
       return;
@@ -40,6 +40,6 @@ export default task("remove-router", "Remove a router")
     const receipt = await tx.wait();
     console.log("removeRouter tx mined: ", receipt.transactionHash);
 
-    const isRouterApproved = await connext.approvedRouters(router);
+    const isRouterApproved = await connext.getRouterApproval(router);
     console.log("isRouterApproved: ", isRouterApproved);
   });

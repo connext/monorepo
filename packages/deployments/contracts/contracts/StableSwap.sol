@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/proxy/Clones.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "./lib/StableSwap/OwnerPausableUpgradeable.sol";
-import "./lib/StableSwap/AmplificationUtils.sol";
-import "./interfaces/IStableSwap.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {OwnerPausableUpgradeable} from "./lib/StableSwap/OwnerPausableUpgradeable.sol";
+import {AmplificationUtils, SwapUtils} from "./lib/StableSwap/AmplificationUtils.sol";
+import {LPToken} from "./lib/StableSwap/LPToken.sol";
+import {IStableSwap} from "./interfaces/IStableSwap.sol";
 
 /**
  * @title Swap - A StableSwap implementation in solidity.

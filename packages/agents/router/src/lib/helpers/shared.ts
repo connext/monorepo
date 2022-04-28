@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
 import {
-  signHandleRelayerFeePayload as _signHandleRelayerFeePayload,
+  signRouterPathPayload as _signRouterPathPayload,
   getSubgraphHealth as _getSubgraphHealth,
   getSubgraphName as _getSubgraphName,
 } from "@connext/nxtp-utils";
@@ -41,7 +41,7 @@ export const getTransactionId = (nonce: string, domain: string): string => {
   return utils.keccak256(utils.hexlify(utils.concat([utils.toUtf8Bytes(nonce), utils.toUtf8Bytes(domain)])));
 };
 
-export const signHandleRelayerFeePayload = _signHandleRelayerFeePayload;
+export const signRouterPathPayload = _signRouterPathPayload;
 
 export const getSubgraphHealth = _getSubgraphHealth;
 

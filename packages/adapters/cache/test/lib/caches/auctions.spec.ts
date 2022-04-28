@@ -321,13 +321,13 @@ describe("AuctionCache", () => {
         const bidData: BidData = mock.entity.bidData();
 
         await mockRedisHelpers.setBidData(transferId, bidData);
-        const res = await cache.getBidData(transferId);
+        const res = await mockRedisHelpers.getBidData(transferId);
         expect(res).to.deep.eq(bidData);
       });
 
       it("sad: should return undefined if bid data does not exist", async () => {
         const transferId = getRandomBytes32();
-        const res = await cache.getBidData(transferId);
+        const res = await mockRedisHelpers.getBidData(transferId);
         expect(res).to.deep.eq(undefined);
       });
     });
@@ -337,10 +337,10 @@ describe("AuctionCache", () => {
         const transferId = getRandomBytes32();
         const bidData = mock.entity.bidData();
 
-        const resOne = await cache.setBidData(transferId, bidData);
+        const resOne = await mockRedisHelpers.setBidData(transferId, bidData);
         expect(resOne).to.eq(1);
 
-        const resTwo = await cache.setBidData(transferId, bidData);
+        const resTwo = await mockRedisHelpers.setBidData(transferId, bidData);
         expect(resTwo).to.eq(0);
 
         const entry = await mockRedisHelpers.getBidData(transferId);
@@ -357,13 +357,13 @@ describe("AuctionCache", () => {
       })
 
       it(`happy: should get domain tracked transfers for ${originDomain}`, async () => {
-        const res = await mockRedisHelpers.getTxfrIdsInDomainSet(originDomain);
+        const res = await cache.getSetDomainSetMemebers(originDomain);
         //sadcase
-        expect(res).to.eq(undefined)
+        expect([res]).to.eq([transferId]);
       })
 
       it(`happy: should delete all old transfers for domain`, async () => {
-        
+        const res = await cache.deleteOldTransferIdsPerDomain("1337");
       })
     })
 

@@ -42,7 +42,7 @@ locals {
       }
     }
 
-    environment = "prod"
+    environment = "production"
   })
 }
 
@@ -80,6 +80,6 @@ locals {
       }
     }
     web3SignerUrl = "https://${module.web3signer.service_endpoint}"
-    environment   = "prod"
+    environment   = "production"
   })
 }
