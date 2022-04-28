@@ -1,4 +1,11 @@
-import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
+import {
+  Logger,
+  getChainData,
+  RequestContext,
+  createLoggingContext,
+  createMethodContext,
+  ChainData,
+} from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
@@ -29,7 +36,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
 
-    context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(context.chainData, context.logger, requestContext);
 
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
@@ -75,21 +82,15 @@ export const setupCache = async (
 };
 
 export const setupSubgraphReader = async (
-  sequencerConfig: SequencerConfig,
+  chainData: Map<string, ChainData>,
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<SubgraphReader> => {
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  // Separate out relevant subgraph chain config.
-  const chains: { [chain: string]: any } = {};
-  Object.entries(sequencerConfig.chains).forEach(([chainId, config]) => {
-    chains[chainId] = config.subgraph;
-  });
-  const subgraphReader = await SubgraphReader.create({
-    chains,
-  });
+
+  const subgraphReader = await SubgraphReader.create(chainData);
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
   return subgraphReader;

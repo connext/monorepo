@@ -5,8 +5,8 @@ export const SubgraphMeshOptionSchema = Type.Object({
   prefix: Type.String(),
 });
 
-export const SubgraphReaderConfigSchema = Type.Object({
+export const SubgraphMapSchema = Type.Object({
   sources: Type.Record(Type.String(), SubgraphMeshOptionSchema),
 });
 
-export type SubgraphReaderConfig = Static<typeof SubgraphReaderConfigSchema>;
+export type SubgraphMap = Static<typeof SubgraphMapSchema>;

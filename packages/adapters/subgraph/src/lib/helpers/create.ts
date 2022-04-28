@@ -1,9 +1,9 @@
 import { ChainData } from "@connext/nxtp-utils";
 
-import { SubgraphReaderConfig } from "../entities";
+import { SubgraphMap } from "../entities";
 import { getMeshOptions } from "./shared";
 
-export const create = async (chaindata: Map<string, ChainData>): Promise<SubgraphReaderConfig> => {
+export const create = async (chaindata: Map<string, ChainData>): Promise<SubgraphMap> => {
   const meshOption = await getMeshOptions();
   const names = meshOption.sources.map((source) => source.name);
   const prefixes = names.map((name) => name.split("_")[1].toLowerCase());

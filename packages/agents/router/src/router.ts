@@ -145,18 +145,11 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
 };
 
 export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
-  const { config: routerConfig, logger } = context;
+  const { logger, chainData } = context;
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  // Separate out relevant subgraph chain config.
-  const chains: { [chain: string]: any } = {};
-  Object.entries(routerConfig.chains).forEach(([chainId, config]) => {
-    chains[chainId] = config.subgraph;
-  });
-  const subgraphReader = await SubgraphReader.create({
-    chains,
-  });
+  const subgraphReader = await SubgraphReader.create(chainData);
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
   return subgraphReader;

@@ -13,16 +13,16 @@ import {
   getTransfersStatusQuery,
   getXCalledTransfersQuery,
 } from "./lib/operations";
-import { SubgraphReaderConfig } from "./lib/entities";
+import { SubgraphMap } from "./lib/entities";
 import { DomainInvalid } from "./lib/errors";
 
-let context: { config: SubgraphReaderConfig };
+let context: { config: SubgraphMap };
 export const getContext = () => context;
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
 
-  private constructor(config: SubgraphReaderConfig) {
+  private constructor(config: SubgraphMap) {
     context = { config };
   }
 

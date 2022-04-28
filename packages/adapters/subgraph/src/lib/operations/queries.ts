@@ -1,6 +1,5 @@
 import { gql } from "graphql-request";
 import { SubgraphQueryMetaParams } from "@connext/nxtp-utils";
-import { SubgraphReaderConfig } from "../entities";
 import { getContext } from "../../reader";
 
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {

@@ -1,6 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress } from "@connext/nxtp-utils";
-import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
+import { TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
   subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
