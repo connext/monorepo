@@ -22,11 +22,15 @@ export const pollCache = async () => {
   const {
     adapters: { cache, txservice },
     logger,
+    chainToDomainMap,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(pollCache.name);
 
   // Retrieve all pending tasks.
   const pending = await cache.tasks.getPending();
+  if (pending.length === 0) {
+    return;
+  }
   logger.debug("Retrieved pending tasks", requestContext, methodContext, { pending });
 
   // TODO: Organize by chain, execute async.
@@ -56,6 +60,7 @@ export const pollCache = async () => {
           value: BigNumber.from("0"),
         },
         requestContext,
+        chainToDomainMap.get(chain),
       );
       await cache.tasks.setHash(taskId, receipt.transactionHash);
       logger.info("Successfully sent transaction to network.", requestContext, methodContext, {

@@ -17,4 +17,5 @@ export type AppContext = {
   };
   config: RelayerConfig;
   chainData: Map<string, ChainData>;
+  chainToDomainMap: Map<number, number>; // For convenience.
 };

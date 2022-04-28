@@ -1,10 +1,10 @@
 import { utils, Wallet } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
+import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
 import { getDeployedConnextContract } from "@connext/nxtp-txservice";
-import { RelayerConfig } from "@connext/nxtp-relayer";
 
 export enum Environment {
   Staging = "staging",
@@ -86,6 +86,7 @@ export type Agent = {
 export type TestAgents = {
   user: Agent;
   router?: Agent;
+  relayer?: Agent;
   deployer?: Agent;
 };
 
@@ -123,7 +124,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
 
   // See above TODO regarding hardcoded contract addresses.
   const getConnextContract = (chainId: number): string => {
-    const contract = getDeployedConnextContract(chainId, "Staging");
+    const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
     if (!contract) {
       throw new Error(`No Connext contract deployed on chain ${chainId}`);
     }
@@ -220,7 +221,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       priceCaching: false,
     },
     polling: {
-      subgraph: 5_000,
+      subgraph: 10_000,
       cache: 5_000,
     },
     environment,
@@ -284,7 +285,7 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
         deployments: DESTINATION.config.deployments,
       },
     },
-    logLevel: "info",
+    logLevel: "debug",
     mode: {
       cleanup: false,
     },

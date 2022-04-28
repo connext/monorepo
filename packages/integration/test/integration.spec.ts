@@ -2,8 +2,10 @@ import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
 import { makeRouter } from "@connext/nxtp-router/src/router";
+import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
+import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import {
   AuctionsApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
@@ -36,6 +38,7 @@ import {
   ROUTER_DESIRED_LIQUIDITY,
   DEBUG_XCALL_TXHASH,
   SKIP_SEQUENCER_CHECKS,
+  RELAYER_CONFIG,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
@@ -51,6 +54,7 @@ import {
 import { log } from "./log";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
+const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
 const DEPLOYER_MNEMONIC = process.env.DEPLOYER_MNEMONIC;
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
 
@@ -69,6 +73,7 @@ describe("Integration:E2E", () => {
   let domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };
   let routerConfig: RouterConfig;
   let sequencerConfig: SequencerConfig;
+  let relayerConfig: RelayerConfig;
 
   // Services.
   let chainreader: ChainReader;
@@ -84,9 +89,12 @@ describe("Integration:E2E", () => {
     domainInfo = await DOMAINS;
     routerConfig = await ROUTER_CONFIG;
     sequencerConfig = await SEQUENCER_CONFIG;
+    relayerConfig = await RELAYER_CONFIG;
 
     // Init agents.
     const router = ROUTER_MNEMONIC ? Wallet.fromMnemonic(ROUTER_MNEMONIC) : undefined;
+    // As a backup, the relayer can use the router wallet as well.
+    const relayer = RELAYER_MNEMONIC ? Wallet.fromMnemonic(RELAYER_MNEMONIC) : router;
     const deployer = ROUTER_MNEMONIC && DEPLOYER_MNEMONIC ? Wallet.fromMnemonic(DEPLOYER_MNEMONIC) : undefined;
     const user = Wallet.fromMnemonic(USER_MNEMONIC);
     const originProvider = new providers.JsonRpcProvider(domainInfo.ORIGIN.config.providers[0]);
@@ -97,6 +105,13 @@ describe("Integration:E2E", () => {
             address: router.address.toLowerCase(),
             origin: router.connect(originProvider),
             destination: router.connect(destinationProvider),
+          }
+        : undefined,
+      relayer: relayer
+        ? {
+            address: relayer.address.toLowerCase(),
+            origin: relayer.connect(originProvider),
+            destination: relayer.connect(destinationProvider),
           }
         : undefined,
       deployer: deployer
@@ -153,7 +168,9 @@ describe("Integration:E2E", () => {
         `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
-        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tUser:    \t${agents.user.address}` +
+        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tRelayer:   \t${
+          agents.relayer?.address ?? "N/A"
+        }\n\tUser:    \t${agents.user.address}` +
         `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
           network: domainInfo.ORIGIN.network,
           address: originConnextAddress,
@@ -559,11 +576,20 @@ describe("Integration:E2E", () => {
       }
     }
 
+    // TODO: Check if relayer has ETH if necessary.
+
+    // TODO: Check if relayer needs approval ??
+
     if (agents.router) {
-      log.next("SEQUENCER START");
-      await makeSequencer({
-        ...sequencerConfig,
+      log.next("RELAYER START");
+      await makeRelayer({
+        ...relayerConfig,
+        mnemonic: RELAYER_MNEMONIC || ROUTER_MNEMONIC,
       });
+      await delay(1_000);
+
+      log.next("SEQUENCER START");
+      await makeSequencer(sequencerConfig);
       await delay(1_000);
 
       log.next("ROUTER START");
@@ -636,7 +662,7 @@ describe("Integration:E2E", () => {
         log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
           domain: domainInfo.ORIGIN,
           etc: {
-            polled: `${parity * attempts}ms.`,
+            polled: `${parity * i}ms.`,
           },
         });
       }
@@ -701,6 +727,7 @@ describe("Integration:E2E", () => {
         transferId: transfer.transferId,
       });
       let i;
+      let reconciled = false;
       for (i = 0; i < attempts; i++) {
         await delay(SUBG_POLL_PARITY);
         const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
@@ -710,14 +737,24 @@ describe("Integration:E2E", () => {
             ..._transfer,
             xcall: transfer?.xcall,
           };
-          break;
+          // The transfer may have been reconciled, but not executed. Double check here.
+          if (transfer.execute?.transactionHash) {
+            break;
+          } else if (transfer.reconcile?.transactionHash && !reconciled) {
+            reconciled = true;
+            log.info("Transfer was reconciled.", {
+              domain: domainInfo.DESTINATION,
+              hash: transfer.reconcile.transactionHash,
+            });
+          }
         }
       }
+
       if (!transfer.execute?.transactionHash) {
         log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
           domain: domainInfo.DESTINATION,
           etc: {
-            polled: `~${(SUBG_POLL_PARITY * attempts) / 1_000}s`,
+            polled: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
           },
         });
       }

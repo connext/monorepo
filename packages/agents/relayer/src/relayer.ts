@@ -24,7 +24,9 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
     context.chainData = chainData;
     context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
     context.logger = new Logger({ level: context.config.logLevel });
-    context.logger.info("Relayer config generated.", requestContext, methodContext, { config: context.config });
+    context.logger.info("Relayer config generated.", requestContext, methodContext, {
+      config: { ...context.config, mnemonic: "*****" },
+    });
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
@@ -37,9 +39,19 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
       context.adapters.wallet as Wallet | Web3Signer,
+      true, // Ghost instance, in the event that this is running in the same process as a router.
     );
 
     context.adapters.contracts = getContractInterfaces();
+
+    context.chainToDomainMap = new Map();
+    for (const domain of Object.keys(context.config.chains)) {
+      if (context.chainData.has(domain)) {
+        context.chainToDomainMap.set(context.chainData.get(domain)!.chainId, Number(domain));
+      } else {
+        throw new Error(`ChainData doesn't have a record for domain: ${domain}`);
+      }
+    }
 
     // Create server, set up routes, and start listening.
     await bindServer();

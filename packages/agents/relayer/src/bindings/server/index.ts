@@ -25,7 +25,7 @@ export const bindServer = () =>
     });
 
     server.post<{
-      Params: { chainId: number };
+      Params: { chainId: string };
       Body: RelayerApiPostTaskRequestParams;
       Reply: RelayerApiPostTaskResponse | RelayerApiErrorResponse;
     }>(
@@ -46,8 +46,12 @@ export const bindServer = () =>
         } = getOperations();
         try {
           const { chainId } = request.params;
+          const chain = Number(chainId);
+          if (isNaN(chain)) {
+            throw new NxtpError("Invalid chainId, must be numeric", { chainId });
+          }
           const task = request.body;
-          const taskId = await createTask(chainId, task, requestContext);
+          const taskId = await createTask(chain, task, requestContext);
           return response.status(200).send({ message: "Task created", taskId });
         } catch (error: unknown) {
           const type = (error as NxtpError).type;

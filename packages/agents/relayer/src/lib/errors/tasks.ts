@@ -6,6 +6,16 @@ export class DecodeExecuteError extends NxtpError {
   }
 }
 
+export class ChainNotSupported extends NxtpError {
+  constructor(chain: number, context: any = {}) {
+    super(
+      "Relayer does not support relaying transactions on this chain.",
+      { ...context, chain },
+      ChainNotSupported.name,
+    );
+  }
+}
+
 export class ParamsInvalid extends NxtpError {
   constructor(context: any = {}) {
     super("Params for `execute` call were invalid.", context, ParamsInvalid.name);

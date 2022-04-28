@@ -1,4 +1,4 @@
-import { constants } from "ethers";
+import { constants, BigNumber } from "ethers";
 import {
   RequestContext,
   createLoggingContext,
@@ -10,7 +10,7 @@ import {
 import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 
 import { getContext } from "../../relayer";
-import { ContractDeploymentMissing, DecodeExecuteError, ParamsInvalid } from "../errors/tasks";
+import { ChainNotSupported, ContractDeploymentMissing, DecodeExecuteError, ParamsInvalid } from "../errors/tasks";
 
 /**
  * Creates a task based on passed-in params (assuming task doesn't already exist), and returns the taskId.
@@ -26,10 +26,12 @@ export const createTask = async (
 ): Promise<string> => {
   const {
     logger,
+    config,
     adapters: {
       cache,
       contracts: { connext },
     },
+    chainToDomainMap,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
 
@@ -49,18 +51,19 @@ export const createTask = async (
     }
     args = {
       params: {
-        originDomain: decoded.params.originDomain,
-        destinationDomain: decoded.params.destinationDomain,
+        originDomain: decoded.params.originDomain.toString(),
+        destinationDomain: decoded.params.destinationDomain.toString(),
         to: decoded.params.to,
         callData: decoded.params.callData,
       },
       local: decoded.local,
       routers: decoded.routers,
       routerSignatures: decoded.routerSignatures,
-      amount: decoded.amount,
-      nonce: decoded.nonce,
+      amount: decoded.amount.toString(),
+      nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
     };
+    console.log("parsed args", args);
   } catch (error: unknown) {
     throw new DecodeExecuteError({
       decoded,
@@ -79,14 +82,19 @@ export const createTask = async (
     });
   }
 
-  const connextAddress = getDeployedConnextContract(chain)?.address;
+  const connextAddress = getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
   if (!connextAddress) {
     throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
-  } else if (to !== connextAddress) {
+  } else if (to.toLowerCase() !== connextAddress.toLowerCase()) {
     throw new ParamsInvalid({
       paramsError: "to must be designated connext contract address",
-      args,
+      to: args.params.to,
+      connextAddress,
     });
+  }
+
+  if (!chainToDomainMap.has(chain)) {
+    throw new ChainNotSupported(chain);
   }
 
   // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.

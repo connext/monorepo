@@ -40,7 +40,9 @@ export class TasksCache extends Cache {
   }
 
   /**
-   * Set recorded liquidity amount for a given router on a given domain for a given asset.
+   * Set recorded liquidity amount for a given router on a given domain for a given asset. Will also set
+   * the status of the task to be RelayerTaskStatus.Pending.
+   *
    * @param params.chain - Chain number.
    * @param params.data - Execute calldata.
    * @param params.fee - Relayer fee info.
@@ -52,6 +54,7 @@ export class TasksCache extends Cache {
     const taskId = getRandomBytes32();
     const key = `${this.prefix}:data`;
     await this.data.hset(key, taskId, JSON.stringify(params));
+    await this.setStatus(taskId, RelayerTaskStatus.Pending);
     return taskId;
   }
 
