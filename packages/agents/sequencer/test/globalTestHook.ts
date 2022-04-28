@@ -1,4 +1,4 @@
-import { AuctionsCache, RoutersCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
 import { Logger, mkAddress } from "@connext/nxtp-utils";
@@ -48,6 +48,7 @@ export const mochaHooks = {
         cache: cacheInstance,
         chainreader: chainReaderMock,
         contracts: mock.context().adapters.contracts,
+        relayer: mock.context().adapters.relayer,
       },
       config: mock.config(),
       chainData: mock.context().chainData,

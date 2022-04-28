@@ -1,28 +1,21 @@
 import { RequestContext, createLoggingContext, XTransfer, Bid } from "@connext/nxtp-utils";
-import { AxiosError } from "axios";
 
-import { GelatoSendFailed } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
   bids: Bid[],
   transfer: XTransfer,
-  relayerFee: {
-    asset: string;
-    amount: string;
-  },
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
     logger,
     chainData,
     config,
-    adapters: { chainreader },
+    adapters: { chainreader, relayer },
   } = getContext();
   const {
     auctions: { encodeExecuteFromBids },
-    relayer: { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
@@ -34,16 +27,8 @@ export const sendToRelayer = async (
 
   const encodedData = encodeExecuteFromBids(bids, transfer);
 
-  const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
-  if (!isSupportedByGelato) {
-    throw new Error("Chain not supported by gelato.");
-  }
-
   // Validate the bid's fulfill call will succeed on chain.
-  const relayerAddress = await getGelatoRelayerAddress(destinationChainId, logger);
-  logger.debug("Got relayer address", requestContext, methodContext, {
-    relayerAddress,
-  });
+  const relayerAddress = await relayer.getRelayerAddress(destinationChainId);
 
   logger.info("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,
@@ -63,30 +48,9 @@ export const sendToRelayer = async (
     gas: gas.toString(),
   });
 
-  logger.info("Sending to Gelato network", requestContext, methodContext, {
-    encodedData,
-    destinationConnextAddress,
-    domain: transfer.destinationDomain,
-  });
-  const result = await gelatoSend(
-    destinationChainId,
-    destinationConnextAddress,
-    encodedData,
-    relayerFee.asset,
-    relayerFee.amount,
-  );
-  if ((result as AxiosError).isAxiosError) {
-    throw new GelatoSendFailed({ result });
-  } else {
-    const { taskId } = result;
-    logger.info("Sent to Gelato network", requestContext, methodContext, {
-      result,
-      taskId,
-      // response: response.data,
-    });
-    return taskId;
-  }
+  const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  return taskId;
 
   // const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
-  // TODO: check response, if it didn't work, send the next!
+  // TODO: check response, if it didn't work, error!
 };
