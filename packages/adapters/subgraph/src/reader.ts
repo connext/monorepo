@@ -295,6 +295,6 @@ export class SubgraphReader {
       }),
     );
 
-    return [...allTxById.values()].filter((xTransfer) => xTransfer.status !== XTransferStatus.xcalled);
+    return [...allTxById.values()].filter((xTransfer) => xTransfer.status !== XTransferStatus.XCalled);
   }
 }

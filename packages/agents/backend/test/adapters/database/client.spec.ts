@@ -1,9 +1,14 @@
 import { restore, reset } from "sinon";
-import { expect, mock } from "@connext/nxtp-utils";
+import { expect, mock, XTransfer } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 import pg from "pg";
 
-import { getTransferByTransferId, saveTransfers } from "../../../src/adapters/database/client";
+import {
+  getTransferByTransferId,
+  getTransfersByStatus,
+  getLatestNonce,
+  saveTransfers,
+} from "../../../src/adapters/database/client";
 import { newDb } from "pg-mem";
 
 const db = newDb();
@@ -11,12 +16,13 @@ const { Pool } = db.adapters.createPg();
 
 describe("Database client", () => {
   let pool: pg.Pool;
+  let xTransfer: XTransfer;
 
   before(async () => {
+    xTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, utils.parseEther("1000000").toString());
     pool = new Pool();
-    console.log("pool: ", pool);
     await pool.query(`
-      create type transfer_status as enum ('pending', 'xcalled', 'executed', 'reconciled', 'failed');
+      create type transfer_status as enum ('Pending', 'XCalled', 'Executed', 'Reconciled', 'Failed');
       create table transfers (
         -- meta
         transfer_id character(66) primary key,
@@ -77,11 +83,19 @@ describe("Database client", () => {
   });
 
   it("should save transfers", async () => {
-    const xTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, utils.parseEther("1000000").toString());
-    const t = await saveTransfers([xTransfer], pool);
-    console.log("t: ", t);
+    await saveTransfers([xTransfer], pool);
+  });
+  it("should get transfer by Id", async () => {
     const transfer = await getTransferByTransferId(xTransfer.transferId, pool);
-    console.log("transfer: ", transfer);
-    expect(transfer).to.deep.equal(xTransfer);
+    expect(transfer.transferId).equal(xTransfer.transferId);
+  });
+  it("should get transfer by status", async () => {
+    const statusTransfers = await getTransfersByStatus(xTransfer.status, pool);
+    expect(statusTransfers[0].status).equal(xTransfer.status);
+    expect(statusTransfers.length).greaterThan(0);
+  });
+  it("should get latest nonce", async () => {
+    const nonce = await getLatestNonce("1337", pool);
+    expect(nonce).equal(1234);
   });
 });

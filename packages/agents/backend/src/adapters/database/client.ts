@@ -118,29 +118,35 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
   const poolToUse = _pool ?? pool;
   const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer);
 
-  await db.upsert("transfers", transfers, "transfer_id").run(poolToUse);
+  //TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
+  for (const oneTransfer of transfers) {
+    await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`INSERT INTO ${"transfers"} (${db.cols(oneTransfer)})
+    VALUES (${db.vals(oneTransfer)}) ON CONFLICT ("transfer_id") DO UPDATE SET (${db.cols(oneTransfer)}) = (${db.vals(
+      oneTransfer,
+    )}) RETURNING *`.run(poolToUse);
+  }
 };
 
 export const getTransferByTransferId = async (transferId: string, _pool?: Pool): Promise<XTransfer | undefined> => {
   const poolToUse = _pool ?? pool;
-
-  const x = await db.selectOne("transfers", { transfer_id: transferId }).run(poolToUse);
-  return x ? convertFromDbTransfer(x) : undefined;
+  const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} LIMIT 1`.run(
+    poolToUse,
+  );
+  return x ? convertFromDbTransfer(x[0]) : undefined;
 };
 
 export const getTransfersByStatus = async (status: XTransferStatus, _pool?: Pool): Promise<XTransfer[]> => {
   const poolToUse = _pool ?? pool;
-
-  const x = await db.select("transfers", { status }).run(poolToUse);
+  const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    status,
+  }}`.run(poolToUse);
   return x.map(convertFromDbTransfer);
 };
 
 export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<number> => {
   const poolToUse = _pool ?? pool;
-
-  const transfer = await db
-    .selectOne("transfers", { origin_domain: domain }, { order: { by: "nonce", direction: "DESC" } })
-    .run(poolToUse);
-
-  return transfer?.nonce ?? 0;
+  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    origin_domain: domain,
+  }} ORDER BY "nonce" DESC`.run(poolToUse);
+  return transfer[0]?.nonce ?? 0;
 };
