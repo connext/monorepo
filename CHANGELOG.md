@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.36
+
+- [utils] Optimism gas estimation fix
+
 ## 0.1.35
 
 - [contracts] Evmos chain deployments
