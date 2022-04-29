@@ -29,6 +29,7 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
     ropsten: "ropsten.etherscan.io",
     rinkeby: "rinkeby.etherscan.io",
     kovan: "kovan.etherscan.io",
+    goerli: "goerli.etherscan.io",
   };
   const url = networkNameToUrl[network];
   if (!url) {
@@ -122,11 +123,44 @@ export const getAssetApproval = async (
   return connext.decodeFunctionResult("approvedAssets", result)[0] as boolean;
 };
 
+export const convertToCanonicalAsset = async (
+  context: OperationContext,
+  input: {
+    adopted: string;
+    domain: DomainInfo;
+  },
+): Promise<{
+  canonicalAsset: string;
+  canonicalTokenId: string;
+}> => {
+  const { chainreader } = context;
+  const {
+    adopted,
+    domain: {
+      chain,
+      config: {
+        deployments: { connext: contract },
+      },
+    },
+  } = input;
+  const connext = getConnextInterface();
+
+  const encoded = connext.encodeFunctionData("adoptedToCanonical", [adopted]);
+  const result = await chainreader.readTx({
+    chainId: chain,
+    to: contract,
+    data: encoded,
+  });
+  const canonicalAsset = connext.decodeFunctionResult("adoptedToCanonical", result)[1] as string;
+
+  const canonicalTokenId = utils.hexlify(canonizeTokenId(canonicalAsset));
+  return { canonicalAsset, canonicalTokenId };
+};
+
 export const checkOnchainLocalAsset = async (
   context: OperationContext,
   input: {
     adopted: string;
-    canonical: string;
     domain: DomainInfo;
   },
 ): Promise<{
@@ -138,7 +172,6 @@ export const checkOnchainLocalAsset = async (
 }> => {
   const { chainreader } = context;
   const {
-    canonical,
     adopted,
     domain: {
       chain,
@@ -147,23 +180,12 @@ export const checkOnchainLocalAsset = async (
       },
     },
   } = input;
-  const canonicalTokenId = utils.hexlify(canonizeTokenId(canonical));
   const connext = getConnextInterface();
 
-  let canonicalToAdopted: string;
   let adoptedToCanonical: string;
+  let canonicalToAdopted: string;
   let trAddress: string;
   let getTokenId: string;
-  {
-    const encoded = connext.encodeFunctionData("canonicalToAdopted", [canonicalTokenId]);
-    const result = await chainreader.readTx({
-      chainId: chain,
-      to: contract,
-      data: encoded,
-    });
-    canonicalToAdopted = connext.decodeFunctionResult("canonicalToAdopted", result)[0] as string;
-  }
-
   {
     const encoded = connext.encodeFunctionData("adoptedToCanonical", [adopted]);
     const result = await chainreader.readTx({
@@ -172,6 +194,17 @@ export const checkOnchainLocalAsset = async (
       data: encoded,
     });
     adoptedToCanonical = connext.decodeFunctionResult("adoptedToCanonical", result)[1] as string;
+  }
+  const canonicalTokenId = utils.hexlify(canonizeTokenId(adoptedToCanonical));
+
+  {
+    const encoded = connext.encodeFunctionData("canonicalToAdopted", [canonicalTokenId]);
+    const result = await chainreader.readTx({
+      chainId: chain,
+      to: contract,
+      data: encoded,
+    });
+    canonicalToAdopted = connext.decodeFunctionResult("canonicalToAdopted", result)[0] as string;
   }
 
   {

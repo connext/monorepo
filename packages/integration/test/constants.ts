@@ -4,7 +4,7 @@ import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } fr
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
-import { getDeployedConnextContract } from "@connext/nxtp-txservice";
+import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 
 export enum Environment {
   Staging = "staging",
@@ -13,20 +13,13 @@ export enum Environment {
 
 // TODO: Should have an overrides in env:
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
-export const ORIGIN_ASSET = {
-  name: "TEST",
-  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F".toLowerCase(),
-};
-export const DESTINATION_ASSET = {
-  name: "TEST",
-  address: "0xb7b1d3cc52e658922b2af00c5729001cea98142c",
-};
+const ASSET_CONTRACT_NAME = "TestERC20";
 
 /// MARK - Integration Settings
-// TODO: Allow overwrites for most, if not all of these in .env!
-const ORIGIN_DOMAIN = "2221"; // Kovan
-const DESTINATION_DOMAIN = "1111"; // Rinkeby
-export const CANONICAL_DOMAIN = "ORIGIN";
+const DEFAULT_ROUTE = ["2221", "1111"]; // Kovan => Rinkeby
+
+// Override of what the canonical asset should be.
+export const CANONICAL_ASSET = process.env.CANONICAL_ASSET;
 
 // Environment setting.
 export const ENVIRONMENT = process.env.ENV || process.env.ENVIRONMENT || Environment.Staging;
@@ -93,29 +86,68 @@ export type TestAgents = {
   deployer?: Agent;
 };
 
-// Asynchronous domain info setup.
+/// MARK - General domain info setup.
 export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> = (async (): Promise<{
   ORIGIN: DomainInfo;
   DESTINATION: DomainInfo;
 }> => {
+  /// MARK - Pick origin and destination domains.
+  let origin = process.env.ORIGIN_DOMAIN || process.env.ORIGIN;
+  let destination = process.env.DESTINATION_DOMAIN || process.env.DESTINATION;
+
+  if (!origin || !destination) {
+    console.log(
+      "Origin and/or destination chains were not specified in env (ORIGIN, DESTINATION). Using default route.",
+    );
+    origin = DEFAULT_ROUTE[0];
+    destination = DEFAULT_ROUTE[1];
+  }
+
+  /// MARK - Set up chain data for origin and destination.
   const chainData = await getChainData();
   if (!chainData) {
     throw new Error("Could not get chain data");
   }
 
-  const originChainData = chainData.get(ORIGIN_DOMAIN);
-  const destinationChainData = chainData.get(DESTINATION_DOMAIN);
+  const originChainData = chainData.get(origin);
+  const destinationChainData = chainData.get(destination);
 
   if (!originChainData || !destinationChainData) {
     throw new Error("Could not get chain data for origin or destination");
   }
 
+  /// MARK - Get TEST ERC20 token addresses.
+  const deployments = _getContractDeployments();
+  const originChainAsset: string | undefined =
+    (deployments[originChainData.chainId.toString()] ?? {})[0]?.contracts[ASSET_CONTRACT_NAME]?.address ?? undefined;
+  const destinationChainAsset: string | undefined =
+    (deployments[destinationChainData.chainId.toString()] ?? {})[0]?.contracts[ASSET_CONTRACT_NAME]?.address ??
+    undefined;
+
+  if (!originChainAsset || !destinationChainAsset) {
+    throw new Error(
+      "Could not locate addresses for origin and destination chain assets under contract name: " + ASSET_CONTRACT_NAME,
+    );
+  } else if (originChainAsset === destinationChainAsset) {
+    throw new Error(
+      "Something isn't right; origin and destination chain assets cannot be the same. Origin asset: " +
+        originChainAsset +
+        " Destination asset: " +
+        destinationChainAsset,
+    );
+  }
+
+  /// MARK - Configure providers.
   const infuraKey =
     process.env.INFURA_KEY || process.env.INFURA_API_KEY || process.env.INFURA_PROJECT || process.env.INFURA_PROJECT_ID;
   const originProvider =
-    process.env.ORIGIN_PROVIDER ?? infuraKey ? `https://kovan.infura.io/v3/${infuraKey}` : undefined;
+    process.env.ORIGIN_PROVIDER ?? infuraKey
+      ? `https://${originChainData.network}.infura.io/v3/${infuraKey}`
+      : undefined;
   const destinationProvider =
-    process.env.DESTINATION_PROVIDER ?? infuraKey ? `https://rinkeby.infura.io/v3/${infuraKey}` : undefined;
+    process.env.DESTINATION_PROVIDER ?? infuraKey
+      ? `https://${destinationChainData.network}.infura.io/v3/${infuraKey}`
+      : undefined;
 
   if (!originProvider || !destinationProvider) {
     throw new Error(
@@ -125,14 +157,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     );
   }
 
-  const getConnextContract = (chainId: number): string => {
-    const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
-    if (!contract) {
-      throw new Error(`No Connext contract deployed on chain ${chainId}`);
-    }
-    return contract.address.toLowerCase();
-  };
-
+  /// MARK - Subgraph config.
   const originRuntimeSubgraph = originChainData.subgraphs.runtime[0]
     ? {
         query:
@@ -151,6 +176,15 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         health: "https://api.thegraph.com/index-node/graphql",
       }
     : undefined;
+
+  /// MARK - Assert ConnextHandler contract is deployed helper.
+  const getConnextContract = (chainId: number): string => {
+    const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
+    if (!contract) {
+      throw new Error(`No Connext contract deployed on chain ${chainId}`);
+    }
+    return contract.address.toLowerCase();
+  };
   return {
     ORIGIN: {
       name: originChainData.name,
@@ -159,7 +193,12 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       chain: originChainData.chainId,
       config: {
         providers: [originProvider],
-        assets: [ORIGIN_ASSET],
+        assets: [
+          {
+            name: "TEST",
+            address: originChainAsset,
+          },
+        ],
         subgraph: {
           analytics: originChainData.subgraphs.analytics ? originChainData.subgraphs.analytics : [],
           runtime: originRuntimeSubgraph ? [originRuntimeSubgraph] : [],
@@ -179,7 +218,12 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       chain: destinationChainData.chainId,
       config: {
         providers: [destinationProvider],
-        assets: [DESTINATION_ASSET],
+        assets: [
+          {
+            name: "TEST",
+            address: destinationChainAsset,
+          },
+        ],
         subgraph: {
           analytics: destinationChainData.subgraphs.analytics ? destinationChainData.subgraphs.analytics : [],
           runtime: destinationRuntimeSubgraph ? [destinationRuntimeSubgraph] : [],

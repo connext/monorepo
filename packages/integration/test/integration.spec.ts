@@ -25,12 +25,9 @@ import {
   DOMAINS,
   ROUTER_CONFIG,
   SEQUENCER_CONFIG,
-  ORIGIN_ASSET,
   MIN_USER_ETH,
   TRANSFER_TOKEN_AMOUNT,
   MIN_FUNDER_ETH,
-  DESTINATION_ASSET,
-  CANONICAL_DOMAIN,
   TestAgents,
   EXECUTE_TIMEOUT,
   SUBG_POLL_PARITY,
@@ -40,9 +37,11 @@ import {
   SKIP_SEQUENCER_CHECKS,
   RELAYER_CONFIG,
   LOCAL_RELAYER_ENABLED,
+  CANONICAL_ASSET,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
+  convertToCanonicalAsset,
   formatEtherscanLink,
   formatSubgraphGetTransferQuery,
   getAllowance,
@@ -173,6 +172,8 @@ describe("Integration:E2E", () => {
     const relayerAddress: string = agents.relayer
       ? agents.relayer.address
       : await getGelatoRelayerAddress(domainInfo.DESTINATION.chain);
+    const originAsset = domainInfo.ORIGIN.config.assets[0];
+    const destinationAsset = domainInfo.DESTINATION.config.assets[0];
 
     // Log setup.
     log.params(
@@ -191,7 +192,7 @@ describe("Integration:E2E", () => {
           network: domainInfo.DESTINATION.network,
           address: destinationConnextAddress,
         })}` +
-        `\nASSETS\n\tOrigin:   \t${ORIGIN_ASSET.address}\n\tDestination:\t${DESTINATION_ASSET.address}`,
+        `\nASSETS\n\tOrigin:   \t${originAsset.address}\n\tDestination:\t${destinationAsset.address}`,
     );
 
     if (agents.router) {
@@ -201,11 +202,12 @@ describe("Integration:E2E", () => {
         // { domain: domainInfo.ORIGIN, deployer: agents.deployer?.origin },
         { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
       ]) {
-        let isApproved = getRouterApproval(context, {
+        let isApproved = await getRouterApproval(context, {
           domain,
         });
         if (!isApproved) {
           if (deployer) {
+            log.info("Router is not approved. Using deployer to approve.");
             // Router is not approved. Use deployer to approve router.
             const encoded = connext.encodeFunctionData("setupRouter", [
               agents.router.address,
@@ -218,7 +220,7 @@ describe("Integration:E2E", () => {
             });
             await tx.wait(1);
 
-            isApproved = getRouterApproval(context, {
+            isApproved = await getRouterApproval(context, {
               domain,
             });
 
@@ -240,17 +242,32 @@ describe("Integration:E2E", () => {
     log.next("VERIFY ASSET APPROVAL");
     // Make sure the assets on origin and destination are approved.
     {
-      const canonicalAsset = domainInfo[CANONICAL_DOMAIN].config.assets[0].address.toLowerCase();
       for (const { domain, deployer } of [
         { domain: domainInfo.ORIGIN, deployer: agents.deployer?.origin },
         { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
       ]) {
         const localAsset = domain.config.assets[0].address.toLowerCase();
-        const isApproved = await getAssetApproval(context, {
-          domain,
-          canonical: canonicalAsset,
-        });
-        if (!isApproved) {
+        let canonicalAsset: string | undefined = CANONICAL_ASSET;
+        if (!canonicalAsset) {
+          // Convert the local asset into the canonical asset using information from the chain.
+          const { canonicalTokenId, canonicalAsset: _canonicalAsset } = await convertToCanonicalAsset(context, {
+            adopted: localAsset,
+            domain,
+          });
+          canonicalAsset = _canonicalAsset;
+          log.info("Retrieved canonical asset from onchain.", {
+            domain,
+            etc: { canonicalAsset, canonicalTokenId },
+          });
+        }
+
+        if (
+          canonicalAsset === constants.AddressZero ||
+          !(await getAssetApproval(context, {
+            domain,
+            canonical: canonicalAsset,
+          }))
+        ) {
           if (!deployer) {
             log.fail("Asset needs approval on this domain.", { domain });
           }
@@ -266,10 +283,11 @@ describe("Integration:E2E", () => {
           const { adoptedToCanonical, canonicalToAdopted, canonicalTokenId, getTokenId, tokenRegistry } =
             await checkOnchainLocalAsset(context, {
               domain,
-              canonical: canonicalAsset,
               adopted: localAsset,
             });
           if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalTokenId) {
+            // TODO: Change this to log.info, actually carry out the on-chain replacement below.
+            // (Need to confirm that this works.)
             log.fail("Asset needs to be overwritten! Wrong local asset set on this domain.", {
               domain,
               etc: {
@@ -346,7 +364,7 @@ describe("Integration:E2E", () => {
       const userTokens = await chainreader.getBalance(
         domainInfo.ORIGIN.chain,
         agents.user.address,
-        ORIGIN_ASSET.address,
+        originAsset.address,
       );
 
       log.info("Retrieved User ETH.", {
@@ -398,7 +416,7 @@ describe("Integration:E2E", () => {
         const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
         const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
         const tx = await (agents.router ?? agents.user).origin.sendTransaction({
-          to: ORIGIN_ASSET.address,
+          to: originAsset.address,
           data: encoded,
           value: BigNumber.from("0"),
         });
@@ -407,7 +425,7 @@ describe("Integration:E2E", () => {
         const userTokens = await chainreader.getBalance(
           domainInfo.ORIGIN.chain,
           agents.user.address,
-          ORIGIN_ASSET.address,
+          originAsset.address,
         );
         log.info("Minted TEST tokens for User.", {
           domain: domainInfo.ORIGIN,
@@ -429,13 +447,13 @@ describe("Integration:E2E", () => {
         domain: domainInfo.ORIGIN,
         owner: agents.user.address,
         spender: originConnextAddress,
-        asset: ORIGIN_ASSET.address,
+        asset: originAsset.address,
       });
       if (userAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
         log.info("Approving TEST spending for User...", { domain: domainInfo.ORIGIN });
         const encoded = testERC20.encodeFunctionData("approve", [originConnextAddress, infiniteApproval]);
         const tx = await agents.user.origin.sendTransaction({
-          to: ORIGIN_ASSET.address,
+          to: originAsset.address,
           data: encoded,
           value: BigNumber.from("0"),
         });
@@ -455,13 +473,13 @@ describe("Integration:E2E", () => {
           domain: domainInfo.DESTINATION,
           owner: agents.router.address,
           spender: destinationConnextAddress,
-          asset: DESTINATION_ASSET.address,
+          asset: destinationAsset.address,
         });
         if (routerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
           log.info("Approving TEST spending for Router...", { domain: domainInfo.DESTINATION });
           const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
           const tx = await agents.router.destination.sendTransaction({
-            to: DESTINATION_ASSET.address,
+            to: destinationAsset.address,
             data: encoded,
             value: BigNumber.from("0"),
           });
@@ -482,10 +500,7 @@ describe("Integration:E2E", () => {
       // Router should add liquidity to their pool on the destination chain.
       let routerBalance: BigNumber;
       {
-        const encoded = connext.encodeFunctionData("routerBalances", [
-          agents.router.address,
-          DESTINATION_ASSET.address,
-        ]);
+        const encoded = connext.encodeFunctionData("routerBalances", [agents.router.address, destinationAsset.address]);
         const result = await chainreader.readTx({
           chainId: domainInfo.DESTINATION.chain,
           to: destinationConnextAddress,
@@ -508,7 +523,7 @@ describe("Integration:E2E", () => {
           let routerTokens = await chainreader.getBalance(
             domainInfo.DESTINATION.chain,
             agents.router.address,
-            DESTINATION_ASSET.address,
+            destinationAsset.address,
           );
           log.info("Retrieved Router TEST.", {
             domain: domainInfo.DESTINATION,
@@ -523,7 +538,7 @@ describe("Integration:E2E", () => {
             const amount = ROUTER_DESIRED_LIQUIDITY.mul(10);
             const encoded = testERC20.encodeFunctionData("mint", [agents.router.address, amount]);
             const tx = await agents.router.destination.sendTransaction({
-              to: DESTINATION_ASSET.address,
+              to: destinationAsset.address,
               data: encoded,
               value: BigNumber.from("0"),
             });
@@ -532,7 +547,7 @@ describe("Integration:E2E", () => {
             routerTokens = await chainreader.getBalance(
               domainInfo.DESTINATION.chain,
               agents.router.address,
-              DESTINATION_ASSET.address,
+              destinationAsset.address,
             );
             log.info(`Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST.`, {
               domain: domainInfo.DESTINATION,
@@ -545,10 +560,10 @@ describe("Integration:E2E", () => {
         const amount = ROUTER_DESIRED_LIQUIDITY.mul(2);
         log.info("Adding liquidity for Router...", {
           domain: domainInfo.DESTINATION,
-          etc: { amount: amount.toString(), asset: DESTINATION_ASSET.address },
+          etc: { amount: amount.toString(), asset: destinationAsset.address },
         });
         {
-          const encoded = connext.encodeFunctionData("addLiquidity", [amount, DESTINATION_ASSET.address]);
+          const encoded = connext.encodeFunctionData("addLiquidity", [amount, destinationAsset.address]);
           const tx = await agents.router.destination.sendTransaction({
             to: destinationConnextAddress,
             data: encoded,
@@ -559,7 +574,7 @@ describe("Integration:E2E", () => {
           {
             const encoded = connext.encodeFunctionData("routerBalances", [
               agents.router.address,
-              DESTINATION_ASSET.address,
+              destinationAsset.address,
             ]);
             const result = await chainreader.readTx({
               chainId: domainInfo.DESTINATION.chain,
@@ -664,7 +679,7 @@ describe("Integration:E2E", () => {
             originDomain: domainInfo.ORIGIN.domain,
             destinationDomain: domainInfo.DESTINATION.domain,
           },
-          transactingAssetId: ORIGIN_ASSET.address,
+          transactingAssetId: originAsset.address,
           amount: TRANSFER_TOKEN_AMOUNT.toString(),
           relayerFee: "0",
         };
