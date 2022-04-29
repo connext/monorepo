@@ -90,7 +90,7 @@ export const pollCache = async () => {
           hash: tx.hash,
           confirmations: config.chains[domain].confirmations,
         });
-        const receipt = await tx.wait();
+        const receipt = await tx.wait(config.chains[domain].confirmations);
         // const receipt = await txservice.sendTx(
         //   {
         //     chainId: chain,

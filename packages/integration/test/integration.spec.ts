@@ -11,6 +11,7 @@ import {
   AuctionsApiGetAuctionStatusResponse,
   delay,
   ERC20Abi,
+  getGelatoRelayerAddress,
   Logger,
   XCallArgs,
   XTransfer,
@@ -169,6 +170,9 @@ describe("Integration:E2E", () => {
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
     const destinationConnextAddress = domainInfo.DESTINATION.config.deployments.connext;
+    const relayerAddress: string = agents.relayer
+      ? agents.relayer.address
+      : await getGelatoRelayerAddress(domainInfo.DESTINATION.chain);
 
     // Log setup.
     log.params(
@@ -177,9 +181,9 @@ describe("Integration:E2E", () => {
         `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
-        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tRelayer:   \t${
-          agents.relayer?.address ?? "N/A"
-        }\n\tUser:    \t${agents.user.address}` +
+        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tRelayer:   \t${relayerAddress}\n\tUser:    \t${
+          agents.user.address
+        }` +
         `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
           network: domainInfo.ORIGIN.network,
           address: originConnextAddress,
@@ -405,7 +409,7 @@ describe("Integration:E2E", () => {
           agents.user.address,
           ORIGIN_ASSET.address,
         );
-        log.info(`Minted TEST tokens for User.`, {
+        log.info("Minted TEST tokens for User.", {
           domain: domainInfo.ORIGIN,
           hash: receipt.transactionHash,
           etc: {
@@ -587,36 +591,34 @@ describe("Integration:E2E", () => {
 
     // TODO: Check if relayer has ETH if necessary.
 
-    if (agents.relayer) {
-      // Check if relayer needs approval.
-      log.next("VERIFY RELAYER APPROVED");
-      {
-        const encoded = connext.encodeFunctionData("approvedRelayers", [agents.relayer.address]);
-        const result = await chainreader.readTx({
-          chainId: domainInfo.DESTINATION.chain,
-          to: destinationConnextAddress,
-          data: encoded,
-        });
-        const approved = connext.decodeFunctionResult("approvedRelayers", result)[0];
-        if (!approved) {
-          if (!agents.deployer) {
-            log.fail("Relayer needs to be approved on chain.", { domain: domainInfo.DESTINATION });
-          } else {
-            log.info("Relayer is not approved. Approving Relayer...", {
-              domain: domainInfo.DESTINATION,
-              etc: { relayer: agents.relayer.address },
-            });
-            const encoded = connext.encodeFunctionData("addRelayer", [agents.relayer.address]);
-            const tx = await agents.deployer.destination.sendTransaction({
-              to: destinationConnextAddress,
-              data: encoded,
-            });
-            const receipt = await tx.wait(1);
-            log.info("Approved Relayer.", {
-              domain: domainInfo.DESTINATION,
-              hash: receipt.transactionHash,
-            });
-          }
+    // Check if relayer needs approval.
+    log.next("VERIFY RELAYER APPROVED");
+    {
+      const encoded = connext.encodeFunctionData("approvedRelayers", [relayerAddress]);
+      const result = await chainreader.readTx({
+        chainId: domainInfo.DESTINATION.chain,
+        to: destinationConnextAddress,
+        data: encoded,
+      });
+      const approved = connext.decodeFunctionResult("approvedRelayers", result)[0];
+      if (!approved) {
+        if (!agents.deployer) {
+          log.fail("Relayer needs to be approved on chain.", { domain: domainInfo.DESTINATION });
+        } else {
+          log.info("Relayer is not approved. Approving Relayer...", {
+            domain: domainInfo.DESTINATION,
+            etc: { relayer: relayerAddress },
+          });
+          const encoded = connext.encodeFunctionData("addRelayer", [relayerAddress]);
+          const tx = await agents.deployer.destination.sendTransaction({
+            to: destinationConnextAddress,
+            data: encoded,
+          });
+          const receipt = await tx.wait(1);
+          log.info("Approved Relayer.", {
+            domain: domainInfo.DESTINATION,
+            hash: receipt.transactionHash,
+          });
         }
       }
     }
