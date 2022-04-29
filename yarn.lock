@@ -1751,6 +1751,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/error@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@fastify/error@npm:2.0.0"
+  checksum: ecf0834966b2bfb33ff834e3d55fe4dc04cbe9f822fda6c937b12cce4f162be4f8b0577ee665bc856d7012b1640c12472a1829a22ae38d287342c90b0f33a595
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -3748,25 +3755,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@truffle/interface-adapter@npm:^0.5.15":
-  version: 0.5.15
-  resolution: "@truffle/interface-adapter@npm:0.5.15"
+"@truffle/interface-adapter@npm:^0.5.16":
+  version: 0.5.16
+  resolution: "@truffle/interface-adapter@npm:0.5.16"
   dependencies:
     bn.js: ^5.1.3
     ethers: ^4.0.32
     web3: 1.5.3
-  checksum: d482531811097e131042ea89fc81b338134879a5d8169e3a1c219dbadf9215f6918fe0058dd48b0ecb13da6b5e2f922e09ff52572e7f750b9050b7ee75807b08
+  checksum: 9c600db5bedb8940a8865dd7ead65d5f9ba625245fee0fb75ed738a9d0cf6a06119cf08a8e8dd98354c8ce51929389d3bcf377155acb5725a7e27b5f1e8a0a30
   languageName: node
   linkType: hard
 
 "@truffle/provider@npm:^0.2.24":
-  version: 0.2.53
-  resolution: "@truffle/provider@npm:0.2.53"
+  version: 0.2.54
+  resolution: "@truffle/provider@npm:0.2.54"
   dependencies:
     "@truffle/error": ^0.1.0
-    "@truffle/interface-adapter": ^0.5.15
+    "@truffle/interface-adapter": ^0.5.16
     web3: 1.5.3
-  checksum: 5f29618ae68fb84cc0376de79e4cfc5df0761f91cff29d73d0ea34e9c9689a2e64b4a5e58c2780df0666c54cd14a146821089e30217facd7d3d82baf8b8795ae
+  checksum: 10d1a7228cd905ee72034e8b8a5ada1e626044cb26a8735efca7d2f14f99eb606b29caf519526e6f5b5e55bc30c7d21161b78f039ad049d1ac974ef0bf10a08e
   languageName: node
   linkType: hard
 
@@ -9296,7 +9303,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
@@ -9974,22 +9981,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify-error@npm:^0.3.0":
-  version: 0.3.1
-  resolution: "fastify-error@npm:0.3.1"
-  checksum: fd6a0f6f87b5e4ab59a4d3d66124bd13830a1cf85cf1987259dfb1175fc6a4bcae68b076ad78f6bb06654f72af133b44813090e9ce5502d2ef56ddcb2b0fa867
-  languageName: node
-  linkType: hard
-
 "fastify@npm:^3.22.1, fastify@npm:^3.27.4":
-  version: 3.28.0
-  resolution: "fastify@npm:3.28.0"
+  version: 3.29.0
+  resolution: "fastify@npm:3.29.0"
   dependencies:
     "@fastify/ajv-compiler": ^1.0.0
+    "@fastify/error": ^2.0.0
     abstract-logging: ^2.0.0
     avvio: ^7.1.2
     fast-json-stringify: ^2.5.2
-    fastify-error: ^0.3.0
     find-my-way: ^4.5.0
     flatstr: ^1.0.12
     light-my-request: ^4.2.0
@@ -10000,7 +10000,7 @@ __metadata:
     secure-json-parse: ^2.0.0
     semver: ^7.3.2
     tiny-lru: ^8.0.1
-  checksum: a91bd13384731e8f90ae2ccab39a79385853cd4870f8144dd83aee18344442be876b495fff49a08f593069e7a4ad23983b12dfc82bee30761d4883cf8ede093c
+  checksum: ed2964035e34843d08c09eee80f5f14bd8cc0ab9b46ac9d146c6821b586a359a93e1354fca4004ac14e37b267afe5bb1ba3ddb555ecf09b74d9b6bf2f9893ba1
   languageName: node
   linkType: hard
 
@@ -20601,7 +20601,7 @@ __metadata:
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 255bb26c8cb846ca689dd1c3a56587af4f69055907aa2c154796ea28ee0dea871535b1c78f85a6212c77f2657843a269c3a742d09d81495b97b914bf7920415b
+  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
   languageName: node
   linkType: hard
 
@@ -20611,7 +20611,7 @@ __metadata:
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 6bf45caf847062420592e711bc9c28bf5f9a9a7fa8245343b81493e4ededae33f1774009d1234d911422d1646a2c839f44e1a23ecb111b40a60ac2ea4c1482a8
+  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
   languageName: node
   linkType: hard
 
