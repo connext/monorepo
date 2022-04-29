@@ -9,9 +9,10 @@ import {
   getNtpTimeSeconds,
   Auction,
   jsonifyError,
+  recoverRouterPathPayload,
 } from "@connext/nxtp-utils";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../errors";
+import { AuctionExpired, InvalidRouterSignature, MissingXCall, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
@@ -25,7 +26,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
 
-  const { transferId, origin } = bid;
+  const { transferId, origin, signatures, router } = bid;
 
   // Validate Input schema
   const validateInput = ajv.compile(BidSchema);
@@ -71,6 +72,14 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
       transferId,
       bid,
     });
+  }
+
+  // Validate router signature(s) for each path length that the router bid on.
+  for (const pathLength of Object.keys(signatures)) {
+    const recovered = recoverRouterPathPayload(transferId, pathLength, signatures[pathLength]);
+    if (recovered !== router) {
+      throw new InvalidRouterSignature(transferId, pathLength, router, recovered);
+    }
   }
 
   // Update and/or create the auction instance in the cache if necessary.

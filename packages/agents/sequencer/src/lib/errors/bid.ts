@@ -21,3 +21,13 @@ export class MissingXCall extends NxtpError {
     );
   }
 }
+
+export class InvalidRouterSignature extends NxtpError {
+  constructor(transferId: string, pathLength: string, router: string, recovered: string, context: any = {}) {
+    super(
+      "The router signature under the given path length for this bid is invalid.",
+      { transferId, pathLength, router, recovered, ...context },
+      InvalidRouterSignature.name,
+    );
+  }
+}
