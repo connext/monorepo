@@ -65,12 +65,18 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   // ============ Errors ============
 
+  error SponsorVault__setConnext_invalidConnext();
   error SponsorVault__setRate_invalidOriginDomain();
   error SponsorVault__setGasTokenOracle_invalidOriginDomain();
   error SponsorVault__setTokenExchange_invalidAdopted();
   error SponsorVault__onlyConnext();
 
   // ============ Events ============
+
+  /**
+   * @notice Emitted when a new connext is set
+   */
+  event ConnextUpdated(address connext, address caller);
 
   /**
    * @notice Emitted when a new rate is set
@@ -99,7 +105,17 @@ contract SponsorVault is ISponsorVault, Ownable{
     _;
   }
 
+  // ============ Constructor ============
+
+  constructor(address _connext) Ownable() {
+    _setConnext(_connext);
+  }
+
   // ============ Owner Functions ============
+
+  function setConnext(address _connext) external onlyOwner {
+    _setConnext(_connext);
+  }
 
   function setRate(uint32 _originDomain, Rate calldata _rate) external onlyOwner {
     if (_originDomain == 0) revert SponsorVault__setRate_invalidOriginDomain();
@@ -156,9 +172,9 @@ contract SponsorVault is ISponsorVault, Ownable{
     uint256 relayerFee;
     if (gasTokenOracle == address(0)) {
       (uint256 num, uint256 den) = IGasTokenOracle(gasTokenOracle).getRate(_originDomain);
-      uint256 relayerFee = _originRelayerFee * den / num;
+      relayerFee = _originRelayerFee * den / num;
     } else if (rates[_originDomain].den != 0) {
-      uint256 relayerFee = _originRelayerFee * rates[_originDomain].den / rates[_originDomain].num;
+      relayerFee = _originRelayerFee * rates[_originDomain].den / rates[_originDomain].num;
     }
 
     relayerFee = relayerFee > relayerFeeCap ? relayerFeeCap : relayerFee;
@@ -167,6 +183,16 @@ contract SponsorVault is ISponsorVault, Ownable{
     if (relayerFee > 0 && address(this).balance >= relayerFee) {
         Address.sendValue(_to, relayerFee);
     }
+  }
+
+  // ============ Internal functions ============
+
+  function _setConnext(address _connext) internal {
+    if (_connext == address(0)) revert SponsorVault__setConnext_invalidConnext();
+
+    connext = _connext;
+
+    emit ConnextUpdated(_connext, msg.sender);
   }
 
 }
