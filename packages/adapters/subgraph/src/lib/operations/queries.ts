@@ -90,7 +90,7 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
   `;
 };
 export const TRANSFER_ENTITY = `
-id
+      id
       # Meta
       originDomain
       destinationDomain
