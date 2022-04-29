@@ -90,55 +90,56 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
   `;
 };
 export const TRANSFER_ENTITY = `
-    id
-    # Meta
-    originDomain
-    destinationDomain
-    chainId
-    status
-    # Transfer Data
-    to
-    transferId
-    callData
-    idx
-    nonce
-    routers {
-      id
-    }
-    # XCalled
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledCaller
-    # XCalled Transaction
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
-    # Executed
-    executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
-    # Executed Transaction
-    executedTransactionHash
-    executedTimestamp
-    executedGasPrice
-    executedGasLimit
-    executedBlockNumber
-    # Reconciled
-    reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
-    # Reconciled Transaction
-    reconciledTransactionHash
-    reconciledTimestamp
-    reconciledGasPrice
-    reconciledGasLimit
-    reconciledBlockNumber`;
+id
+      # Meta
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Transfer Data
+      to
+      transferId
+      callData
+      idx
+      nonce
+      routers {
+        id
+      }
+      relayerFee
+      # XCalled
+      xcalledCaller
+      xcalledTransactingAmount
+      xcalledLocalAmount
+      xcalledTransactingAsset
+      xcalledLocalAsset
+      # XCalled Transaction
+      xcalledTransactionHash
+      xcalledTimestamp
+      xcalledGasPrice
+      xcalledGasLimit
+      xcalledBlockNumber
+      # Executed
+      executedCaller
+      executedTransactingAmount
+      executedLocalAmount
+      executedTransactingAsset
+      executedLocalAsset
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled
+      reconciledCaller
+      reconciledLocalAsset
+      reconciledLocalAmount
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber`;
 
 const xCalledTransferQueryString = (
   prefix: string,
