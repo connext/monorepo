@@ -148,33 +148,32 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   receive() external payable {}
 
-  function reimburseLiquidityFees(address _token, uint256 _amount) external override onlyConnext returns (uint256) {
+  function reimburseLiquidityFees(address _token, uint256 _liquidityFee) external override onlyConnext returns (uint256) {
     // do not sponsor liquidity fee when there is no token exchange nor liquidity for the diven token
-    if (tokenExchanges[_token] == address(0) && IERC20(_token).balanceOf(msg.sender) < _amount) return 0;
+    if (tokenExchanges[_token] == address(0) && IERC20(_token).balanceOf(address(this)) < _liquidityFee) return 0;
 
     if (tokenExchanges[_token] != address(0)) {
       ITokenExchange tokenExchange = ITokenExchange(tokenExchanges[_token]);
-      uint256 amountIn =tokenExchange.getInGivenExactOut(_token, _amount);
+      uint256 amountIn = tokenExchange.getInGivenExactOut(_token, _liquidityFee);
 
       if (address(this).balance < amountIn) return 0;
 
-      tokenExchange.swapExactOut{value: amountIn}(_token, _amount, msg.sender);
+      tokenExchange.swapExactOut{value: amountIn}(_token, _liquidityFee, msg.sender);
+    } else {
+      IERC20(_token).safeTransfer(msg.sender, _liquidityFee);
     }
 
-    if (IERC20(_token).balanceOf(msg.sender) >= _amount) {
-      IERC20(_token).safeTransfer(msg.sender, _amount);
-    }
-
-    return _amount;
+    return _liquidityFee;
   }
 
-  function reimburseRelayerFees(uint32 _originDomain, address payable _to, uint256 _originRelayerFee) external override {
+  function reimburseRelayerFees(uint32 _originDomain, address payable _to, uint256 _originRelayerFee) external override onlyConnext {
     uint256 relayerFee;
-    if (gasTokenOracle == address(0)) {
+    if (gasTokenOracle != address(0)) {
       (uint256 num, uint256 den) = IGasTokenOracle(gasTokenOracle).getRate(_originDomain);
-      relayerFee = _originRelayerFee * den / num;
+
+      relayerFee = _originRelayerFee * num / den;
     } else if (rates[_originDomain].den != 0) {
-      relayerFee = _originRelayerFee * rates[_originDomain].den / rates[_originDomain].num;
+      relayerFee = _originRelayerFee * rates[_originDomain].num / rates[_originDomain].den;
     }
 
     relayerFee = relayerFee > relayerFeeCap ? relayerFeeCap : relayerFee;
