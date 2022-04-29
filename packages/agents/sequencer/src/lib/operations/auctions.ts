@@ -9,7 +9,6 @@ import {
   getNtpTimeSeconds,
   Auction,
   jsonifyError,
-  recoverRouterPathPayload,
 } from "@connext/nxtp-utils";
 
 import { AuctionExpired, InvalidRouterSignature, MissingXCall, ParamsInvalid } from "../errors";
@@ -23,6 +22,9 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     logger,
     adapters: { cache, subgraph },
   } = getContext();
+  const {
+    auctions: { recoverRouterPathPayload },
+  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
 

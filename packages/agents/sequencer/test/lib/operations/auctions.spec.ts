@@ -13,7 +13,7 @@ import { constants, BigNumber } from "ethers";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
+import { AuctionExpired, InvalidRouterSignature, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
 import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
@@ -37,6 +37,7 @@ describe("Operations:Auctions", () => {
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
   let getDestinationLocalAssetStub: SinonStub;
+  let recoverRouterPathPayloadStub: SinonStub;
   beforeEach(() => {
     const { auctions, transfers, routers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
@@ -65,10 +66,12 @@ describe("Operations:Auctions", () => {
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
     getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
+    recoverRouterPathPayloadStub = stub().returns(mock.entity.bid().router);
     getHelpersStub.returns({
       auctions: {
         encodeExecuteFromBid: encodeExecuteFromBidStub,
         getDestinationLocalAsset: getDestinationLocalAssetStub,
+        recoverRouterPathPayload: recoverRouterPathPayloadStub,
       },
     });
   });
@@ -141,6 +144,16 @@ describe("Operations:Auctions", () => {
       (ctxMock.adapters.subgraph.getTransfer as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
       await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
+    });
+
+    it("should error if recover router signature payload returns incorrect address", async () => {
+      recoverRouterPathPayloadStub.returns(mkAddress("0xbadbadbadbadbad"));
+      const transfer: XTransfer = mock.entity.xtransfer();
+      const transferId = transfer.transferId;
+      getTransferStub.resolves(transfer);
+
+      const bid: Bid = mock.entity.bid({ transferId });
+      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(InvalidRouterSignature);
     });
 
     it("should cache transfer if missing from cache but found in subgraph", async () => {

@@ -1,4 +1,9 @@
-import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
+import {
+  Bid,
+  ExecuteArgs,
+  XTransfer,
+  recoverRouterPathPayload as _recoverRouterPathPayload,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
@@ -56,3 +61,5 @@ export const getDestinationLocalAsset = async (
   const localAddress = destinationDomainAsset!.local;
   return localAddress;
 };
+
+export const recoverRouterPathPayload = _recoverRouterPathPayload;
