@@ -3,6 +3,8 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 
+import { Relayer } from "../../adapters";
+
 import { SequencerConfig } from ".";
 
 export type AppContext = {
@@ -13,6 +15,7 @@ export type AppContext = {
     cache: StoreManager; // Used to cache important data locally.
     chainreader: ChainReader; // For reading blockchain using RPC providers.
     contracts: ConnextContractInterfaces; // Used to encode/decode fn data for smart contracts.
+    relayer: Relayer; // Relayer for sending transactions to the blockchain.
   };
   config: SequencerConfig;
   chainData: Map<string, ChainData>;

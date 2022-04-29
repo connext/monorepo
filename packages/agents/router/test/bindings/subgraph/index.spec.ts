@@ -85,7 +85,7 @@ describe("Bindings:Subgraph", () => {
 
       await bindSubgraphFns.pollSubgraph();
 
-      // Should have been called once per available/configured chain.
+      // Should have been called once per available/configured chain.);
       expect(mockContext.adapters.cache.transfers.getLatestNonce.callCount).to.be.eq(Object.keys(mockInfo).length);
       expect(mockContext.adapters.subgraph.getTransactionsWithStatuses.getCall(0).args[0]).to.be.deep.eq(
         new Map(

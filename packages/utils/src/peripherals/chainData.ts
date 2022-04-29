@@ -19,6 +19,11 @@ export const CHAIN_ID = {
   AVALANCHE: 43114,
 };
 
+export type ChainDataSubgraph = {
+  query: string;
+  health: string;
+};
+
 export type ChainData = {
   name: string;
   chainId: number;
@@ -47,8 +52,8 @@ export type ChainData = {
   subgraph: string[];
   analyticsSubgraph?: string[];
   subgraphs: {
-    runtime: [];
-    analytics: [];
+    runtime: ChainDataSubgraph[];
+    analytics: ChainDataSubgraph[];
   };
   faucets: string[];
   infoURL: string;

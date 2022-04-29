@@ -17,7 +17,7 @@ type TaskArgs = {
 export default task("setup-asset", "Configures an asset")
   .addParam("canonical", "Canonical token address")
   .addParam("domain", "Canonical domain of token")
-  .addParam("adopted", "Addopted token address")
+  .addParam("adopted", "Adopted token address")
   .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")

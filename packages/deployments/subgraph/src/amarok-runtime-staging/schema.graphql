@@ -43,7 +43,6 @@ type Transfer @entity {
   # Transfer Data
   to: Bytes
   transferId: Bytes
-  callTo: Bytes
   callData: Bytes
   idx: BigInt
   nonce: BigInt

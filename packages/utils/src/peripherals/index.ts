@@ -1,3 +1,3 @@
 export * from "./chainData";
-export * from "./gelato";
+export * from "./relayer";
 export * from "./subgraph";

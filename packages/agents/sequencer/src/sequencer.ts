@@ -14,6 +14,7 @@ import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindServer, bindAuctions } from "./bindings";
+import { setupRelayer } from "./adapters";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -44,6 +45,8 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     );
 
     context.adapters.contracts = getContractInterfaces();
+
+    context.adapters.relayer = await setupRelayer();
 
     // Create server, set up routes, and start listening.
     await bindServer();
