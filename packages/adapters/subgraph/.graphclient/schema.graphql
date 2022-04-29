@@ -1,127 +1,4 @@
 type Query {
-  rinkeby_asset(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_Asset
-  rinkeby_assets(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_Asset_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_Asset_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_Asset!]!
-  rinkeby_assetBalance(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_AssetBalance
-  rinkeby_assetBalances(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_AssetBalance_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_AssetBalance_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_AssetBalance!]!
-  rinkeby_router(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_Router
-  rinkeby_routers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_Router_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_Router_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_Router!]!
-  rinkeby_transfer(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_Transfer
-  rinkeby_transfers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_Transfer_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_Transfer_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_Transfer!]!
-
-  """Access to subgraph metadata"""
-  rinkeby__meta(block: rinkeby_Block_height): rinkeby__Meta_
   kovan_asset(
     id: ID!
 
@@ -245,132 +122,132 @@ type Query {
 
   """Access to subgraph metadata"""
   kovan__meta(block: kovan_Block_height): kovan__Meta_
+  rinkeby_asset(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_Asset
+  rinkeby_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_Asset_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_Asset_filter
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_Asset!]!
+  rinkeby_assetBalance(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_AssetBalance
+  rinkeby_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_AssetBalance_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_AssetBalance_filter
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_AssetBalance!]!
+  rinkeby_router(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_Router
+  rinkeby_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_Router_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_Router_filter
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_Router!]!
+  rinkeby_transfer(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_Transfer
+  rinkeby_transfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_Transfer_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_Transfer_filter
+
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
+
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_Transfer!]!
+
+  """Access to subgraph metadata"""
+  rinkeby__meta(block: rinkeby_Block_height): rinkeby__Meta_
 }
 
 type Subscription {
-  rinkeby_asset(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_Asset
-  rinkeby_assets(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_Asset_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_Asset_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_Asset!]!
-  rinkeby_assetBalance(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_AssetBalance
-  rinkeby_assetBalances(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_AssetBalance_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_AssetBalance_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_AssetBalance!]!
-  rinkeby_router(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_Router
-  rinkeby_routers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_Router_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_Router_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_Router!]!
-  rinkeby_transfer(
-    id: ID!
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): rinkeby_Transfer
-  rinkeby_transfers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: rinkeby_Transfer_orderBy
-    orderDirection: rinkeby_OrderDirection
-    where: rinkeby_Transfer_filter
-
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: rinkeby_Block_height
-
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [rinkeby_Transfer!]!
-
-  """Access to subgraph metadata"""
-  rinkeby__meta(block: rinkeby_Block_height): rinkeby__Meta_
   kovan_asset(
     id: ID!
 
@@ -494,648 +371,129 @@ type Subscription {
 
   """Access to subgraph metadata"""
   kovan__meta(block: kovan_Block_height): kovan__Meta_
-}
+  rinkeby_asset(
+    id: ID!
 
-type rinkeby_Asset {
-  id: ID!
-  local: rinkeby_Bytes!
-  adoptedAsset: rinkeby_Bytes!
-  canonicalId: rinkeby_Bytes!
-  canonicalDomain: BigInt!
-  blockNumber: BigInt!
-}
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-type rinkeby_AssetBalance {
-  id: ID!
-  amount: BigInt!
-  router: rinkeby_Router!
-  asset: rinkeby_Asset!
-}
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_Asset
+  rinkeby_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_Asset_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_Asset_filter
 
-input rinkeby_AssetBalance_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  amount: BigInt
-  amount_not: BigInt
-  amount_gt: BigInt
-  amount_lt: BigInt
-  amount_gte: BigInt
-  amount_lte: BigInt
-  amount_in: [BigInt!]
-  amount_not_in: [BigInt!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
-  asset: String
-  asset_not: String
-  asset_gt: String
-  asset_lt: String
-  asset_gte: String
-  asset_lte: String
-  asset_in: [String!]
-  asset_not_in: [String!]
-  asset_contains: String
-  asset_contains_nocase: String
-  asset_not_contains: String
-  asset_not_contains_nocase: String
-  asset_starts_with: String
-  asset_starts_with_nocase: String
-  asset_not_starts_with: String
-  asset_not_starts_with_nocase: String
-  asset_ends_with: String
-  asset_ends_with_nocase: String
-  asset_not_ends_with: String
-  asset_not_ends_with_nocase: String
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-  """Filter for the block changed event."""
-  _change_block: rinkeby_BlockChangedFilter
-}
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_Asset!]!
+  rinkeby_assetBalance(
+    id: ID!
 
-enum rinkeby_AssetBalance_orderBy {
-  id
-  amount
-  router
-  asset
-}
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-input rinkeby_Asset_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  local: rinkeby_Bytes
-  local_not: rinkeby_Bytes
-  local_in: [rinkeby_Bytes!]
-  local_not_in: [rinkeby_Bytes!]
-  local_contains: rinkeby_Bytes
-  local_not_contains: rinkeby_Bytes
-  adoptedAsset: rinkeby_Bytes
-  adoptedAsset_not: rinkeby_Bytes
-  adoptedAsset_in: [rinkeby_Bytes!]
-  adoptedAsset_not_in: [rinkeby_Bytes!]
-  adoptedAsset_contains: rinkeby_Bytes
-  adoptedAsset_not_contains: rinkeby_Bytes
-  canonicalId: rinkeby_Bytes
-  canonicalId_not: rinkeby_Bytes
-  canonicalId_in: [rinkeby_Bytes!]
-  canonicalId_not_in: [rinkeby_Bytes!]
-  canonicalId_contains: rinkeby_Bytes
-  canonicalId_not_contains: rinkeby_Bytes
-  canonicalDomain: BigInt
-  canonicalDomain_not: BigInt
-  canonicalDomain_gt: BigInt
-  canonicalDomain_lt: BigInt
-  canonicalDomain_gte: BigInt
-  canonicalDomain_lte: BigInt
-  canonicalDomain_in: [BigInt!]
-  canonicalDomain_not_in: [BigInt!]
-  blockNumber: BigInt
-  blockNumber_not: BigInt
-  blockNumber_gt: BigInt
-  blockNumber_lt: BigInt
-  blockNumber_gte: BigInt
-  blockNumber_lte: BigInt
-  blockNumber_in: [BigInt!]
-  blockNumber_not_in: [BigInt!]
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_AssetBalance
+  rinkeby_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_AssetBalance_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_AssetBalance_filter
 
-  """Filter for the block changed event."""
-  _change_block: rinkeby_BlockChangedFilter
-}
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-enum rinkeby_Asset_orderBy {
-  id
-  local
-  adoptedAsset
-  canonicalId
-  canonicalDomain
-  blockNumber
-}
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_AssetBalance!]!
+  rinkeby_router(
+    id: ID!
 
-scalar rinkeby_BigDecimal
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-scalar BigInt
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_Router
+  rinkeby_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_Router_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_Router_filter
 
-input rinkeby_BlockChangedFilter {
-  number_gte: Int!
-}
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-input rinkeby_Block_height {
-  hash: rinkeby_Bytes
-  number: Int
-  number_gte: Int
-}
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_Router!]!
+  rinkeby_transfer(
+    id: ID!
 
-scalar rinkeby_Bytes
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-"""Defines the order direction, either ascending or descending"""
-enum rinkeby_OrderDirection {
-  asc
-  desc
-}
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): rinkeby_Transfer
+  rinkeby_transfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: rinkeby_Transfer_orderBy
+    orderDirection: rinkeby_OrderDirection
+    where: rinkeby_Transfer_filter
 
-type rinkeby_Router {
-  id: ID!
-  isActive: Boolean!
-  owner: rinkeby_Bytes
-  recipient: rinkeby_Bytes
-  proposedOwner: rinkeby_Bytes
-  proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: rinkeby_AssetBalance_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_AssetBalance_filter): [rinkeby_AssetBalance!]!
-}
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: rinkeby_Block_height
 
-input rinkeby_Router_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  isActive: Boolean
-  isActive_not: Boolean
-  isActive_in: [Boolean!]
-  isActive_not_in: [Boolean!]
-  owner: rinkeby_Bytes
-  owner_not: rinkeby_Bytes
-  owner_in: [rinkeby_Bytes!]
-  owner_not_in: [rinkeby_Bytes!]
-  owner_contains: rinkeby_Bytes
-  owner_not_contains: rinkeby_Bytes
-  recipient: rinkeby_Bytes
-  recipient_not: rinkeby_Bytes
-  recipient_in: [rinkeby_Bytes!]
-  recipient_not_in: [rinkeby_Bytes!]
-  recipient_contains: rinkeby_Bytes
-  recipient_not_contains: rinkeby_Bytes
-  proposedOwner: rinkeby_Bytes
-  proposedOwner_not: rinkeby_Bytes
-  proposedOwner_in: [rinkeby_Bytes!]
-  proposedOwner_not_in: [rinkeby_Bytes!]
-  proposedOwner_contains: rinkeby_Bytes
-  proposedOwner_not_contains: rinkeby_Bytes
-  proposedTimestamp: BigInt
-  proposedTimestamp_not: BigInt
-  proposedTimestamp_gt: BigInt
-  proposedTimestamp_lt: BigInt
-  proposedTimestamp_gte: BigInt
-  proposedTimestamp_lte: BigInt
-  proposedTimestamp_in: [BigInt!]
-  proposedTimestamp_not_in: [BigInt!]
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [rinkeby_Transfer!]!
 
-  """Filter for the block changed event."""
-  _change_block: rinkeby_BlockChangedFilter
-}
-
-enum rinkeby_Router_orderBy {
-  id
-  isActive
-  owner
-  recipient
-  proposedOwner
-  proposedTimestamp
-  assetBalances
-}
-
-type rinkeby_Transfer {
-  id: ID!
-  originDomain: BigInt
-  destinationDomain: BigInt
-  chainId: BigInt
-  status: rinkeby_TransferStatus
-  to: rinkeby_Bytes
-  transferId: rinkeby_Bytes
-  callData: rinkeby_Bytes
-  idx: BigInt
-  nonce: BigInt
-  routers(skip: Int = 0, first: Int = 100, orderBy: rinkeby_Router_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_Router_filter): [rinkeby_Router!]
-  relayerFee: BigInt
-  xcalledTransactingAsset: rinkeby_Bytes
-  xcalledLocalAsset: rinkeby_Bytes
-  xcalledTransactingAmount: BigInt
-  xcalledLocalAmount: BigInt
-  xcalledCaller: rinkeby_Bytes
-  xcalledTransactionHash: rinkeby_Bytes
-  xcalledTimestamp: BigInt
-  xcalledGasPrice: BigInt
-  xcalledGasLimit: BigInt
-  xcalledBlockNumber: BigInt
-  executedCaller: rinkeby_Bytes
-  executedTransactingAmount: BigInt
-  executedLocalAmount: BigInt
-  executedTransactingAsset: rinkeby_Bytes
-  executedLocalAsset: rinkeby_Bytes
-  executedTransactionHash: rinkeby_Bytes
-  executedTimestamp: BigInt
-  executedGasPrice: BigInt
-  executedGasLimit: BigInt
-  executedBlockNumber: BigInt
-  reconciledCaller: rinkeby_Bytes
-  reconciledLocalAsset: rinkeby_Bytes
-  reconciledLocalAmount: BigInt
-  reconciledTransactionHash: rinkeby_Bytes
-  reconciledTimestamp: BigInt
-  reconciledGasPrice: BigInt
-  reconciledGasLimit: BigInt
-  reconciledBlockNumber: BigInt
-}
-
-enum rinkeby_TransferStatus {
-  XCalled
-  Executed
-  Reconciled
-}
-
-input rinkeby_Transfer_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  originDomain: BigInt
-  originDomain_not: BigInt
-  originDomain_gt: BigInt
-  originDomain_lt: BigInt
-  originDomain_gte: BigInt
-  originDomain_lte: BigInt
-  originDomain_in: [BigInt!]
-  originDomain_not_in: [BigInt!]
-  destinationDomain: BigInt
-  destinationDomain_not: BigInt
-  destinationDomain_gt: BigInt
-  destinationDomain_lt: BigInt
-  destinationDomain_gte: BigInt
-  destinationDomain_lte: BigInt
-  destinationDomain_in: [BigInt!]
-  destinationDomain_not_in: [BigInt!]
-  chainId: BigInt
-  chainId_not: BigInt
-  chainId_gt: BigInt
-  chainId_lt: BigInt
-  chainId_gte: BigInt
-  chainId_lte: BigInt
-  chainId_in: [BigInt!]
-  chainId_not_in: [BigInt!]
-  status: rinkeby_TransferStatus
-  status_not: rinkeby_TransferStatus
-  status_in: [rinkeby_TransferStatus!]
-  status_not_in: [rinkeby_TransferStatus!]
-  to: rinkeby_Bytes
-  to_not: rinkeby_Bytes
-  to_in: [rinkeby_Bytes!]
-  to_not_in: [rinkeby_Bytes!]
-  to_contains: rinkeby_Bytes
-  to_not_contains: rinkeby_Bytes
-  transferId: rinkeby_Bytes
-  transferId_not: rinkeby_Bytes
-  transferId_in: [rinkeby_Bytes!]
-  transferId_not_in: [rinkeby_Bytes!]
-  transferId_contains: rinkeby_Bytes
-  transferId_not_contains: rinkeby_Bytes
-  callData: rinkeby_Bytes
-  callData_not: rinkeby_Bytes
-  callData_in: [rinkeby_Bytes!]
-  callData_not_in: [rinkeby_Bytes!]
-  callData_contains: rinkeby_Bytes
-  callData_not_contains: rinkeby_Bytes
-  idx: BigInt
-  idx_not: BigInt
-  idx_gt: BigInt
-  idx_lt: BigInt
-  idx_gte: BigInt
-  idx_lte: BigInt
-  idx_in: [BigInt!]
-  idx_not_in: [BigInt!]
-  nonce: BigInt
-  nonce_not: BigInt
-  nonce_gt: BigInt
-  nonce_lt: BigInt
-  nonce_gte: BigInt
-  nonce_lte: BigInt
-  nonce_in: [BigInt!]
-  nonce_not_in: [BigInt!]
-  routers: [String!]
-  routers_not: [String!]
-  routers_contains: [String!]
-  routers_contains_nocase: [String!]
-  routers_not_contains: [String!]
-  routers_not_contains_nocase: [String!]
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
-  xcalledTransactingAsset: rinkeby_Bytes
-  xcalledTransactingAsset_not: rinkeby_Bytes
-  xcalledTransactingAsset_in: [rinkeby_Bytes!]
-  xcalledTransactingAsset_not_in: [rinkeby_Bytes!]
-  xcalledTransactingAsset_contains: rinkeby_Bytes
-  xcalledTransactingAsset_not_contains: rinkeby_Bytes
-  xcalledLocalAsset: rinkeby_Bytes
-  xcalledLocalAsset_not: rinkeby_Bytes
-  xcalledLocalAsset_in: [rinkeby_Bytes!]
-  xcalledLocalAsset_not_in: [rinkeby_Bytes!]
-  xcalledLocalAsset_contains: rinkeby_Bytes
-  xcalledLocalAsset_not_contains: rinkeby_Bytes
-  xcalledTransactingAmount: BigInt
-  xcalledTransactingAmount_not: BigInt
-  xcalledTransactingAmount_gt: BigInt
-  xcalledTransactingAmount_lt: BigInt
-  xcalledTransactingAmount_gte: BigInt
-  xcalledTransactingAmount_lte: BigInt
-  xcalledTransactingAmount_in: [BigInt!]
-  xcalledTransactingAmount_not_in: [BigInt!]
-  xcalledLocalAmount: BigInt
-  xcalledLocalAmount_not: BigInt
-  xcalledLocalAmount_gt: BigInt
-  xcalledLocalAmount_lt: BigInt
-  xcalledLocalAmount_gte: BigInt
-  xcalledLocalAmount_lte: BigInt
-  xcalledLocalAmount_in: [BigInt!]
-  xcalledLocalAmount_not_in: [BigInt!]
-  xcalledCaller: rinkeby_Bytes
-  xcalledCaller_not: rinkeby_Bytes
-  xcalledCaller_in: [rinkeby_Bytes!]
-  xcalledCaller_not_in: [rinkeby_Bytes!]
-  xcalledCaller_contains: rinkeby_Bytes
-  xcalledCaller_not_contains: rinkeby_Bytes
-  xcalledTransactionHash: rinkeby_Bytes
-  xcalledTransactionHash_not: rinkeby_Bytes
-  xcalledTransactionHash_in: [rinkeby_Bytes!]
-  xcalledTransactionHash_not_in: [rinkeby_Bytes!]
-  xcalledTransactionHash_contains: rinkeby_Bytes
-  xcalledTransactionHash_not_contains: rinkeby_Bytes
-  xcalledTimestamp: BigInt
-  xcalledTimestamp_not: BigInt
-  xcalledTimestamp_gt: BigInt
-  xcalledTimestamp_lt: BigInt
-  xcalledTimestamp_gte: BigInt
-  xcalledTimestamp_lte: BigInt
-  xcalledTimestamp_in: [BigInt!]
-  xcalledTimestamp_not_in: [BigInt!]
-  xcalledGasPrice: BigInt
-  xcalledGasPrice_not: BigInt
-  xcalledGasPrice_gt: BigInt
-  xcalledGasPrice_lt: BigInt
-  xcalledGasPrice_gte: BigInt
-  xcalledGasPrice_lte: BigInt
-  xcalledGasPrice_in: [BigInt!]
-  xcalledGasPrice_not_in: [BigInt!]
-  xcalledGasLimit: BigInt
-  xcalledGasLimit_not: BigInt
-  xcalledGasLimit_gt: BigInt
-  xcalledGasLimit_lt: BigInt
-  xcalledGasLimit_gte: BigInt
-  xcalledGasLimit_lte: BigInt
-  xcalledGasLimit_in: [BigInt!]
-  xcalledGasLimit_not_in: [BigInt!]
-  xcalledBlockNumber: BigInt
-  xcalledBlockNumber_not: BigInt
-  xcalledBlockNumber_gt: BigInt
-  xcalledBlockNumber_lt: BigInt
-  xcalledBlockNumber_gte: BigInt
-  xcalledBlockNumber_lte: BigInt
-  xcalledBlockNumber_in: [BigInt!]
-  xcalledBlockNumber_not_in: [BigInt!]
-  executedCaller: rinkeby_Bytes
-  executedCaller_not: rinkeby_Bytes
-  executedCaller_in: [rinkeby_Bytes!]
-  executedCaller_not_in: [rinkeby_Bytes!]
-  executedCaller_contains: rinkeby_Bytes
-  executedCaller_not_contains: rinkeby_Bytes
-  executedTransactingAmount: BigInt
-  executedTransactingAmount_not: BigInt
-  executedTransactingAmount_gt: BigInt
-  executedTransactingAmount_lt: BigInt
-  executedTransactingAmount_gte: BigInt
-  executedTransactingAmount_lte: BigInt
-  executedTransactingAmount_in: [BigInt!]
-  executedTransactingAmount_not_in: [BigInt!]
-  executedLocalAmount: BigInt
-  executedLocalAmount_not: BigInt
-  executedLocalAmount_gt: BigInt
-  executedLocalAmount_lt: BigInt
-  executedLocalAmount_gte: BigInt
-  executedLocalAmount_lte: BigInt
-  executedLocalAmount_in: [BigInt!]
-  executedLocalAmount_not_in: [BigInt!]
-  executedTransactingAsset: rinkeby_Bytes
-  executedTransactingAsset_not: rinkeby_Bytes
-  executedTransactingAsset_in: [rinkeby_Bytes!]
-  executedTransactingAsset_not_in: [rinkeby_Bytes!]
-  executedTransactingAsset_contains: rinkeby_Bytes
-  executedTransactingAsset_not_contains: rinkeby_Bytes
-  executedLocalAsset: rinkeby_Bytes
-  executedLocalAsset_not: rinkeby_Bytes
-  executedLocalAsset_in: [rinkeby_Bytes!]
-  executedLocalAsset_not_in: [rinkeby_Bytes!]
-  executedLocalAsset_contains: rinkeby_Bytes
-  executedLocalAsset_not_contains: rinkeby_Bytes
-  executedTransactionHash: rinkeby_Bytes
-  executedTransactionHash_not: rinkeby_Bytes
-  executedTransactionHash_in: [rinkeby_Bytes!]
-  executedTransactionHash_not_in: [rinkeby_Bytes!]
-  executedTransactionHash_contains: rinkeby_Bytes
-  executedTransactionHash_not_contains: rinkeby_Bytes
-  executedTimestamp: BigInt
-  executedTimestamp_not: BigInt
-  executedTimestamp_gt: BigInt
-  executedTimestamp_lt: BigInt
-  executedTimestamp_gte: BigInt
-  executedTimestamp_lte: BigInt
-  executedTimestamp_in: [BigInt!]
-  executedTimestamp_not_in: [BigInt!]
-  executedGasPrice: BigInt
-  executedGasPrice_not: BigInt
-  executedGasPrice_gt: BigInt
-  executedGasPrice_lt: BigInt
-  executedGasPrice_gte: BigInt
-  executedGasPrice_lte: BigInt
-  executedGasPrice_in: [BigInt!]
-  executedGasPrice_not_in: [BigInt!]
-  executedGasLimit: BigInt
-  executedGasLimit_not: BigInt
-  executedGasLimit_gt: BigInt
-  executedGasLimit_lt: BigInt
-  executedGasLimit_gte: BigInt
-  executedGasLimit_lte: BigInt
-  executedGasLimit_in: [BigInt!]
-  executedGasLimit_not_in: [BigInt!]
-  executedBlockNumber: BigInt
-  executedBlockNumber_not: BigInt
-  executedBlockNumber_gt: BigInt
-  executedBlockNumber_lt: BigInt
-  executedBlockNumber_gte: BigInt
-  executedBlockNumber_lte: BigInt
-  executedBlockNumber_in: [BigInt!]
-  executedBlockNumber_not_in: [BigInt!]
-  reconciledCaller: rinkeby_Bytes
-  reconciledCaller_not: rinkeby_Bytes
-  reconciledCaller_in: [rinkeby_Bytes!]
-  reconciledCaller_not_in: [rinkeby_Bytes!]
-  reconciledCaller_contains: rinkeby_Bytes
-  reconciledCaller_not_contains: rinkeby_Bytes
-  reconciledLocalAsset: rinkeby_Bytes
-  reconciledLocalAsset_not: rinkeby_Bytes
-  reconciledLocalAsset_in: [rinkeby_Bytes!]
-  reconciledLocalAsset_not_in: [rinkeby_Bytes!]
-  reconciledLocalAsset_contains: rinkeby_Bytes
-  reconciledLocalAsset_not_contains: rinkeby_Bytes
-  reconciledLocalAmount: BigInt
-  reconciledLocalAmount_not: BigInt
-  reconciledLocalAmount_gt: BigInt
-  reconciledLocalAmount_lt: BigInt
-  reconciledLocalAmount_gte: BigInt
-  reconciledLocalAmount_lte: BigInt
-  reconciledLocalAmount_in: [BigInt!]
-  reconciledLocalAmount_not_in: [BigInt!]
-  reconciledTransactionHash: rinkeby_Bytes
-  reconciledTransactionHash_not: rinkeby_Bytes
-  reconciledTransactionHash_in: [rinkeby_Bytes!]
-  reconciledTransactionHash_not_in: [rinkeby_Bytes!]
-  reconciledTransactionHash_contains: rinkeby_Bytes
-  reconciledTransactionHash_not_contains: rinkeby_Bytes
-  reconciledTimestamp: BigInt
-  reconciledTimestamp_not: BigInt
-  reconciledTimestamp_gt: BigInt
-  reconciledTimestamp_lt: BigInt
-  reconciledTimestamp_gte: BigInt
-  reconciledTimestamp_lte: BigInt
-  reconciledTimestamp_in: [BigInt!]
-  reconciledTimestamp_not_in: [BigInt!]
-  reconciledGasPrice: BigInt
-  reconciledGasPrice_not: BigInt
-  reconciledGasPrice_gt: BigInt
-  reconciledGasPrice_lt: BigInt
-  reconciledGasPrice_gte: BigInt
-  reconciledGasPrice_lte: BigInt
-  reconciledGasPrice_in: [BigInt!]
-  reconciledGasPrice_not_in: [BigInt!]
-  reconciledGasLimit: BigInt
-  reconciledGasLimit_not: BigInt
-  reconciledGasLimit_gt: BigInt
-  reconciledGasLimit_lt: BigInt
-  reconciledGasLimit_gte: BigInt
-  reconciledGasLimit_lte: BigInt
-  reconciledGasLimit_in: [BigInt!]
-  reconciledGasLimit_not_in: [BigInt!]
-  reconciledBlockNumber: BigInt
-  reconciledBlockNumber_not: BigInt
-  reconciledBlockNumber_gt: BigInt
-  reconciledBlockNumber_lt: BigInt
-  reconciledBlockNumber_gte: BigInt
-  reconciledBlockNumber_lte: BigInt
-  reconciledBlockNumber_in: [BigInt!]
-  reconciledBlockNumber_not_in: [BigInt!]
-
-  """Filter for the block changed event."""
-  _change_block: rinkeby_BlockChangedFilter
-}
-
-enum rinkeby_Transfer_orderBy {
-  id
-  originDomain
-  destinationDomain
-  chainId
-  status
-  to
-  transferId
-  callData
-  idx
-  nonce
-  routers
-  relayerFee
-  xcalledTransactingAsset
-  xcalledLocalAsset
-  xcalledTransactingAmount
-  xcalledLocalAmount
-  xcalledCaller
-  xcalledTransactionHash
-  xcalledTimestamp
-  xcalledGasPrice
-  xcalledGasLimit
-  xcalledBlockNumber
-  executedCaller
-  executedTransactingAmount
-  executedLocalAmount
-  executedTransactingAsset
-  executedLocalAsset
-  executedTransactionHash
-  executedTimestamp
-  executedGasPrice
-  executedGasLimit
-  executedBlockNumber
-  reconciledCaller
-  reconciledLocalAsset
-  reconciledLocalAmount
-  reconciledTransactionHash
-  reconciledTimestamp
-  reconciledGasPrice
-  reconciledGasLimit
-  reconciledBlockNumber
-}
-
-type rinkeby__Block_ {
-  """The hash of the block"""
-  hash: rinkeby_Bytes
-
-  """The block number"""
-  number: Int!
-}
-
-"""The type for the top-level _meta field"""
-type rinkeby__Meta_ {
-  "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block\n"
-  block: rinkeby__Block_!
-
-  """The deployment ID"""
-  deployment: String!
-
-  """If `true`, the subgraph encountered indexing errors at some past block"""
-  hasIndexingErrors: Boolean!
-}
-
-enum _SubgraphErrorPolicy_ {
-  """Data will be returned even if the subgraph has indexing errors"""
-  allow
-
-  """
-  If the subgraph has indexing errors, data will be omitted. The default.
-  """
-  deny
+  """Access to subgraph metadata"""
+  rinkeby__meta(block: rinkeby_Block_height): rinkeby__Meta_
 }
 
 type kovan_Asset {
@@ -1281,6 +639,8 @@ enum kovan_Asset_orderBy {
 }
 
 scalar kovan_BigDecimal
+
+scalar BigInt
 
 input kovan_BlockChangedFilter {
   number_gte: Int!
@@ -1760,6 +1120,646 @@ type kovan__Block_ {
 type kovan__Meta_ {
   "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block\n"
   block: kovan__Block_!
+
+  """The deployment ID"""
+  deployment: String!
+
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum _SubgraphErrorPolicy_ {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow
+
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny
+}
+
+type rinkeby_Asset {
+  id: ID!
+  local: rinkeby_Bytes!
+  adoptedAsset: rinkeby_Bytes!
+  canonicalId: rinkeby_Bytes!
+  canonicalDomain: BigInt!
+  blockNumber: BigInt!
+}
+
+type rinkeby_AssetBalance {
+  id: ID!
+  amount: BigInt!
+  router: rinkeby_Router!
+  asset: rinkeby_Asset!
+}
+
+input rinkeby_AssetBalance_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+
+  """Filter for the block changed event."""
+  _change_block: rinkeby_BlockChangedFilter
+}
+
+enum rinkeby_AssetBalance_orderBy {
+  id
+  amount
+  router
+  asset
+}
+
+input rinkeby_Asset_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  local: rinkeby_Bytes
+  local_not: rinkeby_Bytes
+  local_in: [rinkeby_Bytes!]
+  local_not_in: [rinkeby_Bytes!]
+  local_contains: rinkeby_Bytes
+  local_not_contains: rinkeby_Bytes
+  adoptedAsset: rinkeby_Bytes
+  adoptedAsset_not: rinkeby_Bytes
+  adoptedAsset_in: [rinkeby_Bytes!]
+  adoptedAsset_not_in: [rinkeby_Bytes!]
+  adoptedAsset_contains: rinkeby_Bytes
+  adoptedAsset_not_contains: rinkeby_Bytes
+  canonicalId: rinkeby_Bytes
+  canonicalId_not: rinkeby_Bytes
+  canonicalId_in: [rinkeby_Bytes!]
+  canonicalId_not_in: [rinkeby_Bytes!]
+  canonicalId_contains: rinkeby_Bytes
+  canonicalId_not_contains: rinkeby_Bytes
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+
+  """Filter for the block changed event."""
+  _change_block: rinkeby_BlockChangedFilter
+}
+
+enum rinkeby_Asset_orderBy {
+  id
+  local
+  adoptedAsset
+  canonicalId
+  canonicalDomain
+  blockNumber
+}
+
+scalar rinkeby_BigDecimal
+
+input rinkeby_BlockChangedFilter {
+  number_gte: Int!
+}
+
+input rinkeby_Block_height {
+  hash: rinkeby_Bytes
+  number: Int
+  number_gte: Int
+}
+
+scalar rinkeby_Bytes
+
+"""Defines the order direction, either ascending or descending"""
+enum rinkeby_OrderDirection {
+  asc
+  desc
+}
+
+type rinkeby_Router {
+  id: ID!
+  isActive: Boolean!
+  owner: rinkeby_Bytes
+  recipient: rinkeby_Bytes
+  proposedOwner: rinkeby_Bytes
+  proposedTimestamp: BigInt
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: rinkeby_AssetBalance_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_AssetBalance_filter): [rinkeby_AssetBalance!]!
+}
+
+input rinkeby_Router_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  owner: rinkeby_Bytes
+  owner_not: rinkeby_Bytes
+  owner_in: [rinkeby_Bytes!]
+  owner_not_in: [rinkeby_Bytes!]
+  owner_contains: rinkeby_Bytes
+  owner_not_contains: rinkeby_Bytes
+  recipient: rinkeby_Bytes
+  recipient_not: rinkeby_Bytes
+  recipient_in: [rinkeby_Bytes!]
+  recipient_not_in: [rinkeby_Bytes!]
+  recipient_contains: rinkeby_Bytes
+  recipient_not_contains: rinkeby_Bytes
+  proposedOwner: rinkeby_Bytes
+  proposedOwner_not: rinkeby_Bytes
+  proposedOwner_in: [rinkeby_Bytes!]
+  proposedOwner_not_in: [rinkeby_Bytes!]
+  proposedOwner_contains: rinkeby_Bytes
+  proposedOwner_not_contains: rinkeby_Bytes
+  proposedTimestamp: BigInt
+  proposedTimestamp_not: BigInt
+  proposedTimestamp_gt: BigInt
+  proposedTimestamp_lt: BigInt
+  proposedTimestamp_gte: BigInt
+  proposedTimestamp_lte: BigInt
+  proposedTimestamp_in: [BigInt!]
+  proposedTimestamp_not_in: [BigInt!]
+
+  """Filter for the block changed event."""
+  _change_block: rinkeby_BlockChangedFilter
+}
+
+enum rinkeby_Router_orderBy {
+  id
+  isActive
+  owner
+  recipient
+  proposedOwner
+  proposedTimestamp
+  assetBalances
+}
+
+type rinkeby_Transfer {
+  id: ID!
+  originDomain: BigInt
+  destinationDomain: BigInt
+  chainId: BigInt
+  status: rinkeby_TransferStatus
+  to: rinkeby_Bytes
+  transferId: rinkeby_Bytes
+  callData: rinkeby_Bytes
+  idx: BigInt
+  nonce: BigInt
+  routers(skip: Int = 0, first: Int = 100, orderBy: rinkeby_Router_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_Router_filter): [rinkeby_Router!]
+  relayerFee: BigInt
+  xcalledTransactingAsset: rinkeby_Bytes
+  xcalledLocalAsset: rinkeby_Bytes
+  xcalledTransactingAmount: BigInt
+  xcalledLocalAmount: BigInt
+  xcalledCaller: rinkeby_Bytes
+  xcalledTransactionHash: rinkeby_Bytes
+  xcalledTimestamp: BigInt
+  xcalledGasPrice: BigInt
+  xcalledGasLimit: BigInt
+  xcalledBlockNumber: BigInt
+  executedCaller: rinkeby_Bytes
+  executedTransactingAmount: BigInt
+  executedLocalAmount: BigInt
+  executedTransactingAsset: rinkeby_Bytes
+  executedLocalAsset: rinkeby_Bytes
+  executedTransactionHash: rinkeby_Bytes
+  executedTimestamp: BigInt
+  executedGasPrice: BigInt
+  executedGasLimit: BigInt
+  executedBlockNumber: BigInt
+  reconciledCaller: rinkeby_Bytes
+  reconciledLocalAsset: rinkeby_Bytes
+  reconciledLocalAmount: BigInt
+  reconciledTransactionHash: rinkeby_Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
+}
+
+enum rinkeby_TransferStatus {
+  XCalled
+  Executed
+  Reconciled
+}
+
+input rinkeby_Transfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  status: rinkeby_TransferStatus
+  status_not: rinkeby_TransferStatus
+  status_in: [rinkeby_TransferStatus!]
+  status_not_in: [rinkeby_TransferStatus!]
+  to: rinkeby_Bytes
+  to_not: rinkeby_Bytes
+  to_in: [rinkeby_Bytes!]
+  to_not_in: [rinkeby_Bytes!]
+  to_contains: rinkeby_Bytes
+  to_not_contains: rinkeby_Bytes
+  transferId: rinkeby_Bytes
+  transferId_not: rinkeby_Bytes
+  transferId_in: [rinkeby_Bytes!]
+  transferId_not_in: [rinkeby_Bytes!]
+  transferId_contains: rinkeby_Bytes
+  transferId_not_contains: rinkeby_Bytes
+  callData: rinkeby_Bytes
+  callData_not: rinkeby_Bytes
+  callData_in: [rinkeby_Bytes!]
+  callData_not_in: [rinkeby_Bytes!]
+  callData_contains: rinkeby_Bytes
+  callData_not_contains: rinkeby_Bytes
+  idx: BigInt
+  idx_not: BigInt
+  idx_gt: BigInt
+  idx_lt: BigInt
+  idx_gte: BigInt
+  idx_lte: BigInt
+  idx_in: [BigInt!]
+  idx_not_in: [BigInt!]
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
+  xcalledTransactingAsset: rinkeby_Bytes
+  xcalledTransactingAsset_not: rinkeby_Bytes
+  xcalledTransactingAsset_in: [rinkeby_Bytes!]
+  xcalledTransactingAsset_not_in: [rinkeby_Bytes!]
+  xcalledTransactingAsset_contains: rinkeby_Bytes
+  xcalledTransactingAsset_not_contains: rinkeby_Bytes
+  xcalledLocalAsset: rinkeby_Bytes
+  xcalledLocalAsset_not: rinkeby_Bytes
+  xcalledLocalAsset_in: [rinkeby_Bytes!]
+  xcalledLocalAsset_not_in: [rinkeby_Bytes!]
+  xcalledLocalAsset_contains: rinkeby_Bytes
+  xcalledLocalAsset_not_contains: rinkeby_Bytes
+  xcalledTransactingAmount: BigInt
+  xcalledTransactingAmount_not: BigInt
+  xcalledTransactingAmount_gt: BigInt
+  xcalledTransactingAmount_lt: BigInt
+  xcalledTransactingAmount_gte: BigInt
+  xcalledTransactingAmount_lte: BigInt
+  xcalledTransactingAmount_in: [BigInt!]
+  xcalledTransactingAmount_not_in: [BigInt!]
+  xcalledLocalAmount: BigInt
+  xcalledLocalAmount_not: BigInt
+  xcalledLocalAmount_gt: BigInt
+  xcalledLocalAmount_lt: BigInt
+  xcalledLocalAmount_gte: BigInt
+  xcalledLocalAmount_lte: BigInt
+  xcalledLocalAmount_in: [BigInt!]
+  xcalledLocalAmount_not_in: [BigInt!]
+  xcalledCaller: rinkeby_Bytes
+  xcalledCaller_not: rinkeby_Bytes
+  xcalledCaller_in: [rinkeby_Bytes!]
+  xcalledCaller_not_in: [rinkeby_Bytes!]
+  xcalledCaller_contains: rinkeby_Bytes
+  xcalledCaller_not_contains: rinkeby_Bytes
+  xcalledTransactionHash: rinkeby_Bytes
+  xcalledTransactionHash_not: rinkeby_Bytes
+  xcalledTransactionHash_in: [rinkeby_Bytes!]
+  xcalledTransactionHash_not_in: [rinkeby_Bytes!]
+  xcalledTransactionHash_contains: rinkeby_Bytes
+  xcalledTransactionHash_not_contains: rinkeby_Bytes
+  xcalledTimestamp: BigInt
+  xcalledTimestamp_not: BigInt
+  xcalledTimestamp_gt: BigInt
+  xcalledTimestamp_lt: BigInt
+  xcalledTimestamp_gte: BigInt
+  xcalledTimestamp_lte: BigInt
+  xcalledTimestamp_in: [BigInt!]
+  xcalledTimestamp_not_in: [BigInt!]
+  xcalledGasPrice: BigInt
+  xcalledGasPrice_not: BigInt
+  xcalledGasPrice_gt: BigInt
+  xcalledGasPrice_lt: BigInt
+  xcalledGasPrice_gte: BigInt
+  xcalledGasPrice_lte: BigInt
+  xcalledGasPrice_in: [BigInt!]
+  xcalledGasPrice_not_in: [BigInt!]
+  xcalledGasLimit: BigInt
+  xcalledGasLimit_not: BigInt
+  xcalledGasLimit_gt: BigInt
+  xcalledGasLimit_lt: BigInt
+  xcalledGasLimit_gte: BigInt
+  xcalledGasLimit_lte: BigInt
+  xcalledGasLimit_in: [BigInt!]
+  xcalledGasLimit_not_in: [BigInt!]
+  xcalledBlockNumber: BigInt
+  xcalledBlockNumber_not: BigInt
+  xcalledBlockNumber_gt: BigInt
+  xcalledBlockNumber_lt: BigInt
+  xcalledBlockNumber_gte: BigInt
+  xcalledBlockNumber_lte: BigInt
+  xcalledBlockNumber_in: [BigInt!]
+  xcalledBlockNumber_not_in: [BigInt!]
+  executedCaller: rinkeby_Bytes
+  executedCaller_not: rinkeby_Bytes
+  executedCaller_in: [rinkeby_Bytes!]
+  executedCaller_not_in: [rinkeby_Bytes!]
+  executedCaller_contains: rinkeby_Bytes
+  executedCaller_not_contains: rinkeby_Bytes
+  executedTransactingAmount: BigInt
+  executedTransactingAmount_not: BigInt
+  executedTransactingAmount_gt: BigInt
+  executedTransactingAmount_lt: BigInt
+  executedTransactingAmount_gte: BigInt
+  executedTransactingAmount_lte: BigInt
+  executedTransactingAmount_in: [BigInt!]
+  executedTransactingAmount_not_in: [BigInt!]
+  executedLocalAmount: BigInt
+  executedLocalAmount_not: BigInt
+  executedLocalAmount_gt: BigInt
+  executedLocalAmount_lt: BigInt
+  executedLocalAmount_gte: BigInt
+  executedLocalAmount_lte: BigInt
+  executedLocalAmount_in: [BigInt!]
+  executedLocalAmount_not_in: [BigInt!]
+  executedTransactingAsset: rinkeby_Bytes
+  executedTransactingAsset_not: rinkeby_Bytes
+  executedTransactingAsset_in: [rinkeby_Bytes!]
+  executedTransactingAsset_not_in: [rinkeby_Bytes!]
+  executedTransactingAsset_contains: rinkeby_Bytes
+  executedTransactingAsset_not_contains: rinkeby_Bytes
+  executedLocalAsset: rinkeby_Bytes
+  executedLocalAsset_not: rinkeby_Bytes
+  executedLocalAsset_in: [rinkeby_Bytes!]
+  executedLocalAsset_not_in: [rinkeby_Bytes!]
+  executedLocalAsset_contains: rinkeby_Bytes
+  executedLocalAsset_not_contains: rinkeby_Bytes
+  executedTransactionHash: rinkeby_Bytes
+  executedTransactionHash_not: rinkeby_Bytes
+  executedTransactionHash_in: [rinkeby_Bytes!]
+  executedTransactionHash_not_in: [rinkeby_Bytes!]
+  executedTransactionHash_contains: rinkeby_Bytes
+  executedTransactionHash_not_contains: rinkeby_Bytes
+  executedTimestamp: BigInt
+  executedTimestamp_not: BigInt
+  executedTimestamp_gt: BigInt
+  executedTimestamp_lt: BigInt
+  executedTimestamp_gte: BigInt
+  executedTimestamp_lte: BigInt
+  executedTimestamp_in: [BigInt!]
+  executedTimestamp_not_in: [BigInt!]
+  executedGasPrice: BigInt
+  executedGasPrice_not: BigInt
+  executedGasPrice_gt: BigInt
+  executedGasPrice_lt: BigInt
+  executedGasPrice_gte: BigInt
+  executedGasPrice_lte: BigInt
+  executedGasPrice_in: [BigInt!]
+  executedGasPrice_not_in: [BigInt!]
+  executedGasLimit: BigInt
+  executedGasLimit_not: BigInt
+  executedGasLimit_gt: BigInt
+  executedGasLimit_lt: BigInt
+  executedGasLimit_gte: BigInt
+  executedGasLimit_lte: BigInt
+  executedGasLimit_in: [BigInt!]
+  executedGasLimit_not_in: [BigInt!]
+  executedBlockNumber: BigInt
+  executedBlockNumber_not: BigInt
+  executedBlockNumber_gt: BigInt
+  executedBlockNumber_lt: BigInt
+  executedBlockNumber_gte: BigInt
+  executedBlockNumber_lte: BigInt
+  executedBlockNumber_in: [BigInt!]
+  executedBlockNumber_not_in: [BigInt!]
+  reconciledCaller: rinkeby_Bytes
+  reconciledCaller_not: rinkeby_Bytes
+  reconciledCaller_in: [rinkeby_Bytes!]
+  reconciledCaller_not_in: [rinkeby_Bytes!]
+  reconciledCaller_contains: rinkeby_Bytes
+  reconciledCaller_not_contains: rinkeby_Bytes
+  reconciledLocalAsset: rinkeby_Bytes
+  reconciledLocalAsset_not: rinkeby_Bytes
+  reconciledLocalAsset_in: [rinkeby_Bytes!]
+  reconciledLocalAsset_not_in: [rinkeby_Bytes!]
+  reconciledLocalAsset_contains: rinkeby_Bytes
+  reconciledLocalAsset_not_contains: rinkeby_Bytes
+  reconciledLocalAmount: BigInt
+  reconciledLocalAmount_not: BigInt
+  reconciledLocalAmount_gt: BigInt
+  reconciledLocalAmount_lt: BigInt
+  reconciledLocalAmount_gte: BigInt
+  reconciledLocalAmount_lte: BigInt
+  reconciledLocalAmount_in: [BigInt!]
+  reconciledLocalAmount_not_in: [BigInt!]
+  reconciledTransactionHash: rinkeby_Bytes
+  reconciledTransactionHash_not: rinkeby_Bytes
+  reconciledTransactionHash_in: [rinkeby_Bytes!]
+  reconciledTransactionHash_not_in: [rinkeby_Bytes!]
+  reconciledTransactionHash_contains: rinkeby_Bytes
+  reconciledTransactionHash_not_contains: rinkeby_Bytes
+  reconciledTimestamp: BigInt
+  reconciledTimestamp_not: BigInt
+  reconciledTimestamp_gt: BigInt
+  reconciledTimestamp_lt: BigInt
+  reconciledTimestamp_gte: BigInt
+  reconciledTimestamp_lte: BigInt
+  reconciledTimestamp_in: [BigInt!]
+  reconciledTimestamp_not_in: [BigInt!]
+  reconciledGasPrice: BigInt
+  reconciledGasPrice_not: BigInt
+  reconciledGasPrice_gt: BigInt
+  reconciledGasPrice_lt: BigInt
+  reconciledGasPrice_gte: BigInt
+  reconciledGasPrice_lte: BigInt
+  reconciledGasPrice_in: [BigInt!]
+  reconciledGasPrice_not_in: [BigInt!]
+  reconciledGasLimit: BigInt
+  reconciledGasLimit_not: BigInt
+  reconciledGasLimit_gt: BigInt
+  reconciledGasLimit_lt: BigInt
+  reconciledGasLimit_gte: BigInt
+  reconciledGasLimit_lte: BigInt
+  reconciledGasLimit_in: [BigInt!]
+  reconciledGasLimit_not_in: [BigInt!]
+  reconciledBlockNumber: BigInt
+  reconciledBlockNumber_not: BigInt
+  reconciledBlockNumber_gt: BigInt
+  reconciledBlockNumber_lt: BigInt
+  reconciledBlockNumber_gte: BigInt
+  reconciledBlockNumber_lte: BigInt
+  reconciledBlockNumber_in: [BigInt!]
+  reconciledBlockNumber_not_in: [BigInt!]
+
+  """Filter for the block changed event."""
+  _change_block: rinkeby_BlockChangedFilter
+}
+
+enum rinkeby_Transfer_orderBy {
+  id
+  originDomain
+  destinationDomain
+  chainId
+  status
+  to
+  transferId
+  callData
+  idx
+  nonce
+  routers
+  relayerFee
+  xcalledTransactingAsset
+  xcalledLocalAsset
+  xcalledTransactingAmount
+  xcalledLocalAmount
+  xcalledCaller
+  xcalledTransactionHash
+  xcalledTimestamp
+  xcalledGasPrice
+  xcalledGasLimit
+  xcalledBlockNumber
+  executedCaller
+  executedTransactingAmount
+  executedLocalAmount
+  executedTransactingAsset
+  executedLocalAsset
+  executedTransactionHash
+  executedTimestamp
+  executedGasPrice
+  executedGasLimit
+  executedBlockNumber
+  reconciledCaller
+  reconciledLocalAsset
+  reconciledLocalAmount
+  reconciledTransactionHash
+  reconciledTimestamp
+  reconciledGasPrice
+  reconciledGasLimit
+  reconciledBlockNumber
+}
+
+type rinkeby__Block_ {
+  """The hash of the block"""
+  hash: rinkeby_Bytes
+
+  """The block number"""
+  number: Int!
+}
+
+"""The type for the top-level _meta field"""
+type rinkeby__Meta_ {
+  "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block\n"
+  block: rinkeby__Block_!
 
   """The deployment ID"""
   deployment: String!
