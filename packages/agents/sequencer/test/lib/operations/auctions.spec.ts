@@ -36,6 +36,7 @@ describe("Operations:Auctions", () => {
 
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
+  let getDestinationLocalAssetStub: SinonStub;
   beforeEach(() => {
     const { auctions, transfers, routers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
@@ -63,9 +64,11 @@ describe("Operations:Auctions", () => {
     });
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
+    getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
     getHelpersStub.returns({
       auctions: {
         encodeExecuteFromBid: encodeExecuteFromBidStub,
+        getDestinationLocalAsset: getDestinationLocalAssetStub,
       },
     });
   });

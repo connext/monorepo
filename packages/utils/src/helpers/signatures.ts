@@ -59,7 +59,7 @@ export const signRouterPathPayload = async (
 ): Promise<string> => {
   const hash = getRouterPathHashToSign(transferId, pathLength);
 
-  return sign(hash, signer);
+  return await sign(hash, signer);
 };
 
 /**

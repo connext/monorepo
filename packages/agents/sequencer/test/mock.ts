@@ -150,6 +150,7 @@ export const mock = {
     },
     auctions: {
       encodeExecuteFromBids: stub(),
+      getDestinationLocalAsset: stub(),
     },
   },
   operations: {

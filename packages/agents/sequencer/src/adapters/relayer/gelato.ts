@@ -37,13 +37,12 @@ export const send = async (
     chainId,
   });
 
-  const result = await gelatoSend(
-    chainId,
-    destinationAddress,
-    encodedData,
-    "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    "0",
-  );
+  const result = await gelatoSend(chainId, {
+    dest: destinationAddress,
+    data: encodedData,
+    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    relayerFee: "0",
+  });
 
   if ((result as AxiosError).isAxiosError) {
     throw new RelayerSendFailed({ result });

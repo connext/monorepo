@@ -13,6 +13,7 @@ import {
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
+import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
 
@@ -22,7 +23,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     adapters: { cache, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
-  logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
+  logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
 
   const { transferId, origin } = bid;
 
@@ -98,8 +99,10 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
     relayer: { sendToRelayer },
   } = getOperations();
+  const {
+    auctions: { getDestinationLocalAsset },
+  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
-
   logger.debug(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
 
   // Fetch all the queued transfer IDs from the cache.
@@ -199,10 +202,10 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         for (const randomBid of randomized) {
           // Sanity: Check if this router has enough funds.
           const { router } = randomBid;
-          const amount = BigNumber.from(transfer.xcall.localAmount);
-          const asset = transfer.xcall.localAsset;
-          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
+          const asset = await getDestinationLocalAsset(transfer.originDomain, transfer.xcall.localAsset, destination);
+          const amount = transfer.xcall.localAmount;
 
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
           if (!routerLiquidity) {
             // Either we haven't cached the liquidity yet, or the value cached has become expired.
             routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
@@ -218,6 +221,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
                   destination,
                   amount: amount.toString(),
                 },
+                assetBalanceId: `${asset.toLowerCase()}-${router.toLowerCase()}`,
+                routerLiquidity,
                 router,
               });
               continue;
@@ -239,7 +244,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           }
 
           try {
-            logger.info("Sending bid to relayer", requestContext, methodContext, {
+            logger.debug("Sending bid to relayer", requestContext, methodContext, {
               transferId,
               bid: {
                 // NOTE: Obfuscating signatures here for safety.
@@ -248,7 +253,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               },
             });
             // Send the relayer request based on chosen bids.
-            taskId = await sendToRelayer([randomBid], transfer, requestContext);
+            taskId = await sendToRelayer([randomBid], transfer, asset, requestContext);
             logger.info("Sent bid to relayer", requestContext, methodContext, {
               transferId,
               taskId,

@@ -1,34 +1,65 @@
 import { utils, Wallet } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
+import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
 import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
+import { getDeployedConnextContract } from "@connext/nxtp-txservice";
+
+export enum Environment {
+  Staging = "staging",
+  Production = "production",
+}
 
 // TODO: Should have an overrides in env:
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 export const ORIGIN_ASSET = {
   name: "TEST",
-  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
+  address: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F".toLowerCase(),
 };
 export const DESTINATION_ASSET = {
   name: "TEST",
-  address: "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C",
+  address: "0xb7b1d3cc52e658922b2af00c5729001cea98142c",
 };
 
 /// MARK - Integration Settings
-// TODO: Why is the deployments lookup not working here? Having to hardcode this for now.
-const ORIGIN_CONNEXT_ADDRESS = "0x983d9d70c1003baAE321fAA9C36BEb0eA37BD6E3";
-const DESTINATION_CONNEXT_ADDRESS = "0x3e99898Da8A01Ed909976AF13e4Fa6094326cB10";
+// TODO: Allow overwrites for most, if not all of these in .env!
 const ORIGIN_DOMAIN = "2221"; // Kovan
 const DESTINATION_DOMAIN = "1111"; // Rinkeby
 export const CANONICAL_DOMAIN = "ORIGIN";
-export const MIN_USER_ETH = utils.parseEther("0.02");
+
+// Environment setting.
+export const ENVIRONMENT = process.env.ENV || process.env.ENVIRONMENT || Environment.Staging;
+
+// Whether or not to run the relayer agent locally.
+export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
+
+// TODO: May need to increase this at some point:
+export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
+export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25"); // In TEST.
+export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000000"); // In TEST.
+
+// Min amounts needed for testing.
+export const MIN_USER_ETH = utils.parseEther("0.02").add(RELAYER_FEE_AMOUNT);
 export const MIN_FUNDER_ETH = utils.parseEther("0").add(MIN_USER_ETH);
-export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25");
+
+// Logging.
 export const LOGFILE_PATH = "ops/data";
-// Time period in ms, after which we consider the fast liquidity layer's `execute` to have timed out!
-export const EXECUTE_TIMEOUT = 120_000;
+
+// Time period after which we consider the XCall appearance on the subgraph to have timed out.
+// NOTE: This should basically reflect any lag that can occur in subgraph syncing... if it's not appearing
+// after this period of time, something is wrong with the subgraph!
+export const XCALL_TIMEOUT = 120_000;
+// Time period in ms, after which we consider the fast liquidity layer's `execute` to have timed out.
+// NOTE: This should reflect agent response time.
+export const EXECUTE_TIMEOUT = 3_000_000;
+
+export const SKIP_SEQUENCER_CHECKS = true;
+
+// Used in polling loops.
 export const SUBG_POLL_PARITY = 5_000;
+
+export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_HASH;
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
@@ -58,6 +89,7 @@ export type Agent = {
 export type TestAgents = {
   user: Agent;
   router?: Agent;
+  relayer?: Agent;
   deployer?: Agent;
 };
 
@@ -93,14 +125,32 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     );
   }
 
-  // See above TODO regarding hardcoded contract addresses.
-  // const getConnextContract = (chainId: number): string => {
-  //   const contract = contractDeployments.connext(chainId);
-  //   if (!contract) {
-  //     throw new Error(`No Connext contract deployed on chain ${chainId}`);
-  //   }
-  //   return contract.address;
-  // };
+  const getConnextContract = (chainId: number): string => {
+    const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
+    if (!contract) {
+      throw new Error(`No Connext contract deployed on chain ${chainId}`);
+    }
+    return contract.address.toLowerCase();
+  };
+
+  const originRuntimeSubgraph = originChainData.subgraphs.runtime[0]
+    ? {
+        query:
+          ENVIRONMENT == Environment.Staging
+            ? originChainData.subgraphs.runtime[0].query.replace("v0", "staging")
+            : originChainData.subgraphs.runtime[0].query,
+        health: "https://api.thegraph.com/index-node/graphql",
+      }
+    : undefined;
+  const destinationRuntimeSubgraph = destinationChainData.subgraphs.runtime[0]
+    ? {
+        query:
+          ENVIRONMENT == Environment.Staging
+            ? destinationChainData.subgraphs.runtime[0].query.replace("v0", "staging")
+            : destinationChainData.subgraphs.runtime[0].query,
+        health: "https://api.thegraph.com/index-node/graphql",
+      }
+    : undefined;
   return {
     ORIGIN: {
       name: originChainData.name,
@@ -112,19 +162,13 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         assets: [ORIGIN_ASSET],
         subgraph: {
           analytics: originChainData.subgraphs.analytics ? originChainData.subgraphs.analytics : [],
-          runtime: [
-            {
-              health: "https://api.thegraph.com/index-node/graphql",
-              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
-            },
-          ],
+          runtime: originRuntimeSubgraph ? [originRuntimeSubgraph] : [],
           maxLag: 25,
         },
         gasStations: [],
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
-          // connext: getConnextContract(originChainData.chainId),
-          connext: ORIGIN_CONNEXT_ADDRESS,
+          connext: getConnextContract(originChainData.chainId),
         },
       },
     },
@@ -138,19 +182,13 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         assets: [DESTINATION_ASSET],
         subgraph: {
           analytics: destinationChainData.subgraphs.analytics ? destinationChainData.subgraphs.analytics : [],
-          runtime: [
-            {
-              health: "https://api.thegraph.com/index-node/graphql",
-              query: "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
-            },
-          ],
+          runtime: destinationRuntimeSubgraph ? [destinationRuntimeSubgraph] : [],
           maxLag: 25,
         },
         gasStations: [],
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {
-          // connext: getConnextContract(destinationChainData.chainId),
-          connext: DESTINATION_CONNEXT_ADDRESS,
+          connext: getConnextContract(destinationChainData.chainId),
         },
       },
     },
@@ -160,6 +198,10 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
 /// MARK - Router
 export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterConfig> => {
   const { ORIGIN, DESTINATION } = await DOMAINS;
+  const environment = ENVIRONMENT.toString();
+  if (environment !== "staging" && environment !== "production") {
+    throw new Error(`Router environment only available for staging and production, not ${environment}`);
+  }
   return {
     logLevel: "info",
     sequencerUrl: `http://${LOCALHOST}:8081`,
@@ -185,7 +227,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
-    environment: "staging",
+    environment,
   };
 })();
 
@@ -201,13 +243,13 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     },
     chains: {
       [ORIGIN.domain]: {
-        providers: ["https://rpc.ankr.com/eth_rinkeby"],
+        providers: ORIGIN.config.providers,
         subgraph: ORIGIN.config.subgraph,
         confirmations: ORIGIN.config.confirmations,
         deployments: ORIGIN.config.deployments,
       },
       [DESTINATION.domain]: {
-        providers: ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"],
+        providers: DESTINATION.config.providers,
         subgraph: DESTINATION.config.subgraph,
         confirmations: DESTINATION.config.confirmations,
         deployments: DESTINATION.config.deployments,
@@ -219,6 +261,38 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     },
     auctionWaitTime: 1,
     network: "testnet",
-    environment: "staging",
+    environment: ENVIRONMENT.toString() as "staging" | "production",
+    relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
+  };
+})();
+
+/// MARK - RELAYER CONFIG
+export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<RelayerConfig> => {
+  const { DESTINATION } = await DOMAINS;
+  return {
+    redis: {},
+    server: {
+      adminToken: "c",
+      port: 8082,
+      host: LOCALHOST,
+    },
+    chains: {
+      // [ORIGIN.domain]: {
+      //   providers: ORIGIN.config.providers,
+      //   confirmations: ORIGIN.config.confirmations,
+      //   deployments: ORIGIN.config.deployments,
+      // },
+      [DESTINATION.domain]: {
+        providers: DESTINATION.config.providers,
+        confirmations: DESTINATION.config.confirmations,
+        deployments: DESTINATION.config.deployments,
+      },
+    },
+    logLevel: "debug",
+    mode: {
+      cleanup: false,
+    },
+    network: "testnet",
+    environment: ENVIRONMENT.toString() as "staging" | "production",
   };
 })();

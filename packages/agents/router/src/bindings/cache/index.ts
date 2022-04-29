@@ -1,6 +1,7 @@
-import { createLoggingContext, jsonifyError, XTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, NxtpError, XTransfer } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
+import { AuctionExpired } from "../../lib/errors";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
 
@@ -90,13 +91,23 @@ export const pollCache = async () => {
         // Call execute to process the transfer.
         await execute(transfer);
       } catch (error: any) {
+        const type = (error as NxtpError).type;
+        const isAuctionExpired = type === AuctionExpired.name;
         // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
         const isNewError = await cache.transfers.saveError(transferId, (error as Error).toString());
         if (isNewError) {
-          logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(error as Error), {
-            transferId,
-            xcall: transfer.xcall,
-          });
+          if (isAuctionExpired) {
+            logger.debug("Auction for transfer has expired", requestContext, methodContext, {
+              domain,
+              transferId,
+            });
+          } else {
+            logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
+              domain,
+              transferId,
+              xcall: transfer.xcall,
+            });
+          }
         }
       }
     }
