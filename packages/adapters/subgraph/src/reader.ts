@@ -60,7 +60,7 @@ export class SubgraphReader {
     const prefix = getPrefixByDomain(domain) as string;
     if (!prefix) throw new DomainInvalid({ domain });
 
-    const query = getAssetBalanceQuery(prefix, router, local);
+    const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
     return BigNumber.from([...response.values()][0][0].amount);
   }
@@ -77,7 +77,7 @@ export class SubgraphReader {
     const prefix = getPrefixByDomain(domain) as string;
     if (!prefix) throw new DomainInvalid({ domain });
 
-    const query = getAssetBalancesQuery(prefix, router);
+    const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
     const assetBalances = [...response.values()][0][0];
     const balances: Record<string, BigNumber> = {};
@@ -97,7 +97,7 @@ export class SubgraphReader {
     const prefix = getPrefixByDomain(domain) as string;
     if (!prefix) throw new DomainInvalid({ domain });
 
-    const query = getRouterQuery(prefix, _router);
+    const query = getRouterQuery(prefix, _router.toLowerCase());
     const response = await execute(query);
     const router = [...response.values()][0][0];
     return !!router?.id;
@@ -113,7 +113,7 @@ export class SubgraphReader {
     const prefix = getPrefixByDomain(domain) as string;
     if (!prefix) throw new DomainInvalid({ domain });
 
-    const query = getAssetByLocalQuery(prefix, local);
+    const query = getAssetByLocalQuery(prefix, local.toLowerCase());
     const response = await execute(query);
     const assets = [...response.values()][0][0];
     if (assets.length === 0) {
@@ -132,7 +132,7 @@ export class SubgraphReader {
     const prefix = getPrefixByDomain(domain) as string;
     if (!prefix) throw new DomainInvalid({ domain });
 
-    const query = getAssetByCanonicalIdQuery(prefix, canonicalId);
+    const query = getAssetByCanonicalIdQuery(prefix, canonicalId.toLowerCase());
     const response = await execute(query);
     const assets = [...response.values()][0][0];
     if (assets.length === 0) {
@@ -201,7 +201,7 @@ export class SubgraphReader {
       const value = response.get(domain);
       const xtransfersByDomain = value![0];
       for (const xtransfer of xtransfersByDomain) {
-        allTxById.set(xtransfer.transferId as string, xtransfer as XTransfer);
+        allTxById.set(xtransfer.transferId as string, parser.xtransfer(xtransfer));
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           txIdsByDestinationDomain
             .get(xtransfer.destinationDomain as string)!

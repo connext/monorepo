@@ -8,8 +8,12 @@ import { getBuiltGraphClient } from "./shared";
  * @returns The response from subgraph
  */
 export const execute = async (document: any, variables = {}): Promise<Map<string, any[]>> => {
-  const { execute } = await getBuiltGraphClient();
-  const { parser } = getHelpers();
-  const response = await execute(document, variables);
-  return parser.xquery(response);
+  try {
+    const { execute } = await getBuiltGraphClient();
+    const { parser } = getHelpers();
+    const response = await execute(document, variables);
+    return parser.xquery(response);
+  } catch (e) {
+    throw new Error(`Running a query failed, err: ${e}`);
+  }
 };

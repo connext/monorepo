@@ -47,11 +47,12 @@ export const pollCache = async () => {
     }
 
     // Check the transfer status and update if it gets executed or reconciled on the destination domain
-    const confirmedTransfers: XTransfer[] = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
-    if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
-
-    const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
-    pending = pending.filter((txid) => !confirmedTxIds.includes(txid));
+    if (pendingTransfers.length > 0) {
+      const confirmedTransfers: XTransfer[] = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+      if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
+      const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
+      pending = pending.filter((txid) => !confirmedTxIds.includes(txid));
+    }
 
     for (const transferId of pending) {
       // Retrieve the transfer data.
