@@ -45,7 +45,7 @@ export const test = async () => {
   // getAssetByLocal(domain, local)
   console.log(await subgraphReader.getAssetByLocal("2221", "0xb5aabb55385bfbe31d627e2a717a7b189dda4f8f"));
 
-  // getAssetByCanoncialId(domain, canoncialId)
+  // getAssetByCanoncialId(domain, canonicalId)
   console.log(
     await subgraphReader.getAssetByCanonicalId(
       "1111",

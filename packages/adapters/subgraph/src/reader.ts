@@ -123,9 +123,9 @@ export class SubgraphReader {
   }
 
   /**
-   * Gets the asset by the canoncialId on the specific domain
+   * Gets the asset by the canonicalId on the specific domain
    * @param domain - The domain you're going to get the asset on
-   * @param canonicalId - The canoncialId defined by Nomad
+   * @param canonicalId - The canonicalId defined by Nomad
    */
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
     const { execute, getPrefixByDomain } = getHelpers();

@@ -51,7 +51,7 @@ export const getDestinationLocalAsset = async (
 
   const canonicalId = sendingDomainAsset!.canonicalId as string;
 
-  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(Number(_destinationDomain), canonicalId);
+  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 
   const localAddress = destinationDomainAsset!.local;
   return localAddress;
