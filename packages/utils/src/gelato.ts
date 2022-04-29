@@ -13,7 +13,7 @@ const gelatoSend = async (
   token: string,
   relayerFee: string,
 ): Promise<any> => {
-  const params = { dest, data, token, relayerFee};
+  const params = { dest, data, token, relayerFee };
 
   let output;
   try {
@@ -49,22 +49,21 @@ const getGelatoRelayChains = async (): Promise<string[]> => {
   try {
     const res = await axios.get(`${gelatoServer}/relays/`);
     result = res.data.relays;
-  }
-  catch(error){
+  } catch (error) {
     console.error(error);
   }
 
   return result;
 };
 
-
 const getEstimatedFee = async (
   chainId: number,
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
+  gasLimitL1 = 0,
 ): Promise<BigNumber> => {
-  const result = await _getEstimatedFee(chainId, paymentToken, gasLimit, isHighPriority);
+  const result = await _getEstimatedFee(chainId, paymentToken, gasLimit, isHighPriority, gasLimitL1);
   return result;
 };
 
@@ -73,17 +72,17 @@ const _getEstimatedFee = async (
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
+  gasLimitL1: number,
 ): Promise<BigNumber> => {
-  const params = {paymentToken, gasLimit, isHighPriority};
+  const params = { paymentToken, gasLimit, isHighPriority, gasLimitL1 };
   let result: BigNumber;
   try {
-    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, {params});
+    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
-  }
-  catch(error){
+  } catch (error) {
     let message: string = (error as Error).message;
-    if (axios.isAxiosError(error) && error.response){
-      message = error.response?.data; 
+    if (axios.isAxiosError(error) && error.response) {
+      message = error.response?.data;
     }
     throw new Error(message);
   }
@@ -100,14 +99,12 @@ const getGelatoOracles = async (): Promise<string[]> => {
   try {
     const res = await axios.get(`${gelatoServer}/oracles/`);
     result = res.data.oracles;
-  }
-  catch(error){
+  } catch (error) {
     console.error(error);
   }
 
   return result;
 };
-
 
 const isPaymentTokenSupported = async (chainId: number, token: string): Promise<boolean> => {
   const paymentTokens = await getPaymentTokens(chainId);
@@ -120,9 +117,7 @@ const isPaymentTokenSupported = async (chainId: number, token: string): Promise<
 const getPaymentTokens = async (chainId: number): Promise<string[]> => {
   let result = [];
   try {
-    const res = await axios.get(
-      `${gelatoServer}/oracles/${chainId}/paymentTokens/`
-    );
+    const res = await axios.get(`${gelatoServer}/oracles/${chainId}/paymentTokens/`);
     result = res.data.paymentTokens;
   } catch (error) {
     console.error(error);
@@ -131,4 +126,12 @@ const getPaymentTokens = async (chainId: number): Promise<string[]> => {
   return result;
 };
 
-export { gelatoFulfill, isChainSupportedByGelato, gelatoSend, isOracleActive, getEstimatedFee, getPaymentTokens, isPaymentTokenSupported };
+export {
+  gelatoFulfill,
+  isChainSupportedByGelato,
+  gelatoSend,
+  isOracleActive,
+  getEstimatedFee,
+  getPaymentTokens,
+  isPaymentTokenSupported,
+};
