@@ -782,7 +782,7 @@ describe("StableSwap", async () => {
     });
 
     it("Reverts with 'Token index out of range'", async () => {
-      await expect(swap.calculateSwap(0, 9, String(1e17))).to.be.revertedWith("Token index out of range");
+      await expect(swap["calculateSwap(uint8,uint8,uint256)"](0, 9, String(1e17))).to.be.revertedWith("Token index out of range");
     });
 
     it("Reverts with 'Cannot swap more than you own'", async () => {
@@ -793,7 +793,7 @@ describe("StableSwap", async () => {
 
     it("Succeeds with expected swap amounts", async () => {
       // User 1 calculates how much token to receive
-      const calculatedSwapReturn = await swap.calculateSwap(0, 1, String(1e17));
+      const calculatedSwapReturn = await swap["calculateSwap(uint8,uint8,uint256)"](0, 1, String(1e17));
       expect(calculatedSwapReturn).to.eq(BigNumber.from("99702611562565289"));
 
       const [tokenFromBalanceBefore, tokenToBalanceBefore] = await getUserTokenBalances(user1, [
@@ -812,7 +812,7 @@ describe("StableSwap", async () => {
 
     it("Succeeds with expected swap amounts and asset address", async () => {
       // User 1 calculates how much token to receive
-      const calculatedSwapReturn = await swap.calculateSwap(0, 1, String(1e17));
+      const calculatedSwapReturn = await swap["calculateSwap(uint8,uint8,uint256)"](0, 1, String(1e17));
       expect(calculatedSwapReturn).to.eq(BigNumber.from("99702611562565289"));
 
       const [tokenFromBalanceBefore, tokenToBalanceBefore] = await getUserTokenBalances(user1, [
@@ -831,7 +831,7 @@ describe("StableSwap", async () => {
 
     it("Reverts when minDy (minimum amount token to receive) is not reached due to front running", async () => {
       // User 1 calculates how much token to receive
-      const calculatedSwapReturn = await swap.calculateSwap(0, 1, String(1e17));
+      const calculatedSwapReturn = await swap["calculateSwap(uint8,uint8,uint256)"](0, 1, String(1e17));
       expect(calculatedSwapReturn).to.eq(BigNumber.from("99702611562565289"));
 
       // User 2 swaps before User 1 does
@@ -843,7 +843,7 @@ describe("StableSwap", async () => {
 
     it("Succeeds when using lower minDy even when transaction is front-ran", async () => {
       // User 1 calculates how much token to receive with 1% slippage
-      const calculatedSwapReturn = await swap.calculateSwap(0, 1, String(1e17));
+      const calculatedSwapReturn = await swap["calculateSwap(uint8,uint8,uint256)"](0, 1, String(1e17));
       expect(calculatedSwapReturn).to.eq(BigNumber.from("99702611562565289"));
 
       const [tokenFromBalanceBefore, tokenToBalanceBefore] = await getUserTokenBalances(user1, [
