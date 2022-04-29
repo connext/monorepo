@@ -468,7 +468,7 @@ export class ChainReader {
         chainIdForGasPrice,
         assetId,
         gasLimit.toNumber(),
-        parseInt(gasEstimate),
+        +gasEstimate,
       );
       gelatoEstimatedFee = gelatoEstimatedFee
         ? decimals > inputDecimals
