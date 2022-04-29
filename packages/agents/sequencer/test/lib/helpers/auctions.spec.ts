@@ -1,4 +1,5 @@
 import { Bid, ExecuteArgs, expect, mkAddress, XTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
