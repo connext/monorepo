@@ -29,9 +29,8 @@ export const XTransferSchema = Type.Object({
   status: Type.Enum(XTransferStatus),
 
   // Transfer Data
-  to: TAddress,
   transferId: Type.String(),
-  callTo: Type.String(),
+  to: TAddress,
   callData: Type.String(),
   callback: Type.Optional(TAddress),
   callbackFee: Type.Optional(TIntegerString),

@@ -37,7 +37,7 @@ export const getDeployedConnextContract = (
   postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
+  const contract = record[0]?.contracts ? record[0]?.contracts[`ConnextHandler${postfix}`] : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -87,6 +87,7 @@ export const getDeployedPriceOracleContract = (
 export const getDeployedTokenRegistryContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  proxy = false,
 ): { address: string; abi: any } | undefined => {
   const _contractDeployments = _getContractDeployments();
   const record = _contractDeployments[chainId.toString()] ?? {};
@@ -94,7 +95,9 @@ export const getDeployedTokenRegistryContract = (
   if (!name) {
     return undefined;
   }
-  const contract = record[name]?.contracts ? record[name]?.contracts[`TokenRegistry${postfix}`] : undefined;
+  const contract = record[name]?.contracts
+    ? record[name]?.contracts[`TokenRegistry${proxy ? "UpgradeBeaconProxy" : ""}${postfix}`]
+    : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 

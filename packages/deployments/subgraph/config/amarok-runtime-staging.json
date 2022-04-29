@@ -2,13 +2,19 @@
   {
     "subgraphName": "connext/nxtp-amarok-runtime-staging-rinkeby",
     "network": "rinkeby",
-    "address": "0x53bA0A0Fe47e4B079EF33AAF90f1e87F28E46a9B",
-    "startBlock": 10575490
+    "address": "0x53ba0a0fe47e4b079ef33aaf90f1e87f28e46a9b",
+    "startBlock": 10538690
   },
   {
     "subgraphName": "connext/nxtp-amarok-runtime-staging-kovan",
     "network": "kovan",
-    "address": "0x8b7D4A98AD107923C7d30D3C84225e2Fe3eF3099",
-    "startBlock": 31272532
+    "address": "0x8b7d4a98ad107923c7d30d3c84225e2fe3ef3099",
+    "startBlock": 31139948
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-runtime-staging-goerli",
+    "network": "goerli",
+    "address": "0x008a4449b979874506e8B3CaDDf3ce4c900599B9",
+    "startBlock": 6800385
   }
 ]

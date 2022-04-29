@@ -53,7 +53,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   // only on the first auction round.
   // Produce the router path signatures for each auction round we want to bid on.
   const signatures = {
-    "1": await signRouterPathPayload(transferId, RELAYER_FEE_PERCENTAGE, wallet),
+    "1": await signRouterPathPayload(transferId, "1", wallet),
   };
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
@@ -61,25 +61,24 @@ export const execute = async (params: XTransfer): Promise<void> => {
     sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
   });
 
-  const fee = DEFAULT_ROUTER_FEE;
-  const bid: Bid = {
-    transferId,
-    origin: originDomain,
-    router: routerAddress,
-    fee,
-    signatures,
-  };
-
   // sanity check
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  logger.info("Checking balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(receivingAmount)) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
     });
   }
-  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
+  logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
+
+  const fee = DEFAULT_ROUTER_FEE;
+  const bid: Bid = {
+    transferId,
+    origin: originDomain,
+    router: routerAddress.toLowerCase(),
+    fee,
+    signatures,
+  };
 
   await sendBid(bid, requestContext);
 };

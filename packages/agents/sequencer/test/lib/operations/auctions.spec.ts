@@ -36,6 +36,7 @@ describe("Operations:Auctions", () => {
 
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
+  let getDestinationLocalAssetStub: SinonStub;
   beforeEach(() => {
     const { auctions, transfers, routers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
@@ -63,9 +64,11 @@ describe("Operations:Auctions", () => {
     });
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
+    getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
     getHelpersStub.returns({
       auctions: {
         encodeExecuteFromBid: encodeExecuteFromBidStub,
+        getDestinationLocalAsset: getDestinationLocalAssetStub,
       },
     });
   });
@@ -206,13 +209,10 @@ describe("Operations:Auctions", () => {
 
         const bids = sendToRelayerStub.getCall(i).args[0];
         const transfer = sendToRelayerStub.getCall(i).args[1];
-        const relayerFee = sendToRelayerStub.getCall(i).args[2];
         expect(transfer).to.deep.eq(transfers[i]);
         for (const bid of bids) {
           expect(Object.keys(auctions[i].bids)).to.include(bid.router);
         }
-        expect(relayerFee.amount).to.eq(transfers[i].relayerFee);
-        expect(relayerFee.asset).to.eq(transfers[i].xcall.localAsset);
 
         expect(setStatusStub.getCall(i).args).to.be.deep.eq([transferIds[i], AuctionStatus.Sent]);
         expect(upsertTaskStub.getCall(i).args).to.be.deep.eq([{ transferId: transferIds[i], taskId }]);

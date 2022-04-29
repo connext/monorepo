@@ -18,11 +18,10 @@ export const getTransfers = gql`
       # Transfer Data
       to
       transferId
-      callTo
       callData
       idx
       nonce
-      router {
+      routers {
         id
       }
       # XCalled
@@ -90,13 +89,13 @@ export const getXCalledTransfers = gql`
       # Transfer Data
       to
       transferId
-      callTo
       callData
       idx
       nonce
-      router {
+      routers {
         id
       }
+      relayerFee
       # XCalled
       xcalledCaller
       xcalledTransactingAmount
@@ -147,13 +146,13 @@ export const getTransfer = gql`
       # Transfer Data
       to
       transferId
-      callTo
       callData
       idx
       nonce
-      router {
+      routers {
         id
       }
+      relayerFee
       # XCalled
       xcalledCaller
       xcalledTransactingAmount
@@ -206,13 +205,13 @@ export const getExecutedTransfersByIds = gql`
       # Transfer Data
       to
       transferId
-      callTo
       callData
       idx
       nonce
-      router {
+      routers {
         id
       }
+      relayerFee
       # XCalled
       xcalledTransactingAsset
       xcalledLocalAsset
@@ -269,13 +268,13 @@ export const getReconciledTransfersByIds = gql`
       # Transfer Data
       to
       transferId
-      callTo
       callData
       idx
       nonce
-      router {
+      routers {
         id
       }
+      relayerFee
       # XCalled
       xcalledTransactingAsset
       xcalledLocalAsset
@@ -326,13 +325,13 @@ export const getTransfersStatus = gql`
       # Transfer Data
       to
       transferId
-      callTo
       callData
       idx
       nonce
-      router {
+      routers {
         id
       }
+      relayerFee
       # XCalled
       xcalledTransactingAsset
       xcalledLocalAsset
