@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## Amarok 0.2.0-alpha.7
+## Amarok 0.2.0-alpha.8
 
 - [contracts] Relayer fee upgrade
 
