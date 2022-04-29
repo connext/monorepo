@@ -1,9 +1,9 @@
 import { utils, BigNumber } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
-import { AuctionsCache, RoutersCache, StoreManager, TransfersCache } from "@connext/nxtp-adapters-cache";
+import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, mkBytes32 } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
@@ -11,6 +11,9 @@ import { StableSwapInterface } from "@connext/nxtp-contracts/typechain-types/Sta
 
 import { SequencerConfig } from "../src/lib/entities";
 import { AppContext } from "../src/lib/entities/context";
+
+export const mockTaskId = mkBytes32("0xabcdef123");
+export const mockRelayerAddress = mkAddress("0xabcdef123");
 
 export const mock = {
   ..._mock,
@@ -21,6 +24,7 @@ export const mock = {
         cache: mock.adapters.cache(),
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
+        relayer: mock.adapters.relayer(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -66,6 +70,7 @@ export const mock = {
     mode: {
       cleanup: false,
     },
+    environment: "staging",
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -119,11 +124,22 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20 = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
+        erc20: erc20 as any,
         connext: connext as unknown as ConnextInterface,
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
+      };
+    },
+    relayer: () => {
+      return {
+        getRelayerAddress: stub().resolves(mockRelayerAddress),
+        send: stub().resolves(mockTaskId),
       };
     },
   },
@@ -133,7 +149,8 @@ export const mock = {
       isChainSupportedByGelato: stub(),
     },
     auctions: {
-      encodeExecuteFromBid: stub(),
+      encodeExecuteFromBids: stub(),
+      getDestinationLocalAsset: stub(),
     },
   },
   operations: {

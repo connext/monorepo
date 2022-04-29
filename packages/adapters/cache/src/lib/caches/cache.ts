@@ -25,4 +25,13 @@ export abstract class Cache {
       });
     }
   }
+
+  /**
+   * Flushes the entire cache.
+   *
+   * @returns string "OK"
+   */
+  public async clear(): Promise<"OK"> {
+    return await this.data.flushall();
+  }
 }

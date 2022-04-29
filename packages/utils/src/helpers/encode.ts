@@ -10,9 +10,9 @@ import { ExternalCall, ReconciledTransaction } from "..";
  */
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
-export const SignedRelayerFeeDataEncoding = tidy(`tuple(
+export const SignedRouterPathEncoding = tidy(`tuple(
   bytes32 transferId,
-  uint32 feePercentage
+  uint256 pathLength
 )`);
 
 export const ExternalCallDataEncoding = tidy(`tuple(
@@ -32,11 +32,11 @@ export const ReconciledTransactionDataEncoding = tidy(`tuple(
  *
  * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
- * @param feePercentage - The amount over the BASEFEE to tip the relayer
+ * @param pathLength - The number of routers in the path
  * @returns Encoded handleRelayerFee payload
  */
-export const encodeHandleRelayerFeeData = (transferId: string, feePercentage: string): string => {
-  return defaultAbiCoder.encode([SignedRelayerFeeDataEncoding], [{ transferId, feePercentage }]);
+export const encodeRouterPathPayload = (transferId: string, pathLength: string): string => {
+  return defaultAbiCoder.encode([SignedRouterPathEncoding], [{ transferId, pathLength }]);
 };
 
 /**

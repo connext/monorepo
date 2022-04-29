@@ -6,24 +6,20 @@ import {
   RequestContext,
   createLoggingContext,
   jsonifyError,
-  BidData,
   formatUrl,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../router";
 import { AuctionExpired, SequencerResponseInvalid } from "../errors";
 
-export const sendBid = async (
-  transferId: string,
-  bid: Bid,
-  bidData: BidData,
-  _requestContext: RequestContext,
-): Promise<any> => {
+export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const { config, logger } = getContext();
   const { sequencerUrl } = config;
   const { requestContext, methodContext } = createLoggingContext(sendBid.name);
 
-  logger.info("Sending bid to sequencer", requestContext, methodContext, {
+  const { transferId } = bid;
+
+  logger.debug("Sending bid to sequencer", requestContext, methodContext, {
     transferId,
     // Remove actual signatures (sensitive data) from logs, but list participating rounds.
     bid: { ...bid, signatures: Object.keys(bid.signatures).join(",") },
@@ -31,11 +27,7 @@ export const sendBid = async (
 
   const url = formatUrl(sequencerUrl, "auctions");
   try {
-    const response = await axios.post<any, AxiosResponse<any, any>, AuctionsApiPostBidReq>(url, {
-      transferId,
-      bid,
-      data: bidData,
-    });
+    const response = await axios.post<any, AxiosResponse<any, any>, AuctionsApiPostBidReq>(url, bid);
     // Make sure response.data is valid.
     if (!response || !response.data) {
       throw new SequencerResponseInvalid({ response });

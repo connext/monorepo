@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "./PriceOracle.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./interfaces/IERC20Extended.sol";
-import "./interfaces/IPriceOracle.sol";
+import {PriceOracle} from "./PriceOracle.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20Extended} from "./interfaces/IERC20Extended.sol";
+
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 
 interface AggregatorV3Interface {
   function decimals() external view returns (uint8);

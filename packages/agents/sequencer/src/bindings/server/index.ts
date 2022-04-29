@@ -31,7 +31,7 @@ export const bindServer = () =>
       logger,
       adapters: { cache },
     } = getContext();
-    const server = fastify({ logger: pino({ level: config.logLevel }) });
+    const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
 
     server.get("/ping", async (_req, res) => {
       return res.code(200).send("pong\n");
@@ -76,7 +76,7 @@ export const bindServer = () =>
             },
           });
         } catch (error: unknown) {
-          logger.error(`Auction by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
+          logger.debug(`Auction by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
           return response
             .code(500)
             .send({ message: `Auction by TransferId Get Error`, error: jsonifyError(error as Error) });
@@ -101,9 +101,9 @@ export const bindServer = () =>
           auctions: { storeBid },
         } = getOperations();
         try {
-          const { transferId, bid, data: bidData } = request.body;
-          await storeBid(transferId, bid, bidData, requestContext);
-          return response.status(200).send({ message: "Bid received", transferId, bid });
+          const bid = request.body;
+          await storeBid(bid, requestContext);
+          return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
         } catch (error: unknown) {
           const type = (error as NxtpError).type;
           if (type !== AuctionExpired.name) {
@@ -158,7 +158,6 @@ export const api = {
     admin: (body: AdminRequest, res: FastifyReply, nested: (res: FastifyReply) => Promise<void>) => {
       const { config } = getContext();
       const { adminToken } = body;
-      console.log("adminToken: ", adminToken);
       if (adminToken !== config.server.adminToken) {
         return res.status(401).send("Unauthorized to perform this operation");
       }

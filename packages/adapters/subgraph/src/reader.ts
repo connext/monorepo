@@ -6,6 +6,7 @@ import { getHelpers } from "./lib/helpers";
 import {
   GetAssetByLocalQuery,
   GetXCalledTransfersQuery,
+  GetTransferQuery,
   GetTransfersQuery,
   GetTransfersStatusQuery,
   Asset,
@@ -124,7 +125,21 @@ export class SubgraphReader {
     return assets[0];
   }
 
-  // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
+  /**
+   * Retrieve a target transfer belonging to a given domain by ID.
+   *
+   * @param domain - The domain you want to get transfers from.
+   * @param transferId - The ID of the transfer you want to retrieve.
+   * @returns Parsed XTransfer object if transfer exists, otherwise undefined.
+   */
+  public async getTransfer(domain: string, transferId: string): Promise<XTransfer | undefined> {
+    const { parser } = getHelpers();
+    const { transfers } = await this.subgraphs.get(domain)!.runtime.request<GetTransferQuery>((client) => {
+      return client.GetTransfer({ transferId });
+    });
+    return transfers.length === 1 ? parser.xtransfer(transfers[0]) : undefined;
+  }
+
   /**
    * Get all transfers on a domain from a specified nonce that are routing to one of the given destination domains.
    *

@@ -84,6 +84,7 @@ export class TransactionService extends ChainReader {
    * @param tx.value - Value to send tx with
    * @param tx.data - Calldata to execute
    * @param tx.from - (optional) Account to send tx from
+   * @param domain - (optional) Domain to use for accessing providers index
    *
    * @returns TransactionReceipt once the tx is mined if the transaction was successful.
    *
@@ -91,12 +92,16 @@ export class TransactionService extends ChainReader {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-  public async sendTx(tx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
+  public async sendTx(
+    tx: WriteTransaction,
+    context: RequestContext,
+    domain?: number,
+  ): Promise<providers.TransactionReceipt> {
     const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, context);
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
-    return await this.getProvider(tx.chainId).send(tx, context);
+    return await this.getProvider(domain ?? tx.chainId).send(tx, context);
   }
 
   /// LISTENER METHODS

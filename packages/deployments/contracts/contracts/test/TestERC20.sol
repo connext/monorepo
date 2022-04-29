@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IBridgeToken} from "../nomad-xapps/interfaces/bridge/IBridgeToken.sol";
-import {BridgeMessage} from "../nomad-xapps/contracts/bridge/BridgeMessage.sol";
+import {ConnextMessage} from "../nomad-xapps/contracts/connext/ConnextMessage.sol";
 
 /**
  * @notice This token is ONLY useful for testing
@@ -19,7 +19,7 @@ contract TestERC20 is IBridgeToken, ERC20 {
   function initialize() external override {}
 
   function detailsHash() external view override returns (bytes32) {
-    return BridgeMessage.getDetailsHash(name(), symbol(), decimals());
+    return ConnextMessage.formatDetailsHash(name(), symbol(), decimals());
   }
 
   function setDetailsHash(bytes32 _detailsHash) external override {}

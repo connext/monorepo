@@ -3,7 +3,7 @@ import {
   getChainData,
   getGelatoRelayerAddress,
   isChainSupportedByGelato,
-  signHandleRelayerFeePayload,
+  signRouterPathPayload,
 } from "@connext/nxtp-utils";
 import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
@@ -22,7 +22,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
   .setAction(async ({ connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
     const env = mustGetEnv(_env);
     console.log("env:", env);
-    const connextName = getDeploymentName("Connext", env);
+    const connextName = getDeploymentName("ConnextHandler", env);
     let connextAddress = _connextAddress ?? process.env.EG_CONNEXT_ADDRESS;
     if (!connextAddress) {
       const connextDeployment = await deployments.get(connextName);
@@ -125,7 +125,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
         throw new Error("Router mnemonic must be specified in env (EXECUTE_ROUTER_MNEMONIC)");
       }
       const wallet = Wallet.fromMnemonic(router_mnemonic);
-      const relayerSignature = await signHandleRelayerFeePayload(transferId as string, feePercentage, wallet);
+      const relayerSignature = await signRouterPathPayload(transferId as string, "1", wallet);
 
       (executeArgs as any).relayerSignature = relayerSignature;
 

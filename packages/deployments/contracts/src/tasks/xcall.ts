@@ -12,6 +12,7 @@ type TaskArgs = {
   callData?: string;
   connextAddress?: string;
   env?: Env;
+  relayerFee?: string;
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
@@ -21,6 +22,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("destinationDomain", "Destination domain")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
+  .addOptionalParam("relayerFee", "Override relayer fee")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
@@ -32,6 +34,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         callData: _callData,
         destinationDomain: _destinationDomain,
         env: _env,
+        relayerFee: _relayerFee,
       }: TaskArgs,
       { deployments, ethers },
     ) => {
@@ -64,6 +67,9 @@ export default task("xcall", "Prepare a cross-chain tx")
       if (!amount) {
         throw new Error("Amount must be specified as param or from env (TRANSFER_AMOUNT)");
       }
+
+      // Get the relayer fee (defaults to 0)
+      const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
 
       // Get the transacting asset ID.
       let transactingAssetId = _transactingAssetId ?? process.env.TRANSFER_ASSET;
@@ -107,7 +113,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("Transfer to: ", to);
       console.log("callData: ", callData);
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, sender);
@@ -141,6 +147,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         },
         transactingAssetId,
         amount,
+        relayerFee,
       };
       console.log("xcall args", JSON.stringify(args));
       const encoded = connext.interface.encodeFunctionData("xcall", [args]);

@@ -1,5 +1,5 @@
 import { ethers, upgrades } from "hardhat";
-import { expect, assert } from "chai";
+import { expect } from "chai";
 
 import {
   BigNumber,
@@ -10,11 +10,18 @@ import {
   providers,
   Signer,
   Wallet,
-  BytesLike,
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
-import { ProposedOwnableUpgradeable, GenericERC20, UpgradeBeaconProxy, Connext } from "../typechain-types";
+import {
+  ProposedOwnableUpgradeable,
+  GenericERC20,
+  UpgradeBeaconProxy,
+  ConnextHandler,
+  TestERC20,
+  TransparentUpgradeableProxy,
+  ConnextLogic,
+} from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
 export const MAX_FEE_PER_GAS = BigNumber.from("975000000");
@@ -79,14 +86,17 @@ export const upgradeBeaconProxy = async (name: string, beaconAddress: string): P
   return true;
 };
 
-export const deployUpgradeableProxy = async <T extends Contract = Contract>(
+export const deployUpgradeableBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   initArgs: any[],
   controllerAddress: string,
+  libraries: Record<string, string> = {},
   ...constructorArgs: any[]
 ): Promise<T> => {
   // Get init data
-  const factory = (await ethers.getContractFactory(name)) as ContractFactory;
+  const factory = (await ethers.getContractFactory(name, {
+    libraries,
+  })) as ContractFactory;
   const initData = factory.interface.encodeFunctionData("initialize", initArgs);
 
   // Deploy implementation
@@ -102,6 +112,34 @@ export const deployUpgradeableProxy = async <T extends Contract = Contract>(
   return new Contract(proxy.address, implementation.interface) as T;
 };
 
+export const deployUpgradeableProxy = async <T extends Contract = Contract>(
+  name: string,
+  proxyOwner: string,
+  initArgs: any[],
+  libraries: Record<string, string> = {},
+  ...constructorArgs: any[]
+): Promise<T> => {
+  // Get init data
+  const factory = (await ethers.getContractFactory(name, {
+    libraries,
+  })) as ContractFactory;
+  const initData = factory.interface.encodeFunctionData("initialize", initArgs);
+
+  // Deploy implementation
+  const implementation = await deployFromFactory(factory, ...constructorArgs);
+
+  // Deploy proxy
+  const proxyFactory = await ethers.getContractFactory("TransparentUpgradeableProxy");
+  const proxy = await deployFromFactory<TransparentUpgradeableProxy>(
+    proxyFactory,
+    implementation.address,
+    proxyOwner,
+    initData,
+  );
+
+  return new Contract(proxy.address, implementation.interface) as T;
+};
+
 export const getOnchainBalance = async (
   assetId: string,
   address: string,
@@ -112,7 +150,7 @@ export const getOnchainBalance = async (
     : new Contract(assetId, Erc20Abi, provider).balanceOf(address);
 };
 
-export const getRoutersBalances = async (routers: string[], connextContract: Connext, asset: string) =>
+export const getRoutersBalances = async (routers: string[], connextContract: ConnextHandler, asset: string) =>
   Promise.all(routers.map((addr) => connextContract.routerBalances(addr, asset)));
 
 export const setBlockTime = async (desiredTimestamp: number) => {
@@ -180,190 +218,6 @@ export const transferOwnershipOnContract = async (
     newOwner,
   });
   expect(await contract.owner()).to.be.eq(newOwner);
-};
-
-// ========== NOMAD HELPERSS =============
-export type TransferAction = {
-  type: BridgeMessageTypes.TRANSFER;
-  recipient: BytesLike;
-  amount: number | BytesLike;
-  detailsHash: BytesLike;
-};
-
-export type FastTransferAction = {
-  type: BridgeMessageTypes.FAST_TRANSFER;
-  recipient: BytesLike;
-  amount: number | BytesLike;
-  detailsHash: BytesLike;
-  externalHash: BytesLike;
-};
-
-export type NxtpEnabledAction = {
-  type: BridgeMessageTypes.NXTP_ENABLED;
-  recipient: BytesLike;
-  amount: (number | BytesLike)[];
-  detailsHash: BytesLike[];
-  batchRoot: BytesLike;
-};
-
-export type Action = TransferAction | FastTransferAction | NxtpEnabledAction;
-
-export interface TokenIdentifier {
-  domain: string | number;
-  id: BytesLike;
-}
-
-export type Message = {
-  tokenId: TokenIdentifier;
-  action: Action;
-};
-
-export type BatchMessage = {
-  tokenIds: TokenIdentifier[];
-  action: Action;
-};
-
-function byteLength(str: string) {
-  return Buffer.from(str, "utf-8").length;
-}
-
-export enum BridgeMessageTypes {
-  INVALID = 0,
-  TOKEN_ID,
-  MESSAGE,
-  TRANSFER,
-  FAST_TRANSFER,
-  NXTP_ENABLED,
-  TOKEN_IDS,
-}
-
-const typeToByte = (type: number): string => `0x0${type}`;
-
-const MESSAGE_LEN = {
-  identifier: 1,
-  tokenId: 36,
-  transfer: 97,
-};
-
-export function getDetailsHash(name: string, symbol: string, decimals: number): BytesLike {
-  const details: BytesLike = ethers.utils.solidityPack(
-    ["uint", "string", "uint", "string", "uint8"],
-    [byteLength(name), name, byteLength(symbol), symbol, decimals],
-  );
-  return ethers.utils.solidityKeccak256(["bytes"], [details]);
-}
-
-// Formats Transfer Message
-export function formatTransfer(
-  to: BytesLike,
-  amnt: number | BytesLike,
-  detailsHash: BytesLike,
-  enableFast: boolean,
-  externalHash: BytesLike,
-): BytesLike {
-  const type = enableFast ? BridgeMessageTypes.FAST_TRANSFER : BridgeMessageTypes.TRANSFER;
-  return ethers.utils.solidityPack(
-    ["uint8", "bytes32", "uint256", "bytes32", "bytes32"],
-    [type, to, amnt, detailsHash, externalHash],
-  );
-}
-
-// Formats the Token ID
-export function formatTokenId(domain: number, id: string): BytesLike {
-  return ethers.utils.solidityPack(["uint32", "bytes32"], [domain, id]);
-}
-
-export function formatMessage(tokenId: BytesLike, action: BytesLike): BytesLike {
-  return ethers.utils.solidityPack(["bytes", "bytes"], [tokenId, action]);
-}
-
-export function serializeTransferAction(transferAction: TransferAction): BytesLike {
-  const { type, recipient, amount, detailsHash } = transferAction;
-  assert(type === BridgeMessageTypes.TRANSFER);
-  return formatTransfer(recipient, amount, detailsHash, false, "");
-}
-
-export function serializeFastTransferAction(transferAction: FastTransferAction): BytesLike {
-  const { type, recipient, amount, detailsHash, externalHash } = transferAction;
-  assert(type === BridgeMessageTypes.FAST_TRANSFER);
-  return formatTransfer(recipient, amount, detailsHash, true, externalHash);
-}
-
-export function serializeNxtpEnabledAction(transferAction: NxtpEnabledAction): BytesLike {
-  const { type, recipient, amount, detailsHash, batchRoot } = transferAction;
-  assert(type === BridgeMessageTypes.NXTP_ENABLED);
-  const vals: any[] = [];
-  const types: string[] = [];
-  detailsHash.forEach((hash, idx) => {
-    types.push("bytes32", "uint256");
-    return vals.push(hash, amount[idx]);
-  });
-  return ethers.utils.solidityPack(["uint8", "bytes32", "bytes32", ...types], [type, recipient, batchRoot, ...vals]);
-}
-
-export function serializeAction(action: Action): BytesLike {
-  let actionBytes: BytesLike = [];
-  switch (action.type) {
-    case BridgeMessageTypes.TRANSFER: {
-      actionBytes = serializeTransferAction(action);
-      break;
-    }
-    case BridgeMessageTypes.FAST_TRANSFER: {
-      actionBytes = serializeFastTransferAction(action);
-      break;
-    }
-    case BridgeMessageTypes.NXTP_ENABLED: {
-      actionBytes = serializeNxtpEnabledAction(action);
-      break;
-    }
-    default: {
-      console.error("Invalid action");
-      break;
-    }
-  }
-  return actionBytes;
-}
-
-export function serializeTokenId(tokenId: TokenIdentifier): BytesLike {
-  if (typeof tokenId.domain !== "number" || typeof tokenId.id !== "string") {
-    throw new Error("!types");
-  }
-  return formatTokenId(tokenId.domain as number, tokenId.id as string);
-}
-
-export function serializeMessage(message: Message): BytesLike {
-  const tokenId = serializeTokenId(message.tokenId);
-  const action = serializeAction(message.action);
-  return formatMessage(tokenId, action);
-}
-
-export function serializeBatchMessage(message: BatchMessage): BytesLike {
-  let tokenIds: BytesLike = "0x";
-  message.tokenIds.forEach((t: TokenIdentifier) => {
-    const serialized = serializeTokenId(t);
-    if (typeof serialized === "string") {
-      const toAdd = serialized.startsWith("0x") ? serialized.substring(2) : serialized;
-      tokenIds += toAdd;
-    } else {
-      throw new Error("Implement: buffer concat");
-    }
-  });
-  const action = serializeAction(message.action);
-  return formatMessage(tokenIds, action);
-}
-
-export const bridge = {
-  BridgeMessageTypes,
-  typeToByte,
-  MESSAGE_LEN,
-  serializeTransferAction,
-  serializeFastTransferAction,
-  serializeNxtpEnabledAction,
-  serializeAction,
-  serializeTokenId,
-  serializeMessage,
-  serializeBatchMessage,
-  getDetailsHash,
 };
 
 //// For StableSwap
@@ -443,8 +297,8 @@ export function mineBlock() {
 /**
  *  Takes a snapshot and returns the ID of the snapshot for restoring later.
  */
- export async function takeSnapshot(): Promise<number> {
-  const result = await send('evm_snapshot');
+export async function takeSnapshot(): Promise<number> {
+  const result = await send("evm_snapshot");
   await mineBlock();
   return result;
 }
@@ -454,6 +308,35 @@ export function mineBlock() {
  *  @param id The ID that was returned when takeSnapshot was called.
  */
 export async function restoreSnapshot(id: number) {
-  await send('evm_revert', [id]);
+  await send("evm_revert", [id]);
   await mineBlock();
 }
+
+export const connextXCall = async (
+  user: Wallet,
+  asset: TestERC20,
+  amount: number,
+  relayerFee: number,
+  params: { to: string; callData: string; originDomain: number; destinationDomain: number },
+  connext: ConnextHandler,
+  connextLogic: ConnextLogic,
+) => {
+  // Approve user
+  await asset.connect(user).approve(connext.address, amount);
+
+  // Prepare from the user
+  const transactingAssetId = asset.address;
+  const prepare = await connext
+    .connect(user)
+    .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+  const prepareReceipt = await prepare.wait();
+
+  const xcalledTopic = connextLogic.filters.XCalled().topics as string[];
+  const originTmEvent = connextLogic.interface.parseLog(
+    prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
+  );
+
+  const nonce = (originTmEvent!.args as any).nonce;
+  const transferId = (originTmEvent!.args as any).transferId;
+  return { nonce, transferId };
+};

@@ -26,41 +26,55 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const network = await hre.ethers.provider.getNetwork();
   const domainConfig = getDomainInfoFromChainId(network.chainId);
 
-  console.log("Fetching bridge router...");
-  const bridgeRouterDeploymentName = getDeploymentName("BridgeRouterUpgradeBeaconProxy");
-  const bridgeRouterDeployment = await hre.deployments.getOrNull(bridgeRouterDeploymentName);
-  if (!bridgeRouterDeployment) {
-    throw new Error(`BridgeRouter not deployed`);
+  console.log("Deploying relayer fee router...");
+  // Get RelayerFeeRouter and TokenRegistry deployments.
+  const relayerFeeRouterName = getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy");
+  const relayerFeeRouterDeployment = await hre.deployments.getOrNull(relayerFeeRouterName);
+  const relayerFeeRouterImplementationName = getDeploymentName("RelayerFeeRouter");
+  const relayerFeeRouterImplementationDeployment = await hre.deployments.getOrNull(relayerFeeRouterImplementationName);
+
+  if (!relayerFeeRouterDeployment || !relayerFeeRouterImplementationDeployment) {
+    throw new Error(
+      `RelayerFeeRouterUpgradeBeaconProxy not deployed. ` +
+        `Upgrade Beacon: ${!!relayerFeeRouterDeployment}; Implementation: ${!!relayerFeeRouterImplementationDeployment}`,
+    );
   }
-  const bridge = new hre.ethers.Contract(
-    bridgeRouterDeployment.address,
-    (await hre.deployments.getOrNull(getDeploymentName("BridgeRouter")))!.abi,
+
+  const relayerFeeRouter = new hre.ethers.Contract(
+    relayerFeeRouterDeployment.address,
+    relayerFeeRouterImplementationDeployment.abi,
   ).connect(deployer);
+
+  // Get xapp connection manager
+  const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
+  if (!xappConnectionManagerDeployment) {
+    throw new Error(`XappConnectionManager not deployed`);
+  }
 
   console.log("Fetching token registry...");
   const tokenRegistryDeployment = await hre.deployments.getOrNull(getDeploymentName("TokenRegistryUpgradeBeaconProxy"));
   if (!tokenRegistryDeployment) {
     throw new Error(`TokenRegistry not deployed`);
   }
+  console.log("Deploying token registry...");
   const tokenRegistry = new hre.ethers.Contract(
     tokenRegistryDeployment.address,
     (await hre.deployments.getOrNull(getDeploymentName("TokenRegistry")))!.abi,
   ).connect(deployer);
 
   // Deploy Connext logic libraries
-
   console.log("Deploying asset logic, utils, permissions manager...");
   const assetLogicName = getDeploymentName("AssetLogic");
-  const assetLogic = await hre.deployments.deploy(assetLogicName, {
+  await hre.deployments.deploy(assetLogicName, {
     from: deployer.address,
     log: true,
     contract: "AssetLogic",
   });
-  const utilsLogicName = getDeploymentName("ConnextUtils");
-  const connextUtils = await hre.deployments.deploy(utilsLogicName, {
+  const utilsLogicName = getDeploymentName("ConnextLogic");
+  const connextLogic = await hre.deployments.deploy(utilsLogicName, {
     from: deployer.address,
     log: true,
-    contract: "ConnextUtils",
+    contract: "ConnextLogic",
   });
   const routersLogicName = getDeploymentName("RouterPermissionsManagerLogic");
   const routerPermissionsManagerLogic = await hre.deployments.deploy(routersLogicName, {
@@ -72,12 +86,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // Deploy connext contract
   console.log("Deploying connext...");
   const libraries = {
-    AssetLogic: assetLogic.address,
-    ConnextUtils: connextUtils.address,
+    ConnextLogic: connextLogic.address,
     RouterPermissionsManagerLogic: routerPermissionsManagerLogic.address,
   };
-  const connextName = getDeploymentName("Connext");
-  const connext = await hre.deployments.deploy(connextName, {
+  const connext = await hre.deployments.deploy(getDeploymentName("ConnextHandler"), {
     from: deployer.address,
     log: true,
     libraries,
@@ -87,27 +99,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
           methodName: "initialize",
           args: [
             domainConfig.domain,
-            bridge.address,
+            xappConnectionManagerDeployment.address,
             tokenRegistry.address,
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+            relayerFeeRouter.address,
           ],
         },
       },
       proxyContract: "OpenZeppelinTransparentProxy",
       viaAdminContract: { name: getDeploymentName("ConnextProxyAdmin"), artifact: "ConnextProxyAdmin" },
     },
-    contract: "Connext",
+    contract: "ConnextHandler",
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
 
-  // Add tm to bridge
-  if ((await bridge.connext()) !== connextAddress) {
-    console.log("setting connext on bridge");
-    const addTm = await bridge.connect(deployer).setConnext(connextAddress);
+  // Add connext to relayer fee router
+  if ((await relayerFeeRouter.connext()) !== connextAddress) {
+    console.log("setting connext on relayer fee router");
+    const addTm = await relayerFeeRouter.connect(deployer).setConnext(connextAddress);
     await addTm.wait();
   } else {
-    console.log("bridge connext set");
+    console.log("relayer fee router connext set");
   }
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {

@@ -1,0 +1,19 @@
+@relayerUrl = http://localhost:8082
+@adminToken = bar
+
+### PING
+GET {{relayerUrl}}/ping
+
+### RELAY
+POST {{relayerUrl}}/relays/:chainId
+Content-Type: application/json
+
+{
+  "to": "0x0000000000000000000000000000000000000000",
+  "data": "0x1234567890",
+  "fee": {
+    "chain": 4,
+    "token": "0x0000000000000000000000000000000000000000",
+    "amount": "1000"
+  }
+}

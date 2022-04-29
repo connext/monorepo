@@ -37,13 +37,13 @@ export default task("setup-router", "Setup a router")
       const recipient = _recipient || constants.AddressZero;
       const owner = _owner || constants.AddressZero;
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
       console.log("connextAddress: ", connextAddress);
 
-      const approved = await connext.approvedRouters(router);
+      const approved = await connext.getRouterApproval(router);
       if (approved) {
         console.log("approved, no need to add");
         return;
@@ -54,7 +54,7 @@ export default task("setup-router", "Setup a router")
       const receipt = await tx.wait();
       console.log("setupRouter tx mined: ", receipt.transactionHash);
 
-      const isRouterApproved = await connext.approvedRouters(router);
+      const isRouterApproved = await connext.getRouterApproval(router);
       console.log("isRouterApproved: ", isRouterApproved);
     },
   );
