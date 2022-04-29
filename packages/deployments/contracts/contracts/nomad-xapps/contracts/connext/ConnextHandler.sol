@@ -436,20 +436,24 @@ contract ConnextHandler is
     bytes32 _sender,
     bytes memory _message
   ) external override onlyReplica onlyRemoteRouter(_origin, _sender) {
+    ConnextLogic.ReconcileArgs memory libArgs = ConnextLogic.ReconcileArgs({
+      origin: _origin,
+      message: _message,
+      tokenRegistry: tokenRegistry,
+      aavePool: aavePool,
+      portalFeeNumerator: aavePortalFeeNumerator,
+      portalFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
+    });
+
     // handle the action
     ConnextLogic.reconcile(
-      _origin,
-      _message,
+      libArgs,
       reconciledTransfers,
-      tokenRegistry,
       routedTransfers,
       routerBalances,
-      aavePool,
       aavePortalsTransfers,
       adoptedToLocalPools,
-      canonicalToAdopted,
-      aavePortalFeeNumerator,
-      LIQUIDITY_FEE_DENOMINATOR
+      canonicalToAdopted
     );
   }
 

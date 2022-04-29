@@ -75,6 +75,24 @@ library ConnextLogic {
     address bridged;
   }
 
+  struct ReconcileArgs {
+    uint32 origin;
+    bytes message;
+    ITokenRegistry tokenRegistry;
+    address aavePool;
+    uint256 portalFeeNumerator;
+    uint256 portalFeeDenominator;
+  }
+
+  struct ReconcilePortalVars {
+    uint256 portalTransferAmount;
+    uint256 adoptedAmountOut;
+    address adopted;
+    uint256 totalRepayAmount;
+    uint256 backUnbackedAmount;
+    uint256 portalFee;
+  }
+
   struct ExecuteLibArgs {
     IConnextHandler.ExecuteArgs executeArgs;
     bool isRouterOwnershipRenounced;
@@ -85,6 +103,18 @@ library ConnextLogic {
     uint256 liquidityFeeNumerator;
     uint256 liquidityFeeDenominator;
     address aavePool;
+  }
+
+  struct ExecuteVars {
+    bytes32 transferId;
+    bool reconciled;
+    uint256 amount;
+    address adopted;
+  }
+
+  struct ExecuteLiquidityVars {
+    uint256 fastTransferAmount;
+    uint256 pathLen;
   }
 
   // ============ Events ============
@@ -444,127 +474,33 @@ library ConnextLogic {
 
   /**
    * @notice Called via `handle` to manage funds associated with a transaction
-   * @dev Will either (a) credit router or (b) make funds available for execution. Don't
+   * @dev Will either (a) credit router and/or repay Portal or (b) make funds available for execution. Don't
    * include execution here
    */
   function reconcile(
-    uint32 _origin,
-    bytes memory _message,
+    ReconcileArgs memory _args,
     mapping(bytes32 => bool) storage _reconciledTransfers,
-    ITokenRegistry _tokenRegistry,
     mapping(bytes32 => address[]) storage _routedTransfers,
     mapping(address => mapping(address => uint256)) storage _routerBalances,
-    address _aavePool,
     mapping(bytes32 => uint256) storage _aavePortalsTransfers,
     mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
-    mapping(bytes32 => address) storage _canonicalToAdopted,
-    uint256 _portalFeeNumerator,
-    uint256 _portalFeeDenominator
+    mapping(bytes32 => address) storage _canonicalToAdopted
   ) external {
-    // parse tokenId and action from message
-    bytes29 msg_ = _message.ref(0).mustBeMessage();
-    bytes29 tokenId = msg_.tokenId();
-    bytes29 action = msg_.action();
+    // Parse and process message
+    (uint256 amount, address token, bytes32 transferId) = _reconcileProcessMessage(_args, _reconciledTransfers);
 
-    // assert the action is valid
-    if (!action.isTransfer()) {
-      revert ConnextLogic__reconcile_invalidAction();
-    }
+    // If fast transfer was made using Portal liquidity, we need to repay
+    (uint256 routersAmount, address routersAsset) = _reconcileProcessPortal(
+      _args,
+      amount,
+      token,
+      transferId,
+      _aavePortalsTransfers,
+      _adoptedToLocalPools,
+      _canonicalToAdopted
+    );
 
-    // load the transferId
-    bytes32 transferId = action.transferId();
-
-    // ensure the transaction has not been handled
-    if (_reconciledTransfers[transferId]) {
-      revert ConnextLogic__reconcile_alreadyReconciled();
-    }
-
-    // get the token contract for the given tokenId on this chain
-    // (if the token is of remote origin and there is
-    // no existing representation token contract, the TokenRegistry will
-    // deploy a new one)
-    address token = _tokenRegistry.ensureLocalToken(tokenId.domain(), tokenId.id());
-
-    // load amount once
-    uint256 amount = action.amnt();
-
-    // NOTE: tokenId + amount must be in plaintext in message so funds can
-    // *only* be minted by `handle`. They are still used in the generation of
-    // the transferId so routers must provide them correctly to be reimbursed
-
-    // TODO: do we need to keep this
-    bytes32 details = action.detailsHash();
-
-    // if the token is of remote origin, mint the tokens. will either
-    // - be credited to router (fast liquidity)
-    // - be reserved for execution (slow liquidity)
-    if (!_tokenRegistry.isLocalOrigin(token)) {
-      IBridgeToken(token).mint(address(this), amount);
-      // Tell the token what its detailsHash is
-      IBridgeToken(token).setDetailsHash(details);
-    }
-    // NOTE: if the token is of local origin, it means it was escrowed
-    // in this contract at xcall
-
-    // mark the transfer as reconciled
-    _reconciledTransfers[transferId] = true;
-
-    address[] storage routers = _routedTransfers[transferId];
-    uint256 routersAmount = amount;
-    address routersAsset = token;
-
-    uint256 portalTransferAmount = _aavePortalsTransfers[transferId];
-
-    // If transfer was made using Portal liquidity, we need to repay
-    if (portalTransferAmount > 0) {
-      (uint256 adoptedAmountOut, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
-        _canonicalToAdopted,
-        _adoptedToLocalPools,
-        _tokenRegistry,
-        token,
-        amount
-      );
-
-      uint256 portalFee = (portalTransferAmount * _portalFeeNumerator) / _portalFeeDenominator;
-      uint256 backUnbackedAmount = portalTransferAmount;
-      uint256 totalRepayAmount = backUnbackedAmount + portalFee;
-
-      // If not enough funds to repay the portal transfer + portal fees
-      // try to repay as much as unbacked as possible
-      if (totalRepayAmount > adoptedAmountOut) {
-        if (adoptedAmountOut > backUnbackedAmount) {
-          // Repay the whole transfer and a partial amount of fees
-          portalFee = adoptedAmountOut - backUnbackedAmount;
-        } else {
-          // Repay a partial amount of the transfer and no fees
-          backUnbackedAmount = adoptedAmountOut;
-          portalFee = 0;
-        }
-
-        totalRepayAmount = backUnbackedAmount + portalFee;
-
-        // TODO should emit some event to notify we are paying less than we should?
-      }
-
-      // Edge case: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
-      // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it have to be set to 0 first.
-      // Should we call approve(0) and approve(totalRepayAmount) instead? or with a try catch to not affect gas on all cases?
-      // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
-      SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(adopted), _aavePool, totalRepayAmount);
-
-      // TODO: What if backUnbacked call fails? For example if the asset is inactive, paused or frozen?
-      // Does it affects anything if this transfer reconcile reverts?
-      IAavePool(_aavePool).backUnbacked(adopted, backUnbackedAmount, portalFee);
-
-      // TODO: Do we need to check balance before and after to get the exact amount paid and give the routers the rest?
-      // Aave accounts a global unbacked variable for all, not by address/bridge.
-      // Someone can repay more than it should, so then a the moment of calling backUnbacked()
-      // aave can pull a smaller amount than backUnbackedAmount.
-
-      // Account leftovers in adopted to routers
-      routersAmount = adoptedAmountOut - totalRepayAmount;
-      routersAsset = adopted;
-    }
+    address[] memory routers = _routedTransfers[transferId];
 
     // get the transfer
     uint256 pathLen = routers.length;
@@ -580,7 +516,7 @@ library ConnextLogic {
       }
     }
 
-    emit Reconciled(transferId, _origin, routers, token, amount, msg.sender);
+    emit Reconciled(transferId, _args.origin, routers, token, amount, msg.sender);
   }
 
   /**
@@ -600,7 +536,9 @@ library ConnextLogic {
     mapping(bytes32 => address) storage _transferRelayer,
     mapping(bytes32 => uint256) storage _aavePortalsTransfers
   ) external returns (bytes32) {
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(
+    ExecuteVars memory vars;
+
+    (vars.transferId, vars.reconciled) = _executeSanityChecks(
       _args,
       _transferRelayer,
       _reconciledTransfers,
@@ -608,9 +546,9 @@ library ConnextLogic {
     );
 
     // execute router liquidity when this is a fast transfer
-    (uint256 amount, address adopted) = _handleExecuteLiquidity(
-      transferId,
-      !reconciled,
+    (vars.amount, vars.adopted) = _handleExecuteLiquidity(
+      vars.transferId,
+      !vars.reconciled,
       _args,
       _routedTransfers,
       _routerBalances,
@@ -621,15 +559,22 @@ library ConnextLogic {
     );
 
     // execute the transaction
-    _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
+    _handleExecuteTransaction(_args, vars.amount, vars.adopted, vars.transferId, vars.reconciled);
 
     // Set the relayer for this transaction to allow for future claim
-    _transferRelayer[transferId] = msg.sender;
+    _transferRelayer[vars.transferId] = msg.sender;
 
     // emit event
-    emit Executed(transferId, _args.executeArgs.params.to, _args.executeArgs, adopted, amount, msg.sender);
+    emit Executed(
+      vars.transferId,
+      _args.executeArgs.params.to,
+      _args.executeArgs,
+      vars.adopted,
+      vars.amount,
+      msg.sender
+    );
 
-    return transferId;
+    return vars.transferId;
   }
 
   /**
@@ -934,6 +879,177 @@ library ConnextLogic {
   }
 
   /**
+   * @notice Parses the message and process the transfer
+   * @dev Will mint the tokens if the token originates on a remote origin
+   * @return The message amount
+   * @return The message token
+   * @return The message transfer id
+   */
+  function _reconcileProcessMessage(ReconcileArgs memory _args, mapping(bytes32 => bool) storage _reconciledTransfers)
+    private
+    returns (
+      uint256,
+      address,
+      bytes32
+    )
+  {
+    // parse tokenId and action from message
+    bytes29 msg_ = _args.message.ref(0).mustBeMessage();
+    bytes29 tokenId = msg_.tokenId();
+    bytes29 action = msg_.action();
+
+    // assert the action is valid
+    if (!action.isTransfer()) {
+      revert ConnextLogic__reconcile_invalidAction();
+    }
+
+    // load the transferId
+    bytes32 transferId = action.transferId();
+
+    // ensure the transaction has not been handled
+    if (_reconciledTransfers[transferId]) {
+      revert ConnextLogic__reconcile_alreadyReconciled();
+    }
+
+    // get the token contract for the given tokenId on this chain
+    // (if the token is of remote origin and there is
+    // no existing representation token contract, the TokenRegistry will
+    // deploy a new one)
+    address token = _args.tokenRegistry.ensureLocalToken(tokenId.domain(), tokenId.id());
+
+    // load amount once
+    uint256 amount = action.amnt();
+
+    // NOTE: tokenId + amount must be in plaintext in message so funds can
+    // *only* be minted by `handle`. They are still used in the generation of
+    // the transferId so routers must provide them correctly to be reimbursed
+
+    // TODO: do we need to keep this
+    bytes32 details = action.detailsHash();
+
+    // if the token is of remote origin, mint the tokens. will either
+    // - be credited to router (fast liquidity)
+    // - be reserved for execution (slow liquidity)
+    if (!_args.tokenRegistry.isLocalOrigin(token)) {
+      IBridgeToken(token).mint(address(this), amount);
+      // Tell the token what its detailsHash is
+      IBridgeToken(token).setDetailsHash(details);
+    }
+    // NOTE: if the token is of local origin, it means it was escrowed
+    // in this contract at xcall
+
+    // mark the transfer as reconciled
+    _reconciledTransfers[transferId] = true;
+
+    return (amount, token, transferId);
+  }
+
+  /**
+   * @notice Repays to Aave Portal if the transfer was executed with fast path using Portal liquidity
+   * @return The amount left after the repayment
+   * @return The address of the adopted asset
+   */
+  function _reconcileProcessPortal(
+    ReconcileArgs memory _args,
+    uint256 _amount,
+    address _token,
+    bytes32 _transferId,
+    mapping(bytes32 => uint256) storage _aavePortalsTransfers,
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => address) storage _canonicalToAdopted
+  ) private returns (uint256, address) {
+    ReconcilePortalVars memory vars;
+
+    vars.portalTransferAmount = _aavePortalsTransfers[_transferId];
+
+    if (vars.portalTransferAmount == 0) return (_amount, _token);
+
+    // Swap all the transfer amount from local asset to adopted if needed
+    (vars.adoptedAmountOut, vars.adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
+      _canonicalToAdopted,
+      _adoptedToLocalPools,
+      _args.tokenRegistry,
+      _token,
+      _amount
+    );
+
+    // Calculates the amount to be repaid to the portal
+    (vars.totalRepayAmount, vars.backUnbackedAmount, vars.portalFee) = _calculatePortalRepayment(
+      vars.adoptedAmountOut,
+      vars.portalTransferAmount,
+      _args.portalFeeNumerator,
+      _args.portalFeeDenominator
+    );
+
+    // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
+    // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
+    // TODO: Should we call approve(0) and approve(totalRepayAmount) instead? or with a try catch to not affect gas on all cases?
+    // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(vars.adopted), _args.aavePool, vars.totalRepayAmount);
+
+    // TODO: What if backUnbacked call fails? For example if the asset is inactive, paused or frozen?
+    // What is the impact of a reconcile to be reverted? Can be re-executed later?
+    IAavePool(_args.aavePool).backUnbacked(vars.adopted, vars.backUnbackedAmount, vars.portalFee);
+
+    // TODO should emit some event with the repayment info?
+
+    // TODO: Do we need to check balance before and after to get the exact amount paid and give the routers the rest?
+    // Aave accounts a global unbacked variable per asset for all, not by address/bridge.
+    // Someone can repay more than it should, so then a the moment of calling backUnbacked()
+    // aave can pull a smaller amount than backUnbackedAmount. So there will be an extra amount of assets that needs to be assigned
+    // See https://github.com/aave/aave-v3-core/blob/feb3f20885c73025f40cc272b59e7eacfaa02fe4/contracts/protocol/libraries/logic/BridgeLogic.sol#L121
+
+    // Account leftovers in adopted to routers
+    return (vars.adoptedAmountOut - vars.totalRepayAmount, vars.adopted);
+  }
+
+  /**
+   * @notice Calculates the amount to be repaid to Aave Portal. If there is no enough amount to repay the unbacked and the fee,
+   * it will partially repay prioritizing the unbacked amount.
+   * @dev Assumes the fee is proportional to the unbackedAmount.
+   * @return The total amount to be repaid
+   * @return The unbacked amount to be backed
+   * @return The fee amount to be paid
+   */
+  function _calculatePortalRepayment(
+    uint256 availableAmount,
+    uint256 portalTransferAmount,
+    uint256 portalFeeNumerator,
+    uint256 portalFeeDenominator
+  )
+    public
+    pure
+    returns (
+      uint256,
+      uint256,
+      uint256
+    )
+  {
+    uint256 portalFee = (portalTransferAmount * portalFeeNumerator) / portalFeeDenominator;
+    uint256 backUnbackedAmount = portalTransferAmount;
+    uint256 totalRepayAmount = backUnbackedAmount + portalFee;
+
+    // If not enough funds to repay the transfer + fees
+    // try to repay as much as unbacked as possible
+    if (totalRepayAmount > availableAmount) {
+      if (availableAmount > backUnbackedAmount) {
+        // Repay the whole transfer and a partial amount of fees
+        portalFee = availableAmount - backUnbackedAmount;
+      } else {
+        // Repay a partial amount of the transfer and no fees
+        backUnbackedAmount = availableAmount;
+        portalFee = 0;
+      }
+
+      totalRepayAmount = backUnbackedAmount + portalFee;
+
+      // TODO should emit an event to notify we are paying less than we should?
+    }
+
+    return (totalRepayAmount, backUnbackedAmount, portalFee);
+  }
+
+  /**
    * @notice Process the transfer, and calldata if needed, when calling `execute`
    * @dev Need this to prevent stack too deep
    */
@@ -982,15 +1098,17 @@ library ConnextLogic {
     mapping(bytes32 => uint256) storage _aavePortalsTransfers,
     mapping(address => bool) storage _approvedForPortalRouters
   ) private returns (uint256, address) {
-    uint256 fastTransferAmount = _args.executeArgs.amount;
-    uint256 pathLen = _args.executeArgs.routers.length;
+    ExecuteLiquidityVars memory vars;
+
+    vars.fastTransferAmount = _args.executeArgs.amount;
+    vars.pathLen = _args.executeArgs.routers.length;
 
     if (_isFast) {
       // this is the fast liquidity path
       // ensure the router is whitelisted
 
       // calculate amount with fast liquidity fee
-      fastTransferAmount = _getFastTransferAmount(
+      vars.fastTransferAmount = _getFastTransferAmount(
         _args.executeArgs.amount,
         _args.liquidityFeeNumerator,
         _args.liquidityFeeDenominator
@@ -1001,37 +1119,31 @@ library ConnextLogic {
 
       // If router does not have enough liquidity, try to use Aave Portals
       // TODO: check if this is the correct way to do this. Assumes 1 router
-      // Other option: In case of several routers, if one of them doesn't have enough liquidity, 
+      // Other option: In case of several routers, if one of them doesn't have enough liquidity,
       // any of them would provide liquidity at all if taken from Aave Portals
       if (
-        pathLen == 1 &&
-        _routerBalances[_args.executeArgs.routers[0]][_args.executeArgs.local] < fastTransferAmount &&
+        vars.pathLen == 1 &&
+        _routerBalances[_args.executeArgs.routers[0]][_args.executeArgs.local] < vars.fastTransferAmount &&
         _args.aavePool != address(0)
       ) {
+        // TODO: check if this is the correct way to do this. Assumes 1 router
         if (!_approvedForPortalRouters[_args.executeArgs.routers[0]])
           revert ConnextLogic__execute_notApprovedForPortals();
 
-        // Calculate local to adopted swap output if needed
-        (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
-          _canonicalToAdopted,
-          _adoptedToLocalPools,
-          _args.tokenRegistry,
-          _args.executeArgs.local,
-          fastTransferAmount
-        );
-
-        IAavePool(_args.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
-
-        // Improvement: Instead of withdrawing to Connext, withdraw directly to the user or executor to save 1 transfer
-        IAavePool(_args.aavePool).withdraw(adopted, userAmount, address(this));
-
-        _aavePortalsTransfers[_transferId] = userAmount;
-
-        return (userAmount, adopted);
+        // Portal provides the adopted asset so we early return here
+        return
+          _executePortalTransfer(
+            _transferId,
+            vars.fastTransferAmount,
+            _args,
+            _adoptedToLocalPools,
+            _canonicalToAdopted,
+            _aavePortalsTransfers
+          );
       } else {
         // for each router, assert they are approved, and deduct liquidity
-        uint256 routerAmount = fastTransferAmount / pathLen;
-        for (uint256 i; i < pathLen; ) {
+        uint256 routerAmount = vars.fastTransferAmount / vars.pathLen;
+        for (uint256 i; i < vars.pathLen; ) {
           // decrement routers liquidity
           _routerBalances[_args.executeArgs.routers[i]][_args.executeArgs.local] -= routerAmount;
 
@@ -1049,8 +1161,41 @@ library ConnextLogic {
         _adoptedToLocalPools,
         _args.tokenRegistry,
         _args.executeArgs.local,
-        fastTransferAmount
+        vars.fastTransferAmount
       );
+  }
+
+  /**
+   * @notice TODO
+   * @dev TODO
+   */
+  function _executePortalTransfer(
+    bytes32 _transferId,
+    uint256 _fastTransferAmount,
+    ExecuteLibArgs calldata _args,
+    mapping(bytes32 => IStableSwap) storage _adoptedToLocalPools,
+    mapping(bytes32 => address) storage _canonicalToAdopted,
+    mapping(bytes32 => uint256) storage _aavePortalsTransfers
+  ) public returns (uint256, address) {
+    // Calculate local to adopted swap output if needed
+    (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
+      _canonicalToAdopted,
+      _adoptedToLocalPools,
+      _args.tokenRegistry,
+      _args.executeArgs.local,
+      _fastTransferAmount
+    );
+
+    IAavePool(_args.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
+
+    // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
+    IAavePool(_args.aavePool).withdraw(adopted, userAmount, address(this));
+
+    _aavePortalsTransfers[_transferId] = userAmount;
+
+    // TODO should emit an event?
+
+    return (userAmount, adopted);
   }
 
   /**
