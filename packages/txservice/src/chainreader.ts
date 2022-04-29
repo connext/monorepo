@@ -411,9 +411,9 @@ export class ChainReader {
 
     // https://community.optimism.io/docs/users/fees-2.0.html#fees-in-a-nutshell
     let l1GasInUsd = BigNumber.from(0);
+    let gasEstimate = "0";
     if (chainIdForGasPrice === 10) {
       const gasPriceMainnet = await this.getGasPrice(1, requestContext);
-      let gasEstimate = "0";
       if (method === "prepare") {
         gasEstimate = gasLimits.prepareL1 ?? "0";
       } else if (method === "fulfill") {
@@ -464,7 +464,12 @@ export class ChainReader {
     let gelatoEstimatedFee: BigNumber | undefined;
     if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
       const inputDecimals = await this.getDecimalsForAsset(chainId, assetId);
-      gelatoEstimatedFee = await this.calculateGelatoFee(chainIdForGasPrice, assetId, gasLimit.toNumber());
+      gelatoEstimatedFee = await this.calculateGelatoFee(
+        chainIdForGasPrice,
+        assetId,
+        gasLimit.toNumber(),
+        +gasEstimate,
+      );
       gelatoEstimatedFee = gelatoEstimatedFee
         ? decimals > inputDecimals
           ? gelatoEstimatedFee.mul(BigNumber.from(10).pow(decimals - inputDecimals))
@@ -567,12 +572,14 @@ export class ChainReader {
    * @param chainId - ID of the chain for which this call is related.
    * @param assetId - The asset address on destination chain.
    * @param gasLimit - The gas limit to estimate.
+   * @param gasLimitL1 - The gas limit on L1 to estimate (only used on Optimism).
    * @param isHighPriority - Flag to bump the estimated fee to have more priority.
    */
   protected async calculateGelatoFee(
     chainId: number,
     assetId: string,
     gasLimit: number,
+    gasLimitL1 = 0,
     isHighPriority = false,
   ): Promise<BigNumber | undefined> {
     const gelatoOracleActive = await isOracleActive(chainId);
@@ -581,7 +588,7 @@ export class ChainReader {
     if (gelatoOracleActive) {
       const tokenSupportedByGelato = await isPaymentTokenSupported(chainId, assetId);
       if (tokenSupportedByGelato) {
-        gelatoEstimatedFee = await getEstimatedFee(chainId, assetId, gasLimit, isHighPriority);
+        gelatoEstimatedFee = await getEstimatedFee(chainId, assetId, gasLimit, isHighPriority, gasLimitL1);
       }
     }
 
