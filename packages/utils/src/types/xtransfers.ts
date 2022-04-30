@@ -36,7 +36,7 @@ export const XTransferSchema = Type.Object({
   callData: Type.String(),
   idx: Type.Optional(Type.Integer({ minimum: 0 })),
   nonce: Type.Integer({ minimum: 0 }),
-  router: Type.Optional(TAddress),
+  routers: Type.Optional(Type.Array(TAddress)),
   relayerFee: Type.Optional(TIntegerString),
 
   // XCalled
