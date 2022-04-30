@@ -4,6 +4,7 @@ services:
   router:
     depends_on:
       - sequencer
+      - signer
     image: ${ROUTER_IMAGE}
     restart: always
     ports:
@@ -15,6 +16,8 @@ services:
     volumes:
       - ${PWD}/docker/router/:/home/node/agents/sequencer/
       - ${PWD}/docker/router/config.testnet.json:/home/node/packages/agents/router/config.json
+    networks:
+      - nxtp
   sequencer:
     image: ${SEQUENCER_IMAGE}
     restart: always
@@ -27,13 +30,37 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.testnet.json:/home/node/packages/agents/sequencer/config.json
-
+    networks:
+      - nxtp
   router-cache:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+      - nxtp
 
   sequencer-cache:
     image: redis:latest
     ports:
       - "6380:6379"
+    networks:
+      - nxtp
+
+  signer:
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - nxtp
+
+networks:
+  nxtp:

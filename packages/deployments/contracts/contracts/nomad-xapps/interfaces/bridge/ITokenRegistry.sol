@@ -3,7 +3,6 @@ pragma solidity >=0.6.11;
 
 // ============ Internal Imports ============
 import {IBridgeToken} from "./IBridgeToken.sol";
-import {BridgeMessage} from "../../contracts/bridge/BridgeMessage.sol";
 
 // ============ External Imports ============
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";

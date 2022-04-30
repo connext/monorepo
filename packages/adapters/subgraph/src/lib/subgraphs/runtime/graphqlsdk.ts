@@ -276,7 +276,6 @@ export type Router = {
   proposedOwner?: Maybe<Scalars['Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
   recipient?: Maybe<Scalars['Bytes']>;
-  transfers: Array<Transfer>;
 };
 
 
@@ -286,15 +285,6 @@ export type RouterAssetBalancesArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars['Int']>;
   where?: InputMaybe<AssetBalance_Filter>;
-};
-
-
-export type RouterTransfersArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Transfer_Filter>;
 };
 
 export type Router_Filter = {
@@ -347,8 +337,7 @@ export enum Router_OrderBy {
   Owner = 'owner',
   ProposedOwner = 'proposedOwner',
   ProposedTimestamp = 'proposedTimestamp',
-  Recipient = 'recipient',
-  Transfers = 'transfers'
+  Recipient = 'recipient'
 }
 
 export type Subscription = {
@@ -445,7 +434,6 @@ export type SubscriptionTransfersArgs = {
 export type Transfer = {
   __typename?: 'Transfer';
   callData?: Maybe<Scalars['Bytes']>;
-  callTo?: Maybe<Scalars['Bytes']>;
   chainId?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
@@ -470,7 +458,8 @@ export type Transfer = {
   reconciledLocalAsset?: Maybe<Scalars['Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledTransactionHash?: Maybe<Scalars['Bytes']>;
-  router?: Maybe<Router>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  routers?: Maybe<Array<Router>>;
   status?: Maybe<TransferStatus>;
   to?: Maybe<Scalars['Bytes']>;
   transferId?: Maybe<Scalars['Bytes']>;
@@ -484,6 +473,15 @@ export type Transfer = {
   xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
   xcalledTransactingAsset?: Maybe<Scalars['Bytes']>;
   xcalledTransactionHash?: Maybe<Scalars['Bytes']>;
+};
+
+
+export type TransferRoutersArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Router_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<Router_Filter>;
 };
 
 export enum TransferStatus {
@@ -501,12 +499,6 @@ export type Transfer_Filter = {
   callData_not?: InputMaybe<Scalars['Bytes']>;
   callData_not_contains?: InputMaybe<Scalars['Bytes']>;
   callData_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  callTo?: InputMaybe<Scalars['Bytes']>;
-  callTo_contains?: InputMaybe<Scalars['Bytes']>;
-  callTo_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  callTo_not?: InputMaybe<Scalars['Bytes']>;
-  callTo_not_contains?: InputMaybe<Scalars['Bytes']>;
-  callTo_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   chainId?: InputMaybe<Scalars['BigInt']>;
   chainId_gt?: InputMaybe<Scalars['BigInt']>;
   chainId_gte?: InputMaybe<Scalars['BigInt']>;
@@ -685,26 +677,20 @@ export type Transfer_Filter = {
   reconciledTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
   reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
   reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  routers?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_not?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   status?: InputMaybe<TransferStatus>;
   status_in?: InputMaybe<Array<TransferStatus>>;
   status_not?: InputMaybe<TransferStatus>;
@@ -797,7 +783,6 @@ export type Transfer_Filter = {
 
 export enum Transfer_OrderBy {
   CallData = 'callData',
-  CallTo = 'callTo',
   ChainId = 'chainId',
   DestinationDomain = 'destinationDomain',
   ExecutedBlockNumber = 'executedBlockNumber',
@@ -822,7 +807,8 @@ export enum Transfer_OrderBy {
   ReconciledLocalAsset = 'reconciledLocalAsset',
   ReconciledTimestamp = 'reconciledTimestamp',
   ReconciledTransactionHash = 'reconciledTransactionHash',
-  Router = 'router',
+  RelayerFee = 'relayerFee',
+  Routers = 'routers',
   Status = 'status',
   To = 'to',
   TransferId = 'transferId',
@@ -877,7 +863,7 @@ export type GetTransfersQueryVariables = Exact<{
 }>;
 
 
-export type GetTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetXCalledTransfersQueryVariables = Exact<{
   originDomain: Scalars['BigInt'];
@@ -887,14 +873,14 @@ export type GetXCalledTransfersQueryVariables = Exact<{
 }>;
 
 
-export type GetXCalledTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetXCalledTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetTransferQueryVariables = Exact<{
   transferId: Scalars['Bytes'];
 }>;
 
 
-export type GetTransferQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetTransferQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetExecutedTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
@@ -902,7 +888,7 @@ export type GetExecutedTransfersByIdsQueryVariables = Exact<{
 }>;
 
 
-export type GetExecutedTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetExecutedTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetReconciledTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
@@ -910,14 +896,14 @@ export type GetReconciledTransfersByIdsQueryVariables = Exact<{
 }>;
 
 
-export type GetReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetTransfersStatusQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
 }>;
 
 
-export type GetTransfersStatusQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callTo?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, router?: { __typename?: 'Router', id: string } | null }> };
+export type GetTransfersStatusQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetAssetByLocalQueryVariables = Exact<{
   local: Scalars['Bytes'];
@@ -969,11 +955,10 @@ export const GetTransfersDocument = gql`
     status
     to
     transferId
-    callTo
     callData
     idx
     nonce
-    router {
+    routers {
       id
     }
     xcalledCaller
@@ -1021,13 +1006,13 @@ export const GetXCalledTransfersDocument = gql`
     status
     to
     transferId
-    callTo
     callData
     idx
     nonce
-    router {
+    routers {
       id
     }
+    relayerFee
     xcalledCaller
     xcalledTransactingAmount
     xcalledLocalAmount
@@ -1069,13 +1054,13 @@ export const GetTransferDocument = gql`
     status
     to
     transferId
-    callTo
     callData
     idx
     nonce
-    router {
+    routers {
       id
     }
+    relayerFee
     xcalledCaller
     xcalledTransactingAmount
     xcalledLocalAmount
@@ -1119,13 +1104,13 @@ export const GetExecutedTransfersByIdsDocument = gql`
     status
     to
     transferId
-    callTo
     callData
     idx
     nonce
-    router {
+    routers {
       id
     }
+    relayerFee
     xcalledTransactingAsset
     xcalledLocalAsset
     xcalledTransactingAmount
@@ -1169,13 +1154,13 @@ export const GetReconciledTransfersByIdsDocument = gql`
     status
     to
     transferId
-    callTo
     callData
     idx
     nonce
-    router {
+    routers {
       id
     }
+    relayerFee
     xcalledTransactingAsset
     xcalledLocalAsset
     xcalledTransactingAmount
@@ -1219,13 +1204,13 @@ export const GetTransfersStatusDocument = gql`
     status
     to
     transferId
-    callTo
     callData
     idx
     nonce
-    router {
+    routers {
       id
     }
+    relayerFee
     xcalledTransactingAsset
     xcalledLocalAsset
     xcalledTransactingAmount

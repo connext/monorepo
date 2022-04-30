@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.2.0-alpha.4",
+  "version": "0.2.0-alpha.8",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -58,6 +58,7 @@
     "@graphql-codegen/cli": "^2.6.2",
     "@types/mocha": "^9.1.0",
     "@types/sinon": "^10.0.11",
+    "concurrently": "^7.1.0",
     "eslint": "^8.11.0",
     "interval-promise": "^1.4.0",
     "mocha": "^9.2.2",

@@ -85,7 +85,7 @@ describe("Bindings:Subgraph", () => {
 
       await bindSubgraphFns.pollSubgraph();
 
-      // Should have been called once per available/configured chain.
+      // Should have been called once per available/configured chain.);
       expect(mockContext.adapters.cache.transfers.getLatestNonce.callCount).to.be.eq(Object.keys(mockInfo).length);
       expect(mockContext.adapters.subgraph.getTransactionsWithStatuses.getCall(0).args[0]).to.be.deep.eq(
         new Map(
@@ -93,10 +93,12 @@ describe("Bindings:Subgraph", () => {
             [mock.chain.A]: {
               maxBlockNumber: mockInfo[mock.chain.A].latestBlockNumber - mockInfo[mock.chain.A].safeConfirmations,
               latestNonce: mockInfo[mock.chain.A].latestNonce + 1,
+              destinationDomains: [mock.chain.A, mock.chain.B],
             },
             [mock.chain.B]: {
               maxBlockNumber: mockInfo[mock.chain.B].latestBlockNumber - mockInfo[mock.chain.B].safeConfirmations,
               latestNonce: mockInfo[mock.chain.B].latestNonce + 1,
+              destinationDomains: [mock.chain.A, mock.chain.B],
             },
           }),
         ),
@@ -147,10 +149,12 @@ describe("Bindings:Subgraph", () => {
             [mock.chain.A]: {
               maxBlockNumber: mockInfo[mock.chain.A].latestBlockNumber - bindSubgraphFns.DEFAULT_SAFE_CONFIRMATIONS,
               latestNonce: mockInfo[mock.chain.A].latestNonce + 1,
+              destinationDomains: [mock.chain.A, mock.chain.B],
             },
             [mock.chain.B]: {
               maxBlockNumber: mockInfo[mock.chain.B].latestBlockNumber - bindSubgraphFns.DEFAULT_SAFE_CONFIRMATIONS,
               latestNonce: mockInfo[mock.chain.B].latestNonce + 1,
+              destinationDomains: [mock.chain.A, mock.chain.B],
             },
           }),
         ),

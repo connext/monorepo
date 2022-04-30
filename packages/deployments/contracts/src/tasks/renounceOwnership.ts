@@ -1,28 +1,35 @@
-import { BigNumber } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { task } from "hardhat/config";
+
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   type: "asset" | "router";
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("renounce-ownership", "Renounce Ownership")
   .addParam("type", "Type of ownership to renounce, either asset or router")
   .addOptionalParam("connextAddress", "Override connext address")
-  .setAction(async ({ type, connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
-    const namedAccounts = await getNamedAccounts();
-
-    console.log("type: ", type);
-    console.log("namedAccounts: ", namedAccounts);
-
-    let connextAddress = _connextAddress;
-    if (!connextAddress) {
-      const connextDeployment = await deployments.get("Connext");
-      connextAddress = connextDeployment.address;
+  .addOptionalParam("env", "Environment of contracts")
+  .setAction(async ({ type, connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
+    let { deployer } = await ethers.getNamedSigners();
+    if (!deployer) {
+      [deployer] = await ethers.getUnnamedSigners();
     }
+
+    const env = mustGetEnv(_env);
+    console.log("env:", env);
+    console.log("type: ", type);
+    console.log("deployer: ", deployer.address);
+
+    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextDeployment = await deployments.get(connextName);
+    const connextAddress = _connextAddress ?? connextDeployment.address;
+    const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
     console.log("connextAddress: ", connextAddress);
 
-    const connext = await ethers.getContractAt("Connext", connextAddress);
     let isRenouncedFunction;
     let ownershipTimestampFunction;
     let proposeRenunciationFunction;

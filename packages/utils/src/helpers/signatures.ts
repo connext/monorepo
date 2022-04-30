@@ -1,7 +1,7 @@
 import { Signer, Wallet, BigNumber, providers } from "ethers";
 import { arrayify, solidityKeccak256, splitSignature, verifyMessage } from "ethers/lib/utils";
 
-import { encodeHandleRelayerFeeData } from ".";
+import { encodeRouterPathPayload } from ".";
 
 /**
  * Occasionally have seen metamask return signatures with v = 00 or v = 01.
@@ -44,50 +44,46 @@ export const sign = async (hash: string, signer: Wallet | Signer): Promise<strin
 };
 
 /**
- * Generates a signature on the handleRelayerFee payload in `execute` transaction
+ * Generates a signature on the router path length payload in `execute` transaction. Represents
+ * consent of the signing router to use a portion of their liquidity (minus a fee) to `execute` the
+ * transfer.
  *
- * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
- * the transaction id for the crosschain transaction
- * @param feePercentage - The amount over the BASEFEE to tip the relayer
+ * @param transferId - The ID of the transfer.
+ * @param pathLength - The number of routers that are supplying fast liquidity for the transfer.
  * @returns Signature of the payload from the signer
  */
-export const signHandleRelayerFeePayload = async (
+export const signRouterPathPayload = async (
   transferId: string,
-  feePercentage: string,
+  pathLength: string,
   signer: Wallet | Signer,
 ): Promise<string> => {
-  const hash = getHandleRelayerFeeHashToSign(transferId, feePercentage);
+  const hash = getRouterPathHashToSign(transferId, pathLength);
 
-  return sign(hash, signer);
+  return await sign(hash, signer);
 };
 
 /**
- * Generates a hash to sign of the handleRelayerFee payload in `execute` transaction
+ * Generates a hash to sign of the router path length payload in `execute` transaction
  *
  * @param transferId - The nonce of the origin domain at the time the transaction was prepared. Used to generate
  * the transaction id for the crosschain transaction
- * @param feePercentage - The amount over the BASEFEE to tip the relayer
+ * @param pathLength - The number of routers in transfer
  * @returns Hash that should be signed
  */
-export const getHandleRelayerFeeHashToSign = (transferId: string, feePercentage: string): string => {
-  const payload = encodeHandleRelayerFeeData(transferId, feePercentage);
+export const getRouterPathHashToSign = (transferId: string, pathLength: string): string => {
+  const payload = encodeRouterPathPayload(transferId, pathLength);
   const hash = solidityKeccak256(["bytes"], [payload]);
   return hash;
 };
 
 /**
- * Returns the recovered signer from the handleRelayerFee payload
+ * Returns the recovered signer from the router path length payload
  *
  * @param transferId - The transferId generated on the origin domain
- * @param feePercentage - The amount over the BASEFEE to tip the relayer
+ * @param pathLength - The number of routers in transfer
  * @returns Recovered address of signer
  */
-export const recoverHandleRelayerFeePayload = (
-  transferId: string,
-  feePercentage: string,
-  signature: string,
-): string => {
-  const payload = encodeHandleRelayerFeeData(transferId, feePercentage);
-  const hashed = solidityKeccak256(["bytes"], [payload]);
+export const recoverRouterPathPayload = (transferId: string, pathLength: string, signature: string): string => {
+  const hashed = getRouterPathHashToSign(transferId, pathLength);
   return verifyMessage(arrayify(hashed), signature);
 };

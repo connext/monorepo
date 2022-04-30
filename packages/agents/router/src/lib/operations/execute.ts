@@ -1,13 +1,4 @@
-import {
-  CallParams,
-  Bid,
-  BidData,
-  createLoggingContext,
-  XTransfer,
-  DEFAULT_ROUTER_FEE,
-  ajv,
-  XTransferSchema,
-} from "@connext/nxtp-utils";
+import { Bid, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE, ajv, XTransferSchema } from "@connext/nxtp-utils";
 
 import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
@@ -31,10 +22,10 @@ export const execute = async (params: XTransfer): Promise<void> => {
   } = getContext();
   const {
     auctions: { sendBid },
-    shared: { getDestinationLocalAsset, signHandleRelayerFeePayload },
+    shared: { getDestinationLocalAsset, signRouterPathPayload },
   } = getHelpers();
 
-  logger.info("Method start", requestContext, methodContext, { params });
+  logger.debug("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
   const validateInput = ajv.compile(XTransferSchema);
@@ -47,61 +38,47 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, transferId, to, xcall, callData, nonce } = params;
+  const { originDomain, destinationDomain, transferId, xcall } = params;
   if (!xcall) {
     throw new MissingXCall({ requestContext, methodContext });
   }
-
-  // Format the transfer's call params.
-  const callParams: CallParams = {
-    to,
-    callData,
-    originDomain,
-    destinationDomain,
-  };
 
   const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
   const receivingAmount = xcall.localAmount;
 
-  // signature must be updated with @connext/nxtp-utils signature functions
-  const signature = await signHandleRelayerFeePayload(transferId, RELAYER_FEE_PERCENTAGE, wallet);
-  logger.debug("Signed payload", requestContext, methodContext, { signature });
-
-  // TODO: Eventually, sending the bid data to the sequencer should be deprecated.
-  const bidData: BidData = {
-    params: callParams,
-    local: executeLocalAsset,
-    amount: receivingAmount,
-    nonce: Number(nonce),
-    feePercentage: RELAYER_FEE_PERCENTAGE,
-    relayerSignature: signature,
-    originSender: xcall.caller,
+  // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
+  // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
+  // only on the first auction round.
+  // Produce the router path signatures for each auction round we want to bid on.
+  const signatures = {
+    "1": await signRouterPathPayload(transferId, "1", wallet),
   };
-
-  const fee = DEFAULT_ROUTER_FEE;
-  const bid: Bid = {
-    router: routerAddress,
-    fee,
-    // TODO: This list of signatures should reflect the auction rounds we want to bid on;
-    // we should eventually calculate which rounds we can afford to bid on, and then pass those in.
-    // For now, this is hardcoded to bid only on the first auction round.
-    signatures: {
-      "1": signature,
-    },
-  };
+  logger.debug("Signed payloads", requestContext, methodContext, {
+    rounds: Object.keys(signatures),
+    // Sanitized with ellipsis.
+    sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
+  });
 
   // sanity check
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  logger.info("Checking balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(receivingAmount)) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
     });
   }
-  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
+  logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
-  await sendBid(transferId, bid, bidData, requestContext);
+  const fee = DEFAULT_ROUTER_FEE;
+  const bid: Bid = {
+    transferId,
+    origin: originDomain,
+    router: routerAddress.toLowerCase(),
+    fee,
+    signatures,
+  };
+
+  await sendBid(bid, requestContext);
 };

@@ -32,7 +32,7 @@ export class TransfersCache extends Cache {
     if (res) {
       return parseInt(res);
     }
-    return 0;
+    return -1;
   }
 
   /// MARK - Transfer Data
@@ -183,14 +183,5 @@ export class TransfersCache extends Cache {
       await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
     }
     return isNewError;
-  }
-
-  /**
-   * Flushes the entire cache.
-   *
-   * @returns string "OK"
-   */
-  public async clear(): Promise<"OK"> {
-    return await this.data.flushall();
   }
 }

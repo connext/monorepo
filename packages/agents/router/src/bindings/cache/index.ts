@@ -1,23 +1,23 @@
-import { createLoggingContext, jsonifyError, XTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, NxtpError, XTransfer } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
+import { AuctionExpired } from "../../lib/errors";
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../router";
-
-export const CACHE_POLL_INTERVAL = 20_000;
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindCache = async (_pollInterval = CACHE_POLL_INTERVAL) => {
+export const bindCache = async (_pollInterval?: number) => {
   const { config } = getContext();
+  const pollInterval = _pollInterval ?? config.polling.cache;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
       await pollCache();
     }
-  }, _pollInterval);
+  }, pollInterval);
 };
 
 export const pollCache = async () => {
@@ -47,7 +47,7 @@ export const pollCache = async () => {
     }
 
     // Check the transfer status and update if it gets executed or reconciled on the destination domain
-    const confirmedTransfers = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+    const confirmedTransfers: XTransfer[] = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
     if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
 
     const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
@@ -91,13 +91,23 @@ export const pollCache = async () => {
         // Call execute to process the transfer.
         await execute(transfer);
       } catch (error: any) {
+        const type = (error as NxtpError).type;
+        const isAuctionExpired = type === AuctionExpired.name;
         // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
         const isNewError = await cache.transfers.saveError(transferId, (error as Error).toString());
         if (isNewError) {
-          logger.error("Error executing transaction", requestContext, methodContext, jsonifyError(error as Error), {
-            transferId,
-            xcall: transfer.xcall,
-          });
+          if (isAuctionExpired) {
+            logger.debug("Auction for transfer has expired", requestContext, methodContext, {
+              domain,
+              transferId,
+            });
+          } else {
+            logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
+              domain,
+              transferId,
+              xcall: transfer.xcall,
+            });
+          }
         }
       }
     }

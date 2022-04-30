@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.11;
+pragma solidity 0.8.11;
 
 import "../ForgeHelper.sol";
 
@@ -59,7 +59,7 @@ contract ExecutorTest is ForgeHelper {
   // ============ getConnext ============
 
   // Should work
-  function testGetConnext() public {
+  function test_Executor__getConnext_works() public {
     address c = executor.getConnext();
     assertEq(c, connext);
   }
@@ -67,7 +67,7 @@ contract ExecutorTest is ForgeHelper {
   // ============ originSender ============
 
   // Should fail if properties are not set
-  function testOriginSenderRevertOnEmpty() public {
+  function test_Executor__originSender_revertOnEmpty() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOriginSender.selector, "");
     // send tx
@@ -83,7 +83,7 @@ contract ExecutorTest is ForgeHelper {
   }
 
   // Should work
-  function testOriginSender() public {
+  function test_Executor__originSender_works() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOriginSender.selector, "");
     bytes memory property = LibCrossDomainProperty.formatDomainAndSenderBytes(origin, originSender);
@@ -97,7 +97,7 @@ contract ExecutorTest is ForgeHelper {
   // ============ origin ============
 
   // Should fail if properties are not set
-  function testOriginRevertOnEmpty() public {
+  function test_Executor__origin_revertOnEmpty() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOrigin.selector, "");
     // send tx
@@ -113,7 +113,7 @@ contract ExecutorTest is ForgeHelper {
   }
 
   // Should work
-  function testOrigin() public {
+  function test_Executor__origin_works() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOrigin.selector, "");
     bytes memory property = LibCrossDomainProperty.formatDomainAndSenderBytes(origin, originSender);

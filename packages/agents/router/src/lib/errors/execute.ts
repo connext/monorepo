@@ -70,6 +70,12 @@ export class SequencerResponseInvalid extends NxtpError {
   }
 }
 
+export class AuctionExpired extends NxtpError {
+  constructor(context: any = {}) {
+    super("Auction has already expired for this transfer.", context, AuctionExpired.name);
+  }
+}
+
 export class SanityCheckFailed extends NxtpError {
   constructor(context: any = {}) {
     super("Sanity check failed", context, SanityCheckFailed.name);

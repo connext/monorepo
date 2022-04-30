@@ -1,16 +1,21 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
-
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractDeployments } from "@connext/nxtp-txservice";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { getHelpers } from "./lib/helpers";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
+
+// Polling mins and defaults.
+const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
+const DEFAULT_CONFIRMATIONS = 3;
+const MIN_CACHE_POLL_INTERVAL = 2_000;
+const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 
 dotenvConfig();
 
@@ -53,6 +58,11 @@ export const TModeConfig = Type.Object({
   priceCaching: Type.Boolean(),
 });
 
+export const TPollingConfig = Type.Object({
+  subgraph: Type.Integer({ minimum: MIN_SUBGRAPH_POLL_INTERVAL }),
+  cache: Type.Integer({ minimum: MIN_CACHE_POLL_INTERVAL }),
+});
+
 export const NxtpRouterConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
@@ -72,7 +82,8 @@ export const NxtpRouterConfigSchema = Type.Object({
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
+  polling: TPollingConfig,
+  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -148,23 +159,37 @@ export const getEnvConfig = (
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
-    subgraphPollInterval:
-      process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
-      configJson.subgraphPollInterval ||
-      configFile.subgraphPollInterval ||
-      DEFAULT_SUBGRAPH_POLL_INTERVAL,
+    polling: {
+      subgraph:
+        process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
+        configJson.polling?.subgraph ||
+        configFile.polling?.subgraph ||
+        // Backwards compat:
+        configJson.subgraphPollInterval ||
+        configFile.subgraphPollInterval ||
+        DEFAULT_SUBGRAPH_POLL_INTERVAL,
+      cache:
+        process.env.NXTP_CACHE_POLL_INTERVAL ||
+        configJson.polling?.cache ||
+        configFile.polling?.cach ||
+        DEFAULT_CACHE_POLL_INTERVAL,
+    },
+    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
     throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
   }
 
-  const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
+  const contractPostfix: ContractPostfix =
+    nxtpConfig.environment === "production"
+      ? ""
+      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
-    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
+    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? DEFAULT_CONFIRMATIONS;
     const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
 
     // Make sure deployments is filled out correctly.
@@ -174,7 +199,7 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }

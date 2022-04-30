@@ -1,4 +1,4 @@
-import { Logger, getChainData, createRequestContext, createMethodContext, RequestContext } from "@connext/nxtp-utils";
+import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
@@ -7,26 +7,25 @@ import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindServer, bindAuctions } from "./bindings";
+import { setupRelayer } from "./adapters";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeSequencer = async () => {
-  const requestContext = createRequestContext("makeSequencer");
-  const methodContext = createMethodContext(makeSequencer.name);
+export const makeSequencer = async (_configOverride?: SequencerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(makeSequencer.name);
   try {
     context.adapters = {} as any;
-    context.logger = new Logger({ level: "debug" });
 
-    context.logger.info("Setting up Sequencer", requestContext, methodContext, {});
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
     context.chainData = chainData;
-    context.config = await getConfig(chainData, contractDeployments);
-    context.logger.info("Sequencer config generated", requestContext, methodContext, { config: context.config });
+    context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
+    context.logger = new Logger({ level: context.config.logLevel });
+    context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
@@ -34,18 +33,20 @@ export const makeSequencer = async () => {
     context.adapters.subgraph = await setupSubgraphReader(context.config, context.logger, requestContext);
 
     context.adapters.chainreader = new ChainReader(
-      context.logger.child({ module: "ChainReader" }),
+      context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
     );
 
     context.adapters.contracts = getContractInterfaces();
+
+    context.adapters.relayer = await setupRelayer();
 
     // Create server, set up routes, and start listening.
     await bindServer();
 
     await bindAuctions();
 
-    context.logger.info("Sequencer is Ready!!", requestContext, methodContext, {
+    context.logger.info("Sequencer is Ready!", requestContext, methodContext, {
       port: context.config.server.port,
     });
   } catch (error: any) {

@@ -15,44 +15,14 @@ export const ClearCacheRequestSchema = AdminSchema;
 export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
 /// MARK - Sequencer API ----------------------------------------------------------------------------
-// TODO: Bid Data is a temporary solution - routers supply the execution args needed for sequencer to encode
-// data for `execute` call. Should be replaced by having the sequencer use the subgraph to get the data needed.
-
-// Bids should omit the routers field, since the sequencer will determine this based on the auction round, (i.e.
-// in the event of multipath transfers, will be multiple routers' bids).
-// TODO: Nested schema references are not working here (specifically)... not sure why.
-// -> seeing TypeError: Cannot read properties of undefined (reading 'modifier')
-// export const BidDataSchema = Type.Omit(ExecuteArgsSchema, ["routers"]);
-export const BidDataSchema = Type.Object({
-  params: Type.Object({
-    to: TAddress,
-    callData: Type.String(),
-    originDomain: Type.String(),
-    destinationDomain: Type.String(),
-  }),
-  local: Type.String(),
-  feePercentage: TDecimalString,
-  amount: TDecimalString,
-  nonce: Type.Integer(),
-  relayerSignature: Type.String(),
-  originSender: TAddress,
-});
-
-export type BidData = Static<typeof BidDataSchema>;
-
-export const AuctionsApiPostBidReqSchema = Type.Object({
-  transferId: Type.String(),
-  // TODO: See Bid Data TODO above. This should be deprecated.
-  data: BidDataSchema,
-  bid: BidSchema,
-});
+export const AuctionsApiPostBidReqSchema = BidSchema;
 
 export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
 
 export const AuctionsApiBidResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
-  bid: BidSchema,
+  router: Type.String(),
   error: Type.Optional(NxtpErrorJsonSchema),
 });
 export type AuctionsApiBidResponse = Static<typeof AuctionsApiBidResponseSchema>;
@@ -73,7 +43,6 @@ export type AuctionsApiGetAuctionStatusResponse = Static<typeof AuctionsApiGetAu
 export const AuctionsApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
-
 export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
 
 export const AuctionsApiErrorResponseSchema = Type.Object({
@@ -114,3 +83,61 @@ export const RemoveLiquidityResponseSchema = Type.Object({
   transactionHash: Type.String(),
 });
 export type RemoveLiquidityResponse = Static<typeof RemoveLiquidityResponseSchema>;
+
+/// MARK - Relayer API ------------------------------------------------------------------------------
+
+export const RelayerApiFeeSchema = Type.Object({
+  chain: Type.Integer(),
+  amount: Type.String(),
+  token: Type.String(),
+});
+export type RelayerApiFee = Static<typeof RelayerApiFeeSchema>;
+
+export const RelayerApiPostTaskRequestParamsSchema = Type.Object({
+  to: Type.String(),
+  data: Type.String(),
+  fee: RelayerApiFeeSchema,
+});
+export type RelayerApiPostTaskRequestParams = Static<typeof RelayerApiPostTaskRequestParamsSchema>;
+
+export const RelayerApiPostTaskResponseSchema = Type.Object({
+  message: Type.String(),
+  taskId: Type.String(),
+});
+export type RelayerApiPostTaskResponse = Static<typeof RelayerApiPostTaskResponseSchema>;
+
+export const RelayerApiErrorResponseSchema = Type.Object({
+  message: Type.String(),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+export type RelayerApiErrorResponse = Static<typeof RelayerApiErrorResponseSchema>;
+
+export enum RelayerTaskStatus {
+  None = "None",
+  Pending = "Pending",
+  Cancelled = "Cancelled",
+  Completed = "Completed",
+}
+
+export const RelayerApiStatusResponseSchema = Type.Object({
+  chain: Type.String(),
+  taskId: Type.String(),
+  status: Type.Enum(RelayerTaskStatus),
+  error: Type.String(),
+});
+export type RelayerApiStatusResponse = Static<typeof RelayerApiStatusResponseSchema>;
+
+/// MARK - Gelato API -------------------------------------------------------------------------------
+export type GelatoApiTaskRequestParams = { dest: string; data: string; token: string; relayerFee: string };
+
+export type GelatoApiStatusResponse = {
+  chain: string;
+  taskId: string;
+  taskState: string;
+  lastCheck: {
+    taskState: string;
+    message: string;
+    reason: string;
+  };
+  lastExecution: string;
+};

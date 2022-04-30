@@ -1,6 +1,6 @@
-import { Cache } from "./cache";
-import { TransfersCache } from "./transfers";
-import { AuctionsCache } from "./auctions";
-import { ConsumersCache } from "./consumers";
-
-export { Cache, TransfersCache, AuctionsCache, ConsumersCache };
+export { Cache } from "./cache";
+export { TransfersCache } from "./transfers";
+export { AuctionsCache } from "./auctions";
+export { ConsumersCache } from "./consumers";
+export { RoutersCache } from "./routers";
+export { TasksCache } from "./tasks";

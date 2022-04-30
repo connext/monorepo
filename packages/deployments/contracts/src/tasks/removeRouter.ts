@@ -1,39 +1,45 @@
+import { Contract } from "ethers";
 import { task } from "hardhat/config";
+
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   router: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("remove-router", "Remove a router")
   .addParam("router", "The router's address to remove")
   .addOptionalParam("connextAddress", "Override connext address")
-  .setAction(
-    async ({ router, connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
-      const namedAccounts = await getNamedAccounts();
+  .addOptionalParam("env", "Environment of contracts")
+  .setAction(async ({ router, connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
+    let { deployer } = await ethers.getNamedSigners();
+    if (!deployer) {
+      [deployer] = await ethers.getUnnamedSigners();
+    }
 
-      console.log("router: ", router);
-      console.log("namedAccounts: ", namedAccounts);
+    const env = mustGetEnv(_env);
+    console.log("env:", env);
+    console.log("router: ", router);
+    console.log("namedAccounts: ", deployer.address);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
-      console.log("connextAddress: ", connextAddress);
+    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextDeployment = await deployments.get(connextName);
+    const connextAddress = _connextAddress ?? connextDeployment.address;
+    const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+    console.log("connextAddress: ", connextAddress);
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
-      const approved = await connext.approvedRouters(router);
-      if (!approved) {
-        console.log("not approved, no need to remove");
-        return;
-      }
-      const tx = await connext.removeRouter(router, { from: namedAccounts.deployer });
-      console.log("removeRouter tx: ", tx);
-      const receipt = await tx.wait();
-      console.log("removeRouter tx mined: ", receipt.transactionHash);
+    const approved = await connext.getRouterApproval(router);
+    if (!approved) {
+      console.log("not approved, no need to remove");
+      return;
+    }
+    const tx = await connext.removeRouter(router);
+    console.log("removeRouter tx: ", tx);
+    const receipt = await tx.wait();
+    console.log("removeRouter tx mined: ", receipt.transactionHash);
 
-      const isRouterApproved = await connext.approvedRouters(router);
-      console.log("isRouterApproved: ", isRouterApproved);
-    },
-  );
+    const isRouterApproved = await connext.getRouterApproval(router);
+    console.log("isRouterApproved: ", isRouterApproved);
+  });

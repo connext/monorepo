@@ -1,5 +1,5 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { chainDataToMap, expect, mkAddress } from "@connext/nxtp-utils";
+import { chainDataToMap, expect } from "@connext/nxtp-utils";
 import { getEnvConfig, getConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
 import { mock } from "./mock";

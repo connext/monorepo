@@ -29,5 +29,6 @@
       ]
     }
   },
-  "mnemonic": "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  "web3SignerUrl": "http://signer:9000",
+  "environment": "staging"
 }
