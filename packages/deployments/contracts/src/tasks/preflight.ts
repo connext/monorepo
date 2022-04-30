@@ -129,6 +129,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           domain: canonicalDomain,
           connextAddress,
           pool,
+          env,
         });
       }
       console.log("*** Canonical asset approved!");
@@ -154,6 +155,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
               amount,
               asset: localAsset,
               receiver: deployer.address,
+              env,
             });
           }
         } else {
@@ -162,7 +164,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         }
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Adding liquidity!");
-        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress });
+        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress, env });
         console.log("*** Sufficient liquidity added!");
       } else {
         console.log("\nLiquidity: ", liquidity.toString());
