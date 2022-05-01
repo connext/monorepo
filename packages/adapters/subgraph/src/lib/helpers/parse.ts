@@ -12,6 +12,7 @@ export const xtransfer = (subgEntity: any): XTransfer => {
     to: subgEntity.to,
     transferId: subgEntity.transferId,
     callData: subgEntity.callData,
+    callTo: subgEntity.callTo,
     idx: subgEntity.idx ? subgEntity.idx : undefined,
     nonce: BigNumber.from(subgEntity.nonce ?? "0").toNumber(),
     routers:
