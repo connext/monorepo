@@ -21,3 +21,6 @@ sources:
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
+
+documents:
+  - ./example-query.graphql
