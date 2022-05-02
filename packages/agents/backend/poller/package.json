@@ -1,5 +1,5 @@
 {
-  "name": "@connext/backend",
+  "name": "@connext/backend-poller",
   "version": "0.2.0-alpha.0",
   "description": "",
   "main": "dist/index.js",

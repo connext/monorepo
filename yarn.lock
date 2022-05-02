@@ -633,9 +633,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@connext/backend@workspace:packages/agents/backend":
+"@connext/backend-poller@workspace:packages/agents/backend/poller":
   version: 0.0.0-use.local
-  resolution: "@connext/backend@workspace:packages/agents/backend"
+  resolution: "@connext/backend-poller@workspace:packages/agents/backend/poller"
   dependencies:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"

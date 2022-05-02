@@ -1,5 +1,5 @@
 {
-  "extends": "../../../config/tsconfig.node.json",
+  "extends": "../../../../config/tsconfig.node.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "dist",
@@ -10,10 +10,10 @@
   "include": ["src/**/*.ts", "knexfile.ts", "migrations/**/*.ts"],
   "references": [
     {
-      "path": "../../adapters/subgraph/tsconfig.build.json"
+      "path": "../../../adapters/subgraph/tsconfig.build.json"
     },
     {
-      "path": "../../utils/tsconfig.build.json"
+      "path": "../../../utils/tsconfig.build.json"
     }
   ]
 }
