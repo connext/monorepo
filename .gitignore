@@ -26,13 +26,9 @@ report.*.json
 
 ops/data
 **/*/.nyc_output/*
-packages/agents/sequencer/*config.json
-packages/agents/router/*config.json
-packages/agents/router/chaindata.json
+**/*/*config.json
 
-packages/examples/sdk-server/*config.json
 packages/integration/logs.json
-packages/integration/ops/config/load/config.json
 packages/integration/ops/config/router/*.yaml
 !packages/integration/ops/config/router/web3signer_keyFile_test.yaml
 
