@@ -36,6 +36,9 @@ library RouterPermissionsManagerLogic {
   error RouterPermissionsManagerLogic__setupRouter_amountIsZero();
   error RouterPermissionsManagerLogic__proposeRouterOwner_notNewOwner();
   error RouterPermissionsManagerLogic__proposeRouterOwner_badRouter();
+  error RouterPermissionsManagerLogic__approveRouterForPortal_notRouter();
+  error RouterPermissionsManagerLogic__approveRouterForPortal_alreadyApproved();
+  error RouterPermissionsManagerLogic__approveRouterForPortal_notApproved();
 
   /**
    * @notice Emitted when a new router is added
@@ -74,6 +77,20 @@ library RouterPermissionsManagerLogic {
    * @param newOwner  - The address of the new owner of the router
    */
   event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);
+
+  /**
+   * @notice Emitted when a router is approved for Portal
+   * @param router - The address of the approved router
+   * @param caller - The account that called the function
+   */
+  event RouterApprovedForPortal(address router, address caller);
+
+  /**
+   * @notice Emitted when a router is disapproved for Portal
+   * @param router - The address of the disapproved router
+   * @param caller - The account that called the function
+   */
+  event RouterDisapprovedForPortal(address router, address caller);
 
   /**
    * @notice Asserts caller is the router owner (if set) or the router itself
@@ -191,6 +208,35 @@ library RouterPermissionsManagerLogic {
   }
 
   /**
+   * @notice Allow router to use Portals
+   * @param _router - The router address to approve
+   * @param _routerInfo - Struct with router storage info
+   */
+  function approveRouterForPortal(address _router, RouterPermissionsManagerInfo storage _routerInfo) external {
+    if (!_routerInfo.approvedRouters[_router]) revert RouterPermissionsManagerLogic__approveRouterForPortal_notRouter();
+    if (_routerInfo.approvedForPortalRouters[_router])
+      revert RouterPermissionsManagerLogic__approveRouterForPortal_alreadyApproved();
+
+    _routerInfo.approvedForPortalRouters[_router] = true;
+
+    emit RouterApprovedForPortal(_router, msg.sender);
+  }
+
+  /**
+   * @notice Remove router access to use Portals
+   * @param _router - The router address to remove approval
+   * @param _routerInfo - Struct with router storage info
+   */
+  function disapproveRouterForPortal(address _router, RouterPermissionsManagerInfo storage _routerInfo) external {
+    if (!_routerInfo.approvedForPortalRouters[_router])
+      revert RouterPermissionsManagerLogic__approveRouterForPortal_notApproved();
+
+    _routerInfo.approvedForPortalRouters[_router] = false;
+
+    emit RouterDisapprovedForPortal(_router, msg.sender);
+  }
+
+  /**
    * @notice Used to set router initial properties
    * @param router Router address to setup
    * @param owner Initial Owner of router
@@ -201,7 +247,7 @@ library RouterPermissionsManagerLogic {
     address owner,
     address recipient,
     RouterPermissionsManagerInfo storage routerInfo
-  ) internal {
+  ) external {
     // Sanity check: not empty
     if (router == address(0)) revert RouterPermissionsManagerLogic__setupRouter_routerEmpty();
 

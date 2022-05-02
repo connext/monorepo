@@ -193,6 +193,7 @@ contract ConnextHandler is
   error ConnextHandler__onlyRelayerFeeRouter_notRelayerFeeRouter();
   error ConnextHandler__bumpTransfer_valueIsZero();
   error ConnextHandler__execute_unapprovedRelayer();
+  error ConnextHandler__setAavePortalFee_invalidFee();
 
   // ============ Modifiers ============
 
@@ -308,6 +309,41 @@ contract ConnextHandler is
       adoptedToLocalPools,
       adoptedToCanonical
     );
+  }
+
+  /**
+   * @notice Sets the Aave Pool contract address.
+   * @dev Allows to set the aavePool to address zero to disable Aave Portal if needed
+   * @param _aavePool The address of the Aave Pool contract
+   */
+  function setAavePool(address _aavePool) external onlyOwner {
+    aavePool = _aavePool;
+  }
+
+  /**
+   * @notice Sets the Aave Portal fee numerator
+   * @param _aavePortalFeeNumerator The new value for the Aave Portal fee numerator
+   */
+  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwner {
+    if (_aavePortalFeeNumerator > LIQUIDITY_FEE_DENOMINATOR) revert ConnextHandler__setAavePortalFee_invalidFee();
+
+    aavePortalFeeNumerator = _aavePortalFeeNumerator;
+  }
+
+  /**
+   * @notice Allow router to use Portals
+   * @param _router - The router address to approve
+   */
+  function approveRouterForPortal(address _router) external override onlyOwner {
+    _approveRouterForPortal(_router);
+  }
+
+  /**
+   * @notice Remove router access to use Portals
+   * @param _router - The router address to remove approval
+   */
+  function disapproveRouterForPortal(address _router) external override onlyOwner {
+    _disapproveRouterForPortal(_router);
   }
 
   /**

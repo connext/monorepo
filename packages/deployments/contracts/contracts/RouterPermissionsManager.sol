@@ -143,4 +143,20 @@ abstract contract RouterPermissionsManager is Initializable {
   function _removeRouter(address router) internal {
     RouterPermissionsManagerLogic.removeRouter(router, routerInfo);
   }
+
+  /**
+   * @notice Allow router to use Portals
+   * @param _router - The router address to approve
+   */
+  function _approveRouterForPortal(address _router) internal {
+    RouterPermissionsManagerLogic.approveRouterForPortal(_router, routerInfo);
+  }
+
+  /**
+   * @notice Remove router access to use Portals
+   * @param _router - The router address to remove approval
+   */
+  function _disapproveRouterForPortal(address _router) internal {
+    RouterPermissionsManagerLogic.disapproveRouterForPortal(_router, routerInfo);
+  }
 }

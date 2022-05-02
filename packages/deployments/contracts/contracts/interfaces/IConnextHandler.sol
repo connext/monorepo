@@ -93,6 +93,14 @@ interface IConnextHandler {
 
   function removeRelayer(address relayer) external;
 
+  function approveRouterForPortal(address _router) external;
+
+  function disapproveRouterForPortal(address _router) external;
+
+  function setAavePool(address _aavePool) external;
+
+  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external;
+
   // ============ Public Functions ===========
 
   function addLiquidityFor(
