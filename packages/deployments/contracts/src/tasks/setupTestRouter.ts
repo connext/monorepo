@@ -1,10 +1,14 @@
+import { Contract } from "ethers";
 import { task } from "hardhat/config";
+
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   router: string;
   assetId?: string;
   amount?: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("setup-test-router", "Add router and test assets")
@@ -12,21 +16,27 @@ export default task("setup-test-router", "Add router and test assets")
   .addOptionalParam("assetId", "Override token address")
   .addOptionalParam("amount", "Override amount (real units)")
   .addOptionalParam("connextAddress", "Override connext address")
+  .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
-      { assetId: _assetId, router, connextAddress: _connextAddress, amount: _amount }: TaskArgs,
+      { assetId: _assetId, router, connextAddress: _connextAddress, amount: _amount, env: _env }: TaskArgs,
       { deployments, getNamedAccounts, ethers, run },
     ) => {
       console.log("router: ", router);
+      let { deployer } = await ethers.getNamedSigners();
+      if (!deployer) {
+        [deployer] = await ethers.getUnnamedSigners();
+      }
 
+      const env = mustGetEnv(_env);
+      console.log("env:", env);
       const namedAccounts = await getNamedAccounts();
       console.log("namedAccounts: ", namedAccounts);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
+      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextDeployment = await deployments.get(connextName);
+      const connextAddress = _connextAddress ?? connextDeployment.address;
+      const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
       console.log("connextAddress: ", connextAddress);
 
       let assetId = _assetId;
@@ -40,12 +50,10 @@ export default task("setup-test-router", "Add router and test assets")
         amount = "2500000000000000000000000";
       }
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
-
-      const isRouterApproved = await connext.approvedRouters(router);
+      const isRouterApproved = await connext.getRouterApproval(router);
       console.log("isRouterApproved: ", isRouterApproved);
       if (!isRouterApproved) {
-        await run("add-router", { router, connextAddress });
+        await run("setup-router", { router, connextAddress });
       }
       console.log("Router approved");
 

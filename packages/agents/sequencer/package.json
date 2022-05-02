@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "0.2.0-alpha.4",
+  "version": "0.2.0-alpha.8",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
@@ -58,6 +58,7 @@
     "tsc": "^2.0.4"
   },
   "devDependencies": {
+    "concurrently": "^7.1.0",
     "eslint": "^8.11.0",
     "mocha": "^9.2.2",
     "nyc": "^15.1.0",

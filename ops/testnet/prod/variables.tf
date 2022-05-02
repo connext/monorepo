@@ -20,17 +20,16 @@ variable "environment" {
   default     = "testnet"
 }
 
-
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-5ef09f4"
+  default     = "ghcr.io/connext/router:0.2.0-alpha.6"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-5ef09f4"
+  default     = "ghcr.io/connext/sequencer:0.2.0-alpha.6"
 }
 
 variable "mnemonic" {
@@ -66,5 +65,9 @@ variable "kovan_alchemy_key_1" {
 }
 
 variable "logdna_key" {
+  type = string
+}
+
+variable "web3_signer_private_key" {
   type = string
 }

@@ -1,32 +1,38 @@
+import { Contract } from "ethers";
 import { task } from "hardhat/config";
+
+import { Env, getDeploymentName, mustGetEnv } from "../utils";
 
 type TaskArgs = {
   newOwner: string;
   connextAddress?: string;
+  env?: Env;
 };
 
 export default task("propose-transfer-owner", "Propose Transfer Ownership")
   .addParam("newOwner", "New owner")
   .addOptionalParam("connextAddress", "Override connext address")
-  .setAction(
-    async ({ newOwner, connextAddress: _connextAddress }: TaskArgs, { deployments, getNamedAccounts, ethers }) => {
-      const namedAccounts = await getNamedAccounts();
+  .addOptionalParam("env", "Environment of contracts")
+  .setAction(async ({ newOwner, connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
+    let { deployer } = await ethers.getNamedSigners();
+    if (!deployer) {
+      [deployer] = await ethers.getUnnamedSigners();
+    }
 
-      console.log("newOwner: ", newOwner);
-      console.log("namedAccounts: ", namedAccounts);
+    const env = mustGetEnv(_env);
+    console.log("env:", env);
+    console.log("newOwner: ", newOwner);
+    console.log("deployer: ", deployer.address);
 
-      let connextAddress = _connextAddress;
-      if (!connextAddress) {
-        const connextDeployment = await deployments.get("Connext");
-        connextAddress = connextDeployment.address;
-      }
-      console.log("connextAddress: ", connextAddress);
+    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextDeployment = await deployments.get(connextName);
+    const connextAddress = _connextAddress ?? connextDeployment.address;
+    console.log("connextAddress: ", connextAddress);
 
-      const connext = await ethers.getContractAt("Connext", connextAddress);
-      const tx = await connext.proposeNewOwner(newOwner);
-      console.log("proposeNewOwner tx: ", tx);
-      await tx.wait();
-      const proposedOwner = await connext.proposed();
-      console.log("proposedOwner: ", proposedOwner);
-    },
-  );
+    const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+    const tx = await connext.proposeNewOwner(newOwner);
+    console.log("proposeNewOwner tx: ", tx);
+    await tx.wait();
+    const proposedOwner = await connext.proposed();
+    console.log("proposedOwner: ", proposedOwner);
+  });

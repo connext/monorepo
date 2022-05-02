@@ -58,25 +58,34 @@ export class NxtpSdk {
     );
 
     if (approveTxReq) {
-      const approveReceipt = await this.txservice.sendTx(
-        {
-          to: approveTxReq.to!,
-          chainId: approveTxReq.chainId!,
-          value: approveTxReq.value!,
-          data: approveTxReq.data!.toString(),
-          from: approveTxReq.from!,
-        },
-        requestContext,
-      );
+      try {
+        const approveReceipt = await this.txservice.sendTx(
+          {
+            to: approveTxReq.to!,
+            chainId: approveTxReq.chainId!,
+            value: approveTxReq.value!,
+            data: approveTxReq.data!.toString(),
+            from: approveTxReq.from!,
+          },
+          requestContext,
+        );
 
-      if (approveReceipt?.status === 0) {
-        throw new SubmitError(jsonifyError(new Error("Receipt status is 0")), {
-          approveReceipt,
+        this.logger.info("Method started", requestContext, methodContext, { approveReceipt });
+
+        if (approveReceipt?.status === 0) {
+          throw new SubmitError(jsonifyError(new Error("Receipt status is 0")), {
+            approveReceipt,
+          });
+        }
+        this.logger.info("Mined approve tx", requestContext, methodContext, {
+          transactionHash: approveReceipt.transactionHash,
         });
+      } catch (err: any) {
+        this.logger.info("Error approving tx", requestContext, methodContext, { err });
+        // throw new SubmitError(jsonifyError(err), {
+        //   approveReceipt: err.receipt,
+        // });
       }
-      this.logger.info("Mined approve tx", requestContext, methodContext, {
-        transactionHash: approveReceipt.transactionHash,
-      });
     }
 
     const xcallRequest = await this.sdkBase.xcall(xcallParams);

@@ -51,8 +51,10 @@ export class TransactionService extends ChainReader {
    * @param signer The Signer or Wallet instance, or private key, for signing transactions.
    * @param config At least a partial configuration used by TransactionService for chains,
    * providers, etc.
+   * @param ghostInstance Used in the event that we are conducting an integration test (which will have
+   * multiple txservice instances) and want to prevent this instantiation from being saved as the singleton.
    */
-  constructor(logger: Logger, config: any, signer: string | Signer) {
+  constructor(logger: Logger, config: any, signer: string | Signer, _ghostInstance = false) {
     super(logger, config, signer);
     const { requestContext, methodContext } = createLoggingContext("ChainService.constructor");
     // TODO: #152 See above TODO. Should we have a getInstance() method and make constructor private ??
@@ -67,7 +69,9 @@ export class TransactionService extends ChainReader {
       throw error;
     }
     // Set the singleton instance.
-    TransactionService.instance = this;
+    if (!_ghostInstance) {
+      TransactionService.instance = this;
+    }
   }
 
   /**
@@ -80,6 +84,7 @@ export class TransactionService extends ChainReader {
    * @param tx.value - Value to send tx with
    * @param tx.data - Calldata to execute
    * @param tx.from - (optional) Account to send tx from
+   * @param domain - (optional) Domain to use for accessing providers index
    *
    * @returns TransactionReceipt once the tx is mined if the transaction was successful.
    *
@@ -87,12 +92,16 @@ export class TransactionService extends ChainReader {
    * something went wrong within TransactionService process.
    * @throws TransactionServiceFailure, which indicates something went wrong with the service logic.
    */
-  public async sendTx(tx: WriteTransaction, context: RequestContext): Promise<providers.TransactionReceipt> {
+  public async sendTx(
+    tx: WriteTransaction,
+    context: RequestContext,
+    domain?: number,
+  ): Promise<providers.TransactionReceipt> {
     const { requestContext, methodContext } = createLoggingContext(this.sendTx.name, context);
     this.logger.debug("Method start", requestContext, methodContext, {
       tx: { ...tx, value: tx.value.toString(), data: `${tx.data.substring(0, 9)}...` },
     });
-    return await this.getProvider(tx.chainId).send(tx, context);
+    return await this.getProvider(domain ?? tx.chainId).send(tx, context);
   }
 
   /// LISTENER METHODS

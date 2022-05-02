@@ -23,53 +23,65 @@ type Router @entity {
   proposedOwner: Bytes
   proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
-  transfers: [Transfer!]! @derivedFrom(field: "router")
 }
 
 enum TransferStatus {
-  XCalled
   Executed
   Reconciled
+  Completed
 }
 
-# Transfer represents a transfer
-type Transfer @entity {
+type OriginTransfer @entity {
   id: ID!
-  # Meta
+
+  # MetaData
+  originDomain: BigInt
+  destinationDomain: BigInt
+  chainId: BigInt
+
+  # event Data
+  transferId: Bytes
+  to: Bytes
+  nonce: BigInt
+  callData: Bytes
+  transactingAsset: Bytes
+  bridgedAsset: Bytes
+  amount: BigInt
+  bridgedAmount: BigInt
+  relayerFee: BigInt
+  caller: Bytes
+  message: Bytes
+
+  # XCalled Transaction
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+type DestinationTransfer @entity {
+  id: ID!
+
+  # MetaData
   originDomain: BigInt
   destinationDomain: BigInt
   chainId: BigInt
   status: TransferStatus
 
-  # Transfer Data
-  to: Bytes
+  # Executed event Data
   transferId: Bytes
-  callTo: Bytes
-  callData: Bytes
-  idx: BigInt
+  to: Bytes
   nonce: BigInt
-  router: Router
+  callData: Bytes
+  localAsset: Bytes
+  routers: [Router!]
+  transactingAsset: Bytes
+  transactingAmount: BigInt
+  originSender: Bytes
 
-  # XCalled
-  xcalledTransactingAsset: Bytes
-  xcalledLocalAsset: Bytes
-  xcalledTransactingAmount: BigInt
-  xcalledLocalAmount: BigInt
-  xcalledCaller: Bytes
-
-  # XCalled Transaction
-  xcalledTransactionHash: Bytes
-  xcalledTimestamp: BigInt
-  xcalledGasPrice: BigInt
-  xcalledGasLimit: BigInt
-  xcalledBlockNumber: BigInt
-
-  # Executed
   executedCaller: Bytes
-  executedTransactingAmount: BigInt
-  executedLocalAmount: BigInt
-  executedTransactingAsset: Bytes
-  executedLocalAsset: Bytes
+  executedAmount: BigInt
 
   # Executed Transaction
   executedTransactionHash: Bytes
@@ -78,10 +90,10 @@ type Transfer @entity {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
 
-  # Reconciled
+  # Reconciled event Data
+  reconciledAsset: Bytes
+  reconciledAmount: BigInt
   reconciledCaller: Bytes
-  reconciledLocalAsset: Bytes
-  reconciledLocalAmount: BigInt
 
   # Reconciled Transaction
   reconciledTransactionHash: Bytes

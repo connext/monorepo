@@ -4,21 +4,6 @@ import PriorityQueue from "p-queue";
 
 import { NxtpError } from "../types";
 
-// TODO: This is a great starting point for moving implementations of graphqlsdk-generated
-// code based on use-case:
-/**
- * Domain of the subgraph determines which endpoint we should consult for getting
- * up-to-date info/metadata/URLs, including subgraph health. It represents the
- * subgraph application/use-case.
- *
- * Used as constructor param, and to get the address below.
- */
-export enum SubgraphDomain {
-  RUNTIME,
-  ANALYTICS,
-  TEST,
-}
-
 export type SubgraphSyncRecord = {
   name: string;
   synced: boolean;
@@ -73,17 +58,10 @@ type SubgraphHealth = {
 // TODO: Would be cool if we could pass in like, 1/4 * maxLag * blockLengthMs (and get the blockLengthMs from chain reader, which determines that value on init)
 const SYNC_CACHE_TTL = 5_000;
 
-const DOMAIN_ADDRESS: { [K in SubgraphDomain]: string | undefined } = {
-  [SubgraphDomain.RUNTIME]: undefined,
-  // TODO: Analytics health endpoint needs to be implemented.
-  [SubgraphDomain.ANALYTICS]: undefined,
-  // Used for unit testing.
-  [SubgraphDomain.TEST]: "test",
-};
-
 export type SubgraphQueryMetaParams = {
   maxBlockNumber: number;
   latestNonce: number;
+  destinationDomains?: string[];
 };
 
 export const graphQuery = async (url: string, query: string): Promise<any> => {
@@ -150,17 +128,15 @@ export class FallbackSubgraph<T> {
    * @param chainId - Chain ID of the subgraphs.
    * @param sdks - SDK clients along with corresponding URIs used for each subgraph.
    * @param maxLag - Maximum lag value a subgraph can have before it's considered out of sync.
-   * @param domain (default: COMMON) - type of subgraph we are using, whether its the common
    * @param urls - Preset urls; FallbackSubgraph creates a new empty record for each.
    * @param stallTimeout - the ms we wait until considering a subgraph RPC call to be a timeout.
-   * domain (used for transactions) or the analytics domain.
    */
   constructor(
     private readonly chainId: number,
     private readonly generateClient: (url: string) => T,
     private readonly maxLag: number,
-    private readonly domain: SubgraphDomain = SubgraphDomain.RUNTIME,
     urls: string[] = [],
+    private readonly healthEndpoint?: string,
     private readonly stallTimeout = 10_000,
   ) {
     // Add in any configured subgraph urls we want to use.
@@ -250,9 +226,9 @@ export class FallbackSubgraph<T> {
       }
     }
     throw new NxtpError("Unable to handle request", {
-      errors,
+      errors: errors.map((e) => JSON.stringify(e)),
       chainId: this.chainId,
-      subgraphs: orderedSubgraphs,
+      subgraphs: orderedSubgraphs.map((s) => s.url),
       syncRequired,
       hasSynced: this.hasSynced,
       inSync: this.inSync,
@@ -267,7 +243,7 @@ export class FallbackSubgraph<T> {
    */
   public async sync(getBlockNumber?: () => Promise<number>, ignoreFail = false): Promise<SubgraphSyncRecord[]> {
     // Check to make sure this subgraph domain has an endpoint.
-    const endpoint = DOMAIN_ADDRESS[this.domain];
+    const endpoint = this.healthEndpoint;
     if (!endpoint) {
       // Cannot get subgraph health.
       return this.records;

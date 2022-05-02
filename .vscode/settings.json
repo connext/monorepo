@@ -5,7 +5,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[solidity]": {
-    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[terraform]": {
     "editor.defaultFormatter": "hashicorp.terraform"

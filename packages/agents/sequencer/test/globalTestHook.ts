@@ -1,7 +1,7 @@
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress } from "@connext/nxtp-utils";
+import { Logger, mkAddress } from "@connext/nxtp-utils";
 import { parseEther, parseUnits } from "ethers/lib/utils";
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 
@@ -24,10 +24,6 @@ export const mochaHooks = {
     subgraphMock.getAssetBalance.resolves(parseEther("10000"));
     subgraphMock.getAssetBalances.resolves({ [mkAddress("0xaaa")]: parseEther("10000") });
     subgraphMock.getXCalls.resolves([mock.entity.xtransfer("1000", "2000"), mock.entity.xtransfer("1000", "2000")]);
-    subgraphMock.getTransactionsWithStatuses.resolves([
-      mock.entity.xtransfer("1000", "2000"),
-      mock.entity.xtransfer("1000", "2000"),
-    ]);
 
     // setup cache
     const cacheParams = { host: "mock", port: 1234, mock: true, logger: mock.context().logger, redis: undefined };
@@ -48,10 +44,11 @@ export const mochaHooks = {
         cache: cacheInstance,
         chainreader: chainReaderMock,
         contracts: mock.context().adapters.contracts,
+        relayer: mock.context().adapters.relayer,
       },
       config: mock.config(),
       chainData: mock.context().chainData,
-      logger: mock.context().logger,
+      logger: new Logger({ name: "test", level: process.env.LOG_LEVEL || "silent" }),
     };
     stub(SequencerFns, "getContext").returns(ctxMock);
   },

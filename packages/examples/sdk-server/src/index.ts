@@ -41,7 +41,7 @@ export const sdkServer = () =>
       }
       // return configFile;
 
-      const privateKey: string = configJson.mnemonic;
+      const privateKey: string = configJson.privateKey;
       const signer = privateKey ? new ethers.Wallet(privateKey) : ethers.Wallet.createRandom();
 
       const signerAddress = await signer.getAddress();

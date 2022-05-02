@@ -32,7 +32,7 @@ const run = async () => {
   networks.forEach((n) => {
     routerAddresses.forEach(async (r) => {
       console.log("Running add router script for", n);
-      const { stdout: out, stderr: err } = await exec(`yarn hardhat add-router --network ${n} --router ${r}`);
+      const { stdout: out, stderr: err } = await exec(`yarn hardhat setup-router --network ${n} --router ${r}`);
 
       if (out) {
         console.log(`stdout: ${n} ${out}`);

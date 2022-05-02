@@ -33,7 +33,7 @@ describe("TransfersCache", () => {
     it("should get default nonce if none exists", async () => {
       await transfersCache.storeTransfers([fakeTxs[1]]);
       const latestNonce = await transfersCache.getLatestNonce("1");
-      expect(latestNonce).to.be.equal(0);
+      expect(latestNonce).to.be.equal(-1);
     });
 
     it("should get domain's latest nonce according to the cache", async () => {

@@ -1,11 +1,11 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-alpha.4",
+  "version": "0.2.0-alpha.8",
   "description": "",
   "scripts": {
     "test": "yarn test:hardhat && yarn test:forge",
     "test:hardhat": "hardhat test",
-    "test:hardhat:gas-report": "REPORT_GAS=true hardhat test",
+    "test:hardhat:gas": "REPORT_GAS=true hardhat test",
     "test:forge": "yarn forge test --gas-report",
     "forge": "forge",
     "forge:install": "forge install",
