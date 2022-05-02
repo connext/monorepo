@@ -659,7 +659,7 @@ library ConnextLogic {
     mapping(bytes32 => address) storage _transferRelayer,
     mapping(bytes32 => bool) storage _reconciledTransfers,
     mapping(address => bool) storage _approvedRouters
-  ) private returns (bytes32, bool) {
+  ) private view returns (bytes32, bool) {
     // get number of facilitating routers
     uint256 pathLength = _args.executeArgs.routers.length;
 
@@ -1166,8 +1166,7 @@ library ConnextLogic {
   }
 
   /**
-   * @notice TODO
-   * @dev TODO
+   * @notice Uses Aave Portals to provide fast liquidity
    */
   function _executePortalTransfer(
     bytes32 _transferId,
