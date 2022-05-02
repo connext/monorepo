@@ -100,6 +100,9 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   // ============ Modifiers ============
 
+   /**
+   * @notice Restricts the caller to connext
+   */
   modifier onlyConnext() {
     if (msg.sender != connext) revert SponsorVault__onlyConnext();
     _;
@@ -113,10 +116,20 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   // ============ Owner Functions ============
 
+  /**
+   * @notice Sets the Connext.
+   * @dev Connext and sponsor vault store references to each other
+   * @param _connext The address of the Connext implementation
+   */
   function setConnext(address _connext) external onlyOwner {
     _setConnext(_connext);
   }
 
+  /**
+   * @notice Sets default origin domain gas token to this domain gas token rate.
+   * @param _originDomain The origin domain
+   * @param _rate The default rate
+   */
   function setRate(uint32 _originDomain, Rate calldata _rate) external onlyOwner {
     if (_originDomain == 0) revert SponsorVault__setRate_invalidOriginDomain();
 
@@ -125,18 +138,31 @@ contract SponsorVault is ISponsorVault, Ownable{
     emit RateUpdated(_originDomain, _rate, msg.sender);
   }
 
+  /**
+   * @notice Sets the maximum sponsored relayer fee amount.
+   * @param _relayerFeeCap The new relayerFeeCap
+   */
   function setRelayerFeeCap(uint256 _relayerFeeCap) external onlyOwner {
     relayerFeeCap = _relayerFeeCap;
 
     emit RelayerFeeCapUpdated(_relayerFeeCap, msg.sender);
   }
 
+  /**
+   * @notice Sets of an oracle that provides origin domain gas token to this domain gas token rates.
+   * @param _gasTokenOracle The oracle address
+   */
   function setGasTokenOracle(address _gasTokenOracle) external onlyOwner {
     gasTokenOracle = _gasTokenOracle;
 
     emit GasTokenOracleUpdated(_gasTokenOracle, msg.sender);
   }
 
+  /**
+   * @notice Sets the address of an exchange used for swapping this domain gas token for a given token.
+   * @param _token The address of the token
+   * @param _tokenExchange The oracle of the exchange
+   */
   function setTokenExchange(address _token, address payable _tokenExchange) external onlyOwner {
     if (_token == address(0)) revert SponsorVault__setTokenExchange_invalidAdopted();
     tokenExchanges[_token] = _tokenExchange;
@@ -148,6 +174,13 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   receive() external payable {}
 
+  /**
+   * @notice Performs liquidity fee reimbursement.
+   * @dev Uses the token exchange or liquidity deposited in this contract.
+   * @param _token The address of the token
+   * @param _liquidityFee The liquidity fee amount
+   * @return Sponsored liquidity fee amount
+   */
   function reimburseLiquidityFees(address _token, uint256 _liquidityFee) external override onlyConnext returns (uint256) {
     // do not sponsor liquidity fee when there is no token exchange nor liquidity for the diven token
     if (tokenExchanges[_token] == address(0) && IERC20(_token).balanceOf(address(this)) < _liquidityFee) return 0;
@@ -166,6 +199,13 @@ contract SponsorVault is ISponsorVault, Ownable{
     return _liquidityFee;
   }
 
+  /**
+   * @notice Performs relayer fee reimbursement sending the corresponding amount of this domain gas token to `_to`.
+   * @dev Uses the configured oracle or default rate otherwise.
+   * @param _originDomain The origin domain id
+   * @param _to The fee recipient
+   * @param _originRelayerFee The relayer fee amount in origin domain gas token
+   */
   function reimburseRelayerFees(uint32 _originDomain, address payable _to, uint256 _originRelayerFee) external override onlyConnext {
     uint256 relayerFee;
     if (gasTokenOracle != address(0)) {
