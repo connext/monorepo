@@ -6666,8 +6666,8 @@ __metadata:
   linkType: hard
 
 "cross-undici-fetch@npm:^0.3.5":
-  version: 0.3.5
-  resolution: "cross-undici-fetch@npm:0.3.5"
+  version: 0.3.6
+  resolution: "cross-undici-fetch@npm:0.3.6"
   dependencies:
     abort-controller: ^3.0.0
     form-data-encoder: ^1.7.1
@@ -6675,7 +6675,7 @@ __metadata:
     node-fetch: ^2.6.7
     undici: ^5.1.0
     web-streams-polyfill: ^3.2.0
-  checksum: 845fd948b2390f99294b30872193beb3eb42ab93fda7485537895507dead1369b185e01e49b15fcc22e2d7f1da2054387443cc173e6ca850c5dbd9ddaf083c54
+  checksum: 84fd0eb2ef68cfebedfe09437a203d3c3148a3bb352e942e8ccadca42b8a48b0bbcf8cc445be36a4fb0aa95c805ebf08077e65d72da826705fa73ab23728907e
   languageName: node
   linkType: hard
 
