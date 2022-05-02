@@ -72,10 +72,10 @@ type DestinationTransfer @entity {
   # Executed event Data
   transferId: Bytes
   to: Bytes
+  nonce: BigInt
   callData: Bytes
   localAsset: Bytes
   routers: [Router!]
-  nonce: BigInt
   transactingAsset: Bytes
   transactingAmount: BigInt
   originSender: Bytes

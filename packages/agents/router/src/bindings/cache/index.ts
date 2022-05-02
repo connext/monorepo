@@ -47,7 +47,7 @@ export const pollCache = async () => {
     }
 
     // Check the transfer status and update if it gets executed or reconciled on the destination domain
-    const confirmedTransfers: XTransfer[] = await subgraph.getExecutedAndReconciledTransfers(pendingTransfers);
+    const confirmedTransfers: XTransfer[] = await subgraph.getDestinationTransfers(pendingTransfers);
     if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
 
     const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
