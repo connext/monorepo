@@ -114,7 +114,7 @@ describe("Bindings:Cache", () => {
 
       executeStub.rejects(mockError);
 
-      mockContext.adapters.subgraph.getExecutedAndReconciledTransfers.resolves([]);
+      mockContext.adapters.subgraph.getDestinationTransfers.resolves([]);
 
       await bindCacheFns.pollCache();
 
