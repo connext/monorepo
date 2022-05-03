@@ -1,6 +1,71 @@
 import { gql } from "graphql-request";
-import { SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 import { getContext } from "../../reader";
+
+export const ORIGIN_TRANSFER_ENTITY = `
+    id
+    # MetaData
+    originDomain
+    destinationDomain
+    chainId
+    # event Data
+    transferId
+    to
+    nonce
+    callData
+    transactingAsset
+    bridgedAsset
+    amount
+    bridgedAmount
+    relayerFee
+    caller
+    message
+    # XCalled Transaction
+    transactionHash
+    timestamp
+    gasPrice
+    gasLimit
+    blockNumber
+`;
+
+export const DESTINATION_TRANSFER_ENTITY = `
+      id
+      # MetaData
+      originDomain
+      destinationDomain
+      chainId
+      status
+      # Executed event Data
+      transferId
+      to
+      nonce
+      callData
+      localAsset
+      routers {
+        id
+      }
+      transactingAsset
+      transactingAmount
+      originSender
+      executedCaller
+      executedAmount
+      # Executed Transaction
+      executedTransactionHash
+      executedTimestamp
+      executedGasPrice
+      executedGasLimit
+      executedBlockNumber
+      # Reconciled event Data
+      reconciledAsset
+      reconciledAmount
+      reconciledCaller
+      # Reconciled Transaction
+      reconciledTransactionHash
+      reconciledTimestamp
+      reconciledGasPrice
+      reconciledGasLimit
+      reconciledBlockNumber
+`;
 
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
@@ -89,89 +154,57 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
     }
   `;
 };
-export const TRANSFER_ENTITY = `
-      id
-      # Meta
-      originDomain
-      destinationDomain
-      chainId
-      status
-      # Transfer Data
-      to
-      transferId
-      callData
-      idx
-      nonce
-      routers {
-        id
-      }
-      relayerFee
-      # XCalled
-      xcalledCaller
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledTransactingAsset
-      xcalledLocalAsset
-      # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
-      executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
-      # Executed Transaction
-      executedTransactionHash
-      executedTimestamp
-      executedGasPrice
-      executedGasLimit
-      executedBlockNumber
-      # Reconciled
-      reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
-      # Reconciled Transaction
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber`;
 
-const xCalledTransferQueryString = (
-  prefix: string,
-  destinationDomains: string[],
-  maxBlockNumber: number,
-  nonce: number,
-): string => {
-  return `
-    ${prefix}_transfers(
-            where: {
-              status: XCalled
-              destinationDomain_in: [${destinationDomains}]
-              xcalledBlockNumber_lte: ${maxBlockNumber}
-              nonce_gte: "${nonce}"
-            }
-            orderBy: xcalledBlockNumber
-            orderDirection: desc
-        ) {${TRANSFER_ENTITY}}
-      `;
+export const getOriginTransfersByIdQuery = (prefix: string, transferIds: string[]): string => {
+  const queryStr = `
+    ${prefix}_originTransfers(where: { transferId_in: [${transferIds}] }) {${ORIGIN_TRANSFER_ENTITY}}`;
+  return gql`
+    query GetOriginTransfers {
+      ${queryStr}
+    }
+  `;
 };
-export const getXCalledTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+
+const orignTransferQueryString = (
+  prefix: string,
+  originDomain: string,
+  fromNonce: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+) => {
+  return `${prefix}_originTransfers(where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
+    maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""
+  } }, orderBy: blockNumber, orderDirection: desc) {${ORIGIN_TRANSFER_ENTITY}}`;
+};
+
+export const getOriginTransfersQueryByDomain = (
+  prefix: string,
+  originDomain: string,
+  fromNonce: number,
+  destinationDomains: string[],
+): string => {
+  const queryStr = orignTransferQueryString(prefix, originDomain, fromNonce, destinationDomains);
+  return gql`
+    query GetOriginTransfers {
+      ${queryStr}
+    }
+  `;
+};
+
+export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
   const { config } = getContext();
+
   let combinedQuery = "";
   const domains = Object.keys(config.sources);
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      combinedQuery += xCalledTransferQueryString(
+      combinedQuery += orignTransferQueryString(
         prefix,
+        domain,
+        agents.get(domain)!.latestNonce,
         domains,
         agents.get(domain)!.maxBlockNumber,
-        agents.get(domain)!.latestNonce,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
@@ -179,74 +212,33 @@ export const getXCalledTransfersQuery = (agents: Map<string, SubgraphQueryMetaPa
   }
 
   return gql`
-    query GetXCalledTransfers { 
+    query GetOriginTransfers { 
         ${combinedQuery}
       }
   `;
 };
 
-const executedAndReconciledTransfersByIdsQueryString = (
+const destinationTransfersByIdsQueryString = (
   prefix: string,
   transferIds: string[],
-  maxBlockNumber: number,
-): string => {
-  return `
-    ${prefix}_executedTransfers : ${prefix}_transfers (
-      where: { transferId_in: [${transferIds}], executedBlockNumber_lte: ${maxBlockNumber}, status: Executed }
-    ) {${TRANSFER_ENTITY}}
-    ${prefix}_reconciledTransfers : ${prefix}_transfers (
-      where: { transferId_in: [${transferIds}], reconciledBlockNumber_lte: ${maxBlockNumber}, status: Reconciled }
-    ) {${TRANSFER_ENTITY}}
-  `;
+  maxBlockNumber?: number,
+  status?: XTransferStatus,
+) => {
+  return `${prefix}_destinationTransfers ( where: { transferId_in: [${transferIds}] ${
+    maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""
+  } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc)`;
 };
-export const getExecutedAndReconciledTransfersByIdsQuery = (
-  txIdsByDestinationDomain: Map<string, string[]>,
-  agents: Map<string, SubgraphQueryMetaParams>,
-): string => {
+
+export const getDestinationTransfersByIdsQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const destinationDomain of txIdsByDestinationDomain.keys()) {
-    if (agents.has(destinationDomain)) {
-      const prefix = config.sources[destinationDomain].prefix;
-      combinedQuery += executedAndReconciledTransfersByIdsQueryString(
-        prefix,
-        txIdsByDestinationDomain.get(destinationDomain)!,
-        agents.get(destinationDomain)!.maxBlockNumber,
-      );
-    } else {
-      console.log(`No agents for domain: ${destinationDomain}`);
-    }
+    const prefix = config.sources[destinationDomain].prefix;
+    combinedQuery += destinationTransfersByIdsQueryString(prefix, txIdsByDestinationDomain.get(destinationDomain)!);
   }
   return gql`
     query GetExecutedAndReconciledTransfersByIds { 
         ${combinedQuery}
       }
-  `;
-};
-
-const transfersStatusQueryByDomain = (prefix: string, transferIds: string[]) => {
-  return `${prefix}_transfers(where: { transferId_in: [${transferIds}], status_in: [Executed, Reconciled] }) {${TRANSFER_ENTITY}}`;
-};
-export const getTransfersStatusQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
-  const { config } = getContext();
-  let combinedQuery = "";
-  for (const destinationDomain of txIdsByDestinationDomain.keys()) {
-    const prefix = config.sources[destinationDomain].prefix;
-    combinedQuery += transfersStatusQueryByDomain(prefix, txIdsByDestinationDomain.get(destinationDomain)!);
-  }
-  return gql`
-    query GetTransfersStatus { 
-        ${combinedQuery}
-      }
-  `;
-};
-
-export const getTransferQuery = (prefix: string, transferId: string): string => {
-  const queryStr = `
-    ${prefix}_transfers(where: { transferId: "${transferId}" }) {${TRANSFER_ENTITY}}`;
-  return gql`
-    query GetTransfer {
-      ${queryStr}
-    }
   `;
 };

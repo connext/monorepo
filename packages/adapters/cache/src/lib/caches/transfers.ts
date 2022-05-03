@@ -70,7 +70,12 @@ export class TransfersCache extends Cache {
       // Update the existing transfer with the data from the new one; this will collate the transfer across
       // domains, since our cache is indexed by transferId.
       transfer = existing ? { ...sanitizeNull(existing), ...sanitizeNull(transfer) } : transfer;
-      const { xcall, execute, reconcile, transferId, nonce: _nonce, originDomain } = transfer;
+      const {
+        origin: { xcall, domain: originDomain },
+        destination: { execute, reconcile },
+        transferId,
+        nonce: _nonce,
+      } = transfer;
       const nonce = Number(_nonce);
       const stringified = JSON.stringify(transfer);
 
