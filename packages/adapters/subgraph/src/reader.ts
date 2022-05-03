@@ -241,8 +241,8 @@ export class SubgraphReader {
       const txIds = destinationDomainRecord
         ? destinationDomainRecord.includes(transfer.transferId)
           ? destinationDomainRecord
-          : destinationDomainRecord.concat(transfer.transferId)
-        : [transfer.transferId];
+          : destinationDomainRecord.concat(`"${transfer.transferId}"`)
+        : [`"${transfer.transferId}"`];
       txIdsByDestinationDomain.set(transfer.destination.domain, txIds);
       return [transfer.transferId, transfer];
     });
@@ -270,6 +270,6 @@ export class SubgraphReader {
       allTxById.set(tx.transferId, inMap);
     });
 
-    return [...allTxById.values()].filter((xTransfer) => !xTransfer.destination.status);
+    return [...allTxById.values()].filter((xTransfer) => xTransfer.destination.status);
   }
 }

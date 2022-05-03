@@ -226,7 +226,7 @@ const destinationTransfersByIdsQueryString = (
 ) => {
   return `${prefix}_destinationTransfers ( where: { transferId_in: [${transferIds}] ${
     maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""
-  } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc)`;
+  } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
 export const getDestinationTransfersByIdsQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {

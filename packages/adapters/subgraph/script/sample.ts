@@ -65,22 +65,37 @@ export const test = async () => {
   console.log(await subgraphReader.getOriginTransfers("1111", 0, ["2222"]));
 
   // getXCalls(agents)
+  console.log(`XCalling...`);
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
-  agents.set("1111", { maxBlockNumber: 10580300, latestNonce: 0 });
-  agents.set("2221", { maxBlockNumber: 31289880, latestNonce: 13 });
+  agents.set("1111", { maxBlockNumber: 10613127, latestNonce: 12 });
+  agents.set("2221", { maxBlockNumber: 31403640, latestNonce: 49 });
   console.log(await subgraphReader.getXCalls(agents));
+  console.log(`XCalling done!`);
 
   // getExecutedAndReconciledTransfers(transfers)
   const transfers: XTransfer[] = [
     {
       origin: {
-        domain: "2221",
-      },
-      destination: {
         domain: "1111",
       },
-      to: "0x28a36878c0be1343283e4ad6a2bf178a5737e864",
-      transferId: "0xd81190d9d8692f56607b88acc31e21ce25fb3b5378d11d2b1596965766639457",
+      destination: {
+        domain: "2221",
+      },
+      to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
+      transferId: "0xfad20d0b772e21887c75c59b8f2f8d3c235e7815203cc5980e54723004f9d572",
+      callData: "0x",
+      idx: undefined,
+      nonce: 13,
+    },
+    {
+      origin: {
+        domain: "1111",
+      },
+      destination: {
+        domain: "2221",
+      },
+      to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
+      transferId: "0xf3ff58c78a0068093ac06b6c00ff7535e8116b68da4976dc6c3f7029ed319469",
       callData: "0x",
       idx: undefined,
       nonce: 13,

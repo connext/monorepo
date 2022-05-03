@@ -75,7 +75,6 @@ export const originTransfer = (entity: any): XTransfer => {
 };
 
 export const destinationTransfer = (entity: any): XTransfer => {
-  transferEntitySanityCheck(entity);
   return {
     // Meta Data
     idx: entity.idx ? entity.idx : undefined,
