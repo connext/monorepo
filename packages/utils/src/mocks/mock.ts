@@ -111,61 +111,107 @@ export const mock: any = {
       ...overrides,
     }),
     xtransfer: (
-      originDomain: string = mock.domain.A,
-      destinationDomain: string = mock.domain.B,
-      amount = "1000",
-      status: XTransferStatus = XTransferStatus.XCalled,
-      asset: string = mock.asset.A.address,
-      transferId: string = getRandomBytes32(),
-      nonce = 1234,
-      user: string = mkAddress("0xfaded"),
+      overrides: {
+        originDomain?: string;
+        destinationDomain?: string;
+        amount?: string;
+        status?: XTransferStatus;
+        asset?: string;
+        transferId?: string;
+        nonce?: number;
+        user?: string;
+        relayerFee?: string;
+      } = {},
     ): XTransfer => {
+      const originDomain: string = overrides.originDomain ?? mock.domain.A;
+      const destinationDomain: string = overrides.destinationDomain ?? mock.domain.B;
+      const amount = overrides.amount ?? "1000";
+      const status: XTransferStatus | undefined = overrides.status;
+      const asset: string = overrides.asset ?? mock.asset.A.address;
+      const transferId: string = overrides.transferId ?? getRandomBytes32();
+      const nonce = overrides.nonce ?? 1234;
+      const user: string = overrides.user ?? mkAddress("0xfaded");
+      const relayerFee = overrides.relayerFee ?? "12345";
+
       return Object.assign({
         // Meta
-        originDomain: originDomain,
-        destinationDomain: destinationDomain,
-        status,
-
-        // Transfer Data
-        to: user,
-        transferId,
-        callTo: constants.AddressZero,
-        callData: "0x0",
         idx: "0",
+        transferId,
         nonce,
-        router: mock.address.router,
-        relayerFee: "12345",
 
-        // XCalled
-        xcall: {
-          caller: user,
-          transferringAmount: amount,
-          localAmount: amount,
-          transferringAsset: asset,
-          localAsset: asset,
-          transactionHash: getRandomBytes32(),
-          timestamp: Math.floor(Date.now() / 1000 - 60),
-          gasPrice: utils.parseUnits("5", "gwei").toString(),
-          gasLimit: "80000",
-          blockNumber: 7654321,
-        },
+        // Call Params
+        to: user,
+        callData: "0x0",
 
-        // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
-        execute:
-          status === XTransferStatus.Executed
+        origin: {
+          domain: originDomain,
+
+          // Assets
+          assets: relayerFee
             ? {
-                caller: mock.address.relayer,
-                transferringAmount: amount,
-                localAmount: amount,
-                transferringAsset: asset,
-                localAsset: asset,
-                transactionHash: getRandomBytes32(),
-                timestamp: Math.floor(Date.now() / 1000 - 30),
-                gasPrice: utils.parseUnits("5", "gwei").toString(),
-                gasLimit: "80000",
-                blockNumber: 5651345,
+                transactingAsset: asset,
+                transactingAmount: amount,
+                bridgedAsset: asset,
+                bridgedAmount: amount,
               }
             : undefined,
+
+          // XCalled
+          xcall: {
+            // Event Data
+            relayerFee,
+            caller: user,
+            transactionHash: getRandomBytes32(),
+            timestamp: Math.floor(Date.now() / 1000 - 60),
+            gasPrice: utils.parseUnits("5", "gwei").toString(),
+            gasLimit: "80000",
+            blockNumber: 7654321,
+          },
+        },
+
+        destination: {
+          domain: destinationDomain,
+
+          // Event Data
+          status,
+
+          // Assets
+          assets: status
+            ? {
+                transactingAsset: asset,
+                transactingAmount: amount,
+                localAsset: asset,
+                localAmount: amount,
+              }
+            : undefined,
+
+          // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
+          execute:
+            status === XTransferStatus.Executed || status === XTransferStatus.Completed
+              ? {
+                  routers: [mock.address.routers],
+                  originSender: user,
+                  caller: mock.address.relayer,
+                  transactionHash: getRandomBytes32(),
+                  timestamp: Math.floor(Date.now() / 1000 - 30),
+                  gasPrice: utils.parseUnits("5", "gwei").toString(),
+                  gasLimit: "80000",
+                  blockNumber: 5651345,
+                }
+              : undefined,
+
+          reconcile:
+            status === XTransferStatus.Reconciled || status === XTransferStatus.Completed
+              ? {
+                  caller: mock.address.relayer,
+                  transactionHash: getRandomBytes32(),
+                  timestamp: Math.floor(Date.now() / 1000),
+                  gasPrice: utils.parseUnits("5", "gwei").toString(),
+                  gasLimit: "100000",
+                  blockNumber: 5651390,
+                }
+              : undefined,
+        },
       });
     },
   },

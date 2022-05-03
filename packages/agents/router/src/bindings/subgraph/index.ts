@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, NxtpError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { getHelpers } from "../../lib/helpers";
@@ -67,28 +67,35 @@ export const pollSubgraph = async () => {
     }
 
     if ([...subgraphQueryMetaParams.keys()].length > 0) {
-      const transfers = await subgraph.getXCalls(subgraphQueryMetaParams);
+      for (const domain of [...subgraphQueryMetaParams.keys()]) {
+        const metaParams = subgraphQueryMetaParams.get(domain)!;
+        const transfers: XTransfer[] = await subgraph.getOriginTransfers(
+          domain,
+          metaParams.latestNonce,
+          metaParams.destinationDomains,
+        );
 
-      if (transfers.length === 0) {
-        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
-          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
-        });
-      } else {
-        // Clean log all the transfers by domain.
-        const domains: Record<string, { queryParams: SubgraphQueryMetaParams; transfers: string[] }> = {};
-        for (const domain of Object.keys(config.chains)) {
-          domains[domain] = {
-            queryParams: subgraphQueryMetaParams.get(domain)!,
-            transfers: transfers
-              .filter((transfer) => transfer.destinationDomain === domain)
-              .map(({ transferId }) => transferId),
-          };
+        if (transfers.length === 0) {
+          logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+            subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+          });
+        } else {
+          // Clean log all the transfers by domain.
+          const domains: Record<string, { queryParams: SubgraphQueryMetaParams; transfers: string[] }> = {};
+          for (const domain of Object.keys(config.chains)) {
+            domains[domain] = {
+              queryParams: subgraphQueryMetaParams.get(domain)!,
+              transfers: transfers
+                .filter((transfer) => transfer.destination?.domain === domain)
+                .map(({ transferId }) => transferId),
+            };
+          }
+          logger.info("Retrieved pending transfers.", requestContext, methodContext, {
+            domains,
+          });
+
+          await cache.transfers.storeTransfers(transfers);
         }
-        logger.info("Retrieved pending transfers.", requestContext, methodContext, {
-          domains,
-        });
-
-        await cache.transfers.storeTransfers(transfers);
       }
     }
   } catch (err: unknown) {

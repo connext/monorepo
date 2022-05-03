@@ -1,5 +1,5 @@
 import { BigNumber, constants } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
@@ -136,7 +136,7 @@ export class SubgraphReader {
       .runtime.request<GetOriginTransfersByIdsQuery>((client) => {
         return client.GetOriginTransfersByIds({ transferIds: [transferId] });
       });
-    return originTransfers.length === 1 ? parser.xtransfer(originTransfers[0]) : undefined;
+    return originTransfers.length === 1 ? parser.originTransfer(originTransfers[0]) : undefined;
   }
 
   /**
@@ -156,7 +156,7 @@ export class SubgraphReader {
     const { originTransfers } = await this.subgraphs.get(domain)!.runtime.request<GetOriginTransfersQuery>((client) => {
       return client.GetOriginTransfers({ destinationDomains, nonce: fromNonce, originDomain: domain });
     });
-    return originTransfers.map(parser.xtransfer);
+    return originTransfers.map(parser.originTransfer);
   }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
@@ -164,7 +164,7 @@ export class SubgraphReader {
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
 
-    // first get prepared transactions on all chains
+    // First, get Origin Transfers on all chains.
     const allOrigin: [string, XTransfer][] = (
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
@@ -191,16 +191,16 @@ export class SubgraphReader {
       .flat()
       .filter((x) => !!x)
       .map((s) => {
-        const tx = parser.xtransfer(s);
+        const tx: XTransfer = parser.originTransfer(s);
 
         // set into a map by destination domain
-        const destinationDomainRecord = txIdsByDestinationDomain.get(tx.destinationDomain);
+        const destinationDomainRecord = txIdsByDestinationDomain.get(tx.destination.domain);
         const txIds = destinationDomainRecord
           ? destinationDomainRecord.includes(tx.transferId)
             ? destinationDomainRecord
             : destinationDomainRecord.concat(tx.transferId)
           : [tx.transferId];
-        txIdsByDestinationDomain.set(tx.destinationDomain, txIds);
+        txIdsByDestinationDomain.set(tx.destination.domain, txIds);
         return [tx.transferId, tx];
       });
 
@@ -215,10 +215,14 @@ export class SubgraphReader {
           (client: { GetDestinationTransfersByIds: (arg0: { transferIds: string[] }) => any }) =>
             client.GetDestinationTransfersByIds({
               transferIds,
+              // TODO:
+              // maxExecutedBlockNumber: ,
+              // maxReconciledBlockNumber:,
+              // status: ,
             }),
         );
         destinationTransfers.forEach((_tx: any) => {
-          const tx = parser.xtransfer(_tx);
+          const tx = parser.destinationTransfer(_tx);
           allTxById.delete(tx.transferId);
         });
       }),
@@ -232,13 +236,13 @@ export class SubgraphReader {
     const { parser } = getHelpers();
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
-      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain);
+      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destination.domain);
       const txIds = destinationDomainRecord
         ? destinationDomainRecord.includes(transfer.transferId)
           ? destinationDomainRecord
           : destinationDomainRecord.concat(transfer.transferId)
         : [transfer.transferId];
-      txIdsByDestinationDomain.set(transfer.destinationDomain, txIds);
+      txIdsByDestinationDomain.set(transfer.destination.domain, txIds);
       return [transfer.transferId, transfer];
     });
 
@@ -254,16 +258,17 @@ export class SubgraphReader {
           }),
         );
         destinationTransfers.forEach((_tx: any) => {
-          const tx = parser.xtransfer(_tx);
+          const tx = parser.destinationTransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
-          inMap.status = tx.status;
-          inMap.execute = tx.execute;
-          inMap.reconcile = tx.reconcile;
+          inMap.destination.status = tx.destination.status;
+          inMap.destination.execute = tx.destination.execute;
+          inMap.destination.reconcile = tx.destination.reconcile;
           allTxById.set(tx.transferId, inMap);
         });
       }),
     );
 
-    return [...allTxById.values()].filter((xTransfer) => xTransfer.status !== XTransferStatus.XCalled);
+    // Return all transfers with no destination status.
+    return [...allTxById.values()].filter((xTransfer) => !xTransfer.destination.status);
   }
 }

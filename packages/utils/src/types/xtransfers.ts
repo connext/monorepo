@@ -3,19 +3,13 @@ import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from ".";
 
 export enum XTransferStatus {
-  XCalled = "XCalled",
   Executed = "Executed",
   Reconciled = "Reconciled",
   Completed = "Completed",
-  Failed = "Failed",
 }
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
-  transferringAmount: TIntegerString,
-  localAmount: TIntegerString,
-  transferringAsset: TAddress,
-  localAsset: TAddress,
   transactionHash: Type.String(),
   timestamp: Type.Number(),
   gasPrice: TIntegerString,
@@ -25,27 +19,70 @@ export const XTransferMethodCallSchema = Type.Object({
 
 export const XTransferSchema = Type.Object({
   // Meta
-  originDomain: Type.String(),
-  destinationDomain: Type.String(),
-  status: Type.Enum(XTransferStatus),
-
-  // Transfer Data
+  idx: Type.Optional(TIntegerString),
   transferId: Type.String(),
+  nonce: Type.Integer(),
+
+  // Call Params
   to: TAddress,
   callData: Type.String(),
-  idx: Type.Optional(TIntegerString),
-  nonce: Type.Integer(),
-  routers: Type.Optional(Type.Array(TAddress)),
-  relayerFee: Type.Optional(TIntegerString),
 
-  // XCalled
-  xcall: Type.Optional(XTransferMethodCallSchema),
+  origin: Type.Object({
+    domain: Type.String(),
 
-  // Executed
-  execute: Type.Optional(XTransferMethodCallSchema),
+    // Assets
+    assets: Type.Optional(
+      Type.Object({
+        transactingAsset: Type.String(),
+        transactingAmount: TIntegerString,
+        bridgedAsset: Type.String(),
+        bridgedAmount: TIntegerString,
+      }),
+    ),
 
-  // Reconciled
-  reconcile: Type.Optional(XTransferMethodCallSchema),
+    // XCall Transaction
+    xcall: Type.Optional(
+      Type.Intersect([
+        XTransferMethodCallSchema,
+        Type.Object({
+          // XCall Event Data
+          relayerFee: TIntegerString,
+        }),
+      ]),
+    ),
+  }),
+
+  destination: Type.Object({
+    domain: Type.String(),
+
+    // Destination Event Data
+    status: Type.Optional(Type.Enum(XTransferStatus)),
+
+    // Assets
+    assets: Type.Optional(
+      Type.Object({
+        transactingAsset: Type.String(),
+        transactingAmount: TIntegerString,
+        localAsset: Type.String(),
+        localAmount: TIntegerString,
+      }),
+    ),
+
+    // Execute Transaction
+    execute: Type.Optional(
+      Type.Intersect([
+        XTransferMethodCallSchema,
+        Type.Object({
+          // Execute Event Data
+          routers: Type.Optional(Type.Array(TAddress)),
+          originSender: Type.Optional(TAddress),
+        }),
+      ]),
+    ),
+
+    // Reconcile Transaction
+    reconcile: Type.Optional(XTransferMethodCallSchema),
+  }),
 });
 export type XTransfer = Static<typeof XTransferSchema>;
 

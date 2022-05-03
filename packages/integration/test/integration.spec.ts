@@ -705,6 +705,7 @@ describe("Integration:E2E", () => {
       const parity = SUBG_POLL_PARITY;
       const attempts = Math.floor(XCALL_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
+        isOrigin: true,
         xcallTransactionHash: transactionHash,
       });
       let i;
@@ -787,6 +788,7 @@ describe("Integration:E2E", () => {
       log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
       const attempts = Math.floor(EXECUTE_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
+        isOrigin: false,
         transferId: transfer.transferId,
       });
       let i;
