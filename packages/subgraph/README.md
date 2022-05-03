@@ -78,3 +78,17 @@ yarn workspace @connext/nxtp-subgraph deploy v1-runtime v1-runtime all <graph-ac
 ```
 
 **NOTE:** Before deploying, ensure you are properly authed with the graph service. See their [documentation](https://thegraph.com/docs/deploy-a-subgraph) for more information.
+
+#### Deploy to the Subgraph Studio / Decentralized Graph Network
+
+The decentralized Graph Network currenty only supports Ethereum mainnet subgraphs. In order to publish a subgraph to the decentralized Graph Network you need first deploy it to the Subgraph Studio:
+
+- Make sure that the [packages/subgraph/config/studio.json](./packages/subgraph/config/studio.json) is up to date. See above.
+- Increase version number in [packages/subgraph/package.json](./packages/subgraph/package.json#2).
+- Run:
+
+  ```sh
+  yarn workspace @connext/nxtp-subgraph deploy:studio <studio-access-token>
+  ```
+
+**NOTE:"** The `<studio-access-token>` is different than the `<graph-access-token>`. More information about the Subgraph Studio can be found in [The Graph docs](https://thegraph.com/docs/en/studio/subgraph-studio/).
