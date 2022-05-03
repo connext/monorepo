@@ -17143,7 +17143,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0xB63f6871e6141b835e95313b26c55362D86398C6",
+          "address": "0x81ac1B260899cF9447DC529187430fb6E63f1387",
           "abi": [
             {
               "inputs": [],
@@ -51310,7 +51310,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x1d7AC9ca56DB94D97E47728A67eFd5342756a666",
+          "address": "0xa265dc0830615AF42a7DC15FC94D9C1D7644D2Fd",
           "abi": [
             {
               "inputs": [],
@@ -52989,13 +52989,6 @@
           ]
         }
       }
-    }
-  ],
-  "31337": [
-    {
-      "name": "hardhat",
-      "chainId": "31337",
-      "contracts": {}
     }
   ]
 }
