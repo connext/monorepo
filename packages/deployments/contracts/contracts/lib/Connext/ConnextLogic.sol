@@ -262,6 +262,33 @@ library ConnextLogic {
    */
   event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
 
+  /**
+   * @notice Emitted when executed a Portal repayment
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param asset - The asset that was repaid
+   * @param amount - The amount that was repaid
+   * @param fee - The fee amount that was repaid
+   */
+  event AavePortalRepayment(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
+
+  /**
+   * @notice Emitted when a Portal repayment call failed
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param asset - The asset that was intended to be repaid
+   * @param amount - The amount that was intended to be repaid
+   * @param fee - The fee amount that was intended to be repaid
+   */
+  event AavePortalRepaymentFailed(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
+
+  /**
+   * @notice Emitted when there is no enough assets to repay a Portal repayment
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param asset - The asset that in which the debt is nominated
+   * @param amount - The amount that is pending to be repaid
+   * @param fee - The fee amount that is pending to be repaid
+   */
+  event AavePortalRepaymentDebt(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
+
   // ============ Admin Functions ============
 
   /**
@@ -978,7 +1005,9 @@ library ConnextLogic {
       vars.adoptedAmountOut,
       vars.portalTransferAmount,
       _args.portalFeeNumerator,
-      _args.portalFeeDenominator
+      _args.portalFeeDenominator,
+      _transferId,
+      vars.adopted
     );
 
     // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
@@ -987,11 +1016,15 @@ library ConnextLogic {
     // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
     SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(vars.adopted), _args.aavePool, vars.totalRepayAmount);
 
-    // TODO: What if backUnbacked call fails? For example if the asset is inactive, paused or frozen?
-    // What is the impact of a reconcile to be reverted? Can be re-executed later?
-    IAavePool(_args.aavePool).backUnbacked(vars.adopted, vars.backUnbackedAmount, vars.portalFee);
+    (bool success, ) = _args.aavePool.call(
+      abi.encodeWithSelector(IAavePool.backUnbacked.selector, vars.adopted, vars.backUnbackedAmount, vars.portalFee)
+    );
 
-    // TODO should emit some event with the repayment info?
+    if (success) {
+      emit AavePortalRepayment(_transferId, vars.adopted, vars.backUnbackedAmount, vars.portalFee);
+    } else {
+      emit AavePortalRepaymentFailed(_transferId, vars.adopted, vars.backUnbackedAmount, vars.portalFee);
+    }
 
     // TODO: Do we need to check balance before and after to get the exact amount paid and give the routers the rest?
     // Aave accounts a global unbacked variable per asset for all, not by address/bridge.
@@ -1015,10 +1048,11 @@ library ConnextLogic {
     uint256 availableAmount,
     uint256 portalTransferAmount,
     uint256 portalFeeNumerator,
-    uint256 portalFeeDenominator
+    uint256 portalFeeDenominator,
+    bytes32 transferId,
+    address adopted
   )
     public
-    pure
     returns (
       uint256,
       uint256,
@@ -1032,18 +1066,26 @@ library ConnextLogic {
     // If not enough funds to repay the transfer + fees
     // try to repay as much as unbacked as possible
     if (totalRepayAmount > availableAmount) {
+      uint256 backUnbackedDebt = backUnbackedAmount;
+      uint256 portalFeeDebt = portalFee;
+
       if (availableAmount > backUnbackedAmount) {
         // Repay the whole transfer and a partial amount of fees
         portalFee = availableAmount - backUnbackedAmount;
+
+        backUnbackedDebt = 0;
+        portalFeeDebt -= portalFee;
       } else {
         // Repay a partial amount of the transfer and no fees
         backUnbackedAmount = availableAmount;
         portalFee = 0;
+
+        backUnbackedDebt -= backUnbackedAmount;
       }
 
       totalRepayAmount = backUnbackedAmount + portalFee;
 
-      // TODO should emit an event to notify we are paying less than we should?
+      emit AavePortalRepaymentDebt(transferId, adopted, backUnbackedDebt, portalFeeDebt);
     }
 
     return (totalRepayAmount, backUnbackedAmount, portalFee);
