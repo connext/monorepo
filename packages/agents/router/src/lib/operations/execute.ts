@@ -38,15 +38,19 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, transferId, xcall } = params;
+  const {
+    origin: { domain: originDomain, xcall, assets },
+    destination: { domain: destinationDomain },
+    transferId,
+  } = params;
   if (!xcall) {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
-  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
+  const executeLocalAsset = await getDestinationLocalAsset(originDomain, assets!.bridgedAsset, destinationDomain);
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
-  const receivingAmount = xcall.localAmount;
+  const receivingAmount = assets!.bridgedAmount;
 
   // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
