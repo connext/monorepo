@@ -263,6 +263,15 @@ library ConnextLogic {
   event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
 
   /**
+   * @notice Emitted when a router used Aave Portal liquidity for fast transfer
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param router - The authorized router that used Aave Portal liquidity
+   * @param asset - The asset that was provided by Aave Portal
+   * @param amount - The amount of asset that was provided by Aave Portal
+   */
+  event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
+
+  /**
    * @notice Emitted when executed a Portal repayment
    * @param transferId - The unique identifier of the crosschain transaction
    * @param asset - The asset that was repaid
@@ -1160,15 +1169,11 @@ library ConnextLogic {
       _routedTransfers[_transferId] = _args.executeArgs.routers;
 
       // If router does not have enough liquidity, try to use Aave Portals
-      // TODO: check if this is the correct way to do this. Assumes 1 router
-      // Other option: In case of several routers, if one of them doesn't have enough liquidity,
-      // any of them would provide liquidity at all if taken from Aave Portals
       if (
         vars.pathLen == 1 &&
         _routerBalances[_args.executeArgs.routers[0]][_args.executeArgs.local] < vars.fastTransferAmount &&
         _args.aavePool != address(0)
       ) {
-        // TODO: check if this is the correct way to do this. Assumes 1 router
         if (!_approvedForPortalRouters[_args.executeArgs.routers[0]])
           revert ConnextLogic__execute_notApprovedForPortals();
 
@@ -1234,7 +1239,7 @@ library ConnextLogic {
 
     _aavePortalsTransfers[_transferId] = userAmount;
 
-    // TODO should emit an event?
+    emit AavePortalMintUnbacked(_transferId, _args.executeArgs.routers[0], adopted, userAmount);
 
     return (userAmount, adopted);
   }
