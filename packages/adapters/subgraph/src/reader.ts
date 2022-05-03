@@ -229,7 +229,7 @@ export class SubgraphReader {
   }
 
   /**
-   * Retrieves the transaction status across all the chains
+   * Gets all the destination transfers across all the chains
    * @param transfers - The xtransfers you're going to get the status for
    * @returns Executed/Reconciled xtransfers
    */

@@ -237,7 +237,7 @@ export const getDestinationTransfersByIdsQuery = (txIdsByDestinationDomain: Map<
     combinedQuery += destinationTransfersByIdsQueryString(prefix, txIdsByDestinationDomain.get(destinationDomain)!);
   }
   return gql`
-    query GetExecutedAndReconciledTransfersByIds { 
+    query GetDestinationTransfers { 
         ${combinedQuery}
       }
   `;

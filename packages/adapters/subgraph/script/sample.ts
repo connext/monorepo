@@ -1,4 +1,4 @@
-import { getChainData, SubgraphQueryMetaParams, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
+import { getChainData, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 import { gql } from "graphql-request";
 
 import { SubgraphReader } from "../src/reader";
@@ -53,10 +53,16 @@ export const test = async () => {
     ),
   );
 
-  // getTransfer(domain, transferId)
+  // getOriginTransfer(domain, transferId)
   console.log(
-    await subgraphReader.getTransfer("2221", "0x75730b13a1ef662696aa50def454adfea8eb6a1d89e8bf90f2001885c7d7476e"),
+    await subgraphReader.getOriginTransfer(
+      "2221",
+      "0x75730b13a1ef662696aa50def454adfea8eb6a1d89e8bf90f2001885c7d7476e",
+    ),
   );
+
+  // getOriginTransfers(domain, fromNonce, destinationDomains)
+  console.log(await subgraphReader.getOriginTransfers("1111", 0, ["2222"]));
 
   // getXCalls(agents)
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
@@ -64,46 +70,49 @@ export const test = async () => {
   agents.set("2221", { maxBlockNumber: 31289880, latestNonce: 13 });
   console.log(await subgraphReader.getXCalls(agents));
 
-  // getTransactionsWithStatuses(agents, status)
-  console.log(await subgraphReader.getTransactionsWithStatuses(agents, XTransferStatus.Reconciled));
-
   // getExecutedAndReconciledTransfers(transfers)
   const transfers: XTransfer[] = [
     {
-      originDomain: "2221",
-      destinationDomain: "1111",
-      status: XTransferStatus.XCalled,
+      origin: {
+        domain: "2221",
+      },
+      destination: {
+        domain: "1111",
+      },
       to: "0x28a36878c0be1343283e4ad6a2bf178a5737e864",
       transferId: "0xd81190d9d8692f56607b88acc31e21ce25fb3b5378d11d2b1596965766639457",
       callData: "0x",
       idx: undefined,
       nonce: 13,
-      routers: [],
     },
     {
-      originDomain: "2221",
-      destinationDomain: "1111",
-      status: XTransferStatus.XCalled,
+      origin: {
+        domain: "2221",
+      },
+      destination: {
+        domain: "1111",
+      },
       to: "0x28a36878c0be1343283e4ad6a2bf178a5737e864",
       transferId: "0x41d57cb2528103379f476ff8797f468610a046935b38c9b15b2647d639985473",
       callData: "0x",
       idx: undefined,
       nonce: 13,
-      routers: [],
     },
     {
-      originDomain: "1111",
-      destinationDomain: "2221",
-      status: XTransferStatus.XCalled,
+      origin: {
+        domain: "1111",
+      },
+      destination: {
+        domain: "2221",
+      },
       to: "0x28a36878c0be1343283e4ad6a2bf178a5737e864",
       transferId: "0xb438cae3d126e1d2a5e02b34829130b49279230e14c03ab69795275f625bb0fd",
       callData: "0x",
       idx: undefined,
       nonce: 13,
-      routers: [],
     },
   ];
-  console.log(await subgraphReader.getExecutedAndReconciledTransfers(transfers));
+  console.log(await subgraphReader.getDestinationTransfers(transfers));
 };
 
 test();
