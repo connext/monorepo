@@ -77,13 +77,13 @@ export function handleAssetAdded(event: AssetAdded): void {
   let asset = Asset.load(assetId);
   if (asset == null) {
     asset = new Asset(assetId);
-    asset.local = event.params.supportedAsset;
-    asset.adoptedAsset = event.params.adoptedAsset;
-    asset.canonicalId = event.params.canonicalId;
-    asset.canonicalDomain = event.params.domain;
-    asset.blockNumber = event.block.number;
-    asset.save();
   }
+  asset.local = event.params.supportedAsset;
+  asset.adoptedAsset = event.params.adoptedAsset;
+  asset.canonicalId = event.params.canonicalId;
+  asset.canonicalDomain = event.params.domain;
+  asset.blockNumber = event.block.number;
+  asset.save();
 }
 
 /**

@@ -793,23 +793,27 @@ describe("Integration:E2E", () => {
       let reconciled = false;
       for (i = 0; i < attempts; i++) {
         await delay(SUBG_POLL_PARITY);
-        const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-        if (result.transfers.length === 1) {
-          const _transfer = parseXTransfer(result.transfers[0]);
-          transfer = {
-            ..._transfer,
-            xcall: transfer?.xcall,
-          };
-          // The transfer may have been reconciled, but not executed. Double check here.
-          if (transfer.execute?.transactionHash) {
-            break;
-          } else if (transfer.reconcile?.transactionHash && !reconciled) {
-            reconciled = true;
-            log.info("Transfer was reconciled.", {
-              domain: domainInfo.DESTINATION,
-              hash: transfer.reconcile.transactionHash,
-            });
+        try {
+          const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
+          if (result.transfers.length === 1) {
+            const _transfer = parseXTransfer(result.transfers[0]);
+            transfer = {
+              ..._transfer,
+              xcall: transfer?.xcall,
+            };
+            // The transfer may have been reconciled, but not executed. Double check here.
+            if (transfer.execute?.transactionHash) {
+              break;
+            } else if (transfer.reconcile?.transactionHash && !reconciled) {
+              reconciled = true;
+              log.info("Transfer was reconciled.", {
+                domain: domainInfo.DESTINATION,
+                hash: transfer.reconcile.transactionHash,
+              });
+            }
           }
+        } catch (e: unknown) {
+          console.log(e, (e as any).errors);
         }
       }
 
