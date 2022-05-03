@@ -6,6 +6,7 @@ export enum XTransferStatus {
   XCalled = "XCalled",
   Executed = "Executed",
   Reconciled = "Reconciled",
+  Completed = "Completed",
   Failed = "Failed",
 }
 

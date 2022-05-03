@@ -232,7 +232,7 @@ export class SubgraphReader {
     });
 
     // create array of all transactions by status
-    return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
+    return [...allTxById.values()];
   }
 
   /**
