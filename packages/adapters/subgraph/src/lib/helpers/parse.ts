@@ -3,69 +3,141 @@ import { BigNumber } from "ethers";
 import { getHelpers } from ".";
 import { getContext } from "../../reader";
 
-export const xtransfer = (subgEntity: any): XTransfer => {
+// Used for sanity checking: must have these fields to be identified as a Transfer entity.
+export const TRANSFER_ENTITY_REQUIREMENTS = [
+  "transferId",
+  "nonce",
+  "to",
+  "callData",
+  "originDomain",
+  "destinationDomain",
+];
+
+export const transferEntitySanityCheck = (entity: any) => {
+  if (!entity) {
+    throw new Error("Subgraph entity parser: Transfer entity is `undefined`.");
+  }
+  for (const field of TRANSFER_ENTITY_REQUIREMENTS) {
+    if (!entity[field]) {
+      throw new Error(`Subgraph entity parser: Transfer entity missing required field: ${field}`);
+    }
+  }
+};
+
+export const originTransfer = (entity: any): XTransfer => {
+  transferEntitySanityCheck(entity);
   return {
-    // Meta
-    originDomain: subgEntity.originDomain,
-    destinationDomain: subgEntity.destinationDomain,
-    status: subgEntity.status,
-    // Transfer Data
-    to: subgEntity.to,
-    transferId: subgEntity.transferId,
-    callData: subgEntity.callData,
-    idx: subgEntity.idx ? subgEntity.idx : undefined,
-    nonce: BigNumber.from(subgEntity.nonce ?? "0").toNumber(),
-    routers:
-      subgEntity.routers && subgEntity.routers.length > 0
-        ? subgEntity.routers.map((router: any) => router.id)
+    // Meta Data
+    idx: entity.idx ? entity.idx : undefined,
+    transferId: entity.transferId,
+    nonce: BigNumber.from(entity.nonce ?? "0").toNumber(),
+
+    // Call Params
+    to: entity.to,
+    callData: entity.callData,
+
+    // Origin Info
+    origin: {
+      domain: entity.originDomain,
+
+      // Assets
+      assets: {
+        transactingAsset: entity.transactingAsset,
+        transactingAmount: entity.transactingAmount,
+        bridgedAsset: entity.bridgedAsset,
+        bridgedAmount: entity.bridgedAmount,
+      },
+
+      // XCall
+      xcall: {
+        // Event Data
+        relayerFee: entity.relayerFee,
+        // Transaction Data
+        caller: entity.xcalledCaller,
+        transactionHash: entity.xcalledTransactionHash,
+        timestamp: BigNumber.from(entity.xcalledTimestamp ?? "0").toNumber(),
+        gasPrice: entity.xcalledGasPrice,
+        gasLimit: entity.xcalledGasLimit,
+        blockNumber: BigNumber.from(entity.xcalledBlockNumber ?? "0").toNumber(),
+      },
+    },
+
+    // Destination Info
+    destination: {
+      domain: entity.destinationDomain,
+
+      status: undefined,
+      assets: undefined,
+      execute: undefined,
+      reconcile: undefined,
+    },
+  };
+};
+
+export const destinationTransfer = (entity: any): XTransfer => {
+  transferEntitySanityCheck(entity);
+  return {
+    // Meta Data
+    idx: entity.idx ? entity.idx : undefined,
+    transferId: entity.transferId,
+    nonce: BigNumber.from(entity.nonce ?? "0").toNumber(),
+
+    // Call Params
+    to: entity.to,
+    callData: entity.callData,
+
+    // Origin Info
+    origin: {
+      domain: entity.originDomain,
+
+      assets: undefined,
+      xcall: undefined,
+    },
+
+    // Destination Info
+    destination: {
+      domain: entity.destinationDomain,
+
+      // Status (Executed | Reconciled | Completed)
+      status: entity.status,
+
+      // Assets
+      assets: {
+        transactingAmount: entity.transactingAmount,
+        transactingAsset: entity.transactingAsset,
+        localAmount: entity.localAmount,
+        localAsset: entity.localAsset,
+      },
+
+      // Execute
+      execute: entity.executedTransactionHash
+        ? {
+            // Event Data
+            routers: entity.routers,
+            originSender: entity.originSender,
+            // Transaction Data
+            caller: entity.executedCaller,
+            transactionHash: entity.executedTransactionHash,
+            timestamp: BigNumber.from(entity.executedTimestamp ?? "0").toNumber(),
+            gasPrice: entity.executedGasPrice,
+            gasLimit: entity.executedGasLimit,
+            blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
+          }
         : undefined,
-    relayerFee: subgEntity.relayerFee,
 
-    // XCall
-    xcall: subgEntity.xcalledTransactionHash
-      ? {
-          caller: subgEntity.xcalledCaller,
-          transferringAmount: subgEntity.xcalledTransactingAmount,
-          localAmount: subgEntity.xcalledLocalAmount,
-          transferringAsset: subgEntity.xcalledTransactingAsset,
-          localAsset: subgEntity.xcalledLocalAsset,
-          transactionHash: subgEntity.xcalledTransactionHash,
-          timestamp: BigNumber.from(subgEntity.xcalledTimestamp ?? "0").toNumber(),
-          gasPrice: subgEntity.xcalledGasPrice,
-          gasLimit: subgEntity.xcalledGasLimit,
-          blockNumber: BigNumber.from(subgEntity.xcalledBlockNumber ?? "0").toNumber(),
-        }
-      : undefined,
-
-    execute: subgEntity.executedTransactionHash
-      ? {
-          caller: subgEntity.executedCaller,
-          transferringAmount: subgEntity.executedTransactingAmount,
-          localAmount: subgEntity.executedLocalAmount,
-          transferringAsset: subgEntity.executedTransactingAsset,
-          localAsset: subgEntity.executedLocalAsset,
-          transactionHash: subgEntity.executedTransactionHash,
-          timestamp: BigNumber.from(subgEntity.executedTimestamp ?? "0").toNumber(),
-          gasPrice: subgEntity.executedGasPrice,
-          gasLimit: subgEntity.executedGasLimit,
-          blockNumber: BigNumber.from(subgEntity.executedBlockNumber ?? "0").toNumber(),
-        }
-      : undefined,
-
-    reconcile: subgEntity.reconciledTransactionHash
-      ? {
-          caller: subgEntity.reconciledCaller,
-          transferringAmount: subgEntity.reconciledTransactingAmount,
-          localAmount: subgEntity.reconciledLocalAmount,
-          transferringAsset: subgEntity.reconciledTransactingAsset,
-          localAsset: subgEntity.reconciledLocalAsset,
-          transactionHash: subgEntity.reconciledTransactionHash,
-          timestamp: BigNumber.from(subgEntity.reconciledTimestamp ?? "0").toNumber(),
-          gasPrice: subgEntity.reconciledGasPrice,
-          gasLimit: subgEntity.reconciledGasLimit,
-          blockNumber: BigNumber.from(subgEntity.reconciledBlockNumber ?? "0").toNumber(),
-        }
-      : undefined,
+      // Reconcile
+      reconcile: entity.reconciledTransactionHash
+        ? {
+            // Transaction Data
+            caller: entity.reconciledCaller,
+            transactionHash: entity.reconciledTransactionHash,
+            timestamp: BigNumber.from(entity.reconciledTimestamp ?? "0").toNumber(),
+            gasPrice: entity.reconciledGasPrice,
+            gasLimit: entity.reconciledGasLimit,
+            blockNumber: BigNumber.from(entity.reconciledBlockNumber ?? "0").toNumber(),
+          }
+        : undefined,
+    },
   };
 };
 
