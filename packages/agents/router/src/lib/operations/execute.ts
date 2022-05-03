@@ -38,15 +38,19 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, transferId, xcall } = params;
-  if (!xcall) {
+  const { origin, destination, transferId } = params;
+  if (!origin.xcall || !origin.assets) {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
-  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
+  const executeLocalAsset = await getDestinationLocalAsset(
+    origin.domain,
+    origin.assets?.bridgedAsset,
+    destination.domain,
+  );
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
-  const receivingAmount = xcall.localAmount;
+  const receivingAmount = origin.assets.bridgedAmount;
 
   // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
@@ -62,7 +66,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   });
 
   // sanity check
-  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  const balance = await subgraph.getAssetBalance(destination.domain, routerAddress, executeLocalAsset);
   if (balance.lt(receivingAmount)) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
@@ -74,7 +78,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
     transferId,
-    origin: originDomain,
+    origin: origin.domain,
     router: routerAddress.toLowerCase(),
     fee,
     signatures,

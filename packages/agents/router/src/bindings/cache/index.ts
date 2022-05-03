@@ -69,7 +69,7 @@ export const pollCache = async () => {
           },
         );
         continue;
-      } else if (!transfer.xcall) {
+      } else if (!transfer.origin.xcall) {
         // Sanity check: this transfer should never have been labeled as pending.
         logger.warn(
           "Error retrieving pending transfer from cache : XCall not defined!",
@@ -81,7 +81,7 @@ export const pollCache = async () => {
           },
         );
         continue;
-      } else if (transfer.execute?.transactionHash || transfer.reconcile?.transactionHash) {
+      } else if (transfer.destination.execute?.transactionHash || transfer.destination.reconcile?.transactionHash) {
         // Transfer has already been processed, so skip it. This is possible if the transfer was just retrieved asynchronously
         // via subgraph polling in a separate thread.
         continue;
@@ -105,7 +105,7 @@ export const pollCache = async () => {
             logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
               domain,
               transferId,
-              xcall: transfer.xcall,
+              xcall: transfer.origin.xcall,
             });
           }
         }
