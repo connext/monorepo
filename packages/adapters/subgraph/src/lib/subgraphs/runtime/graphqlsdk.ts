@@ -175,7 +175,6 @@ export type DestinationTransfer = {
   callData?: Maybe<Scalars['Bytes']>;
   chainId?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  executedAmount?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
   executedCaller?: Maybe<Scalars['Bytes']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
@@ -183,12 +182,11 @@ export type DestinationTransfer = {
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedTransactionHash?: Maybe<Scalars['Bytes']>;
   id: Scalars['ID'];
+  localAmount?: Maybe<Scalars['BigInt']>;
   localAsset?: Maybe<Scalars['Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   originSender?: Maybe<Scalars['Bytes']>;
-  reconciledAmount?: Maybe<Scalars['BigInt']>;
-  reconciledAsset?: Maybe<Scalars['Bytes']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
   reconciledCaller?: Maybe<Scalars['Bytes']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
@@ -237,14 +235,6 @@ export type DestinationTransfer_Filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedAmount?: InputMaybe<Scalars['BigInt']>;
-  executedAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  executedAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  executedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  executedAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  executedAmount_not?: InputMaybe<Scalars['BigInt']>;
-  executedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
@@ -297,6 +287,14 @@ export type DestinationTransfer_Filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  localAmount?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   localAsset?: InputMaybe<Scalars['Bytes']>;
   localAsset_contains?: InputMaybe<Scalars['Bytes']>;
   localAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -325,20 +323,6 @@ export type DestinationTransfer_Filter = {
   originSender_not?: InputMaybe<Scalars['Bytes']>;
   originSender_not_contains?: InputMaybe<Scalars['Bytes']>;
   originSender_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledAmount?: InputMaybe<Scalars['BigInt']>;
-  reconciledAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledAmount_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledAsset?: InputMaybe<Scalars['Bytes']>;
-  reconciledAsset_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledAsset_not?: InputMaybe<Scalars['Bytes']>;
-  reconciledAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
@@ -425,7 +409,6 @@ export enum DestinationTransfer_OrderBy {
   CallData = 'callData',
   ChainId = 'chainId',
   DestinationDomain = 'destinationDomain',
-  ExecutedAmount = 'executedAmount',
   ExecutedBlockNumber = 'executedBlockNumber',
   ExecutedCaller = 'executedCaller',
   ExecutedGasLimit = 'executedGasLimit',
@@ -433,12 +416,11 @@ export enum DestinationTransfer_OrderBy {
   ExecutedTimestamp = 'executedTimestamp',
   ExecutedTransactionHash = 'executedTransactionHash',
   Id = 'id',
+  LocalAmount = 'localAmount',
   LocalAsset = 'localAsset',
   Nonce = 'nonce',
   OriginDomain = 'originDomain',
   OriginSender = 'originSender',
-  ReconciledAmount = 'reconciledAmount',
-  ReconciledAsset = 'reconciledAsset',
   ReconciledBlockNumber = 'reconciledBlockNumber',
   ReconciledCaller = 'reconciledCaller',
   ReconciledGasLimit = 'reconciledGasLimit',
@@ -461,7 +443,6 @@ export enum OrderDirection {
 
 export type OriginTransfer = {
   __typename?: 'OriginTransfer';
-  amount?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
   bridgedAmount?: Maybe<Scalars['BigInt']>;
   bridgedAsset?: Maybe<Scalars['Bytes']>;
@@ -478,6 +459,7 @@ export type OriginTransfer = {
   relayerFee?: Maybe<Scalars['BigInt']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   to?: Maybe<Scalars['Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
   transactingAsset?: Maybe<Scalars['Bytes']>;
   transactionHash?: Maybe<Scalars['Bytes']>;
   transferId?: Maybe<Scalars['Bytes']>;
@@ -486,14 +468,6 @@ export type OriginTransfer = {
 export type OriginTransfer_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
@@ -612,6 +586,14 @@ export type OriginTransfer_Filter = {
   to_not?: InputMaybe<Scalars['Bytes']>;
   to_not_contains?: InputMaybe<Scalars['Bytes']>;
   to_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactingAsset?: InputMaybe<Scalars['Bytes']>;
   transactingAsset_contains?: InputMaybe<Scalars['Bytes']>;
   transactingAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
@@ -633,7 +615,6 @@ export type OriginTransfer_Filter = {
 };
 
 export enum OriginTransfer_OrderBy {
-  Amount = 'amount',
   BlockNumber = 'blockNumber',
   BridgedAmount = 'bridgedAmount',
   BridgedAsset = 'bridgedAsset',
@@ -650,6 +631,7 @@ export enum OriginTransfer_OrderBy {
   RelayerFee = 'relayerFee',
   Timestamp = 'timestamp',
   To = 'to',
+  TransactingAmount = 'transactingAmount',
   TransactingAsset = 'transactingAsset',
   TransactionHash = 'transactionHash',
   TransferId = 'transferId'
@@ -996,14 +978,14 @@ export type GetOriginTransfersQueryVariables = Exact<{
 }>;
 
 
-export type GetOriginTransfersQuery = { __typename?: 'Query', originTransfers: Array<{ __typename?: 'OriginTransfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, transferId?: any | null, to?: any | null, nonce?: any | null, callData?: any | null, transactingAsset?: any | null, bridgedAsset?: any | null, amount?: any | null, bridgedAmount?: any | null, relayerFee?: any | null, caller?: any | null, message?: any | null, transactionHash?: any | null, timestamp?: any | null, gasPrice?: any | null, gasLimit?: any | null, blockNumber?: any | null }> };
+export type GetOriginTransfersQuery = { __typename?: 'Query', originTransfers: Array<{ __typename?: 'OriginTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, bridgedAsset?: any | null, bridgedAmount?: any | null, relayerFee?: any | null, message?: any | null, caller?: any | null, transactionHash?: any | null, timestamp?: any | null, gasPrice?: any | null, gasLimit?: any | null, blockNumber?: any | null }> };
 
 export type GetOriginTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
 }>;
 
 
-export type GetOriginTransfersByIdsQuery = { __typename?: 'Query', originTransfers: Array<{ __typename?: 'OriginTransfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, transferId?: any | null, to?: any | null, nonce?: any | null, callData?: any | null, transactingAsset?: any | null, bridgedAsset?: any | null, amount?: any | null, bridgedAmount?: any | null, relayerFee?: any | null, caller?: any | null, message?: any | null, transactionHash?: any | null, timestamp?: any | null, gasPrice?: any | null, gasLimit?: any | null, blockNumber?: any | null }> };
+export type GetOriginTransfersByIdsQuery = { __typename?: 'Query', originTransfers: Array<{ __typename?: 'OriginTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, bridgedAsset?: any | null, bridgedAmount?: any | null, relayerFee?: any | null, message?: any | null, caller?: any | null, transactionHash?: any | null, timestamp?: any | null, gasPrice?: any | null, gasLimit?: any | null, blockNumber?: any | null }> };
 
 export type GetDestinationTransfersQueryVariables = Exact<{
   originDomain: Scalars['BigInt'];
@@ -1013,7 +995,7 @@ export type GetDestinationTransfersQueryVariables = Exact<{
 }>;
 
 
-export type GetDestinationTransfersQuery = { __typename?: 'Query', destinationTransfers: Array<{ __typename?: 'DestinationTransfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, transferId?: any | null, to?: any | null, nonce?: any | null, callData?: any | null, localAsset?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, originSender?: any | null, executedCaller?: any | null, executedAmount?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledAsset?: any | null, reconciledAmount?: any | null, reconciledCaller?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
+export type GetDestinationTransfersQuery = { __typename?: 'Query', destinationTransfers: Array<{ __typename?: 'DestinationTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, localAsset?: any | null, localAmount?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, status?: TransferStatus | null, originSender?: any | null, executedCaller?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetDestinationTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
@@ -1023,7 +1005,7 @@ export type GetDestinationTransfersByIdsQueryVariables = Exact<{
 }>;
 
 
-export type GetDestinationTransfersByIdsQuery = { __typename?: 'Query', destinationTransfers: Array<{ __typename?: 'DestinationTransfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, transferId?: any | null, to?: any | null, nonce?: any | null, callData?: any | null, localAsset?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, originSender?: any | null, executedCaller?: any | null, executedAmount?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledAsset?: any | null, reconciledAmount?: any | null, reconciledCaller?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
+export type GetDestinationTransfersByIdsQuery = { __typename?: 'Query', destinationTransfers: Array<{ __typename?: 'DestinationTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, localAsset?: any | null, localAmount?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, status?: TransferStatus | null, originSender?: any | null, executedCaller?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetAssetByLocalQueryVariables = Exact<{
   local: Scalars['Bytes'];
@@ -1069,20 +1051,20 @@ export const GetOriginTransfersDocument = gql`
     orderDirection: desc
   ) {
     id
-    originDomain
-    destinationDomain
     chainId
     transferId
-    to
     nonce
+    to
     callData
+    originDomain
+    destinationDomain
     transactingAsset
+    transactingAmount
     bridgedAsset
-    amount
     bridgedAmount
     relayerFee
-    caller
     message
+    caller
     transactionHash
     timestamp
     gasPrice
@@ -1095,20 +1077,20 @@ export const GetOriginTransfersByIdsDocument = gql`
     query GetOriginTransfersByIds($transferIds: [Bytes!]) {
   originTransfers(where: {transferId_in: $transferIds}) {
     id
-    originDomain
-    destinationDomain
     chainId
     transferId
-    to
     nonce
+    to
     callData
+    originDomain
+    destinationDomain
     transactingAsset
+    transactingAmount
     bridgedAsset
-    amount
     bridgedAmount
     relayerFee
-    caller
     message
+    caller
     transactionHash
     timestamp
     gasPrice
@@ -1125,30 +1107,28 @@ export const GetDestinationTransfersDocument = gql`
     orderDirection: desc
   ) {
     id
+    chainId
+    transferId
+    nonce
+    to
+    callData
     originDomain
     destinationDomain
-    chainId
-    status
-    transferId
-    to
-    nonce
-    callData
     localAsset
+    localAmount
+    transactingAsset
+    transactingAmount
+    status
     routers {
       id
     }
-    transactingAsset
-    transactingAmount
     originSender
     executedCaller
-    executedAmount
     executedTransactionHash
     executedTimestamp
     executedGasPrice
     executedGasLimit
     executedBlockNumber
-    reconciledAsset
-    reconciledAmount
     reconciledCaller
     reconciledTransactionHash
     reconciledTimestamp
@@ -1164,30 +1144,28 @@ export const GetDestinationTransfersByIdsDocument = gql`
     where: {transferId_in: $transferIds, executedBlockNumber_lte: $maxExecutedBlockNumber, reconciledBlockNumber_lte: $maxReconciledBlockNumber, status: $status}
   ) {
     id
+    chainId
+    transferId
+    nonce
+    to
+    callData
     originDomain
     destinationDomain
-    chainId
-    status
-    transferId
-    to
-    nonce
-    callData
     localAsset
+    localAmount
+    transactingAsset
+    transactingAmount
+    status
     routers {
       id
     }
-    transactingAsset
-    transactingAmount
     originSender
     executedCaller
-    executedAmount
     executedTransactionHash
     executedTimestamp
     executedGasPrice
     executedGasLimit
     executedBlockNumber
-    reconciledAsset
-    reconciledAmount
     reconciledCaller
     reconciledTransactionHash
     reconciledTimestamp
