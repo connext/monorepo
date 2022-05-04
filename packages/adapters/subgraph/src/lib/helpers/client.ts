@@ -2,6 +2,7 @@
 import { getBuiltGraphClient } from "./shared";
 
 import { getHelpers } from ".";
+import { RuntimeError } from "../errors";
 
 /**
  * Executes queries with `variables`
@@ -13,9 +14,11 @@ export const execute = async (document: any, variables = {}): Promise<Map<string
   try {
     const { execute } = await getBuiltGraphClient();
     const { parser } = getHelpers();
+
+    // TODO: Document needs to be validated before it gets executed.
     const response = await execute(document, variables);
     return parser.xquery(response);
   } catch (e: any) {
-    throw new Error(`Running a query failed, err: ${e}`);
+    throw new RuntimeError({ document, variables, e });
   }
 };

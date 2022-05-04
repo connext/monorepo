@@ -2,6 +2,7 @@ import { NxtpError, DestinationTransfer, OriginTransfer } from "@connext/nxtp-ut
 import { BigNumber } from "ethers";
 
 import { getHelpers } from ".";
+import { XQueryResultParseError } from "../errors";
 
 // Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.
 export const SHARED_TRANSFER_ENTITY_REQUIREMENTS = ["transferId"];
@@ -204,6 +205,6 @@ export const xquery = (response: any): Map<string, any[]> => {
 
     return result;
   } else {
-    throw new Error(`Parsing subgraph response failed!`);
+    throw new XQueryResultParseError({ response });
   }
 };
