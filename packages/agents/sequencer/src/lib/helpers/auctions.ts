@@ -7,7 +7,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: s
     adapters: { contracts },
   } = getContext();
   // Sanity check.
-  if (!transfer.origin.xcall) {
+  if (!transfer.origin.xcall || !transfer.origin.assets) {
     throw new Error("XTransfer provided did not have XCall present!");
   }
 
@@ -22,9 +22,9 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: s
     local,
     routers: bids.map((b) => b.router),
     routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-    amount: transfer.origin.assets!.bridgedAmount,
+    amount: transfer.origin.assets.bridgedAmount,
     nonce: transfer.nonce,
-    originSender: transfer.origin.xcall!.caller,
+    originSender: transfer.origin.xcall.caller,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);
 };

@@ -18,7 +18,10 @@ import {
 } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { xtransfer as parseXTransfer } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
+import {
+  originTransfer as parseOriginTransfer,
+  destinationTransfer as parseDestinationTransfer,
+} from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
 
 import {
   DomainInfo,
@@ -698,7 +701,7 @@ describe("Integration:E2E", () => {
       const startTime = Date.now();
       const response = await subgraph.query(query);
       const transfers = [...response.values()][0][0];
-      if (transfers.length == 1) transfer = parseXTransfer(transfers[0]);
+      if (transfers.length == 1) transfer = parseOriginTransfer(transfers[0]);
       const endTime = Date.now();
       if (!transfer) {
         log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
@@ -772,19 +775,17 @@ describe("Integration:E2E", () => {
       const startTime = Date.now();
       const response = await subgraph.query(query);
       const transfers = [...response.values()][0][0];
-      if (transfers.length == 1) transfer = parseXTransfer(transfers[0]);
+      if (transfers.length == 1) transfer = parseDestinationTransfer(transfers[0]);
       const endTime = Date.now();
-      if (!transfer.execute?.transactionHash) {
-        log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
+      if (transfer.destination.reconcile?.transactionHash) {
+        log.info("Transfer was reconciled.", {
           domain: domainInfo.DESTINATION,
-          etc: {
-            polled: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
-          },
+          hash: transfer.destination.reconcile.transactionHash,
         });
       }
       log.info("Execute transaction found.", {
         domain: domainInfo.DESTINATION,
-        hash: transfer.execute?.transactionHash,
+        hash: transfer.destination.execute?.transactionHash,
         etc: {
           took: `~${(endTime - startTime) / 1_000}s`,
         },
@@ -793,7 +794,10 @@ describe("Integration:E2E", () => {
       log.info("Transfer completed successfully!", {
         domain: domainInfo.DESTINATION,
         etc: {
-          locallyExecuted: agents.router && transfer.routers && transfer.routers.includes(agents.router.address),
+          locallyExecuted:
+            agents.router &&
+            transfer.destination.execute!.routers &&
+            transfer.destination.execute!.routers.includes(agents.router.address),
           transfer,
         },
       });

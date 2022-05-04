@@ -28,17 +28,17 @@ describe("Helpers:Auctions", () => {
       const bids: Bid[] = [mock.entity.bid()];
       const expectedArgs: ExecuteArgs = {
         params: {
-          originDomain: transfer.originDomain,
-          destinationDomain: transfer.destinationDomain,
+          originDomain: transfer.origin.domain,
+          destinationDomain: transfer.destination.domain,
           to: transfer.to,
           callData: transfer.callData,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-        amount: transfer.xcall.localAmount,
+        amount: transfer.origin.assets.bridgedAmount,
         nonce: transfer.nonce,
-        originSender: transfer.xcall.caller,
+        originSender: transfer.origin.xcall.caller,
       };
 
       const encoded = encodeExecuteFromBids(bids, transfer, mockLocalAsset);
@@ -48,7 +48,7 @@ describe("Helpers:Auctions", () => {
 
     it("should throw if no xcall", () => {
       const transfer: XTransfer = mock.entity.xtransfer();
-      transfer.xcall = undefined;
+      transfer.origin.xcall = undefined;
       const bids: Bid[] = [mock.entity.bid()];
 
       expect(() => encodeExecuteFromBids(bids, transfer, mockLocalAsset)).to.throw();

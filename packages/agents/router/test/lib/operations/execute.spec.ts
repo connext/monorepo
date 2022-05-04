@@ -8,7 +8,9 @@ import { mock, stubContext, stubHelpers } from "../../mock";
 const { execute } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockXTransfer: XTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockXTransfer: XTransfer = mock.entity.xtransfer({
+  amount: mockTransactingAmount.toString(),
+});
 const mockRouter: string = mock.address.router;
 
 describe("Operations:Execute", () => {
@@ -32,7 +34,7 @@ describe("Operations:Execute", () => {
     it("happy", async () => {
       const expectedBid: Bid = {
         transferId: mockXTransfer.transferId,
-        origin: mockXTransfer.originDomain,
+        origin: mockXTransfer.origin.domain,
         fee: DEFAULT_ROUTER_FEE,
         router: mockRouter,
         signatures: {
@@ -48,9 +50,9 @@ describe("Operations:Execute", () => {
         mockFulfillLocalAsset,
       );
       expect(mock.helpers.shared.getDestinationLocalAsset).to.be.calledOnceWithExactly(
-        mockXTransfer.originDomain,
-        mockXTransfer.xcall.localAsset,
-        mockXTransfer.destinationDomain,
+        mockXTransfer.origin.domain,
+        mockXTransfer.origin.assets?.bridgedAsset,
+        mockXTransfer.destination.domain,
       );
       expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
       expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
@@ -73,7 +75,10 @@ describe("Operations:Execute", () => {
       await expect(
         execute({
           ...mockXTransfer,
-          xcall: undefined,
+          origin: {
+            ...mockXTransfer.origin,
+            xcall: undefined,
+          },
         }),
       ).to.be.rejectedWith(MissingXCall);
     });

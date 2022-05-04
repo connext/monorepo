@@ -53,9 +53,9 @@ export default task("enroll-custom", "Ensures a local address exists for the giv
       console.log("token registry owner:", owner);
       console.log("token registry beacon:", await tokenRegistry.tokenBeacon());
 
-      if (deployer.address !== owner) {
-        throw new Error("deployer is not owner");
-      }
+      // if (deployer.address !== owner) {
+      //   throw new Error("deployer is not owner");
+      // }
       const canonicalTokenId = {
         id: hexlify(canonizeId(canonical)),
         domain: +domain,

@@ -6,21 +6,21 @@ import { StoreChannel, SubscriptionCallback } from "../../../src/lib/entities";
 const logger = new Logger({ level: "debug" });
 const RedisMock = require("ioredis-mock");
 let consumers: ConsumersCache;
-let auctions: AuctionsCache;
 let transactions: TransfersCache;
 
 const fakeTxs = [
-  mock.entity.xtransfer("1000", "2000"),
-  mock.entity.xtransfer(
-    "1000",
-    "2000",
-    "1000",
-    XTransferStatus.XCalled,
-    mkAddress("0xaaa"),
-    getRandomBytes32(),
-    5555,
-    mkAddress("0xa"),
-  ),
+  mock.entity.xtransfer({
+    originDomain: "1000",
+    destinationDomain: "2000",
+  }),
+  mock.entity.xtransfer({
+    originDomain: "1000",
+    destinationDomain: "2000",
+    amount: "1000",
+    nonce: 5555,
+    asset: mkAddress("0xaaa"),
+    user: mkAddress("0xa"),
+  }),
 ];
 
 let callCountForHighestNonce = 0;
@@ -42,7 +42,6 @@ describe("ConsumersCache", () => {
     });
 
     consumers = new ConsumersCache({ host: "mock", port: 1234, mock: true, logger });
-    auctions = new AuctionsCache({ host: "mock", port: 1234, mock: true, logger });
     transactions = new TransfersCache({ host: "mock", port: 1234, mock: true, logger });
   });
 

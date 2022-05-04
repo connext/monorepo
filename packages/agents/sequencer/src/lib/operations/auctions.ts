@@ -51,10 +51,10 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Check to see if we have the XCall data saved locally for this.
   let transfer = await cache.transfers.getTransfer(transferId);
-  if (!transfer || !transfer.xcall) {
+  if (!transfer || !transfer.origin.xcall) {
     // Get the XCall from the subgraph for this transfer.
     transfer = await subgraph.getOriginTransfer(origin, transferId);
-    if (!transfer || !transfer.xcall) {
+    if (!transfer || !transfer.origin.xcall) {
       // Router shouldn't be bidding on a transfer that doesn't exist.
       throw new MissingXCall(origin, transferId, {
         bid,
@@ -65,7 +65,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     await cache.transfers.storeTransfers([transfer]);
   }
 
-  if (transfer.execute || transfer.reconcile) {
+  if (transfer.destination.execute || transfer.destination.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
     throw new AuctionExpired(status, {
       transferId,
@@ -76,8 +76,8 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   // Update and/or create the auction instance in the cache if necessary.
   const res = await cache.auctions.upsertAuction({
     transferId,
-    origin: transfer.originDomain,
-    destination: transfer.destinationDomain,
+    origin: transfer.origin.domain,
+    destination: transfer.destination.domain,
     bid,
   });
   logger.info("Updated auction", requestContext, methodContext, {
@@ -162,7 +162,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             bids,
           });
           continue;
-        } else if (!transfer.xcall || !transfer.relayerFee) {
+        } else if (!transfer.origin.xcall || !transfer.origin.xcall.relayerFee || !transfer.origin.assets) {
           // TODO: Same as above!
           // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
           logger.error("XCall or Relayer Fee not found for transfer!", requestContext, methodContext, undefined, {
@@ -202,8 +202,12 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         for (const randomBid of randomized) {
           // Sanity: Check if this router has enough funds.
           const { router } = randomBid;
-          const asset = await getDestinationLocalAsset(transfer.originDomain, transfer.xcall.localAsset, destination);
-          const amount = transfer.xcall.localAmount;
+          const asset = await getDestinationLocalAsset(
+            transfer.origin.domain,
+            transfer.origin.assets.bridgedAsset,
+            destination,
+          );
+          const amount = transfer.origin.assets.bridgedAmount;
 
           let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
           if (!routerLiquidity) {
