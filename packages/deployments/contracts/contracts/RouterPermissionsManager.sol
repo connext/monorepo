@@ -56,6 +56,14 @@ abstract contract RouterPermissionsManager is Initializable {
   }
 
   /**
+   * @notice Returns wether the router is approved for portals or not
+   * @param _router The relevant router address
+   */
+  function getRouterApprovalForPortal(address _router) public view returns (bool) {
+    return routerInfo.approvedForPortalRouters[_router];
+  }
+
+  /**
    * @notice Returns the recipient for the specified router
    * @dev The recipient (if set) receives all funds when router liquidity is removed
    * @param _router The relevant router address
