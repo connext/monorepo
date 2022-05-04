@@ -1,5 +1,4 @@
 query ExampleQuery {
-  # this one is coming from compound-v2
   rinkeby_assets(first: 1) {
     id
     local

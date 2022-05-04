@@ -1,4 +1,4 @@
-import { getChainData, OriginTransfer, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
+import { getChainData, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import { gql } from "graphql-request";
 
 import { SubgraphReader } from "../src/reader";
