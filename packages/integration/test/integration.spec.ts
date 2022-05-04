@@ -798,24 +798,28 @@ describe("Integration:E2E", () => {
       let reconciled = false;
       for (i = 0; i < attempts; i++) {
         await delay(SUBG_POLL_PARITY);
-        const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-        if (result.transfers.length === 1) {
-          // Parse and then collate with the origin transfer.
-          const _transfer = parseDestinationTransfer(result.transfers[0]);
-          transfer = {
-            ..._transfer,
-            origin: transfer.origin,
-          };
-          // The transfer may have been reconciled, but not executed. Double check here.
-          if (transfer.destination.execute?.transactionHash) {
-            break;
-          } else if (transfer.destination.reconcile?.transactionHash && !reconciled) {
-            reconciled = true;
-            log.info("Transfer was reconciled.", {
-              domain: domainInfo.DESTINATION,
-              hash: transfer.destination.reconcile.transactionHash,
-            });
+        try {
+          const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
+          if (result.transfers.length === 1) {
+            // Parse and then collate with the origin transfer.
+            const _transfer = parseDestinationTransfer(result.transfers[0]);
+            transfer = {
+              ..._transfer,
+              origin: transfer.origin,
+            };
+            // The transfer may have been reconciled, but not executed. Double check here.
+            if (transfer.destination.execute?.transactionHash) {
+              break;
+            } else if (transfer.destination.reconcile?.transactionHash && !reconciled) {
+              reconciled = true;
+              log.info("Transfer was reconciled.", {
+                domain: domainInfo.DESTINATION,
+                hash: transfer.destination.reconcile.transactionHash,
+              });
+            }
           }
+        } catch (e: unknown) {
+          console.log(e, (e as any).errors);
         }
       }
 
