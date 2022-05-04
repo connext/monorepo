@@ -22,6 +22,9 @@ contract RouterPermissionsManagerTest is ForgeHelper {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
+  event RouterApprovedForPortal(address router, address caller);
+  event RouterDisapprovedForPortal(address router, address caller);
+
   // ============ Storage ============
 
   ERC1967Proxy proxy;
@@ -314,5 +317,96 @@ contract RouterPermissionsManagerTest is ForgeHelper {
 
     connext.acceptProposedRouterOwner(_router);
     assertEq(connext.getRouterOwner(_router), address(1));
+  }
+
+  // ============ approveRouterForPortal ============
+
+  function test_RouterPermissionsManager__approveRouterForPortal_works() public {
+    address _router = address(1);
+    connext.setupRouter(_router, _router, _router);
+
+    assertEq(connext.getRouterApprovalForPortal(_router), false);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterApprovedForPortal(_router, address(this));
+
+    connext.approveRouterForPortal(_router);
+
+    assertEq(connext.getRouterApprovalForPortal(_router), true);
+  }
+
+  function test_RouterPermissionsManager__approveRouterForPortal_failsIfNotOwner() public {
+    address _router = address(1);
+    connext.setupRouter(_router, _router, _router);
+
+    vm.prank(address(1));
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
+    connext.approveRouterForPortal(_router);
+  }
+
+  function test_RouterPermissionsManager__approveRouterForPortal_failsIfNotRouter() public {
+    address _router = address(1);
+
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RouterPermissionsManagerLogic.RouterPermissionsManagerLogic__approveRouterForPortal_notRouter.selector
+      )
+    );
+    connext.approveRouterForPortal(_router);
+  }
+
+  function test_RouterPermissionsManager__approveRouterForPortal_failsIfAlreadyApproved() public {
+    address _router = address(1);
+    connext.setupRouter(_router, _router, _router);
+    connext.approveRouterForPortal(_router);
+
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RouterPermissionsManagerLogic.RouterPermissionsManagerLogic__approveRouterForPortal_alreadyApproved.selector
+      )
+    );
+    connext.approveRouterForPortal(_router);
+  }
+
+  // ============ disapproveRouterForPortal ============
+
+  function test_RouterPermissionsManager__disapproveRouterForPortal_works() public {
+    address _router = address(1);
+    connext.setupRouter(_router, _router, _router);
+    connext.approveRouterForPortal(_router);
+
+    assertEq(connext.getRouterApprovalForPortal(_router), true);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterDisapprovedForPortal(_router, address(this));
+
+    connext.disapproveRouterForPortal(_router);
+
+    assertEq(connext.getRouterApprovalForPortal(_router), false);
+  }
+
+  function test_RouterPermissionsManager__disapproveRouterForPortal_failsIfNotOwner() public {
+    address _router = address(1);
+    connext.setupRouter(_router, _router, _router);
+    connext.approveRouterForPortal(_router);
+
+    vm.prank(address(1));
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
+    connext.disapproveRouterForPortal(_router);
+  }
+
+  function test_RouterPermissionsManager__disapproveRouterForPortal_failsIfNotApproved() public {
+    address _router = address(1);
+
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RouterPermissionsManagerLogic.RouterPermissionsManagerLogic__approveRouterForPortal_notApproved.selector
+      )
+    );
+    connext.disapproveRouterForPortal(_router);
   }
 }

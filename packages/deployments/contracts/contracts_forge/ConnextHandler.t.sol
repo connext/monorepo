@@ -596,4 +596,54 @@ contract ConnextHandlerTest is ForgeHelper {
     connext.bumpTransfer{value: newFee}(transferId);
     assertEq(connext.relayerFees(transferId), newFee);
   }
+
+  // ============ setAavePool ============
+
+  function test_ConnextHandler__setAavePool_works() public {
+    address aavePool = address(100);
+    assertEq(connext.aavePool(), address(0));
+
+    connext.setAavePool(aavePool);
+
+    assertEq(connext.aavePool(), aavePool);
+  }
+
+  function test_ConnextHandler__setAavePool_failsIfNotOwner() public {
+    address aavePool = address(100);
+
+    vm.prank(address(10));
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
+    connext.setAavePool(aavePool);
+  }
+
+  // ============ setAavePortalFee ============
+
+  function test_ConnextHandler__setAavePortalFee_works() public {
+    uint256 fee = 5;
+    assertEq(connext.aavePortalFeeNumerator(), 0);
+
+    connext.setAavePortalFee(fee);
+
+    assertEq(connext.aavePortalFeeNumerator(), fee);
+  }
+
+  function test_ConnextHandler__setAavePortalFee_failsIfNotOwner() public {
+    uint256 fee = 5;
+
+    vm.prank(address(10));
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
+
+    connext.setAavePortalFee(fee);
+  }
+
+  function test_ConnextHandler__setAavePortalFee_failsIfInvalidFee() public {
+    uint256 fee = connext.LIQUIDITY_FEE_DENOMINATOR() + 1;
+
+    vm.expectRevert(abi.encodeWithSelector(ConnextHandler.ConnextHandler__setAavePortalFee_invalidFee.selector));
+    connext.setAavePortalFee(fee);
+  }
 }
