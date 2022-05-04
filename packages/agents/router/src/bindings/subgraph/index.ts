@@ -69,6 +69,9 @@ export const pollSubgraph = async () => {
     if ([...subgraphQueryMetaParams.keys()].length > 0) {
       for (const domain of [...subgraphQueryMetaParams.keys()]) {
         const metaParams = subgraphQueryMetaParams.get(domain)!;
+        logger.debug("Querying subgraph for origin transfers.", requestContext, methodContext, {
+          domain,
+        });
         const transfers: XTransfer[] = await subgraph.getOriginTransfers(
           domain,
           metaParams.latestNonce,
