@@ -72,6 +72,7 @@ export const pollSubgraph = async () => {
         const transfers: XTransfer[] = await subgraph.getOriginTransfers(
           domain,
           metaParams.latestNonce,
+          metaParams.maxBlockNumber,
           metaParams.destinationDomains,
         );
 

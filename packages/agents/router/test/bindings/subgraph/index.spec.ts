@@ -1,5 +1,5 @@
 import { SinonStub, stub, restore, reset } from "sinon";
-import { expect, XTransferStatus, delay } from "@connext/nxtp-utils";
+import { expect, delay } from "@connext/nxtp-utils";
 
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
@@ -87,6 +87,7 @@ describe("Bindings:Subgraph", () => {
       expect(mockContext.adapters.subgraph.getOriginTransfers.getCall(0).args).to.be.deep.eq([
         mock.domain.A,
         mockInfo[mock.domain.A].latestNonce + 1,
+        mockInfo[mock.domain.A].latestBlockNumber - mockInfo[mock.domain.A].safeConfirmations,
         [mock.domain.A, mock.domain.B],
       ]);
       expect(mockContext.adapters.cache.transfers.storeTransfers.getCall(0).args[0]).to.be.deep.eq(
@@ -129,6 +130,7 @@ describe("Bindings:Subgraph", () => {
       expect(mockContext.adapters.subgraph.getOriginTransfers.getCall(0).args).to.be.deep.eq([
         mock.domain.A,
         mockInfo[mock.domain.A].latestNonce + 1,
+        mockInfo[mock.domain.A].latestBlockNumber - bindSubgraphFns.DEFAULT_SAFE_CONFIRMATIONS,
         [mock.domain.A, mock.domain.B],
       ]);
       expect(mockContext.adapters.cache.transfers.storeTransfers.getCall(0).args[0]).to.be.deep.eq(

@@ -145,16 +145,17 @@ export class SubgraphReader {
    * @param domain - The domain you want to get transfers from.
    * @param fromNonce - The nonce to start from (inclusive).
    * @param destinationDomains - The domains which the retrieved transfers must be going to.
-   * @returns an array of XTransfers.
+   * @returns an array of OriginTransfers.
    */
   public async getOriginTransfers(
     domain: string,
     fromNonce: number,
+    maxBlockNumber: number,
     destinationDomains: string[] = [...this.subgraphs.keys()],
-  ): Promise<XTransfer[]> {
+  ): Promise<OriginTransfer[]> {
     const { parser } = getHelpers();
     const { originTransfers } = await this.subgraphs.get(domain)!.runtime.request<GetOriginTransfersQuery>((client) => {
-      return client.GetOriginTransfers({ destinationDomains, nonce: fromNonce, originDomain: domain });
+      return client.GetOriginTransfers({ destinationDomains, nonce: fromNonce, originDomain: domain, maxBlockNumber });
     });
     return originTransfers.map(parser.originTransfer);
   }
