@@ -16430,7 +16430,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x6a043D7Af5EA5E04A6243e9651B5b8c5D44489De",
+          "address": "0xc54fAC0a62ABC248E63C798cf28F97a006952cEe",
           "abi": [
             {
               "inputs": [],
@@ -50597,7 +50597,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0xA47Ed4e18d5f6a86b10B6e5aa88398CbdB9C2284",
+          "address": "0xD7c141f5B5124edCBDE95B4A55Ca10E923021aeB",
           "abi": [
             {
               "inputs": [],
