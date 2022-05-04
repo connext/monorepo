@@ -1,6 +1,7 @@
 import { ChainData } from "@connext/nxtp-utils";
 
 import { SubgraphMap } from "../entities";
+
 import { getMeshOptions } from "./shared";
 
 export const create = async (chaindata: Map<string, ChainData>): Promise<SubgraphMap> => {

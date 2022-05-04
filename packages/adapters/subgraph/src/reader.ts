@@ -241,13 +241,13 @@ export class SubgraphReader {
     if (transfers.length == 0) return [];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
-      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain as string);
+      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain );
       const txIds = destinationDomainRecord
-        ? destinationDomainRecord.includes(transfer.transferId as string)
+        ? destinationDomainRecord.includes(transfer.transferId )
           ? destinationDomainRecord
           : destinationDomainRecord.concat(`"${transfer.transferId}"`)
         : [`"${transfer.transferId}"`];
-      txIdsByDestinationDomain.set(transfer.destinationDomain as string, txIds);
+      txIdsByDestinationDomain.set(transfer.destinationDomain , txIds);
       return [transfer.transferId, transfer];
     });
 

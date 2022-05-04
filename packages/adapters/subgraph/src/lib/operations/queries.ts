@@ -1,5 +1,6 @@
 import { gql } from "graphql-request";
 import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+
 import { getContext } from "../../reader";
 
 export const ORIGIN_TRANSFER_ENTITY = `
