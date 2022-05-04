@@ -55,6 +55,8 @@ library ConnextLogic {
   error ConnextLogic__initiateClaim_notRelayer(bytes32 transferId);
   error ConnextLogic__bumpTransfer_invalidTransfer();
   error ConnextLogic__bumpTransfer_valueIsZero();
+  error ConnextLogic__repayAavePortal_notApprovedForPortals();
+  error ConnextLogic__repayAavePortal_insufficientFunds();
 
   // ============ Structs ============
 
@@ -297,6 +299,15 @@ library ConnextLogic {
    * @param fee - The fee amount that is pending to be repaid
    */
   event AavePortalRepaymentDebt(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
+
+  /**
+   * @notice Emitted when a router executed a manual repayment to Aave Portal
+   * @param router - The router that execute the repayment
+   * @param asset - The asset that was repaid
+   * @param amount - The amount that was repaid
+   * @param fee - The fee amount that was repaid
+   */
+  event AavePortalRouterRepayment(address indexed router, address asset, uint256 amount, uint256 fee);
 
   // ============ Admin Functions ============
 
@@ -684,6 +695,36 @@ library ConnextLogic {
     emit TransferRelayerFeesUpdated(_transferId, relayerFees[_transferId], msg.sender);
   }
 
+  /**
+   * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
+   * @dev The router must be approved for Portal and with enough liquidity
+   */
+  function repayAavePortal(
+    address _asset,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    address _aavePool,
+    mapping(address => mapping(address => uint256)) storage _routerBalances,
+    mapping(address => bool) storage _approvedForPortalRouters
+  ) external {
+    if (!_approvedForPortalRouters[msg.sender]) revert ConnextLogic__repayAavePortal_notApprovedForPortals();
+
+    uint256 totalAmount = _backingAmount + _feeAmount;
+    uint256 routerBalance = _routerBalances[msg.sender][_asset];
+
+    if (routerBalance < totalAmount) revert ConnextLogic__repayAavePortal_insufficientFunds();
+
+    unchecked {
+      _routerBalances[msg.sender][_asset] = routerBalance - totalAmount;
+    }
+
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), _aavePool, totalAmount);
+
+    IAavePool(_aavePool).backUnbacked(_asset, _backingAmount, _feeAmount);
+
+    emit AavePortalRouterRepayment(msg.sender, _asset, _backingAmount, _feeAmount);
+  }
+
   // ============ Private Functions ============
 
   /**
@@ -1046,7 +1087,7 @@ library ConnextLogic {
   }
 
   /**
-   * @notice Calculates the amount to be repaid to Aave Portal. If there is no enough amount to repay the unbacked and the fee,
+   * @notice Calculates the amount to be repaid to Aave Portal in adopted asset. If there is no enough amount to repay the unbacked and the fee,
    * it will partially repay prioritizing the unbacked amount.
    * @dev Assumes the fee is proportional to the unbackedAmount.
    * @return The total amount to be repaid

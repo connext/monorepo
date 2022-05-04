@@ -565,6 +565,25 @@ contract ConnextHandler is
     ConnextLogic.claim(_recipient, _transferIds, relayerFees);
   }
 
+  /**
+   * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
+   * @dev The router must be approved for Portal and with enough liquidity
+   */
+  function repayAavePortal(
+    address _asset,
+    uint256 _backingAmount,
+    uint256 _feeAmount
+  ) external {
+    ConnextLogic.repayAavePortal(
+      _asset,
+      _backingAmount,
+      _feeAmount,
+      aavePool,
+      routerBalances,
+      routerInfo.approvedForPortalRouters
+    );
+  }
+
   // ============ Internal functions ============
 
   /**
