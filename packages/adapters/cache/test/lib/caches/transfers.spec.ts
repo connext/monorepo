@@ -181,4 +181,58 @@ describe("TransfersCache", () => {
       expect(res).to.deep.eq(transferIds);
     });
   });
+
+  describe("#getErrors", () => {
+    it("happy: returns errors for transfer ID", async () => {
+      // First, store
+      const error = "bad stuff happened >:(";
+      const transferId = getRandomBytes32();
+      await transfersCache.saveError(transferId, error);
+      const res = await (transfersCache as any).getErrors(transferId);
+      expect(res).to.deep.eq([error]);
+    });
+
+    it("sad: should return empty if no errors saved", async () => {
+      const transferId = getRandomBytes32();
+      const res = await (transfersCache as any).getErrors(transferId);
+      expect(res).to.deep.eq([]);
+    });
+  });
+
+  describe("#saveError", () => {
+    it("happy: should save error", async () => {
+      const transferId = getRandomBytes32();
+      const error = "bad stuff happened >:(";
+      const isNew = await transfersCache.saveError(transferId, error);
+      const res = await (transfersCache as any).getErrors(transferId);
+      expect(res).to.deep.eq([error]);
+      expect(isNew).to.be.true;
+    });
+
+    it("should save many errors", async () => {
+      const transferId = getRandomBytes32();
+      // Store a list of all of my problems
+      const errors = new Array(99).fill(0).map((_, i) => `problem #${i}`);
+      for (const error of errors) {
+        await transfersCache.saveError(transferId, error);
+      }
+      // Errors should be returned in order
+      const res = await (transfersCache as any).getErrors(transferId);
+      expect(res).to.deep.eq(errors);
+    });
+
+    it("should not save non-new error", async () => {
+      const transferId = getRandomBytes32();
+      const error = "bad stuff happened >:(";
+      let isNew = await transfersCache.saveError(transferId, error);
+      const res = await (transfersCache as any).getErrors(transferId);
+      expect(res).to.deep.eq([error]);
+      expect(isNew).to.be.true;
+
+      isNew = await transfersCache.saveError(transferId, error);
+      const res2 = await (transfersCache as any).getErrors(transferId);
+      expect(res2).to.deep.eq([error]);
+      expect(isNew).to.be.false;
+    });
+  });
 });

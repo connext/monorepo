@@ -201,9 +201,8 @@ export class TransfersCache extends Cache {
    * and false if it already exists.
    */
   public async saveError(transferId: string, error: string): Promise<boolean> {
-    const stringified = JSON.stringify(error);
     const currentErrors = await this.getErrors(transferId);
-    const isNewError = !currentErrors.includes(stringified);
+    const isNewError = !currentErrors.includes(error);
     if (isNewError) {
       await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
     }
