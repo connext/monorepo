@@ -45,7 +45,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
 
   const executeLocalAsset = await getDestinationLocalAsset(
     origin.domain,
-    origin.assets?.bridgedAsset,
+    origin.assets.bridgedAsset,
     destination.domain,
   );
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });

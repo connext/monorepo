@@ -18,7 +18,10 @@ import {
 } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { xtransfer as parseXTransfer } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
+import {
+  originTransfer as parseOriginTransfer,
+  destinationTransfer as parseDestinationTransfer,
+} from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
 
 import {
   DomainInfo,
@@ -714,7 +717,7 @@ describe("Integration:E2E", () => {
         try {
           const result = await subgraph.query(domainInfo.ORIGIN.domain, query);
           if (result.transfers.length === 1) {
-            transfer = parseXTransfer(result.transfers[0]);
+            transfer = parseOriginTransfer(result.transfers[0]);
             break;
           }
         } catch (e: unknown) {
@@ -797,25 +800,26 @@ describe("Integration:E2E", () => {
         await delay(SUBG_POLL_PARITY);
         const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
         if (result.transfers.length === 1) {
-          const _transfer = parseXTransfer(result.transfers[0]);
+          // Parse and then collate with the origin transfer.
+          const _transfer = parseDestinationTransfer(result.transfers[0]);
           transfer = {
             ..._transfer,
-            xcall: transfer?.xcall,
+            origin: transfer.origin,
           };
           // The transfer may have been reconciled, but not executed. Double check here.
-          if (transfer.execute?.transactionHash) {
+          if (transfer.destination.execute?.transactionHash) {
             break;
-          } else if (transfer.reconcile?.transactionHash && !reconciled) {
+          } else if (transfer.destination.reconcile?.transactionHash && !reconciled) {
             reconciled = true;
             log.info("Transfer was reconciled.", {
               domain: domainInfo.DESTINATION,
-              hash: transfer.reconcile.transactionHash,
+              hash: transfer.destination.reconcile.transactionHash,
             });
           }
         }
       }
 
-      if (!transfer.execute?.transactionHash) {
+      if (!transfer!.destination.execute?.transactionHash) {
         log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
           domain: domainInfo.DESTINATION,
           etc: {
@@ -825,7 +829,7 @@ describe("Integration:E2E", () => {
       }
       log.info("Execute transaction found.", {
         domain: domainInfo.DESTINATION,
-        hash: transfer.execute?.transactionHash,
+        hash: transfer.destination.execute?.transactionHash,
         etc: {
           took: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
         },
@@ -834,7 +838,10 @@ describe("Integration:E2E", () => {
       log.info("Transfer completed successfully!", {
         domain: domainInfo.DESTINATION,
         etc: {
-          locallyExecuted: agents.router && transfer.routers && transfer.routers.includes(agents.router.address),
+          locallyExecuted:
+            agents.router &&
+            transfer.destination.execute!.routers &&
+            transfer.destination.execute!.routers.includes(agents.router.address),
           transfer,
         },
       });
