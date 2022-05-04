@@ -1,5 +1,5 @@
 import { constants, utils, BigNumber } from "ethers";
-import { Bid, DEFAULT_ROUTER_FEE, expect, XTransfer } from "@connext/nxtp-utils";
+import { Bid, DEFAULT_ROUTER_FEE, expect, OriginTransfer } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
 import { SlippageInvalid, ParamsInvalid, NotEnoughAmount, MissingXCall } from "../../../src/lib/errors";
@@ -8,7 +8,7 @@ import { mock, stubContext, stubHelpers } from "../../mock";
 const { execute } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockXTransfer: XTransfer = mock.entity.xtransfer({
+const mockXTransfer: OriginTransfer = mock.entity.xtransfer({
   amount: mockTransactingAmount.toString(),
 });
 const mockRouter: string = mock.address.router;
@@ -34,7 +34,7 @@ describe("Operations:Execute", () => {
     it("happy", async () => {
       const expectedBid: Bid = {
         transferId: mockXTransfer.transferId,
-        origin: mockXTransfer.origin.domain,
+        origin: mockXTransfer.originDomain,
         fee: DEFAULT_ROUTER_FEE,
         router: mockRouter,
         signatures: {
@@ -50,9 +50,9 @@ describe("Operations:Execute", () => {
         mockFulfillLocalAsset,
       );
       expect(mock.helpers.shared.getDestinationLocalAsset).to.be.calledOnceWithExactly(
-        mockXTransfer.origin.domain,
-        mockXTransfer.origin.assets?.bridgedAsset,
-        mockXTransfer.destination.domain,
+        mockXTransfer.originDomain,
+        mockXTransfer.origin.assets.bridged.asset,
+        mockXTransfer.destinationDomain,
       );
       expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
       expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
@@ -61,7 +61,10 @@ describe("Operations:Execute", () => {
     it("throws ParamsInvalid if the call params are invalid according to schema", async () => {
       const invalidParams = {
         ...mockXTransfer,
-        callData: 12345,
+        xparams: {
+          to: 1234,
+          callData: 5678,
+        },
       };
       await expect(execute(invalidParams as any)).to.be.rejectedWith(ParamsInvalid);
     });
@@ -71,14 +74,11 @@ describe("Operations:Execute", () => {
       await expect(execute(mockXTransfer)).to.be.rejectedWith(NotEnoughAmount);
     });
 
-    it("should throw MissingXCall if the transfer is missing xcall param", async () => {
+    it("should throw MissingXCall if the transfer is missing origin params", async () => {
       await expect(
         execute({
           ...mockXTransfer,
-          origin: {
-            ...mockXTransfer.origin,
-            xcall: undefined,
-          },
+          origin: undefined,
         }),
       ).to.be.rejectedWith(MissingXCall);
     });
