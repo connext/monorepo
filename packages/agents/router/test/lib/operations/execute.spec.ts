@@ -8,7 +8,9 @@ import { mock, stubContext, stubHelpers } from "../../mock";
 const { execute } = ExecuteFns;
 
 const mockTransactingAmount = utils.parseEther("1");
-const mockXTransfer: XTransfer = mock.entity.xtransfer(mock.chain.A, mock.chain.B, mockTransactingAmount.toString());
+const mockXTransfer: XTransfer = mock.entity.xtransfer({
+  amount: mockTransactingAmount.toString(),
+});
 const mockRouter: string = mock.address.router;
 
 describe("Operations:Execute", () => {

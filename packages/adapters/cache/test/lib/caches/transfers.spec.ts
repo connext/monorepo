@@ -7,17 +7,18 @@ const RedisMock = require("ioredis-mock");
 let transfersCache: TransfersCache;
 
 const fakeTxs = [
-  mock.entity.xtransfer("3000", "4000"),
-  mock.entity.xtransfer(
-    "3000",
-    "4000",
-    "1000",
-    XTransferStatus.XCalled,
-    mkAddress("0xaaa"),
-    getRandomBytes32(),
-    1234,
-    mkAddress("0xa"),
-  ),
+  mock.entity.xtransfer({
+    originDomain: "3000",
+    destinationDomain: "4000",
+  }),
+  mock.entity.xtransfer({
+    originDomain: "3000",
+    destinationDomain: "4000",
+    amount: "1000",
+    nonce: 5555,
+    asset: mkAddress("0xaaa"),
+    user: mkAddress("0xa"),
+  }),
 ];
 
 describe("TransfersCache", () => {
@@ -45,7 +46,10 @@ describe("TransfersCache", () => {
 
   describe("#storeTransfers", () => {
     it("happy: should store transaction data", async () => {
-      const mockXTransfer = mock.entity.xtransfer("100", "200");
+      const mockXTransfer = mock.entity.xtransfer({
+        originDomain: "100",
+        nonce: 1234,
+      });
       //add fake txid's status, should fire off event.
       await transfersCache.storeTransfers([mockXTransfer]);
       let latestNonce = await transfersCache.getLatestNonce("100");
@@ -53,25 +57,11 @@ describe("TransfersCache", () => {
     });
 
     it("happy: should store multiple xtransfers", async () => {
-      const transferId = getRandomBytes32();
-      const mockXTransfer1 = mock.entity.xtransfer(
-        "100",
-        "200",
-        "1000",
-        XTransferStatus.XCalled,
-        mkAddress("0x111"),
-        transferId,
-        1233,
-      );
-      const mockXTransfer2 = mock.entity.xtransfer(
-        "100",
-        "200",
-        "1000",
-        XTransferStatus.XCalled,
-        mkAddress("0x111"),
-        transferId,
-        1234,
-      );
+      const mockXTransfer1 = mock.entity.xtransfer({
+        originDomain: "100",
+        nonce: 1233,
+      });
+      const mockXTransfer2 = mock.entity.xtransfer({ originDomain: "100", nonce: 1234 });
       await transfersCache.storeTransfers([mockXTransfer1]);
       await transfersCache.storeTransfers([mockXTransfer2]);
       let latestNonce = await transfersCache.getLatestNonce("100");
@@ -79,7 +69,10 @@ describe("TransfersCache", () => {
     });
 
     it("happy: should delete the stall transfer", async () => {
-      const mockXTransfer = mock.entity.xtransfer("100", "200", "1000", XTransferStatus.Executed);
+      const mockXTransfer = mock.entity.xtransfer({
+        originDomain: "100",
+        status: XTransferStatus.Executed,
+      });
       //add fake txid's status, should fire off event.
       await transfersCache.storeTransfers([mockXTransfer]);
       await transfersCache.storeTransfers([mockXTransfer]);
@@ -88,30 +81,16 @@ describe("TransfersCache", () => {
     });
 
     it("should update latest nonce", async () => {
-      const mockTransfer = mock.entity.xtransfer(
-        "100",
-        "200",
-        "1000",
-        XTransferStatus.XCalled,
-        undefined,
-        undefined,
-        1234,
-      );
+      const mockTransfer = mock.entity.xtransfer({
+        originDomain: "100",
+        nonce: 1234,
+      });
       //add fake txid's status, should fire off event.
       await transfersCache.storeTransfers([mockTransfer]);
       let latestNonce = await transfersCache.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1234);
 
-      const mockNewTransfer = mock.entity.xtransfer(
-        "100",
-        undefined,
-        undefined,
-        XTransferStatus.Executed,
-        undefined,
-        undefined,
-        1235,
-        mkAddress("0xa"),
-      );
+      const mockNewTransfer = mock.entity.xtransfer({ originDomain: "100", nonce: 1235 });
       const res = await transfersCache.storeTransfers([mockNewTransfer]);
       latestNonce = await transfersCache.getLatestNonce("100");
       expect(latestNonce).to.be.eq(1235);
@@ -126,16 +105,7 @@ describe("TransfersCache", () => {
 
     it("happy case: should return data", async () => {
       const transferId = getRandomBytes32();
-      const mockXTransfer = mock.entity.xtransfer(
-        "101",
-        "201",
-        "1000",
-        XTransferStatus.XCalled,
-        mkAddress("0xaaa"),
-        transferId,
-        1234,
-        mkAddress("0xa"),
-      );
+      const mockXTransfer = mock.entity.xtransfer({ transferId });
       await transfersCache.storeTransfers([mockXTransfer]);
 
       const res = await transfersCache.getTransfer(transferId);
