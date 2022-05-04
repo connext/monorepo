@@ -142,12 +142,12 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
   }
 };
 
-export const getTransferByTransferId = async (transferId: string, _pool?: Pool): Promise<XTransfer | undefined> => {
+export const getTransferByTransferId = async (transfer_id: string, _pool?: Pool): Promise<XTransfer | undefined> => {
   const poolToUse = _pool ?? pool;
-  const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} LIMIT 1`.run(
-    poolToUse,
-  );
-  return x ? convertFromDbTransfer(x[0]) : undefined;
+  const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    transfer_id,
+  }}`.run(poolToUse);
+  return x.length ? convertFromDbTransfer(x[0]) : undefined;
 };
 
 export const getTransfersByStatus = async (status: XTransferStatus | "XCalled", _pool?: Pool): Promise<XTransfer[]> => {
@@ -162,6 +162,6 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
   const poolToUse = _pool ?? pool;
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     origin_domain: domain,
-  }} ORDER BY "nonce" DESC`.run(poolToUse);
+  }} ORDER BY "nonce" DESC LIMIT 1`.run(poolToUse);
   return transfer[0]?.nonce ?? 0;
 };
