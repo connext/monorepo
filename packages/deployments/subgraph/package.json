@@ -3,6 +3,7 @@
   "version": "0.2.0-alpha.8",
   "license": "UNLICENSED",
   "scripts": {
+    "graph": "graph",
     "codegen": "graph codegen",
     "graph:build": "yarn run codegen && graph build",
     "clean": "rm -rf ./build ./tsconfig.tsBuildInfo ./generated",

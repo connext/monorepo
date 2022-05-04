@@ -76,7 +76,7 @@ describe("Bindings:Cache", () => {
         (transferId: string) => mockCachedTransfers[transferId],
       );
 
-      mockContext.adapters.subgraph.getExecutedAndReconciledTransfers.resolves([]);
+      mockContext.adapters.subgraph.getDestinationTransfers.resolves([]);
 
       mockContext.config.chains = {
         [domainWithPending]: mockContext.config.chains[mock.chain.A],
@@ -114,7 +114,7 @@ describe("Bindings:Cache", () => {
 
       executeStub.rejects(mockError);
 
-      mockContext.adapters.subgraph.getExecutedAndReconciledTransfers.resolves([]);
+      mockContext.adapters.subgraph.getDestinationTransfers.resolves([]);
 
       await bindCacheFns.pollCache();
 

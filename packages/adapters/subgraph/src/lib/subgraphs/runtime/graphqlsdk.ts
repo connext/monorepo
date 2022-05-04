@@ -170,10 +170,471 @@ export type Block_Height = {
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
+export type DestinationTransfer = {
+  __typename?: 'DestinationTransfer';
+  callData?: Maybe<Scalars['Bytes']>;
+  chainId?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  executedCaller?: Maybe<Scalars['Bytes']>;
+  executedGasLimit?: Maybe<Scalars['BigInt']>;
+  executedGasPrice?: Maybe<Scalars['BigInt']>;
+  executedTimestamp?: Maybe<Scalars['BigInt']>;
+  executedTransactionHash?: Maybe<Scalars['Bytes']>;
+  id: Scalars['ID'];
+  localAmount?: Maybe<Scalars['BigInt']>;
+  localAsset?: Maybe<Scalars['Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  originSender?: Maybe<Scalars['Bytes']>;
+  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledCaller?: Maybe<Scalars['Bytes']>;
+  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
+  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
+  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
+  reconciledTransactionHash?: Maybe<Scalars['Bytes']>;
+  routers?: Maybe<Array<Router>>;
+  status?: Maybe<TransferStatus>;
+  to?: Maybe<Scalars['Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  transactingAsset?: Maybe<Scalars['Bytes']>;
+  transferId?: Maybe<Scalars['Bytes']>;
+};
+
+
+export type DestinationTransferRoutersArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Router_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<Router_Filter>;
+};
+
+export type DestinationTransfer_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  callData?: InputMaybe<Scalars['Bytes']>;
+  callData_contains?: InputMaybe<Scalars['Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  callData_not?: InputMaybe<Scalars['Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['Bytes']>;
+  callData_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedCaller?: InputMaybe<Scalars['Bytes']>;
+  executedCaller_contains?: InputMaybe<Scalars['Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  executedCaller_not?: InputMaybe<Scalars['Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['Bytes']>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTransactionHash?: InputMaybe<Scalars['Bytes']>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  executedTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  localAmount?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAsset?: InputMaybe<Scalars['Bytes']>;
+  localAsset_contains?: InputMaybe<Scalars['Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  localAsset_not?: InputMaybe<Scalars['Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originSender?: InputMaybe<Scalars['Bytes']>;
+  originSender_contains?: InputMaybe<Scalars['Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  originSender_not?: InputMaybe<Scalars['Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['Bytes']>;
+  originSender_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledCaller?: InputMaybe<Scalars['Bytes']>;
+  reconciledCaller_contains?: InputMaybe<Scalars['Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  reconciledCaller_not?: InputMaybe<Scalars['Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['Bytes']>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTransactionHash?: InputMaybe<Scalars['Bytes']>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  routers?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_not?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  status?: InputMaybe<TransferStatus>;
+  status_in?: InputMaybe<Array<TransferStatus>>;
+  status_not?: InputMaybe<TransferStatus>;
+  status_not_in?: InputMaybe<Array<TransferStatus>>;
+  to?: InputMaybe<Scalars['Bytes']>;
+  to_contains?: InputMaybe<Scalars['Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  to_not?: InputMaybe<Scalars['Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['Bytes']>;
+  to_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAsset?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_contains?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactingAsset_not?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transferId?: InputMaybe<Scalars['Bytes']>;
+  transferId_contains?: InputMaybe<Scalars['Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transferId_not?: InputMaybe<Scalars['Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['Bytes']>;
+  transferId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+};
+
+export enum DestinationTransfer_OrderBy {
+  CallData = 'callData',
+  ChainId = 'chainId',
+  DestinationDomain = 'destinationDomain',
+  ExecutedBlockNumber = 'executedBlockNumber',
+  ExecutedCaller = 'executedCaller',
+  ExecutedGasLimit = 'executedGasLimit',
+  ExecutedGasPrice = 'executedGasPrice',
+  ExecutedTimestamp = 'executedTimestamp',
+  ExecutedTransactionHash = 'executedTransactionHash',
+  Id = 'id',
+  LocalAmount = 'localAmount',
+  LocalAsset = 'localAsset',
+  Nonce = 'nonce',
+  OriginDomain = 'originDomain',
+  OriginSender = 'originSender',
+  ReconciledBlockNumber = 'reconciledBlockNumber',
+  ReconciledCaller = 'reconciledCaller',
+  ReconciledGasLimit = 'reconciledGasLimit',
+  ReconciledGasPrice = 'reconciledGasPrice',
+  ReconciledTimestamp = 'reconciledTimestamp',
+  ReconciledTransactionHash = 'reconciledTransactionHash',
+  Routers = 'routers',
+  Status = 'status',
+  To = 'to',
+  TransactingAmount = 'transactingAmount',
+  TransactingAsset = 'transactingAsset',
+  TransferId = 'transferId'
+}
+
 /** Defines the order direction, either ascending or descending */
 export enum OrderDirection {
   Asc = 'asc',
   Desc = 'desc'
+}
+
+export type OriginTransfer = {
+  __typename?: 'OriginTransfer';
+  blockNumber?: Maybe<Scalars['BigInt']>;
+  bridgedAmount?: Maybe<Scalars['BigInt']>;
+  bridgedAsset?: Maybe<Scalars['Bytes']>;
+  callData?: Maybe<Scalars['Bytes']>;
+  caller?: Maybe<Scalars['Bytes']>;
+  chainId?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  id: Scalars['ID'];
+  message?: Maybe<Scalars['Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  transactingAsset?: Maybe<Scalars['Bytes']>;
+  transactionHash?: Maybe<Scalars['Bytes']>;
+  transferId?: Maybe<Scalars['Bytes']>;
+};
+
+export type OriginTransfer_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAsset?: InputMaybe<Scalars['Bytes']>;
+  bridgedAsset_contains?: InputMaybe<Scalars['Bytes']>;
+  bridgedAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  bridgedAsset_not?: InputMaybe<Scalars['Bytes']>;
+  bridgedAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
+  bridgedAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  callData?: InputMaybe<Scalars['Bytes']>;
+  callData_contains?: InputMaybe<Scalars['Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  callData_not?: InputMaybe<Scalars['Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['Bytes']>;
+  callData_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  caller?: InputMaybe<Scalars['Bytes']>;
+  caller_contains?: InputMaybe<Scalars['Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  caller_not?: InputMaybe<Scalars['Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['Bytes']>;
+  caller_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  id?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  message?: InputMaybe<Scalars['Bytes']>;
+  message_contains?: InputMaybe<Scalars['Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  message_not?: InputMaybe<Scalars['Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['Bytes']>;
+  message_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['Bytes']>;
+  to_contains?: InputMaybe<Scalars['Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  to_not?: InputMaybe<Scalars['Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['Bytes']>;
+  to_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAsset?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_contains?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactingAsset_not?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactionHash?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transferId?: InputMaybe<Scalars['Bytes']>;
+  transferId_contains?: InputMaybe<Scalars['Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transferId_not?: InputMaybe<Scalars['Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['Bytes']>;
+  transferId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+};
+
+export enum OriginTransfer_OrderBy {
+  BlockNumber = 'blockNumber',
+  BridgedAmount = 'bridgedAmount',
+  BridgedAsset = 'bridgedAsset',
+  CallData = 'callData',
+  Caller = 'caller',
+  ChainId = 'chainId',
+  DestinationDomain = 'destinationDomain',
+  GasLimit = 'gasLimit',
+  GasPrice = 'gasPrice',
+  Id = 'id',
+  Message = 'message',
+  Nonce = 'nonce',
+  OriginDomain = 'originDomain',
+  RelayerFee = 'relayerFee',
+  Timestamp = 'timestamp',
+  To = 'to',
+  TransactingAmount = 'transactingAmount',
+  TransactingAsset = 'transactingAsset',
+  TransactionHash = 'transactionHash',
+  TransferId = 'transferId'
 }
 
 export type Query = {
@@ -184,10 +645,12 @@ export type Query = {
   assetBalance?: Maybe<AssetBalance>;
   assetBalances: Array<AssetBalance>;
   assets: Array<Asset>;
+  destinationTransfer?: Maybe<DestinationTransfer>;
+  destinationTransfers: Array<DestinationTransfer>;
+  originTransfer?: Maybe<OriginTransfer>;
+  originTransfers: Array<OriginTransfer>;
   router?: Maybe<Router>;
   routers: Array<Router>;
-  transfer?: Maybe<Transfer>;
-  transfers: Array<Transfer>;
 };
 
 
@@ -232,6 +695,42 @@ export type QueryAssetsArgs = {
 };
 
 
+export type QueryDestinationTransferArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryDestinationTransfersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<DestinationTransfer_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<DestinationTransfer_Filter>;
+};
+
+
+export type QueryOriginTransferArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryOriginTransfersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<OriginTransfer_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<OriginTransfer_Filter>;
+};
+
+
 export type QueryRouterArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
@@ -247,24 +746,6 @@ export type QueryRoutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<Router_Filter>;
-};
-
-
-export type QueryTransferArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryTransfersArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Transfer_Filter>;
 };
 
 export type Router = {
@@ -348,10 +829,12 @@ export type Subscription = {
   assetBalance?: Maybe<AssetBalance>;
   assetBalances: Array<AssetBalance>;
   assets: Array<Asset>;
+  destinationTransfer?: Maybe<DestinationTransfer>;
+  destinationTransfers: Array<DestinationTransfer>;
+  originTransfer?: Maybe<OriginTransfer>;
+  originTransfers: Array<OriginTransfer>;
   router?: Maybe<Router>;
   routers: Array<Router>;
-  transfer?: Maybe<Transfer>;
-  transfers: Array<Transfer>;
 };
 
 
@@ -396,6 +879,42 @@ export type SubscriptionAssetsArgs = {
 };
 
 
+export type SubscriptionDestinationTransferArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionDestinationTransfersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<DestinationTransfer_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<DestinationTransfer_Filter>;
+};
+
+
+export type SubscriptionOriginTransferArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionOriginTransfersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<OriginTransfer_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<OriginTransfer_Filter>;
+};
+
+
 export type SubscriptionRouterArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID'];
@@ -413,415 +932,10 @@ export type SubscriptionRoutersArgs = {
   where?: InputMaybe<Router_Filter>;
 };
 
-
-export type SubscriptionTransferArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionTransfersArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Transfer_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Transfer_Filter>;
-};
-
-export type Transfer = {
-  __typename?: 'Transfer';
-  callData?: Maybe<Scalars['Bytes']>;
-  chainId?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['Bytes']>;
-  executedGasLimit?: Maybe<Scalars['BigInt']>;
-  executedGasPrice?: Maybe<Scalars['BigInt']>;
-  executedLocalAmount?: Maybe<Scalars['BigInt']>;
-  executedLocalAsset?: Maybe<Scalars['Bytes']>;
-  executedTimestamp?: Maybe<Scalars['BigInt']>;
-  executedTransactingAmount?: Maybe<Scalars['BigInt']>;
-  executedTransactingAsset?: Maybe<Scalars['Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['Bytes']>;
-  id: Scalars['ID'];
-  idx?: Maybe<Scalars['BigInt']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['Bytes']>;
-  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
-  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
-  reconciledLocalAmount?: Maybe<Scalars['BigInt']>;
-  reconciledLocalAsset?: Maybe<Scalars['Bytes']>;
-  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
-  reconciledTransactionHash?: Maybe<Scalars['Bytes']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  routers?: Maybe<Array<Router>>;
-  status?: Maybe<TransferStatus>;
-  to?: Maybe<Scalars['Bytes']>;
-  transferId?: Maybe<Scalars['Bytes']>;
-  xcalledBlockNumber?: Maybe<Scalars['BigInt']>;
-  xcalledCaller?: Maybe<Scalars['Bytes']>;
-  xcalledGasLimit?: Maybe<Scalars['BigInt']>;
-  xcalledGasPrice?: Maybe<Scalars['BigInt']>;
-  xcalledLocalAmount?: Maybe<Scalars['BigInt']>;
-  xcalledLocalAsset?: Maybe<Scalars['Bytes']>;
-  xcalledTimestamp?: Maybe<Scalars['BigInt']>;
-  xcalledTransactingAmount?: Maybe<Scalars['BigInt']>;
-  xcalledTransactingAsset?: Maybe<Scalars['Bytes']>;
-  xcalledTransactionHash?: Maybe<Scalars['Bytes']>;
-};
-
-
-export type TransferRoutersArgs = {
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Router_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']>;
-  where?: InputMaybe<Router_Filter>;
-};
-
 export enum TransferStatus {
+  Completed = 'Completed',
   Executed = 'Executed',
-  Reconciled = 'Reconciled',
-  XCalled = 'XCalled'
-}
-
-export type Transfer_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  callData?: InputMaybe<Scalars['Bytes']>;
-  callData_contains?: InputMaybe<Scalars['Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  callData_not?: InputMaybe<Scalars['Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['Bytes']>;
-  callData_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['Bytes']>;
-  executedCaller_contains?: InputMaybe<Scalars['Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedCaller_not?: InputMaybe<Scalars['Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['Bytes']>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedLocalAmount?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  executedLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedLocalAsset?: InputMaybe<Scalars['Bytes']>;
-  executedLocalAsset_contains?: InputMaybe<Scalars['Bytes']>;
-  executedLocalAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedLocalAsset_not?: InputMaybe<Scalars['Bytes']>;
-  executedLocalAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
-  executedLocalAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAmount?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  executedTransactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTransactingAsset?: InputMaybe<Scalars['Bytes']>;
-  executedTransactingAsset_contains?: InputMaybe<Scalars['Bytes']>;
-  executedTransactingAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedTransactingAsset_not?: InputMaybe<Scalars['Bytes']>;
-  executedTransactingAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
-  executedTransactingAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedTransactionHash?: InputMaybe<Scalars['Bytes']>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  executedTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  id?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  idx?: InputMaybe<Scalars['BigInt']>;
-  idx_gt?: InputMaybe<Scalars['BigInt']>;
-  idx_gte?: InputMaybe<Scalars['BigInt']>;
-  idx_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  idx_lt?: InputMaybe<Scalars['BigInt']>;
-  idx_lte?: InputMaybe<Scalars['BigInt']>;
-  idx_not?: InputMaybe<Scalars['BigInt']>;
-  idx_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['Bytes']>;
-  reconciledCaller_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledCaller_not?: InputMaybe<Scalars['Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledLocalAmount?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledLocalAsset?: InputMaybe<Scalars['Bytes']>;
-  reconciledLocalAsset_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledLocalAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledLocalAsset_not?: InputMaybe<Scalars['Bytes']>;
-  reconciledLocalAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledLocalAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTransactionHash?: InputMaybe<Scalars['Bytes']>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  routers?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_not?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  status?: InputMaybe<TransferStatus>;
-  status_in?: InputMaybe<Array<TransferStatus>>;
-  status_not?: InputMaybe<TransferStatus>;
-  status_not_in?: InputMaybe<Array<TransferStatus>>;
-  to?: InputMaybe<Scalars['Bytes']>;
-  to_contains?: InputMaybe<Scalars['Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  to_not?: InputMaybe<Scalars['Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['Bytes']>;
-  to_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transferId?: InputMaybe<Scalars['Bytes']>;
-  transferId_contains?: InputMaybe<Scalars['Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  transferId_not?: InputMaybe<Scalars['Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['Bytes']>;
-  transferId_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledCaller?: InputMaybe<Scalars['Bytes']>;
-  xcalledCaller_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledCaller_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledCaller_not?: InputMaybe<Scalars['Bytes']>;
-  xcalledCaller_not_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledCaller_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledLocalAmount?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledLocalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledLocalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledLocalAsset?: InputMaybe<Scalars['Bytes']>;
-  xcalledLocalAsset_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledLocalAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledLocalAsset_not?: InputMaybe<Scalars['Bytes']>;
-  xcalledLocalAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledLocalAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledTransactingAmount?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledTransactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  xcalledTransactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  xcalledTransactingAsset?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactingAsset_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactingAsset_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledTransactingAsset_not?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactingAsset_not_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactingAsset_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledTransactionHash?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  xcalledTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  xcalledTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-};
-
-export enum Transfer_OrderBy {
-  CallData = 'callData',
-  ChainId = 'chainId',
-  DestinationDomain = 'destinationDomain',
-  ExecutedBlockNumber = 'executedBlockNumber',
-  ExecutedCaller = 'executedCaller',
-  ExecutedGasLimit = 'executedGasLimit',
-  ExecutedGasPrice = 'executedGasPrice',
-  ExecutedLocalAmount = 'executedLocalAmount',
-  ExecutedLocalAsset = 'executedLocalAsset',
-  ExecutedTimestamp = 'executedTimestamp',
-  ExecutedTransactingAmount = 'executedTransactingAmount',
-  ExecutedTransactingAsset = 'executedTransactingAsset',
-  ExecutedTransactionHash = 'executedTransactionHash',
-  Id = 'id',
-  Idx = 'idx',
-  Nonce = 'nonce',
-  OriginDomain = 'originDomain',
-  ReconciledBlockNumber = 'reconciledBlockNumber',
-  ReconciledCaller = 'reconciledCaller',
-  ReconciledGasLimit = 'reconciledGasLimit',
-  ReconciledGasPrice = 'reconciledGasPrice',
-  ReconciledLocalAmount = 'reconciledLocalAmount',
-  ReconciledLocalAsset = 'reconciledLocalAsset',
-  ReconciledTimestamp = 'reconciledTimestamp',
-  ReconciledTransactionHash = 'reconciledTransactionHash',
-  RelayerFee = 'relayerFee',
-  Routers = 'routers',
-  Status = 'status',
-  To = 'to',
-  TransferId = 'transferId',
-  XcalledBlockNumber = 'xcalledBlockNumber',
-  XcalledCaller = 'xcalledCaller',
-  XcalledGasLimit = 'xcalledGasLimit',
-  XcalledGasPrice = 'xcalledGasPrice',
-  XcalledLocalAmount = 'xcalledLocalAmount',
-  XcalledLocalAsset = 'xcalledLocalAsset',
-  XcalledTimestamp = 'xcalledTimestamp',
-  XcalledTransactingAmount = 'xcalledTransactingAmount',
-  XcalledTransactingAsset = 'xcalledTransactingAsset',
-  XcalledTransactionHash = 'xcalledTransactionHash'
+  Reconciled = 'Reconciled'
 }
 
 export type _Block_ = {
@@ -856,54 +970,39 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
-export type GetTransfersQueryVariables = Exact<{
+export type GetOriginTransfersQueryVariables = Exact<{
   originDomain: Scalars['BigInt'];
   destinationDomains?: InputMaybe<Array<Scalars['BigInt']> | Scalars['BigInt']>;
   nonce: Scalars['BigInt'];
+  maxBlockNumber?: InputMaybe<Scalars['BigInt']>;
 }>;
 
 
-export type GetTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
+export type GetOriginTransfersQuery = { __typename?: 'Query', originTransfers: Array<{ __typename?: 'OriginTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, bridgedAsset?: any | null, bridgedAmount?: any | null, relayerFee?: any | null, message?: any | null, caller?: any | null, transactionHash?: any | null, timestamp?: any | null, gasPrice?: any | null, gasLimit?: any | null, blockNumber?: any | null }> };
 
-export type GetXCalledTransfersQueryVariables = Exact<{
+export type GetOriginTransfersByIdsQueryVariables = Exact<{
+  transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
+}>;
+
+
+export type GetOriginTransfersByIdsQuery = { __typename?: 'Query', originTransfers: Array<{ __typename?: 'OriginTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, bridgedAsset?: any | null, bridgedAmount?: any | null, relayerFee?: any | null, message?: any | null, caller?: any | null, transactionHash?: any | null, timestamp?: any | null, gasPrice?: any | null, gasLimit?: any | null, blockNumber?: any | null }> };
+
+export type GetDestinationTransfersQueryVariables = Exact<{
   originDomain: Scalars['BigInt'];
   destinationDomains?: InputMaybe<Array<Scalars['BigInt']> | Scalars['BigInt']>;
-  maxXCallBlockNumber: Scalars['BigInt'];
   nonce: Scalars['BigInt'];
+  status?: InputMaybe<TransferStatus>;
 }>;
 
 
-export type GetXCalledTransfersQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
+export type GetDestinationTransfersQuery = { __typename?: 'Query', destinationTransfers: Array<{ __typename?: 'DestinationTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, localAsset?: any | null, localAmount?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, status?: TransferStatus | null, originSender?: any | null, executedCaller?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
-export type GetTransferQueryVariables = Exact<{
-  transferId: Scalars['Bytes'];
-}>;
-
-
-export type GetTransferQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledCaller?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
-
-export type GetExecutedTransfersByIdsQueryVariables = Exact<{
-  transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
-  maxExecutedBlockNumber: Scalars['BigInt'];
-}>;
-
-
-export type GetExecutedTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
-
-export type GetReconciledTransfersByIdsQueryVariables = Exact<{
-  transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
-  maxReconciledBlockNumber: Scalars['BigInt'];
-}>;
-
-
-export type GetReconciledTransfersByIdsQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
-
-export type GetTransfersStatusQueryVariables = Exact<{
+export type GetDestinationTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
 }>;
 
 
-export type GetTransfersStatusQuery = { __typename?: 'Query', transfers: Array<{ __typename?: 'Transfer', id: string, originDomain?: any | null, destinationDomain?: any | null, chainId?: any | null, status?: TransferStatus | null, to?: any | null, transferId?: any | null, callData?: any | null, idx?: any | null, nonce?: any | null, relayerFee?: any | null, xcalledTransactingAsset?: any | null, xcalledLocalAsset?: any | null, xcalledTransactingAmount?: any | null, xcalledLocalAmount?: any | null, xcalledCaller?: any | null, xcalledTransactionHash?: any | null, xcalledTimestamp?: any | null, xcalledGasPrice?: any | null, xcalledGasLimit?: any | null, xcalledBlockNumber?: any | null, executedCaller?: any | null, executedTransactingAmount?: any | null, executedLocalAmount?: any | null, executedTransactingAsset?: any | null, executedLocalAsset?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledLocalAsset?: any | null, reconciledLocalAmount?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
+export type GetDestinationTransfersByIdsQuery = { __typename?: 'Query', destinationTransfers: Array<{ __typename?: 'DestinationTransfer', id: string, chainId?: any | null, transferId?: any | null, nonce?: any | null, to?: any | null, callData?: any | null, originDomain?: any | null, destinationDomain?: any | null, localAsset?: any | null, localAmount?: any | null, transactingAsset?: any | null, transactingAmount?: any | null, status?: TransferStatus | null, originSender?: any | null, executedCaller?: any | null, executedTransactionHash?: any | null, executedTimestamp?: any | null, executedGasPrice?: any | null, executedGasLimit?: any | null, executedBlockNumber?: any | null, reconciledCaller?: any | null, reconciledTransactionHash?: any | null, reconciledTimestamp?: any | null, reconciledGasPrice?: any | null, reconciledGasLimit?: any | null, reconciledBlockNumber?: any | null, routers?: Array<{ __typename?: 'Router', id: string }> | null }> };
 
 export type GetAssetByLocalQueryVariables = Exact<{
   local: Scalars['Bytes'];
@@ -941,101 +1040,93 @@ export type GetRouterQueryVariables = Exact<{
 export type GetRouterQuery = { __typename?: 'Query', router?: { __typename?: 'Router', id: string } | null };
 
 
-export const GetTransfersDocument = gql`
-    query GetTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $nonce: BigInt!) {
-  transfers(
-    where: {destinationDomain_in: $destinationDomains, nonce_gte: $nonce, originDomain: $originDomain}
-    orderBy: xcalledBlockNumber
+export const GetOriginTransfersDocument = gql`
+    query GetOriginTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $nonce: BigInt!, $maxBlockNumber: BigInt) {
+  originTransfers(
+    where: {destinationDomain_in: $destinationDomains, nonce_gte: $nonce, originDomain: $originDomain, blockNumber_lte: $maxBlockNumber}
+    orderBy: blockNumber
     orderDirection: desc
   ) {
     id
+    chainId
+    transferId
+    nonce
+    to
+    callData
     originDomain
     destinationDomain
-    chainId
-    status
-    to
-    transferId
-    callData
-    idx
-    nonce
-    routers {
-      id
-    }
-    xcalledCaller
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
-    executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
-    executedTransactionHash
-    executedTimestamp
-    executedGasPrice
-    executedGasLimit
-    executedBlockNumber
-    reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
-    reconciledTransactionHash
-    reconciledTimestamp
-    reconciledGasPrice
-    reconciledGasLimit
-    reconciledBlockNumber
+    transactingAsset
+    transactingAmount
+    bridgedAsset
+    bridgedAmount
+    relayerFee
+    message
+    caller
+    transactionHash
+    timestamp
+    gasPrice
+    gasLimit
+    blockNumber
   }
 }
     `;
-export const GetXCalledTransfersDocument = gql`
-    query GetXCalledTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $maxXCallBlockNumber: BigInt!, $nonce: BigInt!) {
-  transfers(
-    where: {originDomain: $originDomain, status: XCalled, destinationDomain_in: $destinationDomains, xcalledBlockNumber_lte: $maxXCallBlockNumber, nonce_gte: $nonce}
-    orderBy: xcalledBlockNumber
+export const GetOriginTransfersByIdsDocument = gql`
+    query GetOriginTransfersByIds($transferIds: [Bytes!]) {
+  originTransfers(where: {transferId_in: $transferIds}) {
+    id
+    chainId
+    transferId
+    nonce
+    to
+    callData
+    originDomain
+    destinationDomain
+    transactingAsset
+    transactingAmount
+    bridgedAsset
+    bridgedAmount
+    relayerFee
+    message
+    caller
+    transactionHash
+    timestamp
+    gasPrice
+    gasLimit
+    blockNumber
+  }
+}
+    `;
+export const GetDestinationTransfersDocument = gql`
+    query GetDestinationTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $nonce: BigInt!, $status: TransferStatus) {
+  destinationTransfers(
+    where: {destinationDomain_in: $destinationDomains, nonce_gte: $nonce, originDomain: $originDomain, status: $status}
+    orderBy: nonce
     orderDirection: desc
   ) {
     id
+    chainId
+    transferId
+    nonce
+    to
+    callData
     originDomain
     destinationDomain
-    chainId
+    localAsset
+    localAmount
+    transactingAsset
+    transactingAmount
     status
-    to
-    transferId
-    callData
-    idx
-    nonce
     routers {
       id
     }
-    relayerFee
-    xcalledCaller
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
+    originSender
     executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
     executedTransactionHash
     executedTimestamp
     executedGasPrice
     executedGasLimit
     executedBlockNumber
     reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
     reconciledTransactionHash
     reconciledTimestamp
     reconciledGasPrice
@@ -1044,196 +1135,33 @@ export const GetXCalledTransfersDocument = gql`
   }
 }
     `;
-export const GetTransferDocument = gql`
-    query GetTransfer($transferId: Bytes!) {
-  transfers(where: {transferId: $transferId}) {
+export const GetDestinationTransfersByIdsDocument = gql`
+    query GetDestinationTransfersByIds($transferIds: [Bytes!]) {
+  destinationTransfers(where: {transferId_in: $transferIds}) {
     id
+    chainId
+    transferId
+    nonce
+    to
+    callData
     originDomain
     destinationDomain
-    chainId
+    localAsset
+    localAmount
+    transactingAsset
+    transactingAmount
     status
-    to
-    transferId
-    callData
-    idx
-    nonce
     routers {
       id
     }
-    relayerFee
-    xcalledCaller
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
+    originSender
     executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
     executedTransactionHash
     executedTimestamp
     executedGasPrice
     executedGasLimit
     executedBlockNumber
     reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
-    reconciledTransactionHash
-    reconciledTimestamp
-    reconciledGasPrice
-    reconciledGasLimit
-    reconciledBlockNumber
-  }
-}
-    `;
-export const GetExecutedTransfersByIdsDocument = gql`
-    query GetExecutedTransfersByIds($transferIds: [Bytes!], $maxExecutedBlockNumber: BigInt!) {
-  transfers(
-    where: {transferId_in: $transferIds, executedBlockNumber_lte: $maxExecutedBlockNumber, status_in: [Executed]}
-  ) {
-    id
-    originDomain
-    destinationDomain
-    chainId
-    status
-    to
-    transferId
-    callData
-    idx
-    nonce
-    routers {
-      id
-    }
-    relayerFee
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledCaller
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
-    executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
-    executedTransactionHash
-    executedTimestamp
-    executedGasPrice
-    executedGasLimit
-    executedBlockNumber
-    reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
-    reconciledTransactionHash
-    reconciledTimestamp
-    reconciledGasPrice
-    reconciledGasLimit
-    reconciledBlockNumber
-  }
-}
-    `;
-export const GetReconciledTransfersByIdsDocument = gql`
-    query GetReconciledTransfersByIds($transferIds: [Bytes!], $maxReconciledBlockNumber: BigInt!) {
-  transfers(
-    where: {transferId_in: $transferIds, reconciledBlockNumber_lte: $maxReconciledBlockNumber, status_in: [Reconciled]}
-  ) {
-    id
-    originDomain
-    destinationDomain
-    chainId
-    status
-    to
-    transferId
-    callData
-    idx
-    nonce
-    routers {
-      id
-    }
-    relayerFee
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledCaller
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
-    executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
-    executedTransactionHash
-    executedTimestamp
-    executedGasPrice
-    executedGasLimit
-    executedBlockNumber
-    reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
-    reconciledTransactionHash
-    reconciledTimestamp
-    reconciledGasPrice
-    reconciledGasLimit
-    reconciledBlockNumber
-  }
-}
-    `;
-export const GetTransfersStatusDocument = gql`
-    query GetTransfersStatus($transferIds: [Bytes!]) {
-  transfers(
-    where: {transferId_in: $transferIds, status_in: [Executed, Reconciled]}
-  ) {
-    id
-    originDomain
-    destinationDomain
-    chainId
-    status
-    to
-    transferId
-    callData
-    idx
-    nonce
-    routers {
-      id
-    }
-    relayerFee
-    xcalledTransactingAsset
-    xcalledLocalAsset
-    xcalledTransactingAmount
-    xcalledLocalAmount
-    xcalledCaller
-    xcalledTransactionHash
-    xcalledTimestamp
-    xcalledGasPrice
-    xcalledGasLimit
-    xcalledBlockNumber
-    executedCaller
-    executedTransactingAmount
-    executedLocalAmount
-    executedTransactingAsset
-    executedLocalAsset
-    executedTransactionHash
-    executedTimestamp
-    executedGasPrice
-    executedGasLimit
-    executedBlockNumber
-    reconciledCaller
-    reconciledLocalAsset
-    reconciledLocalAmount
     reconciledTransactionHash
     reconciledTimestamp
     reconciledGasPrice
@@ -1313,23 +1241,17 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    GetTransfers(variables: GetTransfersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransfersQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetTransfersQuery>(GetTransfersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransfers', 'query');
+    GetOriginTransfers(variables: GetOriginTransfersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetOriginTransfersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetOriginTransfersQuery>(GetOriginTransfersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetOriginTransfers', 'query');
     },
-    GetXCalledTransfers(variables: GetXCalledTransfersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetXCalledTransfersQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetXCalledTransfersQuery>(GetXCalledTransfersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetXCalledTransfers', 'query');
+    GetOriginTransfersByIds(variables?: GetOriginTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetOriginTransfersByIdsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetOriginTransfersByIdsQuery>(GetOriginTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetOriginTransfersByIds', 'query');
     },
-    GetTransfer(variables: GetTransferQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransferQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetTransferQuery>(GetTransferDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransfer', 'query');
+    GetDestinationTransfers(variables: GetDestinationTransfersQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetDestinationTransfersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetDestinationTransfersQuery>(GetDestinationTransfersDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetDestinationTransfers', 'query');
     },
-    GetExecutedTransfersByIds(variables: GetExecutedTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetExecutedTransfersByIdsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetExecutedTransfersByIdsQuery>(GetExecutedTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetExecutedTransfersByIds', 'query');
-    },
-    GetReconciledTransfersByIds(variables: GetReconciledTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetReconciledTransfersByIdsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetReconciledTransfersByIdsQuery>(GetReconciledTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetReconciledTransfersByIds', 'query');
-    },
-    GetTransfersStatus(variables?: GetTransfersStatusQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetTransfersStatusQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<GetTransfersStatusQuery>(GetTransfersStatusDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetTransfersStatus', 'query');
+    GetDestinationTransfersByIds(variables?: GetDestinationTransfersByIdsQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetDestinationTransfersByIdsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetDestinationTransfersByIdsQuery>(GetDestinationTransfersByIdsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetDestinationTransfersByIds', 'query');
     },
     GetAssetByLocal(variables: GetAssetByLocalQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetAssetByLocalQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAssetByLocalQuery>(GetAssetByLocalDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetAssetByLocal', 'query');

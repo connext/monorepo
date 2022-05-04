@@ -1,21 +1,18 @@
 import { BigNumber, constants } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams, OriginTransfer } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
 import {
   GetAssetByLocalQuery,
-  GetXCalledTransfersQuery,
-  GetTransferQuery,
-  GetTransfersQuery,
-  GetTransfersStatusQuery,
+  GetOriginTransfersQuery,
+  GetOriginTransfersByIdsQuery,
+  GetOriginTransfersQueryVariables,
+  GetDestinationTransfersByIdsQuery,
   Asset,
-  GetExecutedTransfersByIdsQuery,
-  GetReconciledTransfersByIdsQuery,
   GetAssetBalanceQuery,
   GetAssetBalancesQuery,
   GetRouterQuery,
-  GetXCalledTransfersQueryVariables,
 } from "./lib/subgraphs/runtime/graphqlsdk";
 
 export class SubgraphReader {
@@ -137,12 +134,14 @@ export class SubgraphReader {
    * @param transferId - The ID of the transfer you want to retrieve.
    * @returns Parsed XTransfer object if transfer exists, otherwise undefined.
    */
-  public async getTransfer(domain: string, transferId: string): Promise<XTransfer | undefined> {
+  public async getOriginTransfer(domain: string, transferId: string): Promise<OriginTransfer | undefined> {
     const { parser } = getHelpers();
-    const { transfers } = await this.subgraphs.get(domain)!.runtime.request<GetTransferQuery>((client) => {
-      return client.GetTransfer({ transferId });
-    });
-    return transfers.length === 1 ? parser.xtransfer(transfers[0]) : undefined;
+    const { originTransfers } = await this.subgraphs
+      .get(domain)!
+      .runtime.request<GetOriginTransfersByIdsQuery>((client) => {
+        return client.GetOriginTransfersByIds({ transferIds: [transferId] });
+      });
+    return originTransfers.length === 1 ? parser.originTransfer(originTransfers[0]) : undefined;
   }
 
   /**
@@ -151,88 +150,58 @@ export class SubgraphReader {
    * @param domain - The domain you want to get transfers from.
    * @param fromNonce - The nonce to start from (inclusive).
    * @param destinationDomains - The domains which the retrieved transfers must be going to.
-   * @returns an array of XTransfers.
+   * @returns an array of OriginTransfers.
    */
-  public async getTransfers(
+  public async getOriginTransfers(
     domain: string,
     fromNonce: number,
+    maxBlockNumber: number,
     destinationDomains: string[] = [...this.subgraphs.keys()],
-  ): Promise<XTransfer[]> {
+  ): Promise<OriginTransfer[]> {
     const { parser } = getHelpers();
-    const { transfers } = await this.subgraphs.get(domain)!.runtime.request<GetTransfersQuery>((client) => {
-      return client.GetTransfers({ destinationDomains, nonce: fromNonce, originDomain: domain });
+    const { originTransfers } = await this.subgraphs.get(domain)!.runtime.request<GetOriginTransfersQuery>((client) => {
+      return client.GetOriginTransfers({ destinationDomains, nonce: fromNonce, originDomain: domain, maxBlockNumber });
     });
-    return transfers.map(parser.xtransfer);
+    return originTransfers.map(parser.originTransfer);
   }
 
   public async getXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const destinationDomains = [...this.subgraphs.keys()];
-    const { parser } = getHelpers();
-
-    // first get prepared transactions on all chains
-    const allPrepared: XTransfer[] = (
-      await Promise.all(
-        [...this.subgraphs].map(async ([domain, subgraph]) => {
-          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>((client) => {
-            const { latestNonce: nonce, maxBlockNumber, destinationDomains: _destinationDomains } = agents.get(domain)!;
-
-            return client.GetXCalledTransfers({
-              destinationDomains: _destinationDomains ?? destinationDomains,
-              maxXCallBlockNumber: maxBlockNumber.toString(),
-              nonce,
-              originDomain: domain,
-            });
-          });
-          return transfers;
-        }),
-      )
-    )
-      .flat()
-      .filter((x) => !!x)
-      .map(parser.xtransfer);
-    return allPrepared;
-  }
-
-  public async getTransactionsWithStatuses(
-    agents: Map<string, SubgraphQueryMetaParams>,
-    status: XTransferStatus,
-  ): Promise<XTransfer[]> {
-    const destinationDomains = [...this.subgraphs.keys()];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const { parser } = getHelpers();
 
-    // first get prepared transactions on all chains
+    // First, get Origin Transfers on all chains.
     const allOrigin: [string, XTransfer][] = (
       await Promise.all(
         [...this.subgraphs].map(async ([domain, subgraph]) => {
-          const { transfers } = await subgraph.runtime.request<GetXCalledTransfersQuery>(
-            (client: { GetXCalledTransfers: (arg0: GetXCalledTransfersQueryVariables) => any }) => {
+          const { originTransfers } = await subgraph.runtime.request<GetOriginTransfersQuery>(
+            (client: { GetOriginTransfers: (arg0: GetOriginTransfersQueryVariables) => any }) => {
               const {
                 latestNonce: nonce,
                 maxBlockNumber,
                 destinationDomains: _destinationDomains,
               } = agents.get(domain)!;
 
-              return client.GetXCalledTransfers({
+              return client.GetOriginTransfers({
                 destinationDomains: _destinationDomains ?? destinationDomains,
-                maxXCallBlockNumber: maxBlockNumber.toString(),
                 nonce,
                 originDomain: domain,
+                maxBlockNumber: maxBlockNumber.toString(),
               });
             },
           );
-          return transfers;
+          return originTransfers;
         }),
       )
     )
       .flat()
       .filter((x) => !!x)
       .map((s) => {
-        const tx = parser.xtransfer(s);
+        const tx: OriginTransfer = parser.originTransfer(s);
 
         // set into a map by destination domain
         const destinationDomainRecord = txIdsByDestinationDomain.get(tx.destinationDomain);
-        const txIds = destinationDomainRecord
+        const txIds: string[] = destinationDomainRecord
           ? destinationDomainRecord.includes(tx.transferId)
             ? destinationDomainRecord
             : destinationDomainRecord.concat(tx.transferId)
@@ -248,49 +217,31 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        const executed = await subgraph.runtime.request<GetExecutedTransfersByIdsQuery>(
-          (client: {
-            GetExecutedTransfersByIds: (arg0: { transferIds: string[]; maxExecutedBlockNumber: any }) => any;
-          }) =>
-            client.GetExecutedTransfersByIds({
+        const { destinationTransfers } = await subgraph.runtime.request<GetDestinationTransfersByIdsQuery>(
+          (client: { GetDestinationTransfersByIds: (arg0: { transferIds: string[] }) => any }) =>
+            client.GetDestinationTransfersByIds({
               transferIds,
-              maxExecutedBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
+              // TODO:
+              // maxExecutedBlockNumber: ,
+              // maxReconciledBlockNumber:,
+              // status: ,
             }),
         );
-        executed.transfers.forEach((_tx: any) => {
-          const tx = parser.xtransfer(_tx);
-          const inMap = allTxById.get(tx.transferId)!;
-          inMap.status = tx.status;
-          allTxById.set(tx.transferId, inMap);
-        });
-
-        const reconciled = await subgraph.runtime.request<GetReconciledTransfersByIdsQuery>(
-          (client: {
-            GetReconciledTransfersByIds: (arg0: { transferIds: string[]; maxReconciledBlockNumber: any }) => any;
-          }) =>
-            client.GetReconciledTransfersByIds({
-              transferIds,
-              maxReconciledBlockNumber: agents.get(destinationDomain)!.maxBlockNumber.toString(),
-            }),
-        );
-
-        reconciled.transfers.forEach((_tx: any) => {
-          const tx = parser.xtransfer(_tx);
-          const inMap = allTxById.get(tx.transferId)!;
-          inMap.status = tx.status;
-          allTxById.set(tx.transferId, inMap);
+        destinationTransfers.forEach((_tx: any) => {
+          const tx = parser.destinationTransfer(_tx);
+          allTxById.delete(tx.transferId);
         });
       }),
     );
 
     // create array of all transactions by status
-    return [...allTxById.values()].filter((xTransfer) => xTransfer.status === status);
+    return [...allTxById.values()];
   }
 
-  public async getExecutedAndReconciledTransfers(transfers: XTransfer[]): Promise<XTransfer[]> {
+  public async getDestinationTransfers(transfers: OriginTransfer[]): Promise<XTransfer[]> {
     const { parser } = getHelpers();
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
-    const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
+    const allOrigin: [string, OriginTransfer][] = transfers.map((transfer) => {
       const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain);
       const txIds = destinationDomainRecord
         ? destinationDomainRecord.includes(transfer.transferId)
@@ -307,22 +258,21 @@ export class SubgraphReader {
       [...txIdsByDestinationDomain.entries()].map(async ([destinationDomain, transferIds]) => {
         const subgraph = this.subgraphs.get(destinationDomain)!; // should exist bc of initial filter
 
-        const { transfers } = await subgraph.runtime.request<GetTransfersStatusQuery>((client) =>
-          client.GetTransfersStatus({
+        const { destinationTransfers } = await subgraph.runtime.request<GetDestinationTransfersByIdsQuery>((client) =>
+          client.GetDestinationTransfersByIds({
             transferIds,
           }),
         );
-        transfers.forEach((_tx: any) => {
-          const tx = parser.xtransfer(_tx);
+        destinationTransfers.forEach((_tx: any) => {
+          const tx = parser.destinationTransfer(_tx);
           const inMap = allTxById.get(tx.transferId)!;
-          inMap.status = tx.status;
-          inMap.execute = tx.execute;
-          inMap.reconcile = tx.reconcile;
+          inMap.destination = tx.destination;
           allTxById.set(tx.transferId, inMap);
         });
       }),
     );
 
-    return [...allTxById.values()].filter((xTransfer) => xTransfer.status !== XTransferStatus.XCalled);
+    // Return all transfers with destination defined.
+    return [...allTxById.values()].filter((transfer) => !!transfer.destination);
   }
 }

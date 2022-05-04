@@ -3,7 +3,10 @@ import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { getChainData, mkBytes32 } from "@connext/nxtp-utils";
-import { getTransfers } from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
+import {
+  getOriginTransfers,
+  getDestinationTransfers,
+} from "@connext/nxtp-adapters-subgraph/src/lib/subgraphs/runtime/queries";
 import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 
 export enum Environment {
@@ -56,13 +59,22 @@ export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
-export const SUBG_TRANSFER_ENTITY_PARAMS = getTransfers
-  .slice(getTransfers.lastIndexOf(") {"), getTransfers.lastIndexOf("}"))
-  .replace(/router \{\n.*id\n.*\}/, "router { id }")
+export const SUBG_ORIGIN_TRANSFER_PARAMS = getOriginTransfers
+  .slice(getOriginTransfers.lastIndexOf(") {"), getOriginTransfers.lastIndexOf("}"))
+  .replace(/routers \{\n.*id\n.*\}/, "routers { id }")
   .split("\n")
   .slice(1, -2)
   .filter((line) => !line.includes("#"))
-  .map((line) => line.trim());
+  .map((line) => line.trim())
+  .filter((line) => line.length > 0);
+export const SUBG_DESTINATION_TRANSFER_PARAMS = getDestinationTransfers
+  .slice(getDestinationTransfers.lastIndexOf(") {"), getDestinationTransfers.lastIndexOf("}"))
+  .replace(/routers \{\n.*id\n.*\}/, "routers { id }")
+  .split("\n")
+  .slice(1, -2)
+  .filter((line) => !line.includes("#"))
+  .map((line) => line.trim())
+  .filter((line) => line.length > 0);
 
 /// MARK - General
 export type DomainInfo = {

@@ -6563,7 +6563,7 @@ __metadata:
   dependencies:
     inherits: ^2.0.3
     readable-stream: ^3.0.2
-  checksum: cae463db86ffa444ad60051a4a6c17e3f3d289fd169a87cbf1a6ee9d4118aafb976bb4713943359dba9c8211e2250f507bc4d50659b383e6b4e8dc1f0320e548
+  checksum: 1cef636e7061f310088706b34fe774e3960dff60a5039158b5e5c84795f6dd8a3411659324280405b8c5f1d7e8e3d4f68fa48e55963ed14953a44fef66423329
   languageName: node
   linkType: hard
 
@@ -6672,14 +6672,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.5.0":
+"cookie@npm:0.5.0, cookie@npm:^0.5.0":
   version: 0.5.0
   resolution: "cookie@npm:0.5.0"
   checksum: 1f4bd2ca5765f8c9689a7e8954183f5332139eb72b6ff783d8947032ec1fdf43109852c178e21a953a30c0dd42257828185be01b49d1eb1a67fd054ca588a180
   languageName: node
   linkType: hard
 
-"cookie@npm:^0.4.0, cookie@npm:^0.4.1":
+"cookie@npm:^0.4.1":
   version: 0.4.2
   resolution: "cookie@npm:0.4.2"
   checksum: a00833c998bedf8e787b4c342defe5fa419abd96b32f4464f718b91022586b8f1bafbddd499288e75c037642493c83083da426c6a9080d309e3bd90fd11baa9b
@@ -13189,14 +13189,14 @@ __metadata:
   linkType: hard
 
 "light-my-request@npm:^4.2.0":
-  version: 4.9.0
-  resolution: "light-my-request@npm:4.9.0"
+  version: 4.10.0
+  resolution: "light-my-request@npm:4.10.0"
   dependencies:
     ajv: ^8.1.0
-    cookie: ^0.4.0
+    cookie: ^0.5.0
     process-warning: ^1.0.0
     set-cookie-parser: ^2.4.1
-  checksum: 8551310e93b4637cd7460fc23baa8c6e7ef4751afe4bfffbbf4ef3f7dd6713a72f2ac1db2d0eaa464f3f78e03917ec45c86066ca72748fae711b9d34d7a38992
+  checksum: 47ee0fdaeeecdc597b4fc3c5a18fd072fdd61c90e21d69e1dd7c2a825f3bcad884123382c213f86a876aa9f2794fd34d660d79e013f37e151a89eb7e5da88959
   languageName: node
   linkType: hard
 
@@ -14672,7 +14672,7 @@ __metadata:
     through2: ^3.0.0
   bin:
     ndjson: cli.js
-  checksum: ae2646e9365d859eec9d96439856011f43b3cc9b8f12cab3c84c6097c89988ddeb2811dbdfcf2767888d976b9e681e0c0a6172cf0bed662b606d3d17d09d32d2
+  checksum: dbcf1e361e216c7f8c2bad796f23087966b75429e929890ae1e3f57f00a5df2cabed89c4d55d067934ed4e4c9ed3ac5991ed44d2e08cfc4bc9e50ae2c5b66dce
   languageName: node
   linkType: hard
 
