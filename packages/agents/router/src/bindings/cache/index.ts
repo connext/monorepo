@@ -1,4 +1,4 @@
-import { createLoggingContext, jsonifyError, NxtpError, XTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError, NxtpError, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { AuctionExpired } from "../../lib/errors";
@@ -36,52 +36,30 @@ export const pollCache = async () => {
       continue;
     }
     // Retrieve the list of all pending transfer IDs for this domain.
-    let pending = await cache.transfers.getPending(domain);
-    logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
+    const pendingTransferIds = await cache.transfers.getPending(domain);
 
-    const pendingTransfers: XTransfer[] = [];
-    for (const transferId of pending) {
+    let pendingTransfers: OriginTransfer[] = [];
+    for (const transferId of pendingTransferIds) {
       // Retrieve the transfer data.
       const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
-      if (transfer) pendingTransfers.push(transfer);
+      if (transfer && transfer.destinationDomain && transfer.origin) pendingTransfers.push(transfer as OriginTransfer);
     }
 
     // Check the transfer status and update if it gets executed or reconciled on the destination domain
     const confirmedTransfers: XTransfer[] = await subgraph.getDestinationTransfers(pendingTransfers);
     if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
 
-    const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
-    pending = pending.filter((txid) => !confirmedTxIds.includes(txid));
+    const confirmedTransferIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
+    pendingTransfers = pendingTransfers.filter((transfer) => !confirmedTransferIds.includes(transfer.transferId));
+    logger.info("Retrieved pending transfers for execution.", requestContext, methodContext, {
+      originDomain: domain,
+      pendingTransferIds,
+      confirmedTransferIds,
+      pending: pendingTransfers.map((transfer) => transfer.transferId),
+    });
 
-    for (const transferId of pending) {
-      // Retrieve the transfer data.
-      const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
-      if (!transfer) {
-        // Sanity check: transfer should exist. This shouldn't happen unless the cache was manipulated outside of
-        // the context of this application.
-        logger.warn(
-          "Error retrieving pending transfer from cache : transfer not found!",
-          requestContext,
-          methodContext,
-          {
-            domain,
-            transferId,
-          },
-        );
-        continue;
-      } else if (!transfer.xcall) {
-        // Sanity check: this transfer should never have been labeled as pending.
-        logger.warn(
-          "Error retrieving pending transfer from cache : XCall not defined!",
-          requestContext,
-          methodContext,
-          {
-            domain,
-            transfer,
-          },
-        );
-        continue;
-      } else if (transfer.execute?.transactionHash || transfer.reconcile?.transactionHash) {
+    for (const transfer of pendingTransfers) {
+      if (transfer.destination) {
         // Transfer has already been processed, so skip it. This is possible if the transfer was just retrieved asynchronously
         // via subgraph polling in a separate thread.
         continue;
@@ -94,18 +72,18 @@ export const pollCache = async () => {
         const type = (error as NxtpError).type;
         const isAuctionExpired = type === AuctionExpired.name;
         // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
-        const isNewError = await cache.transfers.saveError(transferId, (error as Error).toString());
+        const isNewError = await cache.transfers.saveError(transfer.transferId, (error as Error).toString());
         if (isNewError) {
           if (isAuctionExpired) {
             logger.debug("Auction for transfer has expired", requestContext, methodContext, {
               domain,
-              transferId,
+              transferId: transfer.transferId,
             });
           } else {
             logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
               domain,
-              transferId,
-              xcall: transfer.xcall,
+              transferId: transfer.transferId,
+              xcall: transfer.origin.xcall,
             });
           }
         }

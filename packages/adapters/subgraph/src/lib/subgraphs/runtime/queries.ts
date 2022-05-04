@@ -21,25 +21,27 @@ export const getOriginTransfers = gql`
     ) {
       id
 
-      # MetaData
+      # Meta Data
+      chainId
+      transferId
+      nonce
+      to
+      callData
       originDomain
       destinationDomain
-      chainId
 
-      # event Data
-      transferId
-      to
-      nonce
-      callData
+      # Asset Data
       transactingAsset
+      transactingAmount
       bridgedAsset
-      amount
       bridgedAmount
+
+      # Event Data
       relayerFee
-      caller
       message
 
       # XCalled Transaction
+      caller
       transactionHash
       timestamp
       gasPrice
@@ -54,25 +56,27 @@ export const getOriginTransfersByIds = gql`
     originTransfers(where: { transferId_in: $transferIds }) {
       id
 
-      # MetaData
+      # Meta Data
+      chainId
+      transferId
+      nonce
+      to
+      callData
       originDomain
       destinationDomain
-      chainId
 
-      # event Data
-      transferId
-      to
-      nonce
-      callData
+      # Asset Data
       transactingAsset
+      transactingAmount
       bridgedAsset
-      amount
       bridgedAmount
+
+      # Event Data
       relayerFee
-      caller
       message
 
       # XCalled Transaction
+      caller
       transactionHash
       timestamp
       gasPrice
@@ -101,41 +105,38 @@ export const getDestinationTransfers = gql`
     ) {
       id
 
-      # MetaData
+      # Meta Data
+      chainId
+      transferId
+      nonce
+      to
+      callData
       originDomain
       destinationDomain
-      chainId
-      status
+
+      # Asset Data
+      localAsset
+      localAmount
+      transactingAsset
+      transactingAmount
 
       # Executed event Data
-      transferId
-      to
-      nonce
-      callData
-      localAsset
+      status
       routers {
         id
       }
-      transactingAsset
-      transactingAmount
       originSender
 
-      executedCaller
-      executedAmount
-
       # Executed Transaction
+      executedCaller
       executedTransactionHash
       executedTimestamp
       executedGasPrice
       executedGasLimit
       executedBlockNumber
 
-      # Reconciled event Data
-      reconciledAsset
-      reconciledAmount
-      reconciledCaller
-
       # Reconciled Transaction
+      reconciledCaller
       reconciledTransactionHash
       reconciledTimestamp
       reconciledGasPrice
@@ -162,41 +163,38 @@ export const getDestinationTransfersByIds = gql`
     ) {
       id
 
-      # MetaData
+      # Meta Data
+      chainId
+      transferId
+      nonce
+      to
+      callData
       originDomain
       destinationDomain
-      chainId
-      status
+
+      # Asset Data
+      localAsset
+      localAmount
+      transactingAsset
+      transactingAmount
 
       # Executed event Data
-      transferId
-      to
-      nonce
-      callData
-      localAsset
+      status
       routers {
         id
       }
-      transactingAsset
-      transactingAmount
       originSender
 
-      executedCaller
-      executedAmount
-
       # Executed Transaction
+      executedCaller
       executedTransactionHash
       executedTimestamp
       executedGasPrice
       executedGasLimit
       executedBlockNumber
 
-      # Reconciled event Data
-      reconciledAsset
-      reconciledAmount
-      reconciledCaller
-
       # Reconciled Transaction
+      reconciledCaller
       reconciledTransactionHash
       reconciledTimestamp
       reconciledGasPrice
