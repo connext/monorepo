@@ -8,7 +8,6 @@ import {
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents, Environment, ENVIRONMENT } from "./constants";
-import { getPrefixByDomain } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/shared";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {

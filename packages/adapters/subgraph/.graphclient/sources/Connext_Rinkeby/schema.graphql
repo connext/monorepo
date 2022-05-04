@@ -170,28 +170,26 @@ scalar rinkeby_Bytes
 
 type rinkeby_DestinationTransfer {
   id: ID!
+  chainId: BigInt
+  transferId: rinkeby_Bytes
+  nonce: BigInt
+  to: rinkeby_Bytes
+  callData: rinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  chainId: BigInt
   status: rinkeby_TransferStatus
-  transferId: rinkeby_Bytes
-  to: rinkeby_Bytes
-  nonce: BigInt
-  callData: rinkeby_Bytes
-  localAsset: rinkeby_Bytes
   routers(skip: Int = 0, first: Int = 100, orderBy: rinkeby_Router_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_Router_filter): [rinkeby_Router!]
+  originSender: rinkeby_Bytes
   transactingAsset: rinkeby_Bytes
   transactingAmount: BigInt
-  originSender: rinkeby_Bytes
+  localAsset: rinkeby_Bytes
+  localAmount: BigInt
   executedCaller: rinkeby_Bytes
-  executedAmount: BigInt
   executedTransactionHash: rinkeby_Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  reconciledAsset: rinkeby_Bytes
-  reconciledAmount: BigInt
   reconciledCaller: rinkeby_Bytes
   reconciledTransactionHash: rinkeby_Bytes
   reconciledTimestamp: BigInt
@@ -209,6 +207,40 @@ input rinkeby_DestinationTransfer_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: rinkeby_Bytes
+  transferId_not: rinkeby_Bytes
+  transferId_in: [rinkeby_Bytes!]
+  transferId_not_in: [rinkeby_Bytes!]
+  transferId_contains: rinkeby_Bytes
+  transferId_not_contains: rinkeby_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  to: rinkeby_Bytes
+  to_not: rinkeby_Bytes
+  to_in: [rinkeby_Bytes!]
+  to_not_in: [rinkeby_Bytes!]
+  to_contains: rinkeby_Bytes
+  to_not_contains: rinkeby_Bytes
+  callData: rinkeby_Bytes
+  callData_not: rinkeby_Bytes
+  callData_in: [rinkeby_Bytes!]
+  callData_not_in: [rinkeby_Bytes!]
+  callData_contains: rinkeby_Bytes
+  callData_not_contains: rinkeby_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -225,56 +257,22 @@ input rinkeby_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  chainId: BigInt
-  chainId_not: BigInt
-  chainId_gt: BigInt
-  chainId_lt: BigInt
-  chainId_gte: BigInt
-  chainId_lte: BigInt
-  chainId_in: [BigInt!]
-  chainId_not_in: [BigInt!]
   status: rinkeby_TransferStatus
   status_not: rinkeby_TransferStatus
   status_in: [rinkeby_TransferStatus!]
   status_not_in: [rinkeby_TransferStatus!]
-  transferId: rinkeby_Bytes
-  transferId_not: rinkeby_Bytes
-  transferId_in: [rinkeby_Bytes!]
-  transferId_not_in: [rinkeby_Bytes!]
-  transferId_contains: rinkeby_Bytes
-  transferId_not_contains: rinkeby_Bytes
-  to: rinkeby_Bytes
-  to_not: rinkeby_Bytes
-  to_in: [rinkeby_Bytes!]
-  to_not_in: [rinkeby_Bytes!]
-  to_contains: rinkeby_Bytes
-  to_not_contains: rinkeby_Bytes
-  nonce: BigInt
-  nonce_not: BigInt
-  nonce_gt: BigInt
-  nonce_lt: BigInt
-  nonce_gte: BigInt
-  nonce_lte: BigInt
-  nonce_in: [BigInt!]
-  nonce_not_in: [BigInt!]
-  callData: rinkeby_Bytes
-  callData_not: rinkeby_Bytes
-  callData_in: [rinkeby_Bytes!]
-  callData_not_in: [rinkeby_Bytes!]
-  callData_contains: rinkeby_Bytes
-  callData_not_contains: rinkeby_Bytes
-  localAsset: rinkeby_Bytes
-  localAsset_not: rinkeby_Bytes
-  localAsset_in: [rinkeby_Bytes!]
-  localAsset_not_in: [rinkeby_Bytes!]
-  localAsset_contains: rinkeby_Bytes
-  localAsset_not_contains: rinkeby_Bytes
   routers: [String!]
   routers_not: [String!]
   routers_contains: [String!]
   routers_contains_nocase: [String!]
   routers_not_contains: [String!]
   routers_not_contains_nocase: [String!]
+  originSender: rinkeby_Bytes
+  originSender_not: rinkeby_Bytes
+  originSender_in: [rinkeby_Bytes!]
+  originSender_not_in: [rinkeby_Bytes!]
+  originSender_contains: rinkeby_Bytes
+  originSender_not_contains: rinkeby_Bytes
   transactingAsset: rinkeby_Bytes
   transactingAsset_not: rinkeby_Bytes
   transactingAsset_in: [rinkeby_Bytes!]
@@ -289,26 +287,26 @@ input rinkeby_DestinationTransfer_filter {
   transactingAmount_lte: BigInt
   transactingAmount_in: [BigInt!]
   transactingAmount_not_in: [BigInt!]
-  originSender: rinkeby_Bytes
-  originSender_not: rinkeby_Bytes
-  originSender_in: [rinkeby_Bytes!]
-  originSender_not_in: [rinkeby_Bytes!]
-  originSender_contains: rinkeby_Bytes
-  originSender_not_contains: rinkeby_Bytes
+  localAsset: rinkeby_Bytes
+  localAsset_not: rinkeby_Bytes
+  localAsset_in: [rinkeby_Bytes!]
+  localAsset_not_in: [rinkeby_Bytes!]
+  localAsset_contains: rinkeby_Bytes
+  localAsset_not_contains: rinkeby_Bytes
+  localAmount: BigInt
+  localAmount_not: BigInt
+  localAmount_gt: BigInt
+  localAmount_lt: BigInt
+  localAmount_gte: BigInt
+  localAmount_lte: BigInt
+  localAmount_in: [BigInt!]
+  localAmount_not_in: [BigInt!]
   executedCaller: rinkeby_Bytes
   executedCaller_not: rinkeby_Bytes
   executedCaller_in: [rinkeby_Bytes!]
   executedCaller_not_in: [rinkeby_Bytes!]
   executedCaller_contains: rinkeby_Bytes
   executedCaller_not_contains: rinkeby_Bytes
-  executedAmount: BigInt
-  executedAmount_not: BigInt
-  executedAmount_gt: BigInt
-  executedAmount_lt: BigInt
-  executedAmount_gte: BigInt
-  executedAmount_lte: BigInt
-  executedAmount_in: [BigInt!]
-  executedAmount_not_in: [BigInt!]
   executedTransactionHash: rinkeby_Bytes
   executedTransactionHash_not: rinkeby_Bytes
   executedTransactionHash_in: [rinkeby_Bytes!]
@@ -347,20 +345,6 @@ input rinkeby_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
-  reconciledAsset: rinkeby_Bytes
-  reconciledAsset_not: rinkeby_Bytes
-  reconciledAsset_in: [rinkeby_Bytes!]
-  reconciledAsset_not_in: [rinkeby_Bytes!]
-  reconciledAsset_contains: rinkeby_Bytes
-  reconciledAsset_not_contains: rinkeby_Bytes
-  reconciledAmount: BigInt
-  reconciledAmount_not: BigInt
-  reconciledAmount_gt: BigInt
-  reconciledAmount_lt: BigInt
-  reconciledAmount_gte: BigInt
-  reconciledAmount_lte: BigInt
-  reconciledAmount_in: [BigInt!]
-  reconciledAmount_not_in: [BigInt!]
   reconciledCaller: rinkeby_Bytes
   reconciledCaller_not: rinkeby_Bytes
   reconciledCaller_in: [rinkeby_Bytes!]
@@ -411,28 +395,26 @@ input rinkeby_DestinationTransfer_filter {
 
 enum rinkeby_DestinationTransfer_orderBy {
   id
+  chainId
+  transferId
+  nonce
+  to
+  callData
   originDomain
   destinationDomain
-  chainId
   status
-  transferId
-  to
-  nonce
-  callData
-  localAsset
   routers
+  originSender
   transactingAsset
   transactingAmount
-  originSender
+  localAsset
+  localAmount
   executedCaller
-  executedAmount
   executedTransactionHash
   executedTimestamp
   executedGasPrice
   executedGasLimit
   executedBlockNumber
-  reconciledAsset
-  reconciledAmount
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -449,20 +431,20 @@ enum rinkeby_OrderDirection {
 
 type rinkeby_OriginTransfer {
   id: ID!
-  originDomain: BigInt
-  destinationDomain: BigInt
   chainId: BigInt
   transferId: rinkeby_Bytes
-  to: rinkeby_Bytes
   nonce: BigInt
+  to: rinkeby_Bytes
   callData: rinkeby_Bytes
-  transactingAsset: rinkeby_Bytes
-  bridgedAsset: rinkeby_Bytes
-  amount: BigInt
-  bridgedAmount: BigInt
+  originDomain: BigInt
+  destinationDomain: BigInt
   relayerFee: BigInt
-  caller: rinkeby_Bytes
   message: rinkeby_Bytes
+  transactingAsset: rinkeby_Bytes
+  transactingAmount: BigInt
+  bridgedAsset: rinkeby_Bytes
+  bridgedAmount: BigInt
+  caller: rinkeby_Bytes
   transactionHash: rinkeby_Bytes
   timestamp: BigInt
   gasPrice: BigInt
@@ -479,6 +461,40 @@ input rinkeby_OriginTransfer_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: rinkeby_Bytes
+  transferId_not: rinkeby_Bytes
+  transferId_in: [rinkeby_Bytes!]
+  transferId_not_in: [rinkeby_Bytes!]
+  transferId_contains: rinkeby_Bytes
+  transferId_not_contains: rinkeby_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  to: rinkeby_Bytes
+  to_not: rinkeby_Bytes
+  to_in: [rinkeby_Bytes!]
+  to_not_in: [rinkeby_Bytes!]
+  to_contains: rinkeby_Bytes
+  to_not_contains: rinkeby_Bytes
+  callData: rinkeby_Bytes
+  callData_not: rinkeby_Bytes
+  callData_in: [rinkeby_Bytes!]
+  callData_not_in: [rinkeby_Bytes!]
+  callData_contains: rinkeby_Bytes
+  callData_not_contains: rinkeby_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -495,68 +511,6 @@ input rinkeby_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  chainId: BigInt
-  chainId_not: BigInt
-  chainId_gt: BigInt
-  chainId_lt: BigInt
-  chainId_gte: BigInt
-  chainId_lte: BigInt
-  chainId_in: [BigInt!]
-  chainId_not_in: [BigInt!]
-  transferId: rinkeby_Bytes
-  transferId_not: rinkeby_Bytes
-  transferId_in: [rinkeby_Bytes!]
-  transferId_not_in: [rinkeby_Bytes!]
-  transferId_contains: rinkeby_Bytes
-  transferId_not_contains: rinkeby_Bytes
-  to: rinkeby_Bytes
-  to_not: rinkeby_Bytes
-  to_in: [rinkeby_Bytes!]
-  to_not_in: [rinkeby_Bytes!]
-  to_contains: rinkeby_Bytes
-  to_not_contains: rinkeby_Bytes
-  nonce: BigInt
-  nonce_not: BigInt
-  nonce_gt: BigInt
-  nonce_lt: BigInt
-  nonce_gte: BigInt
-  nonce_lte: BigInt
-  nonce_in: [BigInt!]
-  nonce_not_in: [BigInt!]
-  callData: rinkeby_Bytes
-  callData_not: rinkeby_Bytes
-  callData_in: [rinkeby_Bytes!]
-  callData_not_in: [rinkeby_Bytes!]
-  callData_contains: rinkeby_Bytes
-  callData_not_contains: rinkeby_Bytes
-  transactingAsset: rinkeby_Bytes
-  transactingAsset_not: rinkeby_Bytes
-  transactingAsset_in: [rinkeby_Bytes!]
-  transactingAsset_not_in: [rinkeby_Bytes!]
-  transactingAsset_contains: rinkeby_Bytes
-  transactingAsset_not_contains: rinkeby_Bytes
-  bridgedAsset: rinkeby_Bytes
-  bridgedAsset_not: rinkeby_Bytes
-  bridgedAsset_in: [rinkeby_Bytes!]
-  bridgedAsset_not_in: [rinkeby_Bytes!]
-  bridgedAsset_contains: rinkeby_Bytes
-  bridgedAsset_not_contains: rinkeby_Bytes
-  amount: BigInt
-  amount_not: BigInt
-  amount_gt: BigInt
-  amount_lt: BigInt
-  amount_gte: BigInt
-  amount_lte: BigInt
-  amount_in: [BigInt!]
-  amount_not_in: [BigInt!]
-  bridgedAmount: BigInt
-  bridgedAmount_not: BigInt
-  bridgedAmount_gt: BigInt
-  bridgedAmount_lt: BigInt
-  bridgedAmount_gte: BigInt
-  bridgedAmount_lte: BigInt
-  bridgedAmount_in: [BigInt!]
-  bridgedAmount_not_in: [BigInt!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -565,18 +519,46 @@ input rinkeby_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
-  caller: rinkeby_Bytes
-  caller_not: rinkeby_Bytes
-  caller_in: [rinkeby_Bytes!]
-  caller_not_in: [rinkeby_Bytes!]
-  caller_contains: rinkeby_Bytes
-  caller_not_contains: rinkeby_Bytes
   message: rinkeby_Bytes
   message_not: rinkeby_Bytes
   message_in: [rinkeby_Bytes!]
   message_not_in: [rinkeby_Bytes!]
   message_contains: rinkeby_Bytes
   message_not_contains: rinkeby_Bytes
+  transactingAsset: rinkeby_Bytes
+  transactingAsset_not: rinkeby_Bytes
+  transactingAsset_in: [rinkeby_Bytes!]
+  transactingAsset_not_in: [rinkeby_Bytes!]
+  transactingAsset_contains: rinkeby_Bytes
+  transactingAsset_not_contains: rinkeby_Bytes
+  transactingAmount: BigInt
+  transactingAmount_not: BigInt
+  transactingAmount_gt: BigInt
+  transactingAmount_lt: BigInt
+  transactingAmount_gte: BigInt
+  transactingAmount_lte: BigInt
+  transactingAmount_in: [BigInt!]
+  transactingAmount_not_in: [BigInt!]
+  bridgedAsset: rinkeby_Bytes
+  bridgedAsset_not: rinkeby_Bytes
+  bridgedAsset_in: [rinkeby_Bytes!]
+  bridgedAsset_not_in: [rinkeby_Bytes!]
+  bridgedAsset_contains: rinkeby_Bytes
+  bridgedAsset_not_contains: rinkeby_Bytes
+  bridgedAmount: BigInt
+  bridgedAmount_not: BigInt
+  bridgedAmount_gt: BigInt
+  bridgedAmount_lt: BigInt
+  bridgedAmount_gte: BigInt
+  bridgedAmount_lte: BigInt
+  bridgedAmount_in: [BigInt!]
+  bridgedAmount_not_in: [BigInt!]
+  caller: rinkeby_Bytes
+  caller_not: rinkeby_Bytes
+  caller_in: [rinkeby_Bytes!]
+  caller_not_in: [rinkeby_Bytes!]
+  caller_contains: rinkeby_Bytes
+  caller_not_contains: rinkeby_Bytes
   transactionHash: rinkeby_Bytes
   transactionHash_not: rinkeby_Bytes
   transactionHash_in: [rinkeby_Bytes!]
@@ -621,20 +603,20 @@ input rinkeby_OriginTransfer_filter {
 
 enum rinkeby_OriginTransfer_orderBy {
   id
-  originDomain
-  destinationDomain
   chainId
   transferId
-  to
   nonce
+  to
   callData
-  transactingAsset
-  bridgedAsset
-  amount
-  bridgedAmount
+  originDomain
+  destinationDomain
   relayerFee
-  caller
   message
+  transactingAsset
+  transactingAmount
+  bridgedAsset
+  bridgedAmount
+  caller
   transactionHash
   timestamp
   gasPrice
