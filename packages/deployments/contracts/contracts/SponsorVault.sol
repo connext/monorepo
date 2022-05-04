@@ -2,19 +2,12 @@
 pragma solidity ^0.8.11;
 
 import {ISponsorVault} from "./interfaces/ISponsorVault.sol";
+import {ITokenExchange} from "./interfaces/ITokenExchange.sol";
+import {IGasTokenOracle} from "./interfaces/IGasTokenOracle.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
-interface ITokenExchange {
-  function getInGivenExactOut(address token, uint256 exactOut) external returns (uint256);
-  function swapExactOut(address token, uint256 exactOut, address recipient) external payable returns (uint256);
-}
-
-interface IGasTokenOracle {
-  function getRate(uint32 originDomain) external view returns (uint256 num, uint256 den);
-}
 
 /**
  * @title SponsorVault
@@ -47,7 +40,7 @@ contract SponsorVault is ISponsorVault, Ownable{
   mapping(uint32 => Rate) public rates;
 
   /**
-   * @notice The maximum amount of relayer fee to sponsor
+   * @notice The maximum amount this domain gas token to be sponsored for relayer fee
    */
   uint256 public relayerFeeCap;
 
@@ -55,13 +48,13 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @notice The origin domain to this domain gas token oracle
    * @dev Used to calculate sponsored relayer fee
    */
-  address public gasTokenOracle;
+  IGasTokenOracle public gasTokenOracle;
 
   /**
    * @notice The this domain gas token to token exchange
-   * @dev Used to calculate sponsored relayer fee
+   * @dev Used to exchange this domain gas token to the token used to pay liquidity fees
    */
-  mapping(address => address payable) public tokenExchanges;
+  mapping(address => ITokenExchange) public tokenExchanges;
 
   // ============ Errors ============
 
@@ -76,27 +69,27 @@ contract SponsorVault is ISponsorVault, Ownable{
   /**
    * @notice Emitted when a new connext is set
    */
-  event ConnextUpdated(address connext, address caller);
+  event ConnextUpdated(address oldConnext, address newConnext, address caller);
 
   /**
    * @notice Emitted when a new rate is set
    */
-  event RateUpdated(uint32 originDomain, Rate rate, address caller);
+  event RateUpdated(uint32 originDomain, Rate oldRate, Rate newRate, address caller);
 
   /**
    * @notice Emitted when a new relayerFeeCap is set
    */
-  event RelayerFeeCapUpdated(uint256 relayerFeeCap, address caller);
+  event RelayerFeeCapUpdated(uint256 oldRelayerFeeCap, uint256 newRelayerFeeCap, address caller);
 
   /**
    * @notice Emitted when a new gas token oracle is set
    */
-  event GasTokenOracleUpdated(address oracle, address caller);
+  event GasTokenOracleUpdated(address oldOracle, address newOracle, address caller);
 
   /**
    * @notice Emitted when a new token exchange is set
    */
-  event TokenExchangeUpdated(address token, address tokenExchange, address caller);
+  event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
 
   // ============ Modifiers ============
 
@@ -133,9 +126,9 @@ contract SponsorVault is ISponsorVault, Ownable{
   function setRate(uint32 _originDomain, Rate calldata _rate) external onlyOwner {
     if (_originDomain == 0) revert SponsorVault__setRate_invalidOriginDomain();
 
-    rates[_originDomain] = _rate;
+    emit RateUpdated(_originDomain, rates[_originDomain], _rate, msg.sender);
 
-    emit RateUpdated(_originDomain, _rate, msg.sender);
+    rates[_originDomain] = _rate;
   }
 
   /**
@@ -143,9 +136,8 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @param _relayerFeeCap The new relayerFeeCap
    */
   function setRelayerFeeCap(uint256 _relayerFeeCap) external onlyOwner {
+    emit RelayerFeeCapUpdated(relayerFeeCap, _relayerFeeCap, msg.sender);
     relayerFeeCap = _relayerFeeCap;
-
-    emit RelayerFeeCapUpdated(_relayerFeeCap, msg.sender);
   }
 
   /**
@@ -153,9 +145,8 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @param _gasTokenOracle The oracle address
    */
   function setGasTokenOracle(address _gasTokenOracle) external onlyOwner {
-    gasTokenOracle = _gasTokenOracle;
-
-    emit GasTokenOracleUpdated(_gasTokenOracle, msg.sender);
+    emit GasTokenOracleUpdated(address(gasTokenOracle), _gasTokenOracle, msg.sender);
+    gasTokenOracle = IGasTokenOracle(_gasTokenOracle);
   }
 
   /**
@@ -165,9 +156,9 @@ contract SponsorVault is ISponsorVault, Ownable{
    */
   function setTokenExchange(address _token, address payable _tokenExchange) external onlyOwner {
     if (_token == address(0)) revert SponsorVault__setTokenExchange_invalidAdopted();
-    tokenExchanges[_token] = _tokenExchange;
 
-    emit TokenExchangeUpdated(_token, _tokenExchange, msg.sender);
+    emit TokenExchangeUpdated(_token, address(tokenExchanges[_token]), _tokenExchange, msg.sender);
+    tokenExchanges[_token] = ITokenExchange(_tokenExchange);
   }
 
   // ============ External functions ============
@@ -182,21 +173,29 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @return Sponsored liquidity fee amount
    */
   function reimburseLiquidityFees(address _token, uint256 _liquidityFee) external override onlyConnext returns (uint256) {
-    // do not sponsor liquidity fee when there is no token exchange nor liquidity for the diven token
-    if (tokenExchanges[_token] == address(0) && IERC20(_token).balanceOf(address(this)) < _liquidityFee) return 0;
+    uint256 sponsoredFee;
 
-    if (tokenExchanges[_token] != address(0)) {
-      ITokenExchange tokenExchange = ITokenExchange(tokenExchanges[_token]);
+    if (address(tokenExchanges[_token]) != address(0)) {
+      ITokenExchange tokenExchange = tokenExchanges[_token];
       uint256 amountIn = tokenExchange.getInGivenExactOut(_token, _liquidityFee);
 
+      // TODO: should it swap in the leftover and sponsor some of the liquidity fee?
+      sponsoredFee = _liquidityFee;
       if (address(this).balance < amountIn) return 0;
 
       tokenExchange.swapExactOut{value: amountIn}(_token, _liquidityFee, msg.sender);
+
     } else {
-      IERC20(_token).safeTransfer(msg.sender, _liquidityFee);
+      uint256 balance = IERC20(_token).balanceOf(address(this));
+      sponsoredFee = balance < _liquidityFee ? balance : _liquidityFee;
+
+      // some ERC20 do not allow to transfer 0 amount
+      if (sponsoredFee > 0) {
+        IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
+      }
     }
 
-    return _liquidityFee;
+    return sponsoredFee;
   }
 
   /**
@@ -207,21 +206,21 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @param _originRelayerFee The relayer fee amount in origin domain gas token
    */
   function reimburseRelayerFees(uint32 _originDomain, address payable _to, uint256 _originRelayerFee) external override onlyConnext {
-    uint256 relayerFee;
-    if (gasTokenOracle != address(0)) {
-      (uint256 num, uint256 den) = IGasTokenOracle(gasTokenOracle).getRate(_originDomain);
+    uint256 sponsoredFee;
+    if (address(gasTokenOracle) != address(0)) {
+      (uint256 num, uint256 den) = gasTokenOracle.getRate(_originDomain);
 
-      relayerFee = _originRelayerFee * num / den;
+      sponsoredFee = _originRelayerFee * num / den;
     } else if (rates[_originDomain].den != 0) {
-      relayerFee = _originRelayerFee * rates[_originDomain].num / rates[_originDomain].den;
+      sponsoredFee = _originRelayerFee * rates[_originDomain].num / rates[_originDomain].den;
     }
 
-    relayerFee = relayerFee > relayerFeeCap ? relayerFeeCap : relayerFee;
+    // calculated or max
+    sponsoredFee = sponsoredFee > relayerFeeCap ? relayerFeeCap : sponsoredFee;
+    // calculated or leftover
+    sponsoredFee = sponsoredFee > address(this).balance ? address(this).balance : sponsoredFee;
 
-    // TODO - what if 0 < balance < relayerFee ?
-    if (relayerFee > 0 && address(this).balance >= relayerFee) {
-        Address.sendValue(_to, relayerFee);
-    }
+    Address.sendValue(_to, sponsoredFee);
   }
 
   // ============ Internal functions ============
@@ -229,9 +228,9 @@ contract SponsorVault is ISponsorVault, Ownable{
   function _setConnext(address _connext) internal {
     if (_connext == address(0)) revert SponsorVault__setConnext_invalidConnext();
 
-    connext = _connext;
+    emit ConnextUpdated(connext, _connext, msg.sender);
 
-    emit ConnextUpdated(_connext, msg.sender);
+    connext = _connext;
   }
 
 }

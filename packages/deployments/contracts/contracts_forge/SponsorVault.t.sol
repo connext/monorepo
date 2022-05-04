@@ -31,11 +31,11 @@ contract SponsorVaultTest is ForgeHelper {
 
   // ============ Events ============
 
-  event ConnextUpdated(address connext, address caller);
-  event RateUpdated(uint32 originDomain, SponsorVault.Rate rate, address caller);
-  event RelayerFeeCapUpdated(uint256 relayerFeeCap, address caller);
-  event GasTokenOracleUpdated(address oracle, address caller);
-  event TokenExchangeUpdated(address token, address tokenExchange, address caller);
+  event ConnextUpdated(address oldConnext, address newConnext, address caller);
+  event RateUpdated(uint32 originDomain, SponsorVault.Rate oldRate, SponsorVault.Rate newRate, address caller);
+  event RelayerFeeCapUpdated(uint256 oldRelayerFeeCap, uint256 newRelayerFeeCap, address caller);
+  event GasTokenOracleUpdated(address oldOracle, address newOracle, address caller);
+  event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
 
   // ============ Storage ============
 
@@ -81,7 +81,7 @@ contract SponsorVaultTest is ForgeHelper {
     vm.assume(_connext != address(0));
 
     vm.expectEmit(true, true, true, true);
-    emit ConnextUpdated(_connext, address(this));
+    emit ConnextUpdated(address(0), _connext, address(this));
 
     SponsorVault testVault = new SponsorVault(_connext);
 
@@ -109,7 +109,7 @@ contract SponsorVaultTest is ForgeHelper {
     vm.assume(_connext != address(0));
 
     vm.expectEmit(true, true, true, true);
-    emit ConnextUpdated(_connext, address(this));
+    emit ConnextUpdated(connext, _connext, address(this));
 
     vault.setConnext(_connext);
 
@@ -136,8 +136,11 @@ contract SponsorVaultTest is ForgeHelper {
   function test_SponsorVault__setRate_works(uint32 _originDomain, SponsorVault.Rate calldata _rate) public {
     vm.assume(_originDomain != 0);
 
+    (uint256 currNum, uint256 currDen) = vault.rates(_originDomain);
+    SponsorVault.Rate memory currentRate = SponsorVault.Rate(currNum, currDen);
+
     vm.expectEmit(true, true, true, true);
-    emit RateUpdated(_originDomain, _rate, address(this));
+    emit RateUpdated(_originDomain, currentRate, _rate, address(this));
 
     vault.setRate(_originDomain, _rate);
 
@@ -157,8 +160,10 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__setRelayerFeeCap_works(uint256 _relayerFeeCap) public {
+    uint256 currRelayerFeeCap = vault.relayerFeeCap();
+
     vm.expectEmit(true, true, true, true);
-    emit RelayerFeeCapUpdated(_relayerFeeCap, address(this));
+    emit RelayerFeeCapUpdated(currRelayerFeeCap, _relayerFeeCap, address(this));
 
     vault.setRelayerFeeCap(_relayerFeeCap);
 
@@ -175,12 +180,14 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__setGasTokenOracle_works(address _gasTokenOracle) public {
+    address currOracle = address(vault.gasTokenOracle());
+
     vm.expectEmit(true, true, true, true);
-    emit GasTokenOracleUpdated(_gasTokenOracle, address(this));
+    emit GasTokenOracleUpdated(currOracle, _gasTokenOracle, address(this));
 
     vault.setGasTokenOracle(_gasTokenOracle);
 
-    assertEq(vault.gasTokenOracle(), _gasTokenOracle);
+    assertEq(address(vault.gasTokenOracle()), _gasTokenOracle);
   }
 
   // ============ setTokenExchange ============
@@ -203,12 +210,14 @@ contract SponsorVaultTest is ForgeHelper {
   function test_SponsorVault__setTokenExchange_works(address _token, address payable _tokenExchange) public {
     vm.assume(_token != address(0));
 
+    address currTokenExchange = address(vault.tokenExchanges(_token));
+
     vm.expectEmit(true, true, true, true);
-    emit TokenExchangeUpdated(_token, _tokenExchange, address(this));
+    emit TokenExchangeUpdated(_token, currTokenExchange, _tokenExchange, address(this));
 
     vault.setTokenExchange(_token, _tokenExchange);
 
-    assertEq(vault.tokenExchanges(_token), _tokenExchange);
+    assertEq(address(vault.tokenExchanges(_token)), _tokenExchange);
   }
 
   // ============ reimburseLiquidityFees ============
@@ -223,7 +232,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__reimburseLiquidityFees_returns_0_if_no_tokenExchanges_and_no_token_balance() public {
-    assertEq(vault.tokenExchanges(address(1)), address(0));
+    assertEq(address(vault.tokenExchanges(address(1))), address(0));
     assertEq(localToken2.balanceOf(address(vault)), 0);
 
     uint256 balanceBefore = address(vault).balance;
@@ -275,7 +284,7 @@ contract SponsorVaultTest is ForgeHelper {
   function test_SponsorVault__reimburseLiquidityFees_should_work_with_no_tokenExchange_but_token_balance() public {
     uint256 liquidityFee = 500;
 
-    assertEq(vault.tokenExchanges(address(1)), address(0));
+    assertEq(address(vault.tokenExchanges(address(1))), address(0));
     assertTrue(localToken.balanceOf(address(vault)) >= liquidityFee);
 
     uint256 balanceBefore = address(vault).balance;
@@ -300,8 +309,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__reimburseRelayerFees_should_not_sponsor_fee_when_no_gasTokenOracle_nor_rate() public {
-    assertEq(vault.gasTokenOracle(), address(0));
-    assertEq(vault.gasTokenOracle(), address(0));
+    assertEq(address(vault.gasTokenOracle()), address(0));
 
     (uint256 num, uint256 den) = vault.rates(originDomain);
     assertEq(num, 0);
@@ -336,10 +344,11 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(to.balance, balanceBefore + (relayerFee * _rate.num / _rate.den));
   }
 
-  function test_SponsorVault__reimburseRelayerFees_should_use_rate_when_no_gasTokenOracle_is_set_but_no_sponsor_the_fee_when_no_enough_balance() public {
+  function test_SponsorVault__reimburseRelayerFees_should_use_rate_when_no_gasTokenOracle_is_set_partially_sponsoring_the_fee_when_no_enough_balance() public {
     SponsorVault.Rate memory _rate = SponsorVault.Rate({num: 1, den: 1});
-    uint256 relayerFeeCap = address(vault).balance * 2;
-    uint256 relayerFee = address(vault).balance + 10;
+    uint256 initialVaultBalance = address(vault).balance;
+    uint256 relayerFeeCap = initialVaultBalance * 2;
+    uint256 relayerFee = initialVaultBalance + 10;
     address to = address(10);
 
     vault.setRelayerFeeCap(relayerFeeCap);
@@ -349,7 +358,7 @@ contract SponsorVaultTest is ForgeHelper {
 
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
-    assertEq(to.balance, balanceBefore);
+    assertEq(to.balance, balanceBefore + initialVaultBalance);
   }
 
   function test_SponsorVault__reimburseRelayerFees_should_return_relayerFeeCap_if_fee_is_to_high() public {
@@ -430,13 +439,14 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(to.balance, balanceBefore + relayerFeeCap);
   }
 
-  function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_but_no_sponsor_the_fee_when_no_enough_balance() public {
+  function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_partially_sponsoring_the_fee_when_no_enough_balance() public {
     SponsorVault.Rate memory _rate = SponsorVault.Rate({num: 1, den: 2});
 
     address to = address(10);
     uint256 balanceBefore = to.balance;
-    uint256 relayerFeeCap = address(vault).balance * 2;
-    uint256 relayerFee = address(vault).balance + 10;
+    uint256 initialVaultBalance = address(vault).balance;
+    uint256 relayerFeeCap = initialVaultBalance * 2;
+    uint256 relayerFee = initialVaultBalance + 10;
 
     vault.setRelayerFeeCap(relayerFeeCap);
     vault.setRate(originDomain, _rate);
@@ -458,6 +468,6 @@ contract SponsorVaultTest is ForgeHelper {
 
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
-    assertEq(to.balance, balanceBefore);
+    assertEq(to.balance, balanceBefore + initialVaultBalance);
   }
 }
