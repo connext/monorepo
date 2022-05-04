@@ -77,14 +77,14 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   });
 
   // sanity check
-  const balance = await subgraph.getAssetBalance(destination.domain, routerAddress, executeLocalAsset);
+  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   if (balance.lt(receivingAmount)) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
-      destinationDomain: destination.domain,
+      destinationDomain: destinationDomain,
     });
   }
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
@@ -92,7 +92,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
     transferId,
-    origin: origin.domain,
+    origin: originDomain,
     router: routerAddress.toLowerCase(),
     fee,
     signatures,

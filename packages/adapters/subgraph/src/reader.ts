@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, ChainData, Asset } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams, ChainData, Asset, OriginTransfer } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
 import {
@@ -233,17 +233,17 @@ export class SubgraphReader {
    * @param transfers - The xtransfers you're going to get the status for
    * @returns Executed/Reconciled xtransfers
    */
-  public async getDestinationTransfers(transfers: XTransfer[]): Promise<XTransfer[]> {
+  public async getDestinationTransfers(transfers: OriginTransfer[]): Promise<XTransfer[]> {
     const { parser, execute } = getHelpers();
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
-      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destination.domain);
+      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain as string);
       const txIds = destinationDomainRecord
-        ? destinationDomainRecord.includes(transfer.transferId)
+        ? destinationDomainRecord.includes(transfer.transferId as string)
           ? destinationDomainRecord
           : destinationDomainRecord.concat(`"${transfer.transferId}"`)
         : [`"${transfer.transferId}"`];
-      txIdsByDestinationDomain.set(transfer.destination.domain, txIds);
+      txIdsByDestinationDomain.set(transfer.destinationDomain as string, txIds);
       return [transfer.transferId, transfer];
     });
 
@@ -264,12 +264,10 @@ export class SubgraphReader {
 
     destinationTransfers.forEach((tx) => {
       const inMap = allTxById.get(tx.transferId)!;
-      inMap.destination.status = tx.destination.status;
-      inMap.destination.execute = tx.destination.execute;
-      inMap.destination.reconcile = tx.destination.reconcile;
+      inMap.destination = tx.destination;
       allTxById.set(tx.transferId, inMap);
     });
 
-    return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination.status);
+    return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination);
   }
 }

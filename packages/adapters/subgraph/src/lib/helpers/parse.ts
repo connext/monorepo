@@ -181,16 +181,6 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 };
 
 /**
- * Parses the response of crosschain query
- *
- * @param subgEntity The object you're going to parse
- * @returns domain => XTranfers mapping
- */
-export const xtransfers = (subgEntity: any): Map<string, XTransfer[]> => {
-  throw Error(`Not implemented yet`);
-};
-
-/**
  * Parses raw response of crosschain query request and group by domain
  * @param response The raw response from endpoints
  */
