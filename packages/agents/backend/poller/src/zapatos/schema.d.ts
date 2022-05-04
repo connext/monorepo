@@ -18,95 +18,12 @@ declare module 'zapatos/schema' {
 
   /* --- enums --- */
 
-  export type transfer_status = 'Executed' | 'Failed' | 'Pending' | 'Reconciled' | 'XCalled';
+  export type transfer_status = 'Completed' | 'Executed' | 'Reconciled' | 'XCalled';
   export namespace every {
-    export type transfer_status = ['Executed', 'Failed', 'Pending', 'Reconciled', 'XCalled'];
+    export type transfer_status = ['Completed', 'Executed', 'Reconciled', 'XCalled'];
   }
 
   /* --- tables --- */
-
-  /**
-   * **nonce**
-   * - Table in database
-   */
-  export namespace nonce {
-    export type Table = 'nonce';
-    export interface Selectable {
-      /**
-      * **nonce.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain: string;
-      /**
-      * **nonce.nonce**
-      * - `int8` in database
-      * - `NOT NULL`, no default
-      */
-      nonce: db.Int8String;
-    }
-    export interface JSONSelectable {
-      /**
-      * **nonce.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain: string;
-      /**
-      * **nonce.nonce**
-      * - `int8` in database
-      * - `NOT NULL`, no default
-      */
-      nonce: number;
-    }
-    export interface Whereable {
-      /**
-      * **nonce.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **nonce.nonce**
-      * - `int8` in database
-      * - `NOT NULL`, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
-    }
-    export interface Insertable {
-      /**
-      * **nonce.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain: string | db.Parameter<string> | db.SQLFragment;
-      /**
-      * **nonce.nonce**
-      * - `int8` in database
-      * - `NOT NULL`, no default
-      */
-      nonce: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment;
-    }
-    export interface Updatable {
-      /**
-      * **nonce.domain**
-      * - `varchar` in database
-      * - `NOT NULL`, no default
-      */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
-      /**
-      * **nonce.nonce**
-      * - `int8` in database
-      * - `NOT NULL`, no default
-      */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment>;
-    }
-    export type UniqueIndex = 'nonce_pkey';
-    export type Column = keyof Selectable;
-    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
-    export type SQLExpression = db.GenericSQLExpression | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Table | Whereable | Column;
-    export type SQL = SQLExpression | SQLExpression[];
-  }
 
   /**
    * **schema_migrations**
@@ -169,12 +86,6 @@ declare module 'zapatos/schema' {
     export type Table = 'transfers';
     export interface Selectable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id: string;
-      /**
       * **transfers.origin_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
@@ -183,27 +94,21 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.destination_domain**
       * - `varchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      destination_domain: string;
+      destination_domain: string | null;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'Pending'::transfer_status`
+      * **transfers.nonce**
+      * - `int8` in database
+      * - Nullable, no default
       */
-      status: transfer_status;
+      nonce: db.Int8String | null;
       /**
       * **transfers.to**
       * - `bpchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      to: string;
-      /**
-      * **transfers.call_to**
-      * - `bpchar` in database
-      * - `NOT NULL`, default: `'0x0000000000000000000000000000000000000000'::bpchar`
-      */
-      call_to: string;
+      to: string | null;
       /**
       * **transfers.call_data**
       * - `text` in database
@@ -217,47 +122,47 @@ declare module 'zapatos/schema' {
       */
       idx: db.Int8String | null;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      nonce: db.Int8String;
+      transfer_id: string;
       /**
-      * **transfers.router**
+      * **transfers.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain: string | null;
+      /**
+      * **transfers.origin_transacting_asset**
       * - `bpchar` in database
       * - Nullable, no default
       */
-      router: string | null;
+      origin_transacting_asset: string | null;
+      /**
+      * **transfers.origin_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount: number | null;
+      /**
+      * **transfers.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset: string | null;
+      /**
+      * **transfers.origin_bridged_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount: number | null;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       xcall_caller: string | null;
-      /**
-      * **transfers.xcall_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_amount: number | null;
-      /**
-      * **transfers.xcall_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_local_amount: number | null;
-      /**
-      * **transfers.xcall_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_asset: string | null;
-      /**
-      * **transfers.xcall_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_local_asset: string | null;
       /**
       * **transfers.xcall_transaction_hash**
       * - `bpchar` in database
@@ -289,35 +194,59 @@ declare module 'zapatos/schema' {
       */
       xcall_block_number: number | null;
       /**
+      * **transfers.xcall_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      xcall_relayer_fee: number | null;
+      /**
+      * **transfers.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain: string | null;
+      /**
+      * **transfers.status**
+      * - `transfer_status` in database
+      * - `NOT NULL`, default: `'XCalled'::transfer_status`
+      */
+      status: transfer_status;
+      /**
+      * **transfers.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers: string[] | null;
+      /**
+      * **transfers.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset: string | null;
+      /**
+      * **transfers.destination_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount: number | null;
+      /**
+      * **transfers.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset: string | null;
+      /**
+      * **transfers.destination_local_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_local_amount: number | null;
+      /**
       * **transfers.execute_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       execute_caller: string | null;
-      /**
-      * **transfers.execute_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_transferring_amount: number | null;
-      /**
-      * **transfers.execute_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_local_amount: number | null;
-      /**
-      * **transfers.execute_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transferring_asset: string | null;
-      /**
-      * **transfers.execute_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_local_asset: string | null;
       /**
       * **transfers.execute_transaction_hash**
       * - `bpchar` in database
@@ -349,35 +278,17 @@ declare module 'zapatos/schema' {
       */
       execute_block_number: number | null;
       /**
+      * **transfers.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender: string | null;
+      /**
       * **transfers.reconcile_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       reconcile_caller: string | null;
-      /**
-      * **transfers.reconcile_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_amount: number | null;
-      /**
-      * **transfers.reconcile_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_local_amount: number | null;
-      /**
-      * **transfers.reconcile_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_asset: string | null;
-      /**
-      * **transfers.reconcile_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_local_asset: string | null;
       /**
       * **transfers.reconcile_transaction_hash**
       * - `bpchar` in database
@@ -411,12 +322,6 @@ declare module 'zapatos/schema' {
     }
     export interface JSONSelectable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id: string;
-      /**
       * **transfers.origin_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
@@ -425,27 +330,21 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.destination_domain**
       * - `varchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      destination_domain: string;
+      destination_domain: string | null;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'Pending'::transfer_status`
+      * **transfers.nonce**
+      * - `int8` in database
+      * - Nullable, no default
       */
-      status: transfer_status;
+      nonce: number | null;
       /**
       * **transfers.to**
       * - `bpchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      to: string;
-      /**
-      * **transfers.call_to**
-      * - `bpchar` in database
-      * - `NOT NULL`, default: `'0x0000000000000000000000000000000000000000'::bpchar`
-      */
-      call_to: string;
+      to: string | null;
       /**
       * **transfers.call_data**
       * - `text` in database
@@ -459,47 +358,47 @@ declare module 'zapatos/schema' {
       */
       idx: number | null;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      nonce: number;
+      transfer_id: string;
       /**
-      * **transfers.router**
+      * **transfers.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain: string | null;
+      /**
+      * **transfers.origin_transacting_asset**
       * - `bpchar` in database
       * - Nullable, no default
       */
-      router: string | null;
+      origin_transacting_asset: string | null;
+      /**
+      * **transfers.origin_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount: number | null;
+      /**
+      * **transfers.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset: string | null;
+      /**
+      * **transfers.origin_bridged_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount: number | null;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       xcall_caller: string | null;
-      /**
-      * **transfers.xcall_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_amount: number | null;
-      /**
-      * **transfers.xcall_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_local_amount: number | null;
-      /**
-      * **transfers.xcall_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_asset: string | null;
-      /**
-      * **transfers.xcall_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_local_asset: string | null;
       /**
       * **transfers.xcall_transaction_hash**
       * - `bpchar` in database
@@ -531,35 +430,59 @@ declare module 'zapatos/schema' {
       */
       xcall_block_number: number | null;
       /**
+      * **transfers.xcall_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      xcall_relayer_fee: number | null;
+      /**
+      * **transfers.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain: string | null;
+      /**
+      * **transfers.status**
+      * - `transfer_status` in database
+      * - `NOT NULL`, default: `'XCalled'::transfer_status`
+      */
+      status: transfer_status;
+      /**
+      * **transfers.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers: string[] | null;
+      /**
+      * **transfers.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset: string | null;
+      /**
+      * **transfers.destination_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount: number | null;
+      /**
+      * **transfers.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset: string | null;
+      /**
+      * **transfers.destination_local_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_local_amount: number | null;
+      /**
       * **transfers.execute_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       execute_caller: string | null;
-      /**
-      * **transfers.execute_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_transferring_amount: number | null;
-      /**
-      * **transfers.execute_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_local_amount: number | null;
-      /**
-      * **transfers.execute_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transferring_asset: string | null;
-      /**
-      * **transfers.execute_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_local_asset: string | null;
       /**
       * **transfers.execute_transaction_hash**
       * - `bpchar` in database
@@ -591,35 +514,17 @@ declare module 'zapatos/schema' {
       */
       execute_block_number: number | null;
       /**
+      * **transfers.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender: string | null;
+      /**
       * **transfers.reconcile_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       reconcile_caller: string | null;
-      /**
-      * **transfers.reconcile_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_amount: number | null;
-      /**
-      * **transfers.reconcile_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_local_amount: number | null;
-      /**
-      * **transfers.reconcile_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_asset: string | null;
-      /**
-      * **transfers.reconcile_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_local_asset: string | null;
       /**
       * **transfers.reconcile_transaction_hash**
       * - `bpchar` in database
@@ -653,12 +558,6 @@ declare module 'zapatos/schema' {
     }
     export interface Whereable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
       * **transfers.origin_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
@@ -667,27 +566,21 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.destination_domain**
       * - `varchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
       destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'Pending'::transfer_status`
+      * **transfers.nonce**
+      * - `int8` in database
+      * - Nullable, no default
       */
-      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.to**
       * - `bpchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
       to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.call_to**
-      * - `bpchar` in database
-      * - `NOT NULL`, default: `'0x0000000000000000000000000000000000000000'::bpchar`
-      */
-      call_to?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.call_data**
       * - `text` in database
@@ -701,47 +594,47 @@ declare module 'zapatos/schema' {
       */
       idx?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.router**
+      * **transfers.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.origin_transacting_asset**
       * - `bpchar` in database
       * - Nullable, no default
       */
-      router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      origin_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.origin_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.origin_bridged_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       xcall_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.xcall_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.xcall_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_local_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.xcall_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.xcall_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.xcall_transaction_hash**
       * - `bpchar` in database
@@ -773,35 +666,59 @@ declare module 'zapatos/schema' {
       */
       xcall_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
+      * **transfers.xcall_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      xcall_relayer_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.status**
+      * - `transfer_status` in database
+      * - `NOT NULL`, default: `'XCalled'::transfer_status`
+      */
+      status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers?: string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string[] | db.Parameter<string[]> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.destination_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.destination_local_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_local_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
       * **transfers.execute_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       execute_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.execute_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_transferring_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.execute_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_local_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.execute_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transferring_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.execute_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.execute_transaction_hash**
       * - `bpchar` in database
@@ -833,35 +750,17 @@ declare module 'zapatos/schema' {
       */
       execute_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
+      * **transfers.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
       * **transfers.reconcile_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       reconcile_caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.reconcile_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.reconcile_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_local_amount?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.reconcile_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.reconcile_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.reconcile_transaction_hash**
       * - `bpchar` in database
@@ -895,12 +794,6 @@ declare module 'zapatos/schema' {
     }
     export interface Insertable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id: string | db.Parameter<string> | db.SQLFragment;
-      /**
       * **transfers.origin_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
@@ -909,27 +802,21 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.destination_domain**
       * - `varchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      destination_domain: string | db.Parameter<string> | db.SQLFragment;
+      destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'Pending'::transfer_status`
+      * **transfers.nonce**
+      * - `int8` in database
+      * - Nullable, no default
       */
-      status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment;
+      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.to**
       * - `bpchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      to: string | db.Parameter<string> | db.SQLFragment;
-      /**
-      * **transfers.call_to**
-      * - `bpchar` in database
-      * - `NOT NULL`, default: `'0x0000000000000000000000000000000000000000'::bpchar`
-      */
-      call_to?: string | db.Parameter<string> | db.DefaultType | db.SQLFragment;
+      to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.call_data**
       * - `text` in database
@@ -943,47 +830,47 @@ declare module 'zapatos/schema' {
       */
       idx?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      nonce: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment;
+      transfer_id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **transfers.router**
+      * **transfers.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.origin_transacting_asset**
       * - `bpchar` in database
       * - Nullable, no default
       */
-      router?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.origin_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.origin_bridged_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       xcall_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.xcall_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.xcall_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.xcall_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.xcall_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.xcall_transaction_hash**
       * - `bpchar` in database
@@ -1015,35 +902,59 @@ declare module 'zapatos/schema' {
       */
       xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
+      * **transfers.xcall_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      xcall_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.status**
+      * - `transfer_status` in database
+      * - `NOT NULL`, default: `'XCalled'::transfer_status`
+      */
+      status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.destination_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.destination_local_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
       * **transfers.execute_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       execute_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.execute_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_transferring_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.execute_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.execute_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transferring_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.execute_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.execute_transaction_hash**
       * - `bpchar` in database
@@ -1075,35 +986,17 @@ declare module 'zapatos/schema' {
       */
       execute_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
+      * **transfers.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
       * **transfers.reconcile_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       reconcile_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.reconcile_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.reconcile_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.reconcile_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.reconcile_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.reconcile_transaction_hash**
       * - `bpchar` in database
@@ -1137,12 +1030,6 @@ declare module 'zapatos/schema' {
     }
     export interface Updatable {
       /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
-      /**
       * **transfers.origin_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
@@ -1151,27 +1038,21 @@ declare module 'zapatos/schema' {
       /**
       * **transfers.destination_domain**
       * - `varchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.status**
-      * - `transfer_status` in database
-      * - `NOT NULL`, default: `'Pending'::transfer_status`
+      * **transfers.nonce**
+      * - `int8` in database
+      * - Nullable, no default
       */
-      status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment>;
+      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.to**
       * - `bpchar` in database
-      * - `NOT NULL`, no default
+      * - Nullable, no default
       */
-      to?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
-      /**
-      * **transfers.call_to**
-      * - `bpchar` in database
-      * - `NOT NULL`, default: `'0x0000000000000000000000000000000000000000'::bpchar`
-      */
-      call_to?: string | db.Parameter<string> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.DefaultType | db.SQLFragment>;
+      to?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.call_data**
       * - `text` in database
@@ -1185,47 +1066,47 @@ declare module 'zapatos/schema' {
       */
       idx?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.nonce**
-      * - `int8` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      nonce?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment>;
+      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **transfers.router**
+      * **transfers.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      origin_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.origin_transacting_asset**
       * - `bpchar` in database
       * - Nullable, no default
       */
-      router?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      origin_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.origin_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.origin_bridged_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      origin_bridged_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.origin_bridged_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      origin_bridged_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.xcall_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       xcall_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.xcall_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.xcall_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      xcall_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.xcall_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_transferring_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.xcall_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      xcall_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.xcall_transaction_hash**
       * - `bpchar` in database
@@ -1257,35 +1138,59 @@ declare module 'zapatos/schema' {
       */
       xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
+      * **transfers.xcall_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      xcall_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+      destination_chain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.status**
+      * - `transfer_status` in database
+      * - `NOT NULL`, default: `'XCalled'::transfer_status`
+      */
+      status?: transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.routers**
+      * - `_bpchar` in database
+      * - Nullable, no default
+      */
+      routers?: string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string[] | db.Parameter<string[]> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.destination_transacting_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_transacting_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.destination_transacting_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_transacting_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.destination_local_asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      destination_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.destination_local_amount**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      destination_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
       * **transfers.execute_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       execute_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.execute_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_transferring_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.execute_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      execute_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.execute_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_transferring_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.execute_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      execute_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.execute_transaction_hash**
       * - `bpchar` in database
@@ -1317,35 +1222,17 @@ declare module 'zapatos/schema' {
       */
       execute_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
+      * **transfers.execute_origin_sender**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      execute_origin_sender?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
       * **transfers.reconcile_caller**
       * - `bpchar` in database
       * - Nullable, no default
       */
       reconcile_caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.reconcile_transferring_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.reconcile_local_amount**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-      reconcile_local_amount?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.reconcile_transferring_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_transferring_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.reconcile_local_asset**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-      reconcile_local_asset?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.reconcile_transaction_hash**
       * - `bpchar` in database
@@ -1386,65 +1273,57 @@ declare module 'zapatos/schema' {
 
   /* === cross-table types === */
 
-  export type Table = nonce.Table | schema_migrations.Table | transfers.Table;
-  export type Selectable = nonce.Selectable | schema_migrations.Selectable | transfers.Selectable;
-  export type JSONSelectable = nonce.JSONSelectable | schema_migrations.JSONSelectable | transfers.JSONSelectable;
-  export type Whereable = nonce.Whereable | schema_migrations.Whereable | transfers.Whereable;
-  export type Insertable = nonce.Insertable | schema_migrations.Insertable | transfers.Insertable;
-  export type Updatable = nonce.Updatable | schema_migrations.Updatable | transfers.Updatable;
-  export type UniqueIndex = nonce.UniqueIndex | schema_migrations.UniqueIndex | transfers.UniqueIndex;
-  export type Column = nonce.Column | schema_migrations.Column | transfers.Column;
-  export type AllBaseTables = [nonce.Table, schema_migrations.Table, transfers.Table];
+  export type Table = schema_migrations.Table | transfers.Table;
+  export type Selectable = schema_migrations.Selectable | transfers.Selectable;
+  export type JSONSelectable = schema_migrations.JSONSelectable | transfers.JSONSelectable;
+  export type Whereable = schema_migrations.Whereable | transfers.Whereable;
+  export type Insertable = schema_migrations.Insertable | transfers.Insertable;
+  export type Updatable = schema_migrations.Updatable | transfers.Updatable;
+  export type UniqueIndex = schema_migrations.UniqueIndex | transfers.UniqueIndex;
+  export type Column = schema_migrations.Column | transfers.Column;
+  export type AllBaseTables = [schema_migrations.Table, transfers.Table];
   export type AllForeignTables = [];
   export type AllViews = [];
   export type AllMaterializedViews = [];
-  export type AllTablesAndViews = [nonce.Table, schema_migrations.Table, transfers.Table];
+  export type AllTablesAndViews = [schema_migrations.Table, transfers.Table];
 
 
   export type SelectableForTable<T extends Table> = {
-    nonce: nonce.Selectable;
     schema_migrations: schema_migrations.Selectable;
     transfers: transfers.Selectable;
   }[T];
 
   export type JSONSelectableForTable<T extends Table> = {
-    nonce: nonce.JSONSelectable;
     schema_migrations: schema_migrations.JSONSelectable;
     transfers: transfers.JSONSelectable;
   }[T];
 
   export type WhereableForTable<T extends Table> = {
-    nonce: nonce.Whereable;
     schema_migrations: schema_migrations.Whereable;
     transfers: transfers.Whereable;
   }[T];
 
   export type InsertableForTable<T extends Table> = {
-    nonce: nonce.Insertable;
     schema_migrations: schema_migrations.Insertable;
     transfers: transfers.Insertable;
   }[T];
 
   export type UpdatableForTable<T extends Table> = {
-    nonce: nonce.Updatable;
     schema_migrations: schema_migrations.Updatable;
     transfers: transfers.Updatable;
   }[T];
 
   export type UniqueIndexForTable<T extends Table> = {
-    nonce: nonce.UniqueIndex;
     schema_migrations: schema_migrations.UniqueIndex;
     transfers: transfers.UniqueIndex;
   }[T];
 
   export type ColumnForTable<T extends Table> = {
-    nonce: nonce.Column;
     schema_migrations: schema_migrations.Column;
     transfers: transfers.Column;
   }[T];
 
   export type SQLForTable<T extends Table> = {
-    nonce: nonce.SQL;
     schema_migrations: schema_migrations.SQL;
     transfers: transfers.SQL;
   }[T];

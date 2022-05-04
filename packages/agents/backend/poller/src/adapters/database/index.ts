@@ -9,7 +9,7 @@ export type Database = {
   getTransferByTransferId: (transferId: string, _pool?: Pool) => Promise<XTransfer | undefined>;
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
   getLatestNonce: (domain: string, _pool?: Pool) => Promise<number>;
-  getTransfersByStatus: (status: XTransferStatus, _pool?: Pool) => Promise<XTransfer[]>;
+  getTransfersByStatus: (status: XTransferStatus | "XCalled", _pool?: Pool) => Promise<XTransfer[]>;
 };
 
 export let pool: Pool;

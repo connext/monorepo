@@ -14,27 +14,16 @@ SET row_security = off;
 --
 
 CREATE TYPE public.transfer_status AS ENUM (
-    'Pending',
     'XCalled',
     'Executed',
     'Reconciled',
-    'Failed'
+    'Completed'
 );
 
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
-
---
--- Name: nonce; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.nonce (
-    domain character varying(255) NOT NULL,
-    nonce bigint NOT NULL
-);
-
 
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
@@ -50,55 +39,46 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.transfers (
-    transfer_id character(66) NOT NULL,
     origin_domain character varying(255) NOT NULL,
-    destination_domain character varying(255) NOT NULL,
-    status public.transfer_status DEFAULT 'Pending'::public.transfer_status NOT NULL,
-    "to" character(42) NOT NULL,
-    call_to character(42) DEFAULT '0x0000000000000000000000000000000000000000'::bpchar NOT NULL,
+    destination_domain character varying(255),
+    nonce bigint,
+    "to" character(42),
     call_data text,
     idx bigint,
-    nonce bigint NOT NULL,
-    router character(42),
+    transfer_id character(66) NOT NULL,
+    origin_chain character varying(255),
+    origin_transacting_asset character(42),
+    origin_transacting_amount numeric,
+    origin_bridged_asset character(42),
+    origin_bridged_amount numeric,
     xcall_caller character(42),
-    xcall_transferring_amount numeric,
-    xcall_local_amount numeric,
-    xcall_transferring_asset character(42),
-    xcall_local_asset character(42),
     xcall_transaction_hash character(66),
     xcall_timestamp integer,
     xcall_gas_price numeric,
     xcall_gas_limit numeric,
     xcall_block_number integer,
+    xcall_relayer_fee numeric,
+    destination_chain character varying(255),
+    status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
+    routers character(42)[],
+    destination_transacting_asset character(42),
+    destination_transacting_amount numeric,
+    destination_local_asset character(42),
+    destination_local_amount numeric,
     execute_caller character(42),
-    execute_transferring_amount numeric,
-    execute_local_amount numeric,
-    execute_transferring_asset character(42),
-    execute_local_asset character(42),
     execute_transaction_hash character(66),
     execute_timestamp integer,
     execute_gas_price numeric,
     execute_gas_limit numeric,
     execute_block_number integer,
+    execute_origin_sender character(42),
     reconcile_caller character(42),
-    reconcile_transferring_amount numeric,
-    reconcile_local_amount numeric,
-    reconcile_transferring_asset character(42),
-    reconcile_local_asset character(42),
     reconcile_transaction_hash character(66),
     reconcile_timestamp integer,
     reconcile_gas_price numeric,
     reconcile_gas_limit numeric,
     reconcile_block_number integer
 );
-
-
---
--- Name: nonce nonce_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.nonce
-    ADD CONSTRAINT nonce_pkey PRIMARY KEY (domain);
 
 
 --

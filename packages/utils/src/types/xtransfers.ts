@@ -2,11 +2,13 @@ import { Type, Static } from "@sinclair/typebox";
 
 import { TAddress, TIntegerString } from ".";
 
-export enum XTransferStatus {
-  Executed = "Executed",
-  Reconciled = "Reconciled",
-  Completed = "Completed",
-}
+// dear Jake, please stop changing this to enum
+export const XTransferStatus = {
+  Executed: "Executed",
+  Reconciled: "Reconciled",
+  Completed: "Completed",
+} as const;
+export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
 
 export const XTransferMethodCallSchema = Type.Object({
   caller: TAddress,
