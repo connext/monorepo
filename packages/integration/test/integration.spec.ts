@@ -716,9 +716,9 @@ describe("Integration:E2E", () => {
       for (i = 0; i < attempts; i++) {
         await delay(parity);
         try {
-          const result = await subgraph.query(domainInfo.ORIGIN.domain, query);
-          if (result.transfers.length === 1) {
-            originTransfer = parseOriginTransfer(result.transfers[0]);
+          const result: any = await subgraph.query(domainInfo.ORIGIN.domain, query);
+          if (result.originTransfers.length === 1) {
+            originTransfer = parseOriginTransfer(result.originTransfers[0]);
             break;
           }
         } catch (e: unknown) {
@@ -802,9 +802,9 @@ describe("Integration:E2E", () => {
         await delay(SUBG_POLL_PARITY);
         try {
           const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-          if (result.transfers.length === 1) {
+          if (result.destinationTransfers.length === 1) {
             // Parse and then collate with the origin transfer.
-            const destinationTransfer = parseDestinationTransfer(result.transfers[0]);
+            const destinationTransfer = parseDestinationTransfer(result.destinationTransfers[0]);
             // The transfer may have been reconciled, but not executed. Double check here.
             if (destinationTransfer.destination.execute?.transactionHash) {
               break;
