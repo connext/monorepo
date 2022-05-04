@@ -999,9 +999,6 @@ export type GetDestinationTransfersQuery = { __typename?: 'Query', destinationTr
 
 export type GetDestinationTransfersByIdsQueryVariables = Exact<{
   transferIds?: InputMaybe<Array<Scalars['Bytes']> | Scalars['Bytes']>;
-  maxExecutedBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  maxReconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  status?: InputMaybe<TransferStatus>;
 }>;
 
 
@@ -1139,10 +1136,8 @@ export const GetDestinationTransfersDocument = gql`
 }
     `;
 export const GetDestinationTransfersByIdsDocument = gql`
-    query GetDestinationTransfersByIds($transferIds: [Bytes!], $maxExecutedBlockNumber: BigInt, $maxReconciledBlockNumber: BigInt, $status: TransferStatus) {
-  destinationTransfers(
-    where: {transferId_in: $transferIds, executedBlockNumber_lte: $maxExecutedBlockNumber, reconciledBlockNumber_lte: $maxReconciledBlockNumber, status: $status}
-  ) {
+    query GetDestinationTransfersByIds($transferIds: [Bytes!]) {
+  destinationTransfers(where: {transferId_in: $transferIds}) {
     id
     chainId
     transferId
