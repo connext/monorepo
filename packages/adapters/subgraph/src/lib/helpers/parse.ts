@@ -53,11 +53,11 @@ export const originTransfer = (entity: any): OriginTransfer => {
       assets: {
         transacting: {
           asset: entity.transactingAsset,
-          amount: entity.transactingAssetAmount,
+          amount: entity.transactingAmount,
         },
         bridged: {
           asset: entity.bridgedAsset,
-          amount: entity.bridgedAssetAmount,
+          amount: entity.bridgedAmount,
         },
       },
 

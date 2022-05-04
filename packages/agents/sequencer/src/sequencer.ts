@@ -56,6 +56,17 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     context.logger.info("Sequencer is Ready!", requestContext, methodContext, {
       port: context.config.server.port,
     });
+    context.logger.info(
+      `
+
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+      `,
+    );
   } catch (error: any) {
     console.error("Error starting sequencer :'(", error);
     process.exit();
