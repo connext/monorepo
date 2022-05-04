@@ -14,7 +14,6 @@ import {
   getOriginTransfersQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
-import { DomainInvalid } from "./lib/errors";
 
 let context: { config: SubgraphMap };
 export const getContext = () => context;
@@ -56,9 +55,8 @@ export class SubgraphReader {
    * @returns The available balance
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain) as string;
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain) as string;
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
@@ -73,9 +71,8 @@ export class SubgraphReader {
    * @returns An array of asset ids and amounts of liquidity
    */
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain) as string;
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain) as string;
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
@@ -93,9 +90,8 @@ export class SubgraphReader {
    * @returns A boolean indicating the router is approved
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain) as string;
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain) as string;
 
     const query = getRouterQuery(prefix, _router.toLowerCase());
     const response = await execute(query);
@@ -109,9 +105,8 @@ export class SubgraphReader {
    * @param local - The local asset address
    */
   public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain) as string;
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain) as string;
 
     const query = getAssetByLocalQuery(prefix, local.toLowerCase());
     const response = await execute(query);
@@ -128,9 +123,8 @@ export class SubgraphReader {
    * @param canonicalId - The canonicalId defined by Nomad
    */
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
-    const { execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain) as string;
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain) as string;
 
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId.toLowerCase());
     const response = await execute(query);
@@ -149,9 +143,8 @@ export class SubgraphReader {
    * @returns Parsed XTransfer object if transfer exists, otherwise undefined.
    */
   public async getOriginTransfer(domain: string, transferId: string): Promise<XTransfer | undefined> {
-    const { parser, execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain);
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { parser, execute, getPrefixForDomain } = getHelpers();
+    const prefix: string = getPrefixForDomain(domain);
 
     const query = getOriginTransfersByIdQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
@@ -172,9 +165,9 @@ export class SubgraphReader {
     fromNonce: number,
     destinationDomains: string[] = [...Object.keys(context.config.sources)],
   ): Promise<XTransfer[]> {
-    const { parser, execute, getPrefixByDomain } = getHelpers();
-    const prefix = getPrefixByDomain(domain);
-    if (!prefix) throw new DomainInvalid({ domain });
+    const { parser, execute, getPrefixForDomain } = getHelpers();
+    const prefix: string = getPrefixForDomain(domain);
+
     const query = getOriginTransfersQueryByDomain(prefix, domain, fromNonce, destinationDomains);
     const response = await execute(query);
     const transfers = [...response.values()][0][0];
@@ -241,13 +234,13 @@ export class SubgraphReader {
     if (transfers.length == 0) return [];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
-      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain );
+      const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain);
       const txIds = destinationDomainRecord
-        ? destinationDomainRecord.includes(transfer.transferId )
+        ? destinationDomainRecord.includes(transfer.transferId)
           ? destinationDomainRecord
           : destinationDomainRecord.concat(`"${transfer.transferId}"`)
         : [`"${transfer.transferId}"`];
-      txIdsByDestinationDomain.set(transfer.destinationDomain , txIds);
+      txIdsByDestinationDomain.set(transfer.destinationDomain, txIds);
       return [transfer.transferId, transfer];
     });
 

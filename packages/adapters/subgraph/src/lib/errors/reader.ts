@@ -1,8 +1,12 @@
 import { NxtpError } from "@connext/nxtp-utils";
 
 export class DomainInvalid extends NxtpError {
-  constructor(context: any = {}) {
-    super("Domain invalid", context, DomainInvalid.name);
+  constructor(domain: string, context: any = {}) {
+    super(
+      "Domain invalid: no supported subgraph found for given domain.",
+      { ...context, invalidDomain: domain },
+      DomainInvalid.name,
+    );
   }
 }
 

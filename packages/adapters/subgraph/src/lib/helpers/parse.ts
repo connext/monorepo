@@ -186,13 +186,13 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
  * @param response The raw response from endpoints
  */
 export const xquery = (response: any): Map<string, any[]> => {
-  const { getDomainByPrefix } = getHelpers();
+  const { getDomainFromPrefix } = getHelpers();
   const result: Map<string, any[]> = new Map();
   if (response.data) {
     const entityRes = response.data as Record<string, any[]>;
     for (const key of Object.keys(entityRes)) {
       const prefix = key.split("_")[0].toLowerCase();
-      const domain = getDomainByPrefix(prefix);
+      const domain = getDomainFromPrefix(prefix);
       if (domain) {
         const value = entityRes[key];
         if (result.has(domain)) {

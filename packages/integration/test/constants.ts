@@ -85,10 +85,18 @@ export type TestAgents = {
 };
 
 /// MARK - General domain info setup.
+export const CHAIN_DATA: Promise<Map<string, ChainData>> = (async (): Promise<Map<string, ChainData>> => {
+  /// MARK - Set up chain data for origin and destination.
+  const chainData = await getChainData();
+  if (!chainData) {
+    throw new Error("Could not get chain data");
+  }
+  return chainData;
+})();
+
 export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> = (async (): Promise<{
   ORIGIN: DomainInfo;
   DESTINATION: DomainInfo;
-  CHAIND_DATA: Map<string, ChainData>;
 }> => {
   /// MARK - Pick origin and destination domains.
   let origin = process.env.ORIGIN_DOMAIN || process.env.ORIGIN;
@@ -102,11 +110,7 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     destination = DEFAULT_ROUTE[1];
   }
 
-  /// MARK - Set up chain data for origin and destination.
-  const chainData = await getChainData();
-  if (!chainData) {
-    throw new Error("Could not get chain data");
-  }
+  const chainData = await CHAIN_DATA;
 
   const originChainData = chainData.get(origin);
   const destinationChainData = chainData.get(destination);
@@ -235,7 +239,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
         },
       },
     },
-    CHAIND_DATA: chainData,
   };
 })();
 

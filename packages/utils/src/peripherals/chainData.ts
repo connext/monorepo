@@ -88,7 +88,8 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
     const domainId = item.domainId as string | undefined;
-    if (domainId) {
+    // NOTE: Ignore domain 0, as that is a placeholder for a ChainData entry template.
+    if (domainId && domainId !== "0") {
       chainData.set(domainId, item as ChainData);
     } else {
       noDomainIdFound.push(item.chainId as string);

@@ -16,6 +16,7 @@ import {
   getGelatoRelayerAddress,
   Logger,
   XCallArgs,
+  ChainData,
 } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -23,7 +24,7 @@ import {
   originTransfer as parseOriginTransfer,
   destinationTransfer as parseDestinationTransfer,
 } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
-import { getPrefixByDomain } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/shared";
+import { getPrefixForDomain } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/shared";
 
 import {
   DomainInfo,
@@ -43,6 +44,7 @@ import {
   RELAYER_CONFIG,
   LOCAL_RELAYER_ENABLED,
   CANONICAL_ASSET,
+  CHAIN_DATA,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
@@ -75,6 +77,7 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
  */
 describe("Integration:E2E", () => {
   // Configuration.
+  let chainData: Map<string, ChainData>;
   let domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };
   let routerConfig: RouterConfig;
   let sequencerConfig: SequencerConfig;
@@ -91,6 +94,7 @@ describe("Integration:E2E", () => {
   let context: OperationContext;
 
   before(async () => {
+    chainData = await CHAIN_DATA;
     domainInfo = await DOMAINS;
     routerConfig = await ROUTER_CONFIG;
     sequencerConfig = await SEQUENCER_CONFIG;
@@ -146,7 +150,7 @@ describe("Integration:E2E", () => {
       },
     );
 
-    subgraph = await SubgraphReader.create(DOMAINS.CHAIN_DATA);
+    subgraph = await SubgraphReader.create(chainData);
 
     // Setup contexts (used for injection into helpers).
     context = {
@@ -694,10 +698,7 @@ describe("Integration:E2E", () => {
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const prefix = getPrefixByDomain(domainInfo.ORIGIN.domain);
-      if (!prefix) {
-        throw new Error(`Prefix doesn't exist for domain: ${domainInfo.ORIGIN.domain}`);
-      }
+      const prefix = getPrefixForDomain(domainInfo.ORIGIN.domain);
       const query = formatSubgraphGetTransferQuery(prefix, {
         isOrigin: true,
         xcallTransactionHash: transactionHash,
@@ -772,7 +773,7 @@ describe("Integration:E2E", () => {
 
       let destinationTransfer: DestinationTransfer | undefined;
       log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
-      const prefix = getPrefixByDomain(domainInfo.DESTINATION.domain);
+      const prefix = getPrefixForDomain(domainInfo.DESTINATION.domain);
       if (!prefix) throw new Error(`Error: getting prefix by domain: ${domainInfo.DESTINATION.domain} failed`);
       const query = formatSubgraphGetTransferQuery(prefix, {
         isOrigin: false,
