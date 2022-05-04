@@ -7,7 +7,14 @@ import {
 } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents, Environment, ENVIRONMENT } from "./constants";
+import {
+  DomainInfo,
+  SUBG_ORIGIN_TRANSFER_PARAMS,
+  SUBG_DESTINATION_TRANSFER_PARAMS,
+  TestAgents,
+  Environment,
+  ENVIRONMENT,
+} from "./constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -47,12 +54,12 @@ export const formatSubgraphGetTransferQuery = (
   prefix: string,
   input: { isOrigin: boolean } & ({ xcallTransactionHash: string } | { transferId: string }),
 ): string => {
-  const params = SUBG_TRANSFER_ENTITY_PARAMS;
   const { xcallTransactionHash, transferId, isOrigin } = input as any;
+  const params = isOrigin ? SUBG_ORIGIN_TRANSFER_PARAMS : SUBG_DESTINATION_TRANSFER_PARAMS;
   const condition = xcallTransactionHash ? `transactionHash: "${xcallTransactionHash}"` : `transferId: "${transferId}"`;
   return `
   {
-    ${isOrigin ? `${prefix}_originTransfers` : `${prefix}_destinationTransfers`}(
+    ${isOrigin ? "originTransfers" : "destinationTransfers"}(
       where: { ${condition} }
     ) {${params}}
   }`.trim();

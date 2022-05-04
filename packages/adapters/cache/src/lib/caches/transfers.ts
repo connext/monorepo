@@ -71,24 +71,26 @@ export class TransfersCache extends Cache {
       // domains, since our cache is indexed by transferId.
       transfer = existing
         ? {
+            // Collate core properties.
             ...sanitizeNull(existing),
             ...sanitizeNull(transfer),
-            origin: {
-              ...sanitizeNull(existing.origin),
-              ...sanitizeNull(transfer.origin),
-            },
-            destination: {
-              ...sanitizeNull(existing.destination),
-              ...sanitizeNull(transfer.destination),
-            },
+
+            // Origin may exist on existing and/or input transfer, either one is fine since new input can't possibly
+            // have new information.
+            origin: existing.origin ?? transfer.origin,
+
+            // Destination may exist on both existing and input transfer, we need to do a nested collation in case
+            // the new transfer has new information (e.g. existing has Executed data, new transfer includes Reconcile).
+            destination:
+              existing.destination || transfer.destination
+                ? {
+                    ...sanitizeNull(existing.destination ?? {}),
+                    ...sanitizeNull(transfer.destination ?? {}),
+                  }
+                : undefined,
           }
         : transfer;
-      const {
-        transferId,
-        nonce: _nonce,
-        origin: { domain: originDomain, xcall },
-        destination: { execute, reconcile },
-      } = transfer;
+      const { transferId, nonce: _nonce, originDomain, origin, destination } = transfer;
       const nonce = Number(_nonce);
       const stringified = JSON.stringify(transfer);
 
@@ -96,12 +98,12 @@ export class TransfersCache extends Cache {
       // gte(1) => added, 0 => updated,
       // reference: https://redis.io/commands/hset
       const added = (await this.data.hset(`${this.prefix}:transfers`, transferId, stringified)) >= 1;
-      if (added && xcall?.transactionHash && !execute?.transactionHash && !reconcile?.transactionHash) {
+      if (added && origin?.xcall.transactionHash && !destination) {
         // XCall defined but Execute and Reconcile are not defined => pending transfer.
         // If the transfer was added (previously not recorded) and it's a pending transfer, add it to the
         // pending transfers list.
         await this.addPending(originDomain, transferId);
-      } else if (execute?.transactionHash || reconcile?.transactionHash) {
+      } else if (destination?.execute?.transactionHash || destination?.reconcile?.transactionHash) {
         // If either execute or reconcile are present, then the transfer is no longer pending. Remove it from
         // the list of pending transfers for the origin domain.
         await this.removePending(originDomain, transferId);
@@ -194,9 +196,8 @@ export class TransfersCache extends Cache {
    * and false if it already exists.
    */
   public async saveError(transferId: string, error: string): Promise<boolean> {
-    const stringified = JSON.stringify(error);
     const currentErrors = await this.getErrors(transferId);
-    const isNewError = !currentErrors.includes(stringified);
+    const isNewError = !currentErrors.includes(error);
     if (isNewError) {
       await this.data.hset(`${this.prefix}:errors`, transferId, JSON.stringify([...currentErrors, error]));
     }

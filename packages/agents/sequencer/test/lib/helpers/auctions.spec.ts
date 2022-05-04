@@ -1,4 +1,4 @@
-import { Bid, ExecuteArgs, expect, mkAddress, XTransfer } from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, expect, mkAddress, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
@@ -24,19 +24,19 @@ describe("Helpers:Auctions", () => {
     });
 
     it("happy", () => {
-      const transfer: XTransfer = mock.entity.xtransfer();
+      const transfer: OriginTransfer = mock.entity.xtransfer();
       const bids: Bid[] = [mock.entity.bid()];
       const expectedArgs: ExecuteArgs = {
         params: {
-          originDomain: transfer.origin.domain,
-          destinationDomain: transfer.destination.domain,
-          to: transfer.to,
-          callData: transfer.callData,
+          originDomain: transfer.originDomain,
+          destinationDomain: transfer.destinationDomain,
+          to: transfer.xparams.to,
+          callData: transfer.xparams.callData,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-        amount: transfer.origin.assets.bridgedAmount,
+        amount: transfer.origin.assets.bridged.amount,
         nonce: transfer.nonce,
         originSender: transfer.origin.xcall.caller,
       };
@@ -47,7 +47,7 @@ describe("Helpers:Auctions", () => {
     });
 
     it("should throw if no xcall", () => {
-      const transfer: XTransfer = mock.entity.xtransfer();
+      const transfer: OriginTransfer = mock.entity.xtransfer();
       transfer.origin.xcall = undefined;
       const bids: Bid[] = [mock.entity.bid()];
 

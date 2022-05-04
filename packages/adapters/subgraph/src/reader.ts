@@ -165,7 +165,7 @@ export class SubgraphReader {
    * @param domain - The domain you want to get transfers from.
    * @param fromNonce - The nonce to start from (inclusive).
    * @param destinationDomains - The domains which the retrieved transfers must be going to.
-   * @returns an array of XTransfers.
+   * @returns an array of OriginTransfers.
    */
   public async getOriginTransfers(
     domain: string,
@@ -270,6 +270,6 @@ export class SubgraphReader {
       allTxById.set(tx.transferId, inMap);
     });
 
-    return [...allTxById.values()].filter((xTransfer) => xTransfer.destination.status);
+    return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination.status);
   }
 }

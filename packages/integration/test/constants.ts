@@ -2,7 +2,10 @@ import { utils, Wallet } from "ethers";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
-import { ORIGIN_TRANSFER_ENTITY } from "@connext/nxtp-adapters-subgraph/src/lib/operations";
+import {
+  ORIGIN_TRANSFER_ENTITY,
+  DESTINATION_TRANSFER_ENTITY,
+} from "@connext/nxtp-adapters-subgraph/src/lib/operations";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 
@@ -56,7 +59,8 @@ export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_
 
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
-export const SUBG_TRANSFER_ENTITY_PARAMS = ORIGIN_TRANSFER_ENTITY;
+export const SUBG_ORIGIN_TRANSFER_PARAMS = ORIGIN_TRANSFER_ENTITY;
+export const SUBG_DESTINATION_TRANSFER_PARAMS = DESTINATION_TRANSFER_ENTITY;
 
 /// MARK - General
 export type DomainInfo = {

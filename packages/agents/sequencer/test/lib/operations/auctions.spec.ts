@@ -137,10 +137,7 @@ describe("Operations:Auctions", () => {
       const transfer: XTransfer = mock.entity.xtransfer();
       getTransferStub.resolves({
         ...transfer,
-        origin: {
-          ...transfer.origin,
-          xcall: undefined,
-        },
+        origin: undefined,
       });
       (ctxMock.adapters.subgraph.getOriginTransfer as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
@@ -278,10 +275,7 @@ describe("Operations:Auctions", () => {
       const transfer: XTransfer = mock.entity.xtransfer();
       getTransferStub.resolves({
         ...transfer,
-        origin: {
-          ...transfer.origin,
-          xcall: undefined,
-        },
+        origin: undefined,
       });
 
       await executeAuctions(requestContext);
@@ -374,15 +368,15 @@ describe("Operations:Auctions", () => {
       // Should update beforehand since the getLiquidity cache stub returned undefined.
       expect(setLiquidityStub.getCall(0).args).to.be.deep.eq([
         router,
-        transfer.destination.domain,
-        transfer.origin.assets.bridgedAsset,
+        transfer.destinationDomain,
+        transfer.origin.assets.bridged.asset,
         routerFunds,
       ]);
       // Should update to reflect new "theoretical amount".
       expect(setLiquidityStub.getCall(1).args).to.be.deep.eq([
         router,
-        transfer.destination.domain,
-        transfer.origin.assets.bridgedAsset,
+        transfer.destinationDomain,
+        transfer.origin.assets.bridged.asset,
         expectedRouterFunds,
       ]);
 
