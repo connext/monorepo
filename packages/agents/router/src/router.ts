@@ -68,7 +68,6 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     try {
-      console.log(context.config.sequencerUrl);
       const res = await axios.get(`${context.config.sequencerUrl}/ping`);
       context.logger.info("Ping response received from sequencer", requestContext, methodContext, {
         response: res.data,
