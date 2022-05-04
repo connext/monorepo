@@ -36,6 +36,36 @@ DATABASE_URL=postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable
 }
 ```
 
+- To run against staging subgraphs for example:
+
+```json
+{
+  "logLevel": "debug",
+  "chains": {
+    "1111": {
+      "subgraph": {
+        "runtime": [
+          {
+            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
+            "health": "https://api.thegraph.com/index-node/graphql"
+          }
+        ]
+      }
+    },
+    "2221": {
+      "subgraph": {
+        "runtime": [
+          {
+            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
+            "health": "https://api.thegraph.com/index-node/graphql"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
 - Run poller:
 
 ```sh
