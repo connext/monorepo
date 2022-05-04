@@ -55,12 +55,12 @@ export const originTransfer = (entity: any): XTransfer => {
         // Event Data
         relayerFee: entity.relayerFee,
         // Transaction Data
-        caller: entity.xcalledCaller,
-        transactionHash: entity.xcalledTransactionHash,
-        timestamp: BigNumber.from(entity.xcalledTimestamp ?? "0").toNumber(),
-        gasPrice: entity.xcalledGasPrice,
-        gasLimit: entity.xcalledGasLimit,
-        blockNumber: BigNumber.from(entity.xcalledBlockNumber ?? "0").toNumber(),
+        caller: entity.caller,
+        transactionHash: entity.transactionHash,
+        timestamp: BigNumber.from(entity.timestamp ?? "0").toNumber(),
+        gasPrice: entity.gasPrice,
+        gasLimit: entity.gasLimit,
+        blockNumber: BigNumber.from(entity.blockNumber ?? "0").toNumber(),
       },
     },
 
