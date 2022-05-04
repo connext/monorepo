@@ -692,8 +692,6 @@ describe("Integration:E2E", () => {
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const parity = SUBG_POLL_PARITY;
-      const attempts = Math.floor(XCALL_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
         isOrigin: true,
         xcallTransactionHash: transactionHash,

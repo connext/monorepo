@@ -3,63 +3,62 @@ import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 import { getContext } from "../../reader";
 
 export const ORIGIN_TRANSFER_ENTITY = `
-    id
-    # MetaData
-    originDomain
-    destinationDomain
-    chainId
-    # event Data
-    transferId
-    to
-    nonce
-    callData
-    transactingAsset
-    bridgedAsset
-    amount
-    bridgedAmount
-    relayerFee
-    caller
-    message
-    # XCalled Transaction
-    transactionHash
-    timestamp
-    gasPrice
-    gasLimit
-    blockNumber
+      id
+      # Meta Data
+      chainId
+      transferId
+      nonce
+      to
+      callData
+      originDomain
+      destinationDomain
+      # Asset Data
+      transactingAsset
+      transactingAmount
+      bridgedAsset
+      bridgedAmount
+      # Event Data
+      relayerFee
+      message
+      # XCalled Transaction
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
 `;
 
 export const DESTINATION_TRANSFER_ENTITY = `
       id
-      # MetaData
+      # Meta Data
+      chainId
+      transferId
+      nonce
+      to
+      callData
       originDomain
       destinationDomain
-      chainId
-      status
-      # Executed event Data
-      transferId
-      to
-      nonce
-      callData
+      # Asset Data
       localAsset
+      localAmount
+      transactingAsset
+      transactingAmount
+      # Executed event Data
+      status
       routers {
         id
       }
-      transactingAsset
-      transactingAmount
       originSender
-      executedCaller
-      executedAmount
       # Executed Transaction
+      executedCaller
       executedTransactionHash
       executedTimestamp
       executedGasPrice
       executedGasLimit
       executedBlockNumber
-      # Reconciled event Data
-      reconciledAsset
-      reconciledAmount
-      reconciledCaller
       # Reconciled Transaction
+      reconciledCaller
       reconciledTransactionHash
       reconciledTimestamp
       reconciledGasPrice
