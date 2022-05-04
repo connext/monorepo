@@ -58,11 +58,12 @@ export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_
 export const EMPTY_BYTES = mkBytes32("0x0");
 export const SUBG_TRANSFER_ENTITY_PARAMS = getOriginTransfers
   .slice(getOriginTransfers.lastIndexOf(") {"), getOriginTransfers.lastIndexOf("}"))
-  .replace(/router \{\n.*id\n.*\}/, "router { id }")
+  .replace(/routers \{\n.*id\n.*\}/, "routers { id }")
   .split("\n")
   .slice(1, -2)
   .filter((line) => !line.includes("#"))
-  .map((line) => line.trim());
+  .map((line) => line.trim())
+  .filter((line) => line.length > 0);
 
 /// MARK - General
 export type DomainInfo = {
