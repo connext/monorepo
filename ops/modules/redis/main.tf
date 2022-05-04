@@ -11,4 +11,8 @@ resource "aws_elasticache_cluster" "redis" {
   security_group_ids       = [aws_security_group.redis.id]
   apply_immediately        = true
   snapshot_retention_limit = 0
+  tags                       = {
+    Stage = var.stage
+    Environment = var.environment
+  }
 }

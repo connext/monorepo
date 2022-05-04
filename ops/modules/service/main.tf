@@ -1,5 +1,9 @@
 resource "aws_cloudwatch_log_group" "container" {
   name = "${var.environment}-${var.stage}-${var.container_family}"
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
 }
 
 resource "aws_ecs_task_definition" "service" {
@@ -66,6 +70,7 @@ resource "aws_alb" "lb" {
   idle_timeout               = var.timeout
   tags                       = {
     Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
 
@@ -83,6 +88,10 @@ resource "aws_alb_target_group" "front_end" {
   lifecycle {
     create_before_destroy = true
   }
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
 }
 
 resource "aws_lb_listener" "https" {
@@ -95,6 +104,10 @@ resource "aws_lb_listener" "https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.front_end.arn
+  }
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
 
@@ -118,6 +131,10 @@ resource "aws_security_group" "lb" {
     protocol    = "-1"
     cidr_blocks = var.allow_all_cdir_blocks
   }
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
 }
 
 resource "aws_route53_record" "www" {
@@ -126,5 +143,9 @@ resource "aws_route53_record" "www" {
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
 }
 

@@ -10,6 +10,11 @@ variable "az_count" {
   default = "2"
 }
 
+variable "domain" {
+  description = "domain of deployment"
+  default     = "backend"
+}
+
 variable "stage" {
   description = "stage of deployment"
   default     = "staging"
@@ -20,29 +25,11 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "full_image_name_router" {
+variable "full_image_name_poller" {
   type        = string
   description = "router image name"
   default     = "ghcr.io/connext/router:sha-e72012d"
 }
-
-variable "full_image_name_sequencer" {
-  type        = string
-  description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-e72012d"
-}
-
-variable "mnemonic" {
-  type        = string
-  description = "mnemonic"
-  default     = "female autumn drive capable scorpion congress hockey chunk mouse cherry blame trumpet"
-}
-
-variable "admin_token_router" {
-  type        = string
-  description = "admin token"
-}
-
 
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
@@ -69,5 +56,9 @@ variable "logdna_key" {
 }
 
 variable "web3_signer_private_key" {
+  type = string
+}
+
+variable "postgres_password" {
   type = string
 }

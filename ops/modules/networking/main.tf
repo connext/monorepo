@@ -2,8 +2,10 @@ data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "main" {
   cidr_block = var.cidr_block
-  tags = {
+  tags                       = {
     Environment = var.environment
+    Stage = var.stage
+    Domain = var.domain
   }
 }
 
@@ -31,8 +33,8 @@ resource "aws_subnet" "private" {
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
-
 }
+
 
 # Route the public subnet traffic through the IGW
 resource "aws_route" "internet_access" {
@@ -115,54 +117,19 @@ resource "aws_security_group" "allow_tls" {
   }
 }
 
-
 resource "aws_elasticache_subnet_group" "default" {
   name       = "redis-subnet-group-${var.environment}-${var.stage}"
   subnet_ids = aws_subnet.main.*.id
-    lifecycle {
-      create_before_destroy = true
-  }
-}
-
-
-
-resource "aws_security_group" "web3signer" {
-  name   = "web3signer-${var.environment}-${var.stage}-sg"
-  vpc_id = aws_vpc.main.id
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-  }
   lifecycle {
-    ignore_changes = [
-      ingress,
-    ]
+    create_before_destroy = true
   }
-
-}
-
-resource "aws_security_group_rule" "web3signer_ingress_cidr_blocks" {
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  security_group_id = aws_security_group.web3signer.id
 }
 
 
-resource "aws_security_group_rule" "allow-ecs-tasks-to-web3signer" {
-  description              = "Allow worker nodes to communicate with cache"
-  from_port                = 443
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.web3signer.id
-  source_security_group_id = aws_security_group.ecs_tasks.id
-  to_port                  = 443
-  type                     = "ingress"
+resource "aws_db_subnet_group" "default" {
+  name       = "rds-subnet-group-${var.environment}-${var.stage}"
+  subnet_ids = aws_subnet.main.*.id
+  lifecycle {
+    create_before_destroy = true
+  }
 }
