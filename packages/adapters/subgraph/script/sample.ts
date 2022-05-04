@@ -48,7 +48,7 @@ export const test = async () => {
   // getAssetByCanoncialId(domain, canonicalId)
   console.log(
     await subgraphReader.getAssetByCanonicalId(
-      "2221",
+      "1111",
       "0x000000000000000000000000b5aabb55385bfbe31d627e2a717a7b189dda4f8f",
     ),
   );
