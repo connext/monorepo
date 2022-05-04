@@ -48,7 +48,7 @@ contract ConnextHandlerTest is ForgeHelper {
     address caller
   );
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
-  event SponsorVaultUpdated(address sponsorVault, address caller);
+  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   // ============ Storage ============
 
@@ -206,7 +206,7 @@ contract ConnextHandlerTest is ForgeHelper {
     vm.assume(_newSponsorVault != address(0));
 
     vm.expectEmit(true, true, true, true);
-    emit SponsorVaultUpdated(_newSponsorVault, address(this));
+    emit SponsorVaultUpdated(address(0), _newSponsorVault, address(this));
 
     connext.setSponsorVault(_newSponsorVault);
     assertEq(address(connext.sponsorVault()), _newSponsorVault);
@@ -219,7 +219,7 @@ contract ConnextHandlerTest is ForgeHelper {
     assertEq(address(connext.sponsorVault()), _currentSponsorVault);
 
     vm.expectEmit(true, true, true, true);
-    emit SponsorVaultUpdated(address(0), address(this));
+    emit SponsorVaultUpdated(_currentSponsorVault, address(0), address(this));
 
     connext.setSponsorVault(address(0));
     assertEq(address(connext.sponsorVault()), address(0));
