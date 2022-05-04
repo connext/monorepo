@@ -30,8 +30,9 @@ module "poller_db" {
   allocated_storage     = 5
   max_allocated_storage = 10
 
-  name     = "app"
-  username = "connext"
+
+  name     = "connext"  // db name
+  username = var.postgres_user
   password = var.postgres_password
   port     = "5432"
 
@@ -68,7 +69,7 @@ module "postgrest" {
   docker_image             = "postgrest/postgrest:v9.0.0.20220107"
   container_family         = "postgrest"
   health_check_path        = "/ping"
-  container_port           = 8080
+  container_port           = 3000
   loadbalancer_port        = 80
   cpu                      = 256
   memory                   = 512

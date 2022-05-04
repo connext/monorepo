@@ -35,30 +35,11 @@ variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }
 
-variable "rinkeby_alchemy_key_0" {
-  type = string
-}
-
-variable "kovan_alchemy_key_0" {
-  type = string
-}
-
-variable "rinkeby_alchemy_key_1" {
-  type = string
-}
-
-variable "kovan_alchemy_key_1" {
-  type = string
-}
-
-variable "logdna_key" {
-  type = string
-}
-
-variable "web3_signer_private_key" {
-  type = string
-}
-
 variable "postgres_password" {
   type = string
+}
+
+variable "postgres_user" {
+  type = string
+  default = "connext"
 }
