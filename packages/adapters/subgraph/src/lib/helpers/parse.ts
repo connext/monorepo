@@ -1,4 +1,4 @@
-import { NxtpError, XTransfer, DestinationTransfer, OriginTransfer } from "@connext/nxtp-utils";
+import { NxtpError, DestinationTransfer, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 // Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.

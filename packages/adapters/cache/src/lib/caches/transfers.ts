@@ -98,12 +98,7 @@ export class TransfersCache extends Cache {
       // gte(1) => added, 0 => updated,
       // reference: https://redis.io/commands/hset
       const added = (await this.data.hset(`${this.prefix}:transfers`, transferId, stringified)) >= 1;
-      if (
-        added &&
-        origin?.xcall.transactionHash &&
-        !destination?.execute?.transactionHash &&
-        !destination?.reconcile?.transactionHash
-      ) {
+      if (added && origin?.xcall.transactionHash && !destination) {
         // XCall defined but Execute and Reconcile are not defined => pending transfer.
         // If the transfer was added (previously not recorded) and it's a pending transfer, add it to the
         // pending transfers list.

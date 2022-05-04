@@ -1,5 +1,5 @@
 import { BigNumber, constants } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, OriginTransfer, DestinationTransfer } from "@connext/nxtp-utils";
+import { XTransfer, SubgraphQueryMetaParams, OriginTransfer } from "@connext/nxtp-utils";
 
 import { SubgraphReaderConfig, SubgraphMap } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";

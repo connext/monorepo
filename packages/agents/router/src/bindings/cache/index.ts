@@ -36,11 +36,10 @@ export const pollCache = async () => {
       continue;
     }
     // Retrieve the list of all pending transfer IDs for this domain.
-    const pending = await cache.transfers.getPending(domain);
-    logger.debug("Got pending transfers", requestContext, methodContext, { domain, pending });
+    const pendingTransferIds = await cache.transfers.getPending(domain);
 
     let pendingTransfers: OriginTransfer[] = [];
-    for (const transferId of pending) {
+    for (const transferId of pendingTransferIds) {
       // Retrieve the transfer data.
       const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
       if (transfer && transfer.destinationDomain && transfer.origin) pendingTransfers.push(transfer as OriginTransfer);
@@ -50,8 +49,14 @@ export const pollCache = async () => {
     const confirmedTransfers: XTransfer[] = await subgraph.getDestinationTransfers(pendingTransfers);
     if (confirmedTransfers.length > 0) await cache.transfers.storeTransfers(confirmedTransfers);
 
-    const confirmedTxIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
-    pendingTransfers = pendingTransfers.filter((transfer) => !confirmedTxIds.includes(transfer.transferId));
+    const confirmedTransferIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
+    pendingTransfers = pendingTransfers.filter((transfer) => !confirmedTransferIds.includes(transfer.transferId));
+    logger.info("Retrieved pending transfers for execution.", requestContext, methodContext, {
+      originDomain: domain,
+      pendingTransferIds,
+      confirmedTransferIds,
+      pending: pendingTransfers.map((transfer) => transfer.transferId),
+    });
 
     for (const transfer of pendingTransfers) {
       if (transfer.destination) {

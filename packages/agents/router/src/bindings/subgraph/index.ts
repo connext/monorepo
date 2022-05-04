@@ -88,10 +88,10 @@ export const pollSubgraph = async () => {
               queryParams: subgraphQueryMetaParams.get(domain)!,
               transfers: transfers
                 .filter((transfer) => transfer.destinationDomain === domain)
-                .map(({ transferId }) => transferId),
+                .map(({ transferId }) => transferId.slice(0, 8)),
             };
           }
-          logger.info("Retrieved pending transfers.", requestContext, methodContext, {
+          logger.info("Retrieved origin transfers from subgraph.", requestContext, methodContext, {
             domains,
           });
 

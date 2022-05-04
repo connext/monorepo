@@ -45,7 +45,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, origin, destination, transferId } = params;
+  const { originDomain, destinationDomain, origin, transferId } = params;
   if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
