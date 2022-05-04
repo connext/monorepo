@@ -207,8 +207,11 @@ export class SubgraphReader {
       }
     }
 
+    if (txIdsByDestinationDomain.size == 0) return [];
+
     const destinationTransfersQuery = getDestinationTransfersByIdsQuery(txIdsByDestinationDomain);
     response = await execute(destinationTransfersQuery);
+
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
@@ -235,6 +238,7 @@ export class SubgraphReader {
    */
   public async getDestinationTransfers(transfers: OriginTransfer[]): Promise<XTransfer[]> {
     const { parser, execute } = getHelpers();
+    if (transfers.length == 0) return [];
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allOrigin: [string, XTransfer][] = transfers.map((transfer) => {
       const destinationDomainRecord = txIdsByDestinationDomain.get(transfer.destinationDomain as string);

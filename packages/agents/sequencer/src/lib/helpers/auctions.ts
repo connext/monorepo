@@ -26,8 +26,6 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, loc
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
   };
-  console.log("> encodeExecute ==============> ");
-  console.log(args);
   return contracts.connext.encodeFunctionData("execute", [args]);
 };
 
