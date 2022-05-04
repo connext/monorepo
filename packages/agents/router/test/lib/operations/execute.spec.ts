@@ -34,7 +34,7 @@ describe("Operations:Execute", () => {
     it("happy", async () => {
       const expectedBid: Bid = {
         transferId: mockXTransfer.transferId,
-        origin: mockXTransfer.origin.domain,
+        origin: mockXTransfer.originDomain,
         fee: DEFAULT_ROUTER_FEE,
         router: mockRouter,
         signatures: {

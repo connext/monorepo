@@ -93,8 +93,8 @@ describe("Operations:Auctions", () => {
 
       expect(upsertAuctionStub).to.have.been.calledOnceWithExactly({
         transferId,
-        origin: transfer.origin.domain,
-        destination: transfer.destination.domain,
+        origin: transfer.originDomain,
+        destination: transfer.destinationDomain,
         bid,
       });
       expect(getTransferStub).to.have.been.calledOnceWithExactly(transferId);
