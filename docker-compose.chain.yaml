@@ -2,21 +2,25 @@ version: "3.3"
 
 services:
 
-  chain-1337:
-    container_name: chain-1337-test
+  chain-4:
+    environment:
+      - ALCHEMY_API_KEY=$ALCHEMY_API_KEY
+    container_name: chain-4-test
     image: trufflesuite/ganache-cli:latest
-    command: "--chainId 4 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 3 --verbose"
+    command: "--chainId 4 --fork https://eth-rinkeby.alchemyapi.io/v2/$ALCHEMY_API_KEY --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 3 --verbose"
     ports:
       - "8547:8545"
-  chain-1338:
-    container_name: chain-1338-test
+  chain-42:
+    environment:
+      - ALCHEMY_API_KEY=$ALCHEMY_API_KEY
+    container_name: chain-42-test
     image: trufflesuite/ganache-cli:latest
-    command: "--chainId 5 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 3 --verbose"
+    command: "--chainId 42 --fork https://eth-kovan.alchemyapi.io/v2/$ALCHEMY_API_KEY --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 3 --verbose"
     ports:
       - "8546:8545"
 
-  graph-node-1337:
-    container_name: graph-node-1337-test
+  graph-node-4:
+    container_name: graph-node-4-test
     image: graphprotocol/graph-node:v0.25.0
     ports:
       - "8010:8000"
@@ -26,19 +30,19 @@ services:
       - "8040:8040"
     depends_on:
       - ipfs
-      - postgres-1337
-      - chain-1337
+      - postgres-4
+      - chain-4
     environment:
-      postgres_host: postgres-1337
+      postgres_host: postgres-4
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:http://chain-1337:8545"
+      ethereum: "mainnet:http://chain-4:8545"
       GRAPH_LOG: info
 
-  postgres-1337:
-    container_name: postgres-1337-test
+  postgres-4:
+    container_name: postgres-4-test
     image: postgres
     ports:
       - "5432:5432"
@@ -48,8 +52,8 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
 
-  graph-node-1338:
-    container_name: graph-node-1338-test
+  graph-node-42:
+    container_name: graph-node-42-test
     image: graphprotocol/graph-node:v0.25.0
     ports:
       - "9010:8000"
@@ -59,19 +63,19 @@ services:
       - "9040:8040"
     depends_on:
       - ipfs
-      - postgres-1338
-      - chain-1338
+      - postgres-42
+      - chain-42
     environment:
-      postgres_host: postgres-1338
+      postgres_host: postgres-42
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:http://chain-1338:8545"
+      ethereum: "mainnet:http://chain-42:8545"
       GRAPH_LOG: info
 
-  postgres-1338:
-    container_name: postgres-1338-test
+  postgres-42:
+    container_name: postgres-42-test
     image: postgres
     ports:
       - "5433:5432"
