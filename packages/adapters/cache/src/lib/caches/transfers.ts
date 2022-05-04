@@ -69,7 +69,20 @@ export class TransfersCache extends Cache {
 
       // Update the existing transfer with the data from the new one; this will collate the transfer across
       // domains, since our cache is indexed by transferId.
-      transfer = existing ? { ...sanitizeNull(existing), ...sanitizeNull(transfer) } : transfer;
+      transfer = existing
+        ? {
+            ...sanitizeNull(existing),
+            ...sanitizeNull(transfer),
+            origin: {
+              ...sanitizeNull(existing.origin),
+              ...sanitizeNull(transfer.origin),
+            },
+            destination: {
+              ...sanitizeNull(existing.destination),
+              ...sanitizeNull(transfer.destination),
+            },
+          }
+        : transfer;
       const {
         transferId,
         nonce: _nonce,

@@ -23,10 +23,10 @@ export const sendToRelayer = async (
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
   logger.debug(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
 
-  const originChainId = chainData.get(transfer.originDomain)!.chainId;
-  const destinationChainId = chainData.get(transfer.destinationDomain)!.chainId;
+  const originChainId = chainData.get(transfer.origin.domain)!.chainId;
+  const destinationChainId = chainData.get(transfer.destination.domain)!.chainId;
 
-  const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
+  const destinationConnextAddress = config.chains[transfer.destination.domain].deployments.connext;
 
   const encodedData = encodeExecuteFromBids(bids, transfer, local);
 
@@ -75,7 +75,7 @@ export const sendToRelayer = async (
     data: encodedData,
     from: relayerAddress,
   });
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destinationDomain), {
+  const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destination.domain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,
     data: encodedData,
@@ -85,7 +85,7 @@ export const sendToRelayer = async (
   logger.info("Sending meta tx to relayer", requestContext, methodContext, {
     relayer: relayerAddress,
     connext: destinationConnextAddress,
-    domain: transfer.destinationDomain,
+    domain: transfer.destination.domain,
     gas: gas.toString(),
     relayerFee,
   });
