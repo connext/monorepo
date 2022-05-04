@@ -127,4 +127,5 @@ ALTER TABLE ONLY public.transfers
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20220419085941');
+    ('20220419085941'),
+    ('20220504052525');

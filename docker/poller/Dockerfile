@@ -1,7 +1,7 @@
 FROM node:16.3.0-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for nxtp-router package.
+# Builds Docker container for nxtp-poller package.
 # @dev configuraion located ./config.json (relative to this file)
 
 # ----------------------------------------
