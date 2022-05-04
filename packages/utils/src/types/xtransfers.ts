@@ -17,74 +17,127 @@ export const XTransferMethodCallSchema = Type.Object({
   blockNumber: Type.Number(),
 });
 
-export const XTransferSchema = Type.Object({
+export const XTransferOriginSchema = Type.Object({
+  chain: TIntegerString,
+
+  // Assets
+  assets: Type.Object({
+    transacting: Type.Object({
+      asset: Type.String(),
+      amount: TIntegerString,
+    }),
+    bridged: Type.Object({
+      asset: Type.String(),
+      amount: TIntegerString,
+    }),
+  }),
+
+  // XCall Transaction
+  xcall: Type.Intersect([
+    XTransferMethodCallSchema,
+    Type.Object({
+      // XCalled Event Data
+      relayerFee: TIntegerString,
+    }),
+  ]),
+});
+
+export const XTransferDestinationSchema = Type.Object({
+  chain: TIntegerString,
+
+  // Destination Event Data.
+  status: Type.Enum(XTransferStatus),
+  // Both Executed and Reconciled events emit `routers`.
+  routers: Type.Array(TAddress),
+
+  // Assets
+  assets: Type.Object({
+    // Transacting assets only come from Executed event.
+    transacting: Type.Optional(
+      Type.Object({
+        asset: Type.String(),
+        amount: TIntegerString,
+      }),
+    ),
+    // Local asset comes from Reconciled and Executed events.
+    local: Type.Object({
+      asset: Type.String(),
+      amount: TIntegerString,
+    }),
+  }),
+
+  // Execute Transaction
+  execute: Type.Optional(
+    Type.Intersect([
+      XTransferMethodCallSchema,
+      Type.Object({
+        // Executed Event Data
+        originSender: Type.Optional(TAddress),
+      }),
+    ]),
+  ),
+
+  // Reconcile Transaction
+  reconcile: Type.Optional(XTransferMethodCallSchema),
+});
+
+export const XTransferCoreSchema = Type.Object({
   // Meta
   idx: Type.Optional(TIntegerString),
   transferId: Type.String(),
-  nonce: Type.Integer(),
+  // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
+  nonce: Type.Optional(Type.Integer()),
 
   // Call Params
-  to: TAddress,
-  callData: Type.String(),
-
-  origin: Type.Object({
-    domain: Type.String(),
-
-    // Assets
-    assets: Type.Optional(
-      Type.Object({
-        transactingAsset: Type.String(),
-        transactingAmount: TIntegerString,
-        bridgedAsset: Type.String(),
-        bridgedAmount: TIntegerString,
-      }),
-    ),
-
-    // XCall Transaction
-    xcall: Type.Optional(
-      Type.Intersect([
-        XTransferMethodCallSchema,
-        Type.Object({
-          // XCall Event Data
-          relayerFee: TIntegerString,
-        }),
-      ]),
-    ),
-  }),
-
-  destination: Type.Object({
-    domain: Type.String(),
-
-    // Destination Event Data
-    status: Type.Optional(Type.Enum(XTransferStatus)),
-
-    // Assets
-    assets: Type.Optional(
-      Type.Object({
-        transactingAsset: Type.String(),
-        transactingAmount: TIntegerString,
-        localAsset: Type.String(),
-        localAmount: TIntegerString,
-      }),
-    ),
-
-    // Execute Transaction
-    execute: Type.Optional(
-      Type.Intersect([
-        XTransferMethodCallSchema,
-        Type.Object({
-          // Execute Event Data
-          routers: Type.Optional(Type.Array(TAddress)),
-          originSender: Type.Optional(TAddress),
-        }),
-      ]),
-    ),
-
-    // Reconcile Transaction
-    reconcile: Type.Optional(XTransferMethodCallSchema),
-  }),
+  // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
+  xparams: Type.Optional(
+    Type.Object({
+      to: TAddress,
+      callData: Type.String(),
+    }),
+  ),
 });
+
+export const XTransferSchema = Type.Intersect([
+  Type.Object({
+    originDomain: Type.String(),
+
+    destinationDomain: Type.Optional(Type.String()),
+  }),
+  XTransferCoreSchema,
+  Type.Object({
+    origin: Type.Optional(XTransferOriginSchema),
+    destination: Type.Optional(XTransferDestinationSchema),
+  }),
+]);
 export type XTransfer = Static<typeof XTransferSchema>;
+
+export const OriginTransferSchema = Type.Intersect([
+  Type.Object({
+    originDomain: Type.String(),
+    destinationDomain: Type.String(),
+  }),
+  XTransferCoreSchema,
+  Type.Object({
+    origin: XTransferOriginSchema,
+    destination: Type.Optional(XTransferDestinationSchema),
+  }),
+]);
+export type OriginTransfer = Static<typeof OriginTransferSchema>;
+
+export const DestinationTransferSchema = Type.Intersect([
+  Type.Object({
+    originDomain: Type.String(),
+    // NOTE: Destination domain is not emitted by Reconciled event.
+    destinationDomain: Type.Optional(Type.String()),
+  }),
+  XTransferCoreSchema,
+  Type.Object({
+    origin: Type.Optional(XTransferOriginSchema),
+    destination: XTransferDestinationSchema,
+  }),
+]);
+export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 
 export const CallParamsSchema = Type.Object({
   to: TAddress,

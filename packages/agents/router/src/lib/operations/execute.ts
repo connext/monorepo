@@ -1,4 +1,11 @@
-import { Bid, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE, ajv, XTransferSchema } from "@connext/nxtp-utils";
+import {
+  Bid,
+  createLoggingContext,
+  DEFAULT_ROUTER_FEE,
+  ajv,
+  XTransferSchema,
+  OriginTransfer,
+} from "@connext/nxtp-utils";
 
 import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
@@ -12,7 +19,7 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
  *
  * @param params - The crosschain xcall params.
  */
-export const execute = async (params: XTransfer): Promise<void> => {
+export const execute = async (params: OriginTransfer): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
@@ -38,19 +45,19 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { origin, destination, transferId } = params;
-  if (!origin.xcall || !origin.assets) {
+  const { originDomain, destinationDomain, origin, destination, transferId } = params;
+  if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
   const executeLocalAsset = await getDestinationLocalAsset(
-    origin.domain,
-    origin.assets.bridgedAsset,
-    destination.domain,
+    originDomain,
+    origin.assets.bridged.asset,
+    destinationDomain,
   );
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
-  const receivingAmount = origin.assets.bridgedAmount;
+  const receivingAmount = origin.assets.bridged.amount;
 
   // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
@@ -66,14 +73,14 @@ export const execute = async (params: XTransfer): Promise<void> => {
   });
 
   // sanity check
-  const balance = await subgraph.getAssetBalance(destination.domain, routerAddress, executeLocalAsset);
+  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   if (balance.lt(receivingAmount)) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
-      destinationDomain: destination.domain,
+      destinationDomain,
     });
   }
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
@@ -81,7 +88,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
     transferId,
-    origin: origin.domain,
+    origin: originDomain,
     router: routerAddress.toLowerCase(),
     fee,
     signatures,

@@ -86,7 +86,7 @@ export const pollSubgraph = async () => {
             domains[domain] = {
               queryParams: subgraphQueryMetaParams.get(domain)!,
               transfers: transfers
-                .filter((transfer) => transfer.destination?.domain === domain)
+                .filter((transfer) => transfer.destinationDomain === domain)
                 .map(({ transferId }) => transferId),
             };
           }

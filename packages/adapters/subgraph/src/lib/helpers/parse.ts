@@ -1,53 +1,62 @@
-import { XTransfer } from "@connext/nxtp-utils";
+import { NxtpError, XTransfer, DestinationTransfer, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-// Used for sanity checking: must have these fields to be identified as a Transfer entity.
-export const TRANSFER_ENTITY_REQUIREMENTS = [
-  "transferId",
-  "nonce",
-  "to",
-  "callData",
-  "originDomain",
-  "destinationDomain",
-];
+// Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.
+export const SHARED_TRANSFER_ENTITY_REQUIREMENTS = ["transferId"];
 
-export const transferEntitySanityCheck = (entity: any) => {
+export const originTransfer = (entity: any): OriginTransfer => {
+  // Sanity checks.
   if (!entity) {
-    throw new Error("Subgraph entity parser: Transfer entity is `undefined`.");
+    throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity is `undefined`.");
   }
-  for (const field of TRANSFER_ENTITY_REQUIREMENTS) {
+  if (entity.executedTransactionHash || entity.reconciledTransactionHash) {
+    // Wrong transfer type. This is a destination transfer entity!
+    throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
+  }
+  for (const field of [
+    ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
+    "originDomain",
+    "destinationDomain",
+    "nonce",
+    "to",
+    "callData",
+  ]) {
     if (!entity[field]) {
-      throw new Error(`Subgraph entity parser: Transfer entity missing required field: ${field}`);
+      throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity missing required field", {
+        missingField: field,
+        entity,
+      });
     }
   }
-};
 
-export const originTransfer = (entity: any): XTransfer => {
-  transferEntitySanityCheck(entity);
-  if (entity.status || entity.originSender || entity.routers) {
-    // Wrong transfer type. This is a destination transfer entity!
-    throw new Error("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
-  }
   return {
     // Meta Data
     idx: entity.idx ? entity.idx : undefined,
     transferId: entity.transferId,
-    nonce: BigNumber.from(entity.nonce ?? "0").toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
+    originDomain: entity.originDomain,
+    destinationDomain: entity.destinationDomain,
 
     // Call Params
-    to: entity.to,
-    callData: entity.callData,
+    xparams: {
+      to: entity.to,
+      callData: entity.callData,
+    },
 
     // Origin Info
     origin: {
-      domain: entity.originDomain,
+      chain: entity.chainId,
 
       // Assets
       assets: {
-        transactingAsset: entity.transactingAsset,
-        transactingAmount: entity.transactingAmount,
-        bridgedAsset: entity.bridgedAsset,
-        bridgedAmount: entity.bridgedAmount,
+        transacting: {
+          asset: entity.transactingAsset,
+          amount: entity.transactingAssetAmount,
+        },
+        bridged: {
+          asset: entity.bridgedAsset,
+          amount: entity.bridgedAssetAmount,
+        },
       },
 
       // XCall
@@ -65,61 +74,83 @@ export const originTransfer = (entity: any): XTransfer => {
     },
 
     // Destination Info
-    destination: {
-      domain: entity.destinationDomain,
-
-      status: undefined,
-      assets: undefined,
-      execute: undefined,
-      reconcile: undefined,
-    },
+    destination: undefined,
   };
 };
 
-export const destinationTransfer = (entity: any): XTransfer => {
-  transferEntitySanityCheck(entity);
-  if (entity.relayerFee) {
-    // Wrong transfer type. This is an origin transfer entity!
-    throw new Error("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
+export const destinationTransfer = (entity: any): DestinationTransfer => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is `undefined`.");
   }
+  if (entity.transactionHash || entity.relayerFee) {
+    // Wrong transfer type. This is an origin transfer entity!
+    throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
+  }
+  for (const field of [
+    ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
+    // NOTE: destinationDomain is not emitted by Reconciled event, it could be undefined.
+    "originDomain",
+    "localAmount",
+    "localAsset",
+    "status",
+    "routers",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
   return {
     // Meta Data
     idx: entity.idx ? entity.idx : undefined,
     transferId: entity.transferId,
-    nonce: BigNumber.from(entity.nonce ?? "0").toNumber(),
+    nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
+    originDomain: entity.originDomain,
+    destinationDomain: entity.destinationDomain,
 
     // Call Params
-    to: entity.to,
-    callData: entity.callData,
+    xparams:
+      entity.to && entity.callData
+        ? {
+            to: entity.to,
+            callData: entity.callData,
+          }
+        : undefined,
 
     // Origin Info
-    origin: {
-      domain: entity.originDomain,
-
-      assets: undefined,
-      xcall: undefined,
-    },
+    origin: undefined,
 
     // Destination Info
     destination: {
-      domain: entity.destinationDomain,
+      chain: entity.chainId,
 
       // Status (Executed | Reconciled | Completed)
       status: entity.status,
+      routers: entity.routers,
 
       // Assets
       assets: {
-        transactingAmount: entity.transactingAmount,
-        transactingAsset: entity.transactingAsset,
-        localAmount: entity.localAmount,
-        localAsset: entity.localAsset,
+        transacting:
+          entity.transactingAmount && entity.transactingAsset
+            ? {
+                asset: entity.transactingAsset,
+                amount: entity.transactingAmount,
+              }
+            : undefined,
+        local: {
+          asset: entity.localAsset,
+          amount: entity.localAmount,
+        },
       },
 
       // Execute
       execute: entity.executedTransactionHash
         ? {
             // Event Data
-            routers: entity.routers,
             originSender: entity.originSender,
             // Transaction Data
             caller: entity.executedCaller,
