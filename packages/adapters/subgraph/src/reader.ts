@@ -21,6 +21,11 @@ export const getContext = () => context;
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
 
+  // Getter for reading supported domains.
+  public get supported(): Record<string, boolean> {
+    return { ...context.config.supported };
+  }
+
   private constructor(config: SubgraphMap) {
     context = { config };
   }

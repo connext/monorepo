@@ -11,8 +11,16 @@ export class DomainInvalid extends NxtpError {
 }
 
 export class PrefixInvalid extends NxtpError {
-  constructor(context: any = {}) {
-    super("Prefix invalid", context, PrefixInvalid.name);
+  constructor(name: string, regexMatch: any, context: any = {}) {
+    super(
+      "Subgraph prefix name is invalid: unable to parse network from prefix. Did the prefix formatting change?",
+      {
+        invalidName: name,
+        regexMatch,
+        ...context,
+      },
+      PrefixInvalid.name,
+    );
   }
 }
 

@@ -1,8 +1,6 @@
 import * as fs from "fs";
 
 import { fetchJson } from "../ethers";
-import { Logger } from "../logging";
-import { jsonifyError } from "../types";
 
 export const CHAIN_ID = {
   MAINNET: 1,
@@ -105,7 +103,7 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   return chainData;
 };
 
-export const getChainData = async (logger?: Logger): Promise<Map<string, ChainData> | undefined> => {
+export const getChainData = async (): Promise<Map<string, ChainData>> => {
   const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
   try {
     const data = await fetchJson(url);
@@ -117,14 +115,7 @@ export const getChainData = async (logger?: Logger): Promise<Map<string, ChainDa
       const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
       return chainDataToMap(data);
     }
-    // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
-    if (logger)
-      logger.warn(
-        `Could not fetch chain data, and no cached chain data was available.`,
-        undefined,
-        undefined,
-        jsonifyError(err as Error),
-      );
-    return undefined;
+    // It could be dangerous to let any agent start without chain data.
+    throw new Error("Could not get chain data, and no cached chain data was available.");
   }
 };

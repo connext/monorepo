@@ -7,6 +7,7 @@ export const SubgraphMeshOptionSchema = Type.Object({
 
 export const SubgraphMapSchema = Type.Object({
   sources: Type.Record(Type.String(), SubgraphMeshOptionSchema),
+  supported: Type.Record(Type.String(), Type.Boolean()),
 });
 
 export type SubgraphMap = Static<typeof SubgraphMapSchema>;

@@ -698,7 +698,7 @@ describe("Integration:E2E", () => {
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const prefix = getPrefixForDomain(domainInfo.ORIGIN.domain);
+      const prefix: string = getPrefixForDomain(domainInfo.ORIGIN.domain);
       const query = formatSubgraphGetTransferQuery(prefix, {
         isOrigin: true,
         xcallTransactionHash: transactionHash,
@@ -773,8 +773,7 @@ describe("Integration:E2E", () => {
 
       let destinationTransfer: DestinationTransfer | undefined;
       log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
-      const prefix = getPrefixForDomain(domainInfo.DESTINATION.domain);
-      if (!prefix) throw new Error(`Error: getting prefix by domain: ${domainInfo.DESTINATION.domain} failed`);
+      const prefix: string = getPrefixForDomain(domainInfo.DESTINATION.domain);
       const query = formatSubgraphGetTransferQuery(prefix, {
         isOrigin: false,
         transferId: originTransfer.transferId,
