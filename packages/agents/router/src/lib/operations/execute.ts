@@ -73,7 +73,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
-      destinationDomain,
+      destinationDomain: destination.domain,
     });
   }
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
