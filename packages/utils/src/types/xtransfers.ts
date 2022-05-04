@@ -85,24 +85,24 @@ export const XTransferCoreSchema = Type.Object({
   // Meta
   idx: Type.Optional(TIntegerString),
   transferId: Type.String(),
-  // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
-  nonce: Type.Optional(Type.Integer()),
-
-  // Call Params
-  // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
-  xparams: Type.Optional(
-    Type.Object({
-      to: TAddress,
-      callData: Type.String(),
-    }),
-  ),
 });
 
 export const XTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
-
     destinationDomain: Type.Optional(Type.String()),
+
+    // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
+    nonce: Type.Optional(Type.Integer()),
+
+    // Call Params
+    // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
+    xparams: Type.Optional(
+      Type.Object({
+        to: TAddress,
+        callData: Type.String(),
+      }),
+    ),
   }),
   XTransferCoreSchema,
   Type.Object({
@@ -116,6 +116,11 @@ export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
     destinationDomain: Type.String(),
+    nonce: Type.Integer(),
+    xparams: Type.Object({
+      to: TAddress,
+      callData: Type.String(),
+    }),
   }),
   XTransferCoreSchema,
   Type.Object({
@@ -130,6 +135,13 @@ export const DestinationTransferSchema = Type.Intersect([
     originDomain: Type.String(),
     // NOTE: Destination domain is not emitted by Reconciled event.
     destinationDomain: Type.Optional(Type.String()),
+    nonce: Type.Optional(Type.Integer()),
+    xparams: Type.Optional(
+      Type.Object({
+        to: TAddress,
+        callData: Type.String(),
+      }),
+    ),
   }),
   XTransferCoreSchema,
   Type.Object({

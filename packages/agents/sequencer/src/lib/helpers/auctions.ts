@@ -1,28 +1,28 @@
-import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
-export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: string): string => {
+export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, local: string): string => {
   const {
     adapters: { contracts },
   } = getContext();
   // Sanity check.
-  if (!transfer.origin.xcall || !transfer.origin.assets) {
+  if (!transfer.origin) {
     throw new Error("XTransfer provided did not have XCall present!");
   }
 
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
     params: {
-      originDomain: transfer.origin.domain,
-      destinationDomain: transfer.destination.domain,
-      to: transfer.to,
-      callData: transfer.callData,
+      originDomain: transfer.originDomain,
+      destinationDomain: transfer.destinationDomain,
+      to: transfer.xparams.to,
+      callData: transfer.xparams.callData,
     },
     local,
     routers: bids.map((b) => b.router),
     routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-    amount: transfer.origin.assets.bridgedAmount,
+    amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
   };
