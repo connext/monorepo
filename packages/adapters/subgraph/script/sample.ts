@@ -1,4 +1,4 @@
-import { getChainData, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
+import { getChainData, OriginTransfer, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 import { gql } from "graphql-request";
 
 import { SubgraphReader } from "../src/reader";
@@ -48,7 +48,7 @@ export const test = async () => {
   // getAssetByCanoncialId(domain, canonicalId)
   console.log(
     await subgraphReader.getAssetByCanonicalId(
-      "1111",
+      "2221",
       "0x000000000000000000000000b5aabb55385bfbe31d627e2a717a7b189dda4f8f",
     ),
   );
@@ -67,64 +67,64 @@ export const test = async () => {
   // getXCalls(agents)
   console.log(`XCalling...`);
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
-  agents.set("1111", { maxBlockNumber: 10613127, latestNonce: 12 });
-  agents.set("2221", { maxBlockNumber: 31403640, latestNonce: 49 });
+  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 12 });
+  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 49 });
   console.log(await subgraphReader.getXCalls(agents));
   console.log(`XCalling done!`);
 
-  // getExecutedAndReconciledTransfers(transfers)
-  const transfers: XTransfer[] = [
+  // getDestinationTransfers(transfers)
+  const transfers: OriginTransfer[] = [
     {
-      origin: {
-        domain: "1111",
+      originDomain: "1111",
+      destinationDomain: "2221",
+      nonce: 13,
+      xparams: {
+        to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
+        callData: "0x",
       },
-      destination: {
-        domain: "2221",
-      },
-      to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
       transferId: "0xfad20d0b772e21887c75c59b8f2f8d3c235e7815203cc5980e54723004f9d572",
-      callData: "0x",
       idx: undefined,
-      nonce: 13,
+      origin: undefined,
+      destination: undefined,
     },
     {
-      origin: {
-        domain: "1111",
+      originDomain: "1111",
+      destinationDomain: "2221",
+      xparams: {
+        to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
+        callData: "0x",
       },
-      destination: {
-        domain: "2221",
-      },
-      to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
       transferId: "0xf3ff58c78a0068093ac06b6c00ff7535e8116b68da4976dc6c3f7029ed319469",
-      callData: "0x",
       idx: undefined,
       nonce: 13,
+      origin: undefined,
+      destination: undefined,
     },
     {
-      origin: {
-        domain: "2221",
+      originDomain: "2221",
+      destinationDomain: "1111",
+      xparams: {
+        to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
+        callData: "0x",
       },
-      destination: {
-        domain: "1111",
-      },
-      to: "0x28a36878c0be1343283e4ad6a2bf178a5737e864",
       transferId: "0x41d57cb2528103379f476ff8797f468610a046935b38c9b15b2647d639985473",
-      callData: "0x",
       idx: undefined,
       nonce: 13,
+      origin: undefined,
+      destination: undefined,
     },
     {
-      origin: {
-        domain: "1111",
+      originDomain: "1111",
+      destinationDomain: "2221",
+      xparams: {
+        to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
+        callData: "0x",
       },
-      destination: {
-        domain: "2221",
-      },
-      to: "0x28a36878c0be1343283e4ad6a2bf178a5737e864",
       transferId: "0xb438cae3d126e1d2a5e02b34829130b49279230e14c03ab69795275f625bb0fd",
-      callData: "0x",
       idx: undefined,
       nonce: 13,
+      origin: undefined,
+      destination: undefined,
     },
   ];
   console.log(await subgraphReader.getDestinationTransfers(transfers));
