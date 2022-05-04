@@ -22,6 +22,7 @@ import {
   originTransfer as parseOriginTransfer,
   destinationTransfer as parseDestinationTransfer,
 } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
+import { getPrefixByDomain } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/shared";
 
 import {
   DomainInfo,
@@ -692,7 +693,11 @@ describe("Integration:E2E", () => {
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const query = formatSubgraphGetTransferQuery({
+      const prefix = getPrefixByDomain(domainInfo.ORIGIN.domain);
+      if (!prefix) {
+        throw new Error(`Prefix doesn't exist for domain: ${domainInfo.ORIGIN.domain}`);
+      }
+      const query = formatSubgraphGetTransferQuery(prefix, {
         isOrigin: true,
         xcallTransactionHash: transactionHash,
       });

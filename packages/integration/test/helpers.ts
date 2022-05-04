@@ -45,6 +45,7 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
 };
 
 export const formatSubgraphGetTransferQuery = (
+  prefix: string,
   input: { isOrigin: boolean } & ({ xcallTransactionHash: string } | { transferId: string }),
 ): string => {
   const params = SUBG_TRANSFER_ENTITY_PARAMS;
@@ -52,7 +53,7 @@ export const formatSubgraphGetTransferQuery = (
   const condition = xcallTransactionHash ? `transactionHash: "${xcallTransactionHash}"` : `transferId: "${transferId}"`;
   return `
   {
-    ${isOrigin ? "originTransfers" : "destinationTransfers"}(
+    ${isOrigin ? `${prefix}_originTransfers` : `${prefix}_destinationTransfers`}(
       where: { ${condition} }
     ) {${params}}
   }`.trim();
