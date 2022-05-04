@@ -26,6 +26,8 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: s
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
   };
+  console.log("> encodeExecute ==============> ");
+  console.log(args);
   return contracts.connext.encodeFunctionData("execute", [args]);
 };
 
@@ -52,6 +54,8 @@ export const getDestinationLocalAsset = async (
   const canonicalId = sendingDomainAsset!.canonicalId as string;
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
+
+  console.log({ destinationDomainAsset, _destinationDomain, canonicalId });
 
   const localAddress = destinationDomainAsset!.local;
   return localAddress;

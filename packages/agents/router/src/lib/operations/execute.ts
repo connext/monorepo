@@ -22,7 +22,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   } = getContext();
   const {
     auctions: { sendBid },
-    shared: { getDestinationLocalAsset, signRouterPathPayload },
+    shared: { getDestinationLocalAsset, signRouterPathPayload, recoverRouterPathPayload },
   } = getHelpers();
 
   logger.debug("Method start", requestContext, methodContext, { params });
@@ -59,6 +59,10 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const signatures = {
     "1": await signRouterPathPayload(transferId, "1", wallet),
   };
+
+  const recoveredRouterAddress = recoverRouterPathPayload(transferId, "1", Object.values(signatures)[0]);
+  console.log(" > verifying signatures on offchain ====>");
+  console.log(recoveredRouterAddress.toLowerCase(), routerAddress.toLowerCase());
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
     // Sanitized with ellipsis.

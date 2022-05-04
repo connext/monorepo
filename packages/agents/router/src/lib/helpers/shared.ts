@@ -4,6 +4,7 @@ import {
   signRouterPathPayload as _signRouterPathPayload,
   getSubgraphHealth as _getSubgraphHealth,
   getSubgraphName as _getSubgraphName,
+  recoverRouterPathPayload as _recoverRouterPathPayload,
 } from "@connext/nxtp-utils";
 import { utils } from "ethers";
 
@@ -42,6 +43,7 @@ export const getTransactionId = (nonce: string, domain: string): string => {
 };
 
 export const signRouterPathPayload = _signRouterPathPayload;
+export const recoverRouterPathPayload = _recoverRouterPathPayload;
 
 export const getSubgraphHealth = _getSubgraphHealth;
 
