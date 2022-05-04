@@ -1087,20 +1087,26 @@ library ConnextLogic {
   }
 
   /**
-   * @notice Calculates the amount to be repaid to Aave Portal in adopted asset. If there is no enough amount to repay the unbacked and the fee,
-   * it will partially repay prioritizing the unbacked amount.
+   * @notice Calculates the amount to be repaid to Aave Portal in adopted asset. If there is no enough amount to repay
+   * the unbacked and the fee, it will partially repay prioritizing the unbacked amount.
    * @dev Assumes the fee is proportional to the unbackedAmount.
+   * @param _availableAmount - The available balance for a repayment
+   * @param _portalTransferAmount - The portal transfer amount that needs to be backed
+   * @param _portalFeeNumerator - The fee portal numerator
+   * @param _portalFeeDenominator - The fee portal denominator
+   * @param _transferId - The unique identifier of the crosschain transaction
+   * @param _adopted - The address of the adopted asset that needs to be backed
    * @return The total amount to be repaid
    * @return The unbacked amount to be backed
    * @return The fee amount to be paid
    */
   function _calculatePortalRepayment(
-    uint256 availableAmount,
-    uint256 portalTransferAmount,
-    uint256 portalFeeNumerator,
-    uint256 portalFeeDenominator,
-    bytes32 transferId,
-    address adopted
+    uint256 _availableAmount,
+    uint256 _portalTransferAmount,
+    uint256 _portalFeeNumerator,
+    uint256 _portalFeeDenominator,
+    bytes32 _transferId,
+    address _adopted
   )
     public
     returns (
@@ -1109,25 +1115,25 @@ library ConnextLogic {
       uint256
     )
   {
-    uint256 portalFee = (portalTransferAmount * portalFeeNumerator) / portalFeeDenominator;
-    uint256 backUnbackedAmount = portalTransferAmount;
+    uint256 portalFee = (_portalTransferAmount * _portalFeeNumerator) / _portalFeeDenominator;
+    uint256 backUnbackedAmount = _portalTransferAmount;
     uint256 totalRepayAmount = backUnbackedAmount + portalFee;
 
     // If not enough funds to repay the transfer + fees
     // try to repay as much as unbacked as possible
-    if (totalRepayAmount > availableAmount) {
+    if (totalRepayAmount > _availableAmount) {
       uint256 backUnbackedDebt = backUnbackedAmount;
       uint256 portalFeeDebt = portalFee;
 
-      if (availableAmount > backUnbackedAmount) {
+      if (_availableAmount > backUnbackedAmount) {
         // Repay the whole transfer and a partial amount of fees
-        portalFee = availableAmount - backUnbackedAmount;
+        portalFee = _availableAmount - backUnbackedAmount;
 
         backUnbackedDebt = 0;
         portalFeeDebt -= portalFee;
       } else {
         // Repay a partial amount of the transfer and no fees
-        backUnbackedAmount = availableAmount;
+        backUnbackedAmount = _availableAmount;
         portalFee = 0;
 
         backUnbackedDebt -= backUnbackedAmount;
@@ -1135,7 +1141,7 @@ library ConnextLogic {
 
       totalRepayAmount = backUnbackedAmount + portalFee;
 
-      emit AavePortalRepaymentDebt(transferId, adopted, backUnbackedDebt, portalFeeDebt);
+      emit AavePortalRepaymentDebt(_transferId, _adopted, backUnbackedDebt, portalFeeDebt);
     }
 
     return (totalRepayAmount, backUnbackedAmount, portalFee);
