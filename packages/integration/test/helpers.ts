@@ -7,7 +7,7 @@ import {
 } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
+import { DomainInfo, Environment, ENVIRONMENT, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -209,7 +209,11 @@ export const checkOnchainLocalAsset = async (
 
   {
     const tr = getTokenRegistryInterface();
-    trAddress = getDeployedTokenRegistryContract(chain, "Staging", true)!.address;
+    trAddress = getDeployedTokenRegistryContract(
+      chain,
+      ENVIRONMENT === Environment.Staging ? "Staging" : "",
+      true,
+    )!.address;
     const encoded = tr.encodeFunctionData("getTokenId", [adopted]);
     const result = await chainreader.readTx({
       chainId: chain,

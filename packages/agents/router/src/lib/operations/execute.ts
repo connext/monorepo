@@ -67,6 +67,9 @@ export const execute = async (params: XTransfer): Promise<void> => {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
+      executeLocalAsset,
+      routerAddress,
+      destinationDomain,
     });
   }
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });

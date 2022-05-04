@@ -24,10 +24,6 @@ export const mochaHooks = {
     subgraphMock.getAssetBalance.resolves(parseEther("10000"));
     subgraphMock.getAssetBalances.resolves({ [mkAddress("0xaaa")]: parseEther("10000") });
     subgraphMock.getXCalls.resolves([mock.entity.xtransfer("1000", "2000"), mock.entity.xtransfer("1000", "2000")]);
-    subgraphMock.getTransactionsWithStatuses.resolves([
-      mock.entity.xtransfer("1000", "2000"),
-      mock.entity.xtransfer("1000", "2000"),
-    ]);
 
     // setup cache
     const cacheParams = { host: "mock", port: 1234, mock: true, logger: mock.context().logger, redis: undefined };

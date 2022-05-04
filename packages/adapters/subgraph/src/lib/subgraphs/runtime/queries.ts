@@ -2,244 +2,139 @@ import { gql } from "graphql-request";
 
 // Contains all subgraph queries used by router
 
-export const getTransfers = gql`
-  query GetTransfers($originDomain: BigInt!, $destinationDomains: [BigInt!], $nonce: BigInt!) {
-    transfers(
-      where: { destinationDomain_in: $destinationDomains, nonce_gte: $nonce, originDomain: $originDomain }
-      orderBy: xcalledBlockNumber
-      orderDirection: desc
-    ) {
-      id
-      # Meta
-      originDomain
-      destinationDomain
-      chainId
-      status
-      # Transfer Data
-      to
-      transferId
-      callData
-      idx
-      nonce
-      routers {
-        id
-      }
-      # XCalled
-      xcalledCaller
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledTransactingAsset
-      xcalledLocalAsset
-      # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
-      executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
-      # Executed Transaction
-      executedTransactionHash
-      executedTimestamp
-      executedGasPrice
-      executedGasLimit
-      executedBlockNumber
-      # Reconciled
-      reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
-      # Reconciled Transaction
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber
-    }
-  }
-`;
-
-export const getXCalledTransfers = gql`
-  query GetXCalledTransfers(
+export const getOriginTransfers = gql`
+  query GetOriginTransfers(
     $originDomain: BigInt!
     $destinationDomains: [BigInt!]
-    $maxXCallBlockNumber: BigInt!
     $nonce: BigInt!
+    $maxBlockNumber: BigInt
   ) {
-    transfers(
+    originTransfers(
       where: {
-        originDomain: $originDomain
-        status: XCalled
         destinationDomain_in: $destinationDomains
-        xcalledBlockNumber_lte: $maxXCallBlockNumber
         nonce_gte: $nonce
+        originDomain: $originDomain
+        blockNumber_lte: $maxBlockNumber
       }
-      orderBy: xcalledBlockNumber
+      orderBy: blockNumber
       orderDirection: desc
     ) {
       id
-      # Meta
+
+      # MetaData
       originDomain
       destinationDomain
       chainId
-      status
-      # Transfer Data
-      to
+
+      # event Data
       transferId
-      callData
-      idx
+      to
       nonce
-      routers {
-        id
-      }
+      callData
+      transactingAsset
+      bridgedAsset
+      amount
+      bridgedAmount
       relayerFee
-      # XCalled
-      xcalledCaller
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledTransactingAsset
-      xcalledLocalAsset
+      caller
+      message
+
       # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
-      executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
-      # Executed Transaction
-      executedTransactionHash
-      executedTimestamp
-      executedGasPrice
-      executedGasLimit
-      executedBlockNumber
-      # Reconciled
-      reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
-      # Reconciled Transaction
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
     }
   }
 `;
 
-export const getTransfer = gql`
-  query GetTransfer($transferId: Bytes!) {
-    transfers(where: { transferId: $transferId }) {
+export const getOriginTransfersByIds = gql`
+  query GetOriginTransfersByIds($transferIds: [Bytes!]) {
+    originTransfers(where: { transferId_in: $transferIds }) {
       id
-      # Meta
+
+      # MetaData
       originDomain
       destinationDomain
       chainId
-      status
-      # Transfer Data
-      to
+
+      # event Data
       transferId
-      callData
-      idx
+      to
       nonce
-      routers {
-        id
-      }
+      callData
+      transactingAsset
+      bridgedAsset
+      amount
+      bridgedAmount
       relayerFee
-      # XCalled
-      xcalledCaller
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledTransactingAsset
-      xcalledLocalAsset
+      caller
+      message
+
       # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
-      executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
-      # Executed Transaction
-      executedTransactionHash
-      executedTimestamp
-      executedGasPrice
-      executedGasLimit
-      executedBlockNumber
-      # Reconciled
-      reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
-      # Reconciled Transaction
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
     }
   }
 `;
 
-export const getExecutedTransfersByIds = gql`
-  query GetExecutedTransfersByIds($transferIds: [Bytes!], $maxExecutedBlockNumber: BigInt!) {
-    transfers(
-      where: { transferId_in: $transferIds, executedBlockNumber_lte: $maxExecutedBlockNumber, status_in: [Executed] }
+export const getDestinationTransfers = gql`
+  query GetDestinationTransfers(
+    $originDomain: BigInt!
+    $destinationDomains: [BigInt!]
+    $nonce: BigInt!
+    $status: TransferStatus
+  ) {
+    destinationTransfers(
+      where: {
+        destinationDomain_in: $destinationDomains
+        nonce_gte: $nonce
+        originDomain: $originDomain
+        status: $status
+      }
+      orderBy: nonce
+      orderDirection: desc
     ) {
       id
-      # Meta
+
+      # MetaData
       originDomain
       destinationDomain
       chainId
       status
-      # Transfer Data
-      to
+
+      # Executed event Data
       transferId
-      callData
-      idx
+      to
       nonce
+      callData
+      localAsset
       routers {
         id
       }
-      relayerFee
-      # XCalled
-      xcalledTransactingAsset
-      xcalledLocalAsset
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledCaller
-      # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
+      transactingAsset
+      transactingAmount
+      originSender
+
       executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
+      executedAmount
+
       # Executed Transaction
       executedTransactionHash
       executedTimestamp
       executedGasPrice
       executedGasLimit
       executedBlockNumber
-      # Reconciled
+
+      # Reconciled event Data
+      reconciledAsset
+      reconciledAmount
       reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
+
       # Reconciled Transaction
       reconciledTransactionHash
       reconciledTimestamp
@@ -250,116 +145,57 @@ export const getExecutedTransfersByIds = gql`
   }
 `;
 
-export const getReconciledTransfersByIds = gql`
-  query GetReconciledTransfersByIds($transferIds: [Bytes!], $maxReconciledBlockNumber: BigInt!) {
-    transfers(
+export const getDestinationTransfersByIds = gql`
+  query GetDestinationTransfersByIds(
+    $transferIds: [Bytes!]
+    $maxExecutedBlockNumber: BigInt
+    $maxReconciledBlockNumber: BigInt
+    $status: TransferStatus
+  ) {
+    destinationTransfers(
       where: {
         transferId_in: $transferIds
+        executedBlockNumber_lte: $maxExecutedBlockNumber
         reconciledBlockNumber_lte: $maxReconciledBlockNumber
-        status_in: [Reconciled]
+        status: $status
       }
     ) {
       id
-      # Meta
-      originDomain
-      destinationDomain
-      chainId
-      status
-      # Transfer Data
-      to
-      transferId
-      callData
-      idx
-      nonce
-      routers {
-        id
-      }
-      relayerFee
-      # XCalled
-      xcalledTransactingAsset
-      xcalledLocalAsset
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledCaller
-      # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
-      executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
-      # Executed Transaction
-      executedTransactionHash
-      executedTimestamp
-      executedGasPrice
-      executedGasLimit
-      executedBlockNumber
-      # Reconciled
-      reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
-      # Reconciled Transaction
-      reconciledTransactionHash
-      reconciledTimestamp
-      reconciledGasPrice
-      reconciledGasLimit
-      reconciledBlockNumber
-    }
-  }
-`;
 
-export const getTransfersStatus = gql`
-  query GetTransfersStatus($transferIds: [Bytes!]) {
-    transfers(where: { transferId_in: $transferIds, status_in: [Executed, Reconciled] }) {
-      id
-      # Meta
+      # MetaData
       originDomain
       destinationDomain
       chainId
       status
-      # Transfer Data
-      to
+
+      # Executed event Data
       transferId
-      callData
-      idx
+      to
       nonce
+      callData
+      localAsset
       routers {
         id
       }
-      relayerFee
-      # XCalled
-      xcalledTransactingAsset
-      xcalledLocalAsset
-      xcalledTransactingAmount
-      xcalledLocalAmount
-      xcalledCaller
-      # XCalled Transaction
-      xcalledTransactionHash
-      xcalledTimestamp
-      xcalledGasPrice
-      xcalledGasLimit
-      xcalledBlockNumber
-      # Executed
+      transactingAsset
+      transactingAmount
+      originSender
+
       executedCaller
-      executedTransactingAmount
-      executedLocalAmount
-      executedTransactingAsset
-      executedLocalAsset
+      executedAmount
+
       # Executed Transaction
       executedTransactionHash
       executedTimestamp
       executedGasPrice
       executedGasLimit
       executedBlockNumber
-      # Reconciled
+
+      # Reconciled event Data
+      reconciledAsset
+      reconciledAmount
       reconciledCaller
-      reconciledLocalAsset
-      reconciledLocalAmount
+
       # Reconciled Transaction
       reconciledTransactionHash
       reconciledTimestamp

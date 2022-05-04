@@ -128,7 +128,7 @@ describe("Operations:Auctions", () => {
 
     it("should error if transfer is missing", async () => {
       getTransferStub.resolves(undefined);
-      (ctxMock.adapters.subgraph.getTransfer as SinonStub).resolves(undefined);
+      (ctxMock.adapters.subgraph.getOriginTransfer as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
       await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
@@ -138,7 +138,7 @@ describe("Operations:Auctions", () => {
         ...mock.entity.xtransfer(),
         xcall: undefined,
       });
-      (ctxMock.adapters.subgraph.getTransfer as SinonStub).resolves(undefined);
+      (ctxMock.adapters.subgraph.getOriginTransfer as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
       await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
@@ -150,7 +150,7 @@ describe("Operations:Auctions", () => {
         ...mock.entity.xtransfer(),
         transferId: bid.transferId,
       };
-      (ctxMock.adapters.subgraph as any).getTransfer.resolves(transfer);
+      (ctxMock.adapters.subgraph as any).getOriginTransfer.resolves(transfer);
       await storeBid(bid, requestContext);
       expect(storeTransfersStub).to.have.been.calledOnceWithExactly([transfer]);
     });
