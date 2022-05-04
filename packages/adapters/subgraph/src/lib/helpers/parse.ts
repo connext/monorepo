@@ -24,6 +24,10 @@ export const transferEntitySanityCheck = (entity: any) => {
 
 export const originTransfer = (entity: any): XTransfer => {
   transferEntitySanityCheck(entity);
+  if (entity.status || entity.originSender || entity.routers) {
+    // Wrong transfer type. This is a destination transfer entity!
+    throw new Error("Subgraph `OriginTransfer` entity parser: Transfer entity is a destination transfer entity.");
+  }
   return {
     // Meta Data
     idx: entity.idx ? entity.idx : undefined,
@@ -74,6 +78,10 @@ export const originTransfer = (entity: any): XTransfer => {
 
 export const destinationTransfer = (entity: any): XTransfer => {
   transferEntitySanityCheck(entity);
+  if (entity.relayerFee) {
+    // Wrong transfer type. This is an origin transfer entity!
+    throw new Error("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
+  }
   return {
     // Meta Data
     idx: entity.idx ? entity.idx : undefined,
