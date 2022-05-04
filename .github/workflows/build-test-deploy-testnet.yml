@@ -278,7 +278,7 @@ jobs:
         run: |
           terraform apply -auto-approve
 
-  terraform-backend-staging:
+  terraform-services-backend-staging:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -401,8 +401,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [terraform-services-core-staging, terraform-services-backend-staging]
     env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.router-tags).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.sequencer-tags).tags[0] }}
+      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging.outputs.router-tags).tags[0] }}
+      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging.outputs.sequencer-tags).tags[0] }}
 
     steps:
       - name: Checkout repository
@@ -412,8 +412,8 @@ jobs:
         run: echo "to be implemented..."
 
     outputs:
-      router-tags: ${{ needs.terraform-services-staging.outputs.router-tags }}
-      sequencer-tags: ${{ needs.terraform-services-staging.outputs.sequencer-tags }}
+      router-tags: ${{ needs.terraform-services-core-staging.outputs.router-tags }}
+      sequencer-tags: ${{ needs.terraform-services-core-staging.outputs.sequencer-tags }}
 
   terraform-services-core-prod:
     needs: [e2e-tests]
