@@ -7,7 +7,14 @@ import {
 } from "@connext/nxtp-txservice";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
+import {
+  DomainInfo,
+  Environment,
+  ENVIRONMENT,
+  SUBG_ORIGIN_TRANSFER_PARAMS,
+  SUBG_DESTINATION_TRANSFER_PARAMS,
+  TestAgents,
+} from "./constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -44,16 +51,18 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
 };
 
 export const formatSubgraphGetTransferQuery = (
-  input: { xcallTransactionHash: string } | { transferId: string },
+  input: { isOrigin: boolean } & ({ xcallTransactionHash: string } | { transferId: string }),
 ): string => {
-  const params = SUBG_TRANSFER_ENTITY_PARAMS;
-  const { xcallTransactionHash, transferId } = input as any;
-  const condition = xcallTransactionHash
-    ? `xcalledTransactionHash: "${xcallTransactionHash}"`
-    : `transferId: "${transferId}"`;
+  const { xcallTransactionHash, transferId, isOrigin } = input as any;
+  if (isOrigin && !xcallTransactionHash) {
+    throw new Error(`Misuse of method ${formatSubgraphGetTransferQuery.name}.`);
+  }
+
+  const params = isOrigin ? SUBG_ORIGIN_TRANSFER_PARAMS : SUBG_DESTINATION_TRANSFER_PARAMS;
+  const condition = xcallTransactionHash ? `transactionHash: "${xcallTransactionHash}"` : `transferId: "${transferId}"`;
   return `
   {
-    transfers(
+    ${isOrigin ? "originTransfers" : "destinationTransfers"}(
       where: { ${condition} }
     ) {\n\t${params.map((param) => `${param}`).join("\n\t")}
     }
@@ -209,7 +218,11 @@ export const checkOnchainLocalAsset = async (
 
   {
     const tr = getTokenRegistryInterface();
-    trAddress = getDeployedTokenRegistryContract(chain, "Staging", true)!.address;
+    trAddress = getDeployedTokenRegistryContract(
+      chain,
+      ENVIRONMENT === Environment.Staging ? "Staging" : "",
+      true,
+    )!.address;
     const encoded = tr.encodeFunctionData("getTokenId", [adopted]);
     const result = await chainreader.readTx({
       chainId: chain,

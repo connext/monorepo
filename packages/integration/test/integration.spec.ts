@@ -10,25 +10,29 @@ import {
   AuctionsApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
   delay,
+  OriginTransfer,
+  DestinationTransfer,
   ERC20Abi,
   getGelatoRelayerAddress,
   Logger,
   XCallArgs,
-  XTransfer,
 } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { xtransfer as parseXTransfer } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
+import {
+  originTransfer as parseOriginTransfer,
+  destinationTransfer as parseDestinationTransfer,
+} from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
 
 import {
   DomainInfo,
+  TestAgents,
   DOMAINS,
   ROUTER_CONFIG,
   SEQUENCER_CONFIG,
   MIN_USER_ETH,
   TRANSFER_TOKEN_AMOUNT,
   MIN_FUNDER_ETH,
-  TestAgents,
   EXECUTE_TIMEOUT,
   SUBG_POLL_PARITY,
   XCALL_TIMEOUT,
@@ -663,7 +667,7 @@ describe("Integration:E2E", () => {
       await delay(1_000);
     }
 
-    let transfer: XTransfer | undefined;
+    let originTransfer: OriginTransfer | undefined;
     log.next("XCALL");
     {
       let transactionHash: string;
@@ -705,15 +709,16 @@ describe("Integration:E2E", () => {
       const parity = SUBG_POLL_PARITY;
       const attempts = Math.floor(XCALL_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
+        isOrigin: true,
         xcallTransactionHash: transactionHash,
       });
       let i;
       for (i = 0; i < attempts; i++) {
         await delay(parity);
         try {
-          const result = await subgraph.query(domainInfo.ORIGIN.domain, query);
-          if (result.transfers.length === 1) {
-            transfer = parseXTransfer(result.transfers[0]);
+          const result: any = await subgraph.query(domainInfo.ORIGIN.domain, query);
+          if (result.originTransfers.length === 1) {
+            originTransfer = parseOriginTransfer(result.originTransfers[0]);
             break;
           }
         } catch (e: unknown) {
@@ -721,7 +726,7 @@ describe("Integration:E2E", () => {
           throw e;
         }
       }
-      if (!transfer) {
+      if (!originTransfer) {
         log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
           domain: domainInfo.ORIGIN,
           etc: {
@@ -733,15 +738,15 @@ describe("Integration:E2E", () => {
         domain: domainInfo.ORIGIN,
         etc: {
           took: `${(parity * (i + 1)) / 1_000}s.`,
-          transferID: transfer?.transferId,
-          transfer,
+          transferID: originTransfer?.transferId,
+          transfer: originTransfer,
         },
       });
     }
 
     log.next("WAIT FOR EXECUTE");
     {
-      if (!transfer) {
+      if (!originTransfer) {
         // Should never happen, but this soothes Mr. Compiler.
         throw new Error("CRITICAL: transfer is undefined!");
       }
@@ -787,33 +792,36 @@ describe("Integration:E2E", () => {
       log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
       const attempts = Math.floor(EXECUTE_TIMEOUT / SUBG_POLL_PARITY);
       const query = formatSubgraphGetTransferQuery({
-        transferId: transfer.transferId,
+        isOrigin: false,
+        transferId: originTransfer.transferId,
       });
       let i;
       let reconciled = false;
+      let destinationTransfer: DestinationTransfer | undefined;
       for (i = 0; i < attempts; i++) {
         await delay(SUBG_POLL_PARITY);
-        const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-        if (result.transfers.length === 1) {
-          const _transfer = parseXTransfer(result.transfers[0]);
-          transfer = {
-            ..._transfer,
-            xcall: transfer?.xcall,
-          };
-          // The transfer may have been reconciled, but not executed. Double check here.
-          if (transfer.execute?.transactionHash) {
-            break;
-          } else if (transfer.reconcile?.transactionHash && !reconciled) {
-            reconciled = true;
-            log.info("Transfer was reconciled.", {
-              domain: domainInfo.DESTINATION,
-              hash: transfer.reconcile.transactionHash,
-            });
+        try {
+          const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
+          if (result.destinationTransfers.length === 1) {
+            // Parse and then collate with the origin transfer.
+            const destinationTransfer = parseDestinationTransfer(result.destinationTransfers[0]);
+            // The transfer may have been reconciled, but not executed. Double check here.
+            if (destinationTransfer.destination.execute?.transactionHash) {
+              break;
+            } else if (destinationTransfer.destination.reconcile?.transactionHash && !reconciled) {
+              reconciled = true;
+              log.info("Transfer was reconciled.", {
+                domain: domainInfo.DESTINATION,
+                hash: destinationTransfer.destination.reconcile.transactionHash,
+              });
+            }
           }
+        } catch (e: unknown) {
+          console.log(e, (e as any).errors);
         }
       }
 
-      if (!transfer.execute?.transactionHash) {
+      if (!destinationTransfer || !destinationTransfer.destination.execute?.transactionHash) {
         log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
           domain: domainInfo.DESTINATION,
           etc: {
@@ -823,7 +831,7 @@ describe("Integration:E2E", () => {
       }
       log.info("Execute transaction found.", {
         domain: domainInfo.DESTINATION,
-        hash: transfer.execute?.transactionHash,
+        hash: destinationTransfer!.destination.execute?.transactionHash,
         etc: {
           took: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
         },
@@ -832,8 +840,14 @@ describe("Integration:E2E", () => {
       log.info("Transfer completed successfully!", {
         domain: domainInfo.DESTINATION,
         etc: {
-          locallyExecuted: agents.router && transfer.routers && transfer.routers.includes(agents.router.address),
-          transfer,
+          locallyExecuted:
+            agents.router &&
+            destinationTransfer!.destination.routers &&
+            destinationTransfer!.destination.routers.includes(agents.router.address),
+          transfer: {
+            ...originTransfer,
+            destination: destinationTransfer!.destination,
+          },
         },
       });
     }

@@ -1,5 +1,5 @@
 import { SinonStub, stub, restore, reset } from "sinon";
-import { expect, XTransferStatus, delay } from "@connext/nxtp-utils";
+import { expect, delay } from "@connext/nxtp-utils";
 
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
@@ -75,34 +75,21 @@ describe("Bindings:Subgraph", () => {
       };
 
       mockContext.adapters.cache.transfers.getLatestNonce.callsFake((domain: string) => mockInfo[domain].latestNonce);
-      mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
-      mockContext.config.chains[mock.chain.B].confirmations = mockInfo[mock.chain.B].safeConfirmations;
-      const mockSubgraphResponse = [
-        mock.entity.xtransfer(mock.chain.A, mock.chain.B, undefined, XTransferStatus.XCalled),
-        mock.entity.xtransfer(mock.chain.B, mock.chain.A, undefined, XTransferStatus.XCalled),
-      ];
-      mockContext.adapters.subgraph.getTransactionsWithStatuses.resolves(mockSubgraphResponse);
+      mockContext.config.chains[mock.domain.A].confirmations = mockInfo[mock.domain.A].safeConfirmations;
+      mockContext.config.chains[mock.domain.B].confirmations = mockInfo[mock.domain.B].safeConfirmations;
+      const mockSubgraphResponse = [mock.entity.xtransfer(), mock.entity.xtransfer()];
+      mockContext.adapters.subgraph.getOriginTransfers.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();
 
-      // Should have been called once per available/configured chain.);
+      // Should have been called once per available/configured chain.
       expect(mockContext.adapters.cache.transfers.getLatestNonce.callCount).to.be.eq(Object.keys(mockInfo).length);
-      expect(mockContext.adapters.subgraph.getTransactionsWithStatuses.getCall(0).args[0]).to.be.deep.eq(
-        new Map(
-          Object.entries({
-            [mock.chain.A]: {
-              maxBlockNumber: mockInfo[mock.chain.A].latestBlockNumber - mockInfo[mock.chain.A].safeConfirmations,
-              latestNonce: mockInfo[mock.chain.A].latestNonce + 1,
-              destinationDomains: [mock.chain.A, mock.chain.B],
-            },
-            [mock.chain.B]: {
-              maxBlockNumber: mockInfo[mock.chain.B].latestBlockNumber - mockInfo[mock.chain.B].safeConfirmations,
-              latestNonce: mockInfo[mock.chain.B].latestNonce + 1,
-              destinationDomains: [mock.chain.A, mock.chain.B],
-            },
-          }),
-        ),
-      );
+      expect(mockContext.adapters.subgraph.getOriginTransfers.getCall(0).args).to.be.deep.eq([
+        mock.domain.A,
+        mockInfo[mock.domain.A].latestNonce + 1,
+        mockInfo[mock.domain.A].latestBlockNumber - mockInfo[mock.domain.A].safeConfirmations,
+        [mock.domain.A, mock.domain.B],
+      ]);
       expect(mockContext.adapters.cache.transfers.storeTransfers.getCall(0).args[0]).to.be.deep.eq(
         mockSubgraphResponse,
       );
@@ -133,32 +120,19 @@ describe("Bindings:Subgraph", () => {
       mockContext.adapters.cache.transfers.getLatestNonce.callsFake((domain: string) => mockInfo[domain].latestNonce);
       mockContext.config.chains[mock.chain.A].confirmations = null;
       mockContext.config.chains[mock.chain.B].confirmations = null;
-      const mockSubgraphResponse = [
-        mock.entity.xtransfer(mock.chain.A, mock.chain.B, undefined, XTransferStatus.XCalled),
-        mock.entity.xtransfer(mock.chain.B, mock.chain.A, undefined, XTransferStatus.XCalled),
-      ];
-      mockContext.adapters.subgraph.getTransactionsWithStatuses.resolves(mockSubgraphResponse);
+      const mockSubgraphResponse = [mock.entity.xtransfer(), mock.entity.xtransfer()];
+      mockContext.adapters.subgraph.getOriginTransfers.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();
 
       // Should have been called once per available/configured chain.
       expect(mockContext.adapters.cache.transfers.getLatestNonce.callCount).to.be.eq(Object.keys(mockInfo).length);
-      expect(mockContext.adapters.subgraph.getTransactionsWithStatuses.getCall(0).args[0]).to.be.deep.eq(
-        new Map(
-          Object.entries({
-            [mock.chain.A]: {
-              maxBlockNumber: mockInfo[mock.chain.A].latestBlockNumber - bindSubgraphFns.DEFAULT_SAFE_CONFIRMATIONS,
-              latestNonce: mockInfo[mock.chain.A].latestNonce + 1,
-              destinationDomains: [mock.chain.A, mock.chain.B],
-            },
-            [mock.chain.B]: {
-              maxBlockNumber: mockInfo[mock.chain.B].latestBlockNumber - bindSubgraphFns.DEFAULT_SAFE_CONFIRMATIONS,
-              latestNonce: mockInfo[mock.chain.B].latestNonce + 1,
-              destinationDomains: [mock.chain.A, mock.chain.B],
-            },
-          }),
-        ),
-      );
+      expect(mockContext.adapters.subgraph.getOriginTransfers.getCall(0).args).to.be.deep.eq([
+        mock.domain.A,
+        mockInfo[mock.domain.A].latestNonce + 1,
+        mockInfo[mock.domain.A].latestBlockNumber - bindSubgraphFns.DEFAULT_SAFE_CONFIRMATIONS,
+        [mock.domain.A, mock.domain.B],
+      ]);
       expect(mockContext.adapters.cache.transfers.storeTransfers.getCall(0).args[0]).to.be.deep.eq(
         mockSubgraphResponse,
       );
@@ -192,16 +166,13 @@ describe("Bindings:Subgraph", () => {
       mockContext.adapters.cache.transfers.getLatestNonce.callsFake((domain: string) => mockInfo[domain].latestNonce);
       mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
       mockContext.config.chains[mock.chain.B].confirmations = mockInfo[mock.chain.B].safeConfirmations;
-      const mockSubgraphResponse = [
-        mock.entity.xtransfer(mock.chain.A, mock.chain.B, undefined, XTransferStatus.XCalled),
-        mock.entity.xtransfer(mock.chain.B, mock.chain.A, undefined, XTransferStatus.XCalled),
-      ];
-      mockContext.adapters.subgraph.getTransactionsWithStatuses.resolves(mockSubgraphResponse);
+      const mockSubgraphResponse = [mock.entity.xtransfer(), mock.entity.xtransfer()];
+      mockContext.adapters.subgraph.getOriginTransfers.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();
 
       expect(mockContext.adapters.cache.transfers.getLatestNonce.callCount).to.be.eq(0);
-      expect(mockContext.adapters.subgraph.getTransactionsWithStatuses.callCount).to.be.eq(0);
+      expect(mockContext.adapters.subgraph.getOriginTransfers.callCount).to.be.eq(0);
       expect(mockContext.adapters.cache.transfers.storeTransfers.callCount).to.be.eq(0);
     });
 
@@ -232,9 +203,7 @@ describe("Bindings:Subgraph", () => {
       mockContext.adapters.cache.transfers.getLatestNonce.callsFake((domain: string) => mockInfo[domain].latestNonce);
       mockContext.config.chains[mock.chain.A].confirmations = mockInfo[mock.chain.A].safeConfirmations;
       mockContext.config.chains[mock.chain.B].confirmations = mockInfo[mock.chain.B].safeConfirmations;
-      mockContext.adapters.subgraph.getTransactionsWithStatuses.throws(
-        new Error("getTransactionsWithStatuses failed!"),
-      );
+      mockContext.adapters.subgraph.getOriginTransfers.rejects(new Error("getOriginTransfers failed!"));
 
       await bindSubgraphFns.pollSubgraph();
 
