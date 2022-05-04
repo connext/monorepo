@@ -68,7 +68,6 @@ export const sendToRelayer = async (
 
   // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await relayer.getRelayerAddress(destinationChainId);
-  console.log({ relayerAddress });
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,
