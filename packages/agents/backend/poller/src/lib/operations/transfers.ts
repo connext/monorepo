@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   getSubgraphHealth,
   getSubgraphName,
+  OriginTransfer,
   SubgraphQueryMetaParams,
   XTransferStatus,
 } from "@connext/nxtp-utils";
@@ -70,7 +71,9 @@ export const updateTransfers = async () => {
     xcalledTransfers: xcalledTransfers.map((transfer) => transfer.transferId),
   });
 
-  const executedReconciled = await subgraph.getDestinationTransfers(xcalledTransfers.concat(executedTransfers));
+  const executedReconciled = await subgraph.getDestinationTransfers(
+    xcalledTransfers.concat(executedTransfers) as OriginTransfer[],
+  );
   logger.debug("Got executed/reconciled", requestContext, methodContext, {
     completedTransfers: xcalledTransfers.map((transfer) => {
       return { transferId: transfer.transferId, status: transfer.destination?.status };
