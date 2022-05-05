@@ -21,6 +21,7 @@ export const TChainConfig = Type.Object({
   deployments: Type.Optional(
     Type.Object({
       connext: TAddress,
+      stableSwap: Type.Optional(TAddress),
     }),
   ),
 });
@@ -44,6 +45,7 @@ export const TValidationChainConfig = Type.Object({
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
     connext: TAddress,
+    stableSwap: Type.Optional(TAddress),
   }),
 });
 
