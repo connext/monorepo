@@ -33,11 +33,11 @@ declare module 'zapatos/schema' {
     export type Table = 'asset_balances';
     export interface Selectable {
       /**
-      * **asset_balances.address**
+      * **asset_balances.asset_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      address: string;
+      asset_id: string;
       /**
       * **asset_balances.domain**
       * - `varchar` in database
@@ -59,11 +59,11 @@ declare module 'zapatos/schema' {
     }
     export interface JSONSelectable {
       /**
-      * **asset_balances.address**
+      * **asset_balances.asset_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      address: string;
+      asset_id: string;
       /**
       * **asset_balances.domain**
       * - `varchar` in database
@@ -85,11 +85,11 @@ declare module 'zapatos/schema' {
     }
     export interface Whereable {
       /**
-      * **asset_balances.address**
+      * **asset_balances.asset_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      asset_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **asset_balances.domain**
       * - `varchar` in database
@@ -111,11 +111,11 @@ declare module 'zapatos/schema' {
     }
     export interface Insertable {
       /**
-      * **asset_balances.address**
+      * **asset_balances.asset_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      address: string | db.Parameter<string> | db.SQLFragment;
+      asset_id: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **asset_balances.domain**
       * - `varchar` in database
@@ -137,11 +137,11 @@ declare module 'zapatos/schema' {
     }
     export interface Updatable {
       /**
-      * **asset_balances.address**
+      * **asset_balances.asset_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      address?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      asset_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **asset_balances.domain**
       * - `varchar` in database
