@@ -857,6 +857,7 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@sinclair/typebox": ^0.23.4
+    "@supabase/postgrest-js": ^0.37.2
     eslint: ^8.11.0
     ethers: ^5.6.1
     mocha: ^9.2.2
@@ -1981,7 +1982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/typescript@npm:2.4.8, @graphql-codegen/typescript@npm:^2.4.8":
+"@graphql-codegen/typescript@npm:2.4.8":
   version: 2.4.8
   resolution: "@graphql-codegen/typescript@npm:2.4.8"
   dependencies:
@@ -1993,6 +1994,21 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 0b5c6cc128ec4bca0572862edfb748f9872305e03e7639340ca530024b0abe9fe092eadf055b12298eb78cf68d51e371e3711ffc4c0692da3037574183b84ef9
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/typescript@npm:^2.4.8":
+  version: 2.4.10
+  resolution: "@graphql-codegen/typescript@npm:2.4.10"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^2.4.0
+    "@graphql-codegen/schema-ast": ^2.4.1
+    "@graphql-codegen/visitor-plugin-common": 2.7.6
+    auto-bind: ~4.0.0
+    tslib: ~2.4.0
+  peerDependencies:
+    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: f491e9770185d7b8ed22ec3e2c6fca08d81f9518fd7154e2a7acc144f5df226d00f46cb03aaebac32a02a810eff0cd7480e47c968863d0edc42688db55d03173
   languageName: node
   linkType: hard
 
@@ -2013,6 +2029,26 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 9e15f700cf043ccbd5202baf699b83ba91f711793c1cb1e7394e701948165b63149261a2b71e097ee75a516f777e90421162898a5f2f9fb74fd22ac9bad9b8e7
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/visitor-plugin-common@npm:2.7.6":
+  version: 2.7.6
+  resolution: "@graphql-codegen/visitor-plugin-common@npm:2.7.6"
+  dependencies:
+    "@graphql-codegen/plugin-helpers": ^2.4.0
+    "@graphql-tools/optimize": ^1.0.1
+    "@graphql-tools/relay-operation-optimizer": ^6.3.7
+    "@graphql-tools/utils": ^8.3.0
+    auto-bind: ~4.0.0
+    change-case-all: 1.0.14
+    dependency-graph: ^0.11.0
+    graphql-tag: ^2.11.0
+    parse-filepath: ^1.0.2
+    tslib: ~2.4.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 03e82ee7f669409c8e66d06115aedd41f1669a7f35779b4f502edabba7562120456b6c6683aef275fde8f9d21072b000d236e69093d433d1efb5cc67728c0f94
   languageName: node
   linkType: hard
 
@@ -2762,9 +2798,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-yoga/common@npm:2.4.0":
-  version: 2.4.0
-  resolution: "@graphql-yoga/common@npm:2.4.0"
+"@graphql-yoga/common@npm:2.5.0":
+  version: 2.5.0
+  resolution: "@graphql-yoga/common@npm:2.5.0"
   dependencies:
     "@envelop/core": ^2.0.0
     "@envelop/disable-introspection": ^3.0.0
@@ -2774,28 +2810,28 @@ __metadata:
     "@graphql-tools/utils": ^8.6.0
     "@graphql-typed-document-node/core": ^3.1.1
     "@graphql-yoga/subscription": 2.0.0
-    cross-undici-fetch: ^0.3.0
+    cross-undici-fetch: ^0.4.2
     dset: ^3.1.1
     tslib: ^2.3.1
   peerDependencies:
     graphql: ^15.2.0 || ^16.0.0
-  checksum: 66491e2489c69df62f2d53ba7420c49e7eacb5453a1bfa8ec8a9fb55c2d37ebdcf81811f2bf4d296aa3af6d65605951009572dea411342170277a3cfbf135eb5
+  checksum: 92f688ea20f50c2cfed2f12ce9da99ed4831a22b2e2f7432bd490514f8c898dae3bdf3f19682172691779d0332c7115e23b2cf855e4aafd2365eb20257ce95b4
   languageName: node
   linkType: hard
 
 "@graphql-yoga/node@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "@graphql-yoga/node@npm:2.4.0"
+  version: 2.5.0
+  resolution: "@graphql-yoga/node@npm:2.5.0"
   dependencies:
     "@envelop/core": ^2.0.0
     "@graphql-tools/utils": ^8.6.0
-    "@graphql-yoga/common": 2.4.0
+    "@graphql-yoga/common": 2.5.0
     "@graphql-yoga/subscription": 2.0.0
-    cross-undici-fetch: ^0.3.0
+    cross-undici-fetch: ^0.4.2
     tslib: ^2.3.1
   peerDependencies:
     graphql: ^15.2.0 || ^16.0.0
-  checksum: a048d8d7c60d6600f621a53d825d435e48a0ff8e9d84f99b497a982a4643a29f050c9c231365b86657e2468b7ca3b65ae54840cc2b9f3016fbac5eed4115f259
+  checksum: a2edf2dfea66c4c8eeb4e228f486c12d4de19ab83783b5a3cf291793bb54ca474bcbca274b0763713185c5a26da78af940c48ddf96fd069ab79871bcd8b8104b
   languageName: node
   linkType: hard
 
@@ -3026,9 +3062,9 @@ __metadata:
   linkType: hard
 
 "@nomad-xyz/configuration@npm:^0.1.0-rc.12, @nomad-xyz/configuration@npm:^0.1.0-rc.16":
-  version: 0.1.0-rc.18
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.18"
-  checksum: b24b5e0d2b115d577bc55fd3353d2775ea39b6aa8d4573bc212af4c3eab21bd924df2fa17907d8790b6dcc38c85054304479b1deb8a65d10bde69092dbeb8d8b
+  version: 0.1.0-rc.19
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.19"
+  checksum: 221e936b7abe1d18cca1d2097839c26c3ba6df29797b07c16f8cf5331c1fd624087840faa56ce10923e30aa8ed599e15c9706fc26508770bbe5b498d88072120
   languageName: node
   linkType: hard
 
@@ -3471,6 +3507,15 @@ __metadata:
   version: 2.0.1
   resolution: "@summa-tx/memview-sol@npm:2.0.1"
   checksum: fbdb525033024f2a0a2078c8f36fb74902ea8590b91c4a68b2782eec27f5585220ae17e973ba96dff77bb87cd7491dca0a3af6694dfabc6db4e64c5ce740d5c8
+  languageName: node
+  linkType: hard
+
+"@supabase/postgrest-js@npm:^0.37.2":
+  version: 0.37.2
+  resolution: "@supabase/postgrest-js@npm:0.37.2"
+  dependencies:
+    cross-fetch: ^3.0.6
+  checksum: 173bd75f315900119425b27007b69fb5517eb482d22e21f3daeb62d0982ce80199e271050181a6a29694f9a56675f381ccbfd7a0b2534815fa936511c0629992
   languageName: node
   linkType: hard
 
@@ -4716,15 +4761,15 @@ __metadata:
   linkType: hard
 
 "array-includes@npm:^3.1.4":
-  version: 3.1.4
-  resolution: "array-includes@npm:3.1.4"
+  version: 3.1.5
+  resolution: "array-includes@npm:3.1.5"
   dependencies:
     call-bind: ^1.0.2
-    define-properties: ^1.1.3
-    es-abstract: ^1.19.1
+    define-properties: ^1.1.4
+    es-abstract: ^1.19.5
     get-intrinsic: ^1.1.1
     is-string: ^1.0.7
-  checksum: 69967c38c52698f84b50a7aed5554aadc89c6ac6399b6d92ad061a5952f8423b4bba054c51d40963f791dfa294d7247cdd7988b6b1f2c5861477031c6386e1c0
+  checksum: f6f24d834179604656b7bec3e047251d5cc87e9e87fab7c175c61af48e80e75acd296017abcde21fb52292ab6a2a449ab2ee37213ee48c8709f004d75983f9c5
   languageName: node
   linkType: hard
 
@@ -6392,9 +6437,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001335
-  resolution: "caniuse-lite@npm:1.0.30001335"
-  checksum: fe08b49ec6cb76cc69958ff001cf89d0a8ef9f35e0c8028b65981585046384f76e007d64dea372a34ca56d91caa83cc614c00779fe2b4d378aa0e68696374f67
+  version: 1.0.30001336
+  resolution: "caniuse-lite@npm:1.0.30001336"
+  checksum: 05577b295f2c3780f4a2c814c4255b8b73353ff5a7238f5f97fe3b2bb61b78d77be7df52e9646b829bbde8f0efbfbad971324001086f9069ec144e4fc88ed5b8
   languageName: node
   linkType: hard
 
@@ -7150,14 +7195,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.5.0":
+"cookie@npm:0.5.0, cookie@npm:^0.5.0":
   version: 0.5.0
   resolution: "cookie@npm:0.5.0"
   checksum: 1f4bd2ca5765f8c9689a7e8954183f5332139eb72b6ff783d8947032ec1fdf43109852c178e21a953a30c0dd42257828185be01b49d1eb1a67fd054ca588a180
   languageName: node
   linkType: hard
 
-"cookie@npm:^0.4.0, cookie@npm:^0.4.1":
+"cookie@npm:^0.4.1":
   version: 0.4.2
   resolution: "cookie@npm:0.4.2"
   checksum: a00833c998bedf8e787b4c342defe5fa419abd96b32f4464f718b91022586b8f1bafbddd499288e75c037642493c83083da426c6a9080d309e3bd90fd11baa9b
@@ -7326,7 +7371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.1.5":
+"cross-fetch@npm:^3.0.6, cross-fetch@npm:^3.1.5":
   version: 3.1.5
   resolution: "cross-fetch@npm:3.1.5"
   dependencies:
@@ -7373,7 +7418,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-undici-fetch@npm:^0.3.0, cross-undici-fetch@npm:^0.3.5":
+"cross-undici-fetch@npm:^0.3.5":
   version: 0.3.8
   resolution: "cross-undici-fetch@npm:0.3.8"
   dependencies:
@@ -7385,6 +7430,21 @@ __metadata:
     undici: ^5.1.0
     web-streams-polyfill: ^3.2.0
   checksum: 12fb5e30d5a83c73513a383a11bccdb8186dbe65b0dfbd9b20f1d2c8e4ac0ee9ce3539c7fe64a5317996e4f984d64ac1db31d157ddf2042213ed74ecaad505a7
+  languageName: node
+  linkType: hard
+
+"cross-undici-fetch@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "cross-undici-fetch@npm:0.4.2"
+  dependencies:
+    abort-controller: ^3.0.0
+    busboy: ^1.6.0
+    form-data-encoder: ^1.7.1
+    formdata-node: ^4.3.1
+    node-fetch: ^2.6.7
+    undici: ^5.1.0
+    web-streams-polyfill: ^3.2.0
+  checksum: 5b56b32611645275d898eaaae7c25f01b58924f5dff171e22cd4cb699fd08b44c19b44de6109a84eb82a13bbbc159bf63f24c78104a1d8b9160fc5644b78f0cc
   languageName: node
   linkType: hard
 
@@ -8037,9 +8097,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.118":
-  version: 1.4.131
-  resolution: "electron-to-chromium@npm:1.4.131"
-  checksum: adf3159d22dd8ae3e46e86fe89e91ad39f622855ece36a0f73e53171792dead8e6876c3246e8b54b259b3a7d68ef093e020a12d55adf34692ed38d4c172b0376
+  version: 1.4.134
+  resolution: "electron-to-chromium@npm:1.4.134"
+  checksum: e0b6052e742e581b2619816921c923c2c0db7bb7ca11da7a7f8c7de624e82cfd2b3905ea0ffc159383813e44c660bef2ebe78199e38787aa5e04a3c957ed30a3
   languageName: node
   linkType: hard
 
@@ -9990,12 +10050,12 @@ __metadata:
   linkType: hard
 
 "follow-redirects@npm:^1.12.1, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.14.8":
-  version: 1.14.9
-  resolution: "follow-redirects@npm:1.14.9"
+  version: 1.15.0
+  resolution: "follow-redirects@npm:1.15.0"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: f5982e0eb481818642492d3ca35a86989c98af1128b8e1a62911a3410621bc15d2b079e8170b35b19d3bdee770b73ed431a257ed86195af773771145baa57845
+  checksum: eaec81c3e0ae57aae2422e38ad3539d0e7279b3a63f9681eeea319bb683dea67502c4e097136b8ce9721542b4e236e092b6b49e34e326cdd7733c274f0a3f378
   languageName: node
   linkType: hard
 
@@ -11688,16 +11748,16 @@ __metadata:
   linkType: hard
 
 "ioredis-mock@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "ioredis-mock@npm:7.2.0"
+  version: 7.4.0
+  resolution: "ioredis-mock@npm:7.4.0"
   dependencies:
     fengari: ^0.1.4
     fengari-interop: ^0.1.3
     redis-commands: ^1.7.0
     standard-as-callback: ^2.1.0
   peerDependencies:
-    ioredis: 4.x
-  checksum: ac893bb1a654650d229c6bed42173b8a773776e19163392bbe053026d3a98a2b29013e6d6a03e3966211b0e7ec16acef4549523059b3dd389569f20be3442909
+    ioredis: 4.x || 5.x
+  checksum: a3e1b294bb09dc8839e40a299ae448a780e2be848f04e0224bf14f2f4982cac7c029c62ddb6a3405aed070a6d3c53fd49ed87a91679ce0f3c2b1652801940ae6
   languageName: node
   linkType: hard
 
@@ -13525,14 +13585,14 @@ __metadata:
   linkType: hard
 
 "light-my-request@npm:^4.2.0":
-  version: 4.9.0
-  resolution: "light-my-request@npm:4.9.0"
+  version: 4.10.1
+  resolution: "light-my-request@npm:4.10.1"
   dependencies:
     ajv: ^8.1.0
-    cookie: ^0.4.0
+    cookie: ^0.5.0
     process-warning: ^1.0.0
     set-cookie-parser: ^2.4.1
-  checksum: 8551310e93b4637cd7460fc23baa8c6e7ef4751afe4bfffbbf4ef3f7dd6713a72f2ac1db2d0eaa464f3f78e03917ec45c86066ca72748fae711b9d34d7a38992
+  checksum: 137856232489f0198f4da72fcc6c83db9ed8d653b8c00c30f9e518a58bd67259e429894657153ec667c5ce2064206ea8ea5b6be76a9ada9376a054f2de51748f
   languageName: node
   linkType: hard
 
@@ -15543,9 +15603,9 @@ __metadata:
   linkType: hard
 
 "obliterator@npm:^2.0.0":
-  version: 2.0.3
-  resolution: "obliterator@npm:2.0.3"
-  checksum: 2a59759948e041af5af71cee662b9f1201e623cdcb1b82f2bbe6efcd131bac37017132d6b6a0b24a5a608951799b2ff7f70ae6d3250e1383cabb5b865990e9c1
+  version: 2.0.4
+  resolution: "obliterator@npm:2.0.4"
+  checksum: f28ad35b6d812089315f375dc3e6e5f9bebf958ebe4b10ccd471c7115cbcf595e74bdac4783ae758e5b1f47e3096427fdb37cfa7bed566b132df92ff317b9a7c
   languageName: node
   linkType: hard
 
