@@ -41,9 +41,7 @@ export const makeBackend = async () => {
   });
 
   // setup adapters
-  context.adapters.subgraph = await SubgraphReader.create({
-    chains,
-  });
+  context.adapters.subgraph = await SubgraphReader.create(chainData);
   context.adapters.database = await getDatabase();
 
   // setup bindings
