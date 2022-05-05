@@ -33,17 +33,17 @@ declare module 'zapatos/schema' {
     export type Table = 'asset_balances';
     export interface Selectable {
       /**
-      * **asset_balances.asset_id**
+      * **asset_balances.asset_canonical_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      asset_id: string;
+      asset_canonical_id: string;
       /**
-      * **asset_balances.domain**
+      * **asset_balances.asset_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      domain: string;
+      asset_domain: string;
       /**
       * **asset_balances.router_address**
       * - `bpchar` in database
@@ -59,17 +59,17 @@ declare module 'zapatos/schema' {
     }
     export interface JSONSelectable {
       /**
-      * **asset_balances.asset_id**
+      * **asset_balances.asset_canonical_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      asset_id: string;
+      asset_canonical_id: string;
       /**
-      * **asset_balances.domain**
+      * **asset_balances.asset_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      domain: string;
+      asset_domain: string;
       /**
       * **asset_balances.router_address**
       * - `bpchar` in database
@@ -85,17 +85,17 @@ declare module 'zapatos/schema' {
     }
     export interface Whereable {
       /**
-      * **asset_balances.asset_id**
+      * **asset_balances.asset_canonical_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      asset_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      asset_canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **asset_balances.domain**
+      * **asset_balances.asset_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      asset_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **asset_balances.router_address**
       * - `bpchar` in database
@@ -111,17 +111,17 @@ declare module 'zapatos/schema' {
     }
     export interface Insertable {
       /**
-      * **asset_balances.asset_id**
+      * **asset_balances.asset_canonical_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      asset_id: string | db.Parameter<string> | db.SQLFragment;
+      asset_canonical_id: string | db.Parameter<string> | db.SQLFragment;
       /**
-      * **asset_balances.domain**
+      * **asset_balances.asset_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      domain: string | db.Parameter<string> | db.SQLFragment;
+      asset_domain: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **asset_balances.router_address**
       * - `bpchar` in database
@@ -137,17 +137,17 @@ declare module 'zapatos/schema' {
     }
     export interface Updatable {
       /**
-      * **asset_balances.asset_id**
+      * **asset_balances.asset_canonical_id**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      asset_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      asset_canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
-      * **asset_balances.domain**
+      * **asset_balances.asset_domain**
       * - `varchar` in database
       * - `NOT NULL`, no default
       */
-      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      asset_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **asset_balances.router_address**
       * - `bpchar` in database
@@ -162,6 +162,179 @@ declare module 'zapatos/schema' {
       balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'asset_balances_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = db.GenericSQLExpression | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Table | Whereable | Column;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **assets**
+   * - Table in database
+   */
+  export namespace assets {
+    export type Table = 'assets';
+    export interface Selectable {
+      /**
+      * **assets.local**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      local: string;
+      /**
+      * **assets.adopted**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      adopted: string;
+      /**
+      * **assets.canonical_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_id: string;
+      /**
+      * **assets.canonical_domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_domain: string;
+      /**
+      * **assets.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+    }
+    export interface JSONSelectable {
+      /**
+      * **assets.local**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      local: string;
+      /**
+      * **assets.adopted**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      adopted: string;
+      /**
+      * **assets.canonical_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_id: string;
+      /**
+      * **assets.canonical_domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_domain: string;
+      /**
+      * **assets.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+    }
+    export interface Whereable {
+      /**
+      * **assets.local**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      local?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **assets.adopted**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      adopted?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **assets.canonical_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **assets.canonical_domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **assets.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **assets.local**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      local: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **assets.adopted**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      adopted: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **assets.canonical_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_id: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **assets.canonical_domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_domain: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **assets.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string | db.Parameter<string> | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **assets.local**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      local?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **assets.adopted**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      adopted?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **assets.canonical_id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **assets.canonical_domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      canonical_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **assets.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'assets_pkey';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = db.GenericSQLExpression | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Table | Whereable | Column;
@@ -1469,23 +1642,24 @@ declare module 'zapatos/schema' {
 
   /* === cross-table types === */
 
-  export type Table = asset_balances.Table | routers.Table | schema_migrations.Table | transfers.Table;
-  export type Selectable = asset_balances.Selectable | routers.Selectable | schema_migrations.Selectable | transfers.Selectable;
-  export type JSONSelectable = asset_balances.JSONSelectable | routers.JSONSelectable | schema_migrations.JSONSelectable | transfers.JSONSelectable;
-  export type Whereable = asset_balances.Whereable | routers.Whereable | schema_migrations.Whereable | transfers.Whereable;
-  export type Insertable = asset_balances.Insertable | routers.Insertable | schema_migrations.Insertable | transfers.Insertable;
-  export type Updatable = asset_balances.Updatable | routers.Updatable | schema_migrations.Updatable | transfers.Updatable;
-  export type UniqueIndex = asset_balances.UniqueIndex | routers.UniqueIndex | schema_migrations.UniqueIndex | transfers.UniqueIndex;
-  export type Column = asset_balances.Column | routers.Column | schema_migrations.Column | transfers.Column;
-  export type AllBaseTables = [asset_balances.Table, routers.Table, schema_migrations.Table, transfers.Table];
+  export type Table = asset_balances.Table | assets.Table | routers.Table | schema_migrations.Table | transfers.Table;
+  export type Selectable = asset_balances.Selectable | assets.Selectable | routers.Selectable | schema_migrations.Selectable | transfers.Selectable;
+  export type JSONSelectable = asset_balances.JSONSelectable | assets.JSONSelectable | routers.JSONSelectable | schema_migrations.JSONSelectable | transfers.JSONSelectable;
+  export type Whereable = asset_balances.Whereable | assets.Whereable | routers.Whereable | schema_migrations.Whereable | transfers.Whereable;
+  export type Insertable = asset_balances.Insertable | assets.Insertable | routers.Insertable | schema_migrations.Insertable | transfers.Insertable;
+  export type Updatable = asset_balances.Updatable | assets.Updatable | routers.Updatable | schema_migrations.Updatable | transfers.Updatable;
+  export type UniqueIndex = asset_balances.UniqueIndex | assets.UniqueIndex | routers.UniqueIndex | schema_migrations.UniqueIndex | transfers.UniqueIndex;
+  export type Column = asset_balances.Column | assets.Column | routers.Column | schema_migrations.Column | transfers.Column;
+  export type AllBaseTables = [asset_balances.Table, assets.Table, routers.Table, schema_migrations.Table, transfers.Table];
   export type AllForeignTables = [];
   export type AllViews = [];
   export type AllMaterializedViews = [];
-  export type AllTablesAndViews = [asset_balances.Table, routers.Table, schema_migrations.Table, transfers.Table];
+  export type AllTablesAndViews = [asset_balances.Table, assets.Table, routers.Table, schema_migrations.Table, transfers.Table];
 
 
   export type SelectableForTable<T extends Table> = {
     asset_balances: asset_balances.Selectable;
+    assets: assets.Selectable;
     routers: routers.Selectable;
     schema_migrations: schema_migrations.Selectable;
     transfers: transfers.Selectable;
@@ -1493,6 +1667,7 @@ declare module 'zapatos/schema' {
 
   export type JSONSelectableForTable<T extends Table> = {
     asset_balances: asset_balances.JSONSelectable;
+    assets: assets.JSONSelectable;
     routers: routers.JSONSelectable;
     schema_migrations: schema_migrations.JSONSelectable;
     transfers: transfers.JSONSelectable;
@@ -1500,6 +1675,7 @@ declare module 'zapatos/schema' {
 
   export type WhereableForTable<T extends Table> = {
     asset_balances: asset_balances.Whereable;
+    assets: assets.Whereable;
     routers: routers.Whereable;
     schema_migrations: schema_migrations.Whereable;
     transfers: transfers.Whereable;
@@ -1507,6 +1683,7 @@ declare module 'zapatos/schema' {
 
   export type InsertableForTable<T extends Table> = {
     asset_balances: asset_balances.Insertable;
+    assets: assets.Insertable;
     routers: routers.Insertable;
     schema_migrations: schema_migrations.Insertable;
     transfers: transfers.Insertable;
@@ -1514,6 +1691,7 @@ declare module 'zapatos/schema' {
 
   export type UpdatableForTable<T extends Table> = {
     asset_balances: asset_balances.Updatable;
+    assets: assets.Updatable;
     routers: routers.Updatable;
     schema_migrations: schema_migrations.Updatable;
     transfers: transfers.Updatable;
@@ -1521,6 +1699,7 @@ declare module 'zapatos/schema' {
 
   export type UniqueIndexForTable<T extends Table> = {
     asset_balances: asset_balances.UniqueIndex;
+    assets: assets.UniqueIndex;
     routers: routers.UniqueIndex;
     schema_migrations: schema_migrations.UniqueIndex;
     transfers: transfers.UniqueIndex;
@@ -1528,6 +1707,7 @@ declare module 'zapatos/schema' {
 
   export type ColumnForTable<T extends Table> = {
     asset_balances: asset_balances.Column;
+    assets: assets.Column;
     routers: routers.Column;
     schema_migrations: schema_migrations.Column;
     transfers: transfers.Column;
@@ -1535,6 +1715,7 @@ declare module 'zapatos/schema' {
 
   export type SQLForTable<T extends Table> = {
     asset_balances: asset_balances.SQL;
+    assets: assets.SQL;
     routers: routers.SQL;
     schema_migrations: schema_migrations.SQL;
     transfers: transfers.SQL;

@@ -21,11 +21,14 @@ import {
   getOriginTransfersQuery,
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
+  getAssetBalancesAllRoutersQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
 let context: { config: SubgraphMap };
 export const getContext = () => context;
+
+export type RouterBalances = {};
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -88,6 +91,24 @@ export class SubgraphReader {
     const prefix = getPrefixForDomain(domain) as string;
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
+    const response = await execute(query);
+    const assetBalances = [...response.values()][0][0];
+    const balances: Record<string, BigNumber> = {};
+    assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
+    return balances;
+  }
+
+  /**
+   * Returns available liquidity for all of the routers assets on target chain.
+   *
+   * @param domain - The domain you want to determine liquidity on
+   * @returns An array of asset ids and amounts of liquidity
+   */
+  public async getAssetBalancesAllRouters(domain: string): Promise<Record<string, BigNumber>> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain) as string;
+
+    const query = getAssetBalancesAllRoutersQuery(prefix);
     const response = await execute(query);
     const assetBalances = [...response.values()][0][0];
     const balances: Record<string, BigNumber> = {};

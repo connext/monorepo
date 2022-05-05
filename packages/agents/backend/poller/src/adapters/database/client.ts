@@ -1,4 +1,4 @@
-import { XTransfer, XTransferStatus } from "@connext/nxtp-utils";
+import { XTransfer, XTransferStatus, RouterBalance } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -167,15 +167,6 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
   return transfer[0]?.nonce ?? 0;
 };
 
-export type RouterBalance = {
-  router: string;
-  assets: {
-    assetId: string;
-    domain: string;
-    balance: string;
-  }[];
-};
-
 export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const routers: s.routers.Insertable[] = routerBalances.map((router) => {
@@ -191,16 +182,40 @@ export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?
     `.run(poolToUse);
 
     const balances = (routerBalances.find((r) => r.router === router.address) ?? {}).assets ?? [];
-    const dbBalances: s.asset_balances.Insertable[] = balances.map((b) => {
-      return { balance: b.balance as any, router_address: router.address, asset_id: b.assetId, domain: b.domain };
+    const dbBalances: { balance: s.asset_balances.Insertable; asset: s.assets.Insertable }[] = balances.map((b) => {
+      return {
+        balance: {
+          asset_canonical_id: b.canonicalId,
+          asset_domain: b.domain,
+          router_address: router.address,
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          balance: b.balance as any,
+        },
+        asset: {
+          local: b.local,
+          adopted: b.adoptedAsset,
+          canonical_id: b.canonicalId,
+          canonical_domain: b.canonicalDomain,
+          domain: b.domain,
+        },
+      };
     });
+
     for (const balance of dbBalances) {
-      await db.sql<s.asset_balances.SQL, s.asset_balances.JSONSelectable>`
-      INSERT INTO ${"asset_balances"} (${db.cols(balance)}) VALUES (${db.vals(
-        balance,
-      )}) ON CONFLICT ("asset_id", "domain", "router_address") DO UPDATE SET (${db.cols(balance)}) = (${db.vals(
-        balance,
+      await db.sql<s.assets.SQL, s.assets.JSONSelectable>`
+      INSERT INTO ${"assets"} (${db.cols(balance.asset)}) VALUES (${db.vals(
+        balance.asset,
+      )}) ON CONFLICT ("canonical_id", "domain") DO UPDATE SET (${db.cols(balance.asset)}) = (${db.vals(
+        balance.asset,
       )}) RETURNING *
+    `.run(poolToUse);
+
+      await db.sql<s.asset_balances.SQL, s.asset_balances.JSONSelectable>`
+      INSERT INTO ${"asset_balances"} (${db.cols(balance.balance)}) VALUES (${db.vals(
+        balance.balance,
+      )}) ON CONFLICT ("asset_canonical_id", "asset_domain", "router_address") DO UPDATE SET (${db.cols(
+        balance.balance,
+      )}) = (${db.vals(balance.balance)}) RETURNING *
     `.run(poolToUse);
     }
   }
