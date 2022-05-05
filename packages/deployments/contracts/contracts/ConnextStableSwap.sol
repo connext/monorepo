@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import {ProposedOwnableUpgradeable} from "./ProposedOwnableUpgradeable.sol";
 import {AmplificationUtils, SwapUtils} from "./lib/StableSwap/AmplificationUtils.sol";
 import {LPToken} from "./lib/StableSwap/LPToken.sol";
 import {IConnextStableSwap} from "./interfaces/IConnextStableSwap.sol";
@@ -26,8 +25,8 @@ import {IConnextStableSwap} from "./interfaces/IConnextStableSwap.sol";
  * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
  * deployment size.
  */
-abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgradeable, ProposedOwnableUpgradeable {
-  using SafeERC20 for IERC20;
+abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgradeable {
+  //using SafeERC20 for IERC20;
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
@@ -65,8 +64,6 @@ abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgrad
    * @dev Initializes the contract setting the deployer as the initial
    */
   function __ConnextStableSwap_init() internal onlyInitializing {
-    __ProposedOwnable_init();
-
     __ConnextStableSwap_init_unchained();
   }
 
@@ -449,7 +446,7 @@ abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgrad
    * @param canonicalId the canonical token id
    */
   function _withdrawAdminFees(bytes32 canonicalId) internal {
-    swapStorages[canonicalId].withdrawAdminFees(owner());
+    swapStorages[canonicalId].withdrawAdminFees(msg.sender);
   }
 
   /**
