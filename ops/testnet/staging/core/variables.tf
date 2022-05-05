@@ -28,13 +28,13 @@ variable "environment" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-8de7761"
+  default     = "ghcr.io/connext/router:sha-f1ae265"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-8de7761"
+  default     = "ghcr.io/connext/sequencer:sha-f1ae265"
 }
 
 variable "mnemonic" {

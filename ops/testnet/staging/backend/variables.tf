@@ -28,7 +28,7 @@ variable "environment" {
 variable "full_image_name_poller" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-e72012d"
+  default     = "ghcr.io/connext/poller:sha-f1ae265"
 }
 
 variable "certificate_arn_testnet" {
