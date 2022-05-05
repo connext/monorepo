@@ -283,16 +283,7 @@ library ConnextLogic {
   event AavePortalRepayment(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
 
   /**
-   * @notice Emitted when a Portal repayment call failed
-   * @param transferId - The unique identifier of the crosschain transaction
-   * @param asset - The asset that was intended to be repaid
-   * @param amount - The amount that was intended to be repaid
-   * @param fee - The fee amount that was intended to be repaid
-   */
-  event AavePortalRepaymentFailed(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
-
-  /**
-   * @notice Emitted when there is no enough assets to repay a Portal repayment
+   * @notice Emitted when there is no enough assets to repay or the repayment failed
    * @param transferId - The unique identifier of the crosschain transaction
    * @param asset - The asset that in which the debt is nominated
    * @param amount - The amount that is pending to be repaid
@@ -1073,7 +1064,9 @@ library ConnextLogic {
     if (success) {
       emit AavePortalRepayment(_transferId, vars.adopted, vars.backUnbackedAmount, vars.portalFee);
     } else {
-      emit AavePortalRepaymentFailed(_transferId, vars.adopted, vars.backUnbackedAmount, vars.portalFee);
+      // Update the amount repaid to 0, so the amount is credited to the router
+      vars.totalRepayAmount = 0;
+      emit AavePortalRepaymentDebt(_transferId, vars.adopted, vars.backUnbackedAmount, vars.portalFee);
     }
 
     // TODO: Do we need to check balance before and after to get the exact amount paid and give the routers the rest?

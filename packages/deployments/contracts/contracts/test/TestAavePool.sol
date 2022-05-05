@@ -4,22 +4,34 @@ pragma solidity 0.8.11;
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 contract TestAavePool is IAavePool {
+  bool revertCall;
+
+  function setRevertCall(bool _revert) external {
+    revertCall = _revert;
+  }
+
   function mintUnbacked(
     address asset,
     uint256 amount,
     address onBehalfOf,
     uint16 referralCode
-  ) external {}
+  ) external {
+    require(!revertCall, "mintUnbacked reverted");
+  }
 
   function backUnbacked(
     address asset,
     uint256 amount,
     uint256 fee
-  ) external {}
+  ) external {
+    require(!revertCall, "backUnbacked reverted");
+  }
 
   function withdraw(
     address asset,
     uint256 amount,
     address to
-  ) external returns (uint256) {}
+  ) external returns (uint256) {
+    require(!revertCall, "withdraw reverted");
+  }
 }
