@@ -1,4 +1,4 @@
-import { logger, Wallet } from "ethers";
+import { logger as ethersLogger, Wallet } from "ethers";
 import {
   createMethodContext,
   createRequestContext,
@@ -26,49 +26,41 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
   const methodContext = createMethodContext(makeRouter.name);
 
   try {
-    // Get ChainData and parse out configuration.
-    const chainData = await getChainData();
-    if (!chainData) {
-      throw new Error("Could not get chain data");
-    }
     context.adapters = {} as any;
-    context.chainData = chainData;
-    context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
 
-    // Create adapter instances.
+    /// MARK - Config.
+    // Get ChainData and parse out configuration.
+    context.chainData = await getChainData();
+    context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
+
+    /// MARK - Signer
     context.adapters.wallet = context.config.mnemonic
       ? Wallet.fromMnemonic(context.config.mnemonic)
       : new Web3Signer(context.config.web3SignerUrl!);
 
     context.routerAddress = await context.adapters.wallet.getAddress();
 
-    // Make logger instance.
+    /// MARK - Logger
     context.logger = new Logger({
       level: context.config.logLevel,
       name: context.routerAddress,
     });
     context.logger.info("Generated config.", requestContext, methodContext, {
-      config: { ...context.config, mnemonic: "*****" },
+      config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
     });
 
+    /// MARK - Adapters
     context.adapters.cache = await setupCache(requestContext);
-
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
-
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService", level: context.config.logLevel }),
       context.config.chains,
       context.adapters.wallet,
     );
-
     context.adapters.contracts = getContractInterfaces();
 
-    context.logger.info("Router config generated.", requestContext, methodContext, {
-      config: Object.assign(context.config, context.config.mnemonic ? { mnemonic: "......." } : { mnemonic: "N/A" }),
-    });
-
+    /// MARK - Cold Start Housekeeping
     try {
-      console.log(context.config.sequencerUrl);
       const res = await axios.get(`${context.config.sequencerUrl}/ping`);
       context.logger.info("Ping response received from sequencer", requestContext, methodContext, {
         response: res.data,
@@ -82,28 +74,31 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
       );
       process.exit(1);
     }
-
-    // TODO: Cold start housekeeping.
+    // TODO: Cold start housekeeping cont'd.
     // - read subgraph to make sure router is approved
     // - read contract or subgraph for current liquidity in each asset, cache it
     // - read subgraph to make sure each asset is (still) approved
     // - bring cache up to speed
+    // - make sure a relayer is configured for supported chains.
 
-    // Set up bindings.
+    /// MARK - Bindings
     // TODO: New diagnostic mode / cleanup mode?
     if (context.config.mode.priceCaching) {
       await bindPrices();
     } else {
-      logger.warn("Running router without price caching.");
+      context.logger.warn("Running router without price caching.", requestContext, methodContext);
     }
     await bindServer();
     await bindMetrics();
     await bindSubgraph();
     await bindCache();
 
-    logger.info("Bindings initialized.");
-    logger.info("Router boot complete!");
-    logger.info(
+    context.logger.info("Bindings initialized.", requestContext, methodContext);
+    context.logger.info("Router boot complete!", requestContext, methodContext, {
+      port: context.config.server.port,
+      chains: [...Object.keys(context.config.chains)],
+    });
+    ethersLogger.info(
       `
 
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
@@ -128,7 +123,6 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
 
   const methodContext = createMethodContext("setupCache");
   logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
-
   const cacheInstance = StoreManager.getInstance({
     redis: { host: redis.host, port: redis.port, instance: undefined },
     mock: !redis.host || !redis.port,
@@ -139,23 +133,24 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
     host: redis.host,
     port: redis.port,
   });
-
   return cacheInstance;
 };
 
 export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
-  const { config: routerConfig, logger } = context;
+  const { logger, chainData } = context;
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  // Separate out relevant subgraph chain config.
-  const chains: { [chain: string]: any } = {};
-  Object.entries(routerConfig.chains).forEach(([chainId, config]) => {
-    chains[chainId] = config.subgraph;
-  });
-  const subgraphReader = await SubgraphReader.create({
-    chains,
-  });
+  const subgraphReader = await SubgraphReader.create(chainData);
+
+  // Pull support for domains that don't have a subgraph.
+  const supported: Record<string, boolean> = subgraphReader.supported;
+  for (const domain of Object.keys(supported)) {
+    // If the domain is set to false, it indicates the SubgraphReader did not find active subgraphs for that domain.
+    if (!supported[domain]) {
+      delete context.config.chains[domain];
+    }
+  }
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
   return subgraphReader;

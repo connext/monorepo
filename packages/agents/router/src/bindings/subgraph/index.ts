@@ -67,39 +67,13 @@ export const pollSubgraph = async () => {
     }
 
     if ([...subgraphQueryMetaParams.keys()].length > 0) {
-      for (const domain of [...subgraphQueryMetaParams.keys()]) {
-        const metaParams = subgraphQueryMetaParams.get(domain)!;
-        logger.debug("Querying subgraph for origin transfers.", requestContext, methodContext, {
-          domain,
+      const transfers: XTransfer[] = await subgraph.getXCalls(subgraphQueryMetaParams);
+      if (transfers.length === 0) {
+        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
         });
-        const transfers: XTransfer[] = await subgraph.getOriginTransfers(
-          domain,
-          metaParams.latestNonce,
-          metaParams.maxBlockNumber,
-          metaParams.destinationDomains,
-        );
-
-        if (transfers.length === 0) {
-          logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
-            subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
-          });
-        } else {
-          // Clean log all the transfers by domain.
-          const domains: Record<string, { queryParams: SubgraphQueryMetaParams; transfers: string[] }> = {};
-          for (const domain of Object.keys(config.chains)) {
-            domains[domain] = {
-              queryParams: subgraphQueryMetaParams.get(domain)!,
-              transfers: transfers
-                .filter((transfer) => transfer.destinationDomain === domain)
-                .map(({ transferId }) => transferId.slice(0, 8)),
-            };
-          }
-          logger.info("Retrieved origin transfers from subgraph.", requestContext, methodContext, {
-            domains,
-          });
-
-          await cache.transfers.storeTransfers(transfers);
-        }
+      } else {
+        await cache.transfers.storeTransfers(transfers);
       }
     }
   } catch (err: unknown) {

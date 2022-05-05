@@ -1,0 +1,10 @@
+query ExampleQuery {
+  rinkeby_assets(first: 1) {
+    id
+    local
+    adoptedAsset
+    canonicalId
+    canonicalDomain
+    blockNumber
+  }
+}

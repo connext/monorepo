@@ -1,6 +1,9 @@
 import { NxtpError, DestinationTransfer, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
+import { getHelpers } from ".";
+import { XQueryResultParseError } from "../errors";
+
 // Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.
 export const SHARED_TRANSFER_ENTITY_REQUIREMENTS = ["transferId"];
 
@@ -176,4 +179,32 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
         : undefined,
     },
   };
+};
+
+/**
+ * Parses raw response of crosschain query request and group by domain
+ * @param response The raw response from endpoints
+ */
+export const xquery = (response: any): Map<string, any[]> => {
+  const { getDomainFromPrefix } = getHelpers();
+  const result: Map<string, any[]> = new Map();
+  if (response.data) {
+    const entityRes = response.data as Record<string, any[]>;
+    for (const key of Object.keys(entityRes)) {
+      const prefix = key.split("_")[0].toLowerCase();
+      const domain = getDomainFromPrefix(prefix);
+      if (domain) {
+        const value = entityRes[key];
+        if (result.has(domain)) {
+          result.get(domain)!.push(value);
+        } else {
+          result.set(domain, [value]);
+        }
+      }
+    }
+
+    return result;
+  } else {
+    throw new XQueryResultParseError({ response });
+  }
 };
