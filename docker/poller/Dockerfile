@@ -8,7 +8,10 @@ FROM node:16.3.0-alpine as node
 
 FROM node as build
 RUN apk update
-RUN apk add git
+RUN apk add git curl
+
+RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && \
+        chmod +x /usr/local/bin/dbmate
 
 ENV HOME=/tmp/build \
     PATH=/tmp/build/node_modules/.bin:./node_modules/.bin:${PATH}
@@ -57,10 +60,14 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
 # ----- Copy files required at runtime by the app -----
 COPY --from=build --chown=node:node /tmp/build /home/node
+COPY --from=build --chown=node:node /usr/local/bin/dbmate /usr/local/bin/dbmate
+
+COPY docker/poller/docker-entrypoint.sh /home/node/packages/agents/backend/poller
+RUN chmod +x /home/node/packages/agents/backend/poller/docker-entrypoint.sh
 
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
 WORKDIR /home/node/packages/agents/backend/poller
 
-CMD ["node", "--trace-warnings", "dist/index.js"]
+CMD ./docker-entrypoint.sh

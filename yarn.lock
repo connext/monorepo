@@ -2026,17 +2026,17 @@ __metadata:
   linkType: hard
 
 "@graphql-codegen/typescript@npm:^2.4.8":
-  version: 2.4.9
-  resolution: "@graphql-codegen/typescript@npm:2.4.9"
+  version: 2.4.10
+  resolution: "@graphql-codegen/typescript@npm:2.4.10"
   dependencies:
     "@graphql-codegen/plugin-helpers": ^2.4.0
     "@graphql-codegen/schema-ast": ^2.4.1
-    "@graphql-codegen/visitor-plugin-common": 2.7.5
+    "@graphql-codegen/visitor-plugin-common": 2.7.6
     auto-bind: ~4.0.0
     tslib: ~2.4.0
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: ae05f0b7f279064c652d74d4215840580503bb08e1d4d705c5f0273b03bbab822f53447d47c58fe60c26b25f6e21555e95594d016d9ec064f08f1fa36bb5c0d4
+  checksum: f491e9770185d7b8ed22ec3e2c6fca08d81f9518fd7154e2a7acc144f5df226d00f46cb03aaebac32a02a810eff0cd7480e47c968863d0edc42688db55d03173
   languageName: node
   linkType: hard
 
@@ -2060,9 +2060,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/visitor-plugin-common@npm:2.7.5":
-  version: 2.7.5
-  resolution: "@graphql-codegen/visitor-plugin-common@npm:2.7.5"
+"@graphql-codegen/visitor-plugin-common@npm:2.7.6":
+  version: 2.7.6
+  resolution: "@graphql-codegen/visitor-plugin-common@npm:2.7.6"
   dependencies:
     "@graphql-codegen/plugin-helpers": ^2.4.0
     "@graphql-tools/optimize": ^1.0.1
@@ -2076,7 +2076,7 @@ __metadata:
     tslib: ~2.4.0
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: 443a4225104ecac0ef4880a0a42b4e84df49480028196ea990511b01cf4aab42af397212c0e9a87d87a81b7edd2b3f202ce4a8145195c337c3efe3b99d4464b1
+  checksum: 03e82ee7f669409c8e66d06115aedd41f1669a7f35779b4f502edabba7562120456b6c6683aef275fde8f9d21072b000d236e69093d433d1efb5cc67728c0f94
   languageName: node
   linkType: hard
 
@@ -16945,8 +16945,8 @@ __metadata:
   linkType: hard
 
 "pg-mem@npm:^2.3.5":
-  version: 2.3.6
-  resolution: "pg-mem@npm:2.3.6"
+  version: 2.4.1
+  resolution: "pg-mem@npm:2.4.1"
   dependencies:
     "@mikro-orm/core": ^4.5.3
     "@mikro-orm/postgresql": ^4.5.3
@@ -16956,7 +16956,7 @@ __metadata:
     lru-cache: ^6.0.0
     moment: ^2.27.0
     object-hash: ^2.0.3
-    pgsql-ast-parser: ^10.0.3
+    pgsql-ast-parser: ^10.0.5
   peerDependencies:
     knex: ">=0.20"
     pg-promise: ">=10.8.7"
@@ -16973,7 +16973,7 @@ __metadata:
       optional: true
     typeorm:
       optional: true
-  checksum: 68021d855da9f26f927b10cd4bd348e423b6b3019143f0160110038e35d2057a8f24def203484f9159780c7f725e68df47cc7ed0e440f565a30f81112b2cf1c3
+  checksum: 4f3af2cf83d300a0fbda62e4a7982cb166b2f9b4cc9689ab7ff3f2c33bdf5a1a3305d0e1c0d85496d15aaf70d55aa5afca09d68bd08f6d0bc0ba925bab327a3a
   languageName: node
   linkType: hard
 
@@ -17055,7 +17055,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pgsql-ast-parser@npm:^10.0.3":
+"pgsql-ast-parser@npm:^10.0.5":
   version: 10.0.5
   resolution: "pgsql-ast-parser@npm:10.0.5"
   dependencies:
