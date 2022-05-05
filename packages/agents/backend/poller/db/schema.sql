@@ -26,6 +26,27 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: asset_balances; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.asset_balances (
+    address character(42) NOT NULL,
+    domain character varying(255) NOT NULL,
+    router_address character(42) NOT NULL,
+    balance numeric DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: routers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.routers (
+    address character(42) NOT NULL
+);
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -82,6 +103,22 @@ CREATE TABLE public.transfers (
 
 
 --
+-- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_balances
+    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (address, domain, router_address);
+
+
+--
+-- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.routers
+    ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
+
+
+--
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -98,6 +135,14 @@ ALTER TABLE ONLY public.transfers
 
 
 --
+-- Name: asset_balances fk_router; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_balances
+    ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -108,4 +153,5 @@ ALTER TABLE ONLY public.transfers
 
 INSERT INTO public.schema_migrations (version) VALUES
     ('20220419085941'),
-    ('20220504052525');
+    ('20220504052525'),
+    ('20220505103130');

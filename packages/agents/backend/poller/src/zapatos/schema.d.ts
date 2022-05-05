@@ -26,6 +26,202 @@ declare module 'zapatos/schema' {
   /* --- tables --- */
 
   /**
+   * **asset_balances**
+   * - Table in database
+   */
+  export namespace asset_balances {
+    export type Table = 'asset_balances';
+    export interface Selectable {
+      /**
+      * **asset_balances.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address: string;
+      /**
+      * **asset_balances.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+      /**
+      * **asset_balances.router_address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router_address: string;
+      /**
+      * **asset_balances.balance**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      balance: number;
+    }
+    export interface JSONSelectable {
+      /**
+      * **asset_balances.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address: string;
+      /**
+      * **asset_balances.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string;
+      /**
+      * **asset_balances.router_address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router_address: string;
+      /**
+      * **asset_balances.balance**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      balance: number;
+    }
+    export interface Whereable {
+      /**
+      * **asset_balances.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.router_address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router_address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **asset_balances.balance**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      balance?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **asset_balances.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **asset_balances.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **asset_balances.router_address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router_address: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **asset_balances.balance**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **asset_balances.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **asset_balances.domain**
+      * - `varchar` in database
+      * - `NOT NULL`, no default
+      */
+      domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **asset_balances.router_address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      router_address?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **asset_balances.balance**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      balance?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'asset_balances_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = db.GenericSQLExpression | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Table | Whereable | Column;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **routers**
+   * - Table in database
+   */
+  export namespace routers {
+    export type Table = 'routers';
+    export interface Selectable {
+      /**
+      * **routers.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address: string;
+    }
+    export interface JSONSelectable {
+      /**
+      * **routers.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address: string;
+    }
+    export interface Whereable {
+      /**
+      * **routers.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **routers.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address: string | db.Parameter<string> | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **routers.address**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+      address?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'routers_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = db.GenericSQLExpression | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Table | Whereable | Column;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
    * **schema_migrations**
    * - Table in database
    */
@@ -1273,57 +1469,73 @@ declare module 'zapatos/schema' {
 
   /* === cross-table types === */
 
-  export type Table = schema_migrations.Table | transfers.Table;
-  export type Selectable = schema_migrations.Selectable | transfers.Selectable;
-  export type JSONSelectable = schema_migrations.JSONSelectable | transfers.JSONSelectable;
-  export type Whereable = schema_migrations.Whereable | transfers.Whereable;
-  export type Insertable = schema_migrations.Insertable | transfers.Insertable;
-  export type Updatable = schema_migrations.Updatable | transfers.Updatable;
-  export type UniqueIndex = schema_migrations.UniqueIndex | transfers.UniqueIndex;
-  export type Column = schema_migrations.Column | transfers.Column;
-  export type AllBaseTables = [schema_migrations.Table, transfers.Table];
+  export type Table = asset_balances.Table | routers.Table | schema_migrations.Table | transfers.Table;
+  export type Selectable = asset_balances.Selectable | routers.Selectable | schema_migrations.Selectable | transfers.Selectable;
+  export type JSONSelectable = asset_balances.JSONSelectable | routers.JSONSelectable | schema_migrations.JSONSelectable | transfers.JSONSelectable;
+  export type Whereable = asset_balances.Whereable | routers.Whereable | schema_migrations.Whereable | transfers.Whereable;
+  export type Insertable = asset_balances.Insertable | routers.Insertable | schema_migrations.Insertable | transfers.Insertable;
+  export type Updatable = asset_balances.Updatable | routers.Updatable | schema_migrations.Updatable | transfers.Updatable;
+  export type UniqueIndex = asset_balances.UniqueIndex | routers.UniqueIndex | schema_migrations.UniqueIndex | transfers.UniqueIndex;
+  export type Column = asset_balances.Column | routers.Column | schema_migrations.Column | transfers.Column;
+  export type AllBaseTables = [asset_balances.Table, routers.Table, schema_migrations.Table, transfers.Table];
   export type AllForeignTables = [];
   export type AllViews = [];
   export type AllMaterializedViews = [];
-  export type AllTablesAndViews = [schema_migrations.Table, transfers.Table];
+  export type AllTablesAndViews = [asset_balances.Table, routers.Table, schema_migrations.Table, transfers.Table];
 
 
   export type SelectableForTable<T extends Table> = {
+    asset_balances: asset_balances.Selectable;
+    routers: routers.Selectable;
     schema_migrations: schema_migrations.Selectable;
     transfers: transfers.Selectable;
   }[T];
 
   export type JSONSelectableForTable<T extends Table> = {
+    asset_balances: asset_balances.JSONSelectable;
+    routers: routers.JSONSelectable;
     schema_migrations: schema_migrations.JSONSelectable;
     transfers: transfers.JSONSelectable;
   }[T];
 
   export type WhereableForTable<T extends Table> = {
+    asset_balances: asset_balances.Whereable;
+    routers: routers.Whereable;
     schema_migrations: schema_migrations.Whereable;
     transfers: transfers.Whereable;
   }[T];
 
   export type InsertableForTable<T extends Table> = {
+    asset_balances: asset_balances.Insertable;
+    routers: routers.Insertable;
     schema_migrations: schema_migrations.Insertable;
     transfers: transfers.Insertable;
   }[T];
 
   export type UpdatableForTable<T extends Table> = {
+    asset_balances: asset_balances.Updatable;
+    routers: routers.Updatable;
     schema_migrations: schema_migrations.Updatable;
     transfers: transfers.Updatable;
   }[T];
 
   export type UniqueIndexForTable<T extends Table> = {
+    asset_balances: asset_balances.UniqueIndex;
+    routers: routers.UniqueIndex;
     schema_migrations: schema_migrations.UniqueIndex;
     transfers: transfers.UniqueIndex;
   }[T];
 
   export type ColumnForTable<T extends Table> = {
+    asset_balances: asset_balances.Column;
+    routers: routers.Column;
     schema_migrations: schema_migrations.Column;
     transfers: transfers.Column;
   }[T];
 
   export type SQLForTable<T extends Table> = {
+    asset_balances: asset_balances.SQL;
+    routers: routers.SQL;
     schema_migrations: schema_migrations.SQL;
     transfers: transfers.SQL;
   }[T];
