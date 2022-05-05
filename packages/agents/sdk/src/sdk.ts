@@ -18,10 +18,10 @@ export const META_TX_TIMEOUT = 300_000;
  *
  */
 export class NxtpSdk {
-  private readonly sdkBase: NxtpSdkBase;
   private signer: Signer | Wallet;
   private txservice: TransactionService;
   private readonly logger: Logger;
+  public readonly sdkBase: NxtpSdkBase;
 
   constructor(sdkBase: NxtpSdkBase, signer: Signer, txservice: TransactionService, logger: Logger) {
     this.sdkBase = sdkBase;
