@@ -116,20 +116,3 @@ resource "aws_security_group" "allow_tls" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-resource "aws_elasticache_subnet_group" "default" {
-  name       = "redis-subnet-group-${var.environment}-${var.stage}"
-  subnet_ids = aws_subnet.main.*.id
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-
-resource "aws_db_subnet_group" "default" {
-  name       = "rds-subnet-group-${var.environment}-${var.stage}"
-  subnet_ids = aws_subnet.main.*.id
-  lifecycle {
-    create_before_destroy = true
-  }
-}

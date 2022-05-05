@@ -74,6 +74,7 @@ resource "aws_alb" "lb" {
   }
 }
 
+
 resource "aws_alb_target_group" "front_end" {
   port        = var.loadbalancer_port
   protocol    = "HTTP"

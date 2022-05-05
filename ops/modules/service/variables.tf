@@ -34,7 +34,7 @@ variable "memory" {
 }
 
 variable "health_check_path" {
-  default = "/healthz"
+  default = "/"
 }
 
 variable "health_check_enabled" {
