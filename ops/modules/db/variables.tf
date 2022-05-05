@@ -35,12 +35,6 @@ variable "port" {
   type        = string
 }
 
-variable "db_subnet_group_name" {
-  description = "Name of DB subnet group. DB instance will be created in the VPC associated with the DB subnet group. If unspecified, will be created in the default VPC"
-  type        = string
-}
-
-
 variable "db_security_group_id" {
   description = "Name of DB SG group that allows it to connect to the backend"
   type        = string
@@ -103,4 +97,9 @@ variable "vpc_id" {
 variable "base_domain" {
   description = "base domain of the application"
   default     = "connext.ninja"
+}
+
+variable "db_subnet_group_subnet_ids" {
+  description = "subnet group ids"
+  type = list(string)
 }

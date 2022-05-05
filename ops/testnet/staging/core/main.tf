@@ -182,8 +182,8 @@ module "sequencer_cache" {
   environment       = var.environment
   family            = "sequencer"
   sg_id             = module.network.ecs_task_sg
-  subnet_group_name = module.network.redis_subnet_group
   vpc_id            = module.network.vpc_id
+  cache_subnet_group_subnet_ids  = module.network.public_subnets
 }
 
 module "router_cache" {
@@ -192,6 +192,6 @@ module "router_cache" {
   environment       = var.environment
   family            = "router"
   sg_id             = module.network.ecs_task_sg
-  subnet_group_name = module.network.redis_subnet_group
   vpc_id            = module.network.vpc_id
+  cache_subnet_group_subnet_ids  = module.network.public_subnets
 }

@@ -145,7 +145,7 @@ jobs:
   build-and-push-poller-image:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: connext/sequencer
+      IMAGE_NAME: connext/poller
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:

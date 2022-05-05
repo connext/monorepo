@@ -15,7 +15,7 @@ resource "aws_db_instance" "db" {
 
 
   vpc_security_group_ids = [var.db_security_group_id]
-  db_subnet_group_name   = var.db_subnet_group_name
+  db_subnet_group_name   = aws_db_subnet_group.default.name
   parameter_group_name   = var.parameter_group_name
 
 
@@ -48,6 +48,14 @@ resource "aws_db_instance" "db" {
   }
 }
 
+
+resource "aws_db_subnet_group" "default" {
+  name       = "rds-subnet-group-${var.environment}-${var.stage}"
+  subnet_ids = var.db_subnet_group_subnet_ids
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 
 resource "aws_route53_record" "db" {
