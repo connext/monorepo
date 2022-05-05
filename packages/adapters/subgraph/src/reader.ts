@@ -148,10 +148,6 @@ export class SubgraphReader {
     return assets[0] as Asset;
   }
 
-  public getLatestBlockNumber(domain: string): number {
-    return this.subgraphs.get(domain)!.runtime.records[0].latestBlock;
-  }
-
   // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
   /**
    * Retrieve a target OriginTransfer belonging to a given domain by transfer ID.
@@ -219,7 +215,7 @@ export class SubgraphReader {
   public async getOriginTransfers(
     domain: string,
     fromNonce: number,
-    destinationDomains: string[] = [...Object.keys(context.config.sources)],
+    destinationDomains: string[] = [...Object.keys(context.config.sources as object)],
   ): Promise<XTransfer[]> {
     const { parser, execute, getPrefixForDomain } = getHelpers();
     const prefix: string = getPrefixForDomain(domain);
@@ -243,7 +239,7 @@ export class SubgraphReader {
     const allTxById: Map<string, XTransfer> = new Map();
     for (const domain of response.keys()) {
       const value = response.get(domain);
-      const xtransfersByDomain = value![0];
+      const xtransfersByDomain = (value ?? [])[0];
       for (const xtransfer of xtransfersByDomain) {
         allTxById.set(xtransfer.transferId as string, parser.originTransfer(xtransfer));
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
@@ -264,7 +260,7 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value!.flat());
+      transfers.push(value?.flat());
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -307,7 +303,7 @@ export class SubgraphReader {
     const _transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      _transfers.push(value!.flat());
+      _transfers.push(value?.flat());
     }
 
     const destinationTransfers: XTransfer[] = _transfers
