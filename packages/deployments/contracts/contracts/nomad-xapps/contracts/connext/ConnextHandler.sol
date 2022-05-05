@@ -20,7 +20,9 @@ import {IStableSwap} from "../../../interfaces/IStableSwap.sol";
 
 import {Executor} from "../../../interpreters/Executor.sol";
 import {RouterPermissionsManager} from "../../../RouterPermissionsManager.sol";
+import {ConnextStableSwap} from "../../../ConnextStableSwap.sol";
 
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -39,6 +41,7 @@ contract ConnextHandler is
   ReentrancyGuardUpgradeable,
   Router,
   RouterPermissionsManager,
+  ConnextStableSwap,
   IConnextHandler
 {
   // ============ Libraries ============
