@@ -17,6 +17,7 @@ import "../../contracts/interpreters/Executor.sol";
 contract PropertyQuery is ForgeHelper {
   address public originSender;
   uint32 public origin;
+  uint256 public amount;
 
   function setOriginSender() public returns (address) {
     originSender = IExecutor(msg.sender).originSender();
@@ -26,6 +27,11 @@ contract PropertyQuery is ForgeHelper {
   function setOrigin() public returns (uint32) {
     origin = IExecutor(msg.sender).origin();
     return origin;
+  }
+
+  function setAmount() public returns (uint256) {
+    amount = IExecutor(msg.sender).amount();
+    return amount;
   }
 }
 
@@ -122,6 +128,21 @@ contract ExecutorTest is ForgeHelper {
     (bool success, ) = executor.execute(transferId, 0, payable(address(query)), NATIVE_ASSET, property, data);
     assertTrue(success);
     assertEq(query.origin(), origin);
+  }
+
+  // ============ amount ============
+
+  // Should work
+  function test_Executor__amount_works() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // send tx
+    uint256 amount = 1200;
+    (bool success, ) = executor.execute(transferId, amount, payable(address(query)), NATIVE_ASSET, property, data);
+    assertTrue(success);
+    assertEq(query.amount(), amount);
   }
 
   // ============ execute ============
