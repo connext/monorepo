@@ -2,7 +2,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, getChainData, Logger } from "@connext/nxtp-utils";
 
 import { Database, getDatabase } from "./adapters/database";
-import { bindSubgraph } from "./bindings/subgraph";
+import { bindPoller } from "./bindings/poller";
 import { BackendConfig, getConfig } from "./config";
 
 export type AppContext = {
@@ -45,7 +45,7 @@ export const makeBackend = async () => {
   context.adapters.database = await getDatabase();
 
   // setup bindings
-  await bindSubgraph(context.config.subgraphPollInterval);
+  await bindPoller(context.config.pollInterval);
 
   context.logger.info(`Backend initialized!
     _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|

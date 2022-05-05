@@ -7,7 +7,7 @@ import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
-const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
+const DEFAULT_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
 
@@ -15,7 +15,7 @@ export const TChainConfig = Type.Object({
   subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
 });
 export const Backend = Type.Object({
-  subgraphPollInterval: Type.Integer({ minimum: 1000 }),
+  pollInterval: Type.Integer({ minimum: 1000 }),
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: Type.Union([
     Type.Literal("fatal"),
@@ -65,11 +65,8 @@ export const getEnvConfig = (chainData: Map<string, ChainData>): BackendConfig =
       : configJson.chains
       ? configJson.chains
       : configFile.chains,
-    subgraphPollInterval:
-      process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
-      configJson.subgraphPollInterval ||
-      configFile.subgraphPollInterval ||
-      DEFAULT_SUBGRAPH_POLL_INTERVAL,
+    pollInterval:
+      process.env.NXTP_POLL_INTERVAL || configJson.pollInterval || configFile.pollInterval || DEFAULT_POLL_INTERVAL,
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     databaseUrl: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl,
   };

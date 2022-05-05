@@ -108,17 +108,17 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
 
 export const getAssetBalancesAllRoutersQuery = (prefix: string): string => {
   const queryString = `
-    ${prefix}_assetBalances {
-      router {
-        id
-      }
-      amount
-      asset {
-        canonicalId
-        canonicalDomain
-        local
-        adoptedAsset
-        blockNumber
+    ${prefix}_routers {
+      id
+      assetBalances {
+        amount
+        asset {
+          local
+          adoptedAsset
+          canonicalId
+          canonicalDomain
+          blockNumber
+        }
       }
     }`;
 
