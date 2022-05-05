@@ -194,3 +194,13 @@ export type ReconciledTransaction = {
   amount: string;
   recipient: string;
 };
+
+export const AssetSchema = Type.Object({
+  local: TAddress,
+  adoptedAsset: TAddress,
+  canonicalId: Type.String(),
+  canoncialDomain: Type.String(),
+  blockNumber: Type.String(),
+});
+
+export type Asset = Static<typeof AssetSchema>;

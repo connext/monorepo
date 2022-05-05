@@ -66,6 +66,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   const signatures = {
     "1": await signRouterPathPayload(transferId, "1", wallet),
   };
+
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
     // Sanitized with ellipsis.
@@ -80,7 +81,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
-      destinationDomain,
+      destinationDomain: destinationDomain,
     });
   }
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
