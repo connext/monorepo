@@ -81,6 +81,7 @@ resource "aws_alb_target_group" "front_end" {
   target_type = "ip"
 
   health_check {
+    enabled  = var.health_check_enabled
     path     = var.health_check_path
     matcher  = var.matcher_ports
     interval = var.timeout + 10
@@ -143,9 +144,5 @@ resource "aws_route53_record" "www" {
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]
-  tags                       = {
-    Family = "${var.environment}-${var.stage}-${var.container_family}"
-    Domain = var.domain
-  }
 }
 

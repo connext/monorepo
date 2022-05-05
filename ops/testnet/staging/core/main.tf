@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-testnet-staging"
+    bucket = "nxtp-terraform-testnet-staging-core"
     key    = "state/"
     region = "us-east-1"
   }
@@ -156,7 +156,6 @@ module "network" {
 
 module "sgs" {
   source      = "../../../modules/sgs/core"
-  cidr_block  = var.cidr_block
   environment = var.environment
   stage       = var.stage
   domain      = var.domain

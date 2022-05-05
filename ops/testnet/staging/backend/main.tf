@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-testnet-staging"
+    bucket = "nxtp-terraform-testnet-staging-backend"
     key    = "state/"
     region = "us-east-1"
   }
@@ -45,12 +45,11 @@ module "poller_db" {
 
   parameter_group_name = "default.postgres11"
   vpc_id               = module.network.vpc_id
-  node_sg_id           = module.network.ecs_task_sg
 
   hosted_zone_id       = data.aws_route53_zone.primary.zone_id
   stage                = var.stage
   environment          = var.environment
-  db_subnet_group_name = module.network.redis_subnet_group
+  db_subnet_group_name = module.network.db_subnet_group_name
   db_security_group_id = module.sgs.rds_sg_id
 }
 
@@ -68,7 +67,7 @@ module "postgrest" {
   internal_lb              = false
   docker_image             = "postgrest/postgrest:v9.0.0.20220107"
   container_family         = "postgrest"
-  health_check_path        = "/ping"
+  health_check_enabled     = false
   container_port           = 3000
   loadbalancer_port        = 80
   cpu                      = 256
@@ -99,7 +98,7 @@ module "poller" {
   internal_lb              = false
   docker_image             = var.full_image_name_poller
   container_family         = "poller"
-  health_check_path        = "/ping"
+  health_check_enabled     = false
   container_port           = 8080
   loadbalancer_port        = 80
   cpu                      = 256
@@ -127,7 +126,6 @@ module "network" {
 
 module "sgs" {
   source         = "../../../modules/sgs/backend"
-  cidr_block     = var.cidr_block
   environment    = var.environment
   stage          = var.stage
   domain         = var.domain

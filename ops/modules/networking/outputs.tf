@@ -10,7 +10,7 @@ output "redis_subnet_group" {
   value = aws_elasticache_subnet_group.default.name
 }
 
-output "db_subnet_group" {
+output "db_subnet_group_name" {
   value = aws_db_subnet_group.default.name
 }
 

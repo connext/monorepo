@@ -8,7 +8,7 @@ resource "aws_db_instance" "db" {
   instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
 
-  name                                = var.name
+  db_name                             = var.name
   username                            = var.username
   password                            = var.password
   port                                = var.port

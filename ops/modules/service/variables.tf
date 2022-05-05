@@ -37,6 +37,10 @@ variable "health_check_path" {
   default = "/healthz"
 }
 
+variable "health_check_enabled" {
+  default = true
+}
+
 variable "matcher_ports" {
   default = "200,302"
 }
