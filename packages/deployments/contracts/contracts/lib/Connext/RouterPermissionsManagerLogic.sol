@@ -200,7 +200,7 @@ library RouterPermissionsManagerLogic {
     address owner,
     address recipient,
     RouterPermissionsManagerInfo storage routerInfo
-  ) internal {
+  ) external {
     // Sanity check: not empty
     if (router == address(0)) revert RouterPermissionsManagerLogic__setupRouter_routerEmpty();
 
@@ -267,7 +267,7 @@ library RouterPermissionsManagerLogic {
    * @param _routerOwners The mapping of owners for routers
    */
   function getRouterOwner(address _router, mapping(address => address) storage _routerOwners)
-    internal
+    public
     view
     returns (address)
   {

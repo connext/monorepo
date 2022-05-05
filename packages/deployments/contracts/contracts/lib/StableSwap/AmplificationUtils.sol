@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
 /**
@@ -11,8 +9,6 @@ import {SwapUtils} from "./SwapUtils.sol";
  * This library assumes the struct is fully validated.
  */
 library AmplificationUtils {
-  using SafeMath for uint256;
-
   event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
   event StopRampA(uint256 currentA, uint256 time);
 
@@ -29,7 +25,7 @@ library AmplificationUtils {
    * @return A parameter
    */
   function getA(SwapUtils.Swap storage self) external view returns (uint256) {
-    return _getAPrecise(self).div(A_PRECISION);
+    return _getAPrecise(self) / (A_PRECISION);
   }
 
   /**
@@ -48,7 +44,7 @@ library AmplificationUtils {
    * @param self Swap struct to read from
    * @return A parameter in its raw precision form
    */
-  function _getAPrecise(SwapUtils.Swap storage self) internal view returns (uint256) {
+  function _getAPrecise(SwapUtils.Swap storage self) public view returns (uint256) {
     uint256 t1 = self.futureATime; // time when ramp is finished
     uint256 a1 = self.futureA; // final A value when ramp is finished
 
@@ -57,10 +53,10 @@ library AmplificationUtils {
       uint256 a0 = self.initialA; // initial A value when ramp is started
       if (a1 > a0) {
         // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0)
-        return a0.add(a1.sub(a0).mul(block.timestamp.sub(t0)).div(t1.sub(t0)));
+        return a0 + ((a1 - a0) * (block.timestamp - t0)) / (t1 - t0);
       } else {
         // a0 - (a0 - a1) * (block.timestamp - t0) / (t1 - t0)
-        return a0.sub(a0.sub(a1).mul(block.timestamp.sub(t0)).div(t1.sub(t0)));
+        return a0 - ((a0 - a1) * (block.timestamp - t0)) / (t1 - t0);
       }
     } else {
       return a1;
@@ -80,17 +76,17 @@ library AmplificationUtils {
     uint256 futureA_,
     uint256 futureTime_
   ) external {
-    require(block.timestamp >= self.initialATime.add(1 days), "Wait 1 day before starting ramp");
-    require(futureTime_ >= block.timestamp.add(MIN_RAMP_TIME), "Insufficient ramp time");
+    require(block.timestamp >= self.initialATime + 1 days, "Wait 1 day before starting ramp");
+    require(futureTime_ >= block.timestamp + MIN_RAMP_TIME, "Insufficient ramp time");
     require(futureA_ > 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
 
     uint256 initialAPrecise = _getAPrecise(self);
-    uint256 futureAPrecise = futureA_.mul(A_PRECISION);
+    uint256 futureAPrecise = futureA_ * A_PRECISION;
 
     if (futureAPrecise < initialAPrecise) {
-      require(futureAPrecise.mul(MAX_A_CHANGE) >= initialAPrecise, "futureA_ is too small");
+      require(futureAPrecise * MAX_A_CHANGE >= initialAPrecise, "futureA_ is too small");
     } else {
-      require(futureAPrecise <= initialAPrecise.mul(MAX_A_CHANGE), "futureA_ is too large");
+      require(futureAPrecise <= initialAPrecise * MAX_A_CHANGE, "futureA_ is too large");
     }
 
     self.initialA = initialAPrecise;

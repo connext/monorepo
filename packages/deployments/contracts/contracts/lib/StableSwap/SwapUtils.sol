@@ -114,7 +114,7 @@ library SwapUtils {
 
   /*** VIEW & PURE FUNCTIONS ***/
 
-  function _getAPrecise(Swap storage self) internal view returns (uint256) {
+  function _getAPrecise(Swap storage self) public view returns (uint256) {
     return AmplificationUtils._getAPrecise(self);
   }
 
@@ -145,7 +145,7 @@ library SwapUtils {
     uint256 tokenAmount,
     uint8 tokenIndex,
     uint256 totalSupply
-  ) internal view returns (uint256, uint256) {
+  ) public view returns (uint256, uint256) {
     uint256 dy;
     uint256 newY;
     uint256 currentY;
@@ -173,7 +173,7 @@ library SwapUtils {
     uint256 tokenAmount,
     uint256 totalSupply
   )
-    internal
+    public
     view
     returns (
       uint256,
@@ -240,7 +240,7 @@ library SwapUtils {
     uint8 tokenIndex,
     uint256[] memory xp,
     uint256 d
-  ) internal pure returns (uint256) {
+  ) public pure returns (uint256) {
     uint256 numTokens = xp.length;
     require(tokenIndex < numTokens, "Token not found");
 
@@ -280,7 +280,7 @@ library SwapUtils {
    * See the StableSwap paper for details
    * @return the invariant, at the precision of the pool
    */
-  function getD(uint256[] memory xp, uint256 a) internal pure returns (uint256) {
+  function getD(uint256[] memory xp, uint256 a) public pure returns (uint256) {
     uint256 numTokens = xp.length;
     uint256 s;
     for (uint256 i = 0; i < numTokens; i++) {
@@ -331,7 +331,7 @@ library SwapUtils {
    * @return an array of amounts "scaled" to the pool's precision
    */
   function _xp(uint256[] memory balances, uint256[] memory precisionMultipliers)
-    internal
+    public
     pure
     returns (uint256[] memory)
   {
@@ -350,7 +350,7 @@ library SwapUtils {
    * @return the pool balances "scaled" to the pool's precision, allowing
    * them to be more easily compared.
    */
-  function _xp(Swap storage self) internal view returns (uint256[] memory) {
+  function _xp(Swap storage self) public view returns (uint256[] memory) {
     return _xp(self.balances, self.tokenPrecisionMultipliers);
   }
 
@@ -388,7 +388,7 @@ library SwapUtils {
     uint8 tokenIndexTo,
     uint256 x,
     uint256[] memory xp
-  ) internal pure returns (uint256) {
+  ) public pure returns (uint256) {
     uint256 numTokens = xp.length;
     require(tokenIndexFrom != tokenIndexTo, "Can't compare token to itself");
     require(tokenIndexFrom < numTokens && tokenIndexTo < numTokens, "Tokens must be in pool");
@@ -467,7 +467,7 @@ library SwapUtils {
     uint8 tokenIndexTo,
     uint256 dx,
     uint256[] memory balances
-  ) internal view returns (uint256 dy, uint256 dyFee) {
+  ) public view returns (uint256 dy, uint256 dyFee) {
     uint256[] memory multipliers = self.tokenPrecisionMultipliers;
     uint256[] memory xp = _xp(balances, multipliers);
     require(tokenIndexFrom < xp.length && tokenIndexTo < xp.length, "Token index out of range");
@@ -495,7 +495,7 @@ library SwapUtils {
     uint256[] memory balances,
     uint256 amount,
     uint256 totalSupply
-  ) internal pure returns (uint256[] memory) {
+  ) public pure returns (uint256[] memory) {
     require(amount <= totalSupply, "Cannot exceed total supply");
 
     uint256[] memory amounts = new uint256[](balances.length);
@@ -567,7 +567,7 @@ library SwapUtils {
    * @param swapFee swap fee for the tokens
    * @param numTokens number of tokens pooled
    */
-  function _feePerToken(uint256 swapFee, uint256 numTokens) internal pure returns (uint256) {
+  function _feePerToken(uint256 swapFee, uint256 numTokens) public pure returns (uint256) {
     return swapFee.mul(numTokens).div(numTokens.sub(1).mul(4));
   }
 

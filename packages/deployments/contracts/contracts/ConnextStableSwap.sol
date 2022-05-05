@@ -26,7 +26,6 @@ import {IConnextStableSwap} from "./interfaces/IConnextStableSwap.sol";
  * deployment size.
  */
 abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgradeable {
-  //using SafeERC20 for IERC20;
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
@@ -77,15 +76,6 @@ abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgrad
    */
   modifier deadlineCheck(uint256 deadline) {
     if (block.timestamp > deadline) revert ConnextStableSwap__deadlineCheck_deadlineNotMet();
-    _;
-  }
-
-  /**
-   * @notice Modifier to check if the pool config is valid
-   * @param canonicalId the canonical token id to check if pool is valid
-   */
-  modifier poolCheck(bytes32 canonicalId) {
-    if (swapStorages[canonicalId].pooledTokens.length == 0) revert ConnextStableSwap__poolCheck_notConfigured();
     _;
   }
 
@@ -197,9 +187,8 @@ abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgrad
    * @return address of the token at given index
    */
   function getToken(bytes32 canonicalId, uint8 index) public view override returns (IERC20) {
-    SwapUtils.Swap memory swapStorage = swapStorages[canonicalId];
-    if (index < swapStorage.pooledTokens.length) revert ConnextStableSwap__getToken_outOfRange();
-    return swapStorage.pooledTokens[index];
+    if (index < swapStorages[canonicalId].pooledTokens.length) revert ConnextStableSwap__getToken_outOfRange();
+    return swapStorages[canonicalId].pooledTokens[index];
   }
 
   /**
@@ -222,9 +211,9 @@ abstract contract ConnextStableSwap is IConnextStableSwap, ReentrancyGuardUpgrad
    * @return current balance of the pooled token at given index with token's native precision
    */
   function getTokenBalance(bytes32 canonicalId, uint8 index) external view override returns (uint256) {
-    SwapUtils.Swap memory swapStorage = swapStorages[canonicalId];
-    if (index >= swapStorage.pooledTokens.length) revert ConnextStableSwap__getTokenBalance_indexOutOfRange();
-    return swapStorage.balances[index];
+    if (index >= swapStorages[canonicalId].pooledTokens.length)
+      revert ConnextStableSwap__getTokenBalance_indexOutOfRange();
+    return swapStorages[canonicalId].balances[index];
   }
 
   /**
