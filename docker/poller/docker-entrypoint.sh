@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -eoux pipefail
 
-dbmate up
+dbmate --help
 node --trace-warnings dist/index.js
