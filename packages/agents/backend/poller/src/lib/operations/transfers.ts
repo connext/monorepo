@@ -20,7 +20,7 @@ export const updateTransfers = async () => {
 
   for (const domain of domains) {
     // TODO: Needs to implement the selection algorithm
-    const healthUrls = config.chains[domain].subgraph.runtime.map((url: any) => {
+    const healthUrls = config.chains[domain].subgraph.runtime.map((url: { query: string; health: string }) => {
       return { name: getSubgraphName(url.query), url: url.health };
     });
     let latestBlockNumber = 0;
