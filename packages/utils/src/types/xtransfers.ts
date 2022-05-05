@@ -199,8 +199,19 @@ export const AssetSchema = Type.Object({
   local: TAddress,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
-  canoncialDomain: Type.String(),
+  canonicalDomain: Type.String(),
   blockNumber: Type.String(),
 });
-
 export type Asset = Static<typeof AssetSchema>;
+
+export const AssetBalanceSchema = Type.Intersect([
+  AssetSchema,
+  Type.Object({
+    balance: TIntegerString,
+    domain: Type.String(),
+  }),
+]);
+export type AssetBalance = Static<typeof AssetBalanceSchema>;
+
+export const RouterBalanceSchema = Type.Object({ router: TAddress, assets: Type.Array(AssetBalanceSchema) });
+export type RouterBalance = Static<typeof RouterBalanceSchema>;

@@ -1,5 +1,5 @@
 import { restore, reset } from "sinon";
-import { expect, mkAddress, mock, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
+import { expect, mkAddress, mkBytes32, mock, RouterBalance, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
 import pg from "pg";
 
 import {
@@ -77,17 +77,23 @@ describe("Database client", () => {
       reconcile_block_number integer
     );
     
-    create table routers (
-      "address" character(42) primary key
-    );
-    
-    create table asset_balances (
-      asset_id character(42) not null,
+    create table routers ("address" character(42) primary key);
+    create table assets (
+      "local" character(42) not null,
+      adopted character(42) not null,
+      canonical_id character(66) not null,
+      canonical_domain varchar(255) not null,
       domain varchar(255) not null,
+      primary key (canonical_id, domain)
+    );
+    create table asset_balances (
+      asset_canonical_id character(66) not null,
+      asset_domain varchar(255) not null,
       router_address character(42) not null,
-      primary key (asset_id, domain, router_address),
+      balance numeric not null default 0,
+      primary key (asset_canonical_id, asset_domain, router_address),
       constraint fk_router foreign key(router_address) references routers("address"),
-      balance numeric not null default 0
+      constraint fk_asset foreign key(asset_canonical_id, asset_domain) references assets(canonical_id, domain)
     );
     `);
   });
@@ -149,40 +155,111 @@ describe("Database client", () => {
     expect(nonce).equal(1234);
   });
 
-  it("should set a router balance", async () => {
-    const routerBalances = [
+  it.only("should set a router balance", async () => {
+    const routerBalances: RouterBalance[] = [
       {
         router: mkAddress("0xa"),
         assets: [
-          { assetId: mkAddress("0xb"), domain: "1111", balance: utils.parseEther("100").toString() },
-          { assetId: mkAddress("0xb"), domain: "2221", balance: utils.parseEther("99").toString() },
-          { assetId: mkAddress("0xc"), domain: "1111", balance: utils.parseEther("98").toString() },
-          { assetId: mkAddress("0xc"), domain: "2221", balance: utils.parseEther("97").toString() },
+          {
+            canonicalId: mkBytes32("0xb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "1234",
+            local: mkAddress("0xbb"),
+            canonicalDomain: "1111",
+            balance: utils.parseEther("100").toString(),
+          },
+          {
+            canonicalId: mkBytes32("0xbb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "1234",
+            canonicalDomain: "1111",
+            local: mkAddress("0xbb"),
+            balance: utils.parseEther("99").toString(),
+          },
+          {
+            canonicalId: mkBytes32("0xb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "12345",
+            canonicalDomain: "2221",
+            local: mkAddress("0xbb"),
+            balance: utils.parseEther("98").toString(),
+          },
+          {
+            canonicalId: mkBytes32("0xbb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "12345",
+            canonicalDomain: "2221",
+            local: mkAddress("0xbb"),
+            balance: utils.parseEther("97").toString(),
+          },
         ],
       },
       {
         router: mkAddress("0xb"),
         assets: [
-          { assetId: mkAddress("0xb"), domain: "1111", balance: utils.parseEther("100").toString() },
-          { assetId: mkAddress("0xb"), domain: "2221", balance: utils.parseEther("99").toString() },
-          { assetId: mkAddress("0xc"), domain: "1111", balance: utils.parseEther("98").toString() },
-          { assetId: mkAddress("0xc"), domain: "2221", balance: utils.parseEther("97").toString() },
+          {
+            canonicalId: mkBytes32("0xb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "1234",
+            local: mkAddress("0xbb"),
+            canonicalDomain: "1111",
+            balance: utils.parseEther("100").toString(),
+          },
+          {
+            canonicalId: mkBytes32("0xbb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "1234",
+            canonicalDomain: "1111",
+            local: mkAddress("0xbb"),
+            balance: utils.parseEther("99").toString(),
+          },
+          {
+            canonicalId: mkBytes32("0xb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "12345",
+            canonicalDomain: "2221",
+            local: mkAddress("0xbb"),
+            balance: utils.parseEther("98").toString(),
+          },
+          {
+            canonicalId: mkBytes32("0xbb"),
+            adoptedAsset: mkAddress("0xaa"),
+            blockNumber: "0",
+            domain: "12345",
+            canonicalDomain: "2221",
+            local: mkAddress("0xbb"),
+            balance: utils.parseEther("97").toString(),
+          },
         ],
       },
     ];
     await saveRouterBalances(routerBalances, pool);
     const res = await pool.query(
-      `SELECT * FROM routers JOIN asset_balances ON routers."address" = asset_balances.router_address`,
+      `SELECT * FROM routers 
+      JOIN asset_balances ON routers."address" = asset_balances.router_address
+      JOIN assets ON asset_balances.asset_canonical_id = assets.canonical_id AND asset_balances.asset_domain = assets.domain`,
     );
     routerBalances.forEach((router) => {
       router.assets.forEach((asset) => {
         const found = res.rows.find(
           (row: any) =>
+            row.address === router.router &&
+            row.asset_canonical_id === asset.canonicalId &&
+            row.asset_domain === asset.domain &&
             row.router_address === router.router &&
-            row.asset_id === asset.assetId &&
-            row.domain === asset.domain &&
             BigNumber.from(BigInt(row.balance)).eq(asset.balance) &&
-            row.address === router.router,
+            row.local === asset.local &&
+            row.adopted === asset.adoptedAsset &&
+            row.canonical_id === asset.canonicalId &&
+            row.canonical_domain === asset.canonicalDomain &&
+            row.domain === asset.domain,
         );
         expect(found).to.be.ok;
       });

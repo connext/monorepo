@@ -30,10 +30,23 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.asset_balances (
-    asset_id character(42) NOT NULL,
-    domain character varying(255) NOT NULL,
+    asset_canonical_id character(66) NOT NULL,
+    asset_domain character varying(255) NOT NULL,
     router_address character(42) NOT NULL,
     balance numeric DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: assets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.assets (
+    local character(42) NOT NULL,
+    adopted character(42) NOT NULL,
+    canonical_id character(66) NOT NULL,
+    canonical_domain character varying(255) NOT NULL,
+    domain character varying(255) NOT NULL
 );
 
 
@@ -107,7 +120,15 @@ CREATE TABLE public.transfers (
 --
 
 ALTER TABLE ONLY public.asset_balances
-    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_id, domain, router_address);
+    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
+
+
+--
+-- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.assets
+    ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
 
 
 --
@@ -132,6 +153,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.transfers
     ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
+
+
+--
+-- Name: asset_balances fk_asset; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.asset_balances
+    ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES public.assets(canonical_id, domain);
 
 
 --
