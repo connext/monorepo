@@ -4,6 +4,7 @@ import {
   getSubgraphName,
   OriginTransfer,
   XTransferStatus,
+  SubgraphQueryMetaParams,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../backend";
@@ -17,6 +18,8 @@ export const updateTransfers = async () => {
   const { requestContext, methodContext } = createLoggingContext("updateTransfers");
 
   const domains = Object.keys(config.chains);
+
+  const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
 
   for (const domain of domains) {
     // TODO: Needs to implement the selection algorithm
@@ -46,11 +49,18 @@ export const updateTransfers = async () => {
       domain,
     });
 
-    const transactions = await subgraph.getOriginTransfers(domain, latestNonce, domains);
+    subgraphQueryMetaParams.set(domain, {
+      maxBlockNumber: latestBlockNumber,
+      latestNonce,
+      destinationDomains: domains,
+    });
+  }
+
+  if ([...subgraphQueryMetaParams.keys()].length > 0) {
+    const transactions = await subgraph.getOriginTransfersForAll(subgraphQueryMetaParams);
 
     logger.debug("Got xcalled transactions", requestContext, methodContext, {
-      transferIds: transactions.map((transaction) => transaction.transferId),
-      domain,
+      transactions,
     });
 
     await database.saveTransfers(transactions);

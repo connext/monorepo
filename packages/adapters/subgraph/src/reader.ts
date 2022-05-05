@@ -227,6 +227,29 @@ export class SubgraphReader {
   }
 
   /**
+   * Get the transfers across the multiple domains
+   * @param agents - The reference parameters
+   */
+  public async getOriginTransfersForAll(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getOriginTransfersQuery(agents);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originTransfer);
+
+    return originTransfers;
+  }
+
+  /**
    * Gets the xcalled transactions across all the chains.
    * @param agents - The reference parameters.
    * @returns an array of XTransfers.
