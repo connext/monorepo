@@ -1,0 +1,105 @@
+import { constants, providers, BigNumber } from "ethers";
+import { getChainData, Logger, createLoggingContext, RequestContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import {
+  getContractInterfaces,
+  ConnextContractInterfaces,
+  contractDeployments,
+  ChainReader,
+} from "@connext/nxtp-txservice";
+
+import { NxtpSdkConfig, getConfig } from "./config";
+
+export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
+export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
+export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
+export const DEFAULT_AUCTION_TIMEOUT = 6_000;
+export const FULFILL_TIMEOUT = 300_000;
+export const DELAY_BETWEEN_RETRIES = 5_000;
+
+/**
+ * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
+ *
+ */
+export class NxtpSdkUtils {
+  public readonly config: NxtpSdkConfig;
+  private readonly logger: Logger;
+  private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
+  private chainReader: ChainReader;
+  public readonly chainData: Map<string, ChainData>;
+
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+    this.config = config;
+    this.logger = logger;
+    this.chainData = chainData;
+    this.contracts = getContractInterfaces();
+    this.chainReader = new ChainReader(
+      this.logger.child({ module: "ChainReader" }, this.config.logLevel),
+      this.config.chains,
+    );
+  }
+
+  static async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkUtils> {
+    const chainData = await getChainData();
+    if (!chainData) {
+      throw new Error("Could not get chain data");
+    }
+
+    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const logger = _logger
+      ? _logger.child({ name: "NxtpSdkUtils" })
+      : new Logger({ name: "NxtpSdkUtils", level: nxtpConfig.logLevel });
+
+    return new NxtpSdkUtils(nxtpConfig, logger, chainData);
+  }
+
+  async getRouters(domain: string): Promise<string[]> {
+    /* using backend api */
+
+    return ["0x0000000000000000000000000000000000000000"];
+  }
+
+  async getWhitelistedAsset(domain: string): Promise<string[]> {
+    /*  using backend api */
+
+    return ["0x0000000000000000000000000000000000000000"];
+  }
+
+  async getTotalLiquidity(domain: string): Promise<{ asset: string; availableLiquidity: string }[]> {
+    /* fetch using covalent api and back it up using backend api */
+
+    return [{ asset: "0x0000000000000000000000000000000000000000", availableLiquidity: "0" }];
+  }
+
+  async getRouterLiquidity(domain: string, router: string): Promise<{ [asset: string]: string }[]> {
+    /*  using backend api */
+
+    return [{ assetId: "0x0000000000000000000000000000000000000000" }];
+  }
+
+  // async getTransfersByUser(user: string): Promise<Transfers[]> {
+  //   /*  using backend api */
+
+  //   return [{ assetId: "0x0000000000000000000000000000000000000000" }];
+  // }
+
+  // Metrics
+  async getTotalVolume(domain: string): Promise<{ [asset: string]: string }[]> {
+    /*  using backend api */
+
+    return [{ "0x": "0" }];
+  }
+
+  async getTotalTransfers(domain: string): Promise<string> {
+    return "0";
+  }
+
+  // utils
+
+  async getChainIdFromDomain(domain: string): Promise<string> {
+    return "4";
+  }
+
+  async getDomainFromChainId(chainId: string): Promise<string> {
+    return "2221";
+  }
+}
