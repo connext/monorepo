@@ -48,6 +48,7 @@ contract ConnextHandlerTest is ForgeHelper {
     address caller
   );
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   // ============ Storage ============
 
@@ -158,6 +159,17 @@ contract ConnextHandlerTest is ForgeHelper {
     vm.store(address(connext), bytes32(slot), bytes32(uint256(uint160(_relayer))));
   }
 
+  function setSponsorVault(address _sponsorVault) internal {
+    // stdstore does not work correctly with proxies to set a value directly with checked_write()
+    // use impl to find the storage slot
+    uint256 slot = stdstore
+      .target(address(connextImpl))
+      .sig(connextImpl.sponsorVault.selector)
+      .find();
+    // update the proxy storage
+    vm.store(address(connext), bytes32(slot), bytes32(uint256(uint160(_sponsorVault))));
+  }
+
   // ============ setMaxRouters ============
 
   // Should work
@@ -186,6 +198,50 @@ contract ConnextHandlerTest is ForgeHelper {
       abi.encodeWithSelector(ConnextLogic.ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector)
     );
     connext.setMaxRoutersPerTransfer(0);
+  }
+
+  // ============ setSponsorVault ============
+
+  function test_ConnextHandler__setSponsorVault_worksAddingNewSponsorVault(address _newSponsorVault) public {
+    vm.assume(_newSponsorVault != address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit SponsorVaultUpdated(address(0), _newSponsorVault, address(this));
+
+    connext.setSponsorVault(_newSponsorVault);
+    assertEq(address(connext.sponsorVault()), _newSponsorVault);
+  }
+
+  function test_ConnextHandler__setSponsorVault_worksRemovingSponsorVault(address _currentSponsorVault) public {
+    vm.assume(_currentSponsorVault != address(0));
+
+    setSponsorVault(_currentSponsorVault);
+    assertEq(address(connext.sponsorVault()), _currentSponsorVault);
+
+    vm.expectEmit(true, true, true, true);
+    emit SponsorVaultUpdated(_currentSponsorVault, address(0), address(this));
+
+    connext.setSponsorVault(address(0));
+    assertEq(address(connext.sponsorVault()), address(0));
+  }
+
+  function test_ConnextHandler__setSponsorVault_failsIfNotOwner() public {
+    vm.prank(address(0));
+    vm.expectRevert(
+      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
+    );
+    connext.setSponsorVault(address(1));
+  }
+
+  function test_ConnextHandler__setSponsorVault_failsIfAddingSameSponsorVault(address _currentSponsorVault) public {
+    setSponsorVault(_currentSponsorVault);
+    assertEq(address(connext.sponsorVault()), _currentSponsorVault);
+
+    vm.expectRevert(
+      abi.encodeWithSelector(ConnextLogic.ConnextLogic__setSponsorVault_invalidSponsorVault.selector)
+    );
+
+    connext.setSponsorVault(_currentSponsorVault);
   }
 
   // ============ initiateClaim ============

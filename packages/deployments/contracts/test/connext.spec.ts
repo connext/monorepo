@@ -15,6 +15,7 @@ import {
   ConnextHandler,
   ConnextLogic,
   RelayerFeeRouter,
+  TestSponsorVault
 } from "../typechain-types";
 
 import {
@@ -885,6 +886,7 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount,
+      relayerFee,
       routers: [router.address],
       routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
       originSender: user.address,
@@ -982,6 +984,7 @@ describe("Connext", () => {
       nonce,
       local: destinationAdopted.address,
       amount,
+      relayerFee,
       routers: [router.address],
       routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
       originSender: user.address,
@@ -1067,6 +1070,7 @@ describe("Connext", () => {
       nonce,
       local: local.address,
       amount,
+      relayerFee,
       routers: [router.address],
       routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
       originSender: user.address,
@@ -1088,6 +1092,7 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
+        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1107,6 +1112,7 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
+        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1127,6 +1133,7 @@ describe("Connext", () => {
     let transferId: any;
     let bridgedAmount: any;
     let reconciledTopics: any;
+    let relayerFee: any;
 
     beforeEach(async () => {
       await originBridge.setupRouter(router2.address, router2.address, router2.address);
@@ -1158,7 +1165,7 @@ describe("Connext", () => {
 
       // Prepare from the user
       const transactingAssetId = originAdopted.address;
-      const relayerFee = utils.parseEther("0.00000001");
+      relayerFee = utils.parseEther("0.00000001");
       const prepare = await originBridge
         .connect(user)
         .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
@@ -1204,6 +1211,7 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount,
+          relayerFee,
           routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
@@ -1281,6 +1289,7 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount,
+          relayerFee,
           routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
@@ -1296,6 +1305,7 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
+        relayerFee,
         routers: routerAddresses,
         routerSignatures,
         originSender: user.address,
@@ -1324,6 +1334,7 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount: routersAmount,
+          relayerFee,
           routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
@@ -1402,6 +1413,7 @@ describe("Connext", () => {
             nonce: transferIds[i].nonce,
             local: local.address,
             amount: amounts[i],
+            relayerFee: relayerFees[i],
             routers: [router.address],
             routerSignatures: [await signRouterPathPayload(transferIds[i].transferId, "1", router)],
             originSender: user.address,
@@ -1445,4 +1457,333 @@ describe("Connext", () => {
       });
     });
   });
+
+  describe("sponsoring fee", () => {
+    let sponsorVault: TestSponsorVault;
+    let params: any;
+    let amount: any;
+    let relayerFee: any;
+    let routerAmount: any;
+    let liquidityFee: any;
+    let transactingAssetId: any;
+    let nonce: any;
+    let message: any;
+    let transferId: any;
+
+    before(async () => {
+      sponsorVault = await deployContract<TestSponsorVault>("TestSponsorVault");
+
+      // Mint to sponsor vault
+      const mint = await destinationAdopted.mint(sponsorVault.address, parseEther("20"));
+      await mint.wait();
+
+      await (await admin.sendTransaction({to: sponsorVault.address, value: parseEther("1")})).wait()
+
+      // Setup stable swap for adopted => canonical on origin
+      const swapCanonical = await stableSwap
+      .connect(admin)
+      .setupPool(originAdopted.address, canonical.address, SEED, SEED);
+      await swapCanonical.wait();
+
+      // Setup stable swap for local => adopted on dest
+      const swapLocal = await stableSwap
+        .connect(admin)
+        .setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
+      await swapLocal.wait();
+
+      // Add router liquidity
+      const approveLiq = await local.connect(router).approve(destinationBridge.address, parseEther("100000"));
+      await approveLiq.wait();
+      const addLiq = await destinationBridge.connect(router).addLiquidity(parseEther("0.1"), local.address);
+      await addLiq.wait();
+
+      // Approve user
+      const approveAmt = await originAdopted.connect(user).approve(originBridge.address, parseEther("100000"));
+      await approveAmt.wait();
+
+      amount = utils.parseEther("0.0001");
+      relayerFee = utils.parseEther("0.00000001");
+      routerAmount = amount.mul(9995).div(10000);
+      liquidityFee = amount.sub(routerAmount);
+
+      // Prepare from the user
+      params = {
+        to: user.address,
+        callData: "0x",
+        originDomain,
+        destinationDomain,
+      };
+      transactingAssetId = originAdopted.address;
+
+      const prepare = await originBridge
+        .connect(user)
+        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+      const prepareReceipt = await prepare.wait();
+
+      const xcalledTopic = ConnextLogic.filters.XCalled().topics as string[];
+      const originBridgeEvent = ConnextLogic.interface.parseLog(
+        prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
+      );
+
+      nonce = (originBridgeEvent!.args as any).nonce;
+      message = (originBridgeEvent!.args as any).message;
+      transferId = (originBridgeEvent!.args as any).transferId;
+    })
+
+    it("should work with no sponsor vault configured", async () => {
+      expect(await destinationBridge.sponsorVault()).to.eq(ZERO_ADDRESS);
+
+      // Get pre-prepare balances
+      const prePrepare = await Promise.all([
+        originAdopted.balanceOf(user.address),
+        canonical.balanceOf(originBridge.address),
+      ]);
+
+      // Get pre-execute balances
+      const preExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+      ]);
+
+      // Fulfill with the router
+      const execute = await destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        relayerFee,
+        routers: [router.address],
+        routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
+        originSender: user.address,
+      });
+      const execReceipt = await execute.wait();
+
+      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
+      const destTmEvent = ConnextLogic.interface.parseLog(
+        execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
+      );
+      expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
+
+      expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+
+      // Check balance of user + bridge
+      const postExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+      ]);
+      expect(postExecute[0]).to.be.eq(preExecute[0].add(routerAmount));
+      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerAmount));
+    });
+
+    it("should work with sponsor vault configured and working properly", async () => {
+      // configure sponsor vault
+      await destinationBridge.setSponsorVault(sponsorVault.address);
+      // test sponsor vault setup
+      await sponsorVault.setFeeValues(liquidityFee, liquidityFee, relayerFee);
+
+      // Get pre-execute balances
+      const preExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+
+      // Fulfill with the router
+      const execute = await destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        relayerFee,
+        routers: [router.address],
+        routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
+        originSender: user.address,
+      });
+      const execReceipt = await execute.wait();
+
+      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
+      const destTmEvent = ConnextLogic.interface.parseLog(
+        execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
+      );
+      expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
+
+      expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+
+      // Check balance of user + bridge
+      const postExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+      expect(postExecute[0]).to.be.eq(preExecute[0].add(routerAmount.add(liquidityFee))); // user receives the sponsored liquidity fee
+      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerAmount));
+      expect(postExecute[2]).to.be.eq(preExecute[2].add(relayerFee)); // user receives the sponsored relayer fee back on the destination domain
+    });
+
+    it("should work with sponsor vault configured and working properly sponsoring a portion of liquidity fee", async () => {
+      liquidityFee = liquidityFee.div(2);
+
+      // configure sponsor vault
+      await destinationBridge.setSponsorVault(sponsorVault.address);
+      // test sponsor vault setup
+      await sponsorVault.setFeeValues(liquidityFee, liquidityFee, relayerFee);
+
+      // Get pre-execute balances
+      const preExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+
+      // Fulfill with the router
+      const execute = await destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        relayerFee,
+        routers: [router.address],
+        routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
+        originSender: user.address,
+      });
+      const execReceipt = await execute.wait();
+
+      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
+      const destTmEvent = ConnextLogic.interface.parseLog(
+        execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
+      );
+      expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
+
+      expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+
+      // Check balance of user + bridge
+      const postExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+      expect(postExecute[0]).to.be.eq(preExecute[0].add(routerAmount.add(liquidityFee))); // user receives the sponsored liquidity fee
+      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerAmount));
+      expect(postExecute[2]).to.be.eq(preExecute[2].add(relayerFee)); // user receives the sponsored relayer fee back on the destination domain
+    });
+
+    it("should work with sponsor vault configured and working properly sponsoring a portion of relayer fee", async () => {
+      liquidityFee = liquidityFee.div(2);
+      const sponsoredRelayerFee = relayerFee.div(2);
+
+      // configure sponsor vault
+      await destinationBridge.setSponsorVault(sponsorVault.address);
+      // test sponsor vault setup
+      await sponsorVault.setFeeValues(liquidityFee, liquidityFee, sponsoredRelayerFee);
+
+      // Get pre-execute balances
+      const preExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+
+      // Fulfill with the router
+      const execute = await destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        relayerFee,
+        routers: [router.address],
+        routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
+        originSender: user.address,
+      });
+      const execReceipt = await execute.wait();
+
+      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
+      const destTmEvent = ConnextLogic.interface.parseLog(
+        execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
+      );
+      expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
+
+      expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+
+      // Check balance of user + bridge
+      const postExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+      expect(postExecute[0]).to.be.eq(preExecute[0].add(routerAmount.add(liquidityFee))); // user receives the sponsored liquidity fee
+      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerAmount));
+      expect(postExecute[2]).to.be.eq(preExecute[2].add(sponsoredRelayerFee)); // user receives the sponsored relayer fee back on the destination domain
+    });
+
+    it("should work with sponsor vault configured but not sponsoring", async () => {
+      // configure sponsor vault
+      await destinationBridge.setSponsorVault(sponsorVault.address);
+      // test sponsor vault setup
+      await sponsorVault.setFeeValues(0, 0, 0);
+
+      // Get pre-execute balances
+      const preExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+
+      // Fulfill with the router
+      const execute = await destinationBridge.connect(router).execute({
+        params,
+        nonce,
+        local: local.address,
+        amount,
+        relayerFee,
+        routers: [router.address],
+        routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
+        originSender: user.address,
+      });
+      const execReceipt = await execute.wait();
+
+      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
+      const destTmEvent = ConnextLogic.interface.parseLog(
+        execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
+      );
+      expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
+
+      expect(await destinationBridge.transferRelayer(transferId)).to.eq(router.address);
+
+      // Check balance of user + bridge
+      const postExecute = await Promise.all([
+        destinationAdopted.balanceOf(user.address),
+        destinationBridge.routerBalances(router.address, local.address),
+        user.getBalance(),
+      ]);
+      expect(postExecute[0]).to.be.eq(preExecute[0].add(routerAmount)); // user does not receive the sponsored liquidity fee
+      expect(postExecute[1]).to.be.eq(preExecute[1].sub(routerAmount));
+      expect(postExecute[2]).to.be.eq(preExecute[2]); // user does not receive the sponsored relayer fee back on the destination domain
+    });
+
+    it("should fail with malicious sponsor vault configured", async () => {
+      const amount = utils.parseEther("0.0001");
+      const relayerFee = utils.parseEther("0.00000001");
+      const routerAmount = amount.mul(9995).div(10000);
+      const liquidityFee = amount.sub(routerAmount).div(2);
+      const sponsoredRelayerFee = relayerFee.div(2);
+
+      // configure sponsor vault
+      await destinationBridge.setSponsorVault(sponsorVault.address);
+      // test sponsor vault setup to send les liquidity fee than it says it will
+      await sponsorVault.setFeeValues(liquidityFee.div(2), liquidityFee, sponsoredRelayerFee);
+
+      await expect(
+        destinationBridge.connect(router).execute({
+          params,
+          nonce,
+          local: local.address,
+          amount,
+          relayerFee,
+          routers: [router.address],
+          routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
+          originSender: user.address,
+        })
+      ).to.revertedWith("ConnextLogic__handleExecuteTransaction_invalidSponsoredAmount()")
+    });
+  })
 });

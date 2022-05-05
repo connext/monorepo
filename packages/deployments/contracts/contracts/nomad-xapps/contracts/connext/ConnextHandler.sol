@@ -17,6 +17,7 @@ import {IWrapped} from "../../../interfaces/IWrapped.sol";
 import {IConnextHandler} from "../../../interfaces/IConnextHandler.sol";
 import {IExecutor} from "../../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../../interfaces/IStableSwap.sol";
+import {ISponsorVault} from "../../../interfaces/ISponsorVault.sol";
 
 import {Executor} from "../../../interpreters/Executor.sol";
 import {RouterPermissionsManager} from "../../../RouterPermissionsManager.sol";
@@ -166,6 +167,11 @@ contract ConnextHandler is
    * @notice The max amount of routers a payment can be routed through
    */
   uint256 public maxRoutersPerTransfer;
+
+  /**
+   * @notice The Vault used for sponsoring fees
+   */
+  ISponsorVault public sponsorVault;
 
   // ============ Errors ============
 
@@ -320,6 +326,11 @@ contract ConnextHandler is
     maxRoutersPerTransfer = _newMaxRouters;
   }
 
+  function setSponsorVault(address _sponsorVault) external override onlyOwner {
+    ConnextLogic.setSponsorVault(_sponsorVault, address(sponsorVault));
+    sponsorVault = ISponsorVault(_sponsorVault);
+  }
+
   // ============ External functions ============
 
   receive() external payable {}
@@ -443,6 +454,7 @@ contract ConnextHandler is
       tokenRegistry: tokenRegistry,
       wrapper: wrapper,
       executor: executor,
+      sponsorVault: sponsorVault,
       liquidityFeeNumerator: LIQUIDITY_FEE_NUMERATOR,
       liquidityFeeDenominator: LIQUIDITY_FEE_DENOMINATOR
     });

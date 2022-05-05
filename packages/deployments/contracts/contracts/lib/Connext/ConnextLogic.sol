@@ -5,6 +5,7 @@ import {IConnextHandler} from "../../interfaces/IConnextHandler.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 import {IWrapped} from "../../interfaces/IWrapped.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";
+import {ISponsorVault} from "../../interfaces/ISponsorVault.sol";
 import {LibCrossDomainProperty} from "../LibCrossDomainProperty.sol";
 import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol";
 import {AssetLogic} from "./AssetLogic.sol";
@@ -17,7 +18,7 @@ import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 import {Home} from "../../nomad-core/contracts/Home.sol";
 
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import {SafeERC20Upgradeable, AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20Upgradeable, IERC20Upgradeable, AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 library ConnextLogic {
   // ============ Libraries ============
@@ -34,6 +35,7 @@ library ConnextLogic {
   error ConnextLogic__addRelayer_alreadyApproved();
   error ConnextLogic__removeRelayer_notApproved();
   error ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error ConnextLogic__setSponsorVault_invalidSponsorVault();
   error ConnextLogic__reconcile_invalidAction();
   error ConnextLogic__reconcile_alreadyReconciled();
   error ConnextLogic__removeLiquidity_recipientEmpty();
@@ -51,6 +53,7 @@ library ConnextLogic {
   error ConnextLogic__initiateClaim_notRelayer(bytes32 transferId);
   error ConnextLogic__bumpTransfer_invalidTransfer();
   error ConnextLogic__bumpTransfer_valueIsZero();
+  error ConnextLogic__handleExecuteTransaction_invalidSponsoredAmount();
 
   // ============ Structs ============
 
@@ -78,6 +81,7 @@ library ConnextLogic {
     ITokenRegistry tokenRegistry;
     IWrapped wrapper;
     IExecutor executor;
+    ISponsorVault sponsorVault;
     uint256 liquidityFeeNumerator;
     uint256 liquidityFeeDenominator;
   }
@@ -150,6 +154,14 @@ library ConnextLogic {
    * @param caller - The account that called the function
    */
   event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
+
+  /**
+   * @notice Emitted when the sponsorVault variable is updated
+   * @param oldSponsorVault - The sponsorVault old value
+   * @param newSponsorVault - The sponsorVault new value
+   * @param caller - The account that called the function
+   */
+  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -337,6 +349,18 @@ library ConnextLogic {
       revert ConnextLogic__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
 
     emit MaxRoutersPerTransferUpdated(_newMax, msg.sender);
+  }
+
+  /**
+   * @notice Used to set the sponsor vault
+   * @param _sponsorVault The new sponsor vault
+   * @param _currentSponsorVault The current sponsor vault
+   */
+  function setSponsorVault(address _sponsorVault, address _currentSponsorVault) external {
+    if (_sponsorVault == _currentSponsorVault)
+      revert ConnextLogic__setSponsorVault_invalidSponsorVault();
+
+    emit SponsorVaultUpdated(_currentSponsorVault, _sponsorVault, msg.sender);
   }
 
   // ============ Functions ============
@@ -875,6 +899,33 @@ library ConnextLogic {
     bytes32 _transferId,
     bool _reconciled
   ) private {
+
+    // Is the domain sponsor
+    if (address(_args.sponsorVault) != address(0)) {
+      // fast liquidity path
+      if (!_reconciled) {
+        // Vault will return the amount of the fee they sponsored in the native fee
+        // NOTE: some considerations here around fee on transfer tokens and ensuring
+        // there are no malicious `Vaults` that do not transfer the correct amount. Should likely do a
+        // balance read about it
+
+        uint256 starting = IERC20Upgradeable(_adopted).balanceOf(address(this));
+        uint256 sponsored = _args.sponsorVault.reimburseLiquidityFees(_adopted, _args.executeArgs.amount);
+
+        // Validate correct amounts are transferred
+        if (IERC20Upgradeable(_adopted).balanceOf(address(this)) != starting + sponsored) {
+          revert ConnextLogic__handleExecuteTransaction_invalidSponsoredAmount();
+        }
+
+        _amount = _amount + sponsored;
+      }
+
+      // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
+      // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
+      // then the vault should just pay out the configured constant
+      _args.sponsorVault.reimburseRelayerFees(_args.executeArgs.params.originDomain, _args.executeArgs.params.to, _args.executeArgs.relayerFee);
+    }
+
     // execute the the transaction
     if (keccak256(_args.executeArgs.params.callData) == EMPTY) {
       // no call data, send funds to the user
@@ -923,8 +974,6 @@ library ConnextLogic {
         _args.liquidityFeeNumerator,
         _args.liquidityFeeDenominator
       );
-
-      // TODO: validate routers signature on path / transferId
 
       // store the routers address
       _routedTransfers[_transferId] = _args.executeArgs.routers;
