@@ -773,10 +773,9 @@ describe("Integration:E2E", () => {
         parity: SUBG_POLL_PARITY,
         method: async () => {
           const destinationTransfer = await subgraph.getDestinationTransferById(
-            originTransfer!.originDomain,
+            domainInfo.DESTINATION.domain,
             originTransfer!.origin.xcall.transactionHash,
           );
-          console.log("debug", destinationTransfer);
           if (destinationTransfer?.destination.reconcile?.transactionHash) {
             log.info("Transfer was reconciled.", {
               domain: domainInfo.DESTINATION,
