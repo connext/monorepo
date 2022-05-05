@@ -132,7 +132,8 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
   const poolToUse = _pool ?? pool;
   const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer);
 
-  //TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
+  // TODO: make this a single query! we should be able to do this with postgres
+  // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
   for (const oneTransfer of transfers) {
     const transfer = { ...oneTransfer };
     await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`INSERT INTO ${"transfers"} (${db.cols(transfer)})
@@ -164,4 +165,43 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
     origin_domain: domain,
   }} ORDER BY "nonce" DESC LIMIT 1`.run(poolToUse);
   return transfer[0]?.nonce ?? 0;
+};
+
+export type RouterBalance = {
+  router: string;
+  assets: {
+    assetId: string;
+    domain: string;
+    balance: string;
+  }[];
+};
+
+export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?: Pool): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const routers: s.routers.Insertable[] = routerBalances.map((router) => {
+    return { address: router.router };
+  });
+
+  // TODO: make this a single query! we should be able to do this with postgres
+  for (const router of routers) {
+    await db.sql<s.routers.SQL, s.routers.JSONSelectable>`
+    INSERT INTO ${"routers"} (${db.cols(router)}) VALUES (${db.vals(
+      router,
+    )}) ON CONFLICT ("address") DO NOTHING RETURNING *
+    `.run(poolToUse);
+
+    const balances = (routerBalances.find((r) => r.router === router.address) ?? {}).assets ?? [];
+    const dbBalances: s.asset_balances.Insertable[] = balances.map((b) => {
+      return { balance: b.balance as any, router_address: router.address, asset_id: b.assetId, domain: b.domain };
+    });
+    for (const balance of dbBalances) {
+      await db.sql<s.asset_balances.SQL, s.asset_balances.JSONSelectable>`
+      INSERT INTO ${"asset_balances"} (${db.cols(balance)}) VALUES (${db.vals(
+        balance,
+      )}) ON CONFLICT ("asset_id", "domain", "router_address") DO UPDATE SET (${db.cols(balance)}) = (${db.vals(
+        balance,
+      )}) RETURNING *
+    `.run(poolToUse);
+    }
+  }
 };

@@ -4,10 +4,10 @@ create table routers (
 );
 
 create table asset_balances (
-  "address" character(42) not null,
+  asset_id character(42) not null,
   domain varchar(255) not null,
   router_address character(42) not null,
-  primary key ("address", domain, router_address),
+  primary key (asset_id, domain, router_address),
   constraint fk_router foreign key(router_address) references routers("address"),
   balance numeric not null default 0
 );

@@ -30,7 +30,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.asset_balances (
-    address character(42) NOT NULL,
+    asset_id character(42) NOT NULL,
     domain character varying(255) NOT NULL,
     router_address character(42) NOT NULL,
     balance numeric DEFAULT 0 NOT NULL
@@ -107,7 +107,7 @@ CREATE TABLE public.transfers (
 --
 
 ALTER TABLE ONLY public.asset_balances
-    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (address, domain, router_address);
+    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_id, domain, router_address);
 
 
 --
