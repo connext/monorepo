@@ -8,6 +8,7 @@ import {
 } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
+import { NxtpSdkUtils } from "./sdkUtils";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -25,10 +26,12 @@ export class NxtpSdkBase {
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
+  public readonly utils: NxtpSdkUtils;
   public readonly chainData: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: NxtpSdkConfig, nxtpSdkUtils: NxtpSdkUtils, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
+    this.utils = nxtpSdkUtils;
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
@@ -46,8 +49,9 @@ export class NxtpSdkBase {
 
     const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
     const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
+    const nxtpSdkUtils = new NxtpSdkUtils(nxtpConfig, logger, chainData);
 
-    return new NxtpSdkBase(nxtpConfig, logger, chainData);
+    return new NxtpSdkBase(nxtpConfig, nxtpSdkUtils, logger, chainData);
   }
 
   async approveIfNeeded(
@@ -122,7 +126,12 @@ export class NxtpSdkBase {
 
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
-    const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
+    // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
+    const value =
+      transactingAssetId === constants.AddressZero
+        ? BigNumber.from(amount).add(BigNumber.from(relayerFee))
+        : BigNumber.from(relayerFee);
+
     const data = this.contracts.connext.encodeFunctionData("xcall", [
       {
         params,
@@ -140,6 +149,34 @@ export class NxtpSdkBase {
       data,
       from: this.config.signerAddress,
       chainId: Number(originDomain),
+    };
+  }
+
+  async bumpTransfer(params: {
+    domain: string;
+    transferId: string;
+    relayerFee: string;
+  }): Promise<providers.TransactionRequest> {
+    const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+
+    const { domain, transferId, relayerFee } = params;
+
+    const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
+
+    // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
+    const value = BigNumber.from(relayerFee);
+
+    const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);
+
+    this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext);
+
+    return {
+      to: ConnextContractAddress,
+      value,
+      data,
+      from: this.config.signerAddress,
+      chainId: Number(domain),
     };
   }
 }
