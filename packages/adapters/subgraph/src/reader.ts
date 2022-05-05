@@ -1,5 +1,12 @@
 import { BigNumber } from "ethers";
-import { XTransfer, SubgraphQueryMetaParams, ChainData, Asset, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  XTransfer,
+  SubgraphQueryMetaParams,
+  ChainData,
+  Asset,
+  OriginTransfer,
+  DestinationTransfer,
+} from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
 import {
@@ -7,11 +14,13 @@ import {
   getAssetBalancesQuery,
   getAssetByCanonicalIdQuery,
   getAssetByLocalQuery,
-  getDestinationTransfersByIdsQuery,
+  getDestinationTransfersByDomainAndIdsQuery,
   getRouterQuery,
-  getOriginTransfersByIdQuery,
+  getOriginTransfersByIdsQuery,
   getOriginTransfersQueryByDomain,
   getOriginTransfersQuery,
+  getOriginTransfersByTransactionHashesQuery,
+  getDestinationTransfersByIdsQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -42,7 +51,6 @@ export class SubgraphReader {
   /**
    * Make a direct GraphQL query to the subgraph of the given domain.
    *
-   * @param domain - The domain you want to determine liquidity on.
    * @param query - The GraphQL query string you want to send.
    * @returns Query result (any).
    */
@@ -141,20 +149,58 @@ export class SubgraphReader {
   }
 
   /**
-   * Retrieve a target transfer belonging to a given domain by ID.
+   * Retrieve a target OriginTransfer belonging to a given domain by transfer ID.
    *
-   * @param domain - The domain you want to get transfers from.
+   * @param domain - The domain you want to get the transfer from.
    * @param transferId - The ID of the transfer you want to retrieve.
-   * @returns Parsed XTransfer object if transfer exists, otherwise undefined.
+   * @returns Parsed OriginTransfer object if transfer exists, otherwise undefined.
    */
-  public async getOriginTransfer(domain: string, transferId: string): Promise<XTransfer | undefined> {
+  public async getOriginTransferById(domain: string, transferId: string): Promise<OriginTransfer | undefined> {
     const { parser, execute, getPrefixForDomain } = getHelpers();
     const prefix: string = getPrefixForDomain(domain);
 
-    const query = getOriginTransfersByIdQuery(prefix, [`"${transferId}"`]);
+    const query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
     const transfers = [...response.values()][0][0];
     return transfers.length === 1 ? parser.originTransfer(transfers[0]) : undefined;
+  }
+
+  /**
+   * Retrieve a target OriginTransfer belonging to a given domain by its transaction hash (the hash of the xcall
+   * method call on-chain).
+   *
+   * @param domain - The domain you want to get the transfer from.
+   * @param hash - The xcall transactionHash belonging to the transfer you want to retrieve.
+   * @returns Parsed OriginTransfer object if transfer exists, otherwise undefined.
+   */
+  public async getOriginTransferByHash(domain: string, hash: string): Promise<OriginTransfer | undefined> {
+    const { parser, execute, getPrefixForDomain } = getHelpers();
+    const prefix: string = getPrefixForDomain(domain);
+
+    const query = getOriginTransfersByTransactionHashesQuery(prefix, [`"${hash}"`]);
+    const response = await execute(query);
+    const transfers = [...response.values()][0][0];
+    return transfers.length === 1 ? parser.originTransfer(transfers[0]) : undefined;
+  }
+
+  /**
+   * Retrieve a target DestinationTransfer belonging to a given domain by transfer ID.
+   *
+   * @param domain - The domain you want to get the transfer from.
+   * @param transferId - The ID of the transfer you want to retrieve.
+   * @returns Parsed DestinationTransfer object if transfer exists, otherwise undefined.
+   */
+  public async getDestinationTransferById(
+    domain: string,
+    transferId: string,
+  ): Promise<DestinationTransfer | undefined> {
+    const { parser, execute, getPrefixForDomain } = getHelpers();
+    const prefix: string = getPrefixForDomain(domain);
+
+    const query = getDestinationTransfersByIdsQuery(prefix, [`"${transferId}"`]);
+    const response = await execute(query);
+    const transfers = [...response.values()][0][0];
+    return transfers.length === 1 ? parser.destinationTransfer(transfers[0]) : undefined;
   }
 
   /**
@@ -207,7 +253,7 @@ export class SubgraphReader {
 
     if (txIdsByDestinationDomain.size == 0) return [];
 
-    const destinationTransfersQuery = getDestinationTransfersByIdsQuery(txIdsByDestinationDomain);
+    const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     response = await execute(destinationTransfersQuery);
 
     const transfers: any[] = [];
@@ -251,7 +297,7 @@ export class SubgraphReader {
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
 
-    const destinationTransfersQuery = getDestinationTransfersByIdsQuery(txIdsByDestinationDomain);
+    const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
     const _transfers: any[] = [];
     for (const key of response.keys()) {

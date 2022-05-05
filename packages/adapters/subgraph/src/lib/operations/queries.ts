@@ -155,9 +155,19 @@ export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string):
   `;
 };
 
-export const getOriginTransfersByIdQuery = (prefix: string, transferIds: string[]): string => {
+export const getOriginTransfersByIdsQuery = (prefix: string, transferIds: string[]): string => {
   const queryStr = `
     ${prefix}_originTransfers(where: { transferId_in: [${transferIds}] }) {${ORIGIN_TRANSFER_ENTITY}}`;
+  return gql`
+    query GetOriginTransfers {
+      ${queryStr}
+    }
+  `;
+};
+
+export const getOriginTransfersByTransactionHashesQuery = (prefix: string, hashes: string[]): string => {
+  const queryStr = `
+    ${prefix}_originTransfers(where: { transactionHash_in: [${hashes}] }) {${ORIGIN_TRANSFER_ENTITY}}`;
   return gql`
     query GetOriginTransfers {
       ${queryStr}
@@ -229,7 +239,17 @@ const destinationTransfersByIdsQueryString = (
   } ${status ? `, status: ${status}` : ""}}, orderBy: nonce, orderDirection: desc) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
-export const getDestinationTransfersByIdsQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
+export const getDestinationTransfersByIdsQuery = (prefix: string, transferIds: string[]): string => {
+  const queryStr = `
+    ${prefix}_destinationTransfers(where: { transferId_in: [${transferIds}] }) {${DESTINATION_TRANSFER_ENTITY}}`;
+  return gql`
+    query GetDestinationTransfers {
+      ${queryStr}
+    }
+  `;
+};
+
+export const getDestinationTransfersByDomainAndIdsQuery = (txIdsByDestinationDomain: Map<string, string[]>): string => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const destinationDomain of txIdsByDestinationDomain.keys()) {

@@ -53,9 +53,9 @@ export const test = async () => {
     ),
   );
 
-  // getOriginTransfer(domain, transferId)
+  // getOriginTransferById(domain, transferId)
   console.log(
-    await subgraphReader.getOriginTransfer(
+    await subgraphReader.getOriginTransferById(
       "2221",
       "0x75730b13a1ef662696aa50def454adfea8eb6a1d89e8bf90f2001885c7d7476e",
     ),

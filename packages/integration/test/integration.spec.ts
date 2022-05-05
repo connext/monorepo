@@ -20,11 +20,6 @@ import {
 } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import {
-  originTransfer as parseOriginTransfer,
-  destinationTransfer as parseDestinationTransfer,
-} from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
-import { getPrefixForDomain } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/shared";
 
 import {
   DomainInfo,
@@ -50,11 +45,11 @@ import {
   checkOnchainLocalAsset,
   convertToCanonicalAsset,
   formatEtherscanLink,
-  formatSubgraphGetTransferQuery,
   getAllowance,
   getAssetApproval,
   getRouterApproval,
   OperationContext,
+  pollSomething,
   removeAsset,
   setupAsset,
 } from "./helpers";
@@ -659,8 +654,8 @@ describe("Integration:E2E", () => {
       await delay(1_000);
     }
 
-    let originTransfer: OriginTransfer | undefined;
     log.next("XCALL");
+    let originTransfer: OriginTransfer;
     {
       let transactionHash: string;
       if (DEBUG_XCALL_TXHASH) {
@@ -698,17 +693,22 @@ describe("Integration:E2E", () => {
 
       // Poll the origin subgraph until the new XCall transfer appears.
       log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const prefix: string = getPrefixForDomain(domainInfo.ORIGIN.domain);
-      const query = formatSubgraphGetTransferQuery(prefix, {
-        isOrigin: true,
-        xcallTransactionHash: transactionHash,
-      });
       const startTime = Date.now();
-      const response = await subgraph.query(query);
-      const transfers = [...response.values()][0][0];
-      if (transfers.length == 1) originTransfer = parseOriginTransfer(transfers[0]);
+      const _originTransfer: OriginTransfer | undefined = await pollSomething({
+        // Attempts will be made for 1 minute.
+        attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+        parity: SUBG_POLL_PARITY,
+        method: async () => {
+          const originTransfer = await subgraph.getOriginTransferByHash(domainInfo.ORIGIN.domain, transactionHash);
+          if (originTransfer?.origin.xcall?.transactionHash) {
+            return originTransfer;
+          }
+          return undefined;
+        },
+      });
       const endTime = Date.now();
-      if (!originTransfer) {
+
+      if (!_originTransfer) {
         log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
           domain: domainInfo.ORIGIN,
           etc: {
@@ -716,6 +716,8 @@ describe("Integration:E2E", () => {
           },
         });
       }
+      originTransfer = _originTransfer!;
+
       log.info("XCall retrieved.", {
         domain: domainInfo.ORIGIN,
         etc: {
@@ -728,23 +730,16 @@ describe("Integration:E2E", () => {
 
     log.next("WAIT FOR EXECUTE");
     {
-      if (!originTransfer) {
-        // Should never happen, but this soothes Mr. Compiler.
-        throw new Error("CRITICAL: transfer is undefined!");
-      }
-
-      if (agents.router) {
-        if (!SKIP_SEQUENCER_CHECKS) {
-          log.info("Polling sequencer for auction status...");
-          // Poll the sequencer a few times to see if we can get the auction status.
-          // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
-          const attempts = Math.floor(60_000 / SUBG_POLL_PARITY);
-          let error: any | undefined;
-          let status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined;
-          let i;
-          for (i = 0; i < attempts; i++) {
-            await delay(SUBG_POLL_PARITY);
-            status = await axios
+      if (agents.router && !SKIP_SEQUENCER_CHECKS) {
+        log.info("Polling sequencer for auction status...");
+        // Poll the sequencer a few times to see if we can get the auction status.
+        // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
+        let error: any | undefined;
+        const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
+          attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+          parity: SUBG_POLL_PARITY,
+          method: async () => {
+            return await axios
               .request<AuctionsApiGetAuctionStatusResponse>({
                 method: "get",
                 baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
@@ -754,46 +749,64 @@ describe("Integration:E2E", () => {
                 error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
                 return undefined;
               });
-          }
-
-          if (!status) {
-            log.info("Unable to retrieve auction status from Sequencer.", {
-              etc: {
-                error,
-              },
-            });
-          } else {
-            log.info(`Retrieved auction status from Sequencer.`, {
-              domain: domainInfo.DESTINATION,
-              etc: { status: status.data },
-            });
-          }
+          },
+        });
+        if (!status) {
+          log.info("Unable to retrieve auction status from Sequencer.", {
+            etc: {
+              error,
+            },
+          });
+        } else {
+          log.info(`Retrieved auction status from Sequencer.`, {
+            domain: domainInfo.DESTINATION,
+            etc: { status: status.data },
+          });
         }
       }
 
-      let destinationTransfer: DestinationTransfer | undefined;
       log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
-      const prefix: string = getPrefixForDomain(domainInfo.DESTINATION.domain);
-      const query = formatSubgraphGetTransferQuery(prefix, {
-        isOrigin: false,
-        transferId: originTransfer.transferId,
-      });
       const startTime = Date.now();
-      const response = await subgraph.query(query);
-      const transfers = [...response.values()][0][0];
-      if (transfers.length == 1) destinationTransfer = parseDestinationTransfer(transfers[0]);
+      const _destinationTransfer: DestinationTransfer | undefined = await pollSomething({
+        // Attempts will be made for 3 minutes.
+        attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
+        parity: SUBG_POLL_PARITY,
+        method: async () => {
+          const destinationTransfer = await subgraph.getDestinationTransferById(
+            originTransfer!.originDomain,
+            originTransfer!.origin.xcall.transactionHash,
+          );
+          console.log("debug", destinationTransfer);
+          if (destinationTransfer?.destination.reconcile?.transactionHash) {
+            log.info("Transfer was reconciled.", {
+              domain: domainInfo.DESTINATION,
+              hash: destinationTransfer.destination.reconcile.transactionHash,
+            });
+          }
+
+          if (destinationTransfer?.destination.execute?.transactionHash) {
+            return destinationTransfer;
+          }
+          return undefined;
+        },
+      });
       const endTime = Date.now();
-      if (destinationTransfer?.destination.reconcile?.transactionHash) {
-        log.info("Transfer was reconciled.", {
+
+      if (!_destinationTransfer) {
+        log.fail("Failed to retrieve execute transfer from the destination subgraph.", {
           domain: domainInfo.DESTINATION,
-          hash: destinationTransfer.destination.reconcile.transactionHash,
+          etc: {
+            polled: `${(endTime - startTime) / 1_000}s`,
+          },
         });
       }
+      const destinationTransfer = _destinationTransfer!;
+
       log.info("Execute transaction found.", {
         domain: domainInfo.DESTINATION,
-        hash: destinationTransfer!.destination.execute?.transactionHash,
+        hash: destinationTransfer.destination.execute?.transactionHash,
         etc: {
-          took: `~${(endTime - startTime) / 1_000}s`,
+          took: `${(endTime - startTime) / 1_000}s`,
         },
       });
 
@@ -802,11 +815,11 @@ describe("Integration:E2E", () => {
         etc: {
           locallyExecuted:
             agents.router &&
-            destinationTransfer!.destination.routers &&
-            destinationTransfer!.destination.routers.includes(agents.router.address),
+            destinationTransfer.destination.routers &&
+            destinationTransfer.destination.routers.includes(agents.router.address),
           transfer: {
             ...originTransfer,
-            destination: destinationTransfer!.destination,
+            destination: destinationTransfer.destination,
           },
         },
       });
