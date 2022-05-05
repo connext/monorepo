@@ -4,8 +4,7 @@ import { existsSync, readFileSync } from "fs";
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData } from "@connext/nxtp-utils";
-import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
+import { ajv, ChainData, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
