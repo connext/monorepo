@@ -68,10 +68,7 @@ describe("Helpers:Auctions", () => {
       const localAsset = await getDestinationLocalAsset(origin, originLocal, destination);
       expect(localAsset).to.be.eq(mockLocalAsset);
       expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
-      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(
-        Number(destination),
-        canonicalId,
-      );
+      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
     });
   });
 });

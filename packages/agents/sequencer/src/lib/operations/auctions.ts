@@ -54,7 +54,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   let transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer || !transfer.origin) {
     // Get the XCall from the subgraph for this transfer.
-    transfer = await subgraph.getOriginTransfer(origin, transferId);
+    transfer = await subgraph.getOriginTransferById(origin, transferId);
     if (!transfer || !transfer.origin) {
       // Router shouldn't be bidding on a transfer that doesn't exist.
       throw new MissingXCall(origin, transferId, {
