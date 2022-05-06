@@ -104,6 +104,13 @@ describe("Database client", () => {
       constraint fk_router foreign key(router_address) references routers("address"),
       constraint fk_asset foreign key(asset_canonical_id, asset_domain) references assets(canonical_id, domain)
     );
+
+    create view routers_with_balances as
+    select *
+    from routers
+      join asset_balances on routers."address" = asset_balances.router_address
+      join assets on asset_balances.asset_canonical_id = assets.canonical_id
+      and asset_balances.asset_domain = assets.domain;
     `);
   });
 
@@ -250,11 +257,7 @@ describe("Database client", () => {
       },
     ];
     await saveRouterBalances(routerBalances, pool);
-    const res = await pool.query(
-      `SELECT * FROM routers 
-      JOIN asset_balances ON routers."address" = asset_balances.router_address
-      JOIN assets ON asset_balances.asset_canonical_id = assets.canonical_id AND asset_balances.asset_domain = assets.domain`,
-    );
+    const res = await pool.query(`SELECT * FROM routers_with_balances`);
     const rb = convertToRouterBalance(res.rows);
     expect(rb).to.deep.eq(routerBalances);
   });
