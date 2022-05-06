@@ -1,10 +1,5 @@
-import {
-  createLoggingContext,
-  getSubgraphHealth,
-  OriginTransfer,
-  XTransferStatus,
-  SubgraphQueryMetaParams,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { getSubgraphHealth } from "../../shared";
 
 import { getContext } from "../../backend";
 
