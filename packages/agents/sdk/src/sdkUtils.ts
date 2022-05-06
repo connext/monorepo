@@ -1,5 +1,4 @@
-import { constants, providers, BigNumber } from "ethers";
-import { getChainData, Logger, createLoggingContext, RequestContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import { getChainData, Logger, ChainData } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -55,24 +54,25 @@ export class NxtpSdkUtils {
   async getRouters(domain: string): Promise<string[]> {
     /* using backend api */
 
+    console.log(domain);
     return ["0x0000000000000000000000000000000000000000"];
   }
 
   async getWhitelistedAsset(domain: string): Promise<string[]> {
     /*  using backend api */
-
+    console.log(domain);
     return ["0x0000000000000000000000000000000000000000"];
   }
 
   async getTotalLiquidity(domain: string): Promise<{ asset: string; availableLiquidity: string }[]> {
     /* fetch using covalent api and back it up using backend api */
-
+    console.log(domain);
     return [{ asset: "0x0000000000000000000000000000000000000000", availableLiquidity: "0" }];
   }
 
   async getRouterLiquidity(domain: string, router: string): Promise<{ [asset: string]: string }[]> {
     /*  using backend api */
-
+    console.log(domain);
     return [{ assetId: "0x0000000000000000000000000000000000000000" }];
   }
 
@@ -85,21 +85,24 @@ export class NxtpSdkUtils {
   // Metrics
   async getTotalVolume(domain: string): Promise<{ [asset: string]: string }[]> {
     /*  using backend api */
-
+    console.log(domain);
     return [{ "0x": "0" }];
   }
 
   async getTotalTransfers(domain: string): Promise<string> {
+    console.log(domain);
     return "0";
   }
 
   // utils
 
   async getChainIdFromDomain(domain: string): Promise<string> {
+    console.log(domain);
     return "4";
   }
 
   async getDomainFromChainId(chainId: string): Promise<string> {
+    console.log(chainId);
     return "2221";
   }
 }

@@ -1,5 +1,5 @@
-import { constants, providers, BigNumber, BigNumberish } from "ethers";
-import { getChainData, Logger, createLoggingContext, RequestContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import { BigNumber, BigNumberish } from "ethers";
+import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,

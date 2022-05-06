@@ -69,7 +69,7 @@ export class SubgraphReader {
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain) ;
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
@@ -85,7 +85,7 @@ export class SubgraphReader {
    */
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain) ;
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
@@ -104,7 +104,7 @@ export class SubgraphReader {
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain) ;
 
     const query = getRouterQuery(prefix, _router.toLowerCase());
     const response = await execute(query);
@@ -119,7 +119,7 @@ export class SubgraphReader {
    */
   public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain) ;
 
     const query = getAssetByLocalQuery(prefix, local.toLowerCase());
     const response = await execute(query);
@@ -137,7 +137,7 @@ export class SubgraphReader {
    */
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain) ;
 
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId.toLowerCase());
     const response = await execute(query);
