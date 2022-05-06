@@ -12,23 +12,23 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
-type kovan_Asset {
+type staging_kovan_Asset {
   id: ID!
-  local: kovan_Bytes!
-  adoptedAsset: kovan_Bytes!
-  canonicalId: kovan_Bytes!
+  local: staging_kovan_Bytes!
+  adoptedAsset: staging_kovan_Bytes!
+  canonicalId: staging_kovan_Bytes!
   canonicalDomain: BigInt!
   blockNumber: BigInt!
 }
 
-type kovan_AssetBalance {
+type staging_kovan_AssetBalance {
   id: ID!
   amount: BigInt!
-  router: kovan_Router!
-  asset: kovan_Asset!
+  router: staging_kovan_Router!
+  asset: staging_kovan_Asset!
 }
 
-input kovan_AssetBalance_filter {
+input staging_kovan_AssetBalance_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -86,17 +86,17 @@ input kovan_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   """Filter for the block changed event."""
-  _change_block: kovan_BlockChangedFilter
+  _change_block: staging_kovan_BlockChangedFilter
 }
 
-enum kovan_AssetBalance_orderBy {
+enum staging_kovan_AssetBalance_orderBy {
   id
   amount
   router
   asset
 }
 
-input kovan_Asset_filter {
+input staging_kovan_Asset_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -105,24 +105,24 @@ input kovan_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  local: kovan_Bytes
-  local_not: kovan_Bytes
-  local_in: [kovan_Bytes!]
-  local_not_in: [kovan_Bytes!]
-  local_contains: kovan_Bytes
-  local_not_contains: kovan_Bytes
-  adoptedAsset: kovan_Bytes
-  adoptedAsset_not: kovan_Bytes
-  adoptedAsset_in: [kovan_Bytes!]
-  adoptedAsset_not_in: [kovan_Bytes!]
-  adoptedAsset_contains: kovan_Bytes
-  adoptedAsset_not_contains: kovan_Bytes
-  canonicalId: kovan_Bytes
-  canonicalId_not: kovan_Bytes
-  canonicalId_in: [kovan_Bytes!]
-  canonicalId_not_in: [kovan_Bytes!]
-  canonicalId_contains: kovan_Bytes
-  canonicalId_not_contains: kovan_Bytes
+  local: staging_kovan_Bytes
+  local_not: staging_kovan_Bytes
+  local_in: [staging_kovan_Bytes!]
+  local_not_in: [staging_kovan_Bytes!]
+  local_contains: staging_kovan_Bytes
+  local_not_contains: staging_kovan_Bytes
+  adoptedAsset: staging_kovan_Bytes
+  adoptedAsset_not: staging_kovan_Bytes
+  adoptedAsset_in: [staging_kovan_Bytes!]
+  adoptedAsset_not_in: [staging_kovan_Bytes!]
+  adoptedAsset_contains: staging_kovan_Bytes
+  adoptedAsset_not_contains: staging_kovan_Bytes
+  canonicalId: staging_kovan_Bytes
+  canonicalId_not: staging_kovan_Bytes
+  canonicalId_in: [staging_kovan_Bytes!]
+  canonicalId_not_in: [staging_kovan_Bytes!]
+  canonicalId_contains: staging_kovan_Bytes
+  canonicalId_not_contains: staging_kovan_Bytes
   canonicalDomain: BigInt
   canonicalDomain_not: BigInt
   canonicalDomain_gt: BigInt
@@ -140,10 +140,10 @@ input kovan_Asset_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: kovan_BlockChangedFilter
+  _change_block: staging_kovan_BlockChangedFilter
 }
 
-enum kovan_Asset_orderBy {
+enum staging_kovan_Asset_orderBy {
   id
   local
   adoptedAsset
@@ -152,53 +152,53 @@ enum kovan_Asset_orderBy {
   blockNumber
 }
 
-scalar kovan_BigDecimal
+scalar staging_kovan_BigDecimal
 
 scalar BigInt
 
-input kovan_BlockChangedFilter {
+input staging_kovan_BlockChangedFilter {
   number_gte: Int!
 }
 
-input kovan_Block_height {
-  hash: kovan_Bytes
+input staging_kovan_Block_height {
+  hash: staging_kovan_Bytes
   number: Int
   number_gte: Int
 }
 
-scalar kovan_Bytes
+scalar staging_kovan_Bytes
 
-type kovan_DestinationTransfer {
+type staging_kovan_DestinationTransfer {
   id: ID!
   chainId: BigInt
-  transferId: kovan_Bytes
+  transferId: staging_kovan_Bytes
   nonce: BigInt
-  to: kovan_Bytes
-  callData: kovan_Bytes
+  to: staging_kovan_Bytes
+  callData: staging_kovan_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  status: kovan_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: kovan_Router_orderBy, orderDirection: kovan_OrderDirection, where: kovan_Router_filter): [kovan_Router!]
-  originSender: kovan_Bytes
-  transactingAsset: kovan_Bytes
+  status: staging_kovan_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: staging_kovan_Router_orderBy, orderDirection: staging_kovan_OrderDirection, where: staging_kovan_Router_filter): [staging_kovan_Router!]
+  originSender: staging_kovan_Bytes
+  transactingAsset: staging_kovan_Bytes
   transactingAmount: BigInt
-  localAsset: kovan_Bytes
+  localAsset: staging_kovan_Bytes
   localAmount: BigInt
-  executedCaller: kovan_Bytes
-  executedTransactionHash: kovan_Bytes
+  executedCaller: staging_kovan_Bytes
+  executedTransactionHash: staging_kovan_Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  reconciledCaller: kovan_Bytes
-  reconciledTransactionHash: kovan_Bytes
+  reconciledCaller: staging_kovan_Bytes
+  reconciledTransactionHash: staging_kovan_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
 }
 
-input kovan_DestinationTransfer_filter {
+input staging_kovan_DestinationTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -215,12 +215,12 @@ input kovan_DestinationTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: kovan_Bytes
-  transferId_not: kovan_Bytes
-  transferId_in: [kovan_Bytes!]
-  transferId_not_in: [kovan_Bytes!]
-  transferId_contains: kovan_Bytes
-  transferId_not_contains: kovan_Bytes
+  transferId: staging_kovan_Bytes
+  transferId_not: staging_kovan_Bytes
+  transferId_in: [staging_kovan_Bytes!]
+  transferId_not_in: [staging_kovan_Bytes!]
+  transferId_contains: staging_kovan_Bytes
+  transferId_not_contains: staging_kovan_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -229,18 +229,18 @@ input kovan_DestinationTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  to: kovan_Bytes
-  to_not: kovan_Bytes
-  to_in: [kovan_Bytes!]
-  to_not_in: [kovan_Bytes!]
-  to_contains: kovan_Bytes
-  to_not_contains: kovan_Bytes
-  callData: kovan_Bytes
-  callData_not: kovan_Bytes
-  callData_in: [kovan_Bytes!]
-  callData_not_in: [kovan_Bytes!]
-  callData_contains: kovan_Bytes
-  callData_not_contains: kovan_Bytes
+  to: staging_kovan_Bytes
+  to_not: staging_kovan_Bytes
+  to_in: [staging_kovan_Bytes!]
+  to_not_in: [staging_kovan_Bytes!]
+  to_contains: staging_kovan_Bytes
+  to_not_contains: staging_kovan_Bytes
+  callData: staging_kovan_Bytes
+  callData_not: staging_kovan_Bytes
+  callData_in: [staging_kovan_Bytes!]
+  callData_not_in: [staging_kovan_Bytes!]
+  callData_contains: staging_kovan_Bytes
+  callData_not_contains: staging_kovan_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -257,28 +257,28 @@ input kovan_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  status: kovan_TransferStatus
-  status_not: kovan_TransferStatus
-  status_in: [kovan_TransferStatus!]
-  status_not_in: [kovan_TransferStatus!]
+  status: staging_kovan_TransferStatus
+  status_not: staging_kovan_TransferStatus
+  status_in: [staging_kovan_TransferStatus!]
+  status_not_in: [staging_kovan_TransferStatus!]
   routers: [String!]
   routers_not: [String!]
   routers_contains: [String!]
   routers_contains_nocase: [String!]
   routers_not_contains: [String!]
   routers_not_contains_nocase: [String!]
-  originSender: kovan_Bytes
-  originSender_not: kovan_Bytes
-  originSender_in: [kovan_Bytes!]
-  originSender_not_in: [kovan_Bytes!]
-  originSender_contains: kovan_Bytes
-  originSender_not_contains: kovan_Bytes
-  transactingAsset: kovan_Bytes
-  transactingAsset_not: kovan_Bytes
-  transactingAsset_in: [kovan_Bytes!]
-  transactingAsset_not_in: [kovan_Bytes!]
-  transactingAsset_contains: kovan_Bytes
-  transactingAsset_not_contains: kovan_Bytes
+  originSender: staging_kovan_Bytes
+  originSender_not: staging_kovan_Bytes
+  originSender_in: [staging_kovan_Bytes!]
+  originSender_not_in: [staging_kovan_Bytes!]
+  originSender_contains: staging_kovan_Bytes
+  originSender_not_contains: staging_kovan_Bytes
+  transactingAsset: staging_kovan_Bytes
+  transactingAsset_not: staging_kovan_Bytes
+  transactingAsset_in: [staging_kovan_Bytes!]
+  transactingAsset_not_in: [staging_kovan_Bytes!]
+  transactingAsset_contains: staging_kovan_Bytes
+  transactingAsset_not_contains: staging_kovan_Bytes
   transactingAmount: BigInt
   transactingAmount_not: BigInt
   transactingAmount_gt: BigInt
@@ -287,12 +287,12 @@ input kovan_DestinationTransfer_filter {
   transactingAmount_lte: BigInt
   transactingAmount_in: [BigInt!]
   transactingAmount_not_in: [BigInt!]
-  localAsset: kovan_Bytes
-  localAsset_not: kovan_Bytes
-  localAsset_in: [kovan_Bytes!]
-  localAsset_not_in: [kovan_Bytes!]
-  localAsset_contains: kovan_Bytes
-  localAsset_not_contains: kovan_Bytes
+  localAsset: staging_kovan_Bytes
+  localAsset_not: staging_kovan_Bytes
+  localAsset_in: [staging_kovan_Bytes!]
+  localAsset_not_in: [staging_kovan_Bytes!]
+  localAsset_contains: staging_kovan_Bytes
+  localAsset_not_contains: staging_kovan_Bytes
   localAmount: BigInt
   localAmount_not: BigInt
   localAmount_gt: BigInt
@@ -301,18 +301,18 @@ input kovan_DestinationTransfer_filter {
   localAmount_lte: BigInt
   localAmount_in: [BigInt!]
   localAmount_not_in: [BigInt!]
-  executedCaller: kovan_Bytes
-  executedCaller_not: kovan_Bytes
-  executedCaller_in: [kovan_Bytes!]
-  executedCaller_not_in: [kovan_Bytes!]
-  executedCaller_contains: kovan_Bytes
-  executedCaller_not_contains: kovan_Bytes
-  executedTransactionHash: kovan_Bytes
-  executedTransactionHash_not: kovan_Bytes
-  executedTransactionHash_in: [kovan_Bytes!]
-  executedTransactionHash_not_in: [kovan_Bytes!]
-  executedTransactionHash_contains: kovan_Bytes
-  executedTransactionHash_not_contains: kovan_Bytes
+  executedCaller: staging_kovan_Bytes
+  executedCaller_not: staging_kovan_Bytes
+  executedCaller_in: [staging_kovan_Bytes!]
+  executedCaller_not_in: [staging_kovan_Bytes!]
+  executedCaller_contains: staging_kovan_Bytes
+  executedCaller_not_contains: staging_kovan_Bytes
+  executedTransactionHash: staging_kovan_Bytes
+  executedTransactionHash_not: staging_kovan_Bytes
+  executedTransactionHash_in: [staging_kovan_Bytes!]
+  executedTransactionHash_not_in: [staging_kovan_Bytes!]
+  executedTransactionHash_contains: staging_kovan_Bytes
+  executedTransactionHash_not_contains: staging_kovan_Bytes
   executedTimestamp: BigInt
   executedTimestamp_not: BigInt
   executedTimestamp_gt: BigInt
@@ -345,18 +345,18 @@ input kovan_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
-  reconciledCaller: kovan_Bytes
-  reconciledCaller_not: kovan_Bytes
-  reconciledCaller_in: [kovan_Bytes!]
-  reconciledCaller_not_in: [kovan_Bytes!]
-  reconciledCaller_contains: kovan_Bytes
-  reconciledCaller_not_contains: kovan_Bytes
-  reconciledTransactionHash: kovan_Bytes
-  reconciledTransactionHash_not: kovan_Bytes
-  reconciledTransactionHash_in: [kovan_Bytes!]
-  reconciledTransactionHash_not_in: [kovan_Bytes!]
-  reconciledTransactionHash_contains: kovan_Bytes
-  reconciledTransactionHash_not_contains: kovan_Bytes
+  reconciledCaller: staging_kovan_Bytes
+  reconciledCaller_not: staging_kovan_Bytes
+  reconciledCaller_in: [staging_kovan_Bytes!]
+  reconciledCaller_not_in: [staging_kovan_Bytes!]
+  reconciledCaller_contains: staging_kovan_Bytes
+  reconciledCaller_not_contains: staging_kovan_Bytes
+  reconciledTransactionHash: staging_kovan_Bytes
+  reconciledTransactionHash_not: staging_kovan_Bytes
+  reconciledTransactionHash_in: [staging_kovan_Bytes!]
+  reconciledTransactionHash_not_in: [staging_kovan_Bytes!]
+  reconciledTransactionHash_contains: staging_kovan_Bytes
+  reconciledTransactionHash_not_contains: staging_kovan_Bytes
   reconciledTimestamp: BigInt
   reconciledTimestamp_not: BigInt
   reconciledTimestamp_gt: BigInt
@@ -390,10 +390,10 @@ input kovan_DestinationTransfer_filter {
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: kovan_BlockChangedFilter
+  _change_block: staging_kovan_BlockChangedFilter
 }
 
-enum kovan_DestinationTransfer_orderBy {
+enum staging_kovan_DestinationTransfer_orderBy {
   id
   chainId
   transferId
@@ -424,35 +424,35 @@ enum kovan_DestinationTransfer_orderBy {
 }
 
 """Defines the order direction, either ascending or descending"""
-enum kovan_OrderDirection {
+enum staging_kovan_OrderDirection {
   asc
   desc
 }
 
-type kovan_OriginTransfer {
+type staging_kovan_OriginTransfer {
   id: ID!
   chainId: BigInt
-  transferId: kovan_Bytes
+  transferId: staging_kovan_Bytes
   nonce: BigInt
-  to: kovan_Bytes
-  callData: kovan_Bytes
+  to: staging_kovan_Bytes
+  callData: staging_kovan_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
   relayerFee: BigInt
-  message: kovan_Bytes
-  transactingAsset: kovan_Bytes
+  message: staging_kovan_Bytes
+  transactingAsset: staging_kovan_Bytes
   transactingAmount: BigInt
-  bridgedAsset: kovan_Bytes
+  bridgedAsset: staging_kovan_Bytes
   bridgedAmount: BigInt
-  caller: kovan_Bytes
-  transactionHash: kovan_Bytes
+  caller: staging_kovan_Bytes
+  transactionHash: staging_kovan_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input kovan_OriginTransfer_filter {
+input staging_kovan_OriginTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -469,12 +469,12 @@ input kovan_OriginTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: kovan_Bytes
-  transferId_not: kovan_Bytes
-  transferId_in: [kovan_Bytes!]
-  transferId_not_in: [kovan_Bytes!]
-  transferId_contains: kovan_Bytes
-  transferId_not_contains: kovan_Bytes
+  transferId: staging_kovan_Bytes
+  transferId_not: staging_kovan_Bytes
+  transferId_in: [staging_kovan_Bytes!]
+  transferId_not_in: [staging_kovan_Bytes!]
+  transferId_contains: staging_kovan_Bytes
+  transferId_not_contains: staging_kovan_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -483,18 +483,18 @@ input kovan_OriginTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  to: kovan_Bytes
-  to_not: kovan_Bytes
-  to_in: [kovan_Bytes!]
-  to_not_in: [kovan_Bytes!]
-  to_contains: kovan_Bytes
-  to_not_contains: kovan_Bytes
-  callData: kovan_Bytes
-  callData_not: kovan_Bytes
-  callData_in: [kovan_Bytes!]
-  callData_not_in: [kovan_Bytes!]
-  callData_contains: kovan_Bytes
-  callData_not_contains: kovan_Bytes
+  to: staging_kovan_Bytes
+  to_not: staging_kovan_Bytes
+  to_in: [staging_kovan_Bytes!]
+  to_not_in: [staging_kovan_Bytes!]
+  to_contains: staging_kovan_Bytes
+  to_not_contains: staging_kovan_Bytes
+  callData: staging_kovan_Bytes
+  callData_not: staging_kovan_Bytes
+  callData_in: [staging_kovan_Bytes!]
+  callData_not_in: [staging_kovan_Bytes!]
+  callData_contains: staging_kovan_Bytes
+  callData_not_contains: staging_kovan_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -519,18 +519,18 @@ input kovan_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
-  message: kovan_Bytes
-  message_not: kovan_Bytes
-  message_in: [kovan_Bytes!]
-  message_not_in: [kovan_Bytes!]
-  message_contains: kovan_Bytes
-  message_not_contains: kovan_Bytes
-  transactingAsset: kovan_Bytes
-  transactingAsset_not: kovan_Bytes
-  transactingAsset_in: [kovan_Bytes!]
-  transactingAsset_not_in: [kovan_Bytes!]
-  transactingAsset_contains: kovan_Bytes
-  transactingAsset_not_contains: kovan_Bytes
+  message: staging_kovan_Bytes
+  message_not: staging_kovan_Bytes
+  message_in: [staging_kovan_Bytes!]
+  message_not_in: [staging_kovan_Bytes!]
+  message_contains: staging_kovan_Bytes
+  message_not_contains: staging_kovan_Bytes
+  transactingAsset: staging_kovan_Bytes
+  transactingAsset_not: staging_kovan_Bytes
+  transactingAsset_in: [staging_kovan_Bytes!]
+  transactingAsset_not_in: [staging_kovan_Bytes!]
+  transactingAsset_contains: staging_kovan_Bytes
+  transactingAsset_not_contains: staging_kovan_Bytes
   transactingAmount: BigInt
   transactingAmount_not: BigInt
   transactingAmount_gt: BigInt
@@ -539,12 +539,12 @@ input kovan_OriginTransfer_filter {
   transactingAmount_lte: BigInt
   transactingAmount_in: [BigInt!]
   transactingAmount_not_in: [BigInt!]
-  bridgedAsset: kovan_Bytes
-  bridgedAsset_not: kovan_Bytes
-  bridgedAsset_in: [kovan_Bytes!]
-  bridgedAsset_not_in: [kovan_Bytes!]
-  bridgedAsset_contains: kovan_Bytes
-  bridgedAsset_not_contains: kovan_Bytes
+  bridgedAsset: staging_kovan_Bytes
+  bridgedAsset_not: staging_kovan_Bytes
+  bridgedAsset_in: [staging_kovan_Bytes!]
+  bridgedAsset_not_in: [staging_kovan_Bytes!]
+  bridgedAsset_contains: staging_kovan_Bytes
+  bridgedAsset_not_contains: staging_kovan_Bytes
   bridgedAmount: BigInt
   bridgedAmount_not: BigInt
   bridgedAmount_gt: BigInt
@@ -553,18 +553,18 @@ input kovan_OriginTransfer_filter {
   bridgedAmount_lte: BigInt
   bridgedAmount_in: [BigInt!]
   bridgedAmount_not_in: [BigInt!]
-  caller: kovan_Bytes
-  caller_not: kovan_Bytes
-  caller_in: [kovan_Bytes!]
-  caller_not_in: [kovan_Bytes!]
-  caller_contains: kovan_Bytes
-  caller_not_contains: kovan_Bytes
-  transactionHash: kovan_Bytes
-  transactionHash_not: kovan_Bytes
-  transactionHash_in: [kovan_Bytes!]
-  transactionHash_not_in: [kovan_Bytes!]
-  transactionHash_contains: kovan_Bytes
-  transactionHash_not_contains: kovan_Bytes
+  caller: staging_kovan_Bytes
+  caller_not: staging_kovan_Bytes
+  caller_in: [staging_kovan_Bytes!]
+  caller_not_in: [staging_kovan_Bytes!]
+  caller_contains: staging_kovan_Bytes
+  caller_not_contains: staging_kovan_Bytes
+  transactionHash: staging_kovan_Bytes
+  transactionHash_not: staging_kovan_Bytes
+  transactionHash_in: [staging_kovan_Bytes!]
+  transactionHash_not_in: [staging_kovan_Bytes!]
+  transactionHash_contains: staging_kovan_Bytes
+  transactionHash_not_contains: staging_kovan_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -598,10 +598,10 @@ input kovan_OriginTransfer_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: kovan_BlockChangedFilter
+  _change_block: staging_kovan_BlockChangedFilter
 }
 
-enum kovan_OriginTransfer_orderBy {
+enum staging_kovan_OriginTransfer_orderBy {
   id
   chainId
   transferId
@@ -625,151 +625,151 @@ enum kovan_OriginTransfer_orderBy {
 }
 
 type Query {
-  kovan_asset(
+  staging_kovan_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_Asset
-  kovan_assets(
+  ): staging_kovan_Asset
+  staging_kovan_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_Asset_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_Asset_filter
+    orderBy: staging_kovan_Asset_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_Asset!]!
-  kovan_assetBalance(
+  ): [staging_kovan_Asset!]!
+  staging_kovan_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_AssetBalance
-  kovan_assetBalances(
+  ): staging_kovan_AssetBalance
+  staging_kovan_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_AssetBalance_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_AssetBalance_filter
+    orderBy: staging_kovan_AssetBalance_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_AssetBalance!]!
-  kovan_router(
+  ): [staging_kovan_AssetBalance!]!
+  staging_kovan_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_Router
-  kovan_routers(
+  ): staging_kovan_Router
+  staging_kovan_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_Router_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_Router_filter
+    orderBy: staging_kovan_Router_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_Router!]!
-  kovan_originTransfer(
+  ): [staging_kovan_Router!]!
+  staging_kovan_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_OriginTransfer
-  kovan_originTransfers(
+  ): staging_kovan_OriginTransfer
+  staging_kovan_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_OriginTransfer_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_OriginTransfer_filter
+    orderBy: staging_kovan_OriginTransfer_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_OriginTransfer!]!
-  kovan_destinationTransfer(
+  ): [staging_kovan_OriginTransfer!]!
+  staging_kovan_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_DestinationTransfer
-  kovan_destinationTransfers(
+  ): staging_kovan_DestinationTransfer
+  staging_kovan_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_DestinationTransfer_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_DestinationTransfer_filter
+    orderBy: staging_kovan_DestinationTransfer_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_DestinationTransfer!]!
+  ): [staging_kovan_DestinationTransfer!]!
   """Access to subgraph metadata"""
-  kovan__meta(block: kovan_Block_height): kovan__Meta_
+  staging_kovan__meta(block: staging_kovan_Block_height): staging_kovan__Meta_
 }
 
-type kovan_Router {
+type staging_kovan_Router {
   id: ID!
   isActive: Boolean!
-  owner: kovan_Bytes
-  recipient: kovan_Bytes
-  proposedOwner: kovan_Bytes
+  owner: staging_kovan_Bytes
+  recipient: staging_kovan_Bytes
+  proposedOwner: staging_kovan_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: kovan_AssetBalance_orderBy, orderDirection: kovan_OrderDirection, where: kovan_AssetBalance_filter): [kovan_AssetBalance!]!
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: staging_kovan_AssetBalance_orderBy, orderDirection: staging_kovan_OrderDirection, where: staging_kovan_AssetBalance_filter): [staging_kovan_AssetBalance!]!
 }
 
-input kovan_Router_filter {
+input staging_kovan_Router_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -782,24 +782,24 @@ input kovan_Router_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  owner: kovan_Bytes
-  owner_not: kovan_Bytes
-  owner_in: [kovan_Bytes!]
-  owner_not_in: [kovan_Bytes!]
-  owner_contains: kovan_Bytes
-  owner_not_contains: kovan_Bytes
-  recipient: kovan_Bytes
-  recipient_not: kovan_Bytes
-  recipient_in: [kovan_Bytes!]
-  recipient_not_in: [kovan_Bytes!]
-  recipient_contains: kovan_Bytes
-  recipient_not_contains: kovan_Bytes
-  proposedOwner: kovan_Bytes
-  proposedOwner_not: kovan_Bytes
-  proposedOwner_in: [kovan_Bytes!]
-  proposedOwner_not_in: [kovan_Bytes!]
-  proposedOwner_contains: kovan_Bytes
-  proposedOwner_not_contains: kovan_Bytes
+  owner: staging_kovan_Bytes
+  owner_not: staging_kovan_Bytes
+  owner_in: [staging_kovan_Bytes!]
+  owner_not_in: [staging_kovan_Bytes!]
+  owner_contains: staging_kovan_Bytes
+  owner_not_contains: staging_kovan_Bytes
+  recipient: staging_kovan_Bytes
+  recipient_not: staging_kovan_Bytes
+  recipient_in: [staging_kovan_Bytes!]
+  recipient_not_in: [staging_kovan_Bytes!]
+  recipient_contains: staging_kovan_Bytes
+  recipient_not_contains: staging_kovan_Bytes
+  proposedOwner: staging_kovan_Bytes
+  proposedOwner_not: staging_kovan_Bytes
+  proposedOwner_in: [staging_kovan_Bytes!]
+  proposedOwner_not_in: [staging_kovan_Bytes!]
+  proposedOwner_contains: staging_kovan_Bytes
+  proposedOwner_not_contains: staging_kovan_Bytes
   proposedTimestamp: BigInt
   proposedTimestamp_not: BigInt
   proposedTimestamp_gt: BigInt
@@ -809,10 +809,10 @@ input kovan_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: kovan_BlockChangedFilter
+  _change_block: staging_kovan_BlockChangedFilter
 }
 
-enum kovan_Router_orderBy {
+enum staging_kovan_Router_orderBy {
   id
   isActive
   owner
@@ -823,155 +823,155 @@ enum kovan_Router_orderBy {
 }
 
 type Subscription {
-  kovan_asset(
+  staging_kovan_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_Asset
-  kovan_assets(
+  ): staging_kovan_Asset
+  staging_kovan_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_Asset_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_Asset_filter
+    orderBy: staging_kovan_Asset_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_Asset!]!
-  kovan_assetBalance(
+  ): [staging_kovan_Asset!]!
+  staging_kovan_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_AssetBalance
-  kovan_assetBalances(
+  ): staging_kovan_AssetBalance
+  staging_kovan_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_AssetBalance_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_AssetBalance_filter
+    orderBy: staging_kovan_AssetBalance_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_AssetBalance!]!
-  kovan_router(
+  ): [staging_kovan_AssetBalance!]!
+  staging_kovan_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_Router
-  kovan_routers(
+  ): staging_kovan_Router
+  staging_kovan_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_Router_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_Router_filter
+    orderBy: staging_kovan_Router_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_Router!]!
-  kovan_originTransfer(
+  ): [staging_kovan_Router!]!
+  staging_kovan_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_OriginTransfer
-  kovan_originTransfers(
+  ): staging_kovan_OriginTransfer
+  staging_kovan_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_OriginTransfer_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_OriginTransfer_filter
+    orderBy: staging_kovan_OriginTransfer_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_OriginTransfer!]!
-  kovan_destinationTransfer(
+  ): [staging_kovan_OriginTransfer!]!
+  staging_kovan_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): kovan_DestinationTransfer
-  kovan_destinationTransfers(
+  ): staging_kovan_DestinationTransfer
+  staging_kovan_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: kovan_DestinationTransfer_orderBy
-    orderDirection: kovan_OrderDirection
-    where: kovan_DestinationTransfer_filter
+    orderBy: staging_kovan_DestinationTransfer_orderBy
+    orderDirection: staging_kovan_OrderDirection
+    where: staging_kovan_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: kovan_Block_height
+    block: staging_kovan_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [kovan_DestinationTransfer!]!
+  ): [staging_kovan_DestinationTransfer!]!
   """Access to subgraph metadata"""
-  kovan__meta(block: kovan_Block_height): kovan__Meta_
+  staging_kovan__meta(block: staging_kovan_Block_height): staging_kovan__Meta_
 }
 
-enum kovan_TransferStatus {
+enum staging_kovan_TransferStatus {
   Executed
   Reconciled
   Completed
 }
 
-type kovan__Block_ {
+type staging_kovan__Block_ {
   """The hash of the block"""
-  hash: kovan_Bytes
+  hash: staging_kovan_Bytes
   """The block number"""
   number: Int!
 }
 
 """The type for the top-level _meta field"""
-type kovan__Meta_ {
+type staging_kovan__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
@@ -979,7 +979,7 @@ type kovan__Meta_ {
   and therefore asks for the latest  block
   
   """
-  block: kovan__Block_!
+  block: staging_kovan__Block_!
   """The deployment ID"""
   deployment: String!
   """If `true`, the subgraph encountered indexing errors at some past block"""
