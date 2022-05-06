@@ -140,10 +140,7 @@ export class NxtpSdkStableSwap {
     }
 
     const data = this.contracts.stableSwap.encodeFunctionData("calculateSwap", [tokenIndexFrom, tokenIndexTo, dx]);
-    // const approvedData = this.erc20Interface.encodeFunctionData("allowance", [
-    //   await this.signerAddress,
-    //   transactionManagerAddress,
-    // ]);
+
     const encoded = await this.chainReader.readTx({
       to: stableSwapContractAddress,
       data: data,
