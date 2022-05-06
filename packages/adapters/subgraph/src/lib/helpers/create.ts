@@ -5,13 +5,16 @@ import { PrefixInvalid } from "../errors";
 
 import { getMeshOptions } from "./shared";
 
-export const create = async (chaindata: Map<string, ChainData>): Promise<SubgraphMap> => {
+export const create = async (
+  chaindata: Map<string, ChainData>,
+  env: "staging" | "production" = "production",
+): Promise<SubgraphMap> => {
   const meshOptions = await getMeshOptions();
   const names = meshOptions.sources.map((source) => source.name);
 
   // Parse the Network names from the subgraph prefix names in the mesh config.
   const networks = names.map((name) => {
-    const result = name.match(/Connext_(.*)$/);
+    const result = env === "staging" ? name.match(/Connext_Staging_(.*)$/) : name.match(/Connext_(.*)$/);
     if (!result) {
       throw new PrefixInvalid(name, result);
     }
