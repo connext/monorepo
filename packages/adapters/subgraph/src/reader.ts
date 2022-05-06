@@ -6,6 +6,8 @@ import {
   Asset,
   OriginTransfer,
   DestinationTransfer,
+  RouterBalance,
+  AssetBalance,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -27,8 +29,6 @@ import { SubgraphMap } from "./lib/entities";
 
 let context: { config: SubgraphMap };
 export const getContext = () => context;
-
-export type RouterBalances = {};
 
 export class SubgraphReader {
   private static instance: SubgraphReader | undefined;
@@ -72,7 +72,7 @@ export class SubgraphReader {
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
@@ -88,7 +88,7 @@ export class SubgraphReader {
    */
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
@@ -104,16 +104,29 @@ export class SubgraphReader {
    * @param domain - The domain you want to determine liquidity on
    * @returns An array of asset ids and amounts of liquidity
    */
-  public async getAssetBalancesAllRouters(domain: string): Promise<Record<string, BigNumber>> {
+  public async getAssetBalancesAllRouters(domain: string): Promise<RouterBalance[]> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalancesAllRoutersQuery(prefix);
     const response = await execute(query);
-    const assetBalances = [...response.values()][0][0];
-    const balances: Record<string, BigNumber> = {};
-    assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
-    return balances;
+    const routers = [...response.values()][0][0];
+    return routers.map((router: any) => {
+      return {
+        assets: router.assetBalances.map((a: any) => {
+          return {
+            adoptedAsset: a.asset.adoptedAsset,
+            balance: a.amount,
+            blockNumber: a.asset.blockNumber,
+            canonicalDomain: a.asset.canonicalDomain,
+            canonicalId: a.asset.canonicalId,
+            domain,
+            local: a.asset.local,
+          } as AssetBalance;
+        }),
+        router: router.id,
+      } as RouterBalance;
+    });
   }
 
   /**
@@ -125,7 +138,7 @@ export class SubgraphReader {
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getRouterQuery(prefix, _router.toLowerCase());
     const response = await execute(query);
@@ -140,7 +153,7 @@ export class SubgraphReader {
    */
   public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetByLocalQuery(prefix, local.toLowerCase());
     const response = await execute(query);
@@ -158,7 +171,7 @@ export class SubgraphReader {
    */
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) as string;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId.toLowerCase());
     const response = await execute(query);

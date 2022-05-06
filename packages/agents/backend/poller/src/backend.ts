@@ -1,8 +1,8 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainData, getChainData, Logger } from "@connext/nxtp-utils";
+import { ChainData, createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
 import { Database, getDatabase } from "./adapters/database";
-import { bindSubgraph } from "./bindings/subgraph";
+import { bindPoller } from "./bindings";
 import { BackendConfig, getConfig } from "./config";
 
 export type AppContext = {
@@ -13,41 +13,46 @@ export type AppContext = {
   };
   config: BackendConfig;
   chainData: Map<string, ChainData>;
+  domains: string[]; // List of all supported domains.
 };
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeBackend = async () => {
+export const makeBackend = async (_configOverride?: BackendConfig) => {
+  const requestContext = createRequestContext("Backend Init");
+  const methodContext = createMethodContext(makeBackend.name);
+  context.adapters = {} as any;
+
+  /// MARK - Config
   // Get ChainData and parse out configuration.
   const chainData = await getChainData();
-  if (!chainData) {
-    console.error("Could not get chain data");
-    process.exit(1);
-  }
-  context.adapters = {} as any;
   context.chainData = chainData;
-  context.config = await getConfig(chainData);
+  context.config = _configOverride ?? (await getConfig());
   context.logger = new Logger({
     level: context.config.logLevel,
     name: "Backend",
   });
+  context.logger.info("Config generated", requestContext, methodContext, { config: context.config });
 
-  context.logger.info("Config generated", undefined, undefined, { config: context.config });
-
-  const chains: { [chain: string]: any } = {};
-  Object.entries(context.config.chains).forEach(([chainId, config]) => {
-    chains[chainId] = config.subgraph;
-  });
-
-  // setup adapters
+  /// MARK - Adapters
   context.adapters.subgraph = await SubgraphReader.create(chainData);
   context.adapters.database = await getDatabase();
 
-  // setup bindings
-  await bindSubgraph(context.config.subgraphPollInterval);
+  /// MARK - Domains
+  // Filter out the supported domains from the subgraph.
+  const supported = context.adapters.subgraph.supported;
+  context.domains = Object.keys(supported).filter((domain) => supported[domain]);
 
-  context.logger.info(`Backend initialized!
+  /// MARK - Bindings
+  await bindPoller();
+
+  context.logger.info("Backend initialized!", requestContext, methodContext, {
+    port: context.config.server.port,
+    host: context.config.server.host,
+    domains: context.domains,
+  });
+  context.logger.info(`
     _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
   _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
   _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|

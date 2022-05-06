@@ -1,11 +1,5 @@
-import {
-  createLoggingContext,
-  getSubgraphHealth,
-  getSubgraphName,
-  OriginTransfer,
-  XTransferStatus,
-  SubgraphQueryMetaParams,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { getSubgraphHealth } from "../../shared";
 
 import { getContext } from "../../backend";
 
@@ -14,40 +8,38 @@ export const updateTransfers = async () => {
     adapters: { subgraph, database },
     logger,
     config,
+    chainData,
+    domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("updateTransfers");
-
-  const domains = Object.keys(config.chains);
 
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
 
   for (const domain of domains) {
-    // TODO: Needs to implement the selection algorithm
-    const healthUrls = config.chains[domain].subgraph.runtime.map((url: { query: string; health: string }) => {
-      return { name: getSubgraphName(url.query), url: url.health };
-    });
-    let latestBlockNumber = 0;
-    for (const healthEp of healthUrls) {
-      const subgraphHealth = await getSubgraphHealth(healthEp.name, healthEp.url);
-      if (subgraphHealth && subgraphHealth.synced && subgraphHealth.latestBlock > latestBlockNumber)
-        latestBlockNumber = subgraphHealth.latestBlock;
+    // Update subgraph health and get the subgraphs' latest synced block.
+    // TODO: Handle multiple health endpoints (i.e. backups); handle multiple subgraphs for a given domain.
+    // TODO: Move this health check to SubgraphReader.
+    let latestBlockNumber: number | undefined = undefined;
+    const network = chainData.get(domain)!.network;
+    // TODO: Remove hardcoded.
+    const healthUrl = "https://api.thegraph.com/index-node/graphql";
+    const subgraphName = `nxtp-amarok-runtime-${config.environment === "staging" ? "staging" : "v0"}-${network}`;
+    const subgraphHealth = await getSubgraphHealth(subgraphName, healthUrl);
+    if (subgraphHealth && subgraphHealth.synced) {
+      latestBlockNumber = subgraphHealth.latestBlock;
     }
-
-    if (latestBlockNumber === 0) {
-      logger.error(
-        `Error getting the latestBlockNumber, domain: ${domain}, healthUrls: ${healthUrls.flat()}`,
-        requestContext,
-        methodContext,
-      );
-
+    if (!latestBlockNumber) {
+      logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
+        domain,
+        subgraphName,
+        latestBlockNumber,
+        healthUrl,
+      });
       continue;
     }
 
+    // Retrieve latest nonce from the database; will reflect the most recent origin transfers we've saved for this domain.
     const latestNonce = await database.getLatestNonce(domain);
-
-    logger.debug("Getting origin transfers", requestContext, methodContext, {
-      domain,
-    });
 
     subgraphQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
@@ -56,14 +48,13 @@ export const updateTransfers = async () => {
     });
   }
 
-  if ([...subgraphQueryMetaParams.keys()].length > 0) {
-    const transactions = await subgraph.getOriginTransfersForAll(subgraphQueryMetaParams);
-
-    logger.debug("Got xcalled transactions", requestContext, methodContext, {
-      transactions,
+  if (subgraphQueryMetaParams.size > 0) {
+    // Get origin transfers for all domains in the mapping.
+    const transfers = await subgraph.getOriginTransfersForAll(subgraphQueryMetaParams);
+    logger.info("Retrieved origin transfers", requestContext, methodContext, {
+      transfers: transfers.map((transfer) => transfer.transferId.slice(0, 8)),
     });
-
-    await database.saveTransfers(transactions);
+    await database.saveTransfers(transfers);
   }
 
   // now query pending transfers to see if any status updates happened

@@ -3,23 +3,27 @@ import interval from "interval-promise";
 
 import { getContext } from "../../backend";
 import { updateTransfers } from "../../lib/operations";
+import { updateRouters } from "../../lib/operations/routers";
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindSubgraph = async (_pollInterval: number) => {
+export const bindPoller = async (_pollInterval?: number) => {
+  const { config } = getContext();
+  const pollInterval = _pollInterval ?? config.pollInterval;
   interval(async (_) => {
-    await pollSubgraph();
-  }, _pollInterval);
+    await poller();
+  }, pollInterval);
 };
 
-export const pollSubgraph = async () => {
+export const poller = async () => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
+  const { requestContext, methodContext } = createLoggingContext(poller.name);
   try {
-    logger.debug("Polling subgraph", requestContext, methodContext);
+    logger.debug("Polling loop start", requestContext, methodContext);
     await updateTransfers();
-    logger.debug("Polled subgraph", requestContext, methodContext);
+    await updateRouters();
+    logger.debug("Polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(
       "Error getting txs, waiting for next loop",

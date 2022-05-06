@@ -12,7 +12,7 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres
   yarn workspace @connext/backend-poller dbmate up
   ```
 
-- Install [`dbmate`](https://github.com/amacneil/dbmate) (instructions for Mac OS):
+- Install [`dbmate`](https://github.com/amacneil/dbmate) (instructions for Mac OS / Unix):
 
   ```sh
   brew install dbmate
@@ -41,27 +41,15 @@ DATABASE_URL=postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable
 ```json
 {
   "logLevel": "debug",
-  "chains": {
-    "1111": {
-      "subgraph": {
-        "runtime": [
-          {
-            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby",
-            "health": "https://api.thegraph.com/index-node/graphql"
-          }
-        ]
-      }
-    },
-    "2221": {
-      "subgraph": {
-        "runtime": [
-          {
-            "query": "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan",
-            "health": "https://api.thegraph.com/index-node/graphql"
-          }
-        ]
-      }
-    }
+  "environment": "staging",
+  "database": {
+    "url": "<your db url>"
+  },
+  "server": {
+    "adminToken": "<your admin token>",
+    "port": 8085,
+    "host": "localhost",
+    "requestLimit": 10
   }
 }
 ```

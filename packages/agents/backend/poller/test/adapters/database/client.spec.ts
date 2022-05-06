@@ -155,7 +155,7 @@ describe("Database client", () => {
     expect(nonce).equal(1234);
   });
 
-  it.only("should set a router balance", async () => {
+  it("should set a router balance", async () => {
     const routerBalances: RouterBalance[] = [
       {
         router: mkAddress("0xa"),
