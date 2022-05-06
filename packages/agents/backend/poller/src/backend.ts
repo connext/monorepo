@@ -2,7 +2,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
 import { Database, getDatabase } from "./adapters/database";
-import { bindPoller, bindServer } from "./bindings";
+import { bindPoller } from "./bindings";
 import { BackendConfig, getConfig } from "./config";
 
 export type AppContext = {
@@ -46,7 +46,6 @@ export const makeBackend = async (_configOverride?: BackendConfig) => {
 
   /// MARK - Bindings
   await bindPoller();
-  await bindServer();
 
   context.logger.info("Backend initialized!", requestContext, methodContext, {
     port: context.config.server.port,
