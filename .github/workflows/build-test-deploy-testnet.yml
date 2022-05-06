@@ -414,6 +414,7 @@ jobs:
     outputs:
       router-tags: ${{ needs.terraform-services-core-staging.outputs.router-tags }}
       sequencer-tags: ${{ needs.terraform-services-core-staging.outputs.sequencer-tags }}
+      poller-tags: ${{ needs.terraform-services-backend-staging.outputs.poller-tags }}
 
   terraform-services-core-prod:
     needs: [e2e-tests]
@@ -421,6 +422,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router: ${{ fromJSON(needs.e2e-tests.outputs.router-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -466,5 +468,60 @@ jobs:
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops/testnet/prod/core
+        run: |
+          terraform apply -var-file=tfvars.json -auto-approve
+
+  terraform-services-backend-prod:
+    needs: [e2e-tests]
+    env:
+      AWS_PROFILE: aws-deployer-connext
+      TF_VAR_full_image_name_poller: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: "3.7.2"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: Fooji/create-aws-profile-action@v1
+        with:
+          profile: aws-deployer-connext
+          region: us-east-1
+          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Decrypt Testnet Secrets
+        id: decrypt
+        run: sops -d ops/env/testnet/backend/secrets.prod.json > ops/testnet/prod/backend/tfvars.json
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops/testnet/prod/backend
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops/testnet/prod/backend
+        run: |
+          terraform plan -var-file=tfvars.json
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops/testnet/prod/backend
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
