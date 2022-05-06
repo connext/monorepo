@@ -20,6 +20,10 @@ variable "environment" {
   default     = "testnet"
 }
 
+variable "domain" {
+  default = "core"
+}
+
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
