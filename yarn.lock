@@ -3177,17 +3177,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-<<<<<<< HEAD
-"@nomad-xyz/configuration@npm:^0.1.0-rc.12, @nomad-xyz/configuration@npm:^0.1.0-rc.16":
-  version: 0.1.0-rc.19
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.19"
-  checksum: 221e936b7abe1d18cca1d2097839c26c3ba6df29797b07c16f8cf5331c1fd624087840faa56ce10923e30aa8ed599e15c9706fc26508770bbe5b498d88072120
-=======
 "@nomad-xyz/configuration@npm:^0.1.0-rc.12, @nomad-xyz/configuration@npm:^0.1.0-rc.18":
   version: 0.1.0-rc.20
   resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.20"
   checksum: df1852233cbd55a6605443d03f40530a00163f80dc7b377a249871ffafb620a77f8d204885c2a9905e5d4d91e4229e99da56549c17add45bb3d7c5e7dbe8e663
->>>>>>> amarok
   languageName: node
   linkType: hard
 
@@ -4920,8 +4913,6 @@ __metadata:
     get-intrinsic: ^1.1.1
     is-string: ^1.0.7
   checksum: f6f24d834179604656b7bec3e047251d5cc87e9e87fab7c175c61af48e80e75acd296017abcde21fb52292ab6a2a449ab2ee37213ee48c8709f004d75983f9c5
-<<<<<<< HEAD
-=======
   languageName: node
   linkType: hard
 
@@ -4929,7 +4920,6 @@ __metadata:
   version: 1.1.0
   resolution: "array-slice@npm:1.1.0"
   checksum: 3c8ecc7eefe104c97e2207e1d5644be160924c89e08b1807f3cad77f4a8fb10150fc275ebfab90dc02064d178b010cad31b69c9386769d172da270be5e233c51
->>>>>>> amarok
   languageName: node
   linkType: hard
 
@@ -6620,15 +6610,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332":
-<<<<<<< HEAD
-  version: 1.0.30001336
-  resolution: "caniuse-lite@npm:1.0.30001336"
-  checksum: 05577b295f2c3780f4a2c814c4255b8b73353ff5a7238f5f97fe3b2bb61b78d77be7df52e9646b829bbde8f0efbfbad971324001086f9069ec144e4fc88ed5b8
-=======
   version: 1.0.30001338
   resolution: "caniuse-lite@npm:1.0.30001338"
   checksum: 80ac481b20aac13d6168825762e2ad9b9895d36451088b921400c3cd818185e6d113c2d202e82cf3b88f4d2311b3064507f2e3f9fe9f0935fcaf42d9d4f15570
->>>>>>> amarok
   languageName: node
   linkType: hard
 
@@ -7658,8 +7642,8 @@ __metadata:
   linkType: hard
 
 "cross-undici-fetch@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "cross-undici-fetch@npm:0.4.2"
+  version: 0.4.3
+  resolution: "cross-undici-fetch@npm:0.4.3"
   dependencies:
     abort-controller: ^3.0.0
     busboy: ^1.6.0
@@ -7668,7 +7652,7 @@ __metadata:
     node-fetch: ^2.6.7
     undici: ^5.1.0
     web-streams-polyfill: ^3.2.0
-  checksum: 5b56b32611645275d898eaaae7c25f01b58924f5dff171e22cd4cb699fd08b44c19b44de6109a84eb82a13bbbc159bf63f24c78104a1d8b9160fc5644b78f0cc
+  checksum: 10cdc06566517a8446eaa4d0c7f90a67f689040e2910a7daf4eeb1b2cc6df2ecc65752fdbfe1e3f6c89ac300062156688b508c2f482ca4ab59e1e5667264a082
   languageName: node
   linkType: hard
 
@@ -8370,15 +8354,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.118":
-<<<<<<< HEAD
-  version: 1.4.134
-  resolution: "electron-to-chromium@npm:1.4.134"
-  checksum: e0b6052e742e581b2619816921c923c2c0db7bb7ca11da7a7f8c7de624e82cfd2b3905ea0ffc159383813e44c660bef2ebe78199e38787aa5e04a3c957ed30a3
-=======
   version: 1.4.136
   resolution: "electron-to-chromium@npm:1.4.136"
   checksum: 98eaecc752fcff816a344615d1652fc417ff7e2cb63a4d2b8947784cf4d74da3e5271186b3cf6cb62ba829beb1af552d6b3b98072ecb6c2e59b281bf4a6a5909
->>>>>>> amarok
   languageName: node
   linkType: hard
 
