@@ -60,6 +60,26 @@ CREATE TABLE public.routers (
 
 
 --
+-- Name: routers_with_balances; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.routers_with_balances AS
+ SELECT routers.address,
+    asset_balances.asset_canonical_id,
+    asset_balances.asset_domain,
+    asset_balances.router_address,
+    asset_balances.balance,
+    assets.local,
+    assets.adopted,
+    assets.canonical_id,
+    assets.canonical_domain,
+    assets.domain
+   FROM ((public.routers
+     JOIN public.asset_balances ON ((routers.address = asset_balances.router_address)))
+     JOIN public.assets ON (((asset_balances.asset_canonical_id = assets.canonical_id) AND ((asset_balances.asset_domain)::text = (assets.domain)::text))));
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -183,4 +203,5 @@ ALTER TABLE ONLY public.asset_balances
 INSERT INTO public.schema_migrations (version) VALUES
     ('20220419085941'),
     ('20220504052525'),
-    ('20220505103130');
+    ('20220505103130'),
+    ('20220506152644');

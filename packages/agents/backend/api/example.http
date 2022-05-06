@@ -16,3 +16,6 @@ GET {{postgrestUrl}}/transfers?status=eq.Reconciled
 
 ### GET XCALLED TRANSFERS BY USER
 GET {{postgrestUrl}}/transfers?status=eq.XCalled&xcall_caller=eq.0x30c9e1d6b14283c645f6bb15abb590345b63ab6e
+
+### GET ROUTERS
+GET {{postgrestUrl}}/routers_with_balances
