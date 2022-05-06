@@ -34,14 +34,6 @@ locals {
             address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
           }
         ]
-        subgraph = {
-          runtime = [
-            {
-              query  = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby"
-              health = "https://api.thegraph.com/index-node/graphql"
-            }
-          ]
-        }
       }
       "2221" = {
         assets = [
@@ -51,14 +43,6 @@ locals {
           }
         ]
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
-        subgraph = {
-          runtime = [
-            {
-              query  = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan"
-              health = "https://api.thegraph.com/index-node/graphql"
-            }
-          ]
-        }
       }
     }
 
