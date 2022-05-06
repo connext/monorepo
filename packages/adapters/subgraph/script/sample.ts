@@ -10,7 +10,7 @@ export const test = async () => {
   // kovan => (domain: 2221, network: kovan)
 
   const chainData = await getChainData();
-  const subgraphReader = await SubgraphReader.create(chainData!);
+  const subgraphReader = await SubgraphReader.create(chainData!, "staging");
 
   // test -> query()
   const query = gql`
