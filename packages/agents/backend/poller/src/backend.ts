@@ -48,8 +48,6 @@ export const makeBackend = async (_configOverride?: BackendConfig) => {
   await bindPoller();
 
   context.logger.info("Backend initialized!", requestContext, methodContext, {
-    port: context.config.server.port,
-    host: context.config.server.host,
     domains: context.domains,
   });
   context.logger.info(`
