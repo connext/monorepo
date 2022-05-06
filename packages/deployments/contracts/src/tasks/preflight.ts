@@ -96,6 +96,9 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
           deployer,
         );
+        console.log("tokenRegistry: ", tokenRegistry.address);
+        console.log("canonicalDomain: ", canonicalDomain);
+        console.log("canonicalTokenId: ", canonicalTokenId);
         localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
         if (localAsset === constants.AddressZero) {
           throw new Error(
@@ -172,12 +175,17 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
 
       if (relayer) {
-        console.log("*** Whitelisting relayer!");
-        // Add relayer
-        const tx = await connext.addRelayer(relayer);
-        console.log("addRelayer tx:", tx.hash);
-        await tx.wait(1);
-        console.log("*** Added relayer to whitelist", relayer);
+        const approved = await connext.approvedRelayers(relayer);
+        if (approved) {
+          console.log("*** Relayer already approved!");
+        } else {
+          console.log("*** Whitelisting relayer!");
+          // Add relayer
+          const tx = await connext.addRelayer(relayer);
+          console.log("addRelayer tx:", tx.hash);
+          await tx.wait(1);
+          console.log("*** Added relayer to whitelist", relayer);
+        }
       } else {
         console.log("*** No relayer to whitelist!");
       }

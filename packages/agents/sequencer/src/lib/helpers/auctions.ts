@@ -1,13 +1,13 @@
-import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
-export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: string): string => {
+export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, local: string): string => {
   const {
     adapters: { contracts },
   } = getContext();
   // Sanity check.
-  if (!transfer.xcall) {
+  if (!transfer.origin) {
     throw new Error("XTransfer provided did not have XCall present!");
   }
 
@@ -16,15 +16,15 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: s
     params: {
       originDomain: transfer.originDomain,
       destinationDomain: transfer.destinationDomain,
-      to: transfer.to,
-      callData: transfer.callData,
+      to: transfer.xparams.to,
+      callData: transfer.xparams.callData,
     },
     local,
     routers: bids.map((b) => b.router),
     routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-    amount: transfer.xcall.localAmount,
+    amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
-    originSender: transfer.xcall.caller,
+    originSender: transfer.origin.xcall.caller,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);
 };
@@ -49,9 +49,9 @@ export const getDestinationLocalAsset = async (
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
-  const canonicalId = sendingDomainAsset!.canonicalId as string;
+  const canonicalId = sendingDomainAsset!.canonicalId ;
 
-  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(Number(_destinationDomain), canonicalId);
+  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 
   const localAddress = destinationDomainAsset!.local;
   return localAddress;

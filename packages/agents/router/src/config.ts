@@ -1,8 +1,7 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
-import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
+import { ajv, ChainData, TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { getHelpers } from "./lib/helpers";

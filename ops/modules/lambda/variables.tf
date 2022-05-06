@@ -6,7 +6,15 @@ variable "public_subnets" {
   type = list(string)
 }
 
+variable "aws_lambda_s3_bucket" {
+  description = "bucket where the lambda function resides"
+}
+
 variable "vpc_id" {}
+
+variable "region" {
+  description = "region in which to run the resource"
+}
 
 variable "stage" {
   description = "stage of deployment"
@@ -32,4 +40,6 @@ variable "log_group_arn" {
   description = "log group arn"
 }
 
-
+variable "domain" {
+  description = "domain of deployment"
+}
