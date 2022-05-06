@@ -1,0 +1,319 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.11;
+
+// import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+import {LibConnextStorage} from "../libraries/LibConnextStorage.sol";
+import {Modifiers} from "../utils/Modifiers.sol";
+
+/**
+ * @title ProposedOwnable
+ * @notice Contract module which provides a basic access control mechanism,
+ * where there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed via a two step process:
+ * 1. Call `proposeOwner`
+ * 2. Wait out the delay period
+ * 3. Call `acceptOwner`
+ *
+ * @dev This module is used through inheritance. It will make available the
+ * modifier `onlyOwner`, which can be applied to your functions to restrict
+ * their use to the owner.
+ *
+ * @dev The majority of this code was taken from the openzeppelin Ownable
+ * contract
+ *
+ */
+contract ProposedOwnableFacet is Modifiers {
+  // ========== Custom Errors ===========
+  error ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
+  error ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
+  error ProposedOwnableFacet__renounceRouterOwnership_noProposal();
+  error ProposedOwnableFacet__renounceRouterOwnership_delayNotElapsed();
+  error ProposedOwnableFacet__proposeAssetOwnershipRenunciation_noOwnershipChange();
+  error ProposedOwnableFacet__renounceAssetOwnership_noOwnershipChange();
+  error ProposedOwnableFacet__renounceAssetOwnership_noProposal();
+  error ProposedOwnableFacet__renounceAssetOwnership_delayNotElapsed();
+  error ProposedOwnableFacet__proposeNewOwner_invalidProposal();
+  error ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
+  error ProposedOwnableFacet__renounceOwnership_noProposal();
+  error ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
+  error ProposedOwnableFacet__renounceOwnership_invalidProposal();
+  error ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
+  error ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
+
+  // ============ Properties ============
+
+  uint256 private constant _delay = 7 days;
+
+  event RouterOwnershipRenunciationProposed(uint256 timestamp);
+
+  event RouterOwnershipRenounced(bool renounced);
+
+  event AssetOwnershipRenunciationProposed(uint256 timestamp);
+
+  event AssetOwnershipRenounced(bool renounced);
+
+  event OwnershipProposed(address indexed proposedOwner);
+
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+  // TODO: move to DiamondInit
+  // /**
+  //  * @dev Initializes the contract setting the deployer as the initial
+  //  */
+  // function __ProposedOwnable_init() internal onlyInitializing {
+  //   __ProposedOwnable_init_unchained();
+  // }
+
+  // function __ProposedOwnable_init_unchained() internal onlyInitializing {
+  //   _setOwner(msg.sender);
+  // }
+
+  /**
+   * @notice Returns the address of the current owner.
+   */
+  function owner() public view returns (address) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._owner;
+  }
+
+  /**
+   * @notice Returns the address of the proposed owner.
+   */
+  function proposed() public view returns (address) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._proposed;
+  }
+
+  /**
+   * @notice Returns the address of the proposed owner.
+   */
+  function proposedTimestamp() public view returns (uint256) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._proposedOwnershipTimestamp;
+  }
+
+  /**
+   * @notice Returns the timestamp when router ownership was last proposed to be renounced
+   */
+  function routerOwnershipTimestamp() public view returns (uint256) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._routerOwnershipTimestamp;
+  }
+
+  /**
+   * @notice Returns the timestamp when asset ownership was last proposed to be renounced
+   */
+  function assetOwnershipTimestamp() public view returns (uint256) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._assetOwnershipTimestamp;
+  }
+
+  /**
+   * @notice Returns the delay period before a new owner can be accepted.
+   */
+  function delay() public view returns (uint256) {
+    return _delay;
+  }
+
+  // /**
+  //  * @notice Indicates if the ownership of the router whitelist has
+  //  * been renounced
+  //  */
+  // function isRouterOwnershipRenounced() public view returns (bool) {
+  //   return _owner == address(0) || _routerOwnershipRenounced;
+  // }
+
+  /**
+   * @notice Indicates if the ownership of the router whitelist has
+   * been renounced
+   */
+  function proposeRouterOwnershipRenunciation() public onlyOwner {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Use contract as source of truth
+    // Will fail if all ownership is renounced by modifier
+    if (ds._routerOwnershipRenounced)
+      revert ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
+
+    // Begin delay, emit event
+    _setRouterOwnershipTimestamp();
+  }
+
+  /**
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
+  function renounceRouterOwnership() public onlyOwner {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Contract as sournce of truth
+    // Will fail if all ownership is renounced by modifier
+    if (ds._routerOwnershipRenounced) revert ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
+
+    // Ensure there has been a proposal cycle started
+    if (ds._routerOwnershipTimestamp == 0) revert ProposedOwnableFacet__renounceRouterOwnership_noProposal();
+
+    // Delay has elapsed
+    if ((block.timestamp - ds._routerOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableFacet__renounceRouterOwnership_delayNotElapsed();
+
+    // Set renounced, emit event, reset timestamp to 0
+    _setRouterOwnership(true);
+  }
+
+  /**
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
+  function isAssetOwnershipRenounced() public view returns (bool) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._owner == address(0) || ds._assetOwnershipRenounced;
+  }
+
+  /**
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
+  function proposeAssetOwnershipRenunciation() public onlyOwner {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Contract as sournce of truth
+    // Will fail if all ownership is renounced by modifier
+    if (ds._assetOwnershipRenounced)
+      revert ProposedOwnableFacet__proposeAssetOwnershipRenunciation_noOwnershipChange();
+
+    // Start cycle, emit event
+    _setAssetOwnershipTimestamp();
+  }
+
+  /**
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
+  function renounceAssetOwnership() public onlyOwner {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Contract as sournce of truth
+    // Will fail if all ownership is renounced by modifier
+    if (ds._assetOwnershipRenounced) revert ProposedOwnableFacet__renounceAssetOwnership_noOwnershipChange();
+
+    // Ensure there has been a proposal cycle started
+    if (ds._assetOwnershipTimestamp == 0) revert ProposedOwnableFacet__renounceAssetOwnership_noProposal();
+
+    // Ensure delay has elapsed
+    if ((block.timestamp - ds._assetOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableFacet__renounceAssetOwnership_delayNotElapsed();
+
+    // Set ownership, reset timestamp, emit event
+    _setAssetOwnership(true);
+  }
+
+  /**
+   * @notice Indicates if the ownership has been renounced() by
+   * checking if current owner is address(0)
+   */
+  function renounced() public view returns (bool) {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    return ds._owner == address(0);
+  }
+
+  /**
+   * @notice Sets the timestamp for an owner to be proposed, and sets the
+   * newly proposed owner as step 1 in a 2-step process
+   */
+  function proposeNewOwner(address newlyProposed) public onlyOwner {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Contract as source of truth
+    if (ds._proposed == newlyProposed && newlyProposed != address(0))
+      revert ProposedOwnableFacet__proposeNewOwner_invalidProposal();
+
+    // Sanity check: reasonable proposal
+    if (ds._owner == newlyProposed) revert ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
+
+    _setProposed(newlyProposed);
+  }
+
+  /**
+   * @notice Renounces ownership of the contract after a delay
+   */
+  function renounceOwnership() public onlyOwner {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Ensure there has been a proposal cycle started
+    if (ds._proposedOwnershipTimestamp == 0) revert ProposedOwnableFacet__renounceOwnership_noProposal();
+
+    // Ensure delay has elapsed
+    if ((block.timestamp - ds._proposedOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableFacet__renounceOwnership_delayNotElapsed();
+
+    // Require proposed is set to 0
+    if (ds._proposed != address(0)) revert ProposedOwnableFacet__renounceOwnership_invalidProposal();
+
+    // Emit event, set new owner, reset timestamp
+    _setOwner(ds._proposed);
+  }
+
+  /**
+   * @notice Transfers ownership of the contract to a new account (`newOwner`).
+   * Can only be called by the current owner.
+   */
+  function acceptProposedOwner() public onlyProposed {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    // Contract as source of truth
+    if (ds._owner == ds._proposed) revert ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
+
+    // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because
+    // the only time this would happen is if the _proposed was never
+    // set (will fail from modifier) or if the owner == _proposed (checked
+    // above)
+
+    // Ensure delay has elapsed
+    if ((block.timestamp - ds._proposedOwnershipTimestamp) <= _delay)
+      revert ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed();
+
+    // Emit event, set new owner, reset timestamp
+    _setOwner(ds._proposed);
+  }
+
+  ////// INTERNAL //////
+
+  function _setRouterOwnershipTimestamp() private {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    ds._routerOwnershipTimestamp = block.timestamp;
+    emit RouterOwnershipRenunciationProposed(ds._routerOwnershipTimestamp);
+  }
+
+  function _setRouterOwnership(bool value) private {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    ds._routerOwnershipRenounced = value;
+    ds._routerOwnershipTimestamp = 0;
+    emit RouterOwnershipRenounced(value);
+  }
+
+  function _setAssetOwnershipTimestamp() private {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    ds._assetOwnershipTimestamp = block.timestamp;
+    emit AssetOwnershipRenunciationProposed(ds._assetOwnershipTimestamp);
+  }
+
+  function _setAssetOwnership(bool value) private {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    ds._assetOwnershipRenounced = value;
+    ds._assetOwnershipTimestamp = 0;
+    emit AssetOwnershipRenounced(value);
+  }
+
+  function _setOwner(address newOwner) private {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    address oldOwner = ds._owner;
+    ds._owner = newOwner;
+    ds._proposedOwnershipTimestamp = 0;
+    emit OwnershipTransferred(oldOwner, newOwner);
+  }
+
+  function _setProposed(address newlyProposed) private {
+    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
+    ds._proposedOwnershipTimestamp = block.timestamp;
+    ds._proposed = newlyProposed;
+    emit OwnershipProposed(ds._proposed);
+  }
+}
