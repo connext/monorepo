@@ -17,13 +17,6 @@ export const create = async (
   const meshOptions = await getMeshOptions();
   const names = meshOptions.sources.map((source) => source.name);
 
-  console.log(
-    names.filter((name) => {
-      const result = getNetwork(name, env);
-      return !!result;
-    }),
-  );
-
   // Parse the Network names from the subgraph prefix names in the mesh config.
   const networks = names
     .filter((name) => {
@@ -32,14 +25,12 @@ export const create = async (
     })
     .map((name) => {
       const result = getNetwork(name, env);
-      console.log(result);
       if (!result) {
         throw new PrefixInvalid(name, result);
       }
       // Should be the first match group.
       return result[1].toLowerCase();
     });
-  console.log(networks);
   const config: SubgraphMap = {
     sources: {},
     supported: {},

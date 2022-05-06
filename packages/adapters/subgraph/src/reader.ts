@@ -94,11 +94,9 @@ export class SubgraphReader {
     const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
-    console.log({ query });
     const response = await execute(query);
-    console.log(response);
 
-    const assetBalances = [...response.values()][0][0];
+    const assetBalances = [...response.values()][0] ? [...response.values()][0][0] : [];
     const balances: Record<string, BigNumber> = {};
     assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
     return balances;
@@ -117,7 +115,7 @@ export class SubgraphReader {
 
     const query = getRouterQuery(prefix, _router.toLowerCase());
     const response = await execute(query);
-    const router = [...response.values()][0][0];
+    const router = [...response.values()][0] ? [...response.values()][0][0] : undefined;
     return !!router?.id;
   }
 
@@ -132,7 +130,7 @@ export class SubgraphReader {
 
     const query = getAssetByLocalQuery(prefix, local.toLowerCase());
     const response = await execute(query);
-    const assets = [...response.values()][0][0];
+    const assets = [...response.values()][0] ? [...response.values()][0][0] : [];
     if (assets.length === 0) {
       return undefined;
     }
@@ -150,7 +148,7 @@ export class SubgraphReader {
 
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId.toLowerCase());
     const response = await execute(query);
-    const assets = [...response.values()][0][0];
+    const assets = [...response.values()][0] ? [...response.values()][0][0] : [];
     if (assets.length === 0) {
       return undefined;
     }
@@ -170,7 +168,7 @@ export class SubgraphReader {
 
     const query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
-    const transfers = [...response.values()][0][0];
+    const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
     return transfers.length === 1 ? parser.originTransfer(transfers[0]) : undefined;
   }
 
@@ -230,8 +228,8 @@ export class SubgraphReader {
 
     const query = getOriginTransfersQueryByDomain(prefix, domain, fromNonce, destinationDomains);
     const response = await execute(query);
-    const transfers = [...response.values()][0][0];
-    return transfers.map(parser.originTransfer);
+    const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
+    return transfers.length > 0 ? transfers.map(parser.originTransfer) : [];
   }
 
   /**
