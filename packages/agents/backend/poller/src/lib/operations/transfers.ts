@@ -1,6 +1,6 @@
 import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
-import { getSubgraphHealth } from "../../shared";
 
+import { getSubgraphHealth } from "../../shared";
 import { getContext } from "../../backend";
 
 export const updateTransfers = async () => {

@@ -72,7 +72,7 @@ export class NxtpSdkUtils {
 
   async getRouterLiquidity(domain: string, router: string): Promise<{ [asset: string]: string }[]> {
     /*  using backend api */
-    console.log(domain);
+    console.log(domain, router);
     return [{ assetId: "0x0000000000000000000000000000000000000000" }];
   }
 
