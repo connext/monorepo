@@ -39,10 +39,10 @@
     "@sinclair/typebox": "^0.23.4",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.4",
+    "fastify": "^3.27.4",
     "interval-promise": "^1.4.0",
     "pg": "^8.7.3",
-    "zapatos": "^5.0.2",
-    "fastify": "^3.27.4"
+    "zapatos": "^5.0.2"
   },
   "devDependencies": {
     "@types/pg": "^8.6.5",
