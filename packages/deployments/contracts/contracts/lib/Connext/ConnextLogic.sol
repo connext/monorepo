@@ -909,7 +909,7 @@ library ConnextLogic {
         // balance read about it
 
         uint256 starting = IERC20Upgradeable(_adopted).balanceOf(address(this));
-        uint256 sponsored = _args.sponsorVault.reimburseLiquidityFees(_adopted, _args.executeArgs.amount);
+        uint256 sponsored = _args.sponsorVault.reimburseLiquidityFees(_adopted, _args.executeArgs.amount, _args.executeArgs.params.to);
 
         // Validate correct amounts are transferred
         if (IERC20Upgradeable(_adopted).balanceOf(address(this)) != starting + sponsored) {

@@ -34,25 +34,25 @@ contract SponsorVault is ISponsorVault, Ownable{
   address public connext;
 
   /**
-   * @notice The origin domain to this domain gas token rates
+   * @notice The origin domain to this domain native token rates
    * @dev Used when no oracle is available
    */
   mapping(uint32 => Rate) public rates;
 
   /**
-   * @notice The maximum amount this domain gas token to be sponsored for relayer fee
+   * @notice The maximum amount this domain native token to be sponsored for relayer fee
    */
   uint256 public relayerFeeCap;
 
   /**
-   * @notice The origin domain to this domain gas token oracle
+   * @notice The origin domain to this domain native token oracle
    * @dev Used to calculate sponsored relayer fee
    */
   IGasTokenOracle public gasTokenOracle;
 
   /**
-   * @notice The this domain gas token to token exchange
-   * @dev Used to exchange this domain gas token to the token used to pay liquidity fees
+   * @notice The this domain native token to token exchange
+   * @dev Used to exchange this domain native token to the token used to pay liquidity fees
    */
   mapping(address => ITokenExchange) public tokenExchanges;
 
@@ -83,7 +83,7 @@ contract SponsorVault is ISponsorVault, Ownable{
   event RelayerFeeCapUpdated(uint256 oldRelayerFeeCap, uint256 newRelayerFeeCap, address caller);
 
   /**
-   * @notice Emitted when a new gas token oracle is set
+   * @notice Emitted when a new native token oracle is set
    */
   event GasTokenOracleUpdated(address oldOracle, address newOracle, address caller);
 
@@ -91,6 +91,16 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @notice Emitted when a new token exchange is set
    */
   event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
+
+  /**
+   * @notice Emitted when a liquidity fee is reimbursed
+   */
+  event ReimburseLiquidityFees(address token, uint256 amount, address receiver);
+
+  /**
+   * @notice Emitted when a relayer fee is reimbursed
+   */
+  event ReimburseRelayerFees(uint256 amount, address receiver);
 
   /**
    * @notice Emitted when liquidity is added
@@ -130,7 +140,7 @@ contract SponsorVault is ISponsorVault, Ownable{
   }
 
   /**
-   * @notice Sets default origin domain gas token to this domain gas token rate.
+   * @notice Sets default origin domain native token to this domain native token rate.
    * @param _originDomain The origin domain
    * @param _rate The default rate
    */
@@ -152,7 +162,7 @@ contract SponsorVault is ISponsorVault, Ownable{
   }
 
   /**
-   * @notice Sets of an oracle that provides origin domain gas token to this domain gas token rates.
+   * @notice Sets of an oracle that provides origin domain native token to this domain native token rates.
    * @param _gasTokenOracle The oracle address
    */
   function setGasTokenOracle(address _gasTokenOracle) external onlyOwner {
@@ -161,7 +171,7 @@ contract SponsorVault is ISponsorVault, Ownable{
   }
 
   /**
-   * @notice Sets the address of an exchange used for swapping this domain gas token for a given token.
+   * @notice Sets the address of an exchange used for swapping this domain native token for a given token.
    * @param _token The address of the token
    * @param _tokenExchange The oracle of the exchange
    */
@@ -177,22 +187,24 @@ contract SponsorVault is ISponsorVault, Ownable{
   /**
    * @notice Performs liquidity fee reimbursement.
    * @dev Uses the token exchange or liquidity deposited in this contract.
+   *      The `_receiver` address is only used for emitting in the event.
    * @param _token The address of the token
    * @param _liquidityFee The liquidity fee amount
+   * @param _receiver The address of the receiver
    * @return Sponsored liquidity fee amount
    */
-  function reimburseLiquidityFees(address _token, uint256 _liquidityFee) external override onlyConnext returns (uint256) {
+  function reimburseLiquidityFees(address _token, uint256 _liquidityFee, address _receiver) external override onlyConnext returns (uint256) {
     uint256 sponsoredFee;
 
     if (address(tokenExchanges[_token]) != address(0)) {
+      uint256 currentBalance = address(this).balance;
       ITokenExchange tokenExchange = tokenExchanges[_token];
-      uint256 amountIn = tokenExchange.getInGivenExactOut(_token, _liquidityFee);
 
-      // TODO: should it swap in the leftover and sponsor some of the liquidity fee?
-      sponsoredFee = _liquidityFee;
-      if (address(this).balance < amountIn) return 0;
+      uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, _liquidityFee);
+      amountIn = currentBalance >= amountIn ? amountIn : currentBalance;
 
-      tokenExchange.swapExactOut{value: amountIn}(_token, _liquidityFee, msg.sender);
+      // sponsored fee may end being less than _liquidityFee due to slippage
+      sponsoredFee = tokenExchange.swapExactIn{value: amountIn}(_token, msg.sender);
 
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
@@ -204,39 +216,51 @@ contract SponsorVault is ISponsorVault, Ownable{
       }
     }
 
+    emit ReimburseLiquidityFees(_token, sponsoredFee, _receiver);
+
     return sponsoredFee;
   }
 
   /**
-   * @notice Performs relayer fee reimbursement sending the corresponding amount of this domain gas token to `_to`.
+   * @notice Performs relayer fee reimbursement sending the corresponding amount of this domain native token to `_to`.
    * @dev Uses the configured oracle or default rate otherwise.
    * @param _originDomain The origin domain id
    * @param _to The fee recipient
-   * @param _originRelayerFee The relayer fee amount in origin domain gas token
+   * @param _originRelayerFee The relayer fee amount in origin domain native token
    */
   function reimburseRelayerFees(uint32 _originDomain, address payable _to, uint256 _originRelayerFee) external override onlyConnext {
     uint256 sponsoredFee;
+    uint256 num;
+    uint256 den;
+
     if (address(gasTokenOracle) != address(0)) {
-      (uint256 num, uint256 den) = gasTokenOracle.getRate(_originDomain);
+      (num, den) = gasTokenOracle.getRate(_originDomain);
 
       sponsoredFee = _originRelayerFee * num / den;
-    } else if (rates[_originDomain].den != 0) {
-      sponsoredFee = _originRelayerFee * rates[_originDomain].num / rates[_originDomain].den;
+    } else {
+      num = rates[_originDomain].num;
+      den = rates[_originDomain].den;
     }
 
-    // calculated or max
-    sponsoredFee = sponsoredFee > relayerFeeCap ? relayerFeeCap : sponsoredFee;
-    // calculated or leftover
-    sponsoredFee = sponsoredFee > address(this).balance ? address(this).balance : sponsoredFee;
+    if (den != 0) {
+      sponsoredFee = _originRelayerFee * num / den;
 
-    Address.sendValue(_to, sponsoredFee);
+      // calculated or max
+      sponsoredFee = sponsoredFee > relayerFeeCap ? relayerFeeCap : sponsoredFee;
+      // calculated or leftover
+      sponsoredFee = sponsoredFee > address(this).balance ? address(this).balance : sponsoredFee;
+
+      Address.sendValue(_to, sponsoredFee);
+
+    }
+    emit ReimburseRelayerFees(sponsoredFee, _to);
   }
 
   /**
-   * @notice Adds liquidity to the sponsor vault, gas token or ERC20.
+   * @notice Adds liquidity to the sponsor vault, native token or ERC20.
    * @dev Anyone can add liquidity.
-   * @param _token The ERC20 token address or address zero for gas token
-   * @param _amount The amount of ERC20 to deposit or zero for gas token since the amount is sent in msg.value
+   * @param _token The ERC20 token address or address zero for native token
+   * @param _amount The amount of ERC20 to deposit or zero for native token since the amount is sent in msg.value
    */
   function deposit(address _token, uint256 _amount) external payable {
     if (_token != address(0)) {
@@ -247,9 +271,9 @@ contract SponsorVault is ISponsorVault, Ownable{
   }
 
   /**
-   * @notice Removes liquidity from the sponsor vault, gas token or ERC20.
+   * @notice Removes liquidity from the sponsor vault, native token or ERC20.
    * @dev Only the owner can remove liquidity.
-   * @param _token The ERC20 token address or address zero for gas token
+   * @param _token The ERC20 token address or address zero for native token
    * @param _receiver The receiver of the tokens
    * @param _amount The amount to remove
    */

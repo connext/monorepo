@@ -5,7 +5,7 @@ interface ISponsorVault {
   // Should be callable by the Connext contract only. Should:
   // - call `addLiquidityFor` to send the calculated fee to the router
   // - return the amount of liquidity router was reimbursed
-  function reimburseLiquidityFees(address adopted, uint256 amount) external returns (uint256);
+  function reimburseLiquidityFees(address adopted, uint256 amount, address _receiver) external returns (uint256);
 
   // Should be callable by the Connext contract only. Should:
   // - take in an amount of relayer fee specified on origin chain

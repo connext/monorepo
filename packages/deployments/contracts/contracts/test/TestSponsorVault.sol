@@ -23,7 +23,7 @@ contract TestSponsorVault is ISponsorVault {
     relayerFeeToSend = _relayerFeeToSend;
   }
 
-  function reimburseLiquidityFees(address adopted, uint256 amount) external override returns (uint256) {
+  function reimburseLiquidityFees(address adopted, uint256 amount, address receiver) external override returns (uint256) {
     IERC20Upgradeable(adopted).transfer(msg.sender, liquidityFeeToSend);
     return liquidityFeeToReturn;
   }

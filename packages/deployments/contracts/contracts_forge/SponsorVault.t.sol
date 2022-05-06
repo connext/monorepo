@@ -8,12 +8,17 @@ import {SponsorVault, ITokenExchange, IGasTokenOracle} from "../contracts/Sponso
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 
 contract MockTokenExchange is ITokenExchange {
-  function getInGivenExactOut(address token, uint256 exactOut) external returns (uint256) {
-    return exactOut / 10;
+  uint256 private sawpResult;
+  function setSwapResult(uint256 _sawpResult) external {
+    sawpResult = _sawpResult;
   }
 
-  function swapExactOut(address token, uint256 exactOut, address recipient) external payable returns (uint256) {
-    return exactOut;
+  function getInGivenExpectedOut(address token, uint256 expectedOut) external returns (uint256) {
+    return expectedOut / 10;
+  }
+
+  function swapExactIn(address token, address recipient) external payable returns (uint256) {
+    return sawpResult;
   }
 }
 
@@ -38,6 +43,8 @@ contract SponsorVaultTest is ForgeHelper {
   event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
   event Deposit(address token, uint256 amount, address caller);
   event Withdraw(address token, address receiver, uint256 amount, address caller);
+  event ReimburseLiquidityFees(address token, uint256 amount, address receiver);
+  event ReimburseRelayerFees(uint256 amount, address receiver);
 
   // ============ Storage ============
 
@@ -93,88 +100,6 @@ contract SponsorVaultTest is ForgeHelper {
     SponsorVault testVault = new SponsorVault(_connext);
 
     assertEq(testVault.connext(), _connext);
-  }
-
-  // ============ deposit ============
-  function test_SponsorVault__deposit_works_adding_native_token(uint256 _amount) public {
-    vm.assume(address(this).balance >= _amount);
-
-    uint256 balanceBefore = address(vault).balance;
-
-    vm.expectEmit(true, true, true, true);
-    emit Deposit(address(0), _amount, address(this));
-
-    vault.deposit{value: _amount}(address(0), 0);
-
-    assertEq(address(vault).balance, balanceBefore + _amount);
-  }
-
-  function test_SponsorVault__deposit_works_adding_ERC20_token(uint256 _amount) public {
-    TestERC20 someToken = new TestERC20();
-    vm.assume(someToken.balanceOf(address(this)) >= _amount);
-
-    uint256 balanceBefore = someToken.balanceOf(address(vault));
-
-    someToken.approve(address(vault), 1);
-
-    vm.expectEmit(true, true, true, true);
-    emit Deposit(address(someToken), 1, address(this));
-
-    vault.deposit(address(someToken), 1);
-
-    assertEq(someToken.balanceOf(address(vault)), balanceBefore + 1);
-  }
-
-  // ============ withdraw ============
-
-  function test_SponsorVault__withdraw_failsIfNotOwner() public {
-    vm.prank(address(0));
-    vm.expectRevert("Ownable: caller is not the owner");
-
-    vault.withdraw(address(0), address(this), 1);
-  }
-
-  function test_SponsorVault__withdraw_fails_removing_more_than_owned() public {
-    uint256 balance = address(vault).balance;
-
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__withdraw_invalidAmount.selector)
-    );
-
-    vault.withdraw(address(0), address(this), balance + 1);
-  }
-
-  function test_SponsorVault__withdraw_works_removing_native_token(uint256 _amount) public {
-    vm.assume(address(vault).balance >= _amount);
-
-    uint256 balanceThisBefore = address(this).balance;
-    uint256 balanceVaultBefore = address(vault).balance;
-
-    vm.expectEmit(true, true, true, true);
-    emit Withdraw(address(0), address(this), _amount, address(this));
-
-    vault.withdraw(address(0), address(this), _amount);
-
-    assertEq(address(this).balance, balanceThisBefore + _amount);
-    assertEq(address(vault).balance, balanceVaultBefore - _amount);
-  }
-
-  function test_SponsorVault__withdraw_works_removing_ERC20_token(uint256 _amount) public {
-    TestERC20 someToken = new TestERC20();
-    someToken.approve(address(vault), someToken.balanceOf(address(this)));
-    vault.deposit(address(someToken), someToken.balanceOf(address(this)));
-
-    uint256 balanceThisBefore = someToken.balanceOf(address(this));
-    uint256 balanceVaultBefore = someToken.balanceOf(address(vault));
-    vm.assume(balanceVaultBefore >= _amount);
-
-    vm.expectEmit(true, true, true, true);
-    emit Withdraw(address(someToken), address(this), _amount, address(this));
-
-    vault.withdraw(address(someToken), address(this), _amount);
-
-    assertEq(someToken.balanceOf(address(vault)), balanceVaultBefore - _amount);
-    assertEq(someToken.balanceOf(address(this)), balanceThisBefore + _amount);
   }
 
   // ============ setConnext ============
@@ -309,6 +234,88 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(address(vault.tokenExchanges(_token)), _tokenExchange);
   }
 
+  // ============ deposit ============
+  function test_SponsorVault__deposit_works_adding_native_token(uint256 _amount) public {
+    vm.assume(address(this).balance >= _amount);
+
+    uint256 balanceBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Deposit(address(0), _amount, address(this));
+
+    vault.deposit{value: _amount}(address(0), 0);
+
+    assertEq(address(vault).balance, balanceBefore + _amount);
+  }
+
+  function test_SponsorVault__deposit_works_adding_ERC20_token(uint256 _amount) public {
+    TestERC20 someToken = new TestERC20();
+    vm.assume(someToken.balanceOf(address(this)) >= _amount);
+
+    uint256 balanceBefore = someToken.balanceOf(address(vault));
+
+    someToken.approve(address(vault), 1);
+
+    vm.expectEmit(true, true, true, true);
+    emit Deposit(address(someToken), 1, address(this));
+
+    vault.deposit(address(someToken), 1);
+
+    assertEq(someToken.balanceOf(address(vault)), balanceBefore + 1);
+  }
+
+  // ============ withdraw ============
+
+  function test_SponsorVault__withdraw_failsIfNotOwner() public {
+    vm.prank(address(0));
+    vm.expectRevert("Ownable: caller is not the owner");
+
+    vault.withdraw(address(0), address(this), 1);
+  }
+
+  function test_SponsorVault__withdraw_fails_removing_more_than_owned() public {
+    uint256 balance = address(vault).balance;
+
+    vm.expectRevert(
+      abi.encodeWithSelector(SponsorVault.SponsorVault__withdraw_invalidAmount.selector)
+    );
+
+    vault.withdraw(address(0), address(this), balance + 1);
+  }
+
+  function test_SponsorVault__withdraw_works_removing_native_token(uint256 _amount) public {
+    vm.assume(address(vault).balance >= _amount);
+
+    uint256 balanceThisBefore = address(this).balance;
+    uint256 balanceVaultBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Withdraw(address(0), address(this), _amount, address(this));
+
+    vault.withdraw(address(0), address(this), _amount);
+
+    assertEq(address(this).balance, balanceThisBefore + _amount);
+    assertEq(address(vault).balance, balanceVaultBefore - _amount);
+  }
+
+  function test_SponsorVault__withdraw_works_removing_ERC20_token(uint256 _amount) public {
+    TestERC20 someToken = new TestERC20();
+    someToken.approve(address(vault), someToken.balanceOf(address(this)));
+    vault.deposit(address(someToken), someToken.balanceOf(address(this)));
+
+    uint256 balanceThisBefore = someToken.balanceOf(address(this));
+    uint256 balanceVaultBefore = someToken.balanceOf(address(vault));
+    vm.assume(balanceVaultBefore >= _amount);
+
+    vm.expectEmit(true, true, true, true);
+    emit Withdraw(address(someToken), address(this), _amount, address(this));
+
+    vault.withdraw(address(someToken), address(this), _amount);
+
+    assertEq(someToken.balanceOf(address(vault)), balanceVaultBefore - _amount);
+    assertEq(someToken.balanceOf(address(this)), balanceThisBefore + _amount);
+  }
+
   // ============ reimburseLiquidityFees ============
 
   function test_SponsorVault__reimburseLiquidityFees_failsIfNotConnext() public {
@@ -317,7 +324,7 @@ contract SponsorVaultTest is ForgeHelper {
       abi.encodeWithSelector(SponsorVault.SponsorVault__onlyConnext.selector)
     );
 
-    vault.reimburseLiquidityFees(address(1), 1);
+    vault.reimburseLiquidityFees(address(1), 1, address(1));
   }
 
   function test_SponsorVault__reimburseLiquidityFees_returns_0_if_no_tokenExchanges_and_no_token_balance() public {
@@ -326,64 +333,116 @@ contract SponsorVaultTest is ForgeHelper {
 
     uint256 balanceBefore = address(vault).balance;
 
-    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken2), 1);
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken2), 0, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken2), 1, address(1));
 
     assertEq(sponsored, 0);
     assertEq(address(vault).balance, balanceBefore);
   }
 
-  function test_SponsorVault__reimburseLiquidityFees_returns_0_if_tokenExchanges_it_set_but_no_enough_eth() public {
+  function test_SponsorVault__reimburseLiquidityFees_returns_should_work_with_tokenExchange_swap_balance_when_no_enough_native_token_to_cover_all_required_in() public {
+    tokenExchange.setSwapResult(1);
     vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
 
     uint256 balanceBefore = address(vault).balance;
 
     vm.mockCall(
       address(tokenExchange),
-      abi.encodeWithSelector(ITokenExchange.getInGivenExactOut.selector),
+      abi.encodeWithSelector(ITokenExchange.getInGivenExpectedOut.selector),
       abi.encode(uint256(balanceBefore + 1))
     );
 
-    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), 1);
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), 1, address(1));
 
-    assertEq(sponsored, 0);
-    assertEq(address(vault).balance, balanceBefore);
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), 10, address(1));
+
+    assertEq(sponsored, 1);
+    assertEq(address(vault).balance, 0);
   }
 
-  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange() public {
+  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange_swap_amount_required_amount_of_native_token() public {
     uint256 liquidityFee = 500;
-    uint256 amountIn = tokenExchange.getInGivenExactOut(address(localToken), liquidityFee);
+    tokenExchange.setSwapResult(500);
+    uint256 amountIn = tokenExchange.getInGivenExpectedOut(address(localToken), liquidityFee);
 
     vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
 
     uint256 balanceBefore = address(vault).balance;
-    uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
 
     vm.expectCall(
       address(tokenExchange),
-      abi.encodeWithSelector(ITokenExchange.swapExactOut.selector, address(localToken), liquidityFee, address(this))
+      abi.encodeWithSelector(ITokenExchange.swapExactIn.selector, address(localToken), address(this))
     );
 
-    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee);
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), liquidityFee, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
 
     assertEq(sponsored, liquidityFee);
     assertEq(address(vault).balance, balanceBefore - amountIn);
-    assertEq(localToken.balanceOf(address(vault)), balanceLocalBefore);
+  }
+
+  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange_sponsored_less_than_liquidityFee_due_to_slippage() public {
+    uint256 liquidityFee = 500;
+    tokenExchange.setSwapResult(500 - 5);
+    uint256 amountIn = tokenExchange.getInGivenExpectedOut(address(localToken), liquidityFee);
+
+    vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
+
+    uint256 balanceBefore = address(vault).balance;
+
+    vm.expectCall(
+      address(tokenExchange),
+      abi.encodeWithSelector(ITokenExchange.swapExactIn.selector, address(localToken), address(this))
+    );
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), liquidityFee - 5, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
+
+    assertEq(sponsored, liquidityFee - 5);
+    assertEq(address(vault).balance, balanceBefore - amountIn);
   }
 
   function test_SponsorVault__reimburseLiquidityFees_should_work_with_no_tokenExchange_but_token_balance() public {
     uint256 liquidityFee = 500;
 
     assertEq(address(vault.tokenExchanges(address(1))), address(0));
-    assertTrue(localToken.balanceOf(address(vault)) >= liquidityFee);
 
     uint256 balanceBefore = address(vault).balance;
     uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
 
-    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee);
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), liquidityFee, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
 
     assertEq(sponsored, liquidityFee);
-    assertEq(address(vault).balance, balanceBefore);
+    assertEq(address(vault).balance, balanceBefore );
     assertEq(localToken.balanceOf(address(vault)), balanceLocalBefore - liquidityFee);
+  }
+
+  function test_SponsorVault__reimburseLiquidityFees_should_work_with_no_tokenExchange_but_token_balance_sending_available_amount_if_no_enough() public {
+    uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
+    uint256 liquidityFee = balanceLocalBefore + 10;
+
+    assertEq(address(vault.tokenExchanges(address(1))), address(0));
+
+    uint256 balanceBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), balanceLocalBefore, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
+
+    assertEq(sponsored, balanceLocalBefore);
+    assertEq(address(vault).balance, balanceBefore);
+    assertEq(localToken.balanceOf(address(vault)), 0);
   }
 
   // ============ reimburseRelayerFees ============
@@ -412,6 +471,9 @@ contract SponsorVaultTest is ForgeHelper {
 
     uint256 balanceBefore = to.balance;
 
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(0, to);
+
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
     assertEq(to.balance, balanceBefore);
@@ -428,9 +490,14 @@ contract SponsorVaultTest is ForgeHelper {
 
     uint256 balanceBefore = to.balance;
 
+    uint256 expectedFee = (relayerFee * _rate.num / _rate.den);
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(expectedFee, to);
+
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
-    assertEq(to.balance, balanceBefore + (relayerFee * _rate.num / _rate.den));
+    assertEq(to.balance, balanceBefore + expectedFee);
   }
 
   function test_SponsorVault__reimburseRelayerFees_should_use_rate_when_no_gasTokenOracle_is_set_partially_sponsoring_the_fee_when_no_enough_balance() public {
@@ -444,6 +511,9 @@ contract SponsorVaultTest is ForgeHelper {
     vault.setRate(originDomain, _rate);
 
     uint256 balanceBefore = to.balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(initialVaultBalance, to);
 
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
@@ -460,6 +530,9 @@ contract SponsorVaultTest is ForgeHelper {
     vault.setRate(originDomain, _rate);
 
     uint256 balanceBefore = to.balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(relayerFeeCap, to);
 
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
@@ -492,9 +565,14 @@ contract SponsorVaultTest is ForgeHelper {
       abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain)
     );
 
+    uint256 expectedFee = (relayerFee * gasTokenOracleRate.num / gasTokenOracleRate.den);
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(expectedFee, to);
+
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
-    assertEq(to.balance, balanceBefore + (relayerFee * gasTokenOracleRate.num / gasTokenOracleRate.den));
+    assertEq(to.balance, balanceBefore + expectedFee);
   }
 
   function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_but_return_relayerFeeCap_when_fee_is_to_high() public {
@@ -522,6 +600,9 @@ contract SponsorVaultTest is ForgeHelper {
       address(gasTokenOracle),
       abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain)
     );
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(relayerFeeCap, to);
 
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
@@ -554,6 +635,9 @@ contract SponsorVaultTest is ForgeHelper {
       address(gasTokenOracle),
       abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain)
     );
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(initialVaultBalance, to);
 
     vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
 
