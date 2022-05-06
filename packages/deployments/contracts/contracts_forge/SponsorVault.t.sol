@@ -36,6 +36,8 @@ contract SponsorVaultTest is ForgeHelper {
   event RelayerFeeCapUpdated(uint256 oldRelayerFeeCap, uint256 newRelayerFeeCap, address caller);
   event GasTokenOracleUpdated(address oldOracle, address newOracle, address caller);
   event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
+  event Deposit(address token, uint256 amount, address caller);
+  event Withdraw(address token, address receiver, uint256 amount, address caller);
 
   // ============ Storage ============
 
@@ -51,6 +53,8 @@ contract SponsorVaultTest is ForgeHelper {
 
   SponsorVault.Rate rate = SponsorVault.Rate(1, 1);
 
+  receive() external payable {}
+
   function setUp() public {
     localToken = new TestERC20();
     localToken2 = new TestERC20();
@@ -59,9 +63,12 @@ contract SponsorVaultTest is ForgeHelper {
 
     vault = new SponsorVault(connext);
 
+    localToken.approve(address(vault), type(uint256).max);
+    localToken2.approve(address(vault), type(uint256).max);
+
     // fund the vault
-    address(vault).call{value: 100 ether}("");
-    localToken.transfer(address(vault), 10 ether);
+    vault.deposit{value: 100 ether}(address(0), 0);
+    vault.deposit(address(localToken), 10 ether);
   }
 
   // ============ Utils ============
@@ -86,6 +93,88 @@ contract SponsorVaultTest is ForgeHelper {
     SponsorVault testVault = new SponsorVault(_connext);
 
     assertEq(testVault.connext(), _connext);
+  }
+
+  // ============ deposit ============
+  function test_SponsorVault__deposit_works_adding_native_token(uint256 _amount) public {
+    vm.assume(address(this).balance >= _amount);
+
+    uint256 balanceBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Deposit(address(0), _amount, address(this));
+
+    vault.deposit{value: _amount}(address(0), 0);
+
+    assertEq(address(vault).balance, balanceBefore + _amount);
+  }
+
+  function test_SponsorVault__deposit_works_adding_ERC20_token(uint256 _amount) public {
+    TestERC20 someToken = new TestERC20();
+    vm.assume(someToken.balanceOf(address(this)) >= _amount);
+
+    uint256 balanceBefore = someToken.balanceOf(address(vault));
+
+    someToken.approve(address(vault), 1);
+
+    vm.expectEmit(true, true, true, true);
+    emit Deposit(address(someToken), 1, address(this));
+
+    vault.deposit(address(someToken), 1);
+
+    assertEq(someToken.balanceOf(address(vault)), balanceBefore + 1);
+  }
+
+  // ============ withdraw ============
+
+  function test_SponsorVault__withdraw_failsIfNotOwner() public {
+    vm.prank(address(0));
+    vm.expectRevert("Ownable: caller is not the owner");
+
+    vault.withdraw(address(0), address(this), 1);
+  }
+
+  function test_SponsorVault__withdraw_fails_removing_more_than_owned() public {
+    uint256 balance = address(vault).balance;
+
+    vm.expectRevert(
+      abi.encodeWithSelector(SponsorVault.SponsorVault__withdraw_invalidAmount.selector)
+    );
+
+    vault.withdraw(address(0), address(this), balance + 1);
+  }
+
+  function test_SponsorVault__withdraw_works_removing_native_token(uint256 _amount) public {
+    vm.assume(address(vault).balance >= _amount);
+
+    uint256 balanceThisBefore = address(this).balance;
+    uint256 balanceVaultBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Withdraw(address(0), address(this), _amount, address(this));
+
+    vault.withdraw(address(0), address(this), _amount);
+
+    assertEq(address(this).balance, balanceThisBefore + _amount);
+    assertEq(address(vault).balance, balanceVaultBefore - _amount);
+  }
+
+  function test_SponsorVault__withdraw_works_removing_ERC20_token(uint256 _amount) public {
+    TestERC20 someToken = new TestERC20();
+    someToken.approve(address(vault), someToken.balanceOf(address(this)));
+    vault.deposit(address(someToken), someToken.balanceOf(address(this)));
+
+    uint256 balanceThisBefore = someToken.balanceOf(address(this));
+    uint256 balanceVaultBefore = someToken.balanceOf(address(vault));
+    vm.assume(balanceVaultBefore >= _amount);
+
+    vm.expectEmit(true, true, true, true);
+    emit Withdraw(address(someToken), address(this), _amount, address(this));
+
+    vault.withdraw(address(someToken), address(this), _amount);
+
+    assertEq(someToken.balanceOf(address(vault)), balanceVaultBefore - _amount);
+    assertEq(someToken.balanceOf(address(this)), balanceThisBefore + _amount);
   }
 
   // ============ setConnext ============

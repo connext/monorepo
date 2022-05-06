@@ -63,6 +63,7 @@ contract SponsorVault is ISponsorVault, Ownable{
   error SponsorVault__setGasTokenOracle_invalidOriginDomain();
   error SponsorVault__setTokenExchange_invalidAdopted();
   error SponsorVault__onlyConnext();
+  error SponsorVault__withdraw_invalidAmount();
 
   // ============ Events ============
 
@@ -90,6 +91,16 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @notice Emitted when a new token exchange is set
    */
   event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
+
+  /**
+   * @notice Emitted when liquidity is added
+   */
+  event Deposit(address token, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when liquidity is removed
+   */
+  event Withdraw(address token, address receiver, uint256 amount, address caller);
 
   // ============ Modifiers ============
 
@@ -163,8 +174,6 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   // ============ External functions ============
 
-  receive() external payable {}
-
   /**
    * @notice Performs liquidity fee reimbursement.
    * @dev Uses the token exchange or liquidity deposited in this contract.
@@ -222,6 +231,40 @@ contract SponsorVault is ISponsorVault, Ownable{
 
     Address.sendValue(_to, sponsoredFee);
   }
+
+  /**
+   * @notice Adds liquidity to the sponsor vault, gas token or ERC20.
+   * @dev Anyone can add liquidity.
+   * @param _token The ERC20 token address or address zero for gas token
+   * @param _amount The amount of ERC20 to deposit or zero for gas token since the amount is sent in msg.value
+   */
+  function deposit(address _token, uint256 _amount) external payable {
+    if (_token != address(0)) {
+      IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+    }
+
+    emit Deposit(_token, _token != address(0) ? _amount : msg.value, msg.sender);
+  }
+
+  /**
+   * @notice Removes liquidity from the sponsor vault, gas token or ERC20.
+   * @dev Only the owner can remove liquidity.
+   * @param _token The ERC20 token address or address zero for gas token
+   * @param _receiver The receiver of the tokens
+   * @param _amount The amount to remove
+   */
+  function withdraw(address _token, address _receiver, uint256 _amount) external onlyOwner {
+    if (_token == address(0)) {
+      if (address(this).balance < _amount) revert SponsorVault__withdraw_invalidAmount();
+      payable(_receiver).call{value: _amount}("");
+    } else {
+      if (IERC20(_token).balanceOf(address(this)) < _amount) revert SponsorVault__withdraw_invalidAmount();
+      IERC20(_token).safeTransfer(_receiver, _amount);
+    }
+
+    emit Withdraw(_token, _receiver, _amount, msg.sender);
+  }
+
 
   // ============ Internal functions ============
 
