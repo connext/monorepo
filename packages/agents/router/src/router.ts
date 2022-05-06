@@ -22,7 +22,7 @@ const context: AppContext = {} as any;
 export const getContext = () => context;
 
 export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
-  const requestContext = createRequestContext("makeRouter");
+  const requestContext = createRequestContext("Router Init");
   const methodContext = createMethodContext(makeRouter.name);
 
   try {

@@ -1,0 +1,19 @@
+{
+  "extends": "../../../../config/tsconfig.node.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "dist",
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
+  },
+  "exclude": ["test/**/*.ts"],
+  "include": ["src/**/*.ts", "knexfile.ts", "migrations/**/*.ts"],
+  "references": [
+    {
+      "path": "../../../adapters/subgraph/tsconfig.build.json"
+    },
+    {
+      "path": "../../../utils/tsconfig.build.json"
+    }
+  ]
+}

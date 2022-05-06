@@ -1,8 +1,9 @@
 import { NxtpError, DestinationTransfer, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { getHelpers } from ".";
 import { XQueryResultParseError } from "../errors";
+
+import { getHelpers } from ".";
 
 // Used for sanity checking: both OriginTransfer and DestinationTransfer will have these fields defined.
 export const SHARED_TRANSFER_ENTITY_REQUIREMENTS = ["transferId"];
@@ -133,7 +134,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
       // Status (Executed | Reconciled | Completed)
       status: entity.status,
-      routers: entity.routers,
+      routers: entity.routers.map((router: any) => router.id),
 
       // Assets
       assets: {

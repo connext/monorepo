@@ -32,4 +32,9 @@ variable "log_group_arn" {
   description = "log group arn"
 }
 
+variable "domain" {
+  description = "domain of deployment"
+}
+
+
 

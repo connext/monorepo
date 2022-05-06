@@ -10,8 +10,8 @@ import { ChainData, getChainData } from "..";
 export const getChainIdFromDomain = async (domain: string, _chainData?: Map<string, ChainData>): Promise<number> => {
   const chainData = _chainData ?? (await getChainData());
 
-  if (chainData!.has(domain)) {
-    return chainData!.get(domain)!.chainId;
+  if (chainData.has(domain)) {
+    return chainData.get(domain)!.chainId;
   } else {
     throw new Error(`ChainData doesn't have a record for domain: ${domain}`);
   }
@@ -26,8 +26,8 @@ export const getChainIdFromDomain = async (domain: string, _chainData?: Map<stri
  */
 export const getDomainFromChainId = async (chainId: number, _chainData?: Map<string, ChainData>): Promise<string> => {
   const chaindata = _chainData ?? (await getChainData());
-  for (const domain of chaindata!.keys()) {
-    if (chaindata!.get(domain)!.chainId == chainId) return domain;
+  for (const domain of chaindata.keys()) {
+    if (chaindata.get(domain)!.chainId == chainId) return domain;
   }
 
   throw new Error(`ChainData doesn't have a record for chain: ${chainId}`);

@@ -29,6 +29,11 @@ resource "aws_lambda_function" "cloudwatch-logdna-lambda" {
       LOGDNA_TAGS = "${var.stage},${var.environment},${var.service},amarok"
     }
   }
+  tags                       = {
+    Stage = var.stage
+    Environment = var.environment
+    Domain = var.domain
+  }
 }
 
 resource "aws_lambda_permission" "allow-cloudwatch" {
