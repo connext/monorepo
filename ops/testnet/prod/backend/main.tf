@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "nxtp-terraform-testnet-staging-backend"
+    bucket = "nxtp-terraform-testnet-prod-backend"
     key    = "state/"
     region = "us-east-1"
   }
@@ -25,7 +25,7 @@ data "aws_route53_zone" "primary" {
 module "poller_db" {
   domain                = "poller"
   source                = "../../../modules/db"
-  identifier            = "rds-postgres-poller-${var.environment}-${var.stage}"
+  identifier            = "rds-postgres-poller-${var.environment}"
   instance_class        = "db.t2.small"
   allocated_storage     = 5
   max_allocated_storage = 10

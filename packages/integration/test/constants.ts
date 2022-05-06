@@ -341,12 +341,6 @@ export const BACKEND_CONFIG: Promise<BackendConfig> = (async (): Promise<Backend
     database: {
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
     },
-    server: {
-      adminToken: "c",
-      port: 8082,
-      host: LOCALHOST,
-      requestLimit: 10,
-    },
     logLevel: "debug",
     pollInterval: 4_000,
     environment: "staging",

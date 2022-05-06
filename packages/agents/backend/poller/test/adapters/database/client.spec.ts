@@ -1,6 +1,17 @@
 import { restore, reset } from "sinon";
-import { expect, mkAddress, mkBytes32, mock, RouterBalance, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
+import {
+  expect,
+  mkAddress,
+  mkBytes32,
+  mock,
+  RouterBalance,
+  XTransfer,
+  XTransferStatus,
+  convertToRouterBalance,
+} from "@connext/nxtp-utils";
 import pg from "pg";
+import { newDb } from "pg-mem";
+import { utils } from "ethers";
 
 import {
   getTransferByTransferId,
@@ -9,8 +20,6 @@ import {
   saveTransfers,
   saveRouterBalances,
 } from "../../../src/adapters/database/client";
-import { newDb } from "pg-mem";
-import { BigNumber, utils } from "ethers";
 
 const db = newDb();
 const { Pool } = db.adapters.createPg();
@@ -246,23 +255,7 @@ describe("Database client", () => {
       JOIN asset_balances ON routers."address" = asset_balances.router_address
       JOIN assets ON asset_balances.asset_canonical_id = assets.canonical_id AND asset_balances.asset_domain = assets.domain`,
     );
-    routerBalances.forEach((router) => {
-      router.assets.forEach((asset) => {
-        const found = res.rows.find(
-          (row: any) =>
-            row.address === router.router &&
-            row.asset_canonical_id === asset.canonicalId &&
-            row.asset_domain === asset.domain &&
-            row.router_address === router.router &&
-            BigNumber.from(BigInt(row.balance)).eq(asset.balance) &&
-            row.local === asset.local &&
-            row.adopted === asset.adoptedAsset &&
-            row.canonical_id === asset.canonicalId &&
-            row.canonical_domain === asset.canonicalDomain &&
-            row.domain === asset.domain,
-        );
-        expect(found).to.be.ok;
-      });
-    });
+    const rb = convertToRouterBalance(res.rows);
+    expect(rb).to.deep.eq(routerBalances);
   });
 });

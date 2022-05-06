@@ -1,5 +1,5 @@
 variable "region" {
-  default = "us-east-1"
+  default = "us-west-1"
 }
 
 variable "cidr_block" {
@@ -18,6 +18,10 @@ variable "stage" {
 variable "environment" {
   description = "env we're deploying to"
   default     = "testnet"
+}
+
+variable "domain" {
+  default = "core"
 }
 
 variable "full_image_name_router" {
@@ -45,7 +49,7 @@ variable "admin_token_router" {
 
 
 variable "certificate_arn_testnet" {
-  default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
+  default = "arn:aws:acm:us-west-1:679752396206:certificate/0ebbf095-681a-4a0a-9dc9-fa70cb80166a"
 }
 
 variable "rinkeby_alchemy_key_0" {
