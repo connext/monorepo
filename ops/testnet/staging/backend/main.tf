@@ -25,7 +25,7 @@ data "aws_route53_zone" "primary" {
 module "poller_db" {
   domain                = "poller"
   source                = "../../../modules/db"
-  identifier            = "rds-postgres-poller-${var.environment}"
+  identifier            = "rds-postgres-poller-${var.environment}-${var.stage}"
   instance_class        = "db.t2.small"
   allocated_storage     = 5
   max_allocated_storage = 10
