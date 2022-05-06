@@ -55,18 +55,19 @@ module "router" {
 }
 
 module "router_logdna_lambda_exporter" {
-  source          = "../../../modules/lambda"
-  stage           = var.stage
-  environment     = var.environment
-  domain          = var.domain
-  log_group_name  = module.router.log_group_name
-  logdna_key      = var.logdna_key
-  private_subnets = module.network.private_subnets
-  public_subnets  = module.network.public_subnets
-  service         = "router"
-
-  vpc_id        = module.network.vpc_id
-  log_group_arn = module.router.log_group_arn
+  source               = "../../../modules/lambda"
+  stage                = var.stage
+  environment          = var.environment
+  domain               = var.domain
+  region               = var.region
+  log_group_name       = module.router.log_group_name
+  logdna_key           = var.logdna_key
+  private_subnets      = module.network.private_subnets
+  public_subnets       = module.network.public_subnets
+  service              = "router"
+  vpc_id               = module.network.vpc_id
+  log_group_arn        = module.router.log_group_arn
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 
@@ -101,17 +102,19 @@ module "sequencer" {
 }
 
 module "sequencer_logdna_lambda_exporter" {
-  source          = "../../../modules/lambda"
-  stage           = var.stage
-  environment     = var.environment
-  domain          = var.domain
-  log_group_name  = module.sequencer.log_group_name
-  logdna_key      = var.logdna_key
-  private_subnets = module.network.private_subnets
-  public_subnets  = module.network.public_subnets
-  service         = "sequencer"
-  vpc_id          = module.network.vpc_id
-  log_group_arn   = module.sequencer.log_group_arn
+  source               = "../../../modules/lambda"
+  stage                = var.stage
+  environment          = var.environment
+  domain               = var.domain
+  region               = var.region
+  log_group_name       = module.sequencer.log_group_name
+  logdna_key           = var.logdna_key
+  private_subnets      = module.network.private_subnets
+  public_subnets       = module.network.public_subnets
+  service              = "sequencer"
+  vpc_id               = module.network.vpc_id
+  log_group_arn        = module.sequencer.log_group_arn
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 module "web3signer" {
@@ -155,10 +158,10 @@ module "network" {
 }
 
 module "sgs" {
-  source      = "../../../modules/sgs/core"
-  environment = var.environment
-  stage       = var.stage
-  domain      = var.domain
+  source         = "../../../modules/sgs/core"
+  environment    = var.environment
+  stage          = var.stage
+  domain         = var.domain
   ecs_task_sg_id = module.network.ecs_task_sg
   vpc_cdir_block = module.network.vpc_cdir_block
   vpc_id         = module.network.vpc_id
@@ -177,21 +180,21 @@ module "ecs" {
 }
 
 module "sequencer_cache" {
-  source            = "../../../modules/redis"
-  stage             = var.stage
-  environment       = var.environment
-  family            = "sequencer"
-  sg_id             = module.network.ecs_task_sg
-  vpc_id            = module.network.vpc_id
-  cache_subnet_group_subnet_ids  = module.network.public_subnets
+  source                        = "../../../modules/redis"
+  stage                         = var.stage
+  environment                   = var.environment
+  family                        = "sequencer"
+  sg_id                         = module.network.ecs_task_sg
+  vpc_id                        = module.network.vpc_id
+  cache_subnet_group_subnet_ids = module.network.public_subnets
 }
 
 module "router_cache" {
-  source            = "../../../modules/redis"
-  stage             = var.stage
-  environment       = var.environment
-  family            = "router"
-  sg_id             = module.network.ecs_task_sg
-  vpc_id            = module.network.vpc_id
-  cache_subnet_group_subnet_ids  = module.network.public_subnets
+  source                        = "../../../modules/redis"
+  stage                         = var.stage
+  environment                   = var.environment
+  family                        = "router"
+  sg_id                         = module.network.ecs_task_sg
+  vpc_id                        = module.network.vpc_id
+  cache_subnet_group_subnet_ids = module.network.public_subnets
 }
