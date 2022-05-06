@@ -1,0 +1,10 @@
+# Local Development
+
+- Make sure a local database is running and has the proper migrations that are in the [backend poller](../README.md) package.
+- Run the Postgrest server (command works with Mac OSX, `PGRST_DB_URI` might need to be modified for other systems):
+
+```sh
+docker run --rm -p 3000:3000 -e PGRST_DB_URI="postgres://reader:3eadooor@host.docker.internal:5432/connext" -e PGRST_DB_SCHEMA="public" -e PGRST_DB_ANON_ROLE="query" postgrest/postgrest
+```
+
+- Example queries are found in [`example.http`](./example.http).

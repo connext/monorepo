@@ -1,0 +1,4 @@
+@postgrestUrl = http://localhost:3000
+
+### PING
+GET {{postgrestUrl}}/transfers
