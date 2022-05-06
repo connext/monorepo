@@ -6,11 +6,10 @@ export const updateRouters = async () => {
   const {
     adapters: { subgraph, database },
     logger,
-    config,
+    domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateRouters.name);
 
-  const domains = Object.keys(config.chains);
   for (const domain of domains) {
     logger.debug("Saving balances", requestContext, methodContext, { domain });
     const balances = await subgraph.getAssetBalancesAllRouters(domain);

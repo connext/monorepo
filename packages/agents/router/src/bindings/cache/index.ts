@@ -51,12 +51,19 @@ export const pollCache = async () => {
 
     const confirmedTransferIds = confirmedTransfers.map((confirmedTransfer) => confirmedTransfer.transferId);
     pendingTransfers = pendingTransfers.filter((transfer) => !confirmedTransferIds.includes(transfer.transferId));
-    logger.info("Retrieved pending transfers for execution.", requestContext, methodContext, {
-      originDomain: domain,
-      pendingTransferIds,
-      confirmedTransferIds,
-      pending: pendingTransfers.map((transfer) => transfer.transferId),
-    });
+
+    if (pendingTransfers.length > 0) {
+      logger.info("Retrieved pending transfers for execution.", requestContext, methodContext, {
+        originDomain: domain,
+        retrieved: pendingTransferIds,
+        expired: confirmedTransferIds,
+        pending: pendingTransfers.map((transfer) => transfer.transferId),
+      });
+    } else {
+      logger.debug("No pending transfers found.", requestContext, methodContext, {
+        originDomain: domain,
+      });
+    }
 
     for (const transfer of pendingTransfers) {
       if (transfer.destination) {

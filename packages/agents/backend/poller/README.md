@@ -12,7 +12,7 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres
   yarn workspace @connext/backend-poller dbmate up
   ```
 
-- Install [`dbmate`](https://github.com/amacneil/dbmate) (instructions for Mac OS):
+- Install [`dbmate`](https://github.com/amacneil/dbmate) (instructions for Mac OS / Unix):
 
   ```sh
   brew install dbmate

@@ -633,7 +633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@connext/backend-poller@workspace:packages/agents/backend/poller":
+"@connext/backend-poller@workspace:*, @connext/backend-poller@workspace:packages/agents/backend/poller":
   version: 0.0.0-use.local
   resolution: "@connext/backend-poller@workspace:packages/agents/backend/poller"
   dependencies:
@@ -771,6 +771,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-integration@workspace:packages/integration"
   dependencies:
+    "@connext/backend-poller": "workspace:*"
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-adapters-web3signer": "workspace:*"
