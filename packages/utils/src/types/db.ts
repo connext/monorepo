@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
 
-import { XTransfer, XTransferStatus } from "./xtransfers";
+import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
 
 /**
  * Converts a transfer from the backend db through either DB queries or Postgrest into the XTranfer type
@@ -79,4 +79,65 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
         }
       : undefined,
   };
+};
+
+/**
+ * Converts router balance rows into a RouterBalance array
+ * Example rows:
+[
+  {
+    address: '0xa000000000000000000000000000000000000000',
+    asset_canonical_id: '0xb000000000000000000000000000000000000000000000000000000000000000',
+    asset_domain: '1234',
+    router_address: '0xa000000000000000000000000000000000000000',
+    balance: 100000000000000000000,
+    local: '0xbb00000000000000000000000000000000000000',
+    adopted: '0xaa00000000000000000000000000000000000000',
+    canonical_id: '0xb000000000000000000000000000000000000000000000000000000000000000',
+    canonical_domain: '1111',
+    domain: '1234'
+  },
+  {
+    address: '0xa000000000000000000000000000000000000000',
+    asset_canonical_id: '0xbb00000000000000000000000000000000000000000000000000000000000000',
+    asset_domain: '1234',
+    router_address: '0xa000000000000000000000000000000000000000',
+    balance: 99000000000000000000,
+    local: '0xbb00000000000000000000000000000000000000',
+    adopted: '0xaa00000000000000000000000000000000000000',
+    canonical_id: '0xbb00000000000000000000000000000000000000000000000000000000000000',
+    canonical_domain: '1111',
+    domain: '1234'
+  },
+]
+ * @param routerBalanceRows
+ */
+export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[] => {
+  const routerBalances: RouterBalance[] = [];
+  routerBalanceRows.forEach((routerBalanceRow) => {
+    const assetBalance: AssetBalance = {
+      adoptedAsset: routerBalanceRow.adopted,
+      balance: BigNumber.from(BigInt(routerBalanceRow.balance as string)).toString(),
+      blockNumber: "0",
+      canonicalDomain: routerBalanceRow.canonical_domain,
+      canonicalId: routerBalanceRow.canonical_id,
+      domain: routerBalanceRow.asset_domain,
+      local: routerBalanceRow.local,
+    };
+    const found = routerBalances.find((r) => r.router === routerBalanceRow.router_address);
+    if (found) {
+      const asset = found.assets.find(
+        (a) => a.canonicalId === routerBalanceRow.asset_canonical_id && a.domain === routerBalanceRow.asset_domain,
+      );
+      if (asset) {
+        asset.balance = BigNumber.from(BigInt(routerBalanceRow.balance as string)).toString();
+      } else {
+        found.assets.push(assetBalance);
+      }
+    } else {
+      routerBalances.push({ router: routerBalanceRow.router_address, assets: [assetBalance] });
+    }
+  });
+
+  return routerBalances;
 };
