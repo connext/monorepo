@@ -94,7 +94,9 @@ export class SubgraphReader {
     const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
+    console.log({ query });
     const response = await execute(query);
+    console.log(response);
 
     const assetBalances = [...response.values()][0][0];
     const balances: Record<string, BigNumber> = {};

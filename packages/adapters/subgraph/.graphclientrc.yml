@@ -17,7 +17,7 @@ sources:
         retry: 5
     transforms:
       - prefix:
-          value: staging_kovan_
+          value: stagingkovan_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -39,7 +39,7 @@ sources:
         retry: 5
     transforms:
       - prefix:
-          value: staging_rinkeby_
+          value: stagingrinkeby_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
