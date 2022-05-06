@@ -5,6 +5,11 @@ import { PrefixInvalid } from "../errors";
 
 import { getMeshOptions } from "./shared";
 
+const getNetwork = (sourceName: string, env: string): RegExpMatchArray | null => {
+  const result =
+    env === "staging" ? sourceName.match(/Connext_Staging_(.*)$/) : sourceName.match(/Connext_(?!Staging)(.*)$/);
+  return result;
+};
 export const create = async (
   chaindata: Map<string, ChainData>,
   env: "staging" | "production" = "production",
@@ -12,16 +17,29 @@ export const create = async (
   const meshOptions = await getMeshOptions();
   const names = meshOptions.sources.map((source) => source.name);
 
-  // Parse the Network names from the subgraph prefix names in the mesh config.
-  const networks = names.map((name) => {
-    const result = env === "staging" ? name.match(/Connext_Staging_(.*)$/) : name.match(/Connext_(.*)$/);
-    if (!result) {
-      throw new PrefixInvalid(name, result);
-    }
-    // Should be the first match group.
-    return result[1].toLowerCase();
-  });
+  console.log(
+    names.filter((name) => {
+      const result = getNetwork(name, env);
+      return !!result;
+    }),
+  );
 
+  // Parse the Network names from the subgraph prefix names in the mesh config.
+  const networks = names
+    .filter((name) => {
+      const result = getNetwork(name, env);
+      return !!result;
+    })
+    .map((name) => {
+      const result = getNetwork(name, env);
+      console.log(result);
+      if (!result) {
+        throw new PrefixInvalid(name, result);
+      }
+      // Should be the first match group.
+      return result[1].toLowerCase();
+    });
+  console.log(networks);
   const config: SubgraphMap = {
     sources: {},
     supported: {},
@@ -30,7 +48,7 @@ export const create = async (
     if (networks.includes(chainData.network)) {
       config.sources[chainData.domainId] = {
         domain: chainData.domainId,
-        prefix: chainData.network,
+        prefix: env === "staging" ? `${env}_${chainData.network}` : chainData.network,
       };
       config.supported[chainData.domainId] = true;
     } else {
@@ -46,5 +64,7 @@ export const create = async (
         ` domains: ${unsupportedDomains.join(", ")}`,
     );
   }
+
+  console.log(config);
   return config;
 };

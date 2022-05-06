@@ -76,6 +76,9 @@ export class SubgraphReader {
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
+    if (![...response.values()][0] || [...response.values()][0].length == 0) {
+      return BigNumber.from("0");
+    }
     return BigNumber.from([...response.values()][0][0].amount);
   }
 
@@ -92,6 +95,7 @@ export class SubgraphReader {
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
+
     const assetBalances = [...response.values()][0][0];
     const balances: Record<string, BigNumber> = {};
     assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
