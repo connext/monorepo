@@ -10,7 +10,7 @@ export const test = async () => {
   // kovan => (domain: 2221, network: kovan)
 
   const chainData = await getChainData();
-  const subgraphReader = await SubgraphReader.create(chainData!);
+  const subgraphReader = await SubgraphReader.create(chainData!, "staging");
 
   // test -> query()
   const query = gql`
@@ -67,10 +67,15 @@ export const test = async () => {
   // getXCalls(agents)
   console.log(`XCalling...`);
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
-  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 12 });
-  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 49 });
+  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
+  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0 });
   console.log(await subgraphReader.getXCalls(agents));
   console.log(`XCalling done!`);
+
+  // getOriginTransfersForAll(agents)
+  console.log(`Get origin transfers on the domains...`);
+  console.log(await subgraphReader.getOriginTransfersForAll(agents));
+  console.log(`GetOriginTransfersForAll done!!!`);
 
   // getDestinationTransfers(transfers)
   const transfers: OriginTransfer[] = [

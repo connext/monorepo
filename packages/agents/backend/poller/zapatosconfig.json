@@ -1,0 +1,6 @@
+{
+  "db": {
+    "connectionString": "postgres://postgres:qwerty@127.0.0.1:5432/connext"
+  },
+  "outDir": "./src"
+}

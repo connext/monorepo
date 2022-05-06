@@ -22,7 +22,7 @@ const context: AppContext = {} as any;
 export const getContext = () => context;
 
 export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
-  const requestContext = createRequestContext("makeRouter");
+  const requestContext = createRequestContext("Router Init");
   const methodContext = createMethodContext(makeRouter.name);
 
   try {
@@ -137,11 +137,11 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
 };
 
 export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
-  const { logger, chainData } = context;
+  const { logger, chainData, config } = context;
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  const subgraphReader = await SubgraphReader.create(chainData);
+  const subgraphReader = await SubgraphReader.create(chainData, config.environment);
 
   // Pull support for domains that don't have a subgraph.
   const supported: Record<string, boolean> = subgraphReader.supported;

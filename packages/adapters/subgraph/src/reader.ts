@@ -6,6 +6,8 @@ import {
   Asset,
   OriginTransfer,
   DestinationTransfer,
+  RouterBalance,
+  AssetBalance,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -21,6 +23,7 @@ import {
   getOriginTransfersQuery,
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
+  getAssetBalancesAllRoutersQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -39,12 +42,15 @@ export class SubgraphReader {
     context = { config };
   }
 
-  public static async create(chainData: Map<string, ChainData>): Promise<SubgraphReader> {
+  public static async create(
+    chainData: Map<string, ChainData>,
+    env: "staging" | "production" = "production",
+  ): Promise<SubgraphReader> {
     if (SubgraphReader.instance) {
       return SubgraphReader.instance;
     }
     const { create } = getHelpers();
-    const config = await create(chainData);
+    const config = await create(chainData, env);
     return new SubgraphReader(config);
   }
 
@@ -69,10 +75,13 @@ export class SubgraphReader {
    */
   public async getAssetBalance(domain: string, router: string, local: string): Promise<BigNumber> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) ;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalanceQuery(prefix, router.toLowerCase(), local.toLowerCase());
     const response = await execute(query);
+    if (![...response.values()][0] || [...response.values()][0].length == 0) {
+      return BigNumber.from("0");
+    }
     return BigNumber.from([...response.values()][0][0].amount);
   }
 
@@ -85,14 +94,46 @@ export class SubgraphReader {
    */
   public async getAssetBalances(domain: string, router: string): Promise<Record<string, BigNumber>> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) ;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetBalancesQuery(prefix, router.toLowerCase());
     const response = await execute(query);
-    const assetBalances = [...response.values()][0][0];
+
+    const assetBalances = [...response.values()][0] ? [...response.values()][0][0] : [];
     const balances: Record<string, BigNumber> = {};
     assetBalances.forEach((bal: any) => (balances[bal.asset.local as string] = BigNumber.from(bal.amount)));
     return balances;
+  }
+
+  /**
+   * Returns available liquidity for all of the routers assets on target chain.
+   *
+   * @param domain - The domain you want to determine liquidity on
+   * @returns An array of asset ids and amounts of liquidity
+   */
+  public async getAssetBalancesAllRouters(domain: string): Promise<RouterBalance[]> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefix = getPrefixForDomain(domain);
+
+    const query = getAssetBalancesAllRoutersQuery(prefix);
+    const response = await execute(query);
+    const routers = [...response.values()][0][0];
+    return routers.map((router: any) => {
+      return {
+        assets: router.assetBalances.map((a: any) => {
+          return {
+            adoptedAsset: a.asset.adoptedAsset,
+            balance: a.amount,
+            blockNumber: a.asset.blockNumber,
+            canonicalDomain: a.asset.canonicalDomain,
+            canonicalId: a.asset.canonicalId,
+            domain,
+            local: a.asset.local,
+          } as AssetBalance;
+        }),
+        router: router.id,
+      } as RouterBalance;
+    });
   }
 
   /**
@@ -104,11 +145,11 @@ export class SubgraphReader {
    */
   public async isRouterApproved(domain: string, _router: string): Promise<boolean> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) ;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getRouterQuery(prefix, _router.toLowerCase());
     const response = await execute(query);
-    const router = [...response.values()][0][0];
+    const router = [...response.values()][0] ? [...response.values()][0][0] : undefined;
     return !!router?.id;
   }
 
@@ -119,11 +160,11 @@ export class SubgraphReader {
    */
   public async getAssetByLocal(domain: string, local: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) ;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetByLocalQuery(prefix, local.toLowerCase());
     const response = await execute(query);
-    const assets = [...response.values()][0][0];
+    const assets = [...response.values()][0] ? [...response.values()][0][0] : [];
     if (assets.length === 0) {
       return undefined;
     }
@@ -137,17 +178,18 @@ export class SubgraphReader {
    */
   public async getAssetByCanonicalId(domain: string, canonicalId: string): Promise<Asset | undefined> {
     const { execute, getPrefixForDomain } = getHelpers();
-    const prefix = getPrefixForDomain(domain) ;
+    const prefix = getPrefixForDomain(domain);
 
     const query = getAssetByCanonicalIdQuery(prefix, canonicalId.toLowerCase());
     const response = await execute(query);
-    const assets = [...response.values()][0][0];
+    const assets = [...response.values()][0] ? [...response.values()][0][0] : [];
     if (assets.length === 0) {
       return undefined;
     }
     return assets[0] as Asset;
   }
 
+  // public async getTransaction(domain: string, transactionId: string): Promise<XTransfer> {}
   /**
    * Retrieve a target OriginTransfer belonging to a given domain by transfer ID.
    *
@@ -161,7 +203,7 @@ export class SubgraphReader {
 
     const query = getOriginTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
-    const transfers = [...response.values()][0][0];
+    const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
     return transfers.length === 1 ? parser.originTransfer(transfers[0]) : undefined;
   }
 
@@ -214,15 +256,38 @@ export class SubgraphReader {
   public async getOriginTransfers(
     domain: string,
     fromNonce: number,
-    destinationDomains: string[] = [...Object.keys(context.config.sources)],
+    destinationDomains: string[] = [...Object.keys(context.config.sources as object)],
   ): Promise<XTransfer[]> {
     const { parser, execute, getPrefixForDomain } = getHelpers();
     const prefix: string = getPrefixForDomain(domain);
 
     const query = getOriginTransfersQueryByDomain(prefix, domain, fromNonce, destinationDomains);
     const response = await execute(query);
-    const transfers = [...response.values()][0][0];
-    return transfers.map(parser.originTransfer);
+    const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
+    return transfers.length > 0 ? transfers.map(parser.originTransfer) : [];
+  }
+
+  /**
+   * Get the transfers across the multiple domains
+   * @param agents - The reference parameters
+   */
+  public async getOriginTransfersForAll(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getOriginTransfersQuery(agents);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originTransfer);
+
+    return originTransfers;
   }
 
   /**
@@ -238,7 +303,7 @@ export class SubgraphReader {
     const allTxById: Map<string, XTransfer> = new Map();
     for (const domain of response.keys()) {
       const value = response.get(domain);
-      const xtransfersByDomain = value![0];
+      const xtransfersByDomain = (value ?? [])[0];
       for (const xtransfer of xtransfersByDomain) {
         allTxById.set(xtransfer.transferId as string, parser.originTransfer(xtransfer));
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
@@ -259,7 +324,7 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value!.flat());
+      transfers.push(value?.flat());
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -302,7 +367,7 @@ export class SubgraphReader {
     const _transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      _transfers.push(value!.flat());
+      _transfers.push(value?.flat());
     }
 
     const destinationTransfers: XTransfer[] = _transfers

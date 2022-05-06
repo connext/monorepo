@@ -97,7 +97,7 @@ export const setupSubgraphReader = async (
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  const subgraphReader = await SubgraphReader.create(chainData);
+  const subgraphReader = await SubgraphReader.create(chainData, context.config.environment);
 
   // Pull support for domains that don't have a subgraph.
   const supported: Record<string, boolean> = subgraphReader.supported;

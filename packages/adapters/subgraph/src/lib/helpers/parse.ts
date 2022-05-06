@@ -134,7 +134,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
       // Status (Executed | Reconciled | Completed)
       status: entity.status,
-      routers: entity.routers,
+      routers: entity.routers.map((router: any) => router.id),
 
       // Assets
       assets: {
