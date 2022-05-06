@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0-alpha.8",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -35,6 +35,7 @@
     "src/**/*"
   ],
   "dependencies": {
+    "@connext/backend-poller": "workspace:*",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",

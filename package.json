@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.2.0-alpha.6",
+  "version": "0.2.0-alpha.8",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -22,6 +22,7 @@
     "packages/adapters/web3signer",
     "packages/agents/router",
     "packages/agents/sequencer",
+    "packages/agents/backend/poller",
     "packages/agents/sdk",
     "packages/agents/relayer",
     "packages/integration",

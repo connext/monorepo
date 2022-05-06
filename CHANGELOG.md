@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.8
+
+- [contracts] Relayer fee upgrade
+
 ## Amarok 0.2.0-alpha.6
 
 - [ops] Staging and prod envs separated

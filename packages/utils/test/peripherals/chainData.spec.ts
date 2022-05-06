@@ -19,6 +19,7 @@ const mockChainData = [
     assetId: {},
   },
 ];
+
 describe("Peripherals:ChainData", () => {
   describe("#chainDataToMap", () => {
     it("happy: should parse data", async () => {
@@ -33,15 +34,18 @@ describe("Peripherals:ChainData", () => {
       expect(chainDataMap.get("1338")).to.be.undefined;
     });
   });
+
   describe("#getChainData", () => {
     let fetchJsonStub: SinonStub;
     beforeEach(() => {
       fetchJsonStub = stub(SharedFns, "fetchJson");
     });
+
     afterEach(() => {
       restore();
       reset();
     });
+
     it("happy: should fetch json and parse it successfully", async () => {
       fetchJsonStub.resolves(mockChainData);
       const res = await getChainData();
@@ -54,10 +58,12 @@ describe("Peripherals:ChainData", () => {
       });
       expect(res.get("1338")).to.be.undefined;
     });
+
     it("should throw error if fetching fails", async () => {
       fetchJsonStub.throws(new Error("Invalid url!"));
-      const res = await getChainData();
-      expect(res).to.be.undefined;
+      await expect(getChainData()).to.be.rejectedWith(
+        "Could not get chain data, and no cached chain data was available.",
+      );
     });
   });
 });

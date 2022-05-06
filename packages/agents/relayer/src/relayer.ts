@@ -16,11 +16,9 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
   try {
     context.adapters = {} as any;
 
+    /// MARK - Config
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
-    if (!chainData) {
-      throw new Error("Could not get chain data");
-    }
     context.chainData = chainData;
     context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
     context.logger = new Logger({ level: context.config.logLevel });
@@ -28,22 +26,21 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
       config: { ...context.config, mnemonic: "*****" },
     });
 
+    /// MARK - Adapters
     // Set up adapters.
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
-
     context.adapters.wallet = context.config.mnemonic
-      ? Wallet.fromMnemonic(context.config.mnemonic as string)
-      : new Web3Signer(context.config.web3SignerUrl! as string);
-
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
-      context.adapters.wallet as Wallet | Web3Signer,
+      context.adapters.wallet,
       true, // Ghost instance, in the event that this is running in the same process as a router.
     );
-
     context.adapters.contracts = getContractInterfaces();
 
+    /// MARK - Utilities
     context.chainToDomainMap = new Map();
     for (const domain of Object.keys(context.config.chains)) {
       if (context.chainData.has(domain)) {
@@ -53,13 +50,14 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
       }
     }
 
+    /// MARK - Bindings
     // Create server, set up routes, and start listening.
     await bindServer();
-
     await bindRelays();
 
     context.logger.info("Relayer has been activated.", requestContext, methodContext, {
       port: context.config.server.port,
+      chains: [...Object.keys(context.config.chains)],
     });
   } catch (error: any) {
     console.error("Error starting Relayer! D: Who could have done this?", error);
