@@ -9,19 +9,11 @@ const DEFAULT_POLL_INTERVAL = 15_000;
 
 dotenvConfig();
 
-export const TServerConfig = Type.Object({
-  port: Type.Integer({ minimum: 1, maximum: 65535 }),
-  host: Type.String({ format: "ipv4" }),
-  requestLimit: Type.Integer(),
-  adminToken: Type.String(),
-});
-
 export const TDatabaseConfig = Type.Object({
   url: Type.String({ format: "uri" }),
 });
 
 export const Backend = Type.Object({
-  server: TServerConfig,
   pollInterval: Type.Integer({ minimum: 1000 }),
   logLevel: Type.Union([
     Type.Literal("fatal"),
@@ -66,17 +58,6 @@ export const getEnvConfig = (): BackendConfig => {
   }
 
   const nxtpConfig: BackendConfig = {
-    server: {
-      port: process.env.BACKEND_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8080,
-      host: process.env.BACKEND_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
-      requestLimit:
-        process.env.BACKEND_SERVER_REQUEST_LIMIT ||
-        configJson.server?.requestLimit ||
-        configFile.server?.requestLimit ||
-        500,
-      adminToken:
-        process.env.BACKEND_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
-    },
     pollInterval:
       process.env.BACKEND_POLL_INTERVAL || configJson.pollInterval || configFile.pollInterval || DEFAULT_POLL_INTERVAL,
     logLevel:
