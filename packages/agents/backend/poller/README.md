@@ -8,15 +8,15 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres
 
 - Run database migrations:
 
-  ```sh
-  yarn workspace @connext/backend-poller dbmate up
-  ```
+```sh
+yarn workspace @connext/backend-poller dbmate up
+```
 
 - Install [`dbmate`](https://github.com/amacneil/dbmate) (instructions for Mac OS / Unix):
 
-  ```sh
-  brew install dbmate
-  ```
+```sh
+brew install dbmate
+```
 
 - Create `.env` to point at local database (or export DATABASE_URL):
 
