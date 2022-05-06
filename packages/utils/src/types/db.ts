@@ -2,6 +2,11 @@ import { BigNumber, constants } from "ethers";
 
 import { XTransfer, XTransferStatus } from "./xtransfers";
 
+/**
+ * Converts a transfer from the backend db through either DB queries or Postgrest into the XTranfer type
+ * @param transfer the transfer from the backend db as a JSON object
+ * @returns an XTRansfer object
+ */
 export const convertFromDbTransfer = (transfer: any): XTransfer => {
   return {
     originDomain: transfer.origin_domain,
