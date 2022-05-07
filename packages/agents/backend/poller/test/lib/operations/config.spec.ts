@@ -11,4 +11,8 @@ describe("Load Config", () => {
     process.env.DATABASE_URL = "invalid_URI";
     await expect(getConfig()).to.eventually.be.rejectedWith(Error);
   });
+  it("throw error on invalid config file path", async () => {
+    process.env.BACKEND_CONFIG_FILE = "./missing_config_path.json";
+    await expect(getConfig()).to.eventually.be.rejectedWith(Error);
+  });
 });
