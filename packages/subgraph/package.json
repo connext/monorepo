@@ -15,6 +15,7 @@
     "deploy:v1-runtime": "yarn deploy v1-runtime v1-runtime all",
     "deploy:prod": "yarn deploy:v1-runtime:prod && yarn deploy:v1-analytics:prod",
     "deploy:staging": "yarn deploy:v1-runtime:staging && yarn deploy:v1-analytics:staging",
+    "deploy:studio": "yarn deploy v1-runtime studio mainnet",
     "prepare:local": "yarn deploy v1-runtime local mainnet",
     "prepare:local:analytics": "yarn deploy v1-analytics local mainnet",
     "create-local-1337": "graph create --node http://localhost:8020/ connext/nxtp",
@@ -37,8 +38,8 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "=0.25.0",
-    "@graphprotocol/graph-ts": "^0.24.1",
+    "@graphprotocol/graph-cli": "^0.26.0",
+    "@graphprotocol/graph-ts": "^0.26.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mustache": "^4.1.2",
     "@types/yaml": "^1.9.7",

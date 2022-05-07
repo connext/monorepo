@@ -84,10 +84,21 @@ const run = async () => {
     console.error(`stderr: ${err}`);
 
     /// deploy
-    if (configFile !== "local") {
+    if (configFile !== "local" && configFile !== "studio") {
       console.log("Running Deployment command for " + n.network);
       const { stdout, stderr } = await exec(
         `graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token ${accessToken}`,
+      );
+
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+    } else if (configFile === "studio") {
+      console.log("Running studio Deployment command for " + n.network);
+
+      const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
+
+      const { stdout, stderr } = await exec(
+        `graph deploy --node https://api.studio.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token ${accessToken} --version-label ${pkg.version}`,
       );
 
       console.log(`stdout: ${stdout}`);
