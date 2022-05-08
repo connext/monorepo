@@ -1,5 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
+import { getChainData, Logger, createLoggingContext, ChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -8,13 +8,6 @@ import {
 } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-
-export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
-export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
-export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const DEFAULT_AUCTION_TIMEOUT = 6_000;
-export const FULFILL_TIMEOUT = 300_000;
-export const DELAY_BETWEEN_RETRIES = 5_000;
 
 /**
  * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
@@ -69,6 +62,7 @@ export class NxtpSdkRouter {
 
     const router = _router || this.config.signerAddress;
 
+    const chainId = await getChainIdFromDomain(domain, this.chainData);
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
     const value = assetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
@@ -81,7 +75,7 @@ export class NxtpSdkRouter {
       value,
       data,
       from: this.config.signerAddress,
-      chainId: Number(domain),
+      chainId,
     };
   }
 }
