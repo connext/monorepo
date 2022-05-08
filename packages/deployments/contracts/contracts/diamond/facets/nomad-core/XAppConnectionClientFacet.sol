@@ -9,12 +9,10 @@ import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectio
 // TODO: refactor proposed ownable to be one basic + one router/asset
 // import {ProposedOwnableUpgradeable} from "../../ProposedOwnableUpgradeable.sol";
 
-import {LibConnextStorage} from "../../libraries/LibConnextStorage.sol";
 import {Modifiers} from "../../utils/Modifiers.sol";
 
 contract XAppConnectionClientFacet is Modifiers {
-
- // ======== Initializer =========
+  // ======== Initializer =========
 
   // TODO: move to DiamondInit
   // function __XAppConnectionClient_initialize(address _xAppConnectionManager) internal initializer {
@@ -29,7 +27,6 @@ contract XAppConnectionClientFacet is Modifiers {
    * @param _xAppConnectionManager The address of the xAppConnectionManager contract
    */
   function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
-    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
-    ds.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
+    s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
   }
 }

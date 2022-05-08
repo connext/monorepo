@@ -5,10 +5,8 @@ pragma solidity ^0.8.11;
 // import {IMessageRecipient} from "../../../nomad-core/interfaces/IMessageRecipient.sol";
 
 import {Modifiers} from "../../utils/Modifiers.sol";
-import {LibConnextStorage} from "../../libraries/LibConnextStorage.sol";
 
 contract RouterFacet is Modifiers {
-
   // ============ Modifiers ============
 
   // ============ Getters functions ============
@@ -23,8 +21,7 @@ contract RouterFacet is Modifiers {
    * @param _router The address of the remote xApp Router
    */
   function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwner {
-    LibConnextStorage.Storage storage ds = LibConnextStorage.connextStorage();
-    ds.remotes[_domain] = _router;
+    s.remotes[_domain] = _router;
   }
 
   // ============ Virtual functions ============
