@@ -8,7 +8,6 @@ import {
 } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkUtils } from "./sdkUtils";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
