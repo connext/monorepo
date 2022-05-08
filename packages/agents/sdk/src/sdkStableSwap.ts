@@ -9,13 +9,6 @@ import {
 
 import { NxtpSdkConfig, getConfig } from "./config";
 
-export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
-export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
-export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const DEFAULT_AUCTION_TIMEOUT = 6_000;
-export const FULFILL_TIMEOUT = 300_000;
-export const DELAY_BETWEEN_RETRIES = 5_000;
-
 /**
  * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
  *
