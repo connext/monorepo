@@ -103,7 +103,7 @@ export class NxtpSdkBase {
     return undefined;
   }
 
-  public async xcall(xcallParams: XCallArgs): Promise<providers.TransactionRequest> {
+  public async xcall(xcallParams: Omit<XCallArgs, "callData">): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
 
