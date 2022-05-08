@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.9
+
+- [sdk] sdk public release
+
 ## Amarok 0.2.0-alpha.8
 
 - [contracts] Relayer fee upgrade
