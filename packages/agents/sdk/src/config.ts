@@ -32,6 +32,7 @@ export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   signerAddress: TAddress,
   logLevel: Type.Optional(TLogLevel),
+  backendUrl: Type.Optional(Type.String()),
   maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
   network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
@@ -54,6 +55,7 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TValidationChainConfig),
   signerAddress: TAddress,
   logLevel: TLogLevel,
+  backendUrl: Type.String(),
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
@@ -75,6 +77,7 @@ export const getEnvConfig = (
     network: _nxtpConfig.network || "mainnet",
     maxSlippage: _nxtpConfig.maxSlippage || DEFAULT_ALLOWED_TOLERANCE,
     environment: _nxtpConfig.environment || "production",
+    backendUrl: _nxtpConfig.backendUrl || "https://postgrest.testnet.staging.connext.ninja",
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
@@ -83,7 +86,6 @@ export const getEnvConfig = (
     nxtpConfig.environment === "production"
       ? ""
       : (`${nxtpConfig.environment![0].toUpperCase()}${nxtpConfig.environment!.slice(1)}` as ContractPostfix);
-
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
