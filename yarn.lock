@@ -7666,11 +7666,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-<<<<<<< HEAD
 "cross-undici-fetch@npm:^0.4.0, cross-undici-fetch@npm:^0.4.2":
-=======
-"cross-undici-fetch@npm:^0.4.2":
->>>>>>> amarok
   version: 0.4.3
   resolution: "cross-undici-fetch@npm:0.4.3"
   dependencies:
@@ -20496,8 +20492,8 @@ __metadata:
   linkType: hard
 
 "ts-command-line-args@npm:^2.2.0":
-  version: 2.2.1
-  resolution: "ts-command-line-args@npm:2.2.1"
+  version: 2.2.2
+  resolution: "ts-command-line-args@npm:2.2.2"
   dependencies:
     chalk: ^4.1.0
     command-line-args: ^5.1.1
@@ -20505,7 +20501,7 @@ __metadata:
     string-format: ^2.0.0
   bin:
     write-markdown: dist/write-markdown.js
-  checksum: a8f963911ab748c8aeedb4b4e6e8008fa0d8781df34dc5b02a81cb7caa201124f24e048dfdab6f4cd1e06b45383dc983336d617200b7d772905708fb9b9d6d6b
+  checksum: 353a009679e4160799b13820b12fd315a0085f1a511f363ee4d65354caed559495911c7c3ab2835d795ee8d7216927e2bffb5864c9986f1ceb8b6c80ec537744
   languageName: node
   linkType: hard
 
