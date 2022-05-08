@@ -1,10 +1,19 @@
-import { getChainData, Logger, ChainData } from "@connext/nxtp-utils";
+import {
+  getChainData,
+  Logger,
+  ChainData,
+  formatUrl,
+  createLoggingContext,
+  XTransferStatus,
+  jsonifyError,
+} from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
   contractDeployments,
   ChainReader,
 } from "@connext/nxtp-txservice";
+import axios from "axios";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 
@@ -48,46 +57,87 @@ export class NxtpSdkUtils {
     return new NxtpSdkUtils(nxtpConfig, logger, chainData);
   }
 
-  async getRouters(domain: string): Promise<string[]> {
-    /* using backend api */
+  async getRoutersData(): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getRoutersData.name);
+    const uri = formatUrl(this.config.backendUrl!, "routers_with_balances");
 
-    console.log(domain);
-    return ["0x0000000000000000000000000000000000000000"];
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
   }
 
-  async getWhitelistedAsset(domain: string): Promise<string[]> {
-    /*  using backend api */
-    console.log(domain);
-    return ["0x0000000000000000000000000000000000000000"];
+  async getTransfersByUser(params: { user?: string; status?: XTransferStatus }): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
+
+    const { user, status } = params;
+    const userAddress = user ?? this.config.signerAddress;
+
+    const userIdentifier = `xcall_caller=eq.${userAddress}&`;
+    const statusIdentifier = status ? `status=eq.${status}` : "";
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", userIdentifier + statusIdentifier);
+
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
   }
 
-  async getTotalLiquidity(domain: string): Promise<{ asset: string; availableLiquidity: string }[]> {
-    /* fetch using covalent api and back it up using backend api */
-    console.log(domain);
-    return [{ asset: "0x0000000000000000000000000000000000000000", availableLiquidity: "0" }];
+  async getTransfersByStatus(status: XTransferStatus): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByStatus.name);
+
+    const statusIdentifier = `status=eq.${status}`;
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier);
+
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
   }
 
-  async getRouterLiquidity(domain: string, router: string): Promise<{ [asset: string]: string }[]> {
-    /*  using backend api */
-    console.log(domain, router);
-    return [{ assetId: "0x0000000000000000000000000000000000000000" }];
-  }
+  async getTransferById(transferId: string): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransferById.name);
 
-  // async getTransfersByUser(user: string): Promise<Transfers[]> {
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", `transfer_id=eq.${transferId}`);
+
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
+  }
+  // async getWhitelistedAsset(domain: string): Promise<string[]> {
   //   /*  using backend api */
+  //   console.log(domain);
+  //   return ["0x0000000000000000000000000000000000000000"];
+  // }
 
-  //   return [{ assetId: "0x0000000000000000000000000000000000000000" }];
+  // async getTotalLiquidity(domain: string): Promise<{ asset: string; availableLiquidity: string }[]> {
+  //   /* fetch using covalent api and back it up using backend api */
+  //   console.log(domain);
+  //   return [{ asset: "0x0000000000000000000000000000000000000000", availableLiquidity: "0" }];
   // }
 
   // Metrics
-  async getTotalVolume(domain: string): Promise<{ [asset: string]: string }[]> {
-    /*  using backend api */
-    console.log(domain);
-    return [{ "0x": "0" }];
-  }
+  // async getTotalVolume(domain: string): Promise<{ [asset: string]: string }[]> {
+  //   /*  using backend api */
+  //   console.log(domain);
+  //   return [{ "0x": "0" }];
+  // }
 
-  async getTotalTransfers(domain: string): Promise<string> {
-    console.log(domain);
-    return "0";
-  }
+  // async getTotalTransfers(domain: string): Promise<string> {
+  //   console.log(domain);
+  //   return "0";
+  // }
 }
