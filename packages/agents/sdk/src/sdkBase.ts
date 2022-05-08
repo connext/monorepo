@@ -1,5 +1,12 @@
 import { constants, providers, BigNumber } from "ethers";
-import { getChainData, Logger, createLoggingContext, RequestContext, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import {
+  getChainData,
+  Logger,
+  createLoggingContext,
+  getChainIdFromDomain,
+  ChainData,
+  XCallArgs,
+} from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -8,13 +15,6 @@ import {
 } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-
-export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
-export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
-export const DEFAULT_SLIPPAGE_TOLERANCE = "0.10"; // 0.10%
-export const DEFAULT_AUCTION_TIMEOUT = 6_000;
-export const FULFILL_TIMEOUT = 300_000;
-export const DELAY_BETWEEN_RETRIES = 5_000;
 
 /**
  * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
@@ -59,13 +59,12 @@ export class NxtpSdkBase {
     assetId: string,
     amount: string,
     infiniteApprove = false,
-    _requestContext?: RequestContext,
   ): Promise<providers.TransactionRequest | undefined> {
-    const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name, _requestContext);
+    const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
     this.logger.info("Method start", requestContext, methodContext, { domain, assetId, amount });
 
-    // this.assertChainIsConfigured(chainId);
+    const chainId = await getChainIdFromDomain(domain, this.chainData);
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
@@ -90,8 +89,8 @@ export class NxtpSdkBase {
           to: assetId,
           data,
           from: this.config.signerAddress,
-          chainId: Number(domain),
           value: 0,
+          chainId,
         };
       } else {
         this.logger.info("Allowance sufficient", requestContext, methodContext, {
@@ -126,6 +125,7 @@ export class NxtpSdkBase {
 
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
+    const chainId = await getChainIdFromDomain(originDomain, this.chainData);
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
     const value =
       transactingAssetId === constants.AddressZero
@@ -148,7 +148,7 @@ export class NxtpSdkBase {
       value,
       data,
       from: this.config.signerAddress,
-      chainId: Number(originDomain),
+      chainId,
     };
   }
 
@@ -162,6 +162,7 @@ export class NxtpSdkBase {
 
     const { domain, transferId, relayerFee } = params;
 
+    const chainId = await getChainIdFromDomain(domain, this.chainData);
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
@@ -176,7 +177,7 @@ export class NxtpSdkBase {
       value,
       data,
       from: this.config.signerAddress,
-      chainId: Number(domain),
+      chainId,
     };
   }
 }
