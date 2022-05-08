@@ -26,12 +26,10 @@ export class NxtpSdkRouter {
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
-  public readonly utils: NxtpSdkUtils;
   public readonly chainData: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, nxtpSdkUtils: NxtpSdkUtils, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
-    this.utils = nxtpSdkUtils;
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
@@ -41,8 +39,8 @@ export class NxtpSdkRouter {
     );
   }
 
-  static async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkRouter> {
-    const chainData = await getChainData();
+  static async create(_config: NxtpSdkConfig, _logger?: Logger, _chainData?: ChainData): Promise<NxtpSdkRouter> {
+    const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
@@ -51,9 +49,8 @@ export class NxtpSdkRouter {
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkRouter" })
       : new Logger({ name: "NxtpSdkRouter", level: nxtpConfig.logLevel });
-    const nxtpSdkUtils = new NxtpSdkUtils(nxtpConfig, logger, chainData);
 
-    return new NxtpSdkRouter(nxtpConfig, nxtpSdkUtils, logger, chainData);
+    return new NxtpSdkRouter(nxtpConfig, logger, chainData);
   }
 
   async addLiquidityForRouter(params: {

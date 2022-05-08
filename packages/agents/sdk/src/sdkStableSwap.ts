@@ -26,12 +26,12 @@ export class NxtpSdkStableSwap {
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
-  public readonly utils: NxtpSdkUtils;
+
   public readonly chainData: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, nxtpSdkUtils: NxtpSdkUtils, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
-    this.utils = nxtpSdkUtils;
+
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
@@ -41,8 +41,8 @@ export class NxtpSdkStableSwap {
     );
   }
 
-  static async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkStableSwap> {
-    const chainData = await getChainData();
+  static async create(_config: NxtpSdkConfig, _logger?: Logger, _chainData?: ChainData): Promise<NxtpSdkStableSwap> {
+    const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
@@ -51,9 +51,8 @@ export class NxtpSdkStableSwap {
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkStableSwap" })
       : new Logger({ name: "NxtpSdkStableSwap", level: nxtpConfig.logLevel });
-    const nxtpSdkUtils = new NxtpSdkUtils(nxtpConfig, logger, chainData);
 
-    return new NxtpSdkStableSwap(nxtpConfig, nxtpSdkUtils, logger, chainData);
+    return new NxtpSdkStableSwap(nxtpConfig, logger, chainData);
   }
 
   async getTokenIndex(domain: string, tokenAddress: string): Promise<BigNumberish | undefined> {

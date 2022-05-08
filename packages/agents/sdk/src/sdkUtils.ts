@@ -37,8 +37,8 @@ export class NxtpSdkUtils {
     );
   }
 
-  static async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkUtils> {
-    const chainData = await getChainData();
+  static async create(_config: NxtpSdkConfig, _logger?: Logger, _chainData?: ChainData): Promise<NxtpSdkUtils> {
+    const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
