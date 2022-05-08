@@ -7666,7 +7666,11 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "cross-undici-fetch@npm:^0.4.0, cross-undici-fetch@npm:^0.4.2":
+=======
+"cross-undici-fetch@npm:^0.4.2":
+>>>>>>> amarok
   version: 0.4.3
   resolution: "cross-undici-fetch@npm:0.4.3"
   dependencies:
