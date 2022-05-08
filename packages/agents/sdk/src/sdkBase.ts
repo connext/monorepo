@@ -8,7 +8,6 @@ import {
 } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-import { NxtpSdkUtils } from "./sdkUtils";
 
 export const MIN_SLIPPAGE_TOLERANCE = "00.01"; // 0.01%;
 export const MAX_SLIPPAGE_TOLERANCE = "15.00"; // 15.0%
@@ -26,12 +25,10 @@ export class NxtpSdkBase {
   private readonly logger: Logger;
   private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
-  public readonly utils: NxtpSdkUtils;
   public readonly chainData: Map<string, ChainData>;
 
-  constructor(config: NxtpSdkConfig, nxtpSdkUtils: NxtpSdkUtils, logger: Logger, chainData: Map<string, ChainData>) {
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
-    this.utils = nxtpSdkUtils;
     this.logger = logger;
     this.chainData = chainData;
     this.contracts = getContractInterfaces();
@@ -41,17 +38,16 @@ export class NxtpSdkBase {
     );
   }
 
-  static async create(_config: NxtpSdkConfig, _logger?: Logger): Promise<NxtpSdkBase> {
-    const chainData = await getChainData();
+  static async create(_config: NxtpSdkConfig, _logger?: Logger, _chainData?: ChainData): Promise<NxtpSdkBase> {
+    const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
       throw new Error("Could not get chain data");
     }
 
     const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
-    const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
-    const nxtpSdkUtils = new NxtpSdkUtils(nxtpConfig, logger, chainData);
+    const logger = _logger || new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
-    return new NxtpSdkBase(nxtpConfig, nxtpSdkUtils, logger, chainData);
+    return new NxtpSdkBase(nxtpConfig, logger, chainData);
   }
 
   async approveIfNeeded(
