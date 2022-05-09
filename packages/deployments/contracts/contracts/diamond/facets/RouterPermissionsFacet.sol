@@ -23,6 +23,10 @@ import {RouterPermissionsManagerInfo} from "../libraries/LibConnextStorage.sol";
  * address, then it must be accepted by the current owner.
  */
 contract RouterPermissionsFacet is Modifiers {
+  // ============ Properties ============
+
+  uint256 private constant _delay = 7 days;
+
   // ========== Custom Errors ===========
   error RouterPermissionsFacet__acceptProposedRouterOwner_notElapsed();
   error RouterPermissionsFacet__setRouterRecipient_notNewRecipient();
@@ -74,29 +78,33 @@ contract RouterPermissionsFacet is Modifiers {
    */
   event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);
 
+  // ============ Modifiers ============
+
   /**
    * @notice Asserts caller is the router owner (if set) or the router itself
    */
-  function _onlyRouterOwner(address _router, address _owner) internal view {
-    if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
-      revert RouterPermissionsFacet__onlyRouterOwner_notRouterOwner();
+  modifier onlyRouterOwner(address _router) {
+    address owner = s.routerInfo.routerOwners[_router];
+    if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
+      revert RouterPermissionsManagerFacet__onlyRouterOwner_notRouterOwner();
+    _;
   }
 
   /**
    * @notice Asserts caller is the proposed router. If proposed router is address(0), then asserts
    * the owner is calling the function (if set), or the router itself is calling the function
    */
-  function _onlyProposedRouterOwner(
-    address _router,
-    address _owner,
-    address _proposed
-  ) internal view {
-    if (_proposed == address(0)) {
-      if (!((_owner == address(0) && msg.sender == _router) || _owner == msg.sender))
-        revert RouterPermissionsFacet__onlyProposedRouterOwner_notRouterOwner();
+  modifier onlyProposedRouterOwner(address _router) {
+    address proposed = s.routerInfo.proposedRouterOwners[_router];
+    if (proposed == address(0)) {
+      address owner = s.routerInfo.routerOwners[_router];
+      if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
+        revert RouterPermissionsManagerFacet__onlyProposedRouterOwner_notRouterOwner();
     } else {
-      if (msg.sender != _proposed) revert RouterPermissionsFacet__onlyProposedRouterOwner_notProposedRouterOwner();
+      if (msg.sender != proposed)
+        revert RouterPermissionsManagerFacet__onlyProposedRouterOwner_notProposedRouterOwner();
     }
+    _;
   }
 
   // ============ Public methods ==============
@@ -154,9 +162,7 @@ contract RouterPermissionsFacet is Modifiers {
    * @param router Router address to set recipient
    * @param recipient Recipient Address to set to router
    */
-  function setRouterRecipient(address router, address recipient) external {
-    _onlyRouterOwner(router, s.routerPermissionInfo.routerOwners[router]);
-
+  function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
     // Check recipient is changing
     address _prevRecipient = s.routerPermissionInfo.routerRecipients[router];
     if (_prevRecipient == recipient) revert RouterPermissionsFacet__setRouterRecipient_notNewRecipient();
@@ -173,9 +179,7 @@ contract RouterPermissionsFacet is Modifiers {
    * @param router Router address to set recipient
    * @param proposed Proposed owner Address to set to router
    */
-  function proposeRouterOwner(address router, address proposed) external {
-    _onlyRouterOwner(router, s.routerPermissionInfo.routerOwners[router]);
-
+  function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
     // Check that proposed is different than current owner
     if (getRouterOwner(router) == proposed) revert RouterPermissionsFacet__proposeRouterOwner_notNewOwner();
 
@@ -195,17 +199,11 @@ contract RouterPermissionsFacet is Modifiers {
    * @notice New router owner must accept role, or previous if proposed is 0x0
    * @param router Router address to set recipient
    */
-  function acceptProposedRouterOwner(address router) external {
-    _onlyProposedRouterOwner(
-      router,
-      s.routerPermissionInfo.routerOwners[router],
-      s.routerPermissionInfo.proposedRouterOwners[router]
-    );
-
+  function acceptProposedRouterOwner(address router) external onlyProposedRouterOwner(router) {
     address owner = getRouterOwner(router);
 
     // Check timestamp has passed
-    if (block.timestamp - s.routerPermissionInfo.proposedRouterTimestamp[router] <= s._routerPermissionDelay)
+    if (block.timestamp - s.routerPermissionInfo.proposedRouterTimestamp[router] <= _delay)
       revert RouterPermissionsFacet__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
