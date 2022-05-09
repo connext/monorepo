@@ -196,7 +196,6 @@ struct AppStorage {
   uint256 _assetOwnershipTimestamp;
 
   // RouterPermissionsManager
-  uint256 _delay;
   RouterPermissionsManagerInfo routerInfo;
 
   // ReentrancyGuard
