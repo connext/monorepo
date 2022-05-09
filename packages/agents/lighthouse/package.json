@@ -28,8 +28,6 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-adapters-cache/dist",
-      "../@connext/nxtp-adapters-subgraph/dist",
       "../@connext/nxtp-txservice/dist",
       "../@connext/nxtp-utils/dist"
     ]
@@ -40,8 +38,6 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-cache": "workspace:*",
-    "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "^0.23.4",
