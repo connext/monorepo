@@ -29,37 +29,35 @@ export const pollBackend = async () => {
   const { requestContext, methodContext } = createLoggingContext("pollBackend");
 
   const { execute } = getOperations();
-  try {
-    const reconciledTransactions = await getReconciledTransactions();
 
-    for (const transaction of reconciledTransactions) {
-      // console.log(transaction);
+  const reconciledTransactions = await getReconciledTransactions();
 
-      const executeParams: ExecuteArgs = {
-        params: {
-          originDomain: transaction.origin_domain,
-          destinationDomain: transaction.destination_domain,
-          to: transaction.to,
-          callData: transaction.call_data,
-        },
-        local: transaction.destination_local_asset,
-        routers: [constants.AddressZero],
-        routerSignatures: ["0x"],
-        amount: transaction.destination_local_amount,
-        nonce: transaction.nonce,
-        originSender: transaction.xcall_caller,
-      };
+  for (const transaction of reconciledTransactions) {
+    // console.log(transaction);
 
-      const transferId = transaction.trasfer_id as string;
+    const executeParams: ExecuteArgs = {
+      params: {
+        originDomain: transaction.origin_domain,
+        destinationDomain: transaction.destination_domain,
+        to: transaction.to,
+        callData: transaction.call_data,
+      },
+      local: transaction.destination_local_asset,
+      routers: [constants.AddressZero],
+      routerSignatures: ["0x"],
+      amount: transaction.destination_local_amount,
+      nonce: transaction.nonce,
+      originSender: transaction.xcall_caller,
+    };
 
-      await execute(executeParams, transferId);
-    }
-  } catch (err: unknown) {
-    logger.error("Error, waiting for next loop", requestContext, methodContext, jsonifyError(err as NxtpError));
+    const transferId = transaction.trasfer_id as string;
+
+    logger.info("show", requestContext, methodContext, { executeParams, transferId });
+    await execute(executeParams, transferId);
   }
 };
 
-const getReconciledTransactions = async (): Promise<any> => {
+export const getReconciledTransactions = async (): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext("getReconciledTransactions");
   const {
     // adapters: {},
@@ -68,8 +66,7 @@ const getReconciledTransactions = async (): Promise<any> => {
   } = getContext();
 
   const statusIdentifier = `status=eq.Reconciled&`;
-  const uri = formatUrl(config.backendUrl!, "transfers?", statusIdentifier);
-
+  const uri = formatUrl(config.backendUrl, "transfers?", statusIdentifier);
   try {
     const response = await axios.get(uri);
     return response.data;
@@ -79,6 +76,7 @@ const getReconciledTransactions = async (): Promise<any> => {
       requestContext,
       methodContext,
       jsonifyError(error as NxtpError),
+      { uri },
     );
   }
 };
