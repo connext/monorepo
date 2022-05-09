@@ -91,7 +91,6 @@ struct RouterPermissionsManagerInfo {
 struct AppStorage {
   bool initialized;
   // ConnextHandler
-
   // TODO: enable setting these constants via admin fn
   uint256 LIQUIDITY_FEE_NUMERATOR;
   uint256 LIQUIDITY_FEE_DENOMINATOR;
@@ -200,7 +199,6 @@ struct AppStorage {
   //
   // RouterPermissionsManager
   //
-  uint256 _routerPermissionDelay;
   RouterPermissionsManagerInfo routerPermissionInfo;
 }
 

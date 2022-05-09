@@ -13,15 +13,10 @@ import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 import {AppStorage} from "./libraries/LibConnextStorage.sol";
 
 contract Connext {
-  AppStorage s;
-
   constructor(address _contractOwner, IDiamondCut.FacetCut[] memory _diamondCut) {
     LibDiamond.setContractOwner(_contractOwner);
 
     LibDiamond.diamondCut(_diamondCut, address(0), new bytes(0));
-
-    // Init RouterPermissionManage
-    s._routerPermissionDelay = 7 days;
   }
 
   // Find facet for function that is called and execute the
