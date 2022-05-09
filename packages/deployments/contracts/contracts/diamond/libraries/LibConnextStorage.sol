@@ -200,6 +200,10 @@ struct AppStorage {
   // RouterPermissionsManager
   //
   RouterPermissionsManagerInfo routerPermissionInfo;
+  //
+  // ReentrancyGuard
+  //
+  uint256 _status;
 }
 
 library LibConnextStorage {
