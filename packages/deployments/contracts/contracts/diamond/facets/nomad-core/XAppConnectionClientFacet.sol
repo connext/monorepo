@@ -13,8 +13,6 @@ import {AppStorage} from "../../libraries/LibConnextStorage.sol";
 import {Modifiers} from "../../utils/Modifiers.sol";
 
 contract XAppConnectionClientFacet is Modifiers {
-  AppStorage internal s;
-
   // ======== Initializer =========
 
   // TODO: move to DiamondInit

@@ -3,9 +3,15 @@ pragma solidity 0.8.11;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
 
-import {LibConnextStorage, AppStorage} from "../libraries/LibConnextStorage.sol";
+import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
 contract Modifiers {
+  AppStorage internal s;
+
+  // ========== Properties ===========
+  uint256 private constant _NOT_ENTERED = 1;
+  uint256 private constant _ENTERED = 2;
+
   // ========== Custom Errors ===========
 
   error Modifiers__onlyRemoteRouter_notRemoteRouter();
@@ -14,6 +20,27 @@ contract Modifiers {
   error Modifiers__onlyProposed_notProposedOwner();
 
   // ============ Modifiers ============
+
+  /**
+   * @dev Prevents a contract from calling itself, directly or indirectly.
+   * Calling a `nonReentrant` function from another `nonReentrant`
+   * function is not supported. It is possible to prevent this from happening
+   * by making the `nonReentrant` function external, and making it call a
+   * `private` function that does the actual work.
+   */
+  modifier nonReentrant() {
+    // On the first call to nonReentrant, _notEntered will be true
+    require(s._status != _ENTERED, "ReentrancyGuard: reentrant call");
+
+    // Any calls to nonReentrant after this point will fail
+    s._status = _ENTERED;
+
+    _;
+
+    // By storing the original value once again, a refund is triggered (see
+    // https://eips.ethereum.org/EIPS/eip-2200)
+    s._status = _NOT_ENTERED;
+  }
 
   /**
    * @notice Only accept messages from a remote Router contract
@@ -37,7 +64,6 @@ contract Modifiers {
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     if (s._owner != msg.sender) revert Modifiers__onlyOwner_notOwner();
     _;
   }
@@ -46,7 +72,6 @@ contract Modifiers {
    * @notice Throws if called by any account other than the proposed owner.
    */
   modifier onlyProposed() {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     if (s._proposed != msg.sender) revert Modifiers__onlyProposed_notProposedOwner();
     _;
   }
@@ -58,7 +83,6 @@ contract Modifiers {
    * been renounced
    */
   function isRouterOwnershipRenounced() public view returns (bool) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     return s._owner == address(0) || s._routerOwnershipRenounced;
   }
 
@@ -69,7 +93,6 @@ contract Modifiers {
    * @param _router The address of the potential remote xApp Router
    */
   function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.remotes[_domain] == _router;
   }
 
@@ -79,7 +102,6 @@ contract Modifiers {
    * @return _remote The address of the remote xApp Router on _domain
    */
   function _mustHaveRemote(uint32 _domain) internal view returns (bytes32 _remote) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     _remote = s.remotes[_domain];
     require(_remote != bytes32(0), "!remote");
   }
@@ -89,7 +111,6 @@ contract Modifiers {
    * @return The local Home contract
    */
   function _home() internal view returns (Home) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.xAppConnectionManager.home();
   }
 
@@ -98,7 +119,6 @@ contract Modifiers {
    * @return True if _potentialReplica is an enrolled Replica
    */
   function _isReplica(address _potentialReplica) internal view returns (bool) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.xAppConnectionManager.isReplica(_potentialReplica);
   }
 
@@ -107,7 +127,6 @@ contract Modifiers {
    * @return The local domain
    */
   function _localDomain() internal view virtual returns (uint32) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.xAppConnectionManager.localDomain();
   }
 }
