@@ -50,7 +50,9 @@ export const pollBackend = async () => {
         originSender: transaction.xcall_caller,
       };
 
-      await execute(executeParams, transaction.trasfer_id);
+      const transferId = transaction.trasfer_id as string;
+
+      await execute(executeParams, transferId);
     }
   } catch (err: unknown) {
     logger.error("Error, waiting for next loop", requestContext, methodContext, jsonifyError(err as NxtpError));

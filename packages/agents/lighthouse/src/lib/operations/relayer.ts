@@ -2,7 +2,6 @@ import { constants } from "ethers";
 import { RequestContext, createLoggingContext, connextRelayerSend, ExecuteArgs } from "@connext/nxtp-utils";
 
 import { getContext } from "../../lighthouse";
-import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
   args: ExecuteArgs,

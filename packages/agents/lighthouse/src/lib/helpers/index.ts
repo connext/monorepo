@@ -1,13 +1,4 @@
-import {
-  getTransactionId,
-  getSubgraphHealth,
-  getSubgraphName,
-  existsSync,
-  readFileSync,
-  gelatoSend,
-  isChainSupportedByGelato,
-  getGelatoRelayerAddress,
-} from "./shared";
+import { existsSync, readFileSync, gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress } from "./shared";
 
 export const getHelpers = () => {
   return {
@@ -17,9 +8,6 @@ export const getHelpers = () => {
       getGelatoRelayerAddress,
     },
     shared: {
-      getTransactionId,
-      getSubgraphHealth,
-      getSubgraphName,
       existsSync,
       readFileSync,
     },
