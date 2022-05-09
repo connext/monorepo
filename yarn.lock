@@ -817,6 +817,7 @@ __metadata:
     "@types/mocha": ^9.1.0
     "@types/sinon": ^10.0.11
     axios: ^0.26.1
+    concurrently: ^7.1.0
     dotenv: ^16.0.0
     eslint: ^8.11.0
     ethers: ^5.6.1
@@ -824,7 +825,9 @@ __metadata:
     graphql: ^16.3.0
     interval-promise: ^1.4.0
     mocha: ^9.2.2
+    nodemon: ^2.0.16
     nyc: ^15.1.0
+    pino-pretty: ^7.6.1
     prom-client: 14.0.1
     rimraf: ^3.0.2
     sinon: ^13.0.1
@@ -881,7 +884,9 @@ __metadata:
     graphql: ^16.3.0
     interval-promise: ^1.4.0
     mocha: ^9.2.2
+    nodemon: ^2.0.16
     nyc: ^15.1.0
+    pino-pretty: ^7.6.1
     prom-client: 14.0.1
     rimraf: ^3.0.2
     sinon: ^13.0.1
@@ -941,8 +946,10 @@ __metadata:
     fastify: ^3.27.4
     interval-promise: ^1.4.0
     mocha: ^9.2.2
+    nodemon: ^2.0.16
     nyc: ^15.1.0
     pino: ^7.10.0
+    pino-pretty: ^7.6.1
     rimraf: ^3.0.2
     sinon: ^13.0.1
     ts-mocha: ^9.0.2
@@ -16053,7 +16060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemon@npm:^2.0.15":
+"nodemon@npm:^2.0.15, nodemon@npm:^2.0.16":
   version: 2.0.16
   resolution: "nodemon@npm:2.0.16"
   dependencies:
@@ -17375,7 +17382,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-pretty@npm:^7.5.4":
+"pino-pretty@npm:^7.5.4, pino-pretty@npm:^7.6.1":
   version: 7.6.1
   resolution: "pino-pretty@npm:7.6.1"
   dependencies:
