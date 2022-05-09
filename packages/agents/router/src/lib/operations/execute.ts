@@ -7,10 +7,11 @@ import {
   OriginTransfer,
 } from "@connext/nxtp-utils";
 
-import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
+import { MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
+import { NomadContext } from "@nomad-xyz/sdk"
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 
@@ -84,6 +85,26 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
       destinationDomain: destinationDomain,
     });
   }
+
+  //todo: look for higher level import of this class
+  const nc = new NomadContext(); 
+  //push them to blacklist if not there already
+  await nc.checkHomes([originDomain, destinationDomain]);
+
+  //get blacklist
+  const blacklist = nc.blacklist();
+
+  //determine if origin or destintion aren't connected to nomad
+  const originBlacklisted = blacklist.has(Number(originDomain))
+  const destinationBlacklisted = blacklist.has(Number(destinationDomain));
+
+  if (originBlacklisted || destinationBlacklisted) {
+    throw new NomadHomeBlacklisted({
+      originDomainBlacklisted: originBlacklisted,
+      destinationBlacklisted: destinationBlacklisted
+    })
+  }
+
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   const fee = DEFAULT_ROUTER_FEE;
