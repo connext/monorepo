@@ -179,14 +179,17 @@ struct AppStorage {
   // * @notice The max amount of routers a payment can be routed through
   // */
   uint256 maxRoutersPerTransfer;
+  //
   // Router
-
+  //
   mapping(uint32 => bytes32) remotes;
+  //
   // XAppConnectionClient
-
+  //
   XAppConnectionManager xAppConnectionManager;
+  //
   // ProposedOwnable
-
+  //
   address _owner;
   address _proposed;
   uint256 _proposedOwnershipTimestamp;
@@ -194,10 +197,11 @@ struct AppStorage {
   uint256 _routerOwnershipTimestamp;
   bool _assetOwnershipRenounced;
   uint256 _assetOwnershipTimestamp;
+  //
   // RouterPermissionsManager
-
-  uint256 _delay;
-  RouterPermissionsManagerInfo routerInfo;
+  //
+  uint256 _routerPermissionDelay;
+  RouterPermissionsManagerInfo routerPermissionInfo;
 }
 
 library LibConnextStorage {

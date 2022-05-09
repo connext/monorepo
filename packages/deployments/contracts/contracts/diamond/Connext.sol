@@ -20,7 +20,8 @@ contract Connext {
 
     LibDiamond.diamondCut(_diamondCut, address(0), new bytes(0));
 
-    s._delay = 7 days;
+    // Init RouterPermissionManage
+    s._routerPermissionDelay = 7 days;
   }
 
   // Find facet for function that is called and execute the
