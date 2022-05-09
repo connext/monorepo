@@ -2,7 +2,6 @@
 pragma solidity 0.8.11;
 
 import {Modifiers} from "../utils/Modifiers.sol";
-import {ReentrancyGuard} from "../utils/ReentrancyGuard.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
@@ -23,7 +22,7 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  * can be accepted by the proposed owner after the delay period. If the proposed owner is the empty
  * address, then it must be accepted by the current owner.
  */
-contract RoutersFacet is Modifiers, ReentrancyGuard {
+contract RoutersFacet is Modifiers {
   // ========== Custom Errors ===========
   error RoutersFacet__acceptProposedRouterOwner_notElapsed();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
@@ -46,7 +45,6 @@ contract RoutersFacet is Modifiers, ReentrancyGuard {
   error RoutersFacet__removeLiquidity_insufficientFunds();
 
   // ============ Properties ============
-  AppStorage internal s;
 
   // ============ Constants ============
   uint256 private constant _delay = 7 days;

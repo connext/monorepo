@@ -178,17 +178,11 @@ struct AppStorage {
   // * @notice The max amount of routers a payment can be routed through
   // */
   uint256 maxRoutersPerTransfer;
-  //
   // Router
-  //
   mapping(uint32 => bytes32) remotes;
-  //
   // XAppConnectionClient
-  //
   XAppConnectionManager xAppConnectionManager;
-  //
   // ProposedOwnable
-  //
   address _owner;
   address _proposed;
   uint256 _proposedOwnershipTimestamp;
