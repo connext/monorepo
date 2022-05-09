@@ -90,7 +90,6 @@ struct RouterPermissionsManagerInfo {
 
 struct AppStorage {
   bool initialized;
-
   // ConnextHandler
   // TODO: enable setting these constants via admin fn
   uint256 LIQUIDITY_FEE_NUMERATOR;
@@ -180,12 +179,9 @@ struct AppStorage {
   // */
   uint256 maxRoutersPerTransfer;
   // Router
-
   mapping(uint32 => bytes32) remotes;
-
   // XAppConnectionClient
   XAppConnectionManager xAppConnectionManager;
-
   // ProposedOwnable
   address _owner;
   address _proposed;
@@ -194,10 +190,8 @@ struct AppStorage {
   uint256 _routerOwnershipTimestamp;
   bool _assetOwnershipRenounced;
   uint256 _assetOwnershipTimestamp;
-
   // RouterPermissionsManager
   RouterPermissionsManagerInfo routerInfo;
-
   // ReentrancyGuard
   uint256 _status;
 }

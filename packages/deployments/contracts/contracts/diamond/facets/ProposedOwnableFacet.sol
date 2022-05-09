@@ -27,8 +27,6 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  *
  */
 contract ProposedOwnableFacet is Modifiers {
-  AppStorage internal s;
-
   // ========== Custom Errors ===========
   error ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
   error ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();

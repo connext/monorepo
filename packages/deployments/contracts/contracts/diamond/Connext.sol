@@ -13,6 +13,8 @@ import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
 import {AppStorage} from "./libraries/LibConnextStorage.sol";
 
 contract Connext {
+  AppStorage s;
+
   constructor(address _contractOwner, IDiamondCut.FacetCut[] memory _diamondCut) {
     LibDiamond.setContractOwner(_contractOwner);
 
