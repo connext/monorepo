@@ -1,1 +1,1 @@
-export { bindBackend } from "./backend";
+export { bindBackend, getReconciledTransactions } from "./backend";
