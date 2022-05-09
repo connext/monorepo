@@ -4,7 +4,6 @@ pragma solidity 0.8.11;
 // import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import {Modifiers} from "../utils/Modifiers.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @title ProposedOwnable
