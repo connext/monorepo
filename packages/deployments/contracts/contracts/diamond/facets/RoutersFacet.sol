@@ -24,8 +24,6 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  * address, then it must be accepted by the current owner.
  */
 contract RoutersFacet is Modifiers, ReentrancyGuard {
-  AppStorage internal s;
-
   // ========== Custom Errors ===========
   error RoutersFacet__acceptProposedRouterOwner_notElapsed();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
@@ -47,8 +45,10 @@ contract RoutersFacet is Modifiers, ReentrancyGuard {
   error RoutersFacet__removeLiquidity_amountIsZero();
   error RoutersFacet__removeLiquidity_insufficientFunds();
 
-  // ============ Constants ============
+  // ============ Properties ============
+  AppStorage internal s;
 
+  // ============ Constants ============
   uint256 private constant _delay = 7 days;
 
   // ============ Events ============
