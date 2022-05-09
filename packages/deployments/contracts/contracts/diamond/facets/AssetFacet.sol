@@ -2,14 +2,13 @@
 pragma solidity ^0.8.11;
 
 import {Modifiers} from "../utils/Modifiers.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
 import {ConnextMessage} from "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 
 contract AssetFacet is Modifiers {
   // ========== Custom Errors ===========
-  error ConnextLogic__addAssetId_alreadyAdded();
-  error ConnextLogic__removeAssetId_notAdded();
+  error AssetFacet__addAssetId_alreadyAdded();
+  error AssetFacet__removeAssetId_notAdded();
 
   // ============ Events ============
 
@@ -57,7 +56,7 @@ contract AssetFacet is Modifiers {
     address _stableSwapPool
   ) external onlyOwner {
     // Sanity check: needs approval
-    if (s.approvedAssets[_canonical.id]) revert ConnextLogic__addAssetId_alreadyAdded();
+    if (s.approvedAssets[_canonical.id]) revert AssetFacet__addAssetId_alreadyAdded();
 
     // Update approved assets mapping
     s.approvedAssets[_canonical.id] = true;
@@ -92,7 +91,7 @@ contract AssetFacet is Modifiers {
    */
   function removeAssetId(bytes32 _canonicalId, address _adoptedAssetId) external onlyOwner {
     // Sanity check: already approval
-    if (!s.approvedAssets[_canonicalId]) revert ConnextLogic__removeAssetId_notAdded();
+    if (!s.approvedAssets[_canonicalId]) revert AssetFacet__removeAssetId_notAdded();
 
     // Update mapping
     delete s.approvedAssets[_canonicalId];
