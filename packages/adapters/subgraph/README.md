@@ -1,6 +1,6 @@
 # Cross Chain Subgraph for NXTP
 
-The subgraph adapter has been built on top of the [graphclient](https://github.com/graphprotocol/graph-client). This basically works in cross-chain mode right now and use `highestValue` strategy, but we will integrate `most-synced` strategy once they get it released [here](https://github.com/graphprotocol/graph-client/issues/63).
+The subgraph adapter has been built on top of the [graphclient](https://github.com/graphprotocol/graph-client). This basically works in cross-chain mode right now and uses `highestValue` strategy, but we will integrate the `most-synced` strategy once they get it released [here](https://github.com/graphprotocol/graph-client/issues/63).
 
 ## Cross Chain Mode
 
@@ -36,7 +36,7 @@ sources:
             - _SubgraphErrorPolicy_
 ```
 
-The merged schema allows users to execute cross-chain query through multiple chains at a same time and parse responses.
+The merged schema allows users to execute a cross-chain query through multiple chains at the same time and parse responses.
 
 ```
 query something($t: String) { # you can even pass the same GraphQL variable, into multiple GraphQL field arguments
@@ -51,7 +51,8 @@ query something($t: String) { # you can even pass the same GraphQL variable, int
 
 ### How to add a new subgraph
 
-To add a new subgraph, you need to determine source name, endpoint and prefix first. After confirming those, you can add a new source to .graphclientrc.yml and regenerate typescript types.
+To add a new subgraph, you need to determine source name, endpoint and prefix first. After that, you can add a new source to .graphclientrc.yml and need to regenerate typescript types for schemas to be updated.
+
 
 ### How to generate typescript types.
 
