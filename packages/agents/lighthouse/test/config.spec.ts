@@ -80,24 +80,6 @@ describe("Config", () => {
       );
     });
 
-    it("should error if the wallet is missing", () => {
-      stub(process, "env").value({
-        ...process.env,
-        NXTP_MNEMONIC: null,
-        NXTP_NETWORK: "local",
-        NXTP_CONFIG: JSON.stringify({
-          ...mockConfig,
-          mnemonic: null,
-          web3SignerUrl: null,
-        }),
-        NXTP_CONFIG_FILE: "buggypath",
-      });
-
-      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw(
-        `Wallet missing, please add either mnemonic or web3SignerUrl`,
-      );
-    });
-
     it("should substitute contract deployments with deployments argument if none exist in config", () => {
       const alteredMockChain = parseInt(mock.chain.A);
       stub(process, "env").value({
