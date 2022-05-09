@@ -5,20 +5,32 @@ import { PrefixInvalid } from "../errors";
 
 import { getMeshOptions } from "./shared";
 
-export const create = async (chaindata: Map<string, ChainData>): Promise<SubgraphMap> => {
+const getNetwork = (sourceName: string, env: string): RegExpMatchArray | null => {
+  const result =
+    env === "staging" ? sourceName.match(/Connext_Staging_(.*)$/) : sourceName.match(/Connext_(?!Staging)(.*)$/);
+  return result;
+};
+export const create = async (
+  chaindata: Map<string, ChainData>,
+  env: "staging" | "production" = "production",
+): Promise<SubgraphMap> => {
   const meshOptions = await getMeshOptions();
   const names = meshOptions.sources.map((source) => source.name);
 
   // Parse the Network names from the subgraph prefix names in the mesh config.
-  const networks = names.map((name) => {
-    const result = name.match(/Connext_(.*)$/);
-    if (!result) {
-      throw new PrefixInvalid(name, result);
-    }
-    // Should be the first match group.
-    return result[1].toLowerCase();
-  });
-
+  const networks = names
+    .filter((name) => {
+      const result = getNetwork(name, env);
+      return !!result;
+    })
+    .map((name) => {
+      const result = getNetwork(name, env);
+      if (!result) {
+        throw new PrefixInvalid(name, result);
+      }
+      // Should be the first match group.
+      return result[1].toLowerCase();
+    });
   const config: SubgraphMap = {
     sources: {},
     supported: {},
@@ -27,7 +39,7 @@ export const create = async (chaindata: Map<string, ChainData>): Promise<Subgrap
     if (networks.includes(chainData.network)) {
       config.sources[chainData.domainId] = {
         domain: chainData.domainId,
-        prefix: chainData.network,
+        prefix: env === "staging" ? `${env}${chainData.network}` : chainData.network,
       };
       config.supported[chainData.domainId] = true;
     } else {
@@ -43,5 +55,7 @@ export const create = async (chaindata: Map<string, ChainData>): Promise<Subgrap
         ` domains: ${unsupportedDomains.join(", ")}`,
     );
   }
+
+  console.log(config);
   return config;
 };

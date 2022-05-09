@@ -451,7 +451,7 @@ jobs:
 
       - name: Decrypt Testnet Production Secrets
         id: decrypt
-        run: sops -d ops/env/testnet/prod/core/secrets.prod.json > ops/testnet/prod/core/tfvars.json
+        run: sops -d ops/env/testnet/core/secrets.prod.json > ops/testnet/prod/core/tfvars.json
 
       - name: Terraform Init
         id: init
