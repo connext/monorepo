@@ -4,7 +4,7 @@
 pragma solidity 0.8.11;
 
 // import "../proxy/utils/Initializable.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
@@ -23,8 +23,6 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
  */
 contract ReentrancyGuard {
-  AppStorage internal s;
-
   // Booleans are more expensive than uint256 or any type that takes up a full
   // word because each write operation emits an extra SLOAD to first read the
   // slot's contents, replace the bits taken up by the boolean, and then write
@@ -56,6 +54,7 @@ contract ReentrancyGuard {
    * `private` function that does the actual work.
    */
   modifier nonReentrant() {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     // On the first call to nonReentrant, _notEntered will be true
     require(s._status != _ENTERED, "ReentrancyGuard: reentrant call");
 

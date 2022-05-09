@@ -5,8 +5,10 @@ pragma solidity ^0.8.11;
 // import {IMessageRecipient} from "../../../nomad-core/interfaces/IMessageRecipient.sol";
 
 import {Modifiers} from "../../utils/Modifiers.sol";
+import {AppStorage} from "../../libraries/LibConnextStorage.sol";
 
 contract RouterFacet is Modifiers {
+  AppStorage internal s;
   // ============ Modifiers ============
 
   // ============ Getters functions ============

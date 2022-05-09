@@ -5,6 +5,7 @@ pragma solidity ^0.8.11;
 // import {Home} from "../../../../nomad-core-sol/contracts/Home.sol";
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
+import {AppStorage} from "../../libraries/LibConnextStorage.sol";
 
 // TODO: refactor proposed ownable to be one basic + one router/asset
 // import {ProposedOwnableUpgradeable} from "../../ProposedOwnableUpgradeable.sol";
@@ -12,6 +13,8 @@ import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectio
 import {Modifiers} from "../../utils/Modifiers.sol";
 
 contract XAppConnectionClientFacet is Modifiers {
+  AppStorage internal s;
+
   // ======== Initializer =========
 
   // TODO: move to DiamondInit

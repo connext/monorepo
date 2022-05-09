@@ -3,11 +3,9 @@ pragma solidity 0.8.11;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
 
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage} from "../libraries/LibConnextStorage.sol";
 
 contract Modifiers {
-  AppStorage internal s;
-
   // ========== Custom Errors ===========
 
   error Modifiers__onlyRemoteRouter_notRemoteRouter();
@@ -39,6 +37,7 @@ contract Modifiers {
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     if (s._owner != msg.sender) revert Modifiers__onlyOwner_notOwner();
     _;
   }
@@ -47,6 +46,7 @@ contract Modifiers {
    * @notice Throws if called by any account other than the proposed owner.
    */
   modifier onlyProposed() {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     if (s._proposed != msg.sender) revert Modifiers__onlyProposed_notProposedOwner();
     _;
   }
@@ -58,6 +58,7 @@ contract Modifiers {
    * been renounced
    */
   function isRouterOwnershipRenounced() public view returns (bool) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     return s._owner == address(0) || s._routerOwnershipRenounced;
   }
 
@@ -68,6 +69,7 @@ contract Modifiers {
    * @param _router The address of the potential remote xApp Router
    */
   function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.remotes[_domain] == _router;
   }
 
@@ -77,6 +79,7 @@ contract Modifiers {
    * @return _remote The address of the remote xApp Router on _domain
    */
   function _mustHaveRemote(uint32 _domain) internal view returns (bytes32 _remote) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     _remote = s.remotes[_domain];
     require(_remote != bytes32(0), "!remote");
   }
@@ -86,6 +89,7 @@ contract Modifiers {
    * @return The local Home contract
    */
   function _home() internal view returns (Home) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.xAppConnectionManager.home();
   }
 
@@ -94,6 +98,7 @@ contract Modifiers {
    * @return True if _potentialReplica is an enrolled Replica
    */
   function _isReplica(address _potentialReplica) internal view returns (bool) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.xAppConnectionManager.isReplica(_potentialReplica);
   }
 
@@ -102,6 +107,7 @@ contract Modifiers {
    * @return The local domain
    */
   function _localDomain() internal view virtual returns (uint32) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
     return s.xAppConnectionManager.localDomain();
   }
 }
