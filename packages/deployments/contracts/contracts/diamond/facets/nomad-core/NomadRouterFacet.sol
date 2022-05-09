@@ -7,7 +7,7 @@ pragma solidity ^0.8.11;
 import {Modifiers} from "../../utils/Modifiers.sol";
 import {AppStorage} from "../../libraries/LibConnextStorage.sol";
 
-contract RouterFacet is Modifiers {
+contract NomadRouterFacet is Modifiers {
   AppStorage internal s;
   // ============ Modifiers ============
 

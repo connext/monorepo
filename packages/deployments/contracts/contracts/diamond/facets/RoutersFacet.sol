@@ -2,12 +2,14 @@
 pragma solidity 0.8.11;
 
 import {Modifiers} from "../utils/Modifiers.sol";
+import {ReentrancyGuard} from "../utils/ReentrancyGuard.sol";
+import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
  * This contract is designed to manage router access, meaning it maintains the
- * router recipients, owners, and the router whitelist itself. It does *not* manage router balances
- * as asset management is out of scope of this contract.
+ * router recipients, owners, and the router whitelist itself.
  *
  * As a router, there are three important permissions:
  * `router` - this is the address that will sign bids sent to the sequencer
@@ -21,23 +23,35 @@ import {Modifiers} from "../utils/Modifiers.sol";
  * can be accepted by the proposed owner after the delay period. If the proposed owner is the empty
  * address, then it must be accepted by the current owner.
  */
-contract RouterPermissionsManagerFacet is Modifiers {
-  // ========== Custom Errors ===========
-  error RouterPermissionsManagerFacet__acceptProposedRouterOwner_notElapsed();
-  error RouterPermissionsManagerFacet__setRouterRecipient_notNewRecipient();
-  error RouterPermissionsManagerFacet__onlyRouterOwner_notRouterOwner();
-  error RouterPermissionsManagerFacet__onlyProposedRouterOwner_notRouterOwner();
-  error RouterPermissionsManagerFacet__onlyProposedRouterOwner_notProposedRouterOwner();
-  error RouterPermissionsManagerFacet__removeRouter_routerEmpty();
-  error RouterPermissionsManagerFacet__removeRouter_notAdded();
-  error RouterPermissionsManagerFacet__setupRouter_routerEmpty();
-  error RouterPermissionsManagerFacet__setupRouter_amountIsZero();
-  error RouterPermissionsManagerFacet__proposeRouterOwner_notNewOwner();
-  error RouterPermissionsManagerFacet__proposeRouterOwner_badRouter();
+contract RoutersFacet is Modifiers, ReentrancyGuard {
+  AppStorage internal s;
 
-  // ============ Properties ============
+  // ========== Custom Errors ===========
+  error RoutersFacet__acceptProposedRouterOwner_notElapsed();
+  error RoutersFacet__setRouterRecipient_notNewRecipient();
+  error RoutersFacet__onlyRouterOwner_notRouterOwner();
+  error RoutersFacet__onlyProposedRouterOwner_notRouterOwner();
+  error RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner();
+  error RoutersFacet__removeRouter_routerEmpty();
+  error RoutersFacet__removeRouter_notAdded();
+  error RoutersFacet__setupRouter_routerEmpty();
+  error RoutersFacet__setupRouter_amountIsZero();
+  error RoutersFacet__proposeRouterOwner_notNewOwner();
+  error RoutersFacet__proposeRouterOwner_badRouter();
+  error RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+  error RoutersFacet__addLiquidityForRouter_routerEmpty();
+  error RoutersFacet__addLiquidityForRouter_amountIsZero();
+  error RoutersFacet__addLiquidityForRouter_badRouter();
+  error RoutersFacet__addLiquidityForRouter_badAsset();
+  error RoutersFacet__removeLiquidity_recipientEmpty();
+  error RoutersFacet__removeLiquidity_amountIsZero();
+  error RoutersFacet__removeLiquidity_insufficientFunds();
+
+  // ============ Constants ============
 
   uint256 private constant _delay = 7 days;
+
+  // ============ Events ============
 
   /**
    * @notice Emitted when a new router is added
@@ -77,6 +91,32 @@ contract RouterPermissionsManagerFacet is Modifiers {
    */
   event RouterOwnerAccepted(address indexed router, address indexed prevOwner, address indexed newOwner);
 
+  /**
+   * @notice Emitted when the maxRoutersPerTransfer variable is updated
+   * @param maxRoutersPerTransfer - The maxRoutersPerTransfer new value
+   * @param caller - The account that called the function
+   */
+  event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
+
+  /**
+   * @notice Emitted when a router adds liquidity to the contract
+   * @param router - The address of the router the funds were credited to
+   * @param local - The address of the token added (all liquidity held in local asset)
+   * @param amount - The amount of liquidity added
+   * @param caller - The account that called the function
+   */
+  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when a router withdraws liquidity from the contract
+   * @param router - The router you are removing liquidity from
+   * @param to - The address the funds were withdrawn to
+   * @param local - The address of the token withdrawn
+   * @param amount - The amount of liquidity withdrawn
+   * @param caller - The account that called the function
+   */
+  event LiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
+
   // ============ Modifiers ============
 
   /**
@@ -85,7 +125,7 @@ contract RouterPermissionsManagerFacet is Modifiers {
   modifier onlyRouterOwner(address _router) {
     address owner = s.routerInfo.routerOwners[_router];
     if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
-      revert RouterPermissionsManagerFacet__onlyRouterOwner_notRouterOwner();
+      revert RoutersFacet__onlyRouterOwner_notRouterOwner();
     _;
   }
 
@@ -98,10 +138,10 @@ contract RouterPermissionsManagerFacet is Modifiers {
     if (proposed == address(0)) {
       address owner = s.routerInfo.routerOwners[_router];
       if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
-        revert RouterPermissionsManagerFacet__onlyProposedRouterOwner_notRouterOwner();
+        revert RoutersFacet__onlyProposedRouterOwner_notRouterOwner();
     } else {
       if (msg.sender != proposed)
-        revert RouterPermissionsManagerFacet__onlyProposedRouterOwner_notProposedRouterOwner();
+        revert RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner();
     }
     _;
   }
@@ -164,7 +204,7 @@ contract RouterPermissionsManagerFacet is Modifiers {
   function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
     // Check recipient is changing
     address _prevRecipient = s.routerInfo.routerRecipients[router];
-    if (_prevRecipient == recipient) revert RouterPermissionsManagerFacet__setRouterRecipient_notNewRecipient();
+    if (_prevRecipient == recipient) revert RoutersFacet__setRouterRecipient_notNewRecipient();
 
     // Set new recipient
     s.routerInfo.routerRecipients[router] = recipient;
@@ -180,11 +220,11 @@ contract RouterPermissionsManagerFacet is Modifiers {
    */
   function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
     // Check that proposed is different than current owner
-    if (getRouterOwner(router) == proposed) revert RouterPermissionsManagerFacet__proposeRouterOwner_notNewOwner();
+    if (getRouterOwner(router) == proposed) revert RoutersFacet__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
     address _currentProposed = s.routerInfo.proposedRouterOwners[router];
-    if (_currentProposed == proposed) revert RouterPermissionsManagerFacet__proposeRouterOwner_badRouter();
+    if (_currentProposed == proposed) revert RoutersFacet__proposeRouterOwner_badRouter();
 
     // Set proposed owner + timestamp
     s.routerInfo.proposedRouterOwners[router] = proposed;
@@ -203,7 +243,7 @@ contract RouterPermissionsManagerFacet is Modifiers {
 
     // Check timestamp has passed
     if (block.timestamp - s.routerInfo.proposedRouterTimestamp[router] <= _delay)
-      revert RouterPermissionsManagerFacet__acceptProposedRouterOwner_notElapsed();
+      revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
     address _proposed = s.routerInfo.proposedRouterOwners[router];
@@ -234,10 +274,10 @@ contract RouterPermissionsManagerFacet is Modifiers {
     address recipient
   ) external onlyOwner {
     // Sanity check: not empty
-    if (router == address(0)) revert RouterPermissionsManagerFacet__setupRouter_routerEmpty();
+    if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (s.routerInfo.approvedRouters[router]) revert RouterPermissionsManagerFacet__setupRouter_amountIsZero();
+    if (s.routerInfo.approvedRouters[router]) revert RoutersFacet__setupRouter_amountIsZero();
 
     // Approve router
     s.routerInfo.approvedRouters[router] = true;
@@ -264,10 +304,10 @@ contract RouterPermissionsManagerFacet is Modifiers {
    */
   function removeRouter(address router) external onlyOwner {
     // Sanity check: not empty
-    if (router == address(0)) revert RouterPermissionsManagerFacet__removeRouter_routerEmpty();
+    if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    if (!s.routerInfo.approvedRouters[router]) revert RouterPermissionsManagerFacet__removeRouter_notAdded();
+    if (!s.routerInfo.approvedRouters[router]) revert RoutersFacet__removeRouter_notAdded();
 
     // Update mapping
     s.routerInfo.approvedRouters[router] = false;
@@ -290,5 +330,127 @@ contract RouterPermissionsManagerFacet is Modifiers {
       // delete routerRecipients[router];
       s.routerInfo.routerRecipients[router] = address(0);
     }
+  }
+
+  /**
+   * @notice Used to set the max amount of routers a payment can be routed through
+   * @param _newMaxRouters The new max amount of routers
+   */
+  function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external onlyOwner {
+    if (_newMaxRouters == 0 || _newMaxRouters == s.maxRoutersPerTransfer)
+      revert RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
+
+    emit MaxRoutersPerTransferUpdated(_newMaxRouters, msg.sender);
+
+    s.maxRoutersPerTransfer = _newMaxRouters;
+  }
+
+  /**
+   * @notice This is used by anyone to increase a router's available liquidity for a given asset.
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
+   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _router The router you are adding liquidity on behalf of
+   */
+  function addLiquidityFor(
+    uint256 _amount,
+    address _local,
+    address _router
+  ) external payable nonReentrant {
+    _addLiquidityForRouter(_amount, _local, _router);
+  }
+
+  /**
+   * @notice This is used by any router to increase their available liquidity for a given asset.
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
+   * native asset, routers may use `address(0)` or the wrapped asset
+   */
+  function addLiquidity(uint256 _amount, address _local) external payable nonReentrant {
+    _addLiquidityForRouter(_amount, _local, msg.sender);
+  }
+
+  /**
+   * @notice This is used by any router to decrease their available liquidity for a given asset.
+   * @param _amount - The amount of liquidity to remove for the router
+   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
+   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _to The address that will receive the liquidity being removed
+   */
+  function removeLiquidity(
+    uint256 _amount,
+    address _local,
+    address payable _to
+  ) external nonReentrant {
+    // transfer to specicfied recipient IF recipient not set
+    address recipient = getRouterRecipient(msg.sender);
+    recipient = recipient == address(0) ? _to : recipient;
+
+    // Sanity check: to is sensible
+    if (recipient == address(0)) revert RoutersFacet__removeLiquidity_recipientEmpty();
+
+    // Sanity check: nonzero amounts
+    if (_amount == 0) revert RoutersFacet__removeLiquidity_amountIsZero();
+
+    uint256 routerBalance = s.routerBalances[msg.sender][_local];
+    // Sanity check: amount can be deducted for the router
+    if (routerBalance < _amount) revert RoutersFacet__removeLiquidity_insufficientFunds();
+
+    // Update router balances
+    unchecked {
+      s.routerBalances[msg.sender][_local] = routerBalance - _amount;
+    }
+
+    // Transfer from contract to specified to
+    AssetLogic.transferAssetFromContract(_local, recipient, _amount);
+
+    // Emit event
+    emit LiquidityRemoved(msg.sender, recipient, _local, _amount, msg.sender);
+  }
+
+  // ============ Internal functions ============
+
+  /**
+   * @notice Contains the logic to verify + increment a given routers liquidity
+   * @dev The liquidity will be held in the local asset, which is the representation if you
+   * are *not* on the canonical domain, and the canonical asset otherwise.
+   * @param _amount - The amount of liquidity to add for the router
+   * @param _local - The address of the nomad representation of the asset
+   * @param _router - The router you are adding liquidity on behalf of
+   */
+  function _addLiquidityForRouter(
+    uint256 _amount,
+    address _local,
+    address _router
+  ) internal {
+    // Sanity check: router is sensible
+    if (_router == address(0)) revert RoutersFacet__addLiquidityForRouter_routerEmpty();
+
+    // Sanity check: nonzero amounts
+    if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
+
+    // Get the canonical asset id from the representation
+    (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local == address(0) ? address(s.wrapper) : _local);
+
+    // Router is approved
+    if (!isRouterOwnershipRenounced() && !getRouterApproval(_router))
+      revert RoutersFacet__addLiquidityForRouter_badRouter();
+
+    // Asset is approved
+    if (!isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId]) revert RoutersFacet__addLiquidityForRouter_badAsset();
+
+    // Transfer funds to contract
+    (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0);
+
+    // Update the router balances. Happens after pulling funds to account for
+    // the fee on transfer tokens
+    s.routerBalances[_router][asset] += received;
+
+    // Emit event
+    emit LiquidityAdded(_router, asset, canonicalId, received, msg.sender);
   }
 }

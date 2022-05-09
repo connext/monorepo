@@ -62,6 +62,15 @@ contract Modifiers {
     return s._owner == address(0) || s._routerOwnershipRenounced;
   }
 
+   /**
+   * @notice Indicates if the ownership of the asset whitelist has
+   * been renounced
+   */
+  function isAssetOwnershipRenounced() public view returns (bool) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    return s._owner == address(0) || s._assetOwnershipRenounced;
+  }
+
   // ============ Internal functions ============
   /**
    * @notice Return true if the given domain / router is the address of a remote xApp Router
