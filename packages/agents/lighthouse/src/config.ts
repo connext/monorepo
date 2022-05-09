@@ -93,7 +93,11 @@ export const getEnvConfig = (
       diagnostic:
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
-    backendUrl: process.env.NXTP_SEQUENCER || configJson.backendUrl || configFile.backendUrl,
+    backendUrl:
+      process.env.NXTP_SEQUENCER ||
+      configJson.backendUrl ||
+      configFile.backendUrl ||
+      "https://postgrest.testnet.staging.connext.ninja",
     polling: {
       backend:
         process.env.NXTP_BACKEND_POLL_INTERVAL ||
