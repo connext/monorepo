@@ -1,24 +1,23 @@
-import { getAuctionStatus, sendBid } from "./auctions";
 import {
-  getDestinationLocalAsset,
   getTransactionId,
-  signHandleRelayerFeePayload,
   getSubgraphHealth,
   getSubgraphName,
   existsSync,
   readFileSync,
+  gelatoSend,
+  isChainSupportedByGelato,
+  getGelatoRelayerAddress,
 } from "./shared";
 
 export const getHelpers = () => {
   return {
-    auctions: {
-      getAuctionStatus,
-      sendBid,
+    relayer: {
+      gelatoSend,
+      isChainSupportedByGelato,
+      getGelatoRelayerAddress,
     },
     shared: {
-      getDestinationLocalAsset,
       getTransactionId,
-      signHandleRelayerFeePayload,
       getSubgraphHealth,
       getSubgraphName,
       existsSync,
