@@ -11,9 +11,6 @@ contract AssetFacet is Modifiers {
   error ConnextLogic__addAssetId_alreadyAdded();
   error ConnextLogic__removeAssetId_notAdded();
 
-  // ============ Properties ============
-  AppStorage internal s;
-
   // ============ Events ============
 
   /**
