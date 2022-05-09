@@ -2,6 +2,7 @@
 pragma solidity 0.8.11;
 
 import {Modifiers} from "../utils/Modifiers.sol";
+import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
 /**
  * @notice
@@ -36,6 +37,7 @@ contract RouterPermissionsManagerFacet is Modifiers {
   error RouterPermissionsManagerFacet__proposeRouterOwner_badRouter();
 
   // ============ Properties ============
+  AppStorage internal s;
 
   uint256 private constant _delay = 7 days;
 
