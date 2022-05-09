@@ -3,19 +3,20 @@
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
-import { SubgraphReaderChainConfigSchema } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractDeployments } from "@connext/nxtp-txservice";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { getHelpers } from "./lib/helpers";
 
-const MIN_SUBGRAPH_SYNC_BUFFER = 25;
-const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
+// Polling mins and defaults.
+const DEFAULT_CONFIRMATIONS = 3;
+const MIN_BACKEND_POLL_INTERVAL = 10_000;
+const DEFAULT_BACKEND_POLL_INTERVAL = 20_000;
 
 dotenvConfig();
 
 export const TChainConfig = Type.Object({
-  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
   providers: Type.Array(Type.String()),
+  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
     connext: TAddress,
   }),
@@ -23,24 +24,24 @@ export const TChainConfig = Type.Object({
 
 export type ChainConfig = Static<typeof TChainConfig>;
 
-export const TRedisConfig = Type.Object({
-  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
-  host: Type.Optional(Type.String()),
-});
-
 export const TModeConfig = Type.Object({
   diagnostic: Type.Boolean(),
   cleanup: Type.Boolean(),
-  priceCaching: Type.Boolean(),
+});
+
+export const TPollingConfig = Type.Object({
+  backend: Type.Integer({ minimum: MIN_BACKEND_POLL_INTERVAL }),
 });
 
 export const NxtpLighthouseConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
-  // redis: TRedisConfig,
-  mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  subgraphPollInterval: Type.Optional(Type.Integer({ minimum: 1000 })),
+  backendUrl: Type.String(),
+  mode: TModeConfig,
+  polling: TPollingConfig,
+  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  relayerUrl: Type.Optional(Type.String()),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -89,21 +90,29 @@ export const getEnvConfig = (
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     mode: {
       cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
-      priceCaching:
-        process.env.NXTP_PRICE_CACHE_MODE || configJson.mode?.priceCaching || configFile.mode?.priceCaching || true,
       diagnostic:
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
-    subgraphPollInterval:
-      process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
-      configJson.subgraphPollInterval ||
-      configFile.subgraphPollInterval ||
-      DEFAULT_SUBGRAPH_POLL_INTERVAL,
+    backendUrl: process.env.NXTP_SEQUENCER || configJson.backendUrl || configFile.backendUrl,
+    polling: {
+      backend:
+        process.env.NXTP_BACKEND_POLL_INTERVAL ||
+        configJson.polling?.cache ||
+        configFile.polling?.cach ||
+        DEFAULT_BACKEND_POLL_INTERVAL,
+    },
+    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
+
+  const contractPostfix: ContractPostfix =
+    nxtpConfig.environment === "production"
+      ? ""
+      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
+    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? DEFAULT_CONFIRMATIONS;
 
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
@@ -112,7 +121,7 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId) : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }
@@ -120,13 +129,7 @@ export const getEnvConfig = (
         })(),
     };
 
-    const maxLag = chainConfig.subgraph?.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
-    nxtpConfig.chains[domainId].subgraph = {
-      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraphs?.runtime ?? [],
-      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.subgraphs?.analytics ?? [],
-      // 25 blocks minimum.
-      maxLag: maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag,
-    };
+    nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
   });
 
   const validate = ajv.compile(NxtpLighthouseConfigSchema);
