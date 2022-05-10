@@ -17,10 +17,10 @@ contract BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error Modifiers__onlyRemoteRouter_notRemoteRouter();
-  error Modifiers__onlyReplica_notReplica();
-  error Modifiers__onlyOwner_notOwner();
-  error Modifiers__onlyProposed_notProposedOwner();
+  error BaseConnextFacet__onlyRemoteRouter_notRemoteRouter();
+  error BaseConnextFacet__onlyReplica_notReplica();
+  error BaseConnextFacet__onlyOwner_notOwner();
+  error BaseConnextFacet__onlyProposed_notProposedOwner();
 
   // ============ Modifiers ============
 
@@ -51,7 +51,7 @@ contract BaseConnextFacet {
    * @param _router The address the message is coming from
    */
   modifier onlyRemoteRouter(uint32 _origin, bytes32 _router) {
-    if (!_isRemoteRouter(_origin, _router)) revert Modifiers__onlyRemoteRouter_notRemoteRouter();
+    if (!_isRemoteRouter(_origin, _router)) revert BaseConnextFacet__onlyRemoteRouter_notRemoteRouter();
     _;
   }
 
@@ -59,7 +59,7 @@ contract BaseConnextFacet {
    * @notice Only accept messages from an Nomad Replica contract
    */
   modifier onlyReplica() {
-    if (!_isReplica(msg.sender)) revert Modifiers__onlyReplica_notReplica();
+    if (!_isReplica(msg.sender)) revert BaseConnextFacet__onlyReplica_notReplica();
     _;
   }
 
@@ -67,7 +67,7 @@ contract BaseConnextFacet {
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    if (s._owner != msg.sender) revert Modifiers__onlyOwner_notOwner();
+    if (s._owner != msg.sender) revert BaseConnextFacet__onlyOwner_notOwner();
     _;
   }
 
@@ -75,17 +75,16 @@ contract BaseConnextFacet {
    * @notice Throws if called by any account other than the proposed owner.
    */
   modifier onlyProposed() {
-    if (s._proposed != msg.sender) revert Modifiers__onlyProposed_notProposedOwner();
+    if (s._proposed != msg.sender) revert BaseConnextFacet__onlyProposed_notProposedOwner();
     _;
   }
 
-  // ============ Public functions ============
-
+  // ============ Internal functions ============
   /**
    * @notice Indicates if the ownership of the router whitelist has
    * been renounced
    */
-  function isRouterOwnershipRenounced() public view returns (bool) {
+  function _isRouterOwnershipRenounced() internal view returns (bool) {
     return s._owner == address(0) || s._routerOwnershipRenounced;
   }
 
@@ -93,11 +92,10 @@ contract BaseConnextFacet {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function isAssetOwnershipRenounced() public view returns (bool) {
+  function _isAssetOwnershipRenounced() internal view returns (bool) {
     return s._owner == address(0) || s._assetOwnershipRenounced;
   }
 
-  // ============ Internal functions ============
   /**
    * @notice Return true if the given domain / router is the address of a remote xApp Router
    * @param _domain The domain of the potential remote xApp Router

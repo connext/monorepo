@@ -55,24 +55,12 @@ contract ProposedOwnableFacet is BaseConnextFacet {
 
   event OwnershipProposed(address indexed proposedOwner);
 
-  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-  // TODO: move to DiamondInit
-  // /**
-  //  * @dev Initializes the contract setting the deployer as the initial
-  //  */
-  // function __ProposedOwnable_init() internal onlyInitializing {
-  //   __ProposedOwnable_init_unchained();
-  // }
-
-  // function __ProposedOwnable_init_unchained() internal onlyInitializing {
-  //   _setOwner(msg.sender);
-  // }
+  event ProposedOwnableOwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
   /**
    * @notice Returns the address of the current owner.
    */
-  function owner() public view returns (address) {
+  function proposedOwnableOwner() public view returns (address) {
     return s._owner;
   }
 
@@ -110,14 +98,6 @@ contract ProposedOwnableFacet is BaseConnextFacet {
   function delay() public view returns (uint256) {
     return _delay;
   }
-
-  // /**
-  //  * @notice Indicates if the ownership of the router whitelist has
-  //  * been renounced
-  //  */
-  // function isRouterOwnershipRenounced() public view returns (bool) {
-  //   return _owner == address(0) || _routerOwnershipRenounced;
-  // }
 
   /**
    * @notice Indicates if the ownership of the router whitelist has
@@ -276,7 +256,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
     address oldOwner = s._owner;
     s._owner = newOwner;
     s._proposedOwnershipTimestamp = 0;
-    emit OwnershipTransferred(oldOwner, newOwner);
+    emit ProposedOwnableOwnershipTransferred(oldOwner, newOwner);
   }
 
   function _setProposed(address newlyProposed) private {
