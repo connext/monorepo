@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-// import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-import {Modifiers} from "../utils/Modifiers.sol";
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
  * @title ProposedOwnable
@@ -26,7 +23,7 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  * contract
  *
  */
-contract ProposedOwnableFacet is Modifiers {
+contract ProposedOwnableFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
   error ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
@@ -154,14 +151,6 @@ contract ProposedOwnableFacet is Modifiers {
 
     // Set renounced, emit event, reset timestamp to 0
     _setRouterOwnership(true);
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
-   */
-  function isAssetOwnershipRenounced() public view returns (bool) {
-    return s._owner == address(0) || s._assetOwnershipRenounced;
   }
 
   /**

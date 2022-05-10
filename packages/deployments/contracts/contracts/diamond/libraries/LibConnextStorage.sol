@@ -6,7 +6,6 @@ import {RelayerFeeRouter} from "../../nomad-xapps/contracts/relayer-fee-router/R
 
 import {ITokenRegistry} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {IWrapped} from "../../interfaces/IWrapped.sol";
-import {IConnextHandler} from "../../interfaces/IConnextHandler.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 
@@ -91,12 +90,12 @@ struct RouterPermissionsManagerInfo {
 
 struct AppStorage {
   bool initialized;
+  //
   // ConnextHandler
+  //
   // TODO: enable setting these constants via admin fn
   uint256 LIQUIDITY_FEE_NUMERATOR;
   uint256 LIQUIDITY_FEE_DENOMINATOR;
-  // Contains hash of empty bytes
-  bytes32 EMPTY;
   // The local nomad relayer fee router
   RelayerFeeRouter relayerFeeRouter;
   // /**
@@ -179,11 +178,17 @@ struct AppStorage {
   // * @notice The max amount of routers a payment can be routed through
   // */
   uint256 maxRoutersPerTransfer;
+  //
   // Router
+  //
   mapping(uint32 => bytes32) remotes;
+  //
   // XAppConnectionClient
+  //
   XAppConnectionManager xAppConnectionManager;
+  //
   // ProposedOwnable
+  //
   address _owner;
   address _proposed;
   uint256 _proposedOwnershipTimestamp;
@@ -191,9 +196,13 @@ struct AppStorage {
   uint256 _routerOwnershipTimestamp;
   bool _assetOwnershipRenounced;
   uint256 _assetOwnershipTimestamp;
+  //
   // RouterPermissionsManager
-  RouterPermissionsManagerInfo routerInfo;
+  //
+  RouterPermissionsManagerInfo routerPermissionInfo;
+  //
   // ReentrancyGuard
+  //
   uint256 _status;
   // StableSwap
   /**
