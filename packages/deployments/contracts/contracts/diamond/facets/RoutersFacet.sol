@@ -121,7 +121,7 @@ contract RoutersFacet is Modifiers {
    * @notice Asserts caller is the router owner (if set) or the router itself
    */
   modifier onlyRouterOwner(address _router) {
-    address owner = s.routerInfo.routerOwners[_router];
+    address owner = s.routerPermissionInfo.routerOwners[_router];
     if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
       revert RoutersFacet__onlyRouterOwner_notRouterOwner();
     _;
@@ -132,9 +132,9 @@ contract RoutersFacet is Modifiers {
    * the owner is calling the function (if set), or the router itself is calling the function
    */
   modifier onlyProposedRouterOwner(address _router) {
-    address proposed = s.routerInfo.proposedRouterOwners[_router];
+    address proposed = s.routerPermissionInfo.proposedRouterOwners[_router];
     if (proposed == address(0)) {
-      address owner = s.routerInfo.routerOwners[_router];
+      address owner = s.routerPermissionInfo.routerOwners[_router];
       if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
         revert RoutersFacet__onlyProposedRouterOwner_notRouterOwner();
     } else {
@@ -151,7 +151,7 @@ contract RoutersFacet is Modifiers {
    * @param _router The relevant router address
    */
   function getRouterApproval(address _router) public view returns (bool) {
-    return s.routerInfo.approvedRouters[_router];
+    return s.routerPermissionInfo.approvedRouters[_router];
   }
 
   /**
@@ -160,7 +160,7 @@ contract RoutersFacet is Modifiers {
    * @param _router The relevant router address
    */
   function getRouterRecipient(address _router) public view returns (address) {
-    return s.routerInfo.routerRecipients[_router];
+    return s.routerPermissionInfo.routerRecipients[_router];
   }
 
   /**
@@ -170,7 +170,7 @@ contract RoutersFacet is Modifiers {
    * @param _router The relevant router address
    */
   function getRouterOwner(address _router) public view returns (address) {
-    address _owner = s.routerInfo.routerOwners[_router];
+    address _owner = s.routerPermissionInfo.routerOwners[_router];
     return _owner == address(0) ? _router : _owner;
   }
 
@@ -180,7 +180,7 @@ contract RoutersFacet is Modifiers {
    * @param _router The relevant router address
    */
   function getProposedRouterOwner(address _router) public view returns (address) {
-    return s.routerInfo.proposedRouterOwners[_router];
+    return s.routerPermissionInfo.proposedRouterOwners[_router];
   }
 
   /**
@@ -189,7 +189,7 @@ contract RoutersFacet is Modifiers {
    * @param _router The relevant router address
    */
   function getProposedRouterOwnerTimestamp(address _router) public view returns (uint256) {
-    return s.routerInfo.proposedRouterTimestamp[_router];
+    return s.routerPermissionInfo.proposedRouterTimestamp[_router];
   }
 
   /**
@@ -201,11 +201,11 @@ contract RoutersFacet is Modifiers {
    */
   function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
     // Check recipient is changing
-    address _prevRecipient = s.routerInfo.routerRecipients[router];
+    address _prevRecipient = s.routerPermissionInfo.routerRecipients[router];
     if (_prevRecipient == recipient) revert RoutersFacet__setRouterRecipient_notNewRecipient();
 
     // Set new recipient
-    s.routerInfo.routerRecipients[router] = recipient;
+    s.routerPermissionInfo.routerRecipients[router] = recipient;
 
     // Emit event
     emit RouterRecipientSet(router, _prevRecipient, recipient);
@@ -221,12 +221,12 @@ contract RoutersFacet is Modifiers {
     if (getRouterOwner(router) == proposed) revert RoutersFacet__proposeRouterOwner_notNewOwner();
 
     // Check that proposed is different than current proposed
-    address _currentProposed = s.routerInfo.proposedRouterOwners[router];
+    address _currentProposed = s.routerPermissionInfo.proposedRouterOwners[router];
     if (_currentProposed == proposed) revert RoutersFacet__proposeRouterOwner_badRouter();
 
     // Set proposed owner + timestamp
-    s.routerInfo.proposedRouterOwners[router] = proposed;
-    s.routerInfo.proposedRouterTimestamp[router] = block.timestamp;
+    s.routerPermissionInfo.proposedRouterOwners[router] = proposed;
+    s.routerPermissionInfo.proposedRouterTimestamp[router] = block.timestamp;
 
     // Emit event
     emit RouterOwnerProposed(router, _currentProposed, proposed);
@@ -240,21 +240,21 @@ contract RoutersFacet is Modifiers {
     address owner = getRouterOwner(router);
 
     // Check timestamp has passed
-    if (block.timestamp - s.routerInfo.proposedRouterTimestamp[router] <= _delay)
+    if (block.timestamp - s.routerPermissionInfo.proposedRouterTimestamp[router] <= _delay)
       revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
 
     // Get current owner + proposed
-    address _proposed = s.routerInfo.proposedRouterOwners[router];
+    address _proposed = s.routerPermissionInfo.proposedRouterOwners[router];
 
     // Update the current owner
-    s.routerInfo.routerOwners[router] = _proposed;
+    s.routerPermissionInfo.routerOwners[router] = _proposed;
 
     // Reset proposal + timestamp
     if (_proposed != address(0)) {
       // delete proposedRouterOwners[router];
-      s.routerInfo.proposedRouterOwners[router] = address(0);
+      s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
     }
-    s.routerInfo.proposedRouterTimestamp[router] = 0;
+    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
 
     // Emit event
     emit RouterOwnerAccepted(router, owner, _proposed);
@@ -275,23 +275,23 @@ contract RoutersFacet is Modifiers {
     if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (s.routerInfo.approvedRouters[router]) revert RoutersFacet__setupRouter_amountIsZero();
+    if (s.routerPermissionInfo.approvedRouters[router]) revert RoutersFacet__setupRouter_amountIsZero();
 
     // Approve router
-    s.routerInfo.approvedRouters[router] = true;
+    s.routerPermissionInfo.approvedRouters[router] = true;
 
     // Emit event
     emit RouterAdded(router, msg.sender);
 
     // Update routerOwner (zero address possible)
     if (owner != address(0)) {
-      s.routerInfo.routerOwners[router] = owner;
+      s.routerPermissionInfo.routerOwners[router] = owner;
       emit RouterOwnerAccepted(router, address(0), owner);
     }
 
     // Update router recipient
     if (recipient != address(0)) {
-      s.routerInfo.routerRecipients[router] = recipient;
+      s.routerPermissionInfo.routerRecipients[router] = recipient;
       emit RouterRecipientSet(router, address(0), recipient);
     }
   }
@@ -305,28 +305,28 @@ contract RoutersFacet is Modifiers {
     if (router == address(0)) revert RoutersFacet__removeRouter_routerEmpty();
 
     // Sanity check: needs removal
-    if (!s.routerInfo.approvedRouters[router]) revert RoutersFacet__removeRouter_notAdded();
+    if (!s.routerPermissionInfo.approvedRouters[router]) revert RoutersFacet__removeRouter_notAdded();
 
     // Update mapping
-    s.routerInfo.approvedRouters[router] = false;
+    s.routerPermissionInfo.approvedRouters[router] = false;
 
     // Emit event
     emit RouterRemoved(router, msg.sender);
 
     // Remove router owner
-    address _owner = s.routerInfo.routerOwners[router];
+    address _owner = s.routerPermissionInfo.routerOwners[router];
     if (_owner != address(0)) {
       emit RouterOwnerAccepted(router, _owner, address(0));
       // delete routerOwners[router];
-      s.routerInfo.routerOwners[router] = address(0);
+      s.routerPermissionInfo.routerOwners[router] = address(0);
     }
 
     // Remove router recipient
-    address _recipient = s.routerInfo.routerRecipients[router];
+    address _recipient = s.routerPermissionInfo.routerRecipients[router];
     if (_recipient != address(0)) {
       emit RouterRecipientSet(router, _recipient, address(0));
       // delete routerRecipients[router];
-      s.routerInfo.routerRecipients[router] = address(0);
+      s.routerPermissionInfo.routerRecipients[router] = address(0);
     }
   }
 

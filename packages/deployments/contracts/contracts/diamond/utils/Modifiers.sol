@@ -91,7 +91,6 @@ contract Modifiers {
    * been renounced
    */
   function isAssetOwnershipRenounced() public view returns (bool) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
     return s._owner == address(0) || s._assetOwnershipRenounced;
   }
 
