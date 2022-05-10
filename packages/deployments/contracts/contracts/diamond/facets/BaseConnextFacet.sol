@@ -5,12 +5,12 @@ import {Home} from "../../nomad-core/contracts/Home.sol";
 
 import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
-contract Modifiers {
+contract BaseConnextFacet {
   AppStorage internal s;
 
   // ========== Properties ===========
-  uint256 private constant _NOT_ENTERED = 1;
-  uint256 private constant _ENTERED = 2;
+  uint256 internal constant _NOT_ENTERED = 1;
+  uint256 internal constant _ENTERED = 2;
 
   // ========== Custom Errors ===========
 

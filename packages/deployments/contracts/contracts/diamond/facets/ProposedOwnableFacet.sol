@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-// import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-import {Modifiers} from "../utils/Modifiers.sol";
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
  * @title ProposedOwnable
@@ -25,7 +23,7 @@ import {Modifiers} from "../utils/Modifiers.sol";
  * contract
  *
  */
-contract ProposedOwnableFacet is Modifiers {
+contract ProposedOwnableFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
   error ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();

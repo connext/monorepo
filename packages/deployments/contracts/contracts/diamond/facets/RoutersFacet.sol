@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {Modifiers} from "../utils/Modifiers.sol";
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {AppStorage} from "../libraries/LibConnextStorage.sol";
 
@@ -22,7 +22,7 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  * can be accepted by the proposed owner after the delay period. If the proposed owner is the empty
  * address, then it must be accepted by the current owner.
  */
-contract RoutersFacet is Modifiers {
+contract RoutersFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error RoutersFacet__acceptProposedRouterOwner_notElapsed();
   error RoutersFacet__setRouterRecipient_notNewRecipient();
@@ -190,6 +190,14 @@ contract RoutersFacet is Modifiers {
    */
   function getProposedRouterOwnerTimestamp(address _router) public view returns (uint256) {
     return s.routerPermissionInfo.proposedRouterTimestamp[_router];
+  }
+
+  function maxRoutersPerTransfer() public view returns (uint256) {
+    return s.maxRoutersPerTransfer;
+  }
+
+  function routerBalances(address _router, address _asset) public view returns (uint256) {
+    return s.routerBalances[_router][_asset];
   }
 
   /**

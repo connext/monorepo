@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import {Modifiers} from "../utils/Modifiers.sol";
-import {ConnextMessage} from "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 
-contract AssetFacet is Modifiers {
+contract AssetFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error AssetFacet__addAssetId_alreadyAdded();
   error AssetFacet__removeAssetId_notAdded();
@@ -38,6 +38,27 @@ contract AssetFacet is Modifiers {
    * @param caller - The account that called the function
    */
   event AssetRemoved(bytes32 canonicalId, address caller);
+
+  // ============ Getters ============
+
+  function canonicalToAdopted(bytes32 _canonicalId) public view returns(address) {
+    return s.canonicalToAdopted[_canonicalId];
+  }
+
+  function adoptedToCanonical(address _adopted) public view returns(ConnextMessage.TokenId memory) {
+    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(
+      s.adoptedToCanonical[_adopted].domain, s.adoptedToCanonical[_adopted].id
+    );
+    return canonical;
+  }
+
+  function approvedAssets(bytes32 _asset) public view returns(bool) {
+    return s.approvedAssets[_asset];
+  }
+
+  function adoptedToLocalPools(bytes32 _adopted) public view returns (IStableSwap) {
+    return s.adoptedToLocalPools[_adopted];
+  }
 
   /**
    * @notice Used to add supported assets. This is an admin only function

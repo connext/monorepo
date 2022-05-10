@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {Modifiers} from "../utils/Modifiers.sol";
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
@@ -11,9 +11,12 @@ import {ITokenRegistry, IBridgeToken} from "../../nomad-xapps/interfaces/bridge/
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 
+import {IExecutor} from "../../interfaces/IExecutor.sol";
+import {IWrapped} from "../../interfaces/IWrapped.sol";
+
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract BridgeFacet is Modifiers {
+contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -102,6 +105,40 @@ contract BridgeFacet is Modifiers {
    * @param caller - The account that called the function
    */
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+
+  // ============ Getters ============
+
+  function relayerFees(bytes32 _transferId) public view returns(uint256) {
+    return s.relayerFees[_transferId];
+  }
+
+  function routedTransfers(bytes32 _transferId) public view returns(address[] memory) {
+    return s.routedTransfers[_transferId];
+  }
+
+  function reconciledTransfers(bytes32 _transferId) public view returns(bool) {
+    return s.reconciledTransfers[_transferId];
+  }
+
+  function tokenRegistry() public view returns(ITokenRegistry) {
+    return s.tokenRegistry;
+  }
+
+  function domain() public view returns(uint256) {
+    return s.domain;
+  }
+
+  function executor() public view returns(IExecutor) {
+    return s.executor;
+  }
+
+  function nonce() public view returns(uint256) {
+    return s.nonce;
+  }
+
+  function wrapper() public view returns(IWrapped) {
+    return s.wrapper;
+  }
 
 
   // ============ Public methods ==============
@@ -445,7 +482,7 @@ contract BridgeFacet is Modifiers {
 
     // make sure routers are all approved if needed
     for (uint256 i; i < pathLength; ) {
-      if (!isRouterOwnershipRenounced() && !s.routerInfo.approvedRouters[_args.routers[i]]) {
+      if (!isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
         revert BridgeFacet__execute_notSupportedRouter();
       }
       if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {

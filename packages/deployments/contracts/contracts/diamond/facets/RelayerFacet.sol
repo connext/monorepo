@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {Modifiers} from "../utils/Modifiers.sol";
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+
+import {RelayerFeeRouter} from "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-contract RelayerFacet is Modifiers {
+contract RelayerFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter();
   error RelayerFacet__addRelayer_alreadyApproved();
@@ -51,6 +53,27 @@ contract RelayerFacet is Modifiers {
   modifier onlyRelayerFeeRouter() {
     if (msg.sender != address(s.relayerFeeRouter)) revert RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter();
     _;
+  }
+
+  // ============ Getters ============
+
+  function transferRelayer(bytes32 _transferId) public view returns(address) {
+    return s.transferRelayer[_transferId];
+  }
+
+  function approvedRelayers(address _relayer) public view returns(bool) {
+    return s.approvedRelayers[_relayer];
+  }
+
+  function relayerFeeRouter() public view returns(RelayerFeeRouter) {
+    return s.relayerFeeRouter;
+  }
+
+  function LIQUIDITY_FEE_NUMERATOR() public view returns(uint256) {
+    return s.LIQUIDITY_FEE_NUMERATOR;
+  }
+  function LIQUIDITY_FEE_DENOMINATOR() public view returns(uint256) {
+    return s.LIQUIDITY_FEE_DENOMINATOR;
   }
 
   // ============ External functions ============
