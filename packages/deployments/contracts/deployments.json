@@ -167,7 +167,7 @@
           ]
         },
         "AssetLogic": {
-          "address": "0x3B2a2a7C96B588Dd8Ca57a9CBDA2c9005C2E77f8",
+          "address": "0x6cCEa74d2Fc99A662057dC0E997dE7231459d591",
           "abi": [
             {
               "inputs": [],
@@ -187,7 +187,7 @@
           ]
         },
         "AssetLogicStaging": {
-          "address": "0x460397A7B8D7137A3733797dE8E5310D4f163EDd",
+          "address": "0x272509A32047565eD670c09E30634Ece779E946A",
           "abi": [
             {
               "inputs": [],
@@ -1008,6 +1008,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -2561,6 +2574,19 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -3818,7 +3844,7 @@
           ]
         },
         "ConnextHandlerStaging_Implementation": {
-          "address": "0x740fFCa56a41FCB9846Fa89E633E7B5a18cD8408",
+          "address": "0xD34bBf5096c74f79aed0595Bae3C3960DdeE321a",
           "abi": [
             {
               "inputs": [],
@@ -3979,6 +4005,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -5374,7 +5413,7 @@
           ]
         },
         "ConnextHandler_Implementation": {
-          "address": "0x820181189749c746e1040aA9B159B8Ac9C9FFC64",
+          "address": "0xc42e3137EA1FEAD4fe2da093D16b3A70f2E27c00",
           "abi": [
             {
               "inputs": [],
@@ -5535,6 +5574,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -6930,7 +6982,7 @@
           ]
         },
         "ConnextLogic": {
-          "address": "0xC6740c923Fe805F1041c11e502F7b20EcCdF8892",
+          "address": "0xF8dfeCE366C5CDba20f41aa155bF50d2f195a39e",
           "abi": [
             {
               "inputs": [],
@@ -7619,7 +7671,7 @@
           ]
         },
         "ConnextLogicStaging": {
-          "address": "0x5A12CB9798824521e2166d648A8DAec5C71f4025",
+          "address": "0x84C970aAD1A38422bAFb068D65f6577c2d718711",
           "abi": [
             {
               "inputs": [],
@@ -12021,7 +12073,7 @@
           ]
         },
         "RelayerFeeRouter": {
-          "address": "0x11546f1E21FD41c391032e4057B71bA14FFF3b41",
+          "address": "0x3A9D9F669970728b50C6B1BA829c6d0F97734194",
           "abi": [
             {
               "inputs": [],
@@ -12147,6 +12199,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -12629,7 +12694,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x2C79e0272e8cca662Ae442e9A6069Fe52CBA6A97",
+          "address": "0x9B83fFfba210b1653f1A56A6366DFD804a97e3fb",
           "abi": [
             {
               "inputs": [],
@@ -12755,6 +12820,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -16430,7 +16508,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0xc54fAC0a62ABC248E63C798cf28F97a006952cEe",
+          "address": "0x0D0FE7E6DB7580EC80AB74e48A49825F13E72190",
           "abi": [
             {
               "inputs": [],
@@ -16541,6 +16619,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -17143,7 +17234,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x81ac1B260899cF9447DC529187430fb6E63f1387",
+          "address": "0x59F401CA2c325423660aae99fC2caAc92cC60074",
           "abi": [
             {
               "inputs": [],
@@ -17254,6 +17345,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -18992,7 +19096,7 @@
           ]
         },
         "AssetLogic": {
-          "address": "0xACea5Eb323a38FeeC691a130d2A9BDbb831c4a19",
+          "address": "0x73Eaf1D9E209243567200B9d5D93E7aE1e3CcbD5",
           "abi": [
             {
               "inputs": [],
@@ -19012,7 +19116,7 @@
           ]
         },
         "AssetLogicStaging": {
-          "address": "0x5b47A7C3628cb91F8cAbCC3dB42C23304510e440",
+          "address": "0x72E284ec70855AbE12efA4902CCDf84A42Bf7bf2",
           "abi": [
             {
               "inputs": [],
@@ -19316,6 +19420,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -20869,6 +20986,19 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -22126,7 +22256,7 @@
           ]
         },
         "ConnextHandlerStaging_Implementation": {
-          "address": "0xC1Ab1a2094Fc636b72558d693af83660E105588e",
+          "address": "0x8192a480C1294E3e61eF8adf45D59e7842DE5525",
           "abi": [
             {
               "inputs": [],
@@ -22287,6 +22417,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -23682,7 +23825,7 @@
           ]
         },
         "ConnextHandler_Implementation": {
-          "address": "0xE148A74D78eA23A526C071092D6d7F4EdB616111",
+          "address": "0x894536107a612DbD01b68343fa9945510DFFa425",
           "abi": [
             {
               "inputs": [],
@@ -23843,6 +23986,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -25238,7 +25394,7 @@
           ]
         },
         "ConnextLogic": {
-          "address": "0x18e52aa98219945aB47A0da3De1FB1a30B8554C8",
+          "address": "0x46c2c516Cd2E3509a521CF48b0b8C9d7f2222E24",
           "abi": [
             {
               "inputs": [],
@@ -25927,7 +26083,7 @@
           ]
         },
         "ConnextLogicStaging": {
-          "address": "0x008a4449b979874506e8B3CaDDf3ce4c900599B9",
+          "address": "0xC06f4bA54c3e8f72811d60b6e73917c16160Ec64",
           "abi": [
             {
               "inputs": [],
@@ -27428,7 +27584,7 @@
           ]
         },
         "RelayerFeeRouter": {
-          "address": "0x9b6a248b84CEc3D5184AceAF5d3a342a4f037112",
+          "address": "0x6e758DBF519c6a2f4781BEe68c8C17A562af7E7b",
           "abi": [
             {
               "inputs": [],
@@ -27554,6 +27710,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -28036,7 +28205,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x4e6e8Bf8f7985057785d48A8fa96F73bF92c65D6",
+          "address": "0xE3A3Ca714c4b2C6a9E7029344E7D19084eaE4955",
           "abi": [
             {
               "inputs": [],
@@ -28162,6 +28331,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -31837,7 +32019,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x32E498BbA595D1F49EccC306C8B5e19FDfd9abd9",
+          "address": "0x09f7C5aDb1F249E8111890De63C5D137168672Bb",
           "abi": [
             {
               "inputs": [],
@@ -31948,6 +32130,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -32550,7 +32745,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0xd60Bb4bBA45DBe173428dEF9ed1D8E1006bFA88A",
+          "address": "0xB8E330D0375FD6878EB18a35302209F0f6ebafd6",
           "abi": [
             {
               "inputs": [],
@@ -32661,6 +32856,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -34399,7 +34607,7 @@
           ]
         },
         "AssetLogic": {
-          "address": "0x17455fCfc43b22BE07EE5Ff4b177b7Ab6bA4b8d5",
+          "address": "0xdD9F92919A3763484dbc58211165c10C08bD65Ec",
           "abi": [
             {
               "inputs": [],
@@ -34419,7 +34627,7 @@
           ]
         },
         "AssetLogicStaging": {
-          "address": "0x204aD79AaebA6ca373908c07bC51b73D14858aDD",
+          "address": "0xeC36820722d15ebf655b3d2761B3A3FFF54083B8",
           "abi": [
             {
               "inputs": [],
@@ -35240,6 +35448,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -36793,6 +37014,19 @@
               "anonymous": false,
               "inputs": [
                 {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
                   "indexed": true,
                   "internalType": "address",
                   "name": "proposedOwner",
@@ -38050,7 +38284,7 @@
           ]
         },
         "ConnextHandlerStaging_Implementation": {
-          "address": "0xBdC65975846022fF125E7Aaf9406E7463052c927",
+          "address": "0x2A81D0dc28039974eC0516C8129FbD83183BfE08",
           "abi": [
             {
               "inputs": [],
@@ -38211,6 +38445,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -39606,7 +39853,7 @@
           ]
         },
         "ConnextHandler_Implementation": {
-          "address": "0x48443593dF5A84D80840879207287dd86B3b8198",
+          "address": "0x7dCCB93532ACf4130D3D420594C39d26B1E3a25e",
           "abi": [
             {
               "inputs": [],
@@ -39767,6 +40014,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -41162,7 +41422,7 @@
           ]
         },
         "ConnextLogic": {
-          "address": "0xEbb906D0931584b72C69AE9363cC7E82aaCcd4b2",
+          "address": "0x5868272FbeAA7cAeBe680128Fff69EaCE9bF5cf1",
           "abi": [
             {
               "inputs": [],
@@ -41851,7 +42111,7 @@
           ]
         },
         "ConnextLogicStaging": {
-          "address": "0x2872C0F55157e0b1A0D1799501C611de5A2592c5",
+          "address": "0xc34bF3b1589cD6fe728e0e5d64B430F284287f8a",
           "abi": [
             {
               "inputs": [],
@@ -46253,7 +46513,7 @@
           ]
         },
         "RelayerFeeRouter": {
-          "address": "0xb850ED14D95DD5dbB05e29Af6146De126654d249",
+          "address": "0x74F21210EdbfDE5987C8516B27735eF85838a134",
           "abi": [
             {
               "inputs": [],
@@ -46379,6 +46639,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -46861,7 +47134,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0xb0838591Fb885b7Be84664C6BEEAA595A5a89AfE",
+          "address": "0x4120280599922a777634853062F8bc46E1429970",
           "abi": [
             {
               "inputs": [],
@@ -46987,6 +47260,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -50597,7 +50883,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0xD7c141f5B5124edCBDE95B4A55Ca10E923021aeB",
+          "address": "0x42058468035D28Cef6a20888b3177565d2c1Aa7e",
           "abi": [
             {
               "inputs": [],
@@ -50708,6 +50994,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -51310,7 +51609,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0xa265dc0830615AF42a7DC15FC94D9C1D7644D2Fd",
+          "address": "0x5e7eC5396daB3682b32BF475A2B06Ab0A3690Ba7",
           "abi": [
             {
               "inputs": [],
@@ -51421,6 +51720,19 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {

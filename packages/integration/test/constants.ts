@@ -22,7 +22,9 @@ const DEFAULT_ROUTE = ["2221", "1111"]; // Kovan => Rinkeby
 export const CANONICAL_ASSET = process.env.CANONICAL_ASSET;
 
 // Environment setting.
-export const ENVIRONMENT = process.env.ENV || process.env.ENVIRONMENT || Environment.Staging;
+export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
+  process.env.ENVIRONMENT ||
+  Environment.Staging) as "staging" | "production";
 
 // Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";

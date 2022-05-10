@@ -1,7 +1,7 @@
 
 locals {
   poller_env_vars = [
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "BACKEND_CONFIG", value = local.local_poller_config },
     { name = "DATABASE_URL", value = "postgres://${var.postgres_user}:${var.postgres_password}@${module.poller_db.db_instance_endpoint}/connext" }
   ]
 
@@ -12,4 +12,15 @@ locals {
     { name = "PGRST_DB_ANON_ROLE", value = "query" },
     { name = "ENVIRONMENT", value = var.environment }
   ]
+}
+
+locals {
+  local_poller_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1111" = {}
+      "2221" = {}
+    }
+    environment = "production"
+  })
 }

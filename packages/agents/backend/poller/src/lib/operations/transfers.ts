@@ -60,19 +60,21 @@ export const updateTransfers = async () => {
   // now query pending transfers to see if any status updates happened
   const xcalledTransfers = await database.getTransfersByStatus("XCalled");
   const executedTransfers = await database.getTransfersByStatus(XTransferStatus.Executed);
+  const reconciledTransfers = await database.getTransfersByStatus(XTransferStatus.Reconciled);
 
   logger.debug("Got pending", requestContext, methodContext, {
-    executedTransfers: executedTransfers.map((transfer) => transfer.transferId),
     xcalledTransfers: xcalledTransfers.map((transfer) => transfer.transferId),
+    executedTransfers: executedTransfers.map((transfer) => transfer.transferId),
+    reconciledTransfers: reconciledTransfers.map((transfer) => transfer.transferId),
   });
 
-  const executedReconciled = await subgraph.getDestinationTransfers(
-    xcalledTransfers.concat(executedTransfers) as OriginTransfer[],
+  const destinationTransfers = await subgraph.getDestinationTransfers(
+    xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers) as OriginTransfer[],
   );
-  logger.debug("Got executed/reconciled", requestContext, methodContext, {
-    completedTransfers: xcalledTransfers.map((transfer) => {
+  logger.debug("Got destination transfers for pending", requestContext, methodContext, {
+    destinationTransfers: destinationTransfers.map((transfer) => {
       return { transferId: transfer.transferId, status: transfer.destination?.status };
     }),
   });
-  await database.saveTransfers(executedReconciled);
+  await database.saveTransfers(destinationTransfers);
 };
