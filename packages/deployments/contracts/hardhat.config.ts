@@ -1,3 +1,4 @@
+import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -221,6 +222,26 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS == "true",
+  },
+  diamondAbi: {
+    // (required) The name of your Diamond ABI.
+    name: "ConnextDiamond",
+    // (optional) An array of strings, matched against fully qualified contract names, to
+    // determine which contracts are included in your Diamond ABI.
+    include: [
+      "AssetFacet",
+      "BaseConnextFacet",
+      "BridgeFacet",
+      "DiamondCutFacet",
+      "DiamondLoupeFacet",
+      "NomadFacet",
+      "OwnershipFacet",
+      "ProposedOwnableFacet",
+      "RelayerFacet",
+      "RouterFacet",
+      "StableSwapFacet",
+    ],
+    strict: false,
   },
 };
 

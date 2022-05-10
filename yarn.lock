@@ -752,6 +752,7 @@ __metadata:
     hardhat: ^2.9.1
     hardhat-contract-sizer: ^2.5.1
     hardhat-deploy: ^0.11.2
+    hardhat-diamond-abi: ^2.0.0
     hardhat-gas-reporter: ^1.0.8
     prettier: ^2.6.1
     prettier-plugin-solidity: ^1.0.0-beta.19
@@ -11433,6 +11434,18 @@ __metadata:
     "@ethersproject/hardware-wallets": ^5.0.14
     hardhat: ^2.6.8
   checksum: 0acce341b68f245814050bd3f42c96ac63d21ffd2b3e97d9e940d703e3f8920f1fadbf71426ad8c695af3aa453895f01212b372ee8267d9693a3c867d886d6b1
+  languageName: node
+  linkType: hard
+
+"hardhat-diamond-abi@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "hardhat-diamond-abi@npm:2.0.0"
+  dependencies:
+    debug: ^4.3.3
+    ethers: ^5.5.2
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 54fd34dcb0148de53292c9375ce61ad0d9772023ce35fd09abca6f91565979ef00015da9535bf386d5f673a9fe8a95ff9fa13147098080d69d88705d2a94ec00
   languageName: node
   linkType: hard
 
