@@ -24,8 +24,8 @@
     "packages/agents/sequencer",
     "packages/agents/backend/poller",
     "packages/agents/sdk",
-    "packages/agents/lighthouse",
     "packages/agents/relayer",
+    "packages/agents/lighthouse",
     "packages/integration",
     "packages/examples/sdk-server"
   ],
