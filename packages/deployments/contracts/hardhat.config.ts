@@ -238,7 +238,7 @@ const config: HardhatUserConfig = {
       "OwnershipFacet",
       "ProposedOwnableFacet",
       "RelayerFacet",
-      "RouterFacet",
+      "RoutersFacet",
       "StableSwapFacet",
     ],
     strict: false,
