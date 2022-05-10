@@ -1,0 +1,129 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.11;
+
+import {Modifiers} from "../utils/Modifiers.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+
+contract RelayerFacet is Modifiers {
+  // ========== Custom Errors ===========
+  error RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter();
+  error RelayerFacet__addRelayer_alreadyApproved();
+  error RelayerFacet__removeRelayer_notApproved();
+  error RelayerFacet__initiateClaim_notRelayer(bytes32 transferId);
+
+  // ========== Events ===========
+  /**
+   * @notice Emitted when a relayer is added or removed from whitelists
+   * @param relayer - The relayer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event RelayerAdded(address relayer, address caller);
+
+  /**
+   * @notice Emitted when a rlayer is added or removed from whitelists
+   * @param relayer - The relayer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event RelayerRemoved(address relayer, address caller);
+
+  /**
+   * @notice Emitted when `initiateClaim` is called on the destination chain
+   * @param domain - Domain to claim funds on
+   * @param recipient - Address on origin chain to send claimed funds to
+   * @param caller - The account that called the function
+   * @param transferIds - TransferIds to claim
+   */
+  event InitiatedClaim(uint32 indexed domain, address indexed recipient, address caller, bytes32[] transferIds);
+
+  /**
+   * @notice Emitted when `claim` is called on the origin domain
+   * @param recipient - Address on origin chain to send claimed funds to
+   * @param total - Total amount claimed
+   * @param transferIds - TransferIds to claim
+   */
+  event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
+
+  // ============ Modifiers ============
+
+  /**
+   * @notice Restricts the caller to the local relayer fee router
+   */
+  modifier onlyRelayerFeeRouter() {
+    if (msg.sender != address(s.relayerFeeRouter)) revert RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter();
+    _;
+  }
+
+  // ============ External functions ============
+
+  /**
+   * @notice Used to add approved relayer
+   * @param _relayer - The relayer address to add
+   */
+  function addRelayer(address _relayer) external onlyOwner {
+    if (s.approvedRelayers[_relayer]) revert RelayerFacet__addRelayer_alreadyApproved();
+    s.approvedRelayers[_relayer] = true;
+
+    emit RelayerAdded(_relayer, msg.sender);
+  }
+
+  /**
+   * @notice Used to remove approved relayer
+   * @param _relayer - The relayer address to remove
+   */
+  function removeRelayer(address _relayer) external onlyOwner {
+    if (!s.approvedRelayers[_relayer]) revert RelayerFacet__removeRelayer_notApproved();
+    delete s.approvedRelayers[_relayer];
+
+    emit RelayerRemoved(_relayer, msg.sender);
+  }
+
+  /**
+   * @notice Called by relayer when they want to claim owed funds on a given domain
+   * @dev Domain should be the origin domain of all the transfer ids
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _domain - domain to claim funds on
+   * @param _transferIds - transferIds to claim
+   */
+  function initiateClaim(
+    uint32 _domain,
+    address _recipient,
+    bytes32[] calldata _transferIds
+  ) external {
+    // Ensure the relayer can claim all transfers specified
+    for (uint256 i; i < _transferIds.length; ) {
+      if (s.transferRelayer[_transferIds[i]] != msg.sender)
+        revert RelayerFacet__initiateClaim_notRelayer(_transferIds[i]);
+      unchecked {
+        i++;
+      }
+    }
+
+    // Send transferIds via nomad
+    s.relayerFeeRouter.send(_domain, _recipient, _transferIds);
+
+    emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
+  }
+
+  /**
+   * @notice Pays out a relayer for the given fees
+   * @dev Called by the RelayerFeeRouter.handle message. The validity of the transferIds is
+   * asserted before dispatching the message.
+   * @param _recipient - address on origin chain to send claimed funds to
+   * @param _transferIds - transferIds to claim
+   */
+  function claim(address _recipient, bytes32[] calldata _transferIds) external onlyRelayerFeeRouter {
+    // Tally amounts owed
+    uint256 total;
+    for (uint256 i; i < _transferIds.length; ) {
+      total += s.relayerFees[_transferIds[i]];
+      s.relayerFees[_transferIds[i]] = 0;
+      unchecked {
+        i++;
+      }
+    }
+
+    AddressUpgradeable.sendValue(payable(_recipient), total);
+
+    emit Claimed(_recipient, total, _transferIds);
+  }
+}
