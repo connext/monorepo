@@ -44,6 +44,7 @@ import {
   CHAIN_DATA,
   LOCAL_BACKEND_ENABLED,
   BACKEND_CONFIG,
+  ENVIRONMENT,
 } from "./constants";
 import {
   checkOnchainLocalAsset,
@@ -176,6 +177,7 @@ describe("Integration:E2E", () => {
     log.params(
       "\n" +
         (agents.router ? "LOCAL TEST" : "LIVE TEST") +
+        `\nENVIRONMENT: ${JSON.stringify(ENVIRONMENT)}` +
         `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
