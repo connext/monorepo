@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity ^0.8.11;
 
-// TODO: this should be inherited by ConnextRouterFacet
-// import {IMessageRecipient} from "../../../nomad-core/interfaces/IMessageRecipient.sol";
+import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
-import {Modifiers} from "../../utils/Modifiers.sol";
-
-contract NomadRouterFacet is Modifiers {
-  // ============ Modifiers ============
-
+contract NomadRouterFacet is BaseConnextFacet {
   // ============ Getters functions ============
 
-  // TODO: add public storage getters
+  function remotes(uint32 _domain) public view returns (bytes32) {
+    return s.remotes[_domain];
+  }
 
   // ============ External functions ============
 
@@ -23,13 +20,4 @@ contract NomadRouterFacet is Modifiers {
   function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwner {
     s.remotes[_domain] = _router;
   }
-
-  // ============ Virtual functions ============
-
-  // function handle(
-  //   uint32 _origin,
-  //   uint32 _nonce,
-  //   bytes32 _sender,
-  //   bytes memory _message
-  // ) external virtual override;
 }
