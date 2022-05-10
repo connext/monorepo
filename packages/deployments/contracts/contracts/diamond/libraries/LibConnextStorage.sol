@@ -11,6 +11,7 @@ import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
+import {SwapUtils} from "./SwapUtils.sol";
 
 // ============= Structs =============
 
@@ -194,6 +195,19 @@ struct AppStorage {
   RouterPermissionsManagerInfo routerInfo;
   // ReentrancyGuard
   uint256 _status;
+  // StableSwap
+  /**
+   * @notice Mapping holding the AMM storages for swapping in and out of local assets
+   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
+   * Struct storing data responsible for automatic market maker functionalities. In order to
+   * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
+   */
+  mapping(bytes32 => SwapUtils.Swap) swapStorages;
+  /**
+   * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
+   * @dev getTokenIndex function also relies on this mapping to retrieve token index.
+   */
+  mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
 }
 
 library LibConnextStorage {
