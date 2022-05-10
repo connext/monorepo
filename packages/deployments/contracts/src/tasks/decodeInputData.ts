@@ -1,7 +1,7 @@
 import { Interface } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { Env, getDeploymentName, mustGetEnv } from "../utils";
+import { Env } from "../utils";
 
 type TaskArgs = {
   inputData: string;
@@ -11,19 +11,17 @@ type TaskArgs = {
 
 export default task("decode-input-data", "Decodes input data")
   .addParam("inputData", "Input data")
-  .addParam("type", "Function name to decode")
-  .addOptionalParam("env", "Environment of contracts")
+  .addOptionalParam("type", "Function name to decode", "execute")
   .setAction(async ({ inputData, type, env: _env }: TaskArgs, { deployments }) => {
-    const env = mustGetEnv(_env);
-    console.log("env:", env);
     console.log("inputData: ", inputData);
     console.log("type: ", type);
+    if (!["execute", "xcall"].includes(type)) {
+      throw new Error("Unsupported type");
+    }
 
-    const connextDeployment = await deployments.get(getDeploymentName("ConnextHandler", env));
+    const connextDeployment = await deployments.getArtifact("ConnextHandler");
     const connextInterface = new Interface(connextDeployment.abi);
 
-    if (type === "execute") {
-      const decoded = connextInterface.decodeFunctionData(type, inputData);
-      console.log("decoded: ", decoded);
-    }
+    const decoded = connextInterface.decodeFunctionData(type, inputData);
+    console.log("decoded: ", decoded);
   });
