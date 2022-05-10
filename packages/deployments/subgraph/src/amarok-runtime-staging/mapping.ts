@@ -135,6 +135,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.chainId = getChainId();
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
+  transfer.status = "XCalled";
 
   // Call Params
   transfer.to = event.params.xcallArgs.params.to;
@@ -206,7 +207,7 @@ export function handleExecuted(event: Executed): void {
   transfer.localAmount = event.params.args.amount;
 
   // Event Data
-  if (transfer.status === "Reconciled") {
+  if (transfer.status == "Reconciled") {
     transfer.status = "Completed";
   } else {
     transfer.status = "Executed";
@@ -260,7 +261,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.localAmount = event.params.amount;
 
   // Event Data
-  if (transfer.status === "Executed") {
+  if (transfer.status == "Executed") {
     transfer.status = "Completed";
   } else {
     transfer.status = "Reconciled";
