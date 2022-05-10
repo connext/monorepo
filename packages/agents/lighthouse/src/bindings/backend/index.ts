@@ -21,13 +21,6 @@ export const bindBackend = async (_pollInterval: number) => {
 };
 
 export const pollBackend = async () => {
-  const {
-    // adapters: {},
-    logger,
-    // config,
-  } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("pollBackend");
-
   const { execute } = getOperations();
 
   const reconciledTransactions = await getReconciledTransactions();
@@ -45,15 +38,13 @@ export const pollBackend = async () => {
       local: transaction.destination_local_asset,
       routers: [constants.AddressZero],
       routerSignatures: ["0x"],
-      amount: transaction.destination_local_amount,
+      amount: transaction.destination_local_amount.toString(),
       nonce: transaction.nonce,
       originSender: transaction.xcall_caller,
     };
 
     const transferId = transaction.trasfer_id as string;
-
-    logger.info("show", requestContext, methodContext, { executeParams, transferId });
-    await execute(executeParams, transferId);
+    execute(executeParams, transferId);
   }
 };
 
