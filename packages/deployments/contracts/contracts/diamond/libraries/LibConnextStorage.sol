@@ -204,7 +204,9 @@ struct AppStorage {
   // ReentrancyGuard
   //
   uint256 _status;
+  //
   // StableSwap
+  //
   /**
    * @notice Mapping holding the AMM storages for swapping in and out of local assets
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
