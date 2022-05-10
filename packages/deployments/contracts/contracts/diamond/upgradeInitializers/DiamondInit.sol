@@ -73,9 +73,4 @@ contract DiamondInit is BaseConnextFacet {
         s.maxRoutersPerTransfer = 5;
 
     }
-
-    function _setOwner(address newOwner) private {
-        s._owner = newOwner;
-        s._proposedOwnershipTimestamp = 0;
-    }
 }
