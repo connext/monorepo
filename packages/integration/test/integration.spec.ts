@@ -152,7 +152,7 @@ describe("Integration:E2E", () => {
       },
     );
 
-    subgraph = await SubgraphReader.create(chainData);
+    subgraph = await SubgraphReader.create(chainData, routerConfig.environment);
 
     // Setup contexts (used for injection into helpers).
     context = {
@@ -799,7 +799,7 @@ describe("Integration:E2E", () => {
           method: async () => {
             const destinationTransfer = await subgraph.getDestinationTransferById(
               domainInfo.DESTINATION.domain,
-              originTransfer!.origin.xcall.transactionHash,
+              originTransfer!.transferId,
             );
             if (destinationTransfer?.destination.reconcile?.transactionHash) {
               log.info("Transfer was reconciled.", {
