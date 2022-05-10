@@ -2,6 +2,7 @@ import { logger } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 
+import { setupRelayer } from "./adapters";
 import { getConfig } from "./config";
 import { bindBackend } from "./bindings";
 import { AppContext } from "./lib/entities";
@@ -39,6 +40,7 @@ export const makeLighthouse = async () => {
     );
 
     context.adapters.contracts = getContractInterfaces();
+    context.adapters.relayer = await setupRelayer();
 
     // Set up bindings.
     await bindBackend(context.config.polling.backend);
