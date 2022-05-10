@@ -108,38 +108,37 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ============ Getters ============
 
-  function relayerFees(bytes32 _transferId) public view returns(uint256) {
+  function relayerFees(bytes32 _transferId) public view returns (uint256) {
     return s.relayerFees[_transferId];
   }
 
-  function routedTransfers(bytes32 _transferId) public view returns(address[] memory) {
+  function routedTransfers(bytes32 _transferId) public view returns (address[] memory) {
     return s.routedTransfers[_transferId];
   }
 
-  function reconciledTransfers(bytes32 _transferId) public view returns(bool) {
+  function reconciledTransfers(bytes32 _transferId) public view returns (bool) {
     return s.reconciledTransfers[_transferId];
   }
 
-  function tokenRegistry() public view returns(ITokenRegistry) {
+  function tokenRegistry() public view returns (ITokenRegistry) {
     return s.tokenRegistry;
   }
 
-  function domain() public view returns(uint256) {
+  function domain() public view returns (uint256) {
     return s.domain;
   }
 
-  function executor() public view returns(IExecutor) {
+  function executor() public view returns (IExecutor) {
     return s.executor;
   }
 
-  function nonce() public view returns(uint256) {
+  function nonce() public view returns (uint256) {
     return s.nonce;
   }
 
-  function wrapper() public view returns(IWrapped) {
+  function wrapper() public view returns (IWrapped) {
     return s.wrapper;
   }
-
 
   // ============ Public methods ==============
 
@@ -193,16 +192,10 @@ contract BridgeFacet is BaseConnextFacet {
    * used.
    */
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId) {
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(
-      _args
-    );
+    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // execute router liquidity when this is a fast transfer
-    (uint256 amount, address adopted) = _handleExecuteLiquidity(
-      transferId,
-      !reconciled,
-      _args
-    );
+    (uint256 amount, address adopted) = _handleExecuteLiquidity(transferId, !reconciled, _args);
 
     // execute the transaction
     _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
@@ -229,7 +222,6 @@ contract BridgeFacet is BaseConnextFacet {
     emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
   }
 
-
   // ============ Private Functions ============
 
   /**
@@ -248,17 +240,22 @@ contract BridgeFacet is BaseConnextFacet {
     }
   }
 
-   /**
+  /**
    * @notice Processes an `xcall`
    * @dev Need this to prevent stack too deep
    */
-  function _xcallProcess(XCallArgs calldata _args) internal returns (bytes32, bytes memory, XCalledEventArgs memory) {
+  function _xcallProcess(XCallArgs calldata _args)
+    internal
+    returns (
+      bytes32,
+      bytes memory,
+      XCalledEventArgs memory
+    )
+  {
     // get remote BridgeRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
 
-    address transactingAssetId = _args.transactingAssetId == address(0)
-      ? address(s.wrapper)
-      : _args.transactingAssetId;
+    address transactingAssetId = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
 
     // check that the asset is supported -- can be either adopted or local
     ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
@@ -268,18 +265,10 @@ contract BridgeFacet is BaseConnextFacet {
 
     // transfer funds of transacting asset to the contract from user
     // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 amount) = AssetLogic.handleIncomingAsset(
-      _args.transactingAssetId,
-      _args.amount,
-      _args.relayerFee
-    );
+    (, uint256 amount) = AssetLogic.handleIncomingAsset(_args.transactingAssetId, _args.amount, _args.relayerFee);
 
     // swap to the local asset from adopted
-    (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
-      canonical,
-      transactingAssetId,
-      amount
-    );
+    (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(canonical, transactingAssetId, amount);
 
     bytes32 transferId = _getTransferId(_args, canonical);
 
@@ -307,17 +296,7 @@ contract BridgeFacet is BaseConnextFacet {
     view
     returns (bytes32)
   {
-    return
-      keccak256(
-        abi.encode(
-          s.nonce,
-          _args.params,
-          msg.sender,
-          _canonical.id,
-          _canonical.domain,
-          _args.amount
-        )
-      );
+    return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
   }
 
   /**
@@ -374,10 +353,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @dev Will either (a) credit router or (b) make funds available for execution. Don't
    * include execution here
    */
-  function _reconcile(
-    uint32 _origin,
-    bytes memory _message
-  ) internal {
+  function _reconcile(uint32 _origin, bytes memory _message) internal {
     // parse tokenId and action from message
     bytes29 msg_ = _message.ref(0).mustBeMessage();
     bytes29 tokenId = msg_.tokenId();
@@ -460,9 +436,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `execute`
    * @dev Need this to prevent stack too deep
    */
-  function _executeSanityChecks(
-    ExecuteArgs calldata _args
-  ) private returns (bytes32, bool) {
+  function _executeSanityChecks(ExecuteArgs calldata _args) private returns (bytes32, bool) {
     // If the sender is not approved relayer, revert()
     if (!s.approvedRelayers[msg.sender]) {
       revert BridgeFacet__execute_unapprovedRelayer();
@@ -511,17 +485,7 @@ contract BridgeFacet is BaseConnextFacet {
   function _getTransferId(ExecuteArgs calldata _args) private view returns (bytes32) {
     (uint32 tokenDomain, bytes32 tokenId) = s.tokenRegistry.getTokenId(_args.local);
 
-    return
-      keccak256(
-        abi.encode(
-          _args.nonce,
-          _args.params,
-          _args.originSender,
-          tokenId,
-          tokenDomain,
-          _args.amount
-        )
-      );
+    return keccak256(abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount));
   }
 
   /**
@@ -554,11 +518,7 @@ contract BridgeFacet is BaseConnextFacet {
       // ensure the router is whitelisted
 
       // calculate amount with fast liquidity fee
-      toSwap = _getFastTransferAmount(
-        _args.amount,
-        s.LIQUIDITY_FEE_NUMERATOR,
-        s.LIQUIDITY_FEE_DENOMINATOR
-      );
+      toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
       // store the routers address
       s.routedTransfers[_transferId] = _args.routers;
@@ -576,11 +536,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return
-      AssetLogic.swapFromLocalAssetIfNeeded(
-        _args.local,
-        toSwap
-      );
+    return AssetLogic.swapFromLocalAssetIfNeeded(_args.local, toSwap);
   }
 
   /**
@@ -607,10 +563,7 @@ contract BridgeFacet is BaseConnextFacet {
         payable(_args.params.to),
         _adopted,
         _reconciled
-          ? LibCrossDomainProperty.formatDomainAndSenderBytes(
-            _args.params.originDomain,
-            _args.originSender
-          )
+          ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
           : LibCrossDomainProperty.EMPTY_BYTES,
         _args.params.callData
       );

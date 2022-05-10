@@ -159,10 +159,7 @@ library AssetLogic {
    * @return The amount of adopted asset received from swap
    * @return The address of asset received post-swap
    */
-  function swapFromLocalAssetIfNeeded(
-    address _asset,
-    uint256 _amount
-  ) internal returns (uint256, address) {
+  function swapFromLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Get the token id

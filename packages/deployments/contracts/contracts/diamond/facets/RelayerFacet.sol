@@ -57,22 +57,23 @@ contract RelayerFacet is BaseConnextFacet {
 
   // ============ Getters ============
 
-  function transferRelayer(bytes32 _transferId) public view returns(address) {
+  function transferRelayer(bytes32 _transferId) public view returns (address) {
     return s.transferRelayer[_transferId];
   }
 
-  function approvedRelayers(address _relayer) public view returns(bool) {
+  function approvedRelayers(address _relayer) public view returns (bool) {
     return s.approvedRelayers[_relayer];
   }
 
-  function relayerFeeRouter() public view returns(RelayerFeeRouter) {
+  function relayerFeeRouter() public view returns (RelayerFeeRouter) {
     return s.relayerFeeRouter;
   }
 
-  function LIQUIDITY_FEE_NUMERATOR() public view returns(uint256) {
+  function LIQUIDITY_FEE_NUMERATOR() public view returns (uint256) {
     return s.LIQUIDITY_FEE_NUMERATOR;
   }
-  function LIQUIDITY_FEE_DENOMINATOR() public view returns(uint256) {
+
+  function LIQUIDITY_FEE_DENOMINATOR() public view returns (uint256) {
     return s.LIQUIDITY_FEE_DENOMINATOR;
   }
 

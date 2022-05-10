@@ -41,18 +41,19 @@ contract AssetFacet is BaseConnextFacet {
 
   // ============ Getters ============
 
-  function canonicalToAdopted(bytes32 _canonicalId) public view returns(address) {
+  function canonicalToAdopted(bytes32 _canonicalId) public view returns (address) {
     return s.canonicalToAdopted[_canonicalId];
   }
 
-  function adoptedToCanonical(address _adopted) public view returns(ConnextMessage.TokenId memory) {
+  function adoptedToCanonical(address _adopted) public view returns (ConnextMessage.TokenId memory) {
     ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(
-      s.adoptedToCanonical[_adopted].domain, s.adoptedToCanonical[_adopted].id
+      s.adoptedToCanonical[_adopted].domain,
+      s.adoptedToCanonical[_adopted].id
     );
     return canonical;
   }
 
-  function approvedAssets(bytes32 _asset) public view returns(bool) {
+  function approvedAssets(bytes32 _asset) public view returns (bool) {
     return s.approvedAssets[_asset];
   }
 

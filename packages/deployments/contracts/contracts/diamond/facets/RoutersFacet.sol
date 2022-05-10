@@ -138,8 +138,7 @@ contract RoutersFacet is BaseConnextFacet {
       if (!((owner == address(0) && msg.sender == _router) || owner == msg.sender))
         revert RoutersFacet__onlyProposedRouterOwner_notRouterOwner();
     } else {
-      if (msg.sender != proposed)
-        revert RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner();
+      if (msg.sender != proposed) revert RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner();
     }
     _;
   }
@@ -447,7 +446,8 @@ contract RoutersFacet is BaseConnextFacet {
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Asset is approved
-    if (!isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId]) revert RoutersFacet__addLiquidityForRouter_badAsset();
+    if (!isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId])
+      revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract
     (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0);

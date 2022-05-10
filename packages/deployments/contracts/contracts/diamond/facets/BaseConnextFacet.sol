@@ -89,7 +89,7 @@ contract BaseConnextFacet {
     return s._owner == address(0) || s._routerOwnershipRenounced;
   }
 
-   /**
+  /**
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
