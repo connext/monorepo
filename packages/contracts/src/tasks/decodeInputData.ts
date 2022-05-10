@@ -8,7 +8,7 @@ export default task("decode-input-data", "Decodes input data")
     console.log("inputData: ", inputData);
     console.log("type: ", type);
 
-    const txManagerDeployment = await deployments.get("TransactionManager");
+    const txManagerDeployment = await deployments.getArtifact("TransactionManager");
     const txMinterface = new Interface(txManagerDeployment.abi);
 
     if (type === "fulfill") {
