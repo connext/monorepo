@@ -6,7 +6,7 @@ pragma solidity ^0.8.11;
 
 import {Modifiers} from "../../utils/Modifiers.sol";
 
-contract RouterFacet is Modifiers {
+contract NomadRouterFacet is Modifiers {
   // ============ Modifiers ============
 
   // ============ Getters functions ============

@@ -190,9 +190,13 @@ struct AppStorage {
   uint256 _routerOwnershipTimestamp;
   bool _assetOwnershipRenounced;
   uint256 _assetOwnershipTimestamp;
+  //
   // RouterPermissionsManager
-  RouterPermissionsManagerInfo routerInfo;
+  //
+  RouterPermissionsManagerInfo routerPermissionInfo;
+  //
   // ReentrancyGuard
+  //
   uint256 _status;
 }
 

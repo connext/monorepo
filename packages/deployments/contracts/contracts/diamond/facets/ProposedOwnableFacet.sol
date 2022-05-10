@@ -159,14 +159,6 @@ contract ProposedOwnableFacet is Modifiers {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function isAssetOwnershipRenounced() public view returns (bool) {
-    return s._owner == address(0) || s._assetOwnershipRenounced;
-  }
-
-  /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
-   */
   function proposeAssetOwnershipRenunciation() public onlyOwner {
     // Contract as sournce of truth
     // Will fail if all ownership is renounced by modifier
