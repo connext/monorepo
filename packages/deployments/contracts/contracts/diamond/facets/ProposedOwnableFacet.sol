@@ -72,7 +72,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
   /**
    * @notice Returns the address of the current owner.
    */
-  function owner() public view returns (address) {
+  function proposedOwnableOwner() public view returns (address) {
     return s._owner;
   }
 

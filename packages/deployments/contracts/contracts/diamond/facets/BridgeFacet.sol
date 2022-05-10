@@ -161,7 +161,7 @@ contract BridgeFacet is BaseConnextFacet {
     s.nonce += 1;
 
     // emit event
-    emit XCalled(transferId, _args, eventArgs, s.nonce, message, msg.sender);
+    emit XCalled(transferId, _args, eventArgs, s.nonce-1, message, msg.sender);
 
     return transferId;
   }

@@ -93,115 +93,145 @@ struct AppStorage {
   // ConnextHandler
   //
   // TODO: enable setting these constants via admin fn
+  // 0
   uint256 LIQUIDITY_FEE_NUMERATOR;
+  // 1
   uint256 LIQUIDITY_FEE_DENOMINATOR;
   // The local nomad relayer fee router
+  // 2
   RelayerFeeRouter relayerFeeRouter;
   // /**
   // * @notice The address of the wrapper for the native asset on this domain
   // * @dev Needed because the nomad only handles ERC20 assets
   // */
+  // 3
   IWrapped wrapper;
   // /**
   // * @notice Nonce for the contract, used to keep unique transfer ids.
   // * @dev Assigned at first interaction (xcall on origin domain);
   // */
+  // 4
   uint256 nonce;
   // /**
   // * @notice The external contract that will execute crosschain calldata
   // */
+  // 5
   IExecutor executor;
   // /**
   // * @notice The domain this contract exists on
   // * @dev Must match the nomad domain, which is distinct from the "chainId"
   // */
+  // 6
   uint256 domain;
   // /**
   // * @notice The local nomad token registry
   // */
+  // 7
   ITokenRegistry tokenRegistry;
   // /**
   // * @notice Mapping holding the AMMs for swapping in and out of local assets
   // * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
   // */
+  // 7
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   // /**
   // * @notice Mapping of whitelisted assets on same domain as contract
   // * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
   // * registry
   // */
+  // 8
   mapping(bytes32 => bool) approvedAssets;
   // /**
   // * @notice Mapping of canonical to adopted assets on this domain
   // * @dev If the adopted asset is the native asset, the keyed address will
   // * be the wrapped asset address
   // */
+  // 9
   mapping(address => ConnextMessage.TokenId) adoptedToCanonical;
   // /**
   // * @notice Mapping of adopted to canonical on this domain
   // * @dev If the adopted asset is the native asset, the stored address will be the
   // * wrapped asset address
   // */
+  // 10
   mapping(bytes32 => address) canonicalToAdopted;
   // /**
   // * @notice Mapping to determine if transfer is reconciled
   // */
+  // 11
   mapping(bytes32 => bool) reconciledTransfers;
   // /**
   // * @notice Mapping holding router address that provided fast liquidity
   // */
+  // 12
   mapping(bytes32 => address[]) routedTransfers;
   // /**
   // * @notice Mapping of router to available balance of an asset
   // * @dev Routers should always store liquidity that they can expect to receive via the bridge on
   // * this domain (the nomad local asset)
   // */
+  // 13
   mapping(address => mapping(address => uint256)) routerBalances;
   // /**
   // * @notice Mapping of approved relayers
   // * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
   // */
+  // 14
   mapping(address => bool) approvedRelayers;
   // /**
   // * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
   // * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
   // */
+  // 15
   mapping(bytes32 => uint256) relayerFees;
   // /**
   // * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
   // * for transfer
   // * @dev When relayer claims, must check that the msg.sender has forwarded transfer
   // */
+  // 16
   mapping(bytes32 => address) transferRelayer;
   // /**
   // * @notice The max amount of routers a payment can be routed through
   // */
+  // 17
   uint256 maxRoutersPerTransfer;
   //
   // Router
   //
+  // 18
   mapping(uint32 => bytes32) remotes;
   //
   // XAppConnectionClient
   //
+  // 19
   XAppConnectionManager xAppConnectionManager;
   //
   // ProposedOwnable
   //
+  // 20
   address _owner;
+  // 21
   address _proposed;
+  // 22
   uint256 _proposedOwnershipTimestamp;
+  // 23
   bool _routerOwnershipRenounced;
+  // 24
   uint256 _routerOwnershipTimestamp;
+  // 25
   bool _assetOwnershipRenounced;
+  // 26
   uint256 _assetOwnershipTimestamp;
   //
   // RouterPermissionsManager
   //
+  // 27
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
+  // 28
   uint256 _status;
 }
 
