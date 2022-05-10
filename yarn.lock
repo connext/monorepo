@@ -6825,9 +6825,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001338
-  resolution: "caniuse-lite@npm:1.0.30001338"
-  checksum: 80ac481b20aac13d6168825762e2ad9b9895d36451088b921400c3cd818185e6d113c2d202e82cf3b88f4d2311b3064507f2e3f9fe9f0935fcaf42d9d4f15570
+  version: 1.0.30001339
+  resolution: "caniuse-lite@npm:1.0.30001339"
+  checksum: c974676c6e38692ab5a274c460557476f1d167166493249059b5595dc3166942a30bb030dd4a6f6dcbc28fb53c741b5c95fc0f82b043def296e6a49b32b68478
   languageName: node
   linkType: hard
 
@@ -7647,9 +7647,9 @@ __metadata:
   linkType: hard
 
 "core-js-pure@npm:^3.0.1":
-  version: 3.22.4
-  resolution: "core-js-pure@npm:3.22.4"
-  checksum: 5499aaf7b90da501552f34ffec11853dd41bbd00c5ce9511e0a292edc581b55598a58c5f98f3aecb3d63d893875cef8d631f10fe9984a101a86b7b1ec564b650
+  version: 3.22.5
+  resolution: "core-js-pure@npm:3.22.5"
+  checksum: 923c7391f20dcd6fae861a2c9cb92caa0158b9d65fd8ff24eb273814cdf84df4b409fe4cf2c3fcff609daa1a408c64ba752c28f030d8bc31ac1128de8616ad1a
   languageName: node
   linkType: hard
 
@@ -12451,9 +12451,9 @@ __metadata:
   linkType: hard
 
 "ip@npm:^1.1.5":
-  version: 1.1.5
-  resolution: "ip@npm:1.1.5"
-  checksum: 30133981f082a060a32644f6a7746e9ba7ac9e2bc07ecc8bbdda3ee8ca9bec1190724c390e45a1ee7695e7edfd2a8f7dda2c104ec5f7ac5068c00648504c7e5a
+  version: 1.1.6
+  resolution: "ip@npm:1.1.6"
+  checksum: 3e5f72b447fd292801491f03091ef1221fbc37de527d3bf306b297e3e58530e7ad80ae92a2f716d8a25fbb6e16afe05cbcb7cef671107ddb37ac7a1693158c6b
   languageName: node
   linkType: hard
 
@@ -20682,8 +20682,8 @@ __metadata:
   linkType: hard
 
 "ts-command-line-args@npm:^2.2.0":
-  version: 2.3.0
-  resolution: "ts-command-line-args@npm:2.3.0"
+  version: 2.2.2
+  resolution: "ts-command-line-args@npm:2.2.2"
   dependencies:
     chalk: ^4.1.0
     command-line-args: ^5.1.1
@@ -20691,7 +20691,7 @@ __metadata:
     string-format: ^2.0.0
   bin:
     write-markdown: dist/write-markdown.js
-  checksum: bf21996202265cc95bcb1e2b6c549015f180e87539364e1bb2d16ca024927740c2ee4180e3a87dae74c8b4d9a48d88cdd8948dd50c771e93eb77ba4e402e84f7
+  checksum: 353a009679e4160799b13820b12fd315a0085f1a511f363ee4d65354caed559495911c7c3ab2835d795ee8d7216927e2bffb5864c9986f1ceb8b6c80ec537744
   languageName: node
   linkType: hard
 
