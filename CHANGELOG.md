@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.10
+
+- [backend] Fix backend config and poller
+
 ## Amarok 0.2.0-alpha.9
 
 - [sdk] sdk public release
