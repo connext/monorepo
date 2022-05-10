@@ -5,15 +5,6 @@ import { RelayerSendFailed } from "../../lib/errors";
 import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../lighthouse";
 
-export const getRelayerAddress = async (chainId: number): Promise<string> => {
-  const { logger } = getContext();
-  const {
-    relayer: { getGelatoRelayerAddress },
-  } = getHelpers();
-  const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
-  return relayerAddress;
-};
-
 export const send = async (
   chainId: number,
   destinationAddress: string,
