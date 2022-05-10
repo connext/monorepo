@@ -96,8 +96,6 @@ struct AppStorage {
   // TODO: enable setting these constants via admin fn
   uint256 LIQUIDITY_FEE_NUMERATOR;
   uint256 LIQUIDITY_FEE_DENOMINATOR;
-  // Contains hash of empty bytes
-  bytes32 EMPTY;
   // The local nomad relayer fee router
   RelayerFeeRouter relayerFeeRouter;
   // /**

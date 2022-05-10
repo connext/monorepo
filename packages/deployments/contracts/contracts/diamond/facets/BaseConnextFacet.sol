@@ -12,6 +12,9 @@ contract BaseConnextFacet {
   uint256 internal constant _NOT_ENTERED = 1;
   uint256 internal constant _ENTERED = 2;
 
+  // Contains hash of empty bytes
+  bytes32 internal constant EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+
   // ========== Custom Errors ===========
 
   error Modifiers__onlyRemoteRouter_notRemoteRouter();

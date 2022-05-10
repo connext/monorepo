@@ -595,7 +595,7 @@ contract BridgeFacet is BaseConnextFacet {
     bool _reconciled
   ) private {
     // execute the the transaction
-    if (keccak256(_args.params.callData) == s.EMPTY) {
+    if (keccak256(_args.params.callData) == EMPTY) {
       // no call data, send funds to the user
       AssetLogic.transferAssetFromContract(_adopted, _args.params.to, _amount);
     } else {

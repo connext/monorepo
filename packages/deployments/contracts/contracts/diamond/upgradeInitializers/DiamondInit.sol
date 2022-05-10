@@ -55,19 +55,16 @@ contract DiamondInit is BaseConnextFacet {
 
         // __ProposedOwnable_init
         s._owner = msg.sender;
-        s._proposedOwnershipTimestamp = 0;
 
         // __ReentrancyGuard_init_unchained
         s._status = _NOT_ENTERED;
 
         // ConnextHandler
-        s.nonce = 0;
         s.domain = _domain;
         s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
         s.executor = new Executor(address(this));
         s.tokenRegistry = ITokenRegistry(_tokenRegistry);
         s.wrapper = IWrapped(_wrappedNative);
-        s.EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
         s.LIQUIDITY_FEE_NUMERATOR = 9995;
         s.LIQUIDITY_FEE_DENOMINATOR = 10000;
         s.maxRoutersPerTransfer = 5;
