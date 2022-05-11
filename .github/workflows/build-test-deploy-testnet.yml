@@ -379,7 +379,7 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      poller-tags: ${{ needs.build-and-push-poller-image.outputs.json }}
+      poller-tags: ${{ needs.smoke-tests.outputs.poller-tags }}
 
   terraform-services-core-staging:
     needs: [smoke-tests, terraform-infra]
