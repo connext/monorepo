@@ -7,6 +7,10 @@ locals {
     { name = "NXTP_CONFIG", value = local.local_router_config },
     { name = "ENVIRONMENT", value = var.environment }
   ]
+  lighthouse_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment }
+  ]
   web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
@@ -81,5 +85,20 @@ locals {
     }
     web3SignerUrl = "https://${module.web3signer.service_endpoint}"
     environment   = "production"
+  })
+}
+
+locals {
+  local_lighthouse_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1111" = {
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
+      }
+      "2221" = {
+        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
+      }
+    }
+    environment = "production"
   })
 }

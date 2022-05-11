@@ -22,7 +22,7 @@ variable "stage" {
 
 variable "environment" {
   description = "env we're deploying to"
-  default     = "testnet"
+  default     = "staging"
 }
 
 variable "full_image_name_router" {
@@ -35,6 +35,12 @@ variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
   default     = "ghcr.io/connext/sequencer:sha-3eea5cf"
+}
+
+variable "full_image_name_lighthouse" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/lighthouse:sha-3eea5cf"
 }
 
 variable "mnemonic" {
