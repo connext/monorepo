@@ -1,5 +1,4 @@
 import { createLoggingContext, ExecuteArgs } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
 
