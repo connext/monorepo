@@ -53,14 +53,12 @@ export class NxtpSdkRouter {
     domain: string;
     amount: string;
     assetId: string;
-    _router?: string;
+    router: string;
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidityForRouter.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
-    const { domain, amount, assetId, _router } = params;
-
-    const router = _router || this.config.signerAddress;
+    const { domain, amount, assetId, router } = params;
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
@@ -68,14 +66,21 @@ export class NxtpSdkRouter {
     const value = assetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
     const data = this.contracts.connext.encodeFunctionData("addLiquidityFor", [amount, assetId, router]);
 
-    this.logger.info(`${this.addLiquidityForRouter.name} transaction created`, requestContext, methodContext);
-
-    return {
+    const txRequest = {
       to: ConnextContractAddress,
       value,
       data,
       from: this.config.signerAddress,
       chainId,
     };
+
+    this.logger.info(
+      `${this.addLiquidityForRouter.name} transaction created`,
+      requestContext,
+      methodContext,
+      txRequest,
+    );
+
+    return txRequest;
   }
 }
