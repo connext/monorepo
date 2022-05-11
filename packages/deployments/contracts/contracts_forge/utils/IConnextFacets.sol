@@ -9,7 +9,7 @@ import {IExecutor} from "../../contracts/interfaces/IExecutor.sol";
 import {XAppConnectionManager} from "../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {RelayerFeeRouter} from "../../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {XCallArgs, ExecuteArgs} from "../../contracts/diamond/libraries/LibConnextStorage.sol";
-
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 interface IConnextFacets {
   // AssetFacet
   function canonicalToAdopted(bytes32 _canonicalId) external view returns (address);
@@ -107,5 +107,90 @@ interface IConnextFacets {
     address _local,
     address payable _to
   ) external;
-
+  // StableSwapFacet
+  function getA(bytes32 canonicalId) external view returns (uint256);
+  function getAPrecise(bytes32 canonicalId) external view returns (uint256);
+  function getToken(bytes32 canonicalId, uint8 index) external view returns (IERC20);
+  function getTokenIndex(bytes32 canonicalId, address tokenAddress) external view returns (uint8);
+  function getTokenBalance(bytes32 canonicalId, uint8 index) external view returns (uint256);
+  function getVirtualPrice(bytes32 canonicalId) external view returns (uint256);
+  function calculateSwap(
+    bytes32 canonicalId,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx
+  ) external view returns (uint256);
+  function calculateTokenAmount(
+    bytes32 canonicalId,
+    uint256[] calldata amounts,
+    bool deposit
+  ) external view returns (uint256);
+  function calculateRemoveLiquidity(bytes32 canonicalId, uint256 amount) external view returns (uint256[] memory);
+  function calculateRemoveLiquidityOneToken(
+    bytes32 canonicalId,
+    uint256 tokenAmount,
+    uint8 tokenIndex
+  ) external view returns (uint256);
+  function getAdminBalance(bytes32 canonicalId, uint256 index) external view returns (uint256);
+  function swap(
+    bytes32 canonicalId,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx,
+    uint256 minDy,
+    uint256 deadline
+  ) external returns (uint256);
+  function swapExact(
+    bytes32 canonicalId,
+    uint256 amountIn,
+    address assetIn,
+    address assetOut,
+    uint256 minAmountOut,
+    uint256 deadline
+  ) external payable returns (uint256);
+  function addStableLiquidity(
+    bytes32 canonicalId,
+    uint256[] calldata amounts,
+    uint256 minToMint,
+    uint256 deadline
+  ) external returns (uint256);
+  function removeStableLiquidity(
+    bytes32 canonicalId,
+    uint256 amount,
+    uint256[] calldata minAmounts,
+    uint256 deadline
+  ) external returns (uint256[] memory);
+  function removeStableLiquidityOneToken(
+    bytes32 canonicalId,
+    uint256 tokenAmount,
+    uint8 tokenIndex,
+    uint256 minAmount,
+    uint256 deadline
+  ) external returns (uint256);
+  function removeStableLiquidityImbalance(
+    bytes32 canonicalId,
+    uint256[] calldata amounts,
+    uint256 maxBurnAmount,
+    uint256 deadline
+  ) external returns (uint256);
+  function initializeStableSwap(
+    bytes32 _canonicalId,
+    IERC20[] memory _pooledTokens,
+    uint8[] memory decimals,
+    string memory lpTokenName,
+    string memory lpTokenSymbol,
+    uint256 _a,
+    uint256 _fee,
+    uint256 _adminFee,
+    address lpTokenTargetAddress
+  ) external;
+  function withdrawAdminFees(bytes32 canonicalId) external;
+  function setAdminFee(bytes32 canonicalId, uint256 newAdminFee) external;
+  function setSwapFee(bytes32 canonicalId, uint256 newSwapFee) external;
+  function rampA(
+    bytes32 canonicalId,
+    uint256 futureA,
+    uint256 futureTime
+  ) external;
+  function stopRampA(bytes32 canonicalId) external;
 }

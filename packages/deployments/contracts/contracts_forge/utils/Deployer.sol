@@ -12,6 +12,7 @@ import {OwnershipFacet} from "../../contracts/diamond/facets/OwnershipFacet.sol"
 import {ProposedOwnableFacet} from "../../contracts/diamond/facets/ProposedOwnableFacet.sol";
 import {RelayerFacet} from "../../contracts/diamond/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/diamond/facets/RoutersFacet.sol";
+import {StableSwapFacet} from "../../contracts/diamond/facets/StableSwapFacet.sol";
 import {ConnextMessage} from "../../contracts/diamond/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/diamond/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/diamond/interfaces/IDiamondCut.sol";
@@ -29,6 +30,7 @@ contract Deployer {
   ProposedOwnableFacet proposedOwnableFacet;
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
+  StableSwapFacet stableSwapAsset;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
@@ -181,6 +183,38 @@ contract Deployer {
     });
   }
 
+  function getStableSwapFacetCut(address _stableSwapFacet) internal returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory stableSwapFacetSelectors = new bytes4[](23);
+    stableSwapFacetSelectors[0] = StableSwapFacet.getA.selector;
+    stableSwapFacetSelectors[1] = StableSwapFacet.getAPrecise.selector;
+    stableSwapFacetSelectors[2] = StableSwapFacet.getToken.selector;
+    stableSwapFacetSelectors[3] = StableSwapFacet.getTokenIndex.selector;
+    stableSwapFacetSelectors[4] = StableSwapFacet.getTokenBalance.selector;
+    stableSwapFacetSelectors[5] = StableSwapFacet.getVirtualPrice.selector;
+    stableSwapFacetSelectors[6] = StableSwapFacet.calculateSwap.selector;
+    stableSwapFacetSelectors[7] = StableSwapFacet.calculateTokenAmount.selector;
+    stableSwapFacetSelectors[8] = StableSwapFacet.calculateRemoveLiquidity.selector;
+    stableSwapFacetSelectors[9] = StableSwapFacet.calculateRemoveLiquidityOneToken.selector;
+    stableSwapFacetSelectors[10] = StableSwapFacet.getAdminBalance.selector;
+    stableSwapFacetSelectors[11] = StableSwapFacet.swap.selector;
+    stableSwapFacetSelectors[12] = StableSwapFacet.swapExact.selector;
+    stableSwapFacetSelectors[13] = StableSwapFacet.addStableLiquidity.selector;
+    stableSwapFacetSelectors[14] = StableSwapFacet.removeStableLiquidity.selector;
+    stableSwapFacetSelectors[15] = StableSwapFacet.removeStableLiquidityOneToken.selector;
+    stableSwapFacetSelectors[16] = StableSwapFacet.removeStableLiquidityImbalance.selector;
+    stableSwapFacetSelectors[17] = StableSwapFacet.initializeStableSwap.selector;
+    stableSwapFacetSelectors[18] = StableSwapFacet.withdrawAdminFees.selector;
+    stableSwapFacetSelectors[19] = StableSwapFacet.setAdminFee.selector;
+    stableSwapFacetSelectors[20] = StableSwapFacet.setSwapFee.selector;
+    stableSwapFacetSelectors[21] = StableSwapFacet.rampA.selector;
+    stableSwapFacetSelectors[22] = StableSwapFacet.stopRampA.selector;
+    return IDiamondCut.FacetCut({
+      facetAddress: _stableSwapFacet,
+      action: IDiamondCut.FacetCutAction.Add,
+      functionSelectors: stableSwapFacetSelectors
+    });
+  }
+
   function deployFacets() internal {
     diamondCutFacet = new DiamondCutFacet();
     diamondLoupeFacet = new DiamondLoupeFacet();
@@ -192,10 +226,11 @@ contract Deployer {
     proposedOwnableFacet = new ProposedOwnableFacet();
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
+    stableSwapAsset = new StableSwapFacet();
   }
 
   function getFacetCuts() internal returns (IDiamondCut.FacetCut[] memory) {
-    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](9);
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](10);
     facetCuts[0] = getDiamondCutFacetCut(address(diamondCutFacet));
     facetCuts[1] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
     facetCuts[2] = getAssetFacetCut(address(assetFacet));
@@ -205,6 +240,7 @@ contract Deployer {
     facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
+    facetCuts[9] = getStableSwapFacetCut(address(stableSwapAsset));
 
     return facetCuts;
   }
