@@ -25,7 +25,6 @@
     "packages/agents/backend/poller",
     "packages/agents/sdk",
     "packages/agents/relayer",
-    "packages/agents/lighthouse",
     "packages/integration",
     "packages/examples/sdk-server"
   ],
