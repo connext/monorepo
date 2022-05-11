@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.14
+
+- [sdk] Optional signer address
+
 ## Amarok 0.2.0-alpha.13
 
 - [ops] Fix lighthouse dockerfile
