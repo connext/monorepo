@@ -327,7 +327,6 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_poller: ${{ fromJSON(needs.smoke-tests.outputs.poller-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -387,6 +386,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router: ${{ fromJSON(needs.smoke-tests.outputs.router-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
