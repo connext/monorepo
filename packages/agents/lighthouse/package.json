@@ -1,28 +1,24 @@
 {
-  "name": "@connext/nxtp-sequencer",
-  "version": "0.2.0-alpha.10",
-  "description": "Sequencer for Amarok, previously auctioneer",
-  "author": "Connext",
-  "license": "MIT",
-  "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
-    "docker:redis:up": "docker-compose -f ops/start-redis.docker-compose.yml up -d",
-    "start": "node dist/index.js",
-    "lint": "eslint ./src --ext .ts --env node",
-    "test": "nyc ts-mocha --require test/globalTestHook.ts --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
-    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "tsc --build ./tsconfig.build.json",
-    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
-    "purge": "yarn clean && rimraf ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen": "graphql-codegen"
-  },
+  "name": "@connext/lighthouse",
+  "version": "0.2.0-alpha.9",
+  "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
     "src/**/*"
   ],
+  "scripts": {
+    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
+    "start": "node --enable-source-maps dist/index.js'",
+    "lint": "eslint ./src --ext .ts --env node",
+    "test:run": "nyc ts-mocha --require 'test/mock.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
+    "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
+    "build": "tsc --build ./tsconfig.build.json",
+    "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
+    "purge": "yarn clean && rimraf ./coverage ./node_modules",
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
+  },
   "nodemonConfig": {
     "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
     "delay": "500",
@@ -30,8 +26,6 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-adapters-cache",
-      "../@connext/nxtp-adapters-subgraph",
       "../@connext/nxtp-txservice/dist",
       "../@connext/nxtp-utils/dist"
     ]
@@ -39,27 +33,26 @@
   "eslintIgnore": [
     "graphqlsdk.ts"
   ],
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
-  },
-  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "author": "Connext",
+  "license": "ISC",
   "dependencies": {
-    "@connext/nxtp-adapters-cache": "workspace:*",
-    "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "^0.23.4",
     "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
     "ethers": "^5.6.1",
     "fastify": "^3.27.4",
-    "interval-promise": "^1.4.0",
-    "pino": "^7.10.0",
-    "tsc": "^2.0.4"
+    "graphql": "^16.3.0",
+    "prom-client": "14.0.1"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@types/mocha": "^9.1.0",
+    "@types/sinon": "^10.0.11",
     "concurrently": "^7.1.0",
     "eslint": "^8.11.0",
+    "interval-promise": "^1.4.0",
     "mocha": "^9.2.2",
     "nodemon": "^2.0.16",
     "nyc": "^15.1.0",
@@ -69,5 +62,6 @@
     "ts-mocha": "^9.0.2",
     "typescript": "^4.6.2"
   },
-  "stableVersion": "0.0.1"
+  "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
+  "stableVersion": "0.1.25"
 }
