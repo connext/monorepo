@@ -4213,7 +4213,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^12.12.54, @types/node@npm:^12.12.6":
+"@types/node@npm:^12.12.6, @types/node@npm:^12.7.7":
   version: 12.20.51
   resolution: "@types/node@npm:12.20.51"
   checksum: 6c6f71c0037e43ceb984a740b76c8cca63f25ae56e95d6c2f473949ceed52b2b69d0faee45660425d8635c7e51b72ddeb6697e71f401b9de3eea21088468d64b
