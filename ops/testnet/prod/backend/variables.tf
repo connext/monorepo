@@ -40,6 +40,6 @@ variable "postgres_password" {
 }
 
 variable "postgres_user" {
-  type = string
+  type    = string
   default = "connext"
 }
