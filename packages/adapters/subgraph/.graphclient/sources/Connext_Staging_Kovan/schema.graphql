@@ -438,6 +438,7 @@ type stagingkovan_OriginTransfer {
   callData: stagingkovan_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  status: stagingkovan_TransferStatus
   relayerFee: BigInt
   message: stagingkovan_Bytes
   transactingAsset: stagingkovan_Bytes
@@ -511,6 +512,10 @@ input stagingkovan_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  status: stagingkovan_TransferStatus
+  status_not: stagingkovan_TransferStatus
+  status_in: [stagingkovan_TransferStatus!]
+  status_not_in: [stagingkovan_TransferStatus!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -610,6 +615,7 @@ enum stagingkovan_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  status
   relayerFee
   message
   transactingAsset
@@ -958,6 +964,7 @@ type Subscription {
 }
 
 enum stagingkovan_TransferStatus {
+  XCalled
   Executed
   Reconciled
   Completed

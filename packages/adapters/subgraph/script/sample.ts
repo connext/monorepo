@@ -10,7 +10,7 @@ export const test = async () => {
   // kovan => (domain: 2221, network: kovan)
 
   const chainData = await getChainData();
-  const subgraphReader = await SubgraphReader.create(chainData!, "staging");
+  const subgraphReader = await SubgraphReader.create(chainData!, "production");
 
   // test -> query()
   const query = gql`
@@ -23,7 +23,9 @@ export const test = async () => {
       }
     }
   `;
-  console.log(await subgraphReader.query(query));
+  const routersResponse = await subgraphReader.query(query);
+  console.log([...routersResponse.values()][0][0]);
+  console.log([...routersResponse.values()][1][0]);
 
   // getAssetBalance(domain, router, local)
   console.log(
