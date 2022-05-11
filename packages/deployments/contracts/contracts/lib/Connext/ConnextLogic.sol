@@ -157,10 +157,11 @@ library ConnextLogic {
 
   /**
    * @notice Emitted when the sponsorVault variable is updated
-   * @param sponsorVault - The sponsorVault new value
+   * @param oldSponsorVault - The sponsorVault old value
+   * @param newSponsorVault - The sponsorVault new value
    * @param caller - The account that called the function
    */
-  event SponsorVaultUpdated(address sponsorVault, address caller);
+  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
@@ -359,7 +360,7 @@ library ConnextLogic {
     if (_sponsorVault == _currentSponsorVault)
       revert ConnextLogic__setSponsorVault_invalidSponsorVault();
 
-    emit SponsorVaultUpdated(_sponsorVault, msg.sender);
+    emit SponsorVaultUpdated(_currentSponsorVault, _sponsorVault, msg.sender);
   }
 
   // ============ Functions ============

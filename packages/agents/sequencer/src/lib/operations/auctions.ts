@@ -9,10 +9,12 @@ import {
   getNtpTimeSeconds,
   Auction,
   jsonifyError,
+  OriginTransfer,
 } from "@connext/nxtp-utils";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../errors";
 import { getContext } from "../../sequencer";
+import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
 
@@ -22,7 +24,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     adapters: { cache, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
-  logger.info(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
+  logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
 
   const { transferId, origin } = bid;
 
@@ -50,10 +52,10 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Check to see if we have the XCall data saved locally for this.
   let transfer = await cache.transfers.getTransfer(transferId);
-  if (!transfer || !transfer.xcall) {
+  if (!transfer || !transfer.origin) {
     // Get the XCall from the subgraph for this transfer.
-    transfer = await subgraph.getTransfer(origin, transferId);
-    if (!transfer || !transfer.xcall) {
+    transfer = await subgraph.getOriginTransferById(origin, transferId);
+    if (!transfer || !transfer.origin) {
       // Router shouldn't be bidding on a transfer that doesn't exist.
       throw new MissingXCall(origin, transferId, {
         bid,
@@ -64,7 +66,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     await cache.transfers.storeTransfers([transfer]);
   }
 
-  if (transfer.execute || transfer.reconcile) {
+  if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
     throw new AuctionExpired(status, {
       transferId,
@@ -76,7 +78,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   const res = await cache.auctions.upsertAuction({
     transferId,
     origin: transfer.originDomain,
-    destination: transfer.destinationDomain,
+    destination: transfer.destinationDomain!,
     bid,
   });
   logger.info("Updated auction", requestContext, methodContext, {
@@ -98,8 +100,10 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
   const {
     relayer: { sendToRelayer },
   } = getOperations();
+  const {
+    auctions: { getDestinationLocalAsset },
+  } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
-
   logger.debug(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
 
   // Fetch all the queued transfer IDs from the cache.
@@ -148,7 +152,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           transferId,
         });
 
-        const transfer = await cache.transfers.getTransfer(transferId);
+        // NOTE: Should be an OriginTransfer, but we will sanity check below.
+        const transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
         if (!transfer) {
           // This should never happen.
           // TODO: Should this be tossed out? We literally can't handle a transfer without the xcall data.
@@ -159,7 +164,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             bids,
           });
           continue;
-        } else if (!transfer.xcall || !transfer.relayerFee) {
+        } else if (!transfer.origin) {
           // TODO: Same as above!
           // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
           logger.error("XCall or Relayer Fee not found for transfer!", requestContext, methodContext, undefined, {
@@ -199,10 +204,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         for (const randomBid of randomized) {
           // Sanity: Check if this router has enough funds.
           const { router } = randomBid;
-          const amount = BigNumber.from(transfer.xcall.localAmount);
-          const asset = transfer.xcall.localAsset;
-          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
+          const asset = await getDestinationLocalAsset(
+            transfer.originDomain,
+            transfer.origin.assets.bridged.asset,
+            destination,
+          );
+          // TODO: Should use amount from router's bid.
+          const amount = transfer.origin.assets.bridged.amount;
 
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
           if (!routerLiquidity) {
             // Either we haven't cached the liquidity yet, or the value cached has become expired.
             routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
@@ -218,6 +228,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
                   destination,
                   amount: amount.toString(),
                 },
+                assetBalanceId: `${asset.toLowerCase()}-${router.toLowerCase()}`,
+                routerLiquidity,
                 router,
               });
               continue;
@@ -239,7 +251,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           }
 
           try {
-            logger.info("Sending bid to relayer", requestContext, methodContext, {
+            logger.debug("Sending bid to relayer", requestContext, methodContext, {
               transferId,
               bid: {
                 // NOTE: Obfuscating signatures here for safety.
@@ -248,15 +260,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               },
             });
             // Send the relayer request based on chosen bids.
-            taskId = await sendToRelayer(
-              [randomBid],
-              transfer,
-              {
-                amount: transfer.relayerFee!,
-                asset: transfer.xcall!.localAsset,
-              },
-              requestContext,
-            );
+            taskId = await sendToRelayer([randomBid], transfer, asset, requestContext);
             logger.info("Sent bid to relayer", requestContext, methodContext, {
               transferId,
               taskId,

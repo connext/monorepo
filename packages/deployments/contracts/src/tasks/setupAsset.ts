@@ -17,7 +17,7 @@ type TaskArgs = {
 export default task("setup-asset", "Configures an asset")
   .addParam("canonical", "Canonical token address")
   .addParam("domain", "Canonical domain of token")
-  .addParam("adopted", "Addopted token address")
+  .addParam("adopted", "Adopted token address")
   .addOptionalParam("pool", "Stable swap pool for adopted <> local asset")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "Environment of contracts")
@@ -52,13 +52,27 @@ export default task("setup-asset", "Configures an asset")
 
       const approved = await connext.approvedAssets(canonicalTokenId.id);
       if (approved) {
-        // remove asset
+        // check that the correct domain is set
+        // check that the correct adopted asset is set
+
+        // get the current adopted asset
         const currentAdopted = await connext.canonicalToAdopted(canonicalTokenId.id);
-        if (currentAdopted.toLowerCase() === adopted.toLowerCase()) {
+
+        // check that the correct domain is set
+        const currentCanonical = await connext.adoptedToCanonical(currentAdopted);
+        console.log("currentCanonical", currentCanonical);
+        const correctCanonical =
+          currentCanonical.domain === canonicalTokenId.domain &&
+          currentCanonical.id.toLowerCase() === canonicalTokenId.id.toLowerCase();
+
+        // check that the correct adopted asset is set + correct domain
+        if (currentAdopted.toLowerCase() === adopted.toLowerCase() && correctCanonical) {
           console.log("approved, no need to add");
           return;
         }
-        console.log("approved with different adopted asset:", currentAdopted, "vs", adopted);
+        console.log("approved with different adopted asset or canonical id:");
+        console.log(" - current adopted  :", currentAdopted);
+        console.log(" - current canonical:", currentCanonical.id, "on", currentCanonical.domain.toString());
         console.log("removing asset and readding");
         const remove = await connext.removeAssetId(canonicalTokenId.id, currentAdopted);
         console.log("remove tx:", remove.hash);

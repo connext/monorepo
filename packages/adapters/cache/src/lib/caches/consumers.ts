@@ -36,13 +36,4 @@ export class ConsumersCache extends Cache {
   public async subscribe(channel: StoreChannel, callback: SubscriptionCallback): Promise<void> {
     this.subscriptions.set(channel, callback);
   }
-
-  /**
-   * Flushes the entire cache.
-   *
-   * @returns string "OK"
-   */
-  public async clear(): Promise<"OK"> {
-    return await this.data.flushall();
-  }
 }

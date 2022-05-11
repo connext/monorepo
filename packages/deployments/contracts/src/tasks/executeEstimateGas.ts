@@ -125,7 +125,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
         throw new Error("Router mnemonic must be specified in env (EXECUTE_ROUTER_MNEMONIC)");
       }
       const wallet = Wallet.fromMnemonic(router_mnemonic);
-      const relayerSignature = await signRouterPathPayload(transferId as string, feePercentage, wallet);
+      const relayerSignature = await signRouterPathPayload(transferId as string, "1", wallet);
 
       (executeArgs as any).relayerSignature = relayerSignature;
 

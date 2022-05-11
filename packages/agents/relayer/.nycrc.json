@@ -1,0 +1,15 @@
+{
+  "extends": "../../../.nycrc.json",
+  "exclude": [
+    "src/index.ts",
+    "src/sequencer.ts",
+    "src/bindings/index.ts",
+    "src/lib/entities/*.ts",
+    "src/lib/errors/*.ts",
+    "src/lib/operation/index.ts",
+    "src/lib/entities/*.ts",
+    "src/lib/errors/*.ts",
+    "test/**/*.ts"
+  ],
+  "all": true
+}

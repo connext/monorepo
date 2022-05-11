@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Type, Static } from "@sinclair/typebox";
 
 // TODO: Make an actual error type for this?
 type SubgraphHealthError = {
@@ -19,6 +20,40 @@ export type SubgraphHealth = {
     | "failed"; // Subgraph halted due to errors
   synced: boolean;
   url: string;
+};
+
+export type SubgraphQueryMetaParams = {
+  maxBlockNumber: number;
+  latestNonce: number;
+  destinationDomains?: string[];
+};
+
+const MIN_SUBGRAPH_MAX_LAG = 25;
+export const SubgraphReaderChainConfigSchema = Type.Object({
+  analytics: Type.Array(
+    Type.Object({
+      query: Type.String(),
+      health: Type.String(),
+    }),
+  ), // Analytics subgraph uri(s).
+  runtime: Type.Array(
+    Type.Object({
+      query: Type.String(),
+      health: Type.String(),
+    }),
+  ), // Runtime subgraph uri(s).
+  maxLag: Type.Integer({ minimum: MIN_SUBGRAPH_MAX_LAG }), // If subgraph is out of sync by this number, will not process actions.
+});
+
+export const SubgraphReaderConfigSchema = Type.Object({
+  chains: Type.Record(Type.String(), SubgraphReaderChainConfigSchema),
+});
+
+export type SubgraphReaderConfig = Static<typeof SubgraphReaderConfigSchema>;
+
+export const getSubgraphName = (url: string) => {
+  const split = url.split("/");
+  return split[split.length - 1];
 };
 
 export const getSubgraphHealth = async (

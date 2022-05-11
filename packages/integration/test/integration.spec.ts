@@ -2,46 +2,66 @@ import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
 import { makeRouter } from "@connext/nxtp-router/src/router";
+import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
+import { makeBackend } from "@connext/backend-poller/src/backend";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
+import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
+import { BackendConfig } from "@connext/backend-poller/src/config";
 import {
   AuctionsApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
   delay,
+  OriginTransfer,
+  DestinationTransfer,
   ERC20Abi,
+  getGelatoRelayerAddress,
   Logger,
   XCallArgs,
-  XTransfer,
+  ChainData,
 } from "@connext/nxtp-utils";
 import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { xtransfer as parseXTransfer } from "@connext/nxtp-adapters-subgraph/src/lib/helpers/parse";
 
 import {
   DomainInfo,
+  TestAgents,
   DOMAINS,
   ROUTER_CONFIG,
   SEQUENCER_CONFIG,
-  ORIGIN_ASSET,
   MIN_USER_ETH,
   TRANSFER_TOKEN_AMOUNT,
   MIN_FUNDER_ETH,
-  DESTINATION_ASSET,
-  CANONICAL_DOMAIN,
-  TestAgents,
   EXECUTE_TIMEOUT,
   SUBG_POLL_PARITY,
+  XCALL_TIMEOUT,
+  ROUTER_DESIRED_LIQUIDITY,
+  DEBUG_XCALL_TXHASH,
+  SKIP_SEQUENCER_CHECKS,
+  RELAYER_CONFIG,
+  LOCAL_RELAYER_ENABLED,
+  CANONICAL_ASSET,
+  CHAIN_DATA,
+  LOCAL_BACKEND_ENABLED,
+  BACKEND_CONFIG,
+  ENVIRONMENT,
 } from "./constants";
 import {
-  canonizeTokenId,
-  formatSubgraphGetTransferQuery,
+  checkOnchainLocalAsset,
+  convertToCanonicalAsset,
+  formatEtherscanLink,
   getAllowance,
+  getAssetApproval,
   getRouterApproval,
   OperationContext,
+  pollSomething,
+  removeAsset,
+  setupAsset,
 } from "./helpers";
 import { log } from "./log";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
+const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
 const DEPLOYER_MNEMONIC = process.env.DEPLOYER_MNEMONIC;
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
 
@@ -57,9 +77,12 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
  */
 describe("Integration:E2E", () => {
   // Configuration.
+  let chainData: Map<string, ChainData>;
   let domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };
   let routerConfig: RouterConfig;
   let sequencerConfig: SequencerConfig;
+  let relayerConfig: RelayerConfig;
+  let backendConfig: BackendConfig;
 
   // Services.
   let chainreader: ChainReader;
@@ -72,12 +95,17 @@ describe("Integration:E2E", () => {
   let context: OperationContext;
 
   before(async () => {
+    chainData = await CHAIN_DATA;
     domainInfo = await DOMAINS;
     routerConfig = await ROUTER_CONFIG;
     sequencerConfig = await SEQUENCER_CONFIG;
+    relayerConfig = await RELAYER_CONFIG;
+    backendConfig = await BACKEND_CONFIG;
 
     // Init agents.
     const router = ROUTER_MNEMONIC ? Wallet.fromMnemonic(ROUTER_MNEMONIC) : undefined;
+    // As a backup, the relayer can use the router wallet as well.
+    const relayer = RELAYER_MNEMONIC ? Wallet.fromMnemonic(RELAYER_MNEMONIC) : router;
     const deployer = ROUTER_MNEMONIC && DEPLOYER_MNEMONIC ? Wallet.fromMnemonic(DEPLOYER_MNEMONIC) : undefined;
     const user = Wallet.fromMnemonic(USER_MNEMONIC);
     const originProvider = new providers.JsonRpcProvider(domainInfo.ORIGIN.config.providers[0]);
@@ -85,20 +113,28 @@ describe("Integration:E2E", () => {
     agents = {
       router: router
         ? {
-            address: router.address,
+            address: router.address.toLowerCase(),
             origin: router.connect(originProvider),
             destination: router.connect(destinationProvider),
           }
         : undefined,
+      relayer:
+        relayer && LOCAL_RELAYER_ENABLED
+          ? {
+              address: relayer.address.toLowerCase(),
+              origin: relayer.connect(originProvider),
+              destination: relayer.connect(destinationProvider),
+            }
+          : undefined,
       deployer: deployer
         ? {
-            address: deployer.address,
+            address: deployer.address.toLowerCase(),
             origin: deployer.connect(originProvider),
             destination: deployer.connect(destinationProvider),
           }
         : undefined,
       user: {
-        address: user.address,
+        address: user.address.toLowerCase(),
         origin: user.connect(originProvider),
         destination: user.connect(destinationProvider),
       },
@@ -116,12 +152,7 @@ describe("Integration:E2E", () => {
       },
     );
 
-    subgraph = await SubgraphReader.create({
-      chains: {
-        [domainInfo.ORIGIN.domain]: domainInfo.ORIGIN.config.subgraph,
-        [domainInfo.DESTINATION.domain]: domainInfo.DESTINATION.config.subgraph,
-      },
-    });
+    subgraph = await SubgraphReader.create(chainData, ENVIRONMENT);
 
     // Setup contexts (used for injection into helpers).
     context = {
@@ -136,479 +167,615 @@ describe("Integration:E2E", () => {
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
     const destinationConnextAddress = domainInfo.DESTINATION.config.deployments.connext;
+    const relayerAddress: string = agents.relayer
+      ? agents.relayer.address
+      : await getGelatoRelayerAddress(domainInfo.DESTINATION.chain);
+    const originAsset = domainInfo.ORIGIN.config.assets[0];
+    const destinationAsset = domainInfo.DESTINATION.config.assets[0];
 
-    // Log setup.
+    /// MARK - Log setup.
     log.params(
       "\n" +
         (agents.router ? "LOCAL TEST" : "LIVE TEST") +
+        `\nENVIRONMENT: ${JSON.stringify(ENVIRONMENT)}` +
         `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
-        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tUser:    \t${agents.user.address}` +
-        `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tDestination:\t${destinationConnextAddress}` +
-        `\nASSETS\n\tOrigin:   \t${ORIGIN_ASSET.address}\n\tDestination:\t${DESTINATION_ASSET.address}`,
+        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tRelayer:   \t${relayerAddress}\n\tUser:    \t${
+          agents.user.address
+        }` +
+        `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
+          network: domainInfo.ORIGIN.network,
+          address: originConnextAddress,
+        })}\n\tDestination:\t${destinationConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
+          network: domainInfo.DESTINATION.network,
+          address: destinationConnextAddress,
+        })}` +
+        `\nASSETS\n\tOrigin:   \t${originAsset.address}\n\tDestination:\t${destinationAsset.address}`,
     );
 
-    if (agents.router) {
-      // Make sure router's signer address is approved on destination chain.
-      log.next("VERIFY ROUTER APPROVAL");
-      let isApproved = getRouterApproval(context, {
-        domain: domainInfo.DESTINATION,
-      });
-      if (!isApproved) {
-        if (agents.deployer) {
-          // Router is not approved. Use deployer to approve router.
-          const encoded = connext.encodeFunctionData("setupRouter", [
-            agents.router.address,
-            agents.router.address,
-            agents.router.address,
-          ]);
-          const tx = await agents.deployer.destination.sendTransaction({
-            to: destinationConnextAddress,
-            data: encoded,
-          });
-          await tx.wait(1);
-
-          isApproved = getRouterApproval(context, {
-            domain: domainInfo.DESTINATION,
-          });
-
-          if (!isApproved) {
-            log.fail("Router approval attempt failed.", { domain: domainInfo.DESTINATION, hash: tx.hash });
-          }
-
-          log.info("Successfully approved router.");
-        } else {
-          log.fail("Router needs approval. Specify the DEPLOYER_MNEMONIC in env to have this done automatically.", {
-            domain: domainInfo.DESTINATION,
-          });
-        }
-      }
-      log.info("Router is approved!", { domain: domainInfo.DESTINATION });
-    }
-
-    log.next("VERIFY ASSET APPROVAL");
-    // Make sure the assets on origin and destination are approved.
-    {
-      const canonicalAsset = domainInfo[CANONICAL_DOMAIN].config.assets[0].address;
-      const canonicalTokenId = utils.hexlify(canonizeTokenId(canonicalAsset));
-      // Check origin asset approval.
-      {
-        const encoded = connext.encodeFunctionData("approvedAssets", [canonicalTokenId]);
-        const result = await chainreader.readTx({
-          chainId: domainInfo.ORIGIN.chain,
-          to: originConnextAddress,
-          data: encoded,
-        });
-        const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
-        if (!isApproved) {
-          log.fail(`Origin asset needs approval.`, { domain: domainInfo.ORIGIN });
-        }
-      }
-      log.info("Transfer asset is approved on origin chain.", { domain: domainInfo.ORIGIN });
-
-      // Check destination asset approval.
-      {
-        const encoded = connext.encodeFunctionData("approvedAssets", [canonicalTokenId]);
-        const result = await chainreader.readTx({
-          chainId: domainInfo.DESTINATION.chain,
-          to: destinationConnextAddress,
-          data: encoded,
-        });
-        const isApproved = connext.decodeFunctionResult("approvedAssets", result)[0];
-        if (!isApproved) {
-          log.fail(`Destination asset needs approval.`, { domain: domainInfo.DESTINATION });
-        }
-      }
-      log.info("Transfer asset is approved on destination chain.", { domain: domainInfo.DESTINATION });
-    }
-
-    log.next("FUND USER AGENT");
-    // Fund user with ETH and TEST on origin. Router signer will be funder for ETH.
+    /// MARK - Validate setup.
     {
       if (agents.router) {
-        // Make sure funder is funded themselves.
-        const funderEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.router.address);
-        log.info(`Retrieved Router ETH.`, {
-          domain: domainInfo.ORIGIN,
-          etc: {
-            balance: `${utils.formatEther(funderEth)} ETH.`,
-          },
-        });
-
-        if (funderEth.lt(MIN_FUNDER_ETH)) {
-          log.fail(`Router needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`, {
-            domain: domainInfo.ORIGIN,
+        log.next("VERIFY ROUTER APPROVAL");
+        // Make sure router's signer address is approved on origin and destination chain.
+        for (const { domain, deployer } of [
+          // { domain: domainInfo.ORIGIN, deployer: agents.deployer?.origin },
+          { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
+        ]) {
+          let isApproved = await getRouterApproval(context, {
+            domain,
           });
+          if (!isApproved) {
+            if (deployer) {
+              log.info("Router is not approved. Using deployer to approve.");
+              // Router is not approved. Use deployer to approve router.
+              const encoded = connext.encodeFunctionData("setupRouter", [
+                agents.router.address,
+                agents.router.address,
+                agents.router.address,
+              ]);
+              const tx = await deployer.sendTransaction({
+                to: domain.config.deployments.connext,
+                data: encoded,
+              });
+              await tx.wait(1);
+
+              isApproved = await getRouterApproval(context, {
+                domain,
+              });
+
+              if (!isApproved) {
+                log.fail("Router approval attempt failed.", { domain, hash: tx.hash });
+              }
+
+              log.info("Successfully approved router.");
+            } else {
+              log.fail("Router needs approval. Specify the DEPLOYER_MNEMONIC in env to have this done automatically.", {
+                domain: domainInfo.ORIGIN,
+              });
+            }
+          }
+          log.info("Router is approved!", { domain });
         }
       }
 
-      // Retrieve user balances for ETH and TEST.
-      const userEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.user.address);
-      const userTokens = await chainreader.getBalance(
-        domainInfo.ORIGIN.chain,
-        agents.user.address,
-        ORIGIN_ASSET.address,
-      );
+      log.next("VERIFY ASSET APPROVAL");
+      // Make sure the assets on origin and destination are approved.
+      {
+        for (const { domain, deployer } of [
+          { domain: domainInfo.ORIGIN, deployer: agents.deployer?.origin },
+          { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
+        ]) {
+          const localAsset = domain.config.assets[0].address.toLowerCase();
+          let canonicalAsset: string | undefined = CANONICAL_ASSET;
+          if (!canonicalAsset) {
+            // Convert the local asset into the canonical asset using information from the chain.
+            const { canonicalTokenId, canonicalAsset: _canonicalAsset } = await convertToCanonicalAsset(context, {
+              adopted: localAsset,
+              domain,
+            });
+            canonicalAsset = _canonicalAsset;
+            log.info("Retrieved canonical asset from onchain.", {
+              domain,
+              etc: { canonicalAsset, canonicalTokenId },
+            });
+          }
 
-      log.info("Retrieved User ETH.", {
-        domain: domainInfo.ORIGIN,
-        etc: {
-          balance: `${utils.formatEther(userEth)} ETH.`,
-        },
-      });
-      log.info("Retrieved User TEST.", {
-        domain: domainInfo.ORIGIN,
-        etc: {
-          balance: `${utils.formatEther(userTokens)} TEST.`,
-        },
-      });
-
-      if (userEth.lt(MIN_USER_ETH)) {
-        log.info("Funding user with some ETH...", { domain: domainInfo.ORIGIN });
-
-        if (!agents.router) {
-          throw new Error(
-            "Router signer not configured: cannot fund User agent! Please fund the User some ETH offline.",
-          );
+          if (
+            canonicalAsset === constants.AddressZero ||
+            !(await getAssetApproval(context, {
+              domain,
+              canonical: canonicalAsset,
+            }))
+          ) {
+            if (!deployer) {
+              log.fail("Asset needs approval on this domain.", { domain });
+            }
+            const hash = await setupAsset(context, {
+              deployer,
+              domain,
+              canonical: canonicalAsset,
+              local: localAsset,
+            });
+            log.info("Added asset to chain.", { domain, hash });
+          } else {
+            // Check to make sure canonical -> local is correct onchain.
+            const { adoptedToCanonical, canonicalToAdopted, canonicalTokenId, getTokenId, tokenRegistry } =
+              await checkOnchainLocalAsset(context, {
+                domain,
+                adopted: localAsset,
+              });
+            if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalTokenId) {
+              // TODO: Change this to log.info, actually carry out the on-chain replacement below.
+              // (Need to confirm that this works.)
+              log.fail("Asset needs to be overwritten! Wrong local asset set on this domain.", {
+                domain,
+                etc: {
+                  canonical: canonicalAsset,
+                  local: localAsset,
+                  adoptedToCanonical,
+                  canonicalToAdopted,
+                  canonicalTokenId,
+                  getTokenId,
+                },
+              });
+              if (!deployer) {
+                log.info("No deployer available to overwrite incorrect asset.", { domain });
+              }
+              // Overwrite the local asset set on chain with the correct one.
+              {
+                const hash = await removeAsset(context, {
+                  deployer,
+                  domain,
+                  canonical: canonicalAsset,
+                  local: localAsset,
+                });
+                log.info("Removed asset.", { domain, hash });
+              }
+              {
+                const hash = await setupAsset(context, {
+                  deployer,
+                  domain,
+                  canonical: canonicalAsset,
+                  local: localAsset,
+                });
+                log.info("Replaced asset.", { domain, hash });
+              }
+            } else {
+              log.info("Transfer asset is approved.", {
+                domain,
+                etc: {
+                  canonical: canonicalAsset,
+                  local: localAsset,
+                  adoptedToCanonical,
+                  canonicalToAdopted,
+                  canonicalTokenId,
+                  getTokenId,
+                  tokenRegistry,
+                },
+              });
+            }
+          }
         }
+      }
 
-        const tx = await agents.router.origin.sendTransaction({
-          to: agents.user.address,
-          value: MIN_USER_ETH,
-        });
-        const receipt = await tx.wait(1);
-
-        const userEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.user.address);
-        if (userEth.lt(MIN_USER_ETH)) {
-          log.fail(`ETH funding operation failed! User still has only ${utils.formatEther(MIN_USER_ETH)} ETH.`, {
+      log.next("FUND USER AGENT");
+      // Fund user with ETH and TEST on origin. Router signer will be funder for ETH.
+      {
+        if (agents.router) {
+          // Make sure funder is funded themselves.
+          const funderEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.router.address);
+          log.info(`Retrieved Router ETH.`, {
             domain: domainInfo.ORIGIN,
+            etc: {
+              balance: `${utils.formatEther(funderEth)} ETH.`,
+            },
           });
+
+          if (funderEth.lt(MIN_FUNDER_ETH)) {
+            log.fail(`Router needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`, {
+              domain: domainInfo.ORIGIN,
+            });
+          }
         }
-        log.info(`Sent ETH to User.`, {
+
+        // Retrieve user balances for ETH and TEST.
+        const userEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.user.address);
+        const userTokens = await chainreader.getBalance(
+          domainInfo.ORIGIN.chain,
+          agents.user.address,
+          originAsset.address,
+        );
+
+        log.info("Retrieved User ETH.", {
           domain: domainInfo.ORIGIN,
-          hash: receipt.transactionHash,
           etc: {
             balance: `${utils.formatEther(userEth)} ETH.`,
           },
         });
-      }
-
-      if (userTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log.info("Minting TEST tokens for User...", { domain: domainInfo.ORIGIN });
-        // Might as well mint enough for 100 test iterations...
-        const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
-        const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
-        const tx = await (agents.router ?? agents.user).origin.sendTransaction({
-          to: ORIGIN_ASSET.address,
-          data: encoded,
-          value: BigNumber.from("0"),
-        });
-        const receipt = await tx.wait(1);
-
-        const userTokens = await chainreader.getBalance(
-          domainInfo.ORIGIN.chain,
-          agents.user.address,
-          ORIGIN_ASSET.address,
-        );
-        log.info(`Minted TEST tokens for User.`, {
+        log.info("Retrieved User TEST.", {
           domain: domainInfo.ORIGIN,
-          hash: receipt.transactionHash,
           etc: {
             balance: `${utils.formatEther(userTokens)} TEST.`,
           },
         });
-      }
-    }
 
-    log.next("TOKEN ALLOWANCES");
-    // Approve TEST token spending for agents.
-    {
-      const infiniteApproval = constants.MaxUint256;
+        if (userEth.lt(MIN_USER_ETH)) {
+          log.info("Funding user with some ETH...", { domain: domainInfo.ORIGIN });
 
-      // User needs to approve TEST token spend for connext contract on origin chain.
-      const userAllowance: BigNumber = await getAllowance(context, {
-        domain: domainInfo.ORIGIN,
-        owner: agents.user.address,
-        spender: originConnextAddress,
-        asset: ORIGIN_ASSET.address,
-      });
-      if (userAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-        log.info("Approving TEST spending for User...", { domain: domainInfo.ORIGIN });
-        const encoded = testERC20.encodeFunctionData("approve", [originConnextAddress, infiniteApproval]);
-        const tx = await agents.user.origin.sendTransaction({
-          to: ORIGIN_ASSET.address,
-          data: encoded,
-          value: BigNumber.from("0"),
-        });
-        const receipt = await tx.wait(1);
-        log.info(`Approved TEST spending for User.`, {
-          domain: domainInfo.ORIGIN,
-          hash: receipt.transactionHash,
-          etc: {
-            allowance: `${utils.formatEther(userAllowance)} TEST.`,
-          },
-        });
-      }
+          if (!agents.router) {
+            throw new Error(
+              "Router signer not configured: cannot fund User agent! Please fund the User some ETH offline.",
+            );
+          }
 
-      // Router needs to approve TEST token spend for connext contract on origin chain.
-      if (agents.router) {
-        const routerAllowance: BigNumber = await getAllowance(context, {
-          domain: domainInfo.DESTINATION,
-          owner: agents.router.address,
-          spender: destinationConnextAddress,
-          asset: DESTINATION_ASSET.address,
-        });
-        if (routerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
-          log.info("Approving TEST spending for Router...", { domain: domainInfo.DESTINATION });
-          const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
-          const tx = await agents.router.destination.sendTransaction({
-            to: DESTINATION_ASSET.address,
+          const tx = await agents.router.origin.sendTransaction({
+            to: agents.user.address,
+            value: MIN_USER_ETH,
+          });
+          const receipt = await tx.wait(1);
+
+          const userEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.user.address);
+          if (userEth.lt(MIN_USER_ETH)) {
+            log.fail(`ETH funding operation failed! User still has only ${utils.formatEther(MIN_USER_ETH)} ETH.`, {
+              domain: domainInfo.ORIGIN,
+            });
+          }
+          log.info(`Sent ETH to User.`, {
+            domain: domainInfo.ORIGIN,
+            hash: receipt.transactionHash,
+            etc: {
+              balance: `${utils.formatEther(userEth)} ETH.`,
+            },
+          });
+        }
+
+        if (userTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
+          log.info("Minting TEST tokens for User...", { domain: domainInfo.ORIGIN });
+          // Might as well mint enough for 100 test iterations...
+          const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
+          const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
+          const tx = await (agents.router ?? agents.user).origin.sendTransaction({
+            to: originAsset.address,
             data: encoded,
             value: BigNumber.from("0"),
           });
           const receipt = await tx.wait(1);
-          log.info(`Approved TEST spending for Router.`, {
+
+          const userTokens = await chainreader.getBalance(
+            domainInfo.ORIGIN.chain,
+            agents.user.address,
+            originAsset.address,
+          );
+          log.info("Minted TEST tokens for User.", {
             domain: domainInfo.ORIGIN,
             hash: receipt.transactionHash,
             etc: {
-              allowance: `${utils.formatEther(routerAllowance)} TEST.`,
+              balance: `${utils.formatEther(userTokens)} TEST.`,
             },
           });
         }
       }
-    }
 
-    if (agents.router) {
-      log.next("ADD LIQUIDITY");
-      // Router should add liquidity to their pool on the destination chain.
-      let routerBalance: BigNumber;
+      log.next("TOKEN ALLOWANCES");
+      // Approve TEST token spending for agents.
       {
-        const encoded = connext.encodeFunctionData("routerBalances", [
-          agents.router.address,
-          DESTINATION_ASSET.address,
-        ]);
-        const result = await chainreader.readTx({
-          chainId: domainInfo.DESTINATION.chain,
-          to: destinationConnextAddress,
-          data: encoded,
+        const infiniteApproval = constants.MaxUint256;
+
+        // User needs to approve TEST token spend for connext contract on origin chain.
+        const userAllowance: BigNumber = await getAllowance(context, {
+          domain: domainInfo.ORIGIN,
+          owner: agents.user.address,
+          spender: originConnextAddress,
+          asset: originAsset.address,
         });
-        routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
-      }
-      log.info(`Retrieved Router liquidity balance.`, {
-        domain: domainInfo.DESTINATION,
-        etc: {
-          balance: `${utils.formatEther(routerBalance)} TEST.`,
-        },
-      });
-
-      if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
-        // Router liquidity balance is insufficient.
-
-        // Ensure router has enough TEST tokens to add liquidity.
-        {
-          let routerTokens = await chainreader.getBalance(
-            domainInfo.DESTINATION.chain,
-            agents.router.address,
-            DESTINATION_ASSET.address,
-          );
-          log.info("Retrieved Router TEST.", {
-            domain: domainInfo.DESTINATION,
+        if (userAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
+          log.info("Approving TEST spending for User...", { domain: domainInfo.ORIGIN });
+          const encoded = testERC20.encodeFunctionData("approve", [originConnextAddress, infiniteApproval]);
+          const tx = await agents.user.origin.sendTransaction({
+            to: originAsset.address,
+            data: encoded,
+            value: BigNumber.from("0"),
+          });
+          const receipt = await tx.wait(1);
+          log.info(`Approved TEST spending for User.`, {
+            domain: domainInfo.ORIGIN,
+            hash: receipt.transactionHash,
             etc: {
-              balance: `${utils.formatEther(routerTokens)} TEST.`,
+              allowance: `${utils.formatEther(userAllowance)} TEST.`,
             },
           });
+        }
 
-          if (routerTokens.lt(TRANSFER_TOKEN_AMOUNT)) {
-            // Mint TEST tokens.
-            log.info("Minting TEST tokens for Router...", { domain: domainInfo.DESTINATION });
-            // Mint enough for another 100 test iterations...
-            const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
-            const encoded = testERC20.encodeFunctionData("mint", [agents.router.address, amount]);
+        // Router needs to approve TEST token spend for connext contract on origin chain.
+        if (agents.router) {
+          const routerAllowance: BigNumber = await getAllowance(context, {
+            domain: domainInfo.DESTINATION,
+            owner: agents.router.address,
+            spender: destinationConnextAddress,
+            asset: destinationAsset.address,
+          });
+          if (routerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
+            log.info("Approving TEST spending for Router...", { domain: domainInfo.DESTINATION });
+            const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
             const tx = await agents.router.destination.sendTransaction({
-              to: DESTINATION_ASSET.address,
+              to: destinationAsset.address,
               data: encoded,
               value: BigNumber.from("0"),
             });
             const receipt = await tx.wait(1);
-
-            routerTokens = await chainreader.getBalance(
-              domainInfo.ORIGIN.chain,
-              agents.router.address,
-              DESTINATION_ASSET.address,
-            );
-            log.info(`Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST.`, {
-              domain: domainInfo.DESTINATION,
+            log.info(`Approved TEST spending for Router.`, {
+              domain: domainInfo.ORIGIN,
               hash: receipt.transactionHash,
+              etc: {
+                allowance: `${utils.formatEther(routerAllowance)} TEST.`,
+              },
             });
           }
         }
+      }
 
-        // Add liquidity.
-        log.info("Adding liquidity for Router...", { domain: domainInfo.DESTINATION });
+      if (agents.router) {
+        log.next("ADD LIQUIDITY");
+        // Router should add liquidity to their pool on the destination chain.
+        let routerBalance: BigNumber;
         {
-          // NOTE: We could add liquidity for another 100 test iterations, HOWEVER, arguably, adding
-          // liquidity should be a part of the test!
-          const encoded = connext.encodeFunctionData("addLiquidity", [
-            TRANSFER_TOKEN_AMOUNT,
-            DESTINATION_ASSET.address,
+          const encoded = connext.encodeFunctionData("routerBalances", [
+            agents.router.address,
+            destinationAsset.address,
           ]);
-          const tx = await agents.router.destination.sendTransaction({
+          const result = await chainreader.readTx({
+            chainId: domainInfo.DESTINATION.chain,
             to: destinationConnextAddress,
             data: encoded,
-            value: BigNumber.from("0"),
           });
-          const receipt = await tx.wait(1);
+          routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
+        }
+        log.info(`Retrieved Router liquidity balance.`, {
+          domain: domainInfo.DESTINATION,
+          etc: {
+            balance: `${utils.formatEther(routerBalance)} TEST.`,
+          },
+        });
 
-          // Check router liquidity on-chain to confirm.
+        if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
+          // Router liquidity balance is insufficient.
+
+          // Ensure router has enough TEST tokens to add liquidity.
           {
-            const encoded = connext.encodeFunctionData("routerBalances", [
+            let routerTokens = await chainreader.getBalance(
+              domainInfo.DESTINATION.chain,
               agents.router.address,
-              DESTINATION_ASSET.address,
-            ]);
-            const result = await chainreader.readTx({
-              chainId: domainInfo.DESTINATION.chain,
+              destinationAsset.address,
+            );
+            log.info("Retrieved Router TEST.", {
+              domain: domainInfo.DESTINATION,
+              etc: {
+                balance: `${utils.formatEther(routerTokens)} TEST.`,
+              },
+            });
+
+            if (routerTokens.lt(ROUTER_DESIRED_LIQUIDITY)) {
+              // Mint TEST tokens.
+              log.info("Minting TEST tokens for Router...", { domain: domainInfo.DESTINATION });
+              const amount = ROUTER_DESIRED_LIQUIDITY.mul(10);
+              const encoded = testERC20.encodeFunctionData("mint", [agents.router.address, amount]);
+              const tx = await agents.router.destination.sendTransaction({
+                to: destinationAsset.address,
+                data: encoded,
+                value: BigNumber.from("0"),
+              });
+              const receipt = await tx.wait(1);
+
+              routerTokens = await chainreader.getBalance(
+                domainInfo.DESTINATION.chain,
+                agents.router.address,
+                destinationAsset.address,
+              );
+              log.info(`Minted TEST tokens for Router. Router now has ${utils.formatEther(routerTokens)} TEST.`, {
+                domain: domainInfo.DESTINATION,
+                hash: receipt.transactionHash,
+              });
+            }
+          }
+
+          // Add liquidity.
+          const amount = ROUTER_DESIRED_LIQUIDITY.mul(2);
+          log.info("Adding liquidity for Router...", {
+            domain: domainInfo.DESTINATION,
+            etc: { amount: amount.toString(), asset: destinationAsset.address },
+          });
+          {
+            const encoded = connext.encodeFunctionData("addLiquidity", [amount, destinationAsset.address]);
+            const tx = await agents.router.destination.sendTransaction({
               to: destinationConnextAddress,
               data: encoded,
             });
-            routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
-          }
+            const receipt = await tx.wait(1);
 
-          if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
-            log.fail("Add liquidity operation failed!", {
+            // Check router liquidity on-chain to confirm.
+            {
+              const encoded = connext.encodeFunctionData("routerBalances", [
+                agents.router.address,
+                destinationAsset.address,
+              ]);
+              const result = await chainreader.readTx({
+                chainId: domainInfo.DESTINATION.chain,
+                to: destinationConnextAddress,
+                data: encoded,
+              });
+              routerBalance = connext.decodeFunctionResult("routerBalances", result)[0];
+            }
+
+            if (routerBalance.lt(amount)) {
+              log.fail("Add liquidity operation failed!", {
+                domain: domainInfo.DESTINATION,
+                hash: receipt.transactionHash,
+                etc: {
+                  balance: `${utils.formatEther(routerBalance)} TEST.`,
+                },
+              });
+            }
+
+            log.info("Added liquidity for Router.", {
               domain: domainInfo.DESTINATION,
-              hash: receipt.transactionHash,
               etc: {
                 balance: `${utils.formatEther(routerBalance)} TEST.`,
               },
             });
           }
+        }
+      }
 
-          log.info("Added liquidity for Router.", {
-            domain: domainInfo.DESTINATION,
+      // TODO: Check if relayer has ETH if necessary.
+
+      // Check if relayer needs approval.
+      log.next("VERIFY RELAYER APPROVED");
+      {
+        const encoded = connext.encodeFunctionData("approvedRelayers", [relayerAddress]);
+        const result = await chainreader.readTx({
+          chainId: domainInfo.DESTINATION.chain,
+          to: destinationConnextAddress,
+          data: encoded,
+        });
+        const approved = connext.decodeFunctionResult("approvedRelayers", result)[0];
+        if (!approved) {
+          if (!agents.deployer) {
+            log.fail("Relayer needs to be approved on chain.", { domain: domainInfo.DESTINATION });
+          } else {
+            log.info("Relayer is not approved. Approving Relayer...", {
+              domain: domainInfo.DESTINATION,
+              etc: { relayer: relayerAddress },
+            });
+            const encoded = connext.encodeFunctionData("addRelayer", [relayerAddress]);
+            const tx = await agents.deployer.destination.sendTransaction({
+              to: destinationConnextAddress,
+              data: encoded,
+            });
+            const receipt = await tx.wait(1);
+            log.info("Approved Relayer.", {
+              domain: domainInfo.DESTINATION,
+              hash: receipt.transactionHash,
+            });
+          }
+        }
+      }
+    }
+
+    /// MARK - Initialize local agents (if applicable).
+    {
+      if (LOCAL_BACKEND_ENABLED) {
+        log.next("BACKEND START");
+        await makeBackend(backendConfig);
+        await delay(1_000);
+      }
+
+      if (agents.router && agents.relayer) {
+        log.next("RELAYER START");
+        await makeRelayer({
+          ...relayerConfig,
+          mnemonic: RELAYER_MNEMONIC || ROUTER_MNEMONIC,
+        });
+        await delay(1_000);
+      }
+
+      if (agents.router) {
+        log.next("SEQUENCER START");
+        await makeSequencer({
+          ...sequencerConfig,
+          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+        });
+        await delay(1_000);
+
+        log.next("ROUTER START");
+        await makeRouter({
+          ...routerConfig,
+          mnemonic: ROUTER_MNEMONIC,
+        });
+        await delay(1_000);
+      }
+    }
+
+    /// MARK - E2E Test
+    {
+      log.next("XCALL");
+      let originTransfer: OriginTransfer;
+      {
+        let transactionHash: string;
+        if (DEBUG_XCALL_TXHASH) {
+          transactionHash = DEBUG_XCALL_TXHASH;
+          log.info("Using already existing XCall...", { domain: domainInfo.ORIGIN, hash: transactionHash });
+        } else {
+          log.info("Sending XCall...", { domain: domainInfo.ORIGIN });
+          const args: XCallArgs = {
+            params: {
+              to: agents.user.address,
+              callData: "0x",
+              originDomain: domainInfo.ORIGIN.domain,
+              destinationDomain: domainInfo.DESTINATION.domain,
+            },
+            transactingAssetId: originAsset.address,
+            amount: TRANSFER_TOKEN_AMOUNT.toString(),
+            relayerFee: "0",
+          };
+          const encoded = connext.encodeFunctionData("xcall", [args]);
+          const tx = await agents.user.origin.sendTransaction({
+            to: originConnextAddress,
+            data: encoded,
+            // value: RELAYER_FEE_AMOUNT,
+          });
+          const receipt = await tx.wait(1);
+          log.info("XCall sent.", {
+            domain: domainInfo.ORIGIN,
+            hash: receipt.transactionHash,
             etc: {
-              balance: `${utils.formatEther(routerBalance)} TEST.`,
+              ...args,
+            },
+          });
+          transactionHash = receipt.transactionHash;
+        }
+
+        // Poll the origin subgraph until the new XCall transfer appears.
+        log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
+        const startTime = Date.now();
+        const _originTransfer: OriginTransfer | undefined = await pollSomething({
+          // Attempts will be made for 1 minute.
+          attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+          parity: SUBG_POLL_PARITY,
+          method: async () => {
+            const originTransfer = await subgraph.getOriginTransferByHash(domainInfo.ORIGIN.domain, transactionHash);
+            if (originTransfer?.origin.xcall?.transactionHash) {
+              return originTransfer;
+            }
+            return undefined;
+          },
+        });
+        const endTime = Date.now();
+
+        if (!_originTransfer) {
+          log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
+            domain: domainInfo.ORIGIN,
+            etc: {
+              polled: `${(endTime - startTime) / 1_000}s.`,
             },
           });
         }
-      }
-    }
+        originTransfer = _originTransfer!;
 
-    // TODO: Add relayer fees?
-
-    if (agents.router) {
-      log.next("SEQUENCER START");
-      await makeSequencer({
-        ...sequencerConfig,
-      });
-      await delay(1_000);
-
-      log.next("ROUTER START");
-      await makeRouter({
-        ...routerConfig,
-        mnemonic: ROUTER_MNEMONIC,
-      });
-      await delay(1_000);
-    }
-
-    let transfer: XTransfer | undefined;
-    log.next("XCALL");
-    {
-      log.info("Sending XCall...", { domain: domainInfo.ORIGIN });
-      const args: XCallArgs = {
-        params: {
-          to: agents.user.address,
-          callData: "0x",
-          originDomain: domainInfo.ORIGIN.domain,
-          destinationDomain: domainInfo.DESTINATION.domain,
-        },
-        transactingAssetId: ORIGIN_ASSET.address,
-        amount: TRANSFER_TOKEN_AMOUNT.toString(),
-      };
-      const encoded = connext.encodeFunctionData("xcall", [args]);
-      const tx = await agents.user.origin.sendTransaction({
-        to: originConnextAddress,
-        data: encoded,
-      });
-      const receipt = await tx.wait(1);
-      log.info("XCall sent.", {
-        domain: domainInfo.ORIGIN,
-        hash: receipt.transactionHash,
-      });
-
-      // Poll the origin subgraph until the new XCall transfer appears.
-      log.info("Polling origin subgraph for added transfer...", { domain: domainInfo.ORIGIN });
-      const parity = 5_000;
-      const attempts = 10;
-      const query = formatSubgraphGetTransferQuery({
-        xcallTransactionHash: receipt.transactionHash,
-      });
-      let i;
-      for (i = 0; i < attempts; i++) {
-        await delay(parity);
-        try {
-          const result = await subgraph.query(domainInfo.ORIGIN.domain, query);
-          if (result.transfers.length === 1) {
-            transfer = parseXTransfer(result.transfers[0]);
-            break;
-          }
-        } catch (e: unknown) {
-          console.log(e, (e as any).errors);
-          throw e;
-        }
-      }
-      if (!transfer) {
-        log.fail("Failed to retrieve xcalled transfer from the origin subgraph.", {
+        log.info("XCall retrieved.", {
           domain: domainInfo.ORIGIN,
           etc: {
-            polled: `${parity * attempts}ms.`,
+            took: `${endTime - startTime}ms.`,
+            transferID: originTransfer?.transferId,
+            originTransfer,
           },
         });
       }
-      log.info("XCall retrieved.", {
-        domain: domainInfo.ORIGIN,
-        etc: {
-          took: `${parity * i}ms.`,
-          transferID: transfer?.transferId,
-          transfer,
-        },
-      });
-    }
 
-    log.next("WAIT FOR EXECUTE");
-    {
-      if (!transfer) {
-        // Should never happen, but this soothes Mr. Compiler.
-        throw new Error("CRITICAL: transfer is undefined!");
-      }
-
-      const waitPeriod = agents.router ? 30 : 60;
-      log.info(`Waiting ${waitPeriod}s to allow the XCall to propagate...`);
-      await delay(waitPeriod * 1_000);
-
-      if (agents.router) {
-        // Poll the sequencer a few times to see if we can get the auction status.
-        // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
-        log.info("Polling sequencer for auction status...");
-        {
-          const attempts = 10;
+      log.next("WAIT FOR EXECUTE");
+      {
+        if (agents.router && !SKIP_SEQUENCER_CHECKS) {
+          log.info("Polling sequencer for auction status...");
+          // Poll the sequencer a few times to see if we can get the auction status.
+          // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
           let error: any | undefined;
-          let status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined;
-          let i;
-          for (i = 0; i < attempts; i++) {
-            await delay(SUBG_POLL_PARITY);
-            status = await axios
-              .request<AuctionsApiGetAuctionStatusResponse>({
-                method: "get",
-                baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
-                url: `/auctions/0xf8b72dd5eb4b330a736b8f336ae13f95a26f92774e2fe95e7b5236fda75f27ed`,
-              })
-              .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
-                error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
-                return undefined;
-              });
-          }
-
+          const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
+            attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+            parity: SUBG_POLL_PARITY,
+            method: async () => {
+              return await axios
+                .request<AuctionsApiGetAuctionStatusResponse>({
+                  method: "get",
+                  baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
+                  url: `/auctions/0xf8b72dd5eb4b330a736b8f336ae13f95a26f92774e2fe95e7b5236fda75f27ed`,
+                })
+                .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
+                  error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
+                  return undefined;
+                });
+            },
+          });
           if (!status) {
             log.info("Unable to retrieve auction status from Sequencer.", {
               etc: {
@@ -622,54 +789,70 @@ describe("Integration:E2E", () => {
             });
           }
         }
-      }
 
-      log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
-      const attempts = Math.floor(EXECUTE_TIMEOUT / SUBG_POLL_PARITY);
-      const query = formatSubgraphGetTransferQuery({
-        transferId: transfer.transferId,
-      });
-      let i;
-      for (i = 0; i < attempts; i++) {
-        await delay(SUBG_POLL_PARITY);
-        const result = await subgraph.query(domainInfo.DESTINATION.domain, query);
-        if (result.transfers.length === 1) {
-          const _transfer = parseXTransfer(result.transfers[0]);
-          transfer = {
-            ..._transfer,
-            xcall: transfer?.xcall,
-          };
-          break;
+        log.info("Polling destination subgraph for execute tx...", { domain: domainInfo.DESTINATION });
+        const startTime = Date.now();
+        const _destinationTransfer: DestinationTransfer | undefined = await pollSomething({
+          // Attempts will be made for 3 minutes.
+          attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
+          parity: SUBG_POLL_PARITY,
+          method: async () => {
+            const destinationTransfer = await subgraph.getDestinationTransferById(
+              domainInfo.DESTINATION.domain,
+              originTransfer!.transferId,
+            );
+            if (destinationTransfer?.destination.reconcile?.transactionHash) {
+              log.info("Transfer was reconciled.", {
+                domain: domainInfo.DESTINATION,
+                hash: destinationTransfer.destination.reconcile.transactionHash,
+              });
+            }
+
+            if (destinationTransfer?.destination.execute?.transactionHash) {
+              return destinationTransfer;
+            }
+            return undefined;
+          },
+        });
+        const endTime = Date.now();
+
+        if (!_destinationTransfer) {
+          log.fail("Failed to retrieve execute transfer from the destination subgraph.", {
+            domain: domainInfo.DESTINATION,
+            etc: {
+              polled: `${(endTime - startTime) / 1_000}s`,
+            },
+          });
         }
-      }
-      if (!transfer.execute?.transactionHash) {
-        log.fail("Failed to retrieve executed transfer from the destination subgraph.", {
+        const destinationTransfer = _destinationTransfer!;
+
+        log.info("Execute transaction found.", {
+          domain: domainInfo.DESTINATION,
+          hash: destinationTransfer.destination.execute?.transactionHash,
+          etc: {
+            took: `${(endTime - startTime) / 1_000}s`,
+          },
+        });
+
+        log.info("Transfer completed successfully!", {
           domain: domainInfo.DESTINATION,
           etc: {
-            polled: `~${(SUBG_POLL_PARITY * attempts) / 1_000}s`,
+            locallyExecuted:
+              agents.router &&
+              destinationTransfer.destination.routers &&
+              destinationTransfer.destination.routers.includes(agents.router.address),
+            transfer: {
+              ...originTransfer,
+              destination: destinationTransfer.destination,
+            },
           },
         });
       }
-      log.info("Execute transaction found.", {
-        domain: domainInfo.DESTINATION,
-        hash: transfer.execute?.transactionHash,
-        etc: {
-          took: `~${(SUBG_POLL_PARITY * i) / 1_000}s`,
-        },
-      });
-
-      log.info("Transfer completed successfully!", {
-        domain: domainInfo.DESTINATION,
-        etc: {
-          locallyExecuted: agents.router && transfer.router && transfer.router === agents.router?.address,
-          transfer,
-        },
-      });
     }
   };
 
   it.only("should complete a fast liquidity transfer", async function () {
-    this.timeout(300_000 + EXECUTE_TIMEOUT);
+    this.timeout(300_000 + EXECUTE_TIMEOUT + XCALL_TIMEOUT);
     await test();
     log.done();
   });

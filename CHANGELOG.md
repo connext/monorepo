@@ -2,6 +2,22 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.11
+
+- [subgraph] Fix graph-client config
+
+## Amarok 0.2.0-alpha.10
+
+- [backend] Fix backend config and poller
+
+## Amarok 0.2.0-alpha.9
+
+- [sdk] sdk public release
+
+## Amarok 0.2.0-alpha.8
+
+- [contracts] Relayer fee upgrade
+
 ## Amarok 0.2.0-alpha.6
 
 - [ops] Staging and prod envs separated

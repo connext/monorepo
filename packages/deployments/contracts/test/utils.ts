@@ -17,10 +17,11 @@ import {
   ProposedOwnableUpgradeable,
   GenericERC20,
   UpgradeBeaconProxy,
-  ConnextHandler,
   TestERC20,
   TransparentUpgradeableProxy,
-  ConnextLogic,
+  ConnextDiamond,
+  BridgeFacet,
+  ProposedOwnableFacet,
 } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
@@ -150,7 +151,7 @@ export const getOnchainBalance = async (
     : new Contract(assetId, Erc20Abi, provider).balanceOf(address);
 };
 
-export const getRoutersBalances = async (routers: string[], connextContract: ConnextHandler, asset: string) =>
+export const getRoutersBalances = async (routers: string[], connextContract: ConnextDiamond, asset: string) =>
   Promise.all(routers.map((addr) => connextContract.routerBalances(addr, asset)));
 
 export const setBlockTime = async (desiredTimestamp: number) => {
@@ -190,6 +191,19 @@ export const proposeNewOwnerOnContract = async (
   return proposeReceipt;
 };
 
+export const proposeNewOwnerOnFacetContract = async (
+  newOwner: string,
+  owner: Wallet,
+  contract: ProposedOwnableFacet,
+) => {
+  // Propose new owner
+  const proposeTx = await contract.connect(owner).proposeNewOwner(newOwner);
+  const proposeReceipt = await proposeTx.wait();
+  assertReceiptEvent(proposeReceipt, "OwnershipProposed", { proposedOwner: newOwner });
+  expect(await contract.proposed()).to.be.eq(newOwner);
+  return proposeReceipt;
+};
+
 export const transferOwnershipOnContract = async (
   newOwner: string,
   caller: Wallet,
@@ -218,6 +232,36 @@ export const transferOwnershipOnContract = async (
     newOwner,
   });
   expect(await contract.owner()).to.be.eq(newOwner);
+};
+
+export const transferProposedOwnershipOnContract = async (
+  newOwner: string,
+  caller: Wallet,
+  contract: ProposedOwnableFacet,
+  owner: Wallet,
+) => {
+  // Get current owner
+  const current = await contract.proposedOwnableOwner();
+
+  // Propose new owner
+  await proposeNewOwnerOnFacetContract(newOwner, owner, contract);
+
+  // Advance block time
+  const eightDays = 8 * 24 * 60 * 60;
+  const { timestamp } = await ethers.provider.getBlock("latest");
+  await setBlockTime(timestamp + eightDays);
+
+  // Accept new owner
+  const acceptTx =
+    newOwner === constants.AddressZero
+      ? await contract.connect(caller).renounceOwnership()
+      : await contract.connect(caller).acceptProposedOwner();
+  const acceptReceipt = await acceptTx.wait();
+  assertReceiptEvent(acceptReceipt, "ProposedOwnableOwnershipTransferred", {
+    previousOwner: current,
+    newOwner,
+  });
+  expect(await contract.proposedOwnableOwner()).to.be.eq(newOwner);
 };
 
 //// For StableSwap
@@ -318,8 +362,8 @@ export const connextXCall = async (
   amount: number,
   relayerFee: number,
   params: { to: string; callData: string; originDomain: number; destinationDomain: number },
-  connext: ConnextHandler,
-  connextLogic: ConnextLogic,
+  connext: ConnextDiamond,
+  bridgeFacet: BridgeFacet,
 ) => {
   // Approve user
   await asset.connect(user).approve(connext.address, amount);
@@ -331,8 +375,8 @@ export const connextXCall = async (
     .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
   const prepareReceipt = await prepare.wait();
 
-  const xcalledTopic = connextLogic.filters.XCalled().topics as string[];
-  const originTmEvent = connextLogic.interface.parseLog(
+  const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
+  const originTmEvent = bridgeFacet.interface.parseLog(
     prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
   );
 

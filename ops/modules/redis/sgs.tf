@@ -16,7 +16,10 @@ resource "aws_security_group" "redis" {
       ingress,
     ]
   }
-
+  tags = {
+    Stage       = var.stage
+    Environment = var.environment
+  }
 }
 
 resource "aws_security_group_rule" "redis_ingress_cidr_blocks" {
