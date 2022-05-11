@@ -1,5 +1,5 @@
 {
-  "name": "@connext/nxtp-lighthouse",
+  "name": "@connext/lighthouse",
   "version": "0.2.0-alpha.9",
   "description": "",
   "main": "dist/index.js",
