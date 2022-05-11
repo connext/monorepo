@@ -13,7 +13,7 @@ import {
   DummySwap,
   ProposedOwnableUpgradeable,
   RelayerFeeRouter,
-  TestSponsorVault
+  TestSponsorVault,
   DiamondCutFacet,
   DiamondLoupeFacet,
   OwnershipFacet,
@@ -1573,8 +1573,8 @@ describe("Connext", () => {
         .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
 
-      const xcalledTopic = ConnextLogic.filters.XCalled().topics as string[];
-      const originBridgeEvent = ConnextLogic.interface.parseLog(
+      const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
+      const originBridgeEvent = bridgeFacet.interface.parseLog(
         prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
       );
 
@@ -1611,8 +1611,8 @@ describe("Connext", () => {
       });
       const execReceipt = await execute.wait();
 
-      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
-      const destTmEvent = ConnextLogic.interface.parseLog(
+      const executedTopic = bridgeFacet.filters.Executed().topics as string[];
+      const destTmEvent = bridgeFacet.interface.parseLog(
         execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
       );
       expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
@@ -1654,8 +1654,8 @@ describe("Connext", () => {
       });
       const execReceipt = await execute.wait();
 
-      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
-      const destTmEvent = ConnextLogic.interface.parseLog(
+      const executedTopic = bridgeFacet.filters.Executed().topics as string[];
+      const destTmEvent = bridgeFacet.interface.parseLog(
         execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
       );
       expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
@@ -1701,8 +1701,8 @@ describe("Connext", () => {
       });
       const execReceipt = await execute.wait();
 
-      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
-      const destTmEvent = ConnextLogic.interface.parseLog(
+      const executedTopic = bridgeFacet.filters.Executed().topics as string[];
+      const destTmEvent = bridgeFacet.interface.parseLog(
         execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
       );
       expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
@@ -1749,8 +1749,8 @@ describe("Connext", () => {
       });
       const execReceipt = await execute.wait();
 
-      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
-      const destTmEvent = ConnextLogic.interface.parseLog(
+      const executedTopic = bridgeFacet.filters.Executed().topics as string[];
+      const destTmEvent = bridgeFacet.interface.parseLog(
         execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
       );
       expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
@@ -1794,8 +1794,8 @@ describe("Connext", () => {
       });
       const execReceipt = await execute.wait();
 
-      const executedTopic = ConnextLogic.filters.Executed().topics as string[];
-      const destTmEvent = ConnextLogic.interface.parseLog(
+      const executedTopic = bridgeFacet.filters.Executed().topics as string[];
+      const destTmEvent = bridgeFacet.interface.parseLog(
         execReceipt.logs.find((l) => l.topics.includes(executedTopic[0]))!,
       );
       expect((destTmEvent!.args as any).transferId).to.be.eq(transferId);
@@ -1836,7 +1836,7 @@ describe("Connext", () => {
           routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
           originSender: user.address,
         })
-      ).to.revertedWith("ConnextLogic__handleExecuteTransaction_invalidSponsoredAmount()")
+      ).to.revertedWith("BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()")
     });
   })
 });

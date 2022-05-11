@@ -6,6 +6,7 @@ import {IStableSwap} from "../../contracts/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/interfaces/IWrapped.sol";
 import {IExecutor} from "../../contracts/interfaces/IExecutor.sol";
+import {ISponsorVault} from "../../contracts/interfaces/ISponsorVault.sol";
 import {XAppConnectionManager} from "../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {RelayerFeeRouter} from "../../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {XCallArgs, ExecuteArgs} from "../../contracts/diamond/libraries/LibConnextStorage.sol";
@@ -35,6 +36,8 @@ interface IConnextFacets {
   function executor() external view returns (IExecutor);
   function nonce() external view returns (uint256);
   function wrapper() external view returns (IWrapped);
+  function sponsorVault() external view returns (ISponsorVault);
+  function setSponsorVault(address _sponsorVault) external;
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
   function handle(
     uint32 _origin,

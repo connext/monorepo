@@ -13,7 +13,9 @@ import {TypeCasts} from "../../nomad-core/contracts/XAppConnectionManager.sol";
 
 import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {IWrapped} from "../../interfaces/IWrapped.sol";
+import {ISponsorVault} from "../../interfaces/ISponsorVault.sol";
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract BridgeFacet is BaseConnextFacet {
@@ -33,6 +35,7 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
+  error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
@@ -43,6 +46,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_alreadyExecuted();
+  error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
 
   // ============ Events ============
@@ -106,6 +110,14 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
+  /**
+   * @notice Emitted when the sponsorVault variable is updated
+   * @param oldSponsorVault - The sponsorVault old value
+   * @param newSponsorVault - The sponsorVault new value
+   * @param caller - The account that called the function
+   */
+  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -140,7 +152,19 @@ contract BridgeFacet is BaseConnextFacet {
     return s.wrapper;
   }
 
+  function sponsorVault() public view returns (ISponsorVault) {
+    return s.sponsorVault;
+  }
+
   // ============ Public methods ==============
+
+  function setSponsorVault(address _sponsorVault) external onlyOwner {
+    if (address(s.sponsorVault) == _sponsorVault)
+      revert BridgeFacet__setSponsorVault_invalidSponsorVault();
+
+    emit SponsorVaultUpdated(address(s.sponsorVault), _sponsorVault, msg.sender);
+    s.sponsorVault = ISponsorVault(_sponsorVault);
+  }
 
   /**
    * @notice This function is called by a user who is looking to bridge funds
@@ -550,6 +574,32 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     bool _reconciled
   ) private {
+    // If the domain if sponsored
+    if (address(s.sponsorVault) != address(0)) {
+      // fast liquidity path
+      if (!_reconciled) {
+        // Vault will return the amount of the fee they sponsored in the native fee
+        // NOTE: some considerations here around fee on transfer tokens and ensuring
+        // there are no malicious `Vaults` that do not transfer the correct amount. Should likely do a
+        // balance read about it
+
+        uint256 starting = IERC20(_adopted).balanceOf(address(this));
+        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_adopted, _args.amount);
+
+        // Validate correct amounts are transferred
+        if (IERC20(_adopted).balanceOf(address(this)) != starting + sponsored) {
+          revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
+        }
+
+        _amount = _amount + sponsored;
+      }
+
+      // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
+      // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
+      // then the vault should just pay out the configured constant
+      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, _args.params.to, _args.relayerFee);
+    }
+
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY) {
       // no call data, send funds to the user

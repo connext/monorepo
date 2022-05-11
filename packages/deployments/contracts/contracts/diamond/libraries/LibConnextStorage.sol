@@ -8,6 +8,7 @@ import {ITokenRegistry} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry
 import {IWrapped} from "../../interfaces/IWrapped.sol";
 import {IExecutor} from "../../interfaces/IExecutor.sol";
 import {IStableSwap} from "../../interfaces/IStableSwap.sol";
+import {ISponsorVault} from "../../interfaces/ISponsorVault.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
@@ -54,6 +55,7 @@ struct XCallArgs {
  * @param routers - The routers who you are sending the funds on behalf of
  * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
  * if fast liquidity was used
+ * @param relayerFee - The relayer fee amount
  * @param nonce - The nonce used to generate transfer id
  * @param originSender - The msg.sender of the xcall on origin domain
  */
@@ -62,6 +64,7 @@ struct ExecuteArgs {
   address local; // local representation of canonical token
   address[] routers;
   bytes[] routerSignatures;
+  uint256 relayerFee;
   uint256 amount;
   uint256 nonce;
   address originSender;
@@ -197,6 +200,11 @@ struct AppStorage {
   // */
   // 17
   uint256 maxRoutersPerTransfer;
+  // /**
+  //  * @notice The Vault used for sponsoring fees
+  //  */
+  ISponsorVault sponsorVault;
+
   //
   // Router
   //
