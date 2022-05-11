@@ -25,6 +25,7 @@ contract Executor is IExecutor {
 
   address private immutable connext;
   bytes private properties = LibCrossDomainProperty.EMPTY_BYTES;
+  uint256 private amnt;
 
   // ============ Constructor =============
 
@@ -76,6 +77,17 @@ contract Executor is IExecutor {
   }
 
   /**
+   * @notice Allows a `_to` contract to access the amount that was delivered from the
+   * bridge. This is also set during reentrancy, but is set during fast *and* slow
+   * liquidity paths
+   * @dev These properties are set via reentrancy a la L2CrossDomainMessenger from
+   * optimism
+   */
+  function amount() external view override returns (uint256) {
+    return amnt;
+  }
+
+  /**
    * @notice Executes some arbitrary call data on a given address. The
    * call data executes can be payable, and will have `amount` sent
    * along with the function (or approved to the contract). If the
@@ -118,12 +130,18 @@ contract Executor is IExecutor {
     // well
     properties = _properties;
 
+    // Set the amount as well
+    amnt = _amount;
+
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
     (success, returnData) = _to.call{value: isNative ? _amount : 0}(_callData);
 
     // Unset properties
     properties = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // Unset amount
+    amnt = 0;
 
     // Handle failure cases
     if (!success && !isNative) {

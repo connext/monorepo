@@ -10,7 +10,7 @@ data "aws_iam_role" "cw_lambda_role" {
 
 resource "aws_lambda_function" "cloudwatch-logdna-lambda" {
   function_name = "export-cw-to-logdna-${var.environment}-${var.stage}-${var.service}"
-  s3_bucket     = "aws-lamba-logdna-cloudwatch"
+  s3_bucket     = var.aws_lambda_s3_bucket
   s3_key        = "logdna-cloudwatch.zip"
   handler       = "index.handler"
 
@@ -29,13 +29,18 @@ resource "aws_lambda_function" "cloudwatch-logdna-lambda" {
       LOGDNA_TAGS = "${var.stage},${var.environment},${var.service},amarok"
     }
   }
+  tags                       = {
+    Stage = var.stage
+    Environment = var.environment
+    Domain = var.domain
+  }
 }
 
 resource "aws_lambda_permission" "allow-cloudwatch" {
   statement_id   = "allow-cloudwatch-${var.environment}-${var.stage}-${var.service}"
   action         = "lambda:InvokeFunction"
   function_name  = aws_lambda_function.cloudwatch-logdna-lambda.arn
-  principal      = "logs.us-east-1.amazonaws.com"
+  principal      = "logs.${var.region}.amazonaws.com"
   source_arn     = "${var.log_group_arn}:*"
   source_account = "679752396206"
 }

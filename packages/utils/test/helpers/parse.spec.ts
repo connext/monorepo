@@ -15,7 +15,7 @@ describe("Helpers:Parse", () => {
   });
   describe("#formatUrl", () => {
     it("happy: should add indetifier if exists", () => {
-      expect(formatUrl("https://api.thegraph.com", "subgraphs", "hosted-service")).to.be.eq(
+      expect(formatUrl("https://api.thegraph.com", "subgraphs", "/hosted-service")).to.be.eq(
         "https://api.thegraph.com/subgraphs/hosted-service",
       );
     });

@@ -20,10 +20,11 @@ Content-Type: application/json
     "params": {
       "to": "0x5A9e792143bf2708b4765C144451dCa54f559a19",
       "callData": "0x",
-      "originDomain": "3000",
-      "destinationDomain": "2000"
+      "originDomain": "2221",
+      "destinationDomain": "1111"
     },
     "transactingAssetId": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
-    "amount": "100000000000000"
+    "amount": "100000000000000",
+    "relayerFee": "0"
   }
 

@@ -1,4 +1,11 @@
-import { Bid, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE, ajv, XTransferSchema } from "@connext/nxtp-utils";
+import {
+  Bid,
+  createLoggingContext,
+  DEFAULT_ROUTER_FEE,
+  ajv,
+  XTransferSchema,
+  OriginTransfer,
+} from "@connext/nxtp-utils";
 
 import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
@@ -12,7 +19,7 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
  *
  * @param params - The crosschain xcall params.
  */
-export const execute = async (params: XTransfer): Promise<void> => {
+export const execute = async (params: OriginTransfer): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
@@ -38,48 +45,55 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, transferId, xcall } = params;
-  if (!xcall) {
+  const { originDomain, destinationDomain, origin, transferId } = params;
+  if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
-  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
+  const executeLocalAsset = await getDestinationLocalAsset(
+    originDomain,
+    origin.assets.bridged.asset,
+    destinationDomain,
+  );
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
-  const receivingAmount = xcall.localAmount;
+  const receivingAmount = origin.assets.bridged.amount;
 
   // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
   // only on the first auction round.
   // Produce the router path signatures for each auction round we want to bid on.
   const signatures = {
-    "1": await signRouterPathPayload(transferId, RELAYER_FEE_PERCENTAGE, wallet),
+    "1": await signRouterPathPayload(transferId, "1", wallet),
   };
+
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
     // Sanitized with ellipsis.
     sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
   });
 
-  const fee = DEFAULT_ROUTER_FEE;
-  const bid: Bid = {
-    transferId,
-    origin: originDomain,
-    router: routerAddress,
-    fee,
-    signatures,
-  };
-
   // sanity check
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  logger.info("Checking balance", requestContext, methodContext, { balance: balance.toString() });
   if (balance.lt(receivingAmount)) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
+      executeLocalAsset,
+      routerAddress,
+      destinationDomain: destinationDomain,
     });
   }
-  logger.info("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
+  logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
+
+  const fee = DEFAULT_ROUTER_FEE;
+  const bid: Bid = {
+    transferId,
+    origin: originDomain,
+    router: routerAddress.toLowerCase(),
+    fee,
+    signatures,
+  };
 
   await sendBid(bid, requestContext);
 };

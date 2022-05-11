@@ -1,5 +1,9 @@
 resource "aws_cloudwatch_log_group" "container" {
   name = "${var.environment}-${var.stage}-${var.container_family}"
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
 }
 
 resource "aws_ecs_task_definition" "service" {
@@ -66,8 +70,10 @@ resource "aws_alb" "lb" {
   idle_timeout               = var.timeout
   tags                       = {
     Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
+
 
 resource "aws_alb_target_group" "front_end" {
   port        = var.loadbalancer_port
@@ -76,12 +82,17 @@ resource "aws_alb_target_group" "front_end" {
   target_type = "ip"
 
   health_check {
+    enabled  = var.health_check_enabled
     path     = var.health_check_path
     matcher  = var.matcher_ports
     interval = var.timeout + 10
   }
   lifecycle {
     create_before_destroy = true
+  }
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
 
@@ -95,6 +106,10 @@ resource "aws_lb_listener" "https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_alb_target_group.front_end.arn
+  }
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
 
@@ -118,11 +133,15 @@ resource "aws_security_group" "lb" {
     protocol    = "-1"
     cidr_blocks = var.allow_all_cdir_blocks
   }
+  tags                       = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
 }
 
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id
-  name    = var.stage != "prod" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
+  name    = var.stage != "production" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]

@@ -1,8 +1,6 @@
 import * as fs from "fs";
 
 import { fetchJson } from "../ethers";
-import { Logger } from "../logging";
-import { jsonifyError } from "../types";
 
 export const CHAIN_ID = {
   MAINNET: 1,
@@ -17,6 +15,11 @@ export const CHAIN_ID = {
   MOVR: 1285,
   ARBITRUM: 42161,
   AVALANCHE: 43114,
+};
+
+export type ChainDataSubgraph = {
+  query: string;
+  health: string;
 };
 
 export type ChainData = {
@@ -47,8 +50,8 @@ export type ChainData = {
   subgraph: string[];
   analyticsSubgraph?: string[];
   subgraphs: {
-    runtime: [];
-    analytics: [];
+    runtime: ChainDataSubgraph[];
+    analytics: ChainDataSubgraph[];
   };
   faucets: string[];
   infoURL: string;
@@ -83,7 +86,8 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
     const domainId = item.domainId as string | undefined;
-    if (domainId) {
+    // NOTE: Ignore domain 0, as that is a placeholder for a ChainData entry template.
+    if (domainId && domainId !== "0") {
       chainData.set(domainId, item as ChainData);
     } else {
       noDomainIdFound.push(item.chainId as string);
@@ -99,7 +103,7 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   return chainData;
 };
 
-export const getChainData = async (logger?: Logger): Promise<Map<string, ChainData> | undefined> => {
+export const getChainData = async (): Promise<Map<string, ChainData>> => {
   const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
   try {
     const data = await fetchJson(url);
@@ -111,14 +115,7 @@ export const getChainData = async (logger?: Logger): Promise<Map<string, ChainDa
       const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
       return chainDataToMap(data);
     }
-    // It could be dangerous to let the router start without the chain data, but there's an override in place just in case.
-    if (logger)
-      logger.warn(
-        `Could not fetch chain data, and no cached chain data was available.`,
-        undefined,
-        undefined,
-        jsonifyError(err as Error),
-      );
-    return undefined;
+    // It could be dangerous to let any agent start without chain data.
+    throw new Error("Could not get chain data, and no cached chain data was available.");
   }
 };

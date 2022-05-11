@@ -33,6 +33,7 @@ export default task("enroll-handler", "Add a remote router")
     console.log("local: ", local);
 
     const { domain } = getDomainInfoFromChainId(+chain);
+    console.log("domain: ", domain);
 
     const localRouter = await ethers.getContractAt(localRouterDeployment.abi, local);
     const enrollTx = await localRouter.enrollRemoteRouter(domain, hexZeroPad(handler, 32));

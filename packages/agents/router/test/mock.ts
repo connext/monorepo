@@ -104,7 +104,7 @@ export const mock = {
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
       subgraph.getXCalls.resolves([]);
-      subgraph.getTransactionsWithStatuses.resolves([]);
+      subgraph.getDestinationTransfers.resolves([]);
       subgraph.isRouterApproved.resolves(true);
       subgraph.getAssetBalance.resolves(constants.MaxUint256);
       return subgraph;

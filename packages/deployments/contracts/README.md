@@ -22,14 +22,6 @@ TODO
 
 TODO
 
-### Offline Protections
-
-TODO
-
-## Error Codes
-
-TODO
-
 ## Development
 
 ### Building
@@ -68,52 +60,87 @@ nxtp$ yarn workspace @connext/nxtp-contracts coverage
 
 ### Contract Deployment
 
-Contracts are deployed via the [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html). Before deploying any contracts, make sure the [deploy](https://github.com/connext/nxtp/blob/main/modules/contracts/deploy/deploy.ts) script used is up to date with the contracts you will need deployed.
+<aside>
+💡 Important to note that this deployment guide was written when we had to deploy our own `TokenRegistry.sol`. In production, these are for the Nomad team to deploy and set up not us!
 
-To deploy the contracts:
+Last updated deployment guide on: May 3 2022
 
-1. Obtain a funded mnemonic and provider url (if there is no URL in the default [hardhat config](./hardhat.config.ts)) for the network(s) you would like to deploy the contracts to. The mnemonic chosen will be a system admin, who can remove or add routers and assets so make sure to keep it handy. You may also add an api key for etherscan if you plan to verify the contracts:
+</aside>
 
-```sh
-export MNEMONIC="<YOUR_MNEMONIC_HERE>"
-export ENV="staging" # either staging or production
-export ETH_PROVIDER_URL="<YOUR_PROVIDER_URL_HERE>"
-export ETHERSCAN_API_KEY="<ETHERSCAN_API_KEY_HERE>" # optional, but highly recommended
-```
+<aside>
+⚠️ When using any tasks that require the address of an upgradeable contract, make sure you use the address stored as the `[ContractName]UpgradeBeaconProxy` address, not the implementation address. (i.e. if it requires the `TokenRegistry` address, use the `TokenRegistryUpgradeBeaconProxy` address from the `deployments` directory). Keep in mind staging deployments will append `Staging` to the end of the deployed artifact name as well
 
-You can also add a `.env` to the `packages/contracts` dir with the above env vars.
+</aside>
 
-2. Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
+Contracts are deployed via the [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html) plugin. Before deploying any contracts, make sure the [deploy](https://github.com/connext/nxtp/blob/main/modules/contracts/deploy/deploy.ts) script used is up to date with the contracts you will need deployed (see note above!). To deploy the contracts:
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\> # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
-```
+1.  Obtain a funded mnemonic and provider url (if there is no URL in the default hardhat config) for the network(s) you would like to deploy the contracts to. The mnemonic chosen will be a system admin, who can remove or add routers and assets so make sure to keep it handy. You may also add an api key for etherscan if you plan to verify the contracts:
 
-You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
+    ```bash
+    export MNEMONIC="<YOUR_MNEMONIC_HERE>"
+    export ETH_PROVIDER_URL="<YOUR_PROVIDER_URL_HERE>"
+    export ETHERSCAN_API_KEY="<ETHERSCAN_API_KEY_HERE>" # optional, but highly recommended
+    export ENV="<ENV>" # should be staging or production, if not supplied will default to staging
+    ```
 
-**NOTE:** You will have to run the `enroll-remote` task if deploying custom bridge routers.
+    You can also add a `.env` to the `packages/contracts` dir with the above env vars.
 
-3. After the contracts are deployed, you must enroll the remote handlers. This is done so the handlers know to accept messages from each other across chains:
+2.  Once the proper environment variables are added to your environment, you can begin the contract deployments by running the following from the root directory:
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat enroll-handler --handler \<REMOTE_HANDLER_ADDR\> --chain \<REMOTE_CHAIN_ID\> --network \<NETWORK_NAME\>
-```
+    ```bash
+    $ yarn workspace @connext/nxtp-contracts hardhat deploy --network \<NETWORK_NAME\>
+    # e.g. yarn workspace @connext/nxtp-contracts deploy --network goerli
+    ```
 
-**NOTE:** This step should be removed from the process once the router responsibility is handed to the nomad team.
+    You should use the `NETWORK_NAME` that corresponds to the correct network within the `hardhat.config.ts` file.
 
-4. (optional) To verify the contracts (works with Etherscan-based networks):
+Congratulations! You have deployed a new set of amarok contracts. Now, we have to configure them.
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat etherscan-verify --solc-input --network \<NETWORK_NAME\>
-```
+1. You must enroll the remote handlers using the `enroll-handler` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each `ConnextHandler` (i.e. if I have deployed contracts to kovan, rinkeby, and goerli I must run this task to enroll the kovan and rinkeby handler on goerli, the rinkeby and goerli handler on kovan, and the kovan and goerli handler on rinkeby):
 
-5. Once the contracts have been deployed, export them using:
+   ```bash
+   $ yarn workspace @connext/nxtp-contracts hardhat enroll-handler --handler \<REMOTE_HANDLER_ADDR\> --chain \<REMOTE_CHAIN_ID\> --network \<NETWORK_NAME\>
+   # e.g. for registering a rinkeby handler on kovan:
+   # ywc hardhat enroll-handler --handler <RINKEBY_BRIDGE_ROUTER_ADDR> --chain 4 --network kovan
+   ```
 
-```sh
-yarn workspace @connext/nxtp-contracts export
-```
+2. You must ensure there is a local `mad*` asset on the destination domain (this is the asset routers supply liquidity in). The best way to do this on testnets is to use the `enroll-custom` task. This task must be performed by the owner of the `TokenRegistry` and will list the specified token (defaults to the `TestERC20` on the network) as the `mad*` asset. It’s best to enroll the `TestERC20` as the local token so anyone can mint the asset for testing purposes. This task should be run on all domains _except_ the canonical domain of the token (i.e. for our testnet setup, kovan is the canonical domain, so the task is run on all networks except kovan).
 
-Congratulations! You have deployed the contracts. To configure them properly, see the Amarok Tasks below.
+   ```bash
+   $ yarn workspace @connext/nxtp-contracts hardhat enroll-custom --domain \<CANONICAL_TOKEN_DOMAIN\> --canonical \<TOKEN_ADDR_ON_CANONICAL_DOMAIN\> --network \<NETWORK_TO_ENSURE_LOCAL_ON\>
+   # i.e. on rinkeby with kovan canonical you would run:
+   # ywc hardhat enroll-custom --domain 2221 --canonical "TEST_ERC20_ADDR_ON_KOVAN" --network rinkeby
+   ```
+
+   When you set the asset up using `ensure-local`, the only person that can `mint` the token
+
+3. Once you have enrolled the handlers and set up the local assets, you should run the `preflight` task. The preflight task will do the following in an idempotent way:
+
+   - Whitelist a specified router
+   - Setup an asset
+   - Add router liquidity (by minting tokens, so a mintable token must be enrolled as the local token)
+   - Whitelist a specified relayer
+
+   You can provide these values via a `.env` file, via arguments to the hardhat task, or a combination of the two. Sample:
+
+   ```bash
+   # Sample .env file contents for preflight
+   ROUTER_ADDRESS= # router to whitelist + add liq for
+   CANONICAL_DOMAIN= # on our current testnet setup, is kovan domain
+   CANONICAL_TOKEN= # on our current testnet setup, is TestERC20 on kovan
+   RELAYER_ADDRESS= # relayer to whitelist
+   ENV= # staging or production, defaults to staging
+   ```
+
+   See [here](https://github.com/connext/nxtp/blob/819cdd7fe2cd164d8b14160a34424d640c9f21ac/packages/deployments/contracts/src/tasks/preflight.ts#L6-L12) for details about the command line arguments.
+
+**NOTE: You can do all of these tasks in separate tasks as well!**
+
+**Upgrading** **Contracts**
+
+The `Connext` is using `TransparentProxy` of OpenZeppelin. When executing the deploy script using [hardhat deploy](https://hardhat.org/plugins/hardhat-deploy.html) plugin, it will automatically detect if the proxy and implementation must be deployed, or if the proxy must simply be upgraded. The nomad contracts (`TokenRegistry`) are using a custom upgrade scheme, but the deploy script will automatically detect if fresh deployments or only upgrades are needed.
+
+If want to deploy completely new proxy contracts, remove the `.json` files from the `deployments` directory. (ie. `TokenRegistry`, `TokenRegistryUpgradeBeacon`, `TokenRegistryUpgradeBeaconProxy`, `ConnextHandler_Implementation`, `ConnextHandler_Proxy`), and execute the deploy script again.
 
 **NOTE:** Once you have deployed the contracts, you will then need to update (if necessary) and redeploy the subgraphs. See [here](https://github.com/connext/nxtp/tree/main/modules/subgraph) for details.
 
@@ -162,7 +189,7 @@ yarn workspace @connext/nxtp-contracts hardhat set-direct-price --token TOKEN_AD
 'TOKEN_PRICE': The direct price of token.
 ```
 
-## Helper Tasks
+## Other Helper Tasks
 
 There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. These can be run using the following example command structure:
 
@@ -170,54 +197,55 @@ There are helper tasks defined in the [`./src/tasks`](./src/tasks) directory. Th
 yarn workspace @connext/nxtp-contracts hardhat add-liquidity --network goerli --amount 2500000000000000000000000 --router 0xDc150c5Db2cD1d1d8e505F824aBd90aEF887caC6 --asset-id 0x8a1Cad3703E0beAe0e0237369B4fcD04228d1682
 ```
 
-- Deploy Router Factory
+### whitelist
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat deploy-router-factory --network <Network-Name> --signer <Router Signer> --recipient <Router Recipient>
-```
+Whitelist command for a single router across multiple networks
 
-- Create Router Contract
-
-```sh
-yarn workspace @connext/nxtp-contracts hardhat create-router --network <Network-Name> --signer <Router Signer> --recipient <Router Recipient>
-```
-
-- whitelist command for multiple networks
-
-```sh
+```bash
 yarn workspace @connext/nxtp-contracts whitelist <router-address>
 ```
 
-- create-router for RouterContract multiple network in one-step
+### mint
 
-```sh
-yarn workspace @connext/nxtp-contracts create-router <signer-address> <recipient-address>
+`mint` allows you to mint any token to a specified account:
+
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat mint --amount \<AMT_IN_REAL_UNITS\> --receiver \<RECIPIENT\> --asset \<TOKEN_ADDR\> --network \<NETWORK\>
+# assetid and to are optional (will default to TestERC20 and mnemonic account[0], respectively)
+# amount should be in ETH-like units (i.e. 1 = 1 ETH)
 ```
 
-### Amarok Tasks
+### trace
 
-- Ensure there are local token representations (i.e. a mad\* asset is deployed n the given network for the token you supply):
+`trace` allows you to check the status of a nomad message from the origin domain (use the `xcall` transaction hash:
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat ensure-local --domain \<CANONICAL_DOMAIN\> --canonical \<TOKEN_ADDR_ON_CANONICAL_DOMAIN\> --network \<NETWORK_TO_ENSURE_LOCAL_ON\>
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
 ```
 
-**NOTE** This task should be removed once using the nomad token registry
+### xcall
 
-- Setup the asset on the `Connext` to ensure the routers can supply liquidity for all local assets, the correct adopted asset is set, and configure the stable swap pool:
+`xcall` allows you to create a crosschain transaction via CLI (example using real values):
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat setup-asset --canonical \<TOKEN_ADDR_ON_CANONICAL_DOMAIN\> --domain \<CANONICAL_DOMAIN\> --adopted \<ADOPTED_ADDR_ON_NETWORK\> --pool \<SWAP_LOCAL_FOR_ADOPTED\> --network \<NETWORK\>
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F --amount 100000000000000000 --to 0x5A9e792143bf2708b4765C144451dCa54f559a19 --origin-domain 2221 --destination-domain 1111  --network kovan
 ```
 
-- Prepare transaction from sender side
+### renounce-ownership
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat prepare --transacting-asset-id 0xe71678794fff8846bFF855f716b0Ce9d9a78E844 --amount 10000000000000000000 --recipient 0x5A9e792143bf2708b4765C144451dCa54f559a19 --origin-domain 3000 --destination-domain 2000 --tx-manager-address 0x35Ca61d8D9da6d6F5F4B256132955A3a2723BB19 --network kovan
+`renounce-ownership` allows you to relinquish whitelist privileges (though it will take a week to take effect):
+
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat renounce-ownership --type \<TYPE\> --network \<NETWORK\>
+# type can be either "router" or "asset" and refers to the privileges you are relinquishing
 ```
 
-- Track a nomad message from the origin domain (can use the `prepare` transaction hash)
+### add-liquidity
 
-```sh
-yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
+`add-liquidity` allows you to add liquidity on behalf of a router:
+
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat add-liquidity --router \<ROUTER\> --asset-id \<TOKEN\> --amount \<AMOUNT\> --network \<NETWORK\>
+# amount is in ETH units (i.e. 1 = 1 ETH)
+# the router should be supplying liquidity in the local (mad*) asset
 ```
