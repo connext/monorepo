@@ -97,6 +97,8 @@ interface IConnextHandler {
 
   // ============ Public Functions ===========
 
+  function getExecutor() external returns (address);
+
   function addLiquidityFor(
     uint256 amount,
     address local,
