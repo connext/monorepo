@@ -60,7 +60,7 @@ resource "aws_db_subnet_group" "default" {
 
 resource "aws_route53_record" "db" {
   zone_id = var.hosted_zone_id
-  name    = var.stage != "prod" ? "db.${var.environment}.${var.stage}.${var.base_domain}" : "db.${var.environment}.${var.base_domain}"
+  name    = var.stage != "production" ? "db.${var.environment}.${var.stage}.${var.base_domain}" : "db.${var.environment}.${var.base_domain}"
   type = "CNAME"
   ttl = "300"
   records = [aws_db_instance.db.address]

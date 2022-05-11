@@ -37,6 +37,12 @@ variable "full_image_name_sequencer" {
   default     = "ghcr.io/connext/sequencer:sha-3eea5cf"
 }
 
+variable "full_image_name_lighthouse" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/lighthouse:sha-3eea5cf"
+}
+
 variable "mnemonic" {
   type        = string
   description = "mnemonic"

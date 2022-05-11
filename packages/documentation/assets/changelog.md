@@ -1,3 +1,0 @@
-# NXTP Changelog
-
-## Next Release

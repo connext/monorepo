@@ -133,6 +133,18 @@ describe("Database client", () => {
     await saveTransfers([xTransfer], pool);
   });
 
+  it("should save single transfer null destination", async () => {
+    let xTransferLocal = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    xTransferLocal.destination = null;
+    await saveTransfers([xTransferLocal], pool);
+  });
+
+  it("should save single transfer null destination", async () => {
+    let xTransferLocal = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    xTransferLocal.origin = null;
+    await saveTransfers([xTransferLocal], pool);
+  });
+
   it("should upsert single transfer", async () => {
     xTransfer.destination.status = XTransferStatus.Completed;
     await saveTransfers([xTransfer], pool);

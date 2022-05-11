@@ -1,31 +1,16 @@
 import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
 import * as SharedFns from "../../../src/shared";
-import { expect, mock, XTransfer, chainDataToMap, Logger, XTransferStatus, OriginTransfer } from "@connext/nxtp-utils";
-import pg from "pg";
+import { expect, mock, chainDataToMap, Logger, OriginTransfer } from "@connext/nxtp-utils";
 import * as backend from "../../../src/backend";
 import { poller } from "../../../src/bindings/poller";
-import { Database } from "../../../src/adapters/database";
 
-import {
-  getLatestNonce,
-  getTransfersByStatus,
-  saveTransfers,
-  saveRouterBalances,
-} from "../../../src/adapters/database/client";
-import { newDb } from "pg-mem";
+import * as dbClient from "../../../src/adapters/database/client";
 import { BackendConfig } from "../../../src/config";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
-const db = newDb();
-const { Pool } = db.adapters.createPg();
+const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
 
 const mockConfig: BackendConfig = {
-  server: {
-    port: 8080,
-    host: "0.0.0.0",
-    requestLimit: 500,
-    adminToken: "blahblah",
-  },
   pollInterval: 15000,
   logLevel: "silent",
   database: { url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable" },
@@ -86,88 +71,43 @@ const mockChainData = chainDataToMap([
     assetId: {},
   },
 ]);
-const mockContext: backend.AppContext = {
-  logger: new Logger({
-    level: "silent",
-    name: "MockBackend",
-  }),
-  adapters: {
-    subgraph: createStubInstance(SubgraphReader),
-    database: {
-      saveTransfers,
-      getLatestNonce,
-      getTransfersByStatus,
-      saveRouterBalances,
-    } as Database,
-  },
-  config: mockConfig as BackendConfig,
-  chainData: mockChainData,
-  domains: ["1337", "1338"],
-};
 
-describe("Database client", () => {
-  let pool: pg.Pool;
-  let xTransfer: XTransfer;
+describe("Backend operations", () => {
   let getSubgraphHealthStub: SinonStub;
+  let mockContext: backend.AppContext;
 
-  before(async () => {
-    xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    pool = new Pool();
-    await pool.query(`
-    create type transfer_status as enum ('XCalled', 'Executed', 'Reconciled', 'Completed');
-    create table transfers (
-      origin_domain varchar(255) not null,
-      destination_domain varchar(255),
-
-      nonce bigint,
-
-      -- xparams
-      "to" character(42),
-      call_data text,
-
-      -- XTransferCoreSchema
-      idx bigint,
-      transfer_id character(66) primary key,
-
-      -- origin
-      origin_chain varchar(255),
-      origin_transacting_asset character(42),
-      origin_transacting_amount numeric,
-      origin_bridged_asset character(42),
-      origin_bridged_amount numeric,
-      xcall_caller character(42),
-      xcall_transaction_hash character(66),
-      xcall_timestamp integer,
-      xcall_gas_price numeric,
-      xcall_gas_limit numeric,
-      xcall_block_number integer,
-      xcall_relayer_fee numeric,
-
-      -- destination
-      destination_chain varchar(255),
-      status transfer_status not null default 'XCalled',
-      routers character(42)[],
-      destination_transacting_asset character(42),
-      destination_transacting_amount numeric,
-      destination_local_asset character(42),
-      destination_local_amount numeric,
-      execute_caller character(42),
-      execute_transaction_hash character(66),
-      execute_timestamp integer,
-      execute_gas_price numeric,
-      execute_gas_limit numeric,
-      execute_block_number integer,
-      execute_origin_sender character(42),
-      reconcile_caller character(42),
-      reconcile_transaction_hash character(66),
-      reconcile_timestamp integer,
-      reconcile_gas_price numeric,
-      reconcile_gas_limit numeric,
-      reconcile_block_number integer
-    );
-    `);
-  });
   beforeEach(() => {
+    const saveTransfersStub = stub(dbClient, "saveTransfers");
+    saveTransfersStub.resolves();
+    const getLatestNonceStub = stub(dbClient, "getLatestNonce");
+    getLatestNonceStub.resolves(10);
+    const getTransfersByStatusStub = stub(dbClient, "getTransfersByStatus");
+    getTransfersByStatusStub.resolves(mockSubgraphResponse);
+    const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
+    saveRouterBalancesStub.resolves();
+
+    mockContext = {
+      logger: new Logger({
+        level: "silent",
+        name: "MockBackend",
+      }),
+      adapters: {
+        subgraph: createStubInstance(SubgraphReader, {
+          getOriginTransfers: Promise.resolve(mockSubgraphResponse),
+          getOriginTransfersForAll: Promise.resolve(mockSubgraphResponse),
+          getDestinationTransfers: Promise.resolve(mockSubgraphResponse),
+        }),
+        database: {
+          saveTransfers: dbClient.saveTransfers,
+          getLatestNonce: dbClient.getLatestNonce,
+          getTransfersByStatus: dbClient.getTransfersByStatus,
+          saveRouterBalances: dbClient.saveRouterBalances,
+        },
+      },
+      config: mockConfig as BackendConfig,
+      chainData: mockChainData,
+      domains: ["1337", "1338"],
+    };
     stub(backend, "getContext").returns(mockContext);
   });
 
@@ -175,6 +115,7 @@ describe("Database client", () => {
     restore();
     reset();
   });
+
   it("should poll subgraph with block zero", async () => {
     getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
     getSubgraphHealthStub.resolves({
@@ -187,8 +128,9 @@ describe("Database client", () => {
       synced: true,
       url: "http://example.com",
     });
-    await poller();
+    await expect(poller()).to.eventually.not.be.rejected;
   });
+
   it("should poll subgraph with mock non zero block", async () => {
     getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
     getSubgraphHealthStub.resolves({
@@ -201,11 +143,11 @@ describe("Database client", () => {
       synced: true,
       url: "https://example.com",
     });
-    await poller();
+    await expect(poller()).to.eventually.not.be.rejected;
   });
+
   it("should poll subgraph with mock backend", async () => {
     getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
-    await backend.makeBackend(mockConfig);
     getSubgraphHealthStub.resolves({
       chainHeadBlock: 1234567,
       latestBlock: 1234567,
@@ -216,18 +158,11 @@ describe("Database client", () => {
       synced: true,
       url: "http://example.com",
     });
-    let mockgetOriginTransfers = stub(mockContext.adapters.subgraph, "getOriginTransfers");
-    let mockgetOriginTransfersForAll = stub(mockContext.adapters.subgraph, "getOriginTransfersForAll");
-    let mockgetDestinationTransfers = stub(mockContext.adapters.subgraph, "getDestinationTransfers");
-    const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
-    mockgetOriginTransfers.resolves(mockSubgraphResponse);
-    mockgetOriginTransfersForAll.resolves(mockSubgraphResponse);
-    mockgetDestinationTransfers.resolves(mockSubgraphResponse);
-    await poller();
+    await expect(poller()).to.eventually.not.be.rejected;
   });
+
   it("should poll subgraph with mock backend empty response", async () => {
     getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
-    await backend.makeBackend(mockConfig);
     getSubgraphHealthStub.resolves({
       chainHeadBlock: 1234567,
       latestBlock: 1234567,
@@ -238,15 +173,13 @@ describe("Database client", () => {
       synced: true,
       url: "http://example.com",
     });
-    let mockgetOriginTransfers = stub(mockContext.adapters.subgraph, "getOriginTransfers");
-    let mockgetDestinationTransfers = stub(mockContext.adapters.subgraph, "getDestinationTransfers");
-    const mockSubgraphResponse = [];
-    mockgetOriginTransfers.resolves(mockSubgraphResponse);
-    mockgetDestinationTransfers.resolves(mockSubgraphResponse);
+    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
 
-    await poller();
+    await expect(poller()).to.eventually.not.be.rejected;
   });
-  it("throw error on backend loadup", async () => {
+
+  it("should throw error on backend loadup", async () => {
     process.env.DATABASE_URL = "invalid_URI";
     try {
       await backend.makeBackend();

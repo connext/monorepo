@@ -17,7 +17,7 @@ variable "domain" {
 
 variable "stage" {
   description = "stage of deployment"
-  default     = "prod"
+  default     = "production"
 }
 
 variable "environment" {
@@ -28,7 +28,7 @@ variable "environment" {
 variable "full_image_name_poller" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/poller:sha-6f8d0c6"
+  default     = "ghcr.io/connext/poller:0.2.0-alpha.11"
 }
 
 variable "certificate_arn_testnet" {
@@ -40,6 +40,6 @@ variable "postgres_password" {
 }
 
 variable "postgres_user" {
-  type = string
+  type    = string
   default = "connext"
 }
