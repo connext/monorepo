@@ -77,8 +77,13 @@ export const getEnvConfig = (
     network: _nxtpConfig.network || "mainnet",
     maxSlippage: _nxtpConfig.maxSlippage || DEFAULT_ALLOWED_TOLERANCE,
     environment: _nxtpConfig.environment || "production",
-    backendUrl: _nxtpConfig.backendUrl || "https://postgrest.testnet.staging.connext.ninja",
+    backendUrl: _nxtpConfig.backendUrl || "https://postgrest.testnet.connext.ninja",
   };
+
+  nxtpConfig.backendUrl =
+    nxtpConfig.environment === "production"
+      ? "https://postgrest.testnet.connext.ninja"
+      : "https://postgrest.staging.connext.ninja";
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
