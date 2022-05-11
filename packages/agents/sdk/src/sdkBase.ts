@@ -84,14 +84,15 @@ export class NxtpSdkBase {
           ConnextContractAddress,
           infiniteApprove ? constants.MaxUint256 : amount,
         ]);
-        this.logger.info("Approve transaction created", requestContext, methodContext);
-        return {
+        const txRequest = {
           to: assetId,
           data,
           from: this.config.signerAddress,
           value: 0,
           chainId,
         };
+        this.logger.info("Approve transaction created", requestContext, methodContext, txRequest);
+        return txRequest;
       } else {
         this.logger.info("Allowance sufficient", requestContext, methodContext, {
           approved: approved.toString(),
