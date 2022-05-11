@@ -27,13 +27,13 @@ variable "domain" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:0.2.0-alpha.9"
+  default     = "ghcr.io/connext/router:0.2.0-alpha.10"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:0.2.0-alpha.9"
+  default     = "ghcr.io/connext/sequencer:0.2.0-alpha.10"
 }
 
 variable "mnemonic" {

@@ -475,7 +475,7 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_poller: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_poller: ${{ fromJSON(needs.e2e-tests.outputs.poller-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
