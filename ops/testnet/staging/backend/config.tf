@@ -24,6 +24,6 @@ locals {
       "1111" = {}
       "2221" = {}
     }
-    environment = "production"
+    environment = var.stage
   })
 }

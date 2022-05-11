@@ -14,6 +14,7 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
+import { SignerAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -62,14 +63,24 @@ export class NxtpSdkBase {
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
-    this.logger.info("Method start", requestContext, methodContext, { domain, assetId, amount });
+    const signerAddress = this.config.signerAddress;
+    this.logger.info("Method start", requestContext, methodContext, {
+      domain,
+      assetId,
+      amount,
+      signerAddress,
+    });
+
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
       const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
-        this.config.signerAddress,
+        signerAddress,
         ConnextContractAddress,
       ]);
       const approvedEncoded = await this.chainReader.readTx({
@@ -84,14 +95,15 @@ export class NxtpSdkBase {
           ConnextContractAddress,
           infiniteApprove ? constants.MaxUint256 : amount,
         ]);
-        this.logger.info("Approve transaction created", requestContext, methodContext);
-        return {
+        const txRequest = {
           to: assetId,
           data,
-          from: this.config.signerAddress,
+          from: signerAddress,
           value: 0,
           chainId,
         };
+        this.logger.info("Approve transaction created", requestContext, methodContext, txRequest);
+        return txRequest;
       } else {
         this.logger.info("Allowance sufficient", requestContext, methodContext, {
           approved: approved.toString(),
@@ -106,6 +118,11 @@ export class NxtpSdkBase {
   public async xcall(xcallParams: Omit<XCallArgs, "callData">): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     // Validate Input schema
     // const validateInput = ajv.compile(XTransferSchema);
@@ -141,15 +158,17 @@ export class NxtpSdkBase {
       },
     ]);
 
-    this.logger.info("xCall transaction created", requestContext, methodContext);
-
-    return {
+    const txRequest = {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
+
+    this.logger.info("xCall transaction created", requestContext, methodContext, txRequest);
+
+    return txRequest;
   }
 
   async bumpTransfer(params: {
@@ -159,6 +178,11 @@ export class NxtpSdkBase {
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     const { domain, transferId, relayerFee } = params;
 
@@ -170,14 +194,20 @@ export class NxtpSdkBase {
 
     const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);
 
-    this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext);
-
-    return {
+    const txRequest = {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
+
+    this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext, txRequest);
+
+    return txRequest;
+  }
+
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 }

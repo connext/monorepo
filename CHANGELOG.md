@@ -2,6 +2,18 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.14
+
+- [sdk] Optional signer address
+
+## Amarok 0.2.0-alpha.13
+
+- [ops] Fix lighthouse dockerfile
+
+## Amarok 0.2.0-alpha.12
+
+- [sdk] Allow lower case
+
 ## Amarok 0.2.0-alpha.11
 
 - [subgraph] Fix graph-client config
