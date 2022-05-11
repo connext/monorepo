@@ -26,6 +26,7 @@ COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
+COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 RUN touch /tmp/build/yarn.lock
 
@@ -36,6 +37,7 @@ RUN SKIP_FORGE=1 yarn install
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
 COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
+COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
 COPY .eslintrc.js /tmp/build/
