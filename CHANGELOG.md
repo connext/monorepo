@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.13
+
+- [ops] Fix lighthouse dockerfile
+
 ## Amarok 0.2.0-alpha.12
 
 - [sdk] Allow lower case
