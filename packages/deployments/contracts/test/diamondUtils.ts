@@ -20,6 +20,8 @@ export const deployDiamond = async <T extends Contract = Contract>(
   diamondArtifactName: string,
   facets: Array<Contract>,
   owner: string,
+  initAddress: string,
+  initData: string,
   contractABIName: string,
 ): Promise<T> => {
   const diamondCut = [];
@@ -29,7 +31,7 @@ export const deployDiamond = async <T extends Contract = Contract>(
   }
 
   const diamondFactory = (await ethers.getContractFactory(diamondArtifactName)) as ContractFactory;
-  const deployedDiamond = await diamondFactory.deploy(owner, diamondCut);
+  const deployedDiamond = await diamondFactory.deploy(owner, initAddress, initData, diamondCut);
   await deployedDiamond.deployed();
   const contract = (await ethers.getContractAt(contractABIName, deployedDiamond.address)) as Contract;
 
