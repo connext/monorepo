@@ -9,11 +9,39 @@ import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/ut
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
+import {SwapUtils} from "./SwapUtils.sol";
 
 library AssetLogic {
+  using SwapUtils for SwapUtils.Swap;
+
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__transferAssetFromContract_notNative();
+  error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
+
+  /**
+   * @notice Check if the stabelswap pool exists or not
+   * @param canonicalId the canonical token id
+   */
+  function stableSwapPoolExist(bytes32 canonicalId) public view returns (bool) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    return s.swapStorages[canonicalId].pooledTokens.length != 0;
+  }
+
+  /**
+   * @notice Return the index of the given token address. Reverts if no matching
+   * token is found.
+   * @param canonicalId the canonical token id
+   * @param tokenAddress address of the token
+   * @return the index of the given token address
+   */
+  function getTokenIndexFromStableSwapPool(bytes32 canonicalId, address tokenAddress) public view returns (uint8) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    uint8 index = s.tokenIndexes[canonicalId][tokenAddress];
+    if (address(s.swapStorages[canonicalId].pooledTokens[index]) != tokenAddress)
+      revert AssetLogic__getTokenIndexFromStableSwapPool_notExist();
+    return index;
+  }
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
@@ -142,13 +170,8 @@ library AssetLogic {
       return (_amount, _asset);
     }
 
-    IStableSwap pool = s.adoptedToLocalPools[_canonical.id];
-
-    // Approve pool
-    SafeERC20.safeApprove(IERC20(_asset), address(pool), _amount);
-
     // Swap the asset to the proper local asset
-    return (pool.swapExact(_amount, _asset, local), local);
+    return _swapAsset(_canonical.id, _asset, local, _amount);
   }
 
   /**
@@ -171,11 +194,41 @@ library AssetLogic {
       return (_amount, _asset);
     }
 
-    // Approve pool
-    IStableSwap pool = s.adoptedToLocalPools[id];
-    SafeERC20.safeApprove(IERC20(_asset), address(pool), _amount);
+    // Swap the asset to the proper local asset
+    return _swapAsset(id, _asset, adopted, _amount);
+  }
 
-    // Otherwise, swap to adopted asset
-    return (pool.swapExact(_amount, _asset, adopted), adopted);
+  /**
+   * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
+   * @dev Will not swap if the asset passed in is the adopted asset
+   * @param _canonicalId - The canonical token id
+   * @param _assetIn - The address of the from asset
+   * @param _assetOut - The address of the to asset
+   * @param _amount - The amount of the local asset to swap
+   * @return The amount of assetOut
+   * @return The address of assetOut
+   */
+  function _swapAsset(
+    bytes32 _canonicalId,
+    address _assetIn,
+    address _assetOut,
+    uint256 _amount
+  ) internal returns (uint256, address) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+
+    // Swap the asset to the proper local asset
+
+    if (stableSwapPoolExist(_canonicalId)) {
+      // if internal swap pool exists
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _assetIn);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, _assetOut);
+      return (s.swapStorages[_canonicalId].swapInternal(tokenIndexIn, tokenIndexOut, _amount, 0), _assetOut);
+    } else {
+      // Otherwise, swap via stable swap pool
+      IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
+      SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amount);
+
+      return (pool.swapExact(_amount, _assetIn, _assetOut), _assetOut);
+    }
   }
 }

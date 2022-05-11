@@ -621,6 +621,43 @@ library SwapUtils {
   }
 
   /**
+   * @notice swap two tokens in the pool internally
+   * @param self Swap struct to read from and write to
+   * @param tokenIndexFrom the token the user wants to sell
+   * @param tokenIndexTo the token the user wants to buy
+   * @param dx the amount of tokens the user wants to sell
+   * @param minDy the min amount the user would like to receive, or revert.
+   * @return amount of token user received on swap
+   */
+  function swapInternal(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx,
+    uint256 minDy
+  ) internal returns (uint256) {
+    IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
+    require(dx <= tokenFrom.balanceOf(msg.sender), "Cannot swap more than you own");
+
+    uint256 dy;
+    uint256 dyFee;
+    uint256[] memory balances = self.balances;
+    (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
+    require(dy >= minDy, "Swap didn't result in min tokens");
+
+    uint256 dyAdminFee = dyFee.mul(self.adminFee).div(FEE_DENOMINATOR).div(
+      self.tokenPrecisionMultipliers[tokenIndexTo]
+    );
+
+    self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx);
+    self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy).sub(dyAdminFee);
+
+    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+
+    return dy;
+  }
+
+  /**
    * @notice Add liquidity to the pool
    * @param self Swap struct to read from and write to
    * @param amounts the amounts of each token to add, in their native precision

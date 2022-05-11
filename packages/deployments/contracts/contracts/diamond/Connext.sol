@@ -15,10 +15,10 @@ import {AppStorage} from "./libraries/LibConnextStorage.sol";
 contract Connext {
   AppStorage s;
 
-  constructor(address _contractOwner, IDiamondCut.FacetCut[] memory _diamondCut) {
+  constructor(address _contractOwner, IDiamondCut.FacetCut[] memory _diamondCuts, address _init, bytes memory _initCalldata) public {
     LibDiamond.setContractOwner(_contractOwner);
 
-    LibDiamond.diamondCut(_diamondCut, address(0), new bytes(0));
+    LibDiamond.diamondCut(_diamondCuts, _init, _initCalldata);
   }
 
   // Find facet for function that is called and execute the
