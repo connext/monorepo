@@ -14,6 +14,7 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
+import { SignerAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -62,19 +63,24 @@ export class NxtpSdkBase {
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
+    const signerAddress = this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {
       domain,
       assetId,
       amount,
-      signerAddress: this.config.signerAddress,
+      signerAddress,
     });
+
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
       const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
-        this.config.signerAddress,
+        signerAddress,
         ConnextContractAddress,
       ]);
       const approvedEncoded = await this.chainReader.readTx({
@@ -92,7 +98,7 @@ export class NxtpSdkBase {
         const txRequest = {
           to: assetId,
           data,
-          from: this.config.signerAddress,
+          from: signerAddress,
           value: 0,
           chainId,
         };
@@ -112,6 +118,11 @@ export class NxtpSdkBase {
   public async xcall(xcallParams: Omit<XCallArgs, "callData">): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     // Validate Input schema
     // const validateInput = ajv.compile(XTransferSchema);
@@ -151,7 +162,7 @@ export class NxtpSdkBase {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
 
@@ -168,6 +179,11 @@ export class NxtpSdkBase {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
 
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
     const { domain, transferId, relayerFee } = params;
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
@@ -182,7 +198,7 @@ export class NxtpSdkBase {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
 
