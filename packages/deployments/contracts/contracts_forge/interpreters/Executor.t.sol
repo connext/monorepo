@@ -3,6 +3,10 @@ pragma solidity 0.8.11;
 
 import "../ForgeHelper.sol";
 
+import "../../contracts/test/TestERC20.sol";
+
+import "../../lib/forge-std/src/console.sol";
+
 import "../../contracts/interpreters/Executor.sol";
 
 // running tests (with logging on failure):
@@ -17,6 +21,7 @@ import "../../contracts/interpreters/Executor.sol";
 contract PropertyQuery is ForgeHelper {
   address public originSender;
   uint32 public origin;
+  uint256 public amt;
 
   function setOriginSender() public returns (address) {
     originSender = IExecutor(msg.sender).originSender();
@@ -27,6 +32,13 @@ contract PropertyQuery is ForgeHelper {
     origin = IExecutor(msg.sender).origin();
     return origin;
   }
+
+  function setAmount() public payable returns (uint256) {
+    amt = IExecutor(msg.sender).amount();
+    return amt;
+  }
+
+  function receive() public payable {}
 }
 
 contract ExecutorTest is ForgeHelper {
@@ -40,9 +52,9 @@ contract ExecutorTest is ForgeHelper {
 
   Executor executor;
   PropertyQuery query;
+  TestERC20 asset;
 
   address connext = address(this);
-  address asset = address(1);
   address originSender = address(2);
   uint32 origin = uint32(1000);
   bytes32 transferId = keccak256(abi.encode(1));
@@ -52,6 +64,10 @@ contract ExecutorTest is ForgeHelper {
   function setUp() public {
     executor = new Executor(connext);
     query = new PropertyQuery();
+    asset = new TestERC20();
+
+    // fund executor
+    asset.mint(address(executor), 10 ether);
   }
 
   // ============ Utils ============
@@ -122,6 +138,22 @@ contract ExecutorTest is ForgeHelper {
     (bool success, ) = executor.execute(transferId, 0, payable(address(query)), NATIVE_ASSET, property, data);
     assertTrue(success);
     assertEq(query.origin(), origin);
+  }
+
+  // ============ amount ============
+
+  // Should work
+  function test_Executor__amount_works() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // send tx
+    uint256 amount = 1200;
+    (bool success, ) = executor.execute(transferId, amount, payable(address(query)), address(asset), property, data);
+    assertTrue(success);
+    assertEq(query.amt(), amount);
+    assertEq(executor.amount(), 0);
   }
 
   // ============ execute ============

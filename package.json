@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.2.0-alpha.10",
+  "version": "0.2.0-alpha.11",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -25,12 +25,13 @@
     "packages/agents/backend/poller",
     "packages/agents/sdk",
     "packages/agents/relayer",
+    "packages/agents/lighthouse",
     "packages/integration",
     "packages/examples/sdk-server"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/nxtp-sdk-server --exclude @connext/nxtp-sdk run test",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/nxtp-sdk run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach -pt --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",

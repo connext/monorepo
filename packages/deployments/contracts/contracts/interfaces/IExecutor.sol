@@ -19,6 +19,8 @@ interface IExecutor {
 
   function origin() external returns (uint32);
 
+  function amount() external returns (uint256);
+
   function execute(
     bytes32 _transferId,
     uint256 _amount,

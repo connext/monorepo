@@ -662,6 +662,36 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/lighthouse@workspace:packages/agents/lighthouse":
+  version: 0.0.0-use.local
+  resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
+  dependencies:
+    "@connext/nxtp-txservice": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@graphql-codegen/cli": ^2.6.2
+    "@sinclair/typebox": ^0.23.4
+    "@types/mocha": ^9.1.0
+    "@types/sinon": ^10.0.11
+    axios: ^0.26.1
+    concurrently: ^7.1.0
+    dotenv: ^16.0.0
+    eslint: ^8.11.0
+    ethers: ^5.6.1
+    fastify: ^3.27.4
+    graphql: ^16.3.0
+    interval-promise: ^1.4.0
+    mocha: ^9.2.2
+    nodemon: ^2.0.16
+    nyc: ^15.1.0
+    pino-pretty: ^7.6.1
+    prom-client: 14.0.1
+    rimraf: ^3.0.2
+    sinon: ^13.0.1
+    ts-mocha: ^9.0.2
+    typescript: ^4.6.2
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-adapters-cache@workspace:*, @connext/nxtp-adapters-cache@workspace:packages/adapters/cache":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-cache@workspace:packages/adapters/cache"
@@ -854,7 +884,9 @@ __metadata:
     graphql: ^16.3.0
     interval-promise: ^1.4.0
     mocha: ^9.2.2
+    nodemon: ^2.0.16
     nyc: ^15.1.0
+    pino-pretty: ^7.6.1
     prom-client: 14.0.1
     rimraf: ^3.0.2
     sinon: ^13.0.1
@@ -914,8 +946,10 @@ __metadata:
     fastify: ^3.27.4
     interval-promise: ^1.4.0
     mocha: ^9.2.2
+    nodemon: ^2.0.16
     nyc: ^15.1.0
     pino: ^7.10.0
+    pino-pretty: ^7.6.1
     rimraf: ^3.0.2
     sinon: ^13.0.1
     ts-mocha: ^9.0.2
@@ -4179,7 +4213,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^12.12.6, @types/node@npm:^12.7.7":
+"@types/node@npm:^12.12.54, @types/node@npm:^12.12.6":
   version: 12.20.51
   resolution: "@types/node@npm:12.20.51"
   checksum: 6c6f71c0037e43ceb984a740b76c8cca63f25ae56e95d6c2f473949ceed52b2b69d0faee45660425d8635c7e51b72ddeb6697e71f401b9de3eea21088468d64b
@@ -16083,7 +16117,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemon@npm:^2.0.15":
+"nodemon@npm:^2.0.15, nodemon@npm:^2.0.16":
   version: 2.0.16
   resolution: "nodemon@npm:2.0.16"
   dependencies:
@@ -17405,7 +17439,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-pretty@npm:^7.5.4":
+"pino-pretty@npm:^7.5.4, pino-pretty@npm:^7.6.1":
   version: 7.6.1
   resolution: "pino-pretty@npm:7.6.1"
   dependencies:

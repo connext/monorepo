@@ -31,7 +31,7 @@ module "poller_db" {
   max_allocated_storage = 10
 
 
-  name     = "connext"  // db name
+  name     = "connext" // db name
   username = var.postgres_user
   password = var.postgres_password
   port     = "5432"

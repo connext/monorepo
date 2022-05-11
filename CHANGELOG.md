@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.11
+
+- [subgraph] Fix graph-client config
+
 ## Amarok 0.2.0-alpha.10
 
 - [backend] Fix backend config and poller

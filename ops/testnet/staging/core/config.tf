@@ -1,11 +1,19 @@
 locals {
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
-    { name = "ENVIRONMENT", value = var.environment }
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
-    { name = "ENVIRONMENT", value = var.environment }
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
+  ]
+  lighthouse_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
+
   ]
   web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
@@ -46,8 +54,7 @@ locals {
       }
     }
 
-    environment = "staging"
-
+    environment = var.stage
   })
 }
 
@@ -73,14 +80,6 @@ locals {
             address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
           }
         ]
-        subgraph = {
-          runtime = [
-            {
-              query  = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby"
-              health = "https://api.thegraph.com/index-node/graphql"
-            }
-          ]
-        }
       }
       "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
@@ -90,17 +89,26 @@ locals {
             address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
           }
         ]
-        subgraph = {
-          runtime = [
-            {
-              query  = "https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan"
-              health = "https://api.thegraph.com/index-node/graphql"
-            }
-          ]
-        }
       }
     }
     web3SignerUrl = "https://${module.web3signer.service_endpoint}"
-    environment   = "staging"
+    environment   = var.stage
+  })
+}
+
+
+
+locals {
+  local_lighthouse_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1111" = {
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
+      }
+      "2221" = {
+        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
+      }
+    }
+    environment = var.stage
   })
 }

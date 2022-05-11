@@ -12,7 +12,7 @@ export const parseHostname = (url: string) => {
 export const formatUrl = (_url: string, endpoint: string, identifier?: string): string => {
   let url = `${_url}/${endpoint}`;
   if (identifier) {
-    url += `/${identifier}`;
+    url += `${identifier}`;
   }
   return url;
 };

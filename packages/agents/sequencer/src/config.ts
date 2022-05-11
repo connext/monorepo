@@ -38,7 +38,6 @@ export const getEnvConfig = (
       host: process.env.SEQ_REDIS_HOST || configJson.redis?.host || configFile.redis?.host,
       port: process.env.SEQ_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
     },
-
     chains: process.env.SEQ_CHAIN_CONFIG
       ? JSON.parse(process.env.SEQ_CHAIN_CONFIG)
       : configJson.chains

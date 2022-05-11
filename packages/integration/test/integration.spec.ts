@@ -152,7 +152,7 @@ describe("Integration:E2E", () => {
       },
     );
 
-    subgraph = await SubgraphReader.create(chainData, routerConfig.environment);
+    subgraph = await SubgraphReader.create(chainData, ENVIRONMENT);
 
     // Setup contexts (used for injection into helpers).
     context = {
