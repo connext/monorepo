@@ -15,7 +15,12 @@ import {AppStorage} from "./libraries/LibConnextStorage.sol";
 contract Connext {
   AppStorage s;
 
-  constructor(address _contractOwner, IDiamondCut.FacetCut[] memory _diamondCuts, address _init, bytes memory _initCalldata) public {
+  constructor(
+    address _contractOwner,
+    address _init,
+    bytes memory _initCalldata,
+    IDiamondCut.FacetCut[] memory _diamondCuts
+  ) {
     LibDiamond.setContractOwner(_contractOwner);
 
     LibDiamond.diamondCut(_diamondCuts, _init, _initCalldata);

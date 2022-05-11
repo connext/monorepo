@@ -18,7 +18,6 @@ import {XCallArgs, CallParams} from "../../contracts/diamond/libraries/LibConnex
 import {IDiamondCut} from "../../contracts/diamond/interfaces/IDiamondCut.sol";
 
 contract Deployer {
-
   Connext connextDiamondProxy;
   DiamondCutFacet diamondCutFacet;
   DiamondLoupeFacet diamondLoupeFacet;
@@ -35,11 +34,12 @@ contract Deployer {
   function getDiamondCutFacetCut(address _diamondCutFacet) internal returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
     diamondCutFacetSelectors[0] = DiamondCutFacet.diamondCut.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _diamondCutFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: diamondCutFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _diamondCutFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: diamondCutFacetSelectors
+      });
   }
 
   function getDiamondLoupeFacetCut(address _diamondLoupeFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -49,11 +49,12 @@ contract Deployer {
     diamondLoupeFacetSelectors[2] = DiamondLoupeFacet.facetAddresses.selector;
     diamondLoupeFacetSelectors[3] = DiamondLoupeFacet.facetAddress.selector;
     diamondLoupeFacetSelectors[4] = DiamondLoupeFacet.supportsInterface.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _diamondLoupeFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: diamondLoupeFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _diamondLoupeFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: diamondLoupeFacetSelectors
+      });
   }
 
   function getAssetFacetCut(address _assetFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -65,11 +66,12 @@ contract Deployer {
     assetFacetSelectors[4] = AssetFacet.setupAsset.selector;
     assetFacetSelectors[5] = AssetFacet.addStableSwapPool.selector;
     assetFacetSelectors[6] = AssetFacet.removeAssetId.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _assetFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: assetFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _assetFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: assetFacetSelectors
+      });
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -86,11 +88,12 @@ contract Deployer {
     bridgeFacetSelectors[9] = BridgeFacet.handle.selector;
     bridgeFacetSelectors[10] = BridgeFacet.execute.selector;
     bridgeFacetSelectors[11] = BridgeFacet.bumpTransfer.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _bridgeFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: bridgeFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _bridgeFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: bridgeFacetSelectors
+      });
   }
 
   function getNomadFacetCut(address _nomadFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -99,22 +102,24 @@ contract Deployer {
     nomadFacetSelectors[1] = NomadFacet.remotes.selector;
     nomadFacetSelectors[2] = NomadFacet.setXAppConnectionManager.selector;
     nomadFacetSelectors[3] = NomadFacet.enrollRemoteRouter.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _nomadFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: nomadFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _nomadFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: nomadFacetSelectors
+      });
   }
 
   function getOwnershipFacetCut(address _ownershipFacet) internal returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory ownershipFacetSelectors = new bytes4[](2);
     ownershipFacetSelectors[0] = OwnershipFacet.transferOwnership.selector;
     ownershipFacetSelectors[1] = OwnershipFacet.owner.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _ownershipFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: ownershipFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _ownershipFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: ownershipFacetSelectors
+      });
   }
 
   function getProposedOwnableFacetCut(address _proposedOwnableFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -133,11 +138,12 @@ contract Deployer {
     proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.proposeNewOwner.selector;
     proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounceOwnership.selector;
     proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.acceptProposedOwner.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _proposedOwnableFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: proposedOwnableFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _proposedOwnableFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: proposedOwnableFacetSelectors
+      });
   }
 
   function getRelayerFacetCut(address _relayerFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -151,11 +157,12 @@ contract Deployer {
     relayerFacetSelectors[6] = RelayerFacet.removeRelayer.selector;
     relayerFacetSelectors[7] = RelayerFacet.initiateClaim.selector;
     relayerFacetSelectors[8] = RelayerFacet.claim.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _relayerFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: relayerFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _relayerFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: relayerFacetSelectors
+      });
   }
 
   function getRoutersFacetCut(address _routersFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -176,11 +183,12 @@ contract Deployer {
     routersFacetSelectors[13] = RoutersFacet.addLiquidityFor.selector;
     routersFacetSelectors[14] = RoutersFacet.addLiquidity.selector;
     routersFacetSelectors[15] = RoutersFacet.removeLiquidity.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _routersFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: routersFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _routersFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: routersFacetSelectors
+      });
   }
 
   function getStableSwapFacetCut(address _stableSwapFacet) internal returns (IDiamondCut.FacetCut memory) {
@@ -208,11 +216,12 @@ contract Deployer {
     stableSwapFacetSelectors[20] = StableSwapFacet.setSwapFee.selector;
     stableSwapFacetSelectors[21] = StableSwapFacet.rampA.selector;
     stableSwapFacetSelectors[22] = StableSwapFacet.stopRampA.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _stableSwapFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: stableSwapFacetSelectors
-    });
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _stableSwapFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: stableSwapFacetSelectors
+      });
   }
 
   function deployFacets() internal {
@@ -263,6 +272,6 @@ contract Deployer {
 
     deployFacets();
 
-    connextDiamondProxy = new Connext(address(this), getFacetCuts(), address(diamondInit), initCallData);
+    connextDiamondProxy = new Connext(address(this), address(diamondInit), initCallData, getFacetCuts());
   }
 }
