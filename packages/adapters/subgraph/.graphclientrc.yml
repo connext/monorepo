@@ -1,0 +1,48 @@
+sources:
+  - name: Connext_Kovan
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
+        retry: 5
+    transforms:
+      - prefix:
+          value: kovan_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+  - name: Connext_Staging_Kovan
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan
+        retry: 5
+    transforms:
+      - prefix:
+          value: stagingkovan_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+  - name: Connext_Rinkeby
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby
+        retry: 5
+    transforms:
+      - prefix:
+          value: rinkeby_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+  - name: Connext_Staging_Rinkeby
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby
+        retry: 5
+    transforms:
+      - prefix:
+          value: stagingrinkeby_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+
+documents:
+  - ./example-query.graphql

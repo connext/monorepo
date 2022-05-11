@@ -1,3 +1,4 @@
+import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -33,6 +34,7 @@ import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
 import "./src/tasks/executeEstimateGas";
 import "./src/tasks/exportAbi";
+import { utils } from "ethers";
 
 dotEnvConfig();
 
@@ -114,6 +116,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
+      minGasPrice: utils.parseUnits("10", "gwei").toString(),
     },
     goerli: {
       accounts: { mnemonic },
@@ -218,6 +221,26 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS == "true",
+  },
+  diamondAbi: {
+    // (required) The name of your Diamond ABI.
+    name: "ConnextDiamond",
+    // (optional) An array of strings, matched against fully qualified contract names, to
+    // determine which contracts are included in your Diamond ABI.
+    include: [
+      "AssetFacet",
+      "BaseConnextFacet",
+      "BridgeFacet",
+      "DiamondCutFacet",
+      "DiamondLoupeFacet",
+      "NomadFacet",
+      "OwnershipFacet",
+      "ProposedOwnableFacet",
+      "RelayerFacet",
+      "RoutersFacet",
+      "StableSwapFacet",
+    ],
+    strict: false,
   },
 };
 

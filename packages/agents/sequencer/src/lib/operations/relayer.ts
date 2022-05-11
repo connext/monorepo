@@ -1,57 +1,80 @@
-import { RequestContext, createLoggingContext, XTransfer, Bid } from "@connext/nxtp-utils";
-import { AxiosError } from "axios";
+import { constants } from "ethers";
+import { RequestContext, createLoggingContext, Bid, connextRelayerSend, OriginTransfer } from "@connext/nxtp-utils";
 
-import { GelatoSendFailed } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
   bids: Bid[],
-  transfer: XTransfer,
-  relayerFee: {
-    asset: string;
-    amount: string;
-  },
+  transfer: OriginTransfer,
+  local: string,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
     logger,
     chainData,
     config,
-    adapters: { chainreader },
+    adapters: { chainreader, relayer },
   } = getContext();
   const {
     auctions: { encodeExecuteFromBids },
-    relayer: { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
-  logger.info(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
+  logger.debug(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { transfer });
 
+  const originChainId = chainData.get(transfer.originDomain)!.chainId;
   const destinationChainId = chainData.get(transfer.destinationDomain)!.chainId;
 
   const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBids(bids, transfer);
+  const encodedData = encodeExecuteFromBids(bids, transfer, local);
 
-  const isSupportedByGelato = await isChainSupportedByGelato(destinationChainId);
-  if (!isSupportedByGelato) {
-    throw new Error("Chain not supported by gelato.");
+  const relayerFee = {
+    // TODO: Is this correct?
+    amount: "0",
+    // amount: transfer.relayerFee!,
+    // TODO: should handle relayer fee paid in alternative assets once that is implemented.
+    asset: constants.AddressZero,
+  };
+
+  // TODO: Might want to move this logic inside the `relayer.send` method below.
+  // Try sending the tx to the custom configured relayer, if applicable.
+  // If this fails, we'll resort to using the default relayer network.
+  if (config.relayerUrl) {
+    try {
+      const result = await connextRelayerSend(config.relayerUrl, destinationChainId, {
+        fee: {
+          chain: originChainId,
+          amount: relayerFee.amount,
+          token: relayerFee.asset,
+        },
+        to: destinationConnextAddress,
+        data: encodedData,
+      });
+      const { taskId } = result;
+      logger.info("Sent meta transaction to Connext relayer", requestContext, methodContext, {
+        taskId,
+        transferId: transfer.transferId,
+      });
+      return taskId;
+    } catch (error: unknown) {
+      logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
+        transferId: transfer.transferId,
+        error,
+      });
+    }
   }
 
   // Validate the bid's fulfill call will succeed on chain.
-  const relayerAddress = await getGelatoRelayerAddress(destinationChainId, logger);
-  logger.debug("Got relayer address", requestContext, methodContext, {
-    relayerAddress,
-  });
+  const relayerAddress = await relayer.getRelayerAddress(destinationChainId);
 
-  logger.info("Getting gas estimate", requestContext, methodContext, {
+  logger.debug("Getting gas estimate", requestContext, methodContext, {
     chainId: destinationChainId,
     to: destinationConnextAddress,
     data: encodedData,
     from: relayerAddress,
   });
-
   const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destinationDomain), {
     chainId: destinationChainId,
     to: destinationConnextAddress,
@@ -59,34 +82,14 @@ export const sendToRelayer = async (
     from: relayerAddress,
   });
 
-  logger.info("Estimated gas", requestContext, methodContext, {
-    gas: gas.toString(),
-  });
-
-  logger.info("Sending to Gelato network", requestContext, methodContext, {
-    encodedData,
-    destinationConnextAddress,
+  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+    relayer: relayerAddress,
+    connext: destinationConnextAddress,
     domain: transfer.destinationDomain,
+    gas: gas.toString(),
+    relayerFee,
   });
-  const result = await gelatoSend(
-    destinationChainId,
-    destinationConnextAddress,
-    encodedData,
-    relayerFee.asset,
-    relayerFee.amount,
-  );
-  if ((result as AxiosError).isAxiosError) {
-    throw new GelatoSendFailed({ result });
-  } else {
-    const { taskId } = result;
-    logger.info("Sent to Gelato network", requestContext, methodContext, {
-      result,
-      taskId,
-      // response: response.data,
-    });
-    return taskId;
-  }
 
-  // const response = await axios.get(formatUrl(gelatoRelayEndpoint, "tasks", result.taskId));
-  // TODO: check response, if it didn't work, send the next!
+  const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  return taskId;
 };

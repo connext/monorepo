@@ -36,6 +36,7 @@ describe("Operations:Auctions", () => {
 
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
+  let getDestinationLocalAssetStub: SinonStub;
   beforeEach(() => {
     const { auctions, transfers, routers } = ctxMock.adapters.cache;
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
@@ -63,9 +64,11 @@ describe("Operations:Auctions", () => {
     });
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
+    getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
     getHelpersStub.returns({
       auctions: {
         encodeExecuteFromBid: encodeExecuteFromBidStub,
+        getDestinationLocalAsset: getDestinationLocalAssetStub,
       },
     });
   });
@@ -125,17 +128,18 @@ describe("Operations:Auctions", () => {
 
     it("should error if transfer is missing", async () => {
       getTransferStub.resolves(undefined);
-      (ctxMock.adapters.subgraph.getTransfer as SinonStub).resolves(undefined);
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
       await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     it("should error if xcall is missing", async () => {
+      const transfer: XTransfer = mock.entity.xtransfer();
       getTransferStub.resolves({
-        ...mock.entity.xtransfer(),
-        xcall: undefined,
+        ...transfer,
+        origin: undefined,
       });
-      (ctxMock.adapters.subgraph.getTransfer as SinonStub).resolves(undefined);
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
       await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
@@ -147,7 +151,7 @@ describe("Operations:Auctions", () => {
         ...mock.entity.xtransfer(),
         transferId: bid.transferId,
       };
-      (ctxMock.adapters.subgraph as any).getTransfer.resolves(transfer);
+      (ctxMock.adapters.subgraph as any).getOriginTransferById.resolves(transfer);
       await storeBid(bid, requestContext);
       expect(storeTransfersStub).to.have.been.calledOnceWithExactly([transfer]);
     });
@@ -155,7 +159,9 @@ describe("Operations:Auctions", () => {
     it("should throw expired if transfer.execute or transfer.reconcile are defined", async () => {
       const bid: Bid = mock.entity.bid();
       const transfer: XTransfer = {
-        ...mock.entity.xtransfer(undefined, undefined, undefined, XTransferStatus.Executed),
+        ...mock.entity.xtransfer({
+          status: XTransferStatus.Executed,
+        }),
         transferId: bid.transferId,
       };
       getTransferStub.resolves(transfer);
@@ -206,13 +212,10 @@ describe("Operations:Auctions", () => {
 
         const bids = sendToRelayerStub.getCall(i).args[0];
         const transfer = sendToRelayerStub.getCall(i).args[1];
-        const relayerFee = sendToRelayerStub.getCall(i).args[2];
         expect(transfer).to.deep.eq(transfers[i]);
         for (const bid of bids) {
           expect(Object.keys(auctions[i].bids)).to.include(bid.router);
         }
-        expect(relayerFee.amount).to.eq(transfers[i].relayerFee);
-        expect(relayerFee.asset).to.eq(transfers[i].xcall.localAsset);
 
         expect(setStatusStub.getCall(i).args).to.be.deep.eq([transferIds[i], AuctionStatus.Sent]);
         expect(upsertTaskStub.getCall(i).args).to.be.deep.eq([{ transferId: transferIds[i], taskId }]);
@@ -269,10 +272,10 @@ describe("Operations:Auctions", () => {
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mockAuctionDataBatch(1)[0];
       getAuctionStub.resolves(auction);
+      const transfer: XTransfer = mock.entity.xtransfer();
       getTransferStub.resolves({
-        ...mock.entity.xtransfer(),
-        xcall: undefined,
-        relayerFee: undefined,
+        ...transfer,
+        origin: undefined,
       });
 
       await executeAuctions(requestContext);
@@ -350,11 +353,9 @@ describe("Operations:Auctions", () => {
       const routerFunds = BigNumber.from("10000");
       const expectedRouterFunds = routerFunds.sub(amountSent);
 
-      const transfer = mock.entity.xtransfer(
-        undefined,
-        undefined,
-        amountSent.toString(), // amount required
-      );
+      const transfer: XTransfer = mock.entity.xtransfer({
+        amount: amountSent.toString(), // amount required
+      });
       getTransferStub.resolves(transfer);
 
       getLiquidityStub.resolves(undefined);
@@ -368,14 +369,14 @@ describe("Operations:Auctions", () => {
       expect(setLiquidityStub.getCall(0).args).to.be.deep.eq([
         router,
         transfer.destinationDomain,
-        transfer.xcall.localAsset,
+        transfer.origin.assets.bridged.asset,
         routerFunds,
       ]);
       // Should update to reflect new "theoretical amount".
       expect(setLiquidityStub.getCall(1).args).to.be.deep.eq([
         router,
         transfer.destinationDomain,
-        transfer.xcall.localAsset,
+        transfer.origin.assets.bridged.asset,
         expectedRouterFunds,
       ]);
 

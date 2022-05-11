@@ -7,7 +7,6 @@ import { canonizeId, getDomainInfoFromChainId } from "../nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000";
-const DEFAULT_RELAYER_FEES_ETH = "0.02";
 
 type TaskArgs = {
   router?: string;
@@ -97,6 +96,9 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
           deployer,
         );
+        console.log("tokenRegistry: ", tokenRegistry.address);
+        console.log("canonicalDomain: ", canonicalDomain);
+        console.log("canonicalTokenId: ", canonicalTokenId);
         localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
         if (localAsset === constants.AddressZero) {
           throw new Error(
@@ -130,6 +132,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           domain: canonicalDomain,
           connextAddress,
           pool,
+          env,
         });
       }
       console.log("*** Canonical asset approved!");
@@ -155,6 +158,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
               amount,
               asset: localAsset,
               receiver: deployer.address,
+              env,
             });
           }
         } else {
@@ -163,7 +167,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         }
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Adding liquidity!");
-        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress });
+        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress, env });
         console.log("*** Sufficient liquidity added!");
       } else {
         console.log("\nLiquidity: ", liquidity.toString());
@@ -171,12 +175,17 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
 
       if (relayer) {
-        console.log("*** Whitelisting relayer!");
-        // Add relayer
-        const tx = await connext.addRelayer(relayer);
-        console.log("addRelayer tx:", tx.hash);
-        await tx.wait(1);
-        console.log("*** Added relayer to whitelist", relayer);
+        const approved = await connext.approvedRelayers(relayer);
+        if (approved) {
+          console.log("*** Relayer already approved!");
+        } else {
+          console.log("*** Whitelisting relayer!");
+          // Add relayer
+          const tx = await connext.addRelayer(relayer);
+          console.log("addRelayer tx:", tx.hash);
+          await tx.wait(1);
+          console.log("*** Added relayer to whitelist", relayer);
+        }
       } else {
         console.log("*** No relayer to whitelist!");
       }

@@ -17,5 +17,11 @@
       "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
     }
   },
-  "logLevel": "debug"
+  "logLevel": "debug",
+  "mode": {
+    "cleanup": false
+  },
+  "auctionWaitTime": 30000,
+  "network": "testnet",
+  "environment": "staging"
 }

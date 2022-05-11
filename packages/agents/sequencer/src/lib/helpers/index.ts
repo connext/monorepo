@@ -1,5 +1,5 @@
 import { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress } from "./relayer";
-import { encodeExecuteFromBids } from "./auctions";
+import { encodeExecuteFromBids, getDestinationLocalAsset } from "./auctions";
 
 export const getHelpers = () => {
   return {
@@ -10,6 +10,7 @@ export const getHelpers = () => {
     },
     auctions: {
       encodeExecuteFromBids,
+      getDestinationLocalAsset,
     },
   };
 };
