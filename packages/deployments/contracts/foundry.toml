@@ -3,4 +3,5 @@ src = 'contracts_forge'
 out = 'artifacts_forge'
 libs = ['node_modules']
 block_timestamp = 1648744712
+optimizer = false
 # See more config options https://github.com/gakonst/foundry/tree/master/config
