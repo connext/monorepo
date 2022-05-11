@@ -15,12 +15,14 @@ interface IConnextHandler {
    * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
    * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
    * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
+   * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
    */
   struct CallParams {
     address to;
     bytes callData;
     uint32 originDomain;
     uint32 destinationDomain;
+    bool forceSlow;
   }
 
   /**
