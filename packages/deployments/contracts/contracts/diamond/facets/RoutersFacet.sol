@@ -442,11 +442,11 @@ contract RoutersFacet is BaseConnextFacet {
     (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local == address(0) ? address(s.wrapper) : _local);
 
     // Router is approved
-    if (!isRouterOwnershipRenounced() && !getRouterApproval(_router))
+    if (!_isRouterOwnershipRenounced() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Asset is approved
-    if (!isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId])
+    if (!_isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId])
       revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract

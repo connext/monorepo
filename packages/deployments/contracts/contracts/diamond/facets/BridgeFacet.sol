@@ -191,7 +191,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
    * used.
    */
-  function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId) {
+  function execute(ExecuteArgs calldata _args) external returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // execute router liquidity when this is a fast transfer
@@ -456,7 +456,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // make sure routers are all approved if needed
     for (uint256 i; i < pathLength; ) {
-      if (!isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+      if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
         revert BridgeFacet__execute_notSupportedRouter();
       }
       if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {

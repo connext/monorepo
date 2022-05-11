@@ -55,7 +55,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
 
   event OwnershipProposed(address indexed proposedOwner);
 
-  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+  event ProposedOwnableOwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
   /**
    * @notice Returns the address of the current owner.
@@ -256,7 +256,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
     address oldOwner = s._owner;
     s._owner = newOwner;
     s._proposedOwnershipTimestamp = 0;
-    emit OwnershipTransferred(oldOwner, newOwner);
+    emit ProposedOwnableOwnershipTransferred(oldOwner, newOwner);
   }
 
   function _setProposed(address newlyProposed) private {

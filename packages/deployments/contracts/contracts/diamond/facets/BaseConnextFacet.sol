@@ -79,13 +79,12 @@ contract BaseConnextFacet {
     _;
   }
 
-  // ============ Public functions ============
-
+  // ============ Internal functions ============
   /**
    * @notice Indicates if the ownership of the router whitelist has
    * been renounced
    */
-  function isRouterOwnershipRenounced() public view returns (bool) {
+  function _isRouterOwnershipRenounced() internal view returns (bool) {
     return s._owner == address(0) || s._routerOwnershipRenounced;
   }
 
@@ -93,11 +92,10 @@ contract BaseConnextFacet {
    * @notice Indicates if the ownership of the asset whitelist has
    * been renounced
    */
-  function isAssetOwnershipRenounced() public view returns (bool) {
+  function _isAssetOwnershipRenounced() internal view returns (bool) {
     return s._owner == address(0) || s._assetOwnershipRenounced;
   }
 
-  // ============ Internal functions ============
   /**
    * @notice Return true if the given domain / router is the address of a remote xApp Router
    * @param _domain The domain of the potential remote xApp Router
