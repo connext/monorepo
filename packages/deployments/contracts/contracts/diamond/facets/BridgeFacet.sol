@@ -158,10 +158,10 @@ contract BridgeFacet is BaseConnextFacet {
     // Store the relayer fee
     s.relayerFees[transferId] = _args.relayerFee;
 
-    s.nonce += 1;
-
     // emit event
-    emit XCalled(transferId, _args, eventArgs, s.nonce-1, message, msg.sender);
+    emit XCalled(transferId, _args, eventArgs, s.nonce, message, msg.sender);
+
+    s.nonce += 1;
 
     return transferId;
   }
