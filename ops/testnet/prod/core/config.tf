@@ -1,15 +1,18 @@
 locals {
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
-    { name = "ENVIRONMENT", value = var.environment }
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
-    { name = "ENVIRONMENT", value = var.environment }
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
   ]
   lighthouse_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-    { name = "ENVIRONMENT", value = var.environment }
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
   ]
   web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },

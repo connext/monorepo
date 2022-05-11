@@ -22,7 +22,7 @@ variable "stage" {
 
 variable "environment" {
   description = "env we're deploying to"
-  default     = "staging"
+  default     = "testnet"
 }
 
 variable "full_image_name_router" {

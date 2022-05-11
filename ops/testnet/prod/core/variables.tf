@@ -12,12 +12,12 @@ variable "az_count" {
 
 variable "stage" {
   description = "stage of deployment"
-  default     = "prod"
+  default     = "production"
 }
 
 variable "environment" {
   description = "env we're deploying to"
-  default     = "production"
+  default     = "testnet"
 }
 
 variable "domain" {

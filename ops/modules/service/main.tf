@@ -141,7 +141,7 @@ resource "aws_security_group" "lb" {
 
 resource "aws_route53_record" "www" {
   zone_id = var.zone_id
-  name    = var.stage != "prod" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
+  name    = var.stage != "production" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.lb.dns_name]
