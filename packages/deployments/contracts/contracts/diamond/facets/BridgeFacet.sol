@@ -584,7 +584,7 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_adopted).balanceOf(address(this));
-        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_adopted, _args.amount);
+        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_adopted, _args.amount, _args.params.to);
 
         // Validate correct amounts are transferred
         if (IERC20(_adopted).balanceOf(address(this)) != starting + sponsored) {
@@ -597,7 +597,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, _args.params.to, _args.relayerFee);
+      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.relayerFee);
     }
 
     // execute the the transaction
