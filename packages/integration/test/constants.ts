@@ -32,7 +32,7 @@ export const LOCAL_BACKEND_ENABLED = process.env.LOCAL_BACKEND_ENABLED === "true
 
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
-export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25"); // In TEST.
+export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("2.5"); // In TEST.
 export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000000"); // In TEST.
 
 // Min amounts needed for testing.
