@@ -238,11 +238,13 @@ contract StableSwapFacet is BaseConnextFacet {
     bytes32 canonicalId,
     uint256 amountIn,
     address assetIn,
-    address assetOut
-  ) external payable nonReentrant returns (uint256) {
+    address assetOut,
+    uint256 minAmountOut,
+    uint256 deadline
+  ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
     uint8 tokenIndexFrom = getTokenIndex(canonicalId, assetIn);
     uint8 tokenIndexTo = getTokenIndex(canonicalId, assetOut);
-    return s.swapStorages[canonicalId].swap(tokenIndexFrom, tokenIndexTo, amountIn, 0);
+    return s.swapStorages[canonicalId].swap(tokenIndexFrom, tokenIndexTo, amountIn, minAmountOut);
   }
 
   /**
@@ -254,7 +256,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amount of LP token user minted and received
    */
-  function addLiquidity(
+  function addStableLiquidity(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     uint256 minToMint,
@@ -274,7 +276,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amounts of tokens user received
    */
-  function removeLiquidity(
+  function removeStableLiquidity(
     bytes32 canonicalId,
     uint256 amount,
     uint256[] calldata minAmounts,
@@ -293,7 +295,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amount of chosen token user received
    */
-  function removeLiquidityOneToken(
+  function removeStableLiquidityOneToken(
     bytes32 canonicalId,
     uint256 tokenAmount,
     uint8 tokenIndex,
@@ -314,7 +316,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amount of LP tokens burned
    */
-  function removeLiquidityImbalance(
+  function removeStableLiquidityImbalance(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
@@ -342,7 +344,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param _adminFee default adminFee to be initialized with
    * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
    */
-  function initializeSwap(
+  function initializeStableSwap(
     bytes32 _canonicalId,
     IERC20[] memory _pooledTokens,
     uint8[] memory decimals,
