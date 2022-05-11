@@ -928,8 +928,6 @@ library ConnextLogic {
         _args.liquidityFeeDenominator
       );
 
-      // TODO: validate routers signature on path / transferId
-
       // store the routers address
       _routedTransfers[_transferId] = _args.executeArgs.routers;
 
@@ -943,6 +941,11 @@ library ConnextLogic {
           i++;
         }
       }
+    }
+
+    // if the local asset is specified, exit
+    if (_args.executeArgs.params.receiveLocal) {
+      return (toSwap, _args.executeArgs.local);
     }
 
     // swap out of mad* asset into adopted asset if needed

@@ -16,6 +16,7 @@ interface IConnextHandler {
    * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
    * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
    * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
+   * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
    */
   struct CallParams {
     address to;
@@ -23,6 +24,7 @@ interface IConnextHandler {
     uint32 originDomain;
     uint32 destinationDomain;
     bool forceSlow;
+    bool receiveLocal;
   }
 
   /**

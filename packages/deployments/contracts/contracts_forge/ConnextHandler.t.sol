@@ -285,6 +285,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes("0x"),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -317,6 +318,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes(""),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -333,7 +335,7 @@ contract ConnextHandlerTest is ForgeHelper {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70abb0f7e14476cfec502cf2c9e6b7dc41a9dc1003653fdfc9dfdeb265b573011b3";
+      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a747136416651ffe40851fbe308e045079987fc3f10ccfe4b215867a350d94d4e";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -361,6 +363,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes("0x"),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -393,6 +396,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes("0x"),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -423,6 +427,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes("0x"),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -459,6 +464,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes("0x"),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -490,6 +496,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes("0x"),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
@@ -529,6 +536,7 @@ contract ConnextHandlerTest is ForgeHelper {
       bytes(""),
       domain,
       destinationDomain,
+      false,
       false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
