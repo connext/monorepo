@@ -438,6 +438,7 @@ type stagingrinkeby_OriginTransfer {
   callData: stagingrinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  status: stagingrinkeby_TransferStatus
   relayerFee: BigInt
   message: stagingrinkeby_Bytes
   transactingAsset: stagingrinkeby_Bytes
@@ -511,6 +512,10 @@ input stagingrinkeby_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  status: stagingrinkeby_TransferStatus
+  status_not: stagingrinkeby_TransferStatus
+  status_in: [stagingrinkeby_TransferStatus!]
+  status_not_in: [stagingrinkeby_TransferStatus!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -610,6 +615,7 @@ enum stagingrinkeby_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  status
   relayerFee
   message
   transactingAsset
@@ -958,6 +964,7 @@ type Subscription {
 }
 
 enum stagingrinkeby_TransferStatus {
+  XCalled
   Executed
   Reconciled
   Completed
