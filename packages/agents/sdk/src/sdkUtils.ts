@@ -70,11 +70,10 @@ export class NxtpSdkUtils {
     }
   }
 
-  async getTransfersByUser(params: { user?: string; status?: XTransferStatus }): Promise<any> {
+  async getTransfersByUser(params: { userAddress: string; status?: XTransferStatus }): Promise<any> {
     const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
 
-    const { user, status } = params;
-    const userAddress = user ?? this.config.signerAddress;
+    const { userAddress, status } = params;
 
     const userIdentifier = `xcall_caller=eq.${userAddress.toLowerCase()}&`;
     const statusIdentifier = status ? `status=eq.${status}` : "";

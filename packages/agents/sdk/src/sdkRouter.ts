@@ -7,6 +7,7 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
+import { SignerAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -57,6 +58,10 @@ export class NxtpSdkRouter {
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidityForRouter.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     const { domain, amount, assetId, router } = params;
 
@@ -70,7 +75,7 @@ export class NxtpSdkRouter {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
 
@@ -82,5 +87,9 @@ export class NxtpSdkRouter {
     );
 
     return txRequest;
+  }
+
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 }

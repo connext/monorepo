@@ -30,7 +30,7 @@ export type ChainConfig = Static<typeof TChainConfig>;
 
 export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
-  signerAddress: TAddress,
+  signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   backendUrl: Type.Optional(Type.String()),
   maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
@@ -53,7 +53,7 @@ export const TValidationChainConfig = Type.Object({
 
 export const NxtpValidationSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TValidationChainConfig),
-  signerAddress: TAddress,
+  signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   backendUrl: Type.String(),
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
