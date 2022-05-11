@@ -96,7 +96,7 @@ export const sendToRelayer = async (
       gas: gas.toString(),
       relayerFee,
     });
-  } catch (e) {
+  } catch (e: unknown) {
     logger.error(
       "Failed to get gas estimate for relayer send",
       requestContext,
