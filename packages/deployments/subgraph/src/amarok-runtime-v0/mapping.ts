@@ -142,6 +142,8 @@ export function handleXCalled(event: XCalled): void {
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
+  transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
 
   // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
@@ -199,6 +201,8 @@ export function handleExecuted(event: Executed): void {
   transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
+  transfer.forceSlow = event.params.args.params.forceSlow;
+  transfer.receiveLocal = event.params.args.params.receiveLocal;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;

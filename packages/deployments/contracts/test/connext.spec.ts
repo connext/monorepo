@@ -846,6 +846,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -940,6 +942,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const transactingAssetId = constants.AddressZero;
     const amount = utils.parseEther("0.0001");
@@ -1043,6 +1047,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -1120,6 +1126,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const amount = utils.parseEther("0.001");
     let message: any;
@@ -1338,6 +1346,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      forceSlow: false,
+      receiveLocal: false,
     };
 
     beforeEach(async () => {

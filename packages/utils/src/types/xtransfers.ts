@@ -103,6 +103,8 @@ export const XTransferSchema = Type.Intersect([
       Type.Object({
         to: TAddress,
         callData: Type.String(),
+        forceSlow: Type.Boolean(),
+        receiveLocal: Type.Boolean(),
       }),
     ),
   }),
@@ -122,6 +124,8 @@ export const OriginTransferSchema = Type.Intersect([
     xparams: Type.Object({
       to: TAddress,
       callData: Type.String(),
+      forceSlow: Type.Boolean(),
+      receiveLocal: Type.Boolean(),
     }),
   }),
   XTransferCoreSchema,
@@ -142,6 +146,8 @@ export const DestinationTransferSchema = Type.Intersect([
       Type.Object({
         to: TAddress,
         callData: Type.String(),
+        forceSlow: Type.Boolean(),
+        receiveLocal: Type.Boolean(),
       }),
     ),
   }),
@@ -158,6 +164,8 @@ export const CallParamsSchema = Type.Object({
   callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
+  forceSlow: Type.Boolean(),
+  receiveLocal: Type.Boolean(),
 });
 
 export type CallParams = Static<typeof CallParamsSchema>;

@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.16
+
+- [all] Support Goerli
+- [all] Update contract interfaces
+
 ## Amarok 0.2.0-alpha.15
 
 - [router] Sanity check for bad callData + to
