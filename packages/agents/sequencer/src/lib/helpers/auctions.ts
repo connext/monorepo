@@ -1,33 +1,34 @@
-import { Bid, ExecuteArgs, XTransfer } from "@connext/nxtp-utils";
-import { constants } from "ethers";
+import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 
-export const encodeExecuteFromBids = (bids: Bid[], transfer: XTransfer, local: string): string => {
+export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, local: string): string => {
   const {
     adapters: { contracts },
   } = getContext();
   // Sanity check.
-  if (!transfer.xcall) {
+  if (!transfer.origin) {
     throw new Error("XTransfer provided did not have XCall present!");
   }
 
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
     params: {
-      to: transfer.to,
-      callData: transfer.callData,
       originDomain: transfer.originDomain,
       destinationDomain: transfer.destinationDomain,
-      callback: transfer.callback ?? constants.AddressZero,
-      callbackFee: transfer.callbackFee ?? "0",
+      to: transfer.xparams.to,
+      callData: transfer.xparams.callData,
+      callback: transfer.xparams.callback ?? contracts.AddressZero,
+      callbackFee: transfer.xparams.callbackFee ?? "0",
+      forceSlow: transfer.xparams.forceSlow,
+      receiveLocal: transfer.xparams.receiveLocal,
     },
     local,
     routers: bids.map((b) => b.router),
     routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-    amount: transfer.xcall.localAmount,
+    amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
-    originSender: transfer.xcall.caller,
+    originSender: transfer.origin.xcall.caller,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);
 };
@@ -52,9 +53,9 @@ export const getDestinationLocalAsset = async (
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
-  const canonicalId = sendingDomainAsset!.canonicalId as string;
+  const canonicalId = sendingDomainAsset!.canonicalId;
 
-  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(Number(_destinationDomain), canonicalId);
+  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 
   const localAddress = destinationDomainAsset!.local;
   return localAddress;

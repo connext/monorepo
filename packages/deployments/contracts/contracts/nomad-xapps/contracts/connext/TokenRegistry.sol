@@ -142,7 +142,7 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
     uint32 _domain,
     bytes32 _id,
     address _custom
-  ) external override {
+  ) external override onlyOwner {
     // update mappings with custom token
     _setRepresentationToCanonical(_domain, _id, _custom);
     _setCanonicalToRepresentation(_domain, _id, _custom);

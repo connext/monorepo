@@ -282,6 +282,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -315,6 +317,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -360,6 +364,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -393,6 +399,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -424,6 +432,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -461,6 +471,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -493,6 +505,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -649,6 +663,8 @@ contract ConnextHandlerTest is ForgeHelper {
       destinationDomain,
       address(0),
       0
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,

@@ -1,9 +1,3 @@
-variable "subnet_group_name" {
-  description = "Name of the subnet group to be used for the cache cluster. Changing this value will re-create the resource."
-  type        = string
-}
-
-
 variable "sg_id" {
   type        = string
   description = "security group id of worker node sg"
@@ -24,4 +18,9 @@ variable "environment" {
 
 variable "family" {
   default = "sequencer"
+}
+
+variable "cache_subnet_group_subnet_ids" {
+  description = "subnet group ids"
+  type = list(string)
 }

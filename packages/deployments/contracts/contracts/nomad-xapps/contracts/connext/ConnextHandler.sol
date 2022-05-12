@@ -340,6 +340,10 @@ contract ConnextHandler is
 
   receive() external payable {}
 
+  function getExecutor() external view override returns (address) {
+    return address(executor);
+  }
+
   /**
    * @notice This is used by anyone to increase a router's available liquidity for a given asset.
    * @dev The liquidity will be held in the local asset, which is the representation if you

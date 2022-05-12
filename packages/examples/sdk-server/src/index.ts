@@ -3,9 +3,9 @@ import * as fs from "fs";
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import { RemoveLiquidityResponseSchema, XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
 import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdk } from "@connext/nxtp-sdk";
+import { NxtpSdkConfig, NxtpSdkBase, create } from "@connext/nxtp-sdk";
 
-let sdkInstance: NxtpSdk;
+let sdkInstance: NxtpSdkBase;
 
 export const sdkServer = () =>
   new Promise<FastifyInstance>(() => {
@@ -41,7 +41,7 @@ export const sdkServer = () =>
       }
       // return configFile;
 
-      const privateKey: string = configJson.mnemonic;
+      const privateKey: string = configJson.privateKey;
       const signer = privateKey ? new ethers.Wallet(privateKey) : ethers.Wallet.createRandom();
 
       const signerAddress = await signer.getAddress();
@@ -52,7 +52,8 @@ export const sdkServer = () =>
         signerAddress: signerAddress,
       };
 
-      sdkInstance = await NxtpSdk.create(nxtpConfig, signer);
+      const { nxtpSdkBase } = await create(nxtpConfig);
+      sdkInstance = nxtpSdkBase;
     });
 
     server.get("/ping", (_, res) => api.get.ping(res));

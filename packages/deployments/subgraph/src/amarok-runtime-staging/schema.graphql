@@ -29,60 +29,90 @@ enum TransferStatus {
   XCalled
   Executed
   Reconciled
+  Completed
 }
 
-# Transfer represents a transfer
-type Transfer @entity {
+type OriginTransfer @entity {
   id: ID!
+
   # Meta
+  chainId: BigInt
+  transferId: Bytes
+  nonce: BigInt
+
+  # CallParams
+  to: Bytes
+  callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  chainId: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
+
+  # Event Data
   status: TransferStatus
-
-  # Transfer Data
-  to: Bytes
-  transferId: Bytes
-  callData: Bytes
-  idx: BigInt
-  nonce: BigInt
-  routers: [Router!]
   relayerFee: BigInt
+  message: Bytes
 
-  # XCalled
-  xcalledTransactingAsset: Bytes
-  xcalledLocalAsset: Bytes
-  xcalledTransactingAmount: BigInt
-  xcalledLocalAmount: BigInt
-  xcalledCaller: Bytes
+  # Asset
+  # The asset that gets sent in.
+  transactingAsset: Bytes
+  # Amount of asset sent in.
+  transactingAmount: BigInt
+  # Nomad asset being bridged.
+  bridgedAsset: Bytes
+  # Amount of bridged nomad asset.
+  bridgedAmount: BigInt
 
   # XCalled Transaction
-  xcalledTransactionHash: Bytes
-  xcalledTimestamp: BigInt
-  xcalledGasPrice: BigInt
-  xcalledGasLimit: BigInt
-  xcalledBlockNumber: BigInt
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
 
-  # Executed
-  executedCaller: Bytes
-  executedTransactingAmount: BigInt
-  executedLocalAmount: BigInt
-  executedTransactingAsset: Bytes
-  executedLocalAsset: Bytes
+type DestinationTransfer @entity {
+  id: ID!
+
+  # Meta
+  chainId: BigInt
+  transferId: Bytes
+  nonce: BigInt
+
+  # CallParams
+  to: Bytes
+  callData: Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
+
+  # Event Data
+  status: TransferStatus
+  routers: [Router!]
+  originSender: Bytes
+
+  # Asset
+  # The asset that gets delivered.
+  transactingAsset: Bytes
+  # Amount of delivered asset.
+  transactingAmount: BigInt
+  # The local version of the bridged asset.
+  localAsset: Bytes
+  # The amount of the local asset.
+  localAmount: BigInt
 
   # Executed Transaction
+  executedCaller: Bytes
   executedTransactionHash: Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
 
-  # Reconciled
-  reconciledCaller: Bytes
-  reconciledLocalAsset: Bytes
-  reconciledLocalAmount: BigInt
-
   # Reconciled Transaction
+  reconciledCaller: Bytes
   reconciledTransactionHash: Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt

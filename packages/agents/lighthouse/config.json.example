@@ -1,0 +1,12 @@
+{
+  "logLevel": "debug",
+  "chains": {
+    "1111": {
+      "providers": ["https://rinkeby.infura.io/v3/...", "https://rpc.ankr.com/eth_rinkeby"]
+    },
+    "2221": {
+      "providers": ["https://kovan.infura.io/v3/..."]
+    }
+  },
+  "environment": "production"
+}

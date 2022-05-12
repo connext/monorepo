@@ -45,6 +45,7 @@ library ConnextLogic {
   error ConnextLogic__xcall_notSupportedAsset();
   error ConnextLogic__xcall_relayerFeeIsZero();
   error ConnextLogic__xcall_nonZeroCallbackFeeForNonContractCallback();
+  error ConnextLogic__execute_notReconciled();
   error ConnextLogic__execute_unapprovedRelayer();
   error ConnextLogic__execute_maxRoutersExceeded();
   error ConnextLogic__execute_alreadyExecuted();
@@ -544,7 +545,9 @@ library ConnextLogic {
       _routerInfo.approvedRouters
     );
 
-    // execute router liquidity when this is a fast transfer
+    // if this is a fast transfer, debit router liquidity. in both the
+    // fast and slow cases the asset should be swapped into the adopted
+    // asset
     (uint256 amount, address adopted) = _handleExecuteLiquidity(
       transferId,
       !reconciled,
@@ -659,6 +662,10 @@ library ConnextLogic {
     // get transfer id
     bytes32 transferId = _getTransferId(_args);
 
+    // get reconciled record
+    bool reconciled = _reconciledTransfers[transferId];
+    if (_args.executeArgs.params.forceSlow && !reconciled) revert ConnextLogic__execute_notReconciled();
+
     // get the payload the router should have signed
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
@@ -679,9 +686,6 @@ library ConnextLogic {
     if (_transferRelayer[transferId] != address(0)) {
       revert ConnextLogic__execute_alreadyExecuted();
     }
-
-    // get reconciled record
-    bool reconciled = _reconciledTransfers[transferId];
 
     return (transferId, reconciled);
   }
@@ -949,8 +953,6 @@ library ConnextLogic {
         _args.liquidityFeeDenominator
       );
 
-      // TODO: validate routers signature on path / transferId
-
       // store the routers address
       _routedTransfers[_transferId] = _args.executeArgs.routers;
 
@@ -964,6 +966,11 @@ library ConnextLogic {
           i++;
         }
       }
+    }
+
+    // if the local asset is specified, exit
+    if (_args.executeArgs.params.receiveLocal) {
+      return (toSwap, _args.executeArgs.local);
     }
 
     // swap out of mad* asset into adopted asset if needed
