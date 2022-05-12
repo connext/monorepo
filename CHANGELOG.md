@@ -2,6 +2,12 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.15
+
+- [router] Sanity check for bad callData + to
+- [lighthouse] multiple fixes
+- [sdk] fix default backend staging url
+
 ## Amarok 0.2.0-alpha.14
 
 - [sdk] Optional signer address
