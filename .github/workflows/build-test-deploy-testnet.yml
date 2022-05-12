@@ -142,6 +142,90 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
+  build-and-push-poller-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/poller
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/poller/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
+  build-and-push-lighthouse-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/lighthouse
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/lighthouse/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
   build-and-push-web3signer:
     env:
       REGISTRY: ghcr.io
@@ -173,7 +257,13 @@ jobs:
 
   smoke-tests:
     runs-on: ubuntu-latest
-    needs: [build-and-push-router-image, build-and-push-sequencer-image, build-and-push-web3signer]
+    needs: [
+      build-and-push-router-image,
+      build-and-push-sequencer-image,
+      build-and-push-web3signer,
+      build-and-push-poller-image,
+      build-and-push-lighthouse-image
+    ]
     env:
       ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-image.outputs.json).tags[0] }}
       SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
@@ -191,6 +281,8 @@ jobs:
     outputs:
       router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
       sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
+      poller-tags: ${{ needs.build-and-push-poller-image.outputs.json }}
+      lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
 
   terraform-infra:
     if: github.ref == 'refs/heads/amarok' || startsWith(github.ref, 'refs/tags/v')
@@ -230,12 +322,11 @@ jobs:
         run: |
           terraform apply -auto-approve
 
-  terraform-services-staging:
+  terraform-services-backend-staging:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_router: ${{ fromJSON(needs.smoke-tests.outputs.router-tags).tags[0] }}
-      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_poller: ${{ fromJSON(needs.smoke-tests.outputs.poller-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -266,23 +357,83 @@ jobs:
 
       - name: Decrypt Testnet Secrets
         id: decrypt
-        run: sops -d ops/env/testnet/secrets.staging.json > ops/testnet/staging/tfvars.json
+        run: sops -d ops/env/testnet/backend/secrets.staging.json > ops/testnet/staging/backend/tfvars.json
 
       - name: Terraform Init
         id: init
-        working-directory: ./ops/testnet/staging
+        working-directory: ./ops/testnet/staging/backend
         run: terraform init
 
       - name: Terraform Plan
         id: plan
-        working-directory: ./ops/testnet/staging
+        working-directory: ./ops/testnet/staging/backend
         run: |
           terraform plan -var-file=tfvars.json
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
-        working-directory: ./ops/testnet/staging
+        working-directory: ./ops/testnet/staging/backend
+        run: |
+          terraform apply -var-file=tfvars.json -auto-approve
+
+    outputs:
+      poller-tags: ${{ needs.smoke-tests.outputs.poller-tags }}
+
+  terraform-services-core-staging:
+    needs: [smoke-tests, terraform-infra]
+    env:
+      AWS_PROFILE: aws-deployer-connext
+      TF_VAR_full_image_name_router: ${{ fromJSON(needs.smoke-tests.outputs.router-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: "3.7.2"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: Fooji/create-aws-profile-action@v1
+        with:
+          profile: aws-deployer-connext
+          region: us-east-1
+          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Decrypt Testnet Secrets
+        id: decrypt
+        run: sops -d ops/env/testnet/core/secrets.staging.json > ops/testnet/staging/core/tfvars.json
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops/testnet/staging/core
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops/testnet/staging/core
+        run: |
+          terraform plan -var-file=tfvars.json
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops/testnet/staging/core
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
 
@@ -291,12 +442,11 @@ jobs:
       sequencer-tags: ${{ needs.smoke-tests.outputs.sequencer-tags }}
 
   e2e-tests:
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    needs: [terraform-services-staging]
+    needs: [terraform-services-core-staging, terraform-services-backend-staging]
     env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.router-tags).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-staging.outputs.sequencer-tags).tags[0] }}
+      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging.outputs.router-tags).tags[0] }}
+      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging.outputs.sequencer-tags).tags[0] }}
 
     steps:
       - name: Checkout repository
@@ -306,15 +456,17 @@ jobs:
         run: echo "to be implemented..."
 
     outputs:
-      router-tags: ${{ needs.terraform-services-staging.outputs.router-tags }}
-      sequencer-tags: ${{ needs.terraform-services-staging.outputs.sequencer-tags }}
+      router-tags: ${{ needs.terraform-services-core-staging.outputs.router-tags }}
+      sequencer-tags: ${{ needs.terraform-services-core-staging.outputs.sequencer-tags }}
+      poller-tags: ${{ needs.terraform-services-backend-staging.outputs.poller-tags }}
 
-  terraform-services-prod:
+  terraform-services-core-prod:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router: ${{ fromJSON(needs.e2e-tests.outputs.router-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
+
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -343,22 +495,77 @@ jobs:
 
       - name: Decrypt Testnet Production Secrets
         id: decrypt
-        run: sops -d ops/env/testnet/secrets.prod.json > ops/testnet/prod/tfvars.json
+        run: sops -d ops/env/testnet/core/secrets.prod.json > ops/testnet/prod/core/tfvars.json
 
       - name: Terraform Init
         id: init
-        working-directory: ./ops/testnet/prod
+        working-directory: ./ops/testnet/prod/core
         run: terraform init
 
       - name: Terraform Plan
         id: plan
-        working-directory: ./ops/testnet/prod
+        working-directory: ./ops/testnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
-        working-directory: ./ops/testnet/prod
+        working-directory: ./ops/testnet/prod/core
+        run: |
+          terraform apply -var-file=tfvars.json -auto-approve
+
+  terraform-services-backend-prod:
+    needs: [e2e-tests]
+    env:
+      AWS_PROFILE: aws-deployer-connext
+      TF_VAR_full_image_name_poller: ${{ fromJSON(needs.e2e-tests.outputs.poller-tags).tags[0] }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: "3.7.2"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: Fooji/create-aws-profile-action@v1
+        with:
+          profile: aws-deployer-connext
+          region: us-east-1
+          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Decrypt Testnet Secrets
+        id: decrypt
+        run: sops -d ops/env/testnet/backend/secrets.prod.json > ops/testnet/prod/backend/tfvars.json
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops/testnet/prod/backend
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops/testnet/prod/backend
+        run: |
+          terraform plan -var-file=tfvars.json
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops/testnet/prod/backend
         run: |
           terraform apply -var-file=tfvars.json -auto-approve

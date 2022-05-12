@@ -4,6 +4,10 @@ variable "az_count" {
 
 variable "cidr_block" {}
 
+variable "domain" {
+  description = "domain of deployment"
+}
+
 variable "stage" {
   description = "stage of deployment"
 }

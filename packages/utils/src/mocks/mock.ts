@@ -155,7 +155,7 @@ export const mock: any = {
         xparams: !isReconciledOnly
           ? {
               to: user,
-              callData: "0x0",
+              callData: "0x",
             }
           : undefined,
 

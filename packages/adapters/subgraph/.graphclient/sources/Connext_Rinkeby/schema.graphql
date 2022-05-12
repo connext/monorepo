@@ -438,6 +438,7 @@ type rinkeby_OriginTransfer {
   callData: rinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  status: rinkeby_TransferStatus
   relayerFee: BigInt
   message: rinkeby_Bytes
   transactingAsset: rinkeby_Bytes
@@ -511,6 +512,10 @@ input rinkeby_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  status: rinkeby_TransferStatus
+  status_not: rinkeby_TransferStatus
+  status_in: [rinkeby_TransferStatus!]
+  status_not_in: [rinkeby_TransferStatus!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -610,6 +615,7 @@ enum rinkeby_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  status
   relayerFee
   message
   transactingAsset
@@ -958,6 +964,7 @@ type Subscription {
 }
 
 enum rinkeby_TransferStatus {
+  XCalled
   Executed
   Reconciled
   Completed

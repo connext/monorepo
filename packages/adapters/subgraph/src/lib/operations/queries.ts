@@ -106,6 +106,29 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
     `;
 };
 
+export const getAssetBalancesAllRoutersQuery = (prefix: string): string => {
+  const queryString = `
+    ${prefix}_routers {
+      id
+      assetBalances {
+        amount
+        asset {
+          local
+          adoptedAsset
+          canonicalId
+          canonicalDomain
+          blockNumber
+        }
+      }
+    }`;
+
+  return gql`
+      query getAssetBalancesAllRoutersQuery {
+        ${queryString}
+      }
+    `;
+};
+
 export const getRouterQuery = (prefix: string, router: string): string => {
   const queryString = `
     ${prefix}_router(id: "${router}") {

@@ -1,0 +1,25 @@
+# @postgrestUrl = http://localhost:3000
+@postgrestUrl = https://postgrest.testnet.connext.ninja
+
+# just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
+
+### GET ALL TRANSFERS
+GET {{postgrestUrl}}/transfers
+
+### GET ALL TRANSFERS FOR SPECIFIC DOMAINS
+GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination_domain.in.("1111","2221"))
+
+### GET TRANSFER BY ID
+GET {{postgrestUrl}}/transfers?transfer_id=eq.0xc2fd35249b1d70229407c108e5ecc846804951ec2f553b8f2f9a3bb4863a0a52
+
+### GET TRANSFERS BY STATUS
+GET {{postgrestUrl}}/transfers?status=eq.Reconciled&
+
+### GET TRANSFERS BY USER
+GET {{postgrestUrl}}/transfers?xcall_caller=eq.0x75e4dd0587663fce5b2d9af7fbed3ac54342d3db
+
+### GET XCALLED TRANSFERS BY USER
+GET {{postgrestUrl}}/transfers?status=eq.XCalled&xcall_caller=eq.0x30c9e1d6b14283c645f6bb15abb590345b63ab6e
+
+### GET ROUTERS
+GET {{postgrestUrl}}/routers_with_balances

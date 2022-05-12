@@ -1,9 +1,10 @@
 import { utils, Wallet } from "ethers";
+import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
+import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
-import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
-import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
+import { BackendConfig } from "@connext/backend-poller/src/config";
 
 export enum Environment {
   Staging = "staging",
@@ -21,14 +22,17 @@ const DEFAULT_ROUTE = ["2221", "1111"]; // Kovan => Rinkeby
 export const CANONICAL_ASSET = process.env.CANONICAL_ASSET;
 
 // Environment setting.
-export const ENVIRONMENT = process.env.ENV || process.env.ENVIRONMENT || Environment.Staging;
+export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
+  process.env.ENVIRONMENT ||
+  Environment.Staging) as "staging" | "production";
 
-// Whether or not to run the relayer agent locally.
+// Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
+export const LOCAL_BACKEND_ENABLED = process.env.LOCAL_BACKEND_ENABLED === "true";
 
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
-export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("25"); // In TEST.
+export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("2.5"); // In TEST.
 export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000000"); // In TEST.
 
 // Min amounts needed for testing.
@@ -80,12 +84,7 @@ export type TestAgents = {
 
 /// MARK - General domain info setup.
 export const CHAIN_DATA: Promise<Map<string, ChainData>> = (async (): Promise<Map<string, ChainData>> => {
-  /// MARK - Set up chain data for origin and destination.
-  const chainData = await getChainData();
-  if (!chainData) {
-    throw new Error("Could not get chain data");
-  }
-  return chainData;
+  return await getChainData();
 })();
 
 export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> = (async (): Promise<{
@@ -104,8 +103,8 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     destination = DEFAULT_ROUTE[1];
   }
 
+  /// MARK - Set up chain data for origin and destination.
   const chainData = await CHAIN_DATA;
-
   const originChainData = chainData.get(origin);
   const destinationChainData = chainData.get(destination);
 
@@ -335,5 +334,17 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
     },
     network: "testnet",
     environment: ENVIRONMENT.toString() as "staging" | "production",
+  };
+})();
+
+/// MARK - BACKEND CONFIG
+export const BACKEND_CONFIG: Promise<BackendConfig> = (async (): Promise<BackendConfig> => {
+  return {
+    database: {
+      url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+    },
+    logLevel: "debug",
+    pollInterval: 4_000,
+    environment: "staging",
   };
 })();

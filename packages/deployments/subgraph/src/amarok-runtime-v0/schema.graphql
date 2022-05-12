@@ -25,8 +25,8 @@ type Router @entity {
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
 }
 
-# NOTE: Should be DestinationTransferStatus; origin transfer requires no status.
 enum TransferStatus {
+  XCalled
   Executed
   Reconciled
   Completed
@@ -47,6 +47,7 @@ type OriginTransfer @entity {
   destinationDomain: BigInt
 
   # Event Data
+  status: TransferStatus
   relayerFee: BigInt
   message: Bytes
 
