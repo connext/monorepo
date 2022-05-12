@@ -12,10 +12,10 @@ name: Build and Push Docker Image - Router
 on:
   push:
     branches:
-      - main
+      - legacy
   pull_request:
     branches:
-      - main
+      - legacy
   create:
     tag:
       - "v*"
