@@ -51,6 +51,11 @@
   },
   {
     "inputs": [],
+    "name": "ConnextLogic__execute_notReconciled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ConnextLogic__execute_notSupportedRouter",
     "type": "error"
   },
@@ -249,6 +254,16 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               }
             ],
             "internalType": "struct IConnextHandler.CallParams",
@@ -606,6 +621,16 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               }
             ],
             "internalType": "struct IConnextHandler.CallParams",
