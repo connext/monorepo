@@ -158,6 +158,8 @@ export const CallParamsSchema = Type.Object({
   callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
+  forceSlow: Type.Boolean(),
+  receiveLocal: Type.Boolean(),
 });
 
 export type CallParams = Static<typeof CallParamsSchema>;
