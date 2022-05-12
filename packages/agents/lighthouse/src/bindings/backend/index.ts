@@ -21,35 +21,41 @@ export const bindBackend = async (_pollInterval: number) => {
 };
 
 export const pollBackend = async () => {
+  const { requestContext, methodContext } = createLoggingContext(pollBackend.name);
+  const { logger } = getContext();
   const { execute } = getOperations();
 
   const reconciledTransactions = await getReconciledTransactions();
 
-  for (const transaction of reconciledTransactions) {
+  reconciledTransactions.map(async (transaction: any) => {
     // console.log(transaction);
 
-    const executeParams: ExecuteArgs = {
-      params: {
-        originDomain: transaction.origin_domain,
-        destinationDomain: transaction.destination_domain,
-        to: transaction.to,
-        callData: transaction.call_data,
-      },
-      local: transaction.destination_local_asset,
-      routers: [constants.AddressZero],
-      routerSignatures: ["0x"],
-      amount: transaction.destination_local_amount.toString(),
-      nonce: transaction.nonce,
-      originSender: transaction.xcall_caller,
-    };
+    try {
+      const executeParams: ExecuteArgs = {
+        params: {
+          originDomain: transaction.origin_domain,
+          destinationDomain: transaction.destination_domain,
+          to: transaction.to,
+          callData: transaction.call_data,
+        },
+        local: transaction.destination_local_asset,
+        routers: [constants.AddressZero],
+        routerSignatures: ["0x"],
+        amount: transaction.destination_local_amount.toString(),
+        nonce: transaction.nonce,
+        originSender: transaction.xcall_caller,
+      };
 
-    const transferId = transaction.trasfer_id as string;
-    execute(executeParams, transferId);
-  }
+      const transferId = transaction.trasfer_id as string;
+      await execute(executeParams, transferId);
+    } catch (error: any) {
+      logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), { transaction });
+    }
+  });
 };
 
 export const getReconciledTransactions = async (): Promise<any> => {
-  const { requestContext, methodContext } = createLoggingContext("getReconciledTransactions");
+  const { requestContext, methodContext } = createLoggingContext(getReconciledTransactions.name);
   const {
     // adapters: {},
     logger,
